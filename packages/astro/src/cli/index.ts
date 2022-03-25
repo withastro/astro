@@ -103,7 +103,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	const supportedCommands = new Set(['add', 'dev', 'build', 'preview', 'check']);
 	if (supportedCommands.has(cmd)) {
-		return cmd as 'add' | 'dev' | 'build' | 'preview' | 'check';
+		return cmd as CLICommand;
 	}
 	return 'help';
 }
@@ -139,13 +139,13 @@ export async function cli(args: string[]) {
 	}
 
 	if (cmd === 'add') {
-			try {
-				const packages = flags._.slice(3) as string[];
-				await add(packages, { cwd: projectRoot, flags, logging });
-				process.exit(0);
-			} catch (err) {
-				throwAndExit(err);
-			}
+		try {
+			const packages = flags._.slice(3) as string[];
+			await add(packages, { cwd: projectRoot, flags, logging });
+			process.exit(0);
+		} catch (err) {
+			throwAndExit(err);
+		}
 	}
 
 	let config: AstroConfig;

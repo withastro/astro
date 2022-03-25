@@ -91,21 +91,30 @@ export function success(message: string, tip?: string) {
 	const badge = bgGreen(black(` success `));
 	const headline = green(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
 }
 
 export function failure(message: string, tip?: string) {
 	const badge = bgRed(black(` error `));
 	const headline = red(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
 }
 
 export function cancelled(message: string, tip?: string) {
 	const badge = bgYellow(black(` cancelled `));
 	const headline = yellow(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
 }
 
 /** Display port in use */

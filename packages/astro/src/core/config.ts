@@ -267,7 +267,7 @@ interface LoadConfigOptions {
 }
 
 /** Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file */
-export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL|undefined> {
+export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL | undefined> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;

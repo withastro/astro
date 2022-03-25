@@ -37,43 +37,46 @@ const DEFAULT_FRAMEWORKS = [
 	{ value: 'svelte', title: 'Svelte' },
 	{ value: 'solid-js', title: 'Solid' },
 	{ value: 'lit', title: 'Lit' },
-]
+];
 const DEFAULT_ADDONS = [
 	{ value: 'tailwind', title: 'Tailwind' },
 	{ value: 'turbolinks', title: 'Turbolinks' },
 	{ value: 'partytown', title: 'Partytown' },
 	{ value: 'sitemap', title: 'Sitemap' },
-]
+];
 
 const ALIASES = new Map([
 	['solid', 'solid-js'],
 	['tailwindcss', 'tailwind'],
-])
-const INSIGNIFICANT_CHARS = new Set([',', ']', '}'])
+]);
+const INSIGNIFICANT_CHARS = new Set([',', ']', '}']);
 
 const DEFAULT_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
 
 export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	if (names.length === 0) {
-		const response = await prompts([{
-      type: 'multiselect',
-      name: 'frameworks',
-      message: 'What frameworks would you like to enable?',
-			instructions: '\n  Space to select. Return to submit',
-      choices: DEFAULT_FRAMEWORKS,
-    }, {
-      type: 'multiselect',
-      name: 'addons',
-      message: 'What additional integrations would you like to enable?',
-			instructions: '\n  Space to select. Return to submit',
-      choices: DEFAULT_ADDONS,
-    }]);
+		const response = await prompts([
+			{
+				type: 'multiselect',
+				name: 'frameworks',
+				message: 'What frameworks would you like to enable?',
+				instructions: '\n  Space to select. Return to submit',
+				choices: DEFAULT_FRAMEWORKS,
+			},
+			{
+				type: 'multiselect',
+				name: 'addons',
+				message: 'What additional integrations would you like to enable?',
+				instructions: '\n  Space to select. Return to submit',
+				choices: DEFAULT_ADDONS,
+			},
+		]);
 
 		if (!response.frameworks && !response.addons) {
 			info(logging, null, msg.cancelled(`Integrations skipped.`, `You can always run ${cyan('astro add')} later!`));
 			return;
 		}
-		const selected = [(response.frameworks ?? []), (response.addons ?? [])].flat(1);
+		const selected = [response.frameworks ?? [], response.addons ?? []].flat(1);
 		if (selected.length === 0) {
 			error(logging, null, `\n${red('No integrations specified!')}\n${dim('Try running')} astro add again.`);
 			return;
@@ -82,7 +85,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	}
 
 	// Some packages might have a common alias! We normalize those here.
-	names = names.map(name => ALIASES.has(name) ? ALIASES.get(name)! : name);
+	names = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
 
 	const root = cwd ? path.resolve(cwd) : process.cwd();
 	let configURL = await resolveConfigURL({ cwd, flags });
@@ -192,7 +195,7 @@ const toIdent = (name: string) => {
 		return name.split('-')[0];
 	}
 	return name;
-}
+};
 
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	const integrationId = t.identifier(toIdent(integration.id));
@@ -259,7 +262,11 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 
 	let changes = [];
 	for (const change of diffWords(input, output)) {
-		let lines = change.value.trim().split('\n').slice(0, change.count).filter(x => x && !INSIGNIFICANT_CHARS.has(x));
+		let lines = change.value
+			.trim()
+			.split('\n')
+			.slice(0, change.count)
+			.filter((x) => x && !INSIGNIFICANT_CHARS.has(x));
 		if (lines.length === 0) continue;
 		if (change.added) {
 			if (INSIGNIFICANT_CHARS.has(change.value.trim())) continue;
@@ -268,14 +275,14 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 	}
 	let diffed = output;
 	for (let newContent of changes) {
-		const coloredOutput = newContent.split('\n').map(ln => ln ? green(ln) : '').join('\n');
+		const coloredOutput = newContent
+			.split('\n')
+			.map((ln) => (ln ? green(ln) : ''))
+			.join('\n');
 		diffed = diffed.replace(newContent, coloredOutput);
 	}
 
-	const message = `\n${boxen(
-		diffed,
-		{ margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() }
-	)}\n`;
+	const message = `\n${boxen(diffed, { margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() })}\n`;
 
 	info(logging, null, `\n  ${magenta('Astro will update your configuration with these changes...')}\n${message}`);
 
@@ -333,9 +340,13 @@ async function tryToInstallIntegrations({ integrations, cwd, logging }: { integr
 		info(logging, null);
 		return UpdateResult.none;
 	} else {
-		const coloredOutput = `${cyan(`${installCommand.pm} ${installCommand.command} ${installCommand.flags.join(' ')}`)} ${installCommand.dependencies}`
+		const coloredOutput = `${cyan(`${installCommand.pm} ${installCommand.command} ${installCommand.flags.join(' ')}`)} ${installCommand.dependencies}`;
 		const message = `\n${boxen(coloredOutput, { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
-		info(logging, null, `\n  ${magenta('Astro will run the following command to install...')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`);
+		info(
+			logging,
+			null,
+			`\n  ${magenta('Astro will run the following command to install...')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`
+		);
 		const response = await prompts({
 			type: 'confirm',
 			name: 'installDependencies',
