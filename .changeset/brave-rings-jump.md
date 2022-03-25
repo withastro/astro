@@ -1,9 +1,9 @@
 ---
-'astro': patch
+'astro': minor
 ---
 
 Introduce new `astro add` command to automatically configure integrations.
 
 ```shell
-astro add preact tailwind
+npx astro add
 ```
