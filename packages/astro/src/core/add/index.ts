@@ -165,10 +165,17 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 					}
 				}
 				if (!alreadyConfigured) {
-					await fs.writeFile(fileURLToPath(new URL('./tailwind.config.cjs', configURL)), CONSTS.TAILWIND_CONFIG_STUB);
+					info(logging, null, `\n  ${magenta(`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`)}\n`);
+					if (await askToContinue({ flags })) {
+						await fs.writeFile(fileURLToPath(new URL('./tailwind.config.cjs', configURL)), CONSTS.TAILWIND_CONFIG_STUB, { encoding: 'utf-8' });
+						debug('add', `Generated default ./tailwind.config.cjs file`);
+					}
+				} else {
+					debug('add', `Using existing Tailwind configuration`);
 				}
 			}
-			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project`));
+			const list = integrations.map(integration => `  - ${integration.packageName}`).join('\n')
+			info(logging, null, msg.success(`Added the following integration${len === 1 ? '' : 's'} to your project:\n${list}`));
 			return;
 		}
 		case UpdateResult.cancelled: {
