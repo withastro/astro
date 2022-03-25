@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^0.13.1",
-    "@astrojs/language-server": "^0.8.10",
+    "@astrojs/language-server": "^0.13.2",
     "@astrojs/markdown-remark": "^0.7.0",
     "@astrojs/prism": "0.4.1",
     "@astrojs/webapi": "^0.11.0",
@@ -94,6 +94,7 @@
     "es-module-lexer": "^0.10.4",
     "esbuild": "0.14.25",
     "estree-walker": "^3.0.1",
+    "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
     "fast-xml-parser": "^4.0.7",
     "html-entities": "^2.3.2",
@@ -153,7 +154,6 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.10",
-    "execa": "^6.1.0",
     "mocha": "^9.2.2",
     "sass": "^1.49.9"
   },
