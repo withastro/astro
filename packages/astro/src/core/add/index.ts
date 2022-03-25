@@ -193,7 +193,11 @@ const enum UpdateResult {
 
 async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	const output = await generate(ast);
+	let output = await generate(ast);
+	const comment = '// https://astro.build/config';
+	const defaultExport = 'export default defineConfig';
+	output = output.replace(` ${comment}`, '');
+	output = output.replace(`${defaultExport}`, `\n${comment}\n${defaultExport}`);
 
 	if (input === output) {
 		return UpdateResult.none;

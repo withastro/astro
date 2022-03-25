@@ -28,8 +28,7 @@ export function ensureImport(root: t.File, importDeclaration: t.ImportDeclaratio
 				.filter((statement) => statement.isImportDeclaration())
 				.pop();
 
-			// It's inserted before because of formatting issues
-			if (latestImport) latestImport.insertBefore(declaration);
+			if (latestImport) latestImport.insertAfter(declaration);
 			else path.unshiftContainer('body', declaration);
 		},
 	});
