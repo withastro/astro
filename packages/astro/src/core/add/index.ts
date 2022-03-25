@@ -1,7 +1,7 @@
 import type yargs from 'yargs-parser';
 import path from 'path';
 import fs from 'fs/promises';
-import { execaCommand } from 'execa';
+import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { diffWords } from 'diff';
 import boxen from 'boxen';
@@ -299,7 +299,7 @@ interface InstallCommand {
 	pm: string;
 	command: string;
 	flags: string[];
-	dependencies: string;
+	dependencies: string[];
 }
 async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd() }: { integrations: IntegrationInfo[]; cwd?: string }): Promise<InstallCommand | null> {
 	const pm = await preferredPM(cwd);
@@ -311,8 +311,7 @@ async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd()
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
 		.map(([name, version]) => (version === null ? name : `${name}@${version}`))
-		.sort()
-		.join(' ');
+		.sort();
 
 	switch (pm.name) {
 		case 'npm':
@@ -343,7 +342,7 @@ async function tryToInstallIntegrations({
 		info(logging, null);
 		return UpdateResult.none;
 	} else {
-		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies)}`
+		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
 		info(
 			logging,
@@ -354,7 +353,7 @@ async function tryToInstallIntegrations({
 		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
-				await execaCommand(`${installCommand.pm} ${installCommand.command} ${installCommand.flags} ${installCommand.dependencies}`, { cwd });
+				await execa(installCommand.pm, [installCommand.command, ...installCommand.flags, ...installCommand.dependencies], { cwd });
 				spinner.succeed();
 				return UpdateResult.updated;
 			} catch (err) {
