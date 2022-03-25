@@ -8,10 +8,10 @@ import yargs from 'yargs-parser';
 import { z } from 'zod';
 import { defaultLogDestination } from '../core/logger.js';
 import build from '../core/build/index.js';
+import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
-import { add } from './add.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
 import { pad } from '../core/dev/util.js';
 
