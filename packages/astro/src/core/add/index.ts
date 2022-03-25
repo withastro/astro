@@ -113,7 +113,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		}
 	} catch (err) {
 		debug('add', 'Error parsing/modifying astro config: ', err);
-		return bail(err as Error);
+		throw createPrettyError(err as Error);
 	}
 
 	let configResult: UpdateResult | undefined;
@@ -124,7 +124,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
-			return bail(err as Error);
+			throw  createPrettyError(err as Error);
 		}
 	}
 
@@ -176,8 +176,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			return;
 		}
 		case UpdateResult.failure: {
-			bail(new Error(`Unable to install dependencies`));
-			return;
+			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
 	}
 }
@@ -199,13 +198,13 @@ const toIdent = (name: string) => {
 	return name;
 };
 
-function bail(err: Error) {
+function createPrettyError(err: Error) {
 		err.message = `Astro could not update your astro.config.js file safely.
 Reason: ${err.message}
 
 You will need to add these integration(s) manually.
 Documentation: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/`
-		throw err;
+		return err;
 }
 
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
