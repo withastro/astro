@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 0.0.3
+
+### Patch Changes
+
+- [#2889](https://github.com/withastro/astro/pull/2889) [`71c12b90`](https://github.com/withastro/astro/commit/71c12b9047c12158c6e4e67ce0494b8d30ac6387) Thanks [@zadeviggers](https://github.com/zadeviggers)! - Correct package name in README. Package is `@astrojs/solid-js`, not `@astrojs/solid`.
+
 ## 0.0.2
 
 ### Patch Changes
