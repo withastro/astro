@@ -1,0 +1,34 @@
+{
+  "name": "@astrojs/netlify",
+  "description": "Deploy your site to Netlify",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/netlify"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./functions": "./dist/integration-functions.js",
+    "./netlify-functions.js": "./dist/netlify-functions.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@astrojs/webapi": "^0.11.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^1.0.0",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  }
+}
