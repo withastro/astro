@@ -37,6 +37,8 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				buildConfig.server = new URL('./functions/', _config.dist);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
+				const _redirectsURL = new URL('./_redirects', dir);
+
 				// Create the redirects file that is used for routing.
 				let _redirects = '';
 				for(const route of routes) {
@@ -45,8 +47,12 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 ${route.pathname}    /.netlify/functions/${entryFile}    200`
 					}
 				}
-				const _redirectsURL = new URL('./_redirects', dir);
-				await fs.promises.writeFile(_redirectsURL, _redirects, 'utf-8');
+
+				if(fs.existsSync(_redirects)) {
+					await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
+				} else {
+					await fs.promises.writeFile(_redirectsURL, _redirects, 'utf-8');
+				}
 			}
 		},
 	};
