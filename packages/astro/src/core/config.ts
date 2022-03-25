@@ -11,7 +11,6 @@ import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 
 load.use([loadTypeScript]);
 
@@ -264,6 +263,28 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
+}
+
+/** 
+	* Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file 
+	* Note: currently the same as loadConfig but only returns the `filePath`
+	* instead of the resolved config
+	*/
+export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL | undefined> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+	let userConfigPath: string | undefined;
+
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
+	}
+	// Automatically load config file using Proload
+	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+	if (config) {
+		return pathToFileURL(config.filePath);
+	}
 }
 
 /** Attempt to load an `astro.config.mjs` file */

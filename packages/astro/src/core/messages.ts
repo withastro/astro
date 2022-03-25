@@ -3,7 +3,7 @@
  */
 
 import stripAnsi from 'strip-ansi';
-import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
+import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black, bgRed, bgWhite } from 'kleur/colors';
 import { pad, emoji, getLocalAddress, getNetworkLogging } from './dev/util.js';
 import os from 'os';
 import type { AddressInfo } from 'net';
@@ -87,6 +87,36 @@ export function prerelease({ currentVersion }: { currentVersion: string }) {
 	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
 }
 
+export function success(message: string, tip?: string) {
+	const badge = bgGreen(black(` success `));
+	const headline = green(message);
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
+}
+
+export function failure(message: string, tip?: string) {
+	const badge = bgRed(black(` error `));
+	const headline = red(message);
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
+}
+
+export function cancelled(message: string, tip?: string) {
+	const badge = bgYellow(black(` cancelled `));
+	const headline = yellow(message);
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer]
+		.filter((v) => v !== undefined)
+		.map((msg) => `  ${msg}`)
+		.join('\n');
+}
+
 /** Display port in use */
 export function portInUse({ port }: { port: number }): string {
 	return `Port ${port} in use. Trying a new one…`;
@@ -101,4 +131,58 @@ export function err(error: Error): string {
 	message = stack.slice(0, split);
 	stack = stack.slice(split).replace(/^\n+/, '');
 	return `${message}\n${dim(stack)}`;
+}
+
+export function printHelp({
+	commandName,
+	headline,
+	usage,
+	commands,
+	flags,
+}: {
+	commandName: string;
+	headline?: string;
+	usage?: string;
+	commands?: [command: string, help: string][];
+	flags?: [flag: string, help: string][];
+}) {
+	const linebreak = () => '';
+	const title = (label: string) => `  ${bgWhite(black(` ${label} `))}`;
+	const table = (rows: [string, string][], opts: { padding: number; prefix: string }) => {
+		const split = rows.some((row) => {
+			const message = `${opts.prefix}${' '.repeat(opts.padding)}${row[1]}`;
+			return message.length > process.stdout.columns;
+		});
+
+		let raw = '';
+
+		for (const row of rows) {
+			raw += `${opts.prefix}${bold(pad(`${row[0]}`, opts.padding - opts.prefix.length))}`;
+			if (split) raw += '\n    ';
+			raw += dim(row[1]) + '\n';
+		}
+
+		return raw.slice(0, -1); // remove latest \n
+	};
+
+	let message = [];
+
+	if (headline) {
+		message.push(linebreak(), `  ${bgGreen(black(` ${commandName} `))} ${green(`v${process.env.PACKAGE_VERSION ?? ''}`)} ${headline}`);
+	}
+
+	if (usage) {
+		message.push(linebreak(), `  ${green(commandName)} ${bold(usage)}`);
+	}
+
+	if (commands) {
+		message.push(linebreak(), title('Commands'), table(commands, { padding: 28, prefix: '  astro ' }));
+	}
+
+	if (flags) {
+		message.push(linebreak(), title('Flags'), table(flags, { padding: 28, prefix: '  ' }));
+	}
+
+	// eslint-disable-next-line no-console
+	console.log(message.join('\n'));
 }
