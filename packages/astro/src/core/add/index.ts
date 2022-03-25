@@ -132,7 +132,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 
 	if (ast) {
 		try {
-			configResult = await updateAstroConfig({ configURL, ast, logging });
+			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
 			error(logging, null, 'There has been an error updating the astro config. You might need to update it manually.');
@@ -151,7 +151,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		}
 	}
 
-	installResult = await tryToInstallIntegrations({ integrations, cwd, logging });
+	installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
 
 	switch (installResult) {
 		case UpdateResult.updated: {
@@ -248,7 +248,7 @@ const enum UpdateResult {
 	failure,
 }
 
-async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }): Promise<UpdateResult> {
+async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL: URL; ast: t.File; flags: yargs.Arguments; logging: LogOptions }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	let output = await generate(ast);
 	const comment = '// https://astro.build/config';
@@ -286,14 +286,7 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 
 	info(logging, null, `\n  ${magenta('Astro will update your configuration with these changes...')}\n${message}`);
 
-	const response = await prompts({
-		type: 'confirm',
-		name: 'updateConfig',
-		message: 'Continue?',
-		initial: true,
-	});
-
-	if (response.updateConfig) {
+	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		debug('add', `Updated astro config`);
 		return UpdateResult.updated;
@@ -333,7 +326,17 @@ async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd()
 	}
 }
 
-async function tryToInstallIntegrations({ integrations, cwd, logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }): Promise<UpdateResult> {
+async function tryToInstallIntegrations({
+	integrations,
+	cwd,
+	flags,
+	logging,
+}: {
+	integrations: IntegrationInfo[];
+	cwd?: string;
+	flags: yargs.Arguments;
+	logging: LogOptions;
+}): Promise<UpdateResult> {
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
 	if (installCommand === null) {
@@ -347,14 +350,8 @@ async function tryToInstallIntegrations({ integrations, cwd, logging }: { integr
 			null,
 			`\n  ${magenta('Astro will run the following command to install...')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`
 		);
-		const response = await prompts({
-			type: 'confirm',
-			name: 'installDependencies',
-			message: 'Continue?',
-			initial: true,
-		});
 
-		if (response.installDependencies) {
+		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
 				await execaCommand(`${installCommand.pm} ${installCommand.command} ${installCommand.flags} ${installCommand.dependencies}`, { cwd });
@@ -425,4 +422,17 @@ function parseIntegrationName(spec: string) {
 		tag = tagged[1];
 	}
 	return { scope, name, tag };
+}
+
+async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boolean> {
+	if (flags.yes) return true;
+
+	const response = await prompts({
+		type: 'confirm',
+		name: 'askToContinue',
+		message: 'Continue?',
+		initial: true,
+	});
+
+	return Boolean(response.askToContinue);
 }
