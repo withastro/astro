@@ -9,8 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/lit": "^0.0.2-next.0",
-    "astro": "^0.25.0-next.3"
+    "@astrojs/lit": "^0.0.2",
+    "astro": "^0.25.0"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",

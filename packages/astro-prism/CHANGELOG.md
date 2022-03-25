@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 0.4.1
+
+### Patch Changes
+
+- [#2878](https://github.com/withastro/astro/pull/2878) [`2db97f10`](https://github.com/withastro/astro/commit/2db97f10dc50f9498413181b78c477fe8833895b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Move the built-in `Prism` component from `astro/components` to `@astrojs/prism/component`.
+
 ## 0.4.1-next.0
 
 ### Patch Changes
