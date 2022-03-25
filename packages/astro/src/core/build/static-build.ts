@@ -228,7 +228,6 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const { astroConfig } = opts;
 	const serverRoot = opts.buildConfig.staticMode ? opts.buildConfig.client : opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);

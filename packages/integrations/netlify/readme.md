@@ -13,15 +13,25 @@ export default defineConfig({
 });
 ```
 
-After you build your site the `dist/` folder will contain [Netlify Functions](https://docs.netlify.com/functions/overview/) in the `dist/functions/` folder. Update your `netlify.toml`:
-
-```toml
-[functions]
-  directory = "dist/functions"
-```
+After you build your site the `netlify/` folder will contain [Netlify Functions](https://docs.netlify.com/functions/overview/) in the `netlify/functions/` folder.
 
 Now you can deploy!
 
 ```shell
 netlify deploy
+```
+
+## Configuration
+
+The output folder is configuration with the `dist` property when creating the adapter.
+
+```js
+import { defineConfig } from 'astro/config';
+import netlify from '@astrojs/netlify';
+
+export default defineConfig({
+	adapter: netlify({
+    dist: new URL('./dist/', import.meta.url)
+  })
+});
 ```

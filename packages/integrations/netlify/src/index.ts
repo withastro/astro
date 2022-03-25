@@ -10,12 +10,23 @@ export function getAdapter(site: string | undefined): AstroAdapter {
 	};
 }
 
-function netlifyFunctions(): AstroIntegration {
+interface NetlifyFunctionsOptions {
+	dist?: URL;
+}
+
+function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let entryFile: string;
 	return {
 		name: '@astrojs/netlify',
 		hooks: {
+			'astro:config:setup': ({ config }) => {
+				if(dist) {
+					config.dist = dist;
+				} else {
+					config.dist = new URL('./netlify/', config.projectRoot);
+				}
+			},
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter(config.buildOptions.site));
 				_config = config;
