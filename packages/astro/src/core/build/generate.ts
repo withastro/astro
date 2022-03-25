@@ -71,7 +71,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : opts.buildConfig.client;
+	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.dist;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 

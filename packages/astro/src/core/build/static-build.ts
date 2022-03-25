@@ -19,7 +19,6 @@ import { vitePluginSSR } from './vite-plugin-ssr.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { getOutRoot } from './common.js';
 import { isBuildingToSSR } from '../util.js';
 import { getTimeStat } from './util.js';
 
@@ -114,7 +113,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const ssr = astroConfig.buildOptions.experimentalSsr;
-	const out = ssr ? opts.buildConfig.server : opts.buildConfig.client;
+	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
 		logLevel: 'error',
@@ -172,8 +171,9 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	// TODO: use vite.mergeConfig() here?
-
 	info(opts.logging, null, `\n${bgGreen(black(' building resources '))}\n`);
+
+	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
 	const buildResult = await vite.build({
 		logLevel: 'info',
@@ -182,7 +182,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(opts.buildConfig.client),
+			outDir: fileURLToPath(out),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
