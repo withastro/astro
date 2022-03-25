@@ -15,6 +15,7 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./functions": "./dist/integration-functions.js",
     "./netlify-functions.js": "./dist/netlify-functions.js",
     "./package.json": "./package.json"
   },

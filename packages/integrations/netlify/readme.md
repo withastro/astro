@@ -6,7 +6,7 @@ Use this adapter in your Astro configuration file:
 
 ```js
 import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
+import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
 	adapter: netlify()
@@ -27,11 +27,18 @@ The output folder is configuration with the `dist` property when creating the ad
 
 ```js
 import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
+import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
-	adapter: netlify({
+  adapter: netlify({
     dist: new URL('./dist/', import.meta.url)
   })
 });
+```
+
+And then point to the dist in your `netlify.toml`:
+
+```toml
+[functions]
+  directory = "dist/functions"
 ```
