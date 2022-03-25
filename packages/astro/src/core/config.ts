@@ -265,11 +265,11 @@ interface LoadConfigOptions {
 	flags?: Flags;
 }
 
-/** 
-	* Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file 
-	* Note: currently the same as loadConfig but only returns the `filePath`
-	* instead of the resolved config
-	*/
+/**
+ * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
+ * Note: currently the same as loadConfig but only returns the `filePath`
+ * instead of the resolved config
+ */
 export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL | undefined> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});

@@ -126,7 +126,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
-			throw  createPrettyError(err as Error);
+			throw createPrettyError(err as Error);
 		}
 	}
 
@@ -138,9 +138,9 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		case UpdateResult.none: {
 			const pkgURL = new URL('./package.json', configURL);
 			if (existsSync(fileURLToPath(pkgURL))) {
-				const { dependencies = {}, devDependencies = {} } = await fs.readFile(fileURLToPath(pkgURL)).then(res => JSON.parse(res.toString()));
+				const { dependencies = {}, devDependencies = {} } = await fs.readFile(fileURLToPath(pkgURL)).then((res) => JSON.parse(res.toString()));
 				const deps = Object.keys(Object.assign(dependencies, devDependencies));
-				const missingDeps = integrations.filter(integration => !deps.includes(integration.packageName));
+				const missingDeps = integrations.filter((integration) => !deps.includes(integration.packageName));
 				if (missingDeps.length === 0) {
 					info(logging, null, msg.success(`Configuration up-to-date.`));
 					return;
@@ -158,7 +158,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		case UpdateResult.updated: {
 			const len = integrations.length;
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const possibleConfigFiles = ['./tailwind.config.cjs', './tailwind.config.mjs', './tailwind.config.js'].map(p => fileURLToPath(new URL(p, configURL)));
+				const possibleConfigFiles = ['./tailwind.config.cjs', './tailwind.config.mjs', './tailwind.config.js'].map((p) => fileURLToPath(new URL(p, configURL)));
 				let alreadyConfigured = false;
 				for (const possibleConfigPath of possibleConfigFiles) {
 					if (existsSync(possibleConfigPath)) {
@@ -176,7 +176,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 					debug('add', `Using existing Tailwind configuration`);
 				}
 			}
-			const list = integrations.map(integration => `  - ${integration.packageName}`).join('\n')
+			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			info(logging, null, msg.success(`Added the following integration${len === 1 ? '' : 's'} to your project:\n${list}`));
 			return;
 		}
@@ -208,12 +208,12 @@ const toIdent = (name: string) => {
 };
 
 function createPrettyError(err: Error) {
-		err.message = `Astro could not update your astro.config.js file safely.
+	err.message = `Astro could not update your astro.config.js file safely.
 Reason: ${err.message}
 
 You will need to add these integration(s) manually.
-Documentation: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/`
-		return err;
+Documentation: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/`;
+	return err;
 }
 
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
@@ -281,10 +281,7 @@ async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL
 
 	let changes = [];
 	for (const change of diffWords(input, output)) {
-		let lines = change.value
-			.trim()
-			.split('\n')
-			.slice(0, change.count)
+		let lines = change.value.trim().split('\n').slice(0, change.count);
 		if (lines.length === 0) continue;
 		if (change.added) {
 			if (!change.value.trim()) continue;
@@ -366,11 +363,7 @@ async function tryToInstallIntegrations({
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
-		info(
-			logging,
-			null,
-			`\n  ${magenta('Astro will run the following command:')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`
-		);
+		info(logging, null, `\n  ${magenta('Astro will run the following command:')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`);
 
 		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();

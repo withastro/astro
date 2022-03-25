@@ -108,14 +108,14 @@ export async function cli(args: string[]) {
 
 	switch (cmd) {
 		case 'add': {
-				try {
-					const packages = flags._.slice(3) as string[];
-					await add(packages, { cwd: projectRoot, flags, logging });
-					process.exit(0);
-				} catch (err) {
-					throwAndExit(err);
-				}
-				return;
+			try {
+				const packages = flags._.slice(3) as string[];
+				await add(packages, { cwd: projectRoot, flags, logging });
+				process.exit(0);
+			} catch (err) {
+				throwAndExit(err);
+			}
+			return;
 		}
 		case 'dev': {
 			try {
