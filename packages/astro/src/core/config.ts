@@ -11,7 +11,6 @@ import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 
 load.use([loadTypeScript]);
 

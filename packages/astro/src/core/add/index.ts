@@ -1,5 +1,6 @@
 import type yargs from 'yargs-parser';
 import path from 'path';
+import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
@@ -22,7 +23,7 @@ import { t, parse, visit, generate } from './babel.js';
 
 export interface AddOptions {
 	logging: LogOptions;
-	cwd?: string;
+	projectRoot?: URL;
 	flags: yargs.Arguments;
 }
 
@@ -32,7 +33,7 @@ export interface IntegrationInfo {
 	dependencies: [name: string, version: string][];
 }
 
-export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export default async function add(names: string[], { projectRoot, flags, logging }: AddOptions) {
 	if (flags.help) {
 		printHelp({
 			commandName: 'astro add',
@@ -44,6 +45,17 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		});
 		return;
 	}
+
+	const cwd = projectRoot ? path.resolve(fileURLToPath(projectRoot)) : process.cwd();
+	let configURL: URL | undefined;
+
+	// TODO: improve error handling for invalid configs
+	configURL = await resolveConfigURL({ cwd, flags });
+
+	if (configURL?.pathname.endsWith('package.json')) {
+		throw new Error(`Unable to use astro add with package.json#astro configuration! Try migrating to \`astro.config.mjs\` and try again.`);
+	}
+	applyPolyfill();
 
 	if (names.length === 0) {
 		const response = await prompts([
@@ -78,21 +90,16 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	// Some packages might have a common alias! We normalize those here.
 	names = names.map((name) => (CONSTS.ALIASES.has(name) ? CONSTS.ALIASES.get(name)! : name));
 
-	const root = cwd ? path.resolve(cwd) : process.cwd();
-	let configURL = await resolveConfigURL({ cwd, flags });
-	applyPolyfill();
 	if (configURL) {
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', `file://${root}/`);
+		configURL = new URL('./astro.config.mjs', projectRoot);
 		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
 	const integrations = await validateIntegrations(names);
 
-	// Add integrations to astro config
-	// TODO: At the moment, nearly nothing throws an error. We need more errors!
 	let ast: t.File | null = null;
 	try {
 		ast = await parseAstroConfig(configURL);
@@ -111,11 +118,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		}
 	} catch (err) {
 		debug('add', 'Error parsing/modifying astro config: ', err);
-		info(
-			logging,
-			null,
-			"Sorry, we couldn't update your configuration automatically. [INSERT HOW TO DO IT MANUALLY --- this link might help: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/]"
-		);
+		return bail(err as Error);
 	}
 
 	let configResult: UpdateResult | undefined;
@@ -126,8 +129,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
-			error(logging, null, 'There has been an error updating the astro config. You might need to update it manually.');
-			return;
+			return bail(err as Error);
 		}
 	}
 
@@ -137,6 +139,17 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			return;
 		}
 		case UpdateResult.none: {
+			const pkgURL = new URL('./package.json', configURL);
+			if (existsSync(fileURLToPath(pkgURL))) {
+				const { dependencies = {}, devDependencies = {} } = await fs.readFile(fileURLToPath(pkgURL)).then(res => JSON.parse(res.toString()));
+				const deps = Object.keys(Object.assign(dependencies, devDependencies));
+				const missingDeps = integrations.filter(integration => !deps.includes(integration.packageName));
+				if (missingDeps.length === 0) {
+					info(logging, null, msg.success(`Configuration up-to-date.`));
+					return;
+				}
+			}
+
 			info(logging, null, msg.success(`Configuration up-to-date.`));
 			break;
 		}
@@ -161,12 +174,12 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			return;
 		}
 		case UpdateResult.cancelled: {
-			info(logging, null, msg.cancelled(`No dependencies installed.`, `Be sure to install them manually before continuing!`));
+			info(logging, null, msg.cancelled(`Dependencies ${bold('NOT')} installed.`, `Be sure to install them manually before continuing!`));
 			return;
 		}
 		case UpdateResult.failure: {
-			info(logging, null, msg.failure(`There was a problem installing dependencies.`, `Be sure to install them manually before continuing!`));
-			process.exit(1);
+			bail(new Error(`Unable to install dependencies`));
+			return;
 		}
 	}
 }
@@ -187,6 +200,15 @@ const toIdent = (name: string) => {
 	}
 	return name;
 };
+
+function bail(err: Error) {
+		err.message = `Astro could not update your astro.config.js file safely.
+Reason: ${err.message}
+
+You will need to add these integration(s) manually.
+Documentation: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/`
+		throw err;
+}
 
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	const integrationId = t.identifier(toIdent(integration.id));
@@ -257,13 +279,16 @@ async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL
 			.trim()
 			.split('\n')
 			.slice(0, change.count)
-			.filter((x) => x && !INSIGNIFICANT_CHARS.has(x));
 		if (lines.length === 0) continue;
 		if (change.added) {
-			if (INSIGNIFICANT_CHARS.has(change.value.trim())) continue;
+			if (!change.value.trim()) continue;
 			changes.push(change.value);
 		}
 	}
+	if (changes.length === 0) {
+		return UpdateResult.none;
+	}
+
 	let diffed = output;
 	for (let newContent of changes) {
 		const coloredOutput = newContent
