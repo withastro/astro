@@ -10,7 +10,7 @@ This change adds a Netlify adapter that uses Netlify Functions. You can use it l
 
 ```js
 import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
+import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
 	adapter: netlify()
