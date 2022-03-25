@@ -17,3 +17,10 @@ export const ALIASES = new Map([
 	['tailwindcss', 'tailwind'],
 ]);
 export const CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
+export const TAILWIND_CONFIG_STUB = `module.exports = {
+	content: [],
+	theme: {
+		extend: {},
+	},
+	plugins: [],
+}\n`;

@@ -161,14 +161,17 @@ export default async function add(names: string[], { projectRoot, flags, logging
 		case UpdateResult.updated: {
 			const len = integrations.length;
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const DEFAULT_TAILWIND_CONFIG = `module.exports = {
-	content: [],
-	theme: {
-		extend: {},
-	},
-	plugins: [],
-}\n`;
-				await fs.writeFile(fileURLToPath(new URL('./tailwind.config.mjs', configURL)), DEFAULT_TAILWIND_CONFIG);
+				const possibleConfigFiles = ['./tailwind.config.cjs', './tailwind.config.mjs', './tailwind.config.js'].map(p => fileURLToPath(new URL(p, configURL)));
+				let alreadyConfigured = false;
+				for (const possibleConfigPath of possibleConfigFiles) {
+					if (existsSync(possibleConfigPath)) {
+						alreadyConfigured = true;
+						break;
+					}
+				}
+				if (!alreadyConfigured) {
+					await fs.writeFile(fileURLToPath(new URL('./tailwind.config.cjs', configURL)), CONSTS.TAILWIND_CONFIG_STUB);
+				}
 			}
 			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project`));
 			return;
