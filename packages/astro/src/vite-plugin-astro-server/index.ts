@@ -128,8 +128,19 @@ async function handleRequest(
 		}
 	}
 
+	let body: ArrayBuffer | undefined = undefined;
+	if(!(req.method === 'GET' || req.method === 'HEAD')) {
+		let bytes: string[] = [];
+		await new Promise(resolve => {
+			req.setEncoding('utf-8');
+			req.on('data', bts => bytes.push(bts));
+			req.on('close', resolve);
+		});
+		body = new TextEncoder().encode(bytes.join('')).buffer;
+	}
+
 	// Headers are only available when using SSR.
-	const request = createRequest(url, buildingToSSR ? req.headers : new Headers(), req.method);
+	const request = createRequest(url, buildingToSSR ? req.headers : new Headers(), req.method, body);
 
 	try {
 		if (!pathname.startsWith(devRoot)) {

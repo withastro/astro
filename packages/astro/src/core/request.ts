@@ -1,14 +1,17 @@
 import type { IncomingHttpHeaders } from 'http';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
+type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
 
-export function createRequest(url: URL | string, headers: HeaderType, method: string = 'GET'): Request {
+export function createRequest(url: URL | string, headers: HeaderType,
+	method: string = 'GET', body: RequestBody | undefined	 = undefined): Request {
 	let headersObj = headers instanceof Headers ? headers :
 		new Headers(Object.entries(headers as Record<string, any>));
 	
 	const request = new Request(url.toString(), {
 		method: method,
-		headers: headersObj
+		headers: headersObj,
+		body
 	});
 
 	Object.defineProperties(request, {
@@ -25,8 +28,6 @@ export function createRequest(url: URL | string, headers: HeaderType, method: st
 			}
 		}
 	});
-
-	// TODO warn
 
 	return request;
 }
