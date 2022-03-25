@@ -1,7 +1,5 @@
 import type yargs from 'yargs-parser';
-import path from 'path';
-import { existsSync } from 'fs';
-import fs from 'fs/promises';
+import { existsSync, promises as fs } from 'fs';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { diffWords } from 'diff';
@@ -23,8 +21,8 @@ import { t, parse, visit, generate } from './babel.js';
 
 export interface AddOptions {
 	logging: LogOptions;
-	projectRoot?: URL;
 	flags: yargs.Arguments;
+	cwd?: string;
 }
 
 export interface IntegrationInfo {
@@ -33,7 +31,7 @@ export interface IntegrationInfo {
 	dependencies: [name: string, version: string][];
 }
 
-export default async function add(names: string[], { projectRoot, flags, logging }: AddOptions) {
+export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	if (flags.help) {
 		printHelp({
 			commandName: 'astro add',
@@ -45,10 +43,7 @@ export default async function add(names: string[], { projectRoot, flags, logging
 		});
 		return;
 	}
-
-	const cwd = projectRoot ? path.resolve(fileURLToPath(projectRoot)) : process.cwd();
 	let configURL: URL | undefined;
-
 	// TODO: improve error handling for invalid configs
 	configURL = await resolveConfigURL({ cwd, flags });
 
