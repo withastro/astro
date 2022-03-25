@@ -96,18 +96,10 @@ export async function cli(args: string[]) {
 		logging.level = 'silent';
 	}
 
-	if (cmd === 'add') {
-		try {
-			const packages = flags._.slice(3) as string[];
-			await add(packages, { projectRoot, flags, logging });
-			process.exit(0);
-		} catch (err) {
-			throwAndExit(err);
-		}
-	}
-
 	let config: AstroConfig;
 	try {
+		// Note: ideally, `loadConfig` would return the config AND its filePath
+		// For now, `add` has to resolve the config again internally
 		config = await loadConfig({ cwd: projectRoot, flags });
 	} catch (err) {
 		throwAndExit(err);
@@ -115,6 +107,16 @@ export async function cli(args: string[]) {
 	}
 
 	switch (cmd) {
+		case 'add': {
+				try {
+					const packages = flags._.slice(3) as string[];
+					await add(packages, { cwd: projectRoot, flags, logging });
+					process.exit(0);
+				} catch (err) {
+					throwAndExit(err);
+				}
+				return;
+		}
 		case 'dev': {
 			try {
 				await devServer(config, { logging });
@@ -123,7 +125,6 @@ export async function cli(args: string[]) {
 			} catch (err) {
 				throwAndExit(err);
 			}
-
 			return;
 		}
 
