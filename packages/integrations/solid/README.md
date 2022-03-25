@@ -1,4 +1,4 @@
-# @astrojs/solid 💙
+# @astrojs/solid-js 💙
 
 This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [SolidJS](https://www.solidjs.com/) components.
 
@@ -12,7 +12,7 @@ Astro includes a CLI tool for adding first party integrations: `astro add`. This
 1. (Optionally) Install all necessary dependencies and peer dependencies
 2. (Also optionally) Update your `astro.config.*` file to apply this integration
 
-To install `@astrojs/solid`, run the following from your project directory and follow the prompts:
+To install `@astrojs/solid-js`, run the following from your project directory and follow the prompts:
 
 ```sh
 # Using NPM
@@ -27,10 +27,10 @@ If you run into any hiccups, [feel free to log an issue on our GitHub](https://g
 
 ### Install dependencies manually
 
-First, install the `@astrojs/solid` integration like so:
+First, install the `@astrojs/solid-js` integration like so:
 
 ```
-npm install @astrojs/solid
+npm install @astrojs/solid-js
 ```
 
 Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'solid-js'" (or similar) warning when you start up Astro, you'll need to install SolidJS:
@@ -44,7 +44,7 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 __astro.config.mjs__
 
 ```js
-import solid from '@astrojs/solid';
+import solid from '@astrojs/solid-js';
 
 export default {
   // ...
