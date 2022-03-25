@@ -89,7 +89,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', projectRoot);
+		configURL = new URL('./astro.config.mjs', cwd);
 		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
