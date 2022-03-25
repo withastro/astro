@@ -35,23 +35,24 @@ const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
 	renderers: _main.renderers
 });
+const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 
 ${
 	adapter.exports
-		? `const _exports = adapter.createExports(_manifest);
+		? `const _exports = adapter.createExports(_manifest, _args);
 ${adapter.exports.map((name) => `export const ${name} = _exports['${name}'];`).join('\n')}
 `
 		: ''
 }
 const _start = 'start';
 if(_start in adapter) {
-	adapter[_start](_manifest);
+	adapter[_start](_manifest, _args);
 }`;
 			}
 			return void 0;
 		},
 
-		generateBundle(opts, bundle) {
+		generateBundle(_opts, bundle) {
 			const manifest = buildManifest(buildOpts, internals);
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {

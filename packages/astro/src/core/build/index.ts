@@ -7,7 +7,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
+import { debug, defaultLogOptions, info, levels, timerMessage, warn, warnIfUsingExperimentalSSR } from '../logger.js';
 import { createRouteManifest } from '../routing/index.js';
 import { generateSitemap } from '../render/sitemap.js';
 import { collectPagesData } from './page-data.js';
@@ -73,11 +73,17 @@ class AstroBuilder {
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		await runHookConfigDone({ config: this.config });
+		warnIfUsingExperimentalSSR(logging, this.config);
 		this.viteConfig = viteConfig;
 		const viteServer = await vite.createServer(viteConfig);
 		this.viteServer = viteServer;
 		debug('build', timerMessage('Vite started', timer.viteStart));
-		const buildConfig: BuildConfig = { staticMode: undefined };
+		const buildConfig: BuildConfig = {
+			client: new URL('./client/', this.config.dist),
+			server: new URL('./server/', this.config.dist),
+			serverEntry: 'entry.mjs',
+			staticMode: undefined
+		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
 		info(this.logging, 'build', 'Collecting page data...');
@@ -167,7 +173,7 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await viteServer.close();
-		await runHookBuildDone({ config: this.config, pages: pageNames });
+		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map(pd => pd.route) });
 
 		if (logging.level && levels[logging.level] <= levels['info']) {
 			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';

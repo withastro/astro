@@ -15,6 +15,9 @@
   "types": "./dist/types/@types/astro.d.ts",
   "typesVersions": {
     "*": {
+      "app": [
+        "./dist/types/core/app/index"
+      ],
       "app/*": [
         "./dist/types/core/app/*"
       ]

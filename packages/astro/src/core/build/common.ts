@@ -1,5 +1,4 @@
 import type { AstroConfig, RouteType } from '../../@types/astro';
-import type { StaticBuildOptions } from './types';
 import npath from 'path';
 import { appendForwardSlash } from '../../core/path.js';
 
@@ -7,18 +6,6 @@ const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 export function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('./', astroConfig.dist);
-}
-
-export function getServerRoot(astroConfig: AstroConfig): URL {
-	const rootFolder = getOutRoot(astroConfig);
-	const serverFolder = new URL('./server/', rootFolder);
-	return serverFolder;
-}
-
-export function getClientRoot(astroConfig: AstroConfig): URL {
-	const rootFolder = getOutRoot(astroConfig);
-	const serverFolder = new URL('./client/', rootFolder);
-	return serverFolder;
 }
 
 export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {

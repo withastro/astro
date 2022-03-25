@@ -1,3 +1,4 @@
+import type { AstroConfig } from '../@types/astro';
 import { bold, cyan, dim, red, yellow, reset } from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
@@ -5,6 +6,7 @@ import stringWidth from 'string-width';
 import * as readline from 'readline';
 import debugPackage from 'debug';
 import { format as utilFormat } from 'util';
+import { isBuildingToSSR } from './util.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;
@@ -210,4 +212,13 @@ export function timerMessage(message: string, startTime: number = performance.no
 	let timeDiff = performance.now() - startTime;
 	let timeDisplay = timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
+}
+
+/**
+ * A warning that SSR is experimental. Remove when we can.
+ */
+export function warnIfUsingExperimentalSSR(opts: LogOptions, config: AstroConfig) {
+	if(isBuildingToSSR(config)) {
+		warn(opts, 'warning', bold(`Warning:`), ` SSR support is still experimental and subject to API changes. If using in production pin your dependencies to prevent accidental breakage.`);
+	}
 }

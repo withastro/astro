@@ -27,3 +27,5 @@ export interface SSRManifest {
 export type SerializedSSRManifest = Omit<SSRManifest, 'routes'> & {
 	routes: SerializedRouteInfo[];
 };
+
+export type AdapterCreateExports<T = any> = (manifest: SSRManifest, args?: T) => Record<string, any>;

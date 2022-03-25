@@ -13,7 +13,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutFile, getOutRoot, getOutFolder, getServerRoot } from './common.js';
+import { getOutFile, getOutRoot, getOutFolder } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
 import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import { getTimeStat } from './util.js';
@@ -70,8 +70,9 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
-	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
-	const ssrEntryURL = new URL(`./entry.mjs?time=${Date.now()}`, outFolder);
+	const serverEntry = opts.buildConfig.serverEntry;
+	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.dist;
+	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
 	for (const pageData of eachPageData(internals)) {
