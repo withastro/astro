@@ -297,7 +297,7 @@ async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL
 
 	const message = `\n${boxen(diffed, { margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() })}\n`;
 
-	info(logging, null, `\n  ${magenta('Astro will update your configuration with these changes...')}\n${message}`);
+	info(logging, null, `\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`);
 
 	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
@@ -360,7 +360,7 @@ async function tryToInstallIntegrations({
 		info(
 			logging,
 			null,
-			`\n  ${magenta('Astro will run the following command to install...')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`
+			`\n  ${magenta('Astro will run the following command:')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`
 		);
 
 		if (await askToContinue({ flags })) {
