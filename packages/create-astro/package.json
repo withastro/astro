@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "0.8.0-next.0",
+  "version": "0.8.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
