@@ -12,7 +12,7 @@ import { resolveConfigURL } from '../core/config.js';
 import { apply as applyPolyfill } from '../core/polyfill.js';
 import { error, info, debug, LogOptions } from '../core/logger.js';
 import * as msg from '../core/messages.js';
-import { dim, red, cyan, green, bold, magenta } from 'kleur/colors';
+import { dim, red, cyan, green, magenta } from 'kleur/colors';
 import { parseNpmName } from '../core/util.js';
 import { t, parse, visit, ensureImport, wrapDefaultExport, generate } from '../transform/index.js';
 
@@ -200,7 +200,7 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 	const message = `\n${boxen(
 		diffLines(input, output)
 			.map((change) => {
-				let lines = change.value.split('\n').slice(0, -1); // remove latest \n
+				let lines = change.value.split('\n').slice(0, change.count); // remove possible \n
 
 				if (change.added) lines = lines.map((line) => green(`+ ${line}`));
 				else if (change.removed) lines = lines.map((line) => red(`- ${line}`));
