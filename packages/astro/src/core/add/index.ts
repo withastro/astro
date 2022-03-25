@@ -343,7 +343,7 @@ async function tryToInstallIntegrations({
 		info(logging, null);
 		return UpdateResult.none;
 	} else {
-		const coloredOutput = `${cyan(`${installCommand.pm} ${installCommand.command} ${installCommand.flags.join(' ')}`)} ${installCommand.dependencies}`;
+		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies)}`
 		const message = `\n${boxen(coloredOutput, { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
 		info(
 			logging,
