@@ -218,7 +218,12 @@ export function timerMessage(message: string, startTime: number = performance.no
  * A warning that SSR is experimental. Remove when we can.
  */
 export function warnIfUsingExperimentalSSR(opts: LogOptions, config: AstroConfig) {
-	if(isBuildingToSSR(config)) {
-		warn(opts, 'warning', bold(`Warning:`), ` SSR support is still experimental and subject to API changes. If using in production pin your dependencies to prevent accidental breakage.`);
+	if (isBuildingToSSR(config)) {
+		warn(
+			opts,
+			'warning',
+			bold(`Warning:`),
+			` SSR support is still experimental and subject to API changes. If using in production pin your dependencies to prevent accidental breakage.`
+		);
 	}
 }

@@ -91,7 +91,7 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 	}
 }
 
-export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[], routes: RouteData[] }) {
+export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[]; routes: RouteData[] }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
 			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes });

@@ -82,7 +82,7 @@ class AstroBuilder {
 			client: new URL('./client/', this.config.dist),
 			server: new URL('./server/', this.config.dist),
 			serverEntry: 'entry.mjs',
-			staticMode: undefined
+			staticMode: undefined,
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
@@ -173,7 +173,7 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await viteServer.close();
-		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map(pd => pd.route) });
+		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map((pd) => pd.route) });
 
 		if (logging.level && levels[logging.level] <= levels['info']) {
 			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';

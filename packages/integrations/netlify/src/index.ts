@@ -6,7 +6,7 @@ export function getAdapter(site: string | undefined): AstroAdapter {
 		name: '@astrojs/netlify',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
-		args: { site }
+		args: { site },
 	};
 }
 
@@ -21,7 +21,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 		name: '@astrojs/netlify',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
-				if(dist) {
+				if (dist) {
 					config.dist = dist;
 				} else {
 					config.dist = new URL('./netlify/', config.projectRoot);
@@ -31,7 +31,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				setAdapter(getAdapter(config.buildOptions.site));
 				_config = config;
 			},
-			'astro:build:start': async({ buildConfig }) => {
+			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.dist;
 				buildConfig.server = new URL('./functions/', _config.dist);
@@ -41,24 +41,21 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 
 				// Create the redirects file that is used for routing.
 				let _redirects = '';
-				for(const route of routes) {
-					if(route.pathname) {
+				for (const route of routes) {
+					if (route.pathname) {
 						_redirects += `
-${route.pathname}    /.netlify/functions/${entryFile}    200`
+${route.pathname}    /.netlify/functions/${entryFile}    200`;
 					}
 				}
 
-				if(fs.existsSync(_redirects)) {
+				if (fs.existsSync(_redirects)) {
 					await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
 				} else {
 					await fs.promises.writeFile(_redirectsURL, _redirects, 'utf-8');
 				}
-			}
+			},
 		},
 	};
 }
 
-export {
-	netlifyFunctions,
-	netlifyFunctions as default
-};
+export { netlifyFunctions, netlifyFunctions as default };
