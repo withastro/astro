@@ -2,6 +2,8 @@
 
 This **[Astro integration][astro-integration]** brings [Turbo](https://github.com/hotwired/turbo) to your Astro project.
 
+Turbolinks is a plug-and-play solution to bring single page app (SPA) routing to your site. This brings performant navigation without the added complexity of a client-side JavaScript framework.
+
 ## Installation
 
 There are two ways to add integrations to your project. Let's try the most convenient option first!

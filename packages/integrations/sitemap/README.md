@@ -2,6 +2,8 @@
 
 This **[Astro integration][astro-integration]** generates a sitemap for your Astro project.
 
+Sitemaps outline all of the pages, videos, and files on your site. Search engines like Google read this file to crawl your site more efficiently. [See Google's own advice on sitemaps](https://developers.google.com/search/docs/advanced/sitemaps/overview) to learn more.
+
 ## Installation
 
 There are two ways to add integrations to your project. Let's try the most convenient option first!
