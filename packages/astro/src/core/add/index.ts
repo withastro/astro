@@ -96,7 +96,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			return;
 		}
 		case UpdateResult.none: {
-			info(logging, null, msg.success(`Configuration up-to-date. No changes needed!`));
+			info(logging, null, msg.success(`Configuration up-to-date.`));
 			break;
 		}
 	}
