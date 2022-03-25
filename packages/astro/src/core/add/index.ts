@@ -13,6 +13,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { error, info, debug, LogOptions } from '../logger.js';
 import { printHelp } from '../messages.js';
 import * as msg from '../messages.js';
+import * as CONSTS from './consts.js';
 import { dim, red, cyan, green, magenta, bold } from 'kleur/colors';
 import { parseNpmName } from '../util.js';
 import { wrapDefaultExport } from './wrapper.js';
@@ -30,29 +31,6 @@ export interface IntegrationInfo {
 	packageName: string;
 	dependencies: [name: string, version: string][];
 }
-
-const DEFAULT_FRAMEWORKS = [
-	{ value: 'react', title: 'React' },
-	{ value: 'preact', title: 'Preact' },
-	{ value: 'vue', title: 'Vue' },
-	{ value: 'svelte', title: 'Svelte' },
-	{ value: 'solid-js', title: 'Solid' },
-	{ value: 'lit', title: 'Lit' },
-];
-const DEFAULT_ADDONS = [
-	{ value: 'tailwind', title: 'Tailwind' },
-	{ value: 'turbolinks', title: 'Turbolinks' },
-	{ value: 'partytown', title: 'Partytown' },
-	{ value: 'sitemap', title: 'Sitemap' },
-];
-
-const ALIASES = new Map([
-	['solid', 'solid-js'],
-	['tailwindcss', 'tailwind'],
-]);
-const INSIGNIFICANT_CHARS = new Set([',', ']', '}']);
-
-const DEFAULT_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
 
 export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
 	if (flags.help) {
@@ -74,14 +52,14 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 				name: 'frameworks',
 				message: 'What frameworks would you like to enable?',
 				instructions: '\n  Space to select. Return to submit',
-				choices: DEFAULT_FRAMEWORKS,
+				choices: CONSTS.FIRST_PARTY_FRAMEWORKS,
 			},
 			{
 				type: 'multiselect',
 				name: 'addons',
 				message: 'What additional integrations would you like to enable?',
 				instructions: '\n  Space to select. Return to submit',
-				choices: DEFAULT_ADDONS,
+				choices: CONSTS.FIRST_PARTY_ADDONS,
 			},
 		]);
 
@@ -98,7 +76,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	}
 
 	// Some packages might have a common alias! We normalize those here.
-	names = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
+	names = names.map((name) => (CONSTS.ALIASES.has(name) ? CONSTS.ALIASES.get(name)! : name));
 
 	const root = cwd ? path.resolve(cwd) : process.cwd();
 	let configURL = await resolveConfigURL({ cwd, flags });
@@ -108,7 +86,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
 		configURL = new URL('./astro.config.mjs', `file://${root}/`);
-		await fs.writeFile(fileURLToPath(configURL), DEFAULT_CONFIG_STUB, { encoding: 'utf-8' });
+		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
 	const integrations = await validateIntegrations(names);
