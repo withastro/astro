@@ -4,7 +4,7 @@ This **[Astro integration][astro-integration]** enables server-side rendering an
 
 ## Installation
 
-There's a couple ways to install integrations. Let's try the most convenient option first!
+There's two ways to add integrations to your project. Let's try the most convenient option first!
 
 ### (experimental) `astro add` command
 
