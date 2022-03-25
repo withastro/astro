@@ -73,10 +73,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const cmd = resolveCommand(flags);
-	let projectRoot = flags.projectRoot;
-	if (!projectRoot && cmd !== 'add') {
-		projectRoot = flags._[3];
-	}
+	const projectRoot = flags.projectRoot;
 
 	switch (cmd) {
 		case 'help':
