@@ -1,6 +1,8 @@
 # @astrojs/partytown 🎉
 
-This **[Astro integration][astro-integration]** brings the [Party(town)](https://partytown.builder.io/) to your Astro project.
+This **[Astro integration][astro-integration]** enables [Partytown](https://partytown.builder.io/) in your Astro project.
+
+Partytown is a lazy-loaded library to help relocate resource intensive scripts into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), and off of the [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread).
 
 ## Installation
 
