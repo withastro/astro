@@ -11,8 +11,9 @@ import ora from 'ora';
 import { resolveConfigURL } from '../config.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { error, info, debug, LogOptions } from '../logger.js';
+import { printHelp } from '../messages.js';
 import * as msg from '../messages.js';
-import { dim, red, cyan, green, magenta, bold, reset } from 'kleur/colors';
+import { dim, red, cyan, green, magenta, bold } from 'kleur/colors';
 import { parseNpmName } from '../util.js';
 import { wrapDefaultExport } from './wrapper.js';
 import { ensureImport } from './imports.js';
@@ -54,6 +55,18 @@ const INSIGNIFICANT_CHARS = new Set([',', ']', '}']);
 const DEFAULT_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
 
 export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+	if (flags.help) {
+		printHelp({
+			commandName: 'astro add',
+			usage: '[FLAGS] [INTEGRATIONS...]',
+			flags: [
+				['--yes', 'Add the integration without user interaction.'],
+				['--help', 'Show this help message.'],
+			],
+		});
+		return;
+	}
+
 	if (names.length === 0) {
 		const response = await prompts([
 			{
