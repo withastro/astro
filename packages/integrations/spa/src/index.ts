@@ -4,7 +4,7 @@ export interface SpaOptions {
 	persistent?: boolean;
 }
 
-export default function createPlugin({ persistent = true }: SpaOptions): AstroIntegration {
+export default function createPlugin({ persistent = true }: SpaOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/spa',
 		hooks: {
