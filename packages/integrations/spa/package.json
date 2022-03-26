@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/spa",
   "description": "SPA Astro Integrations",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
