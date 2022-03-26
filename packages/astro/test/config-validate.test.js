@@ -64,11 +64,10 @@ describe('Config Validation', () => {
 	});
 	it('blocks third-party "integration" values', async () => {
 		const configError = await validateConfig({ integrations: [{ name: '@my-plugin/a' }] }, process.cwd()).catch((err) => err);
-		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
-		expect(formattedError).to.equal(
-			`[config] Astro found issue(s) with your configuration:
-  ! integrations  Astro integrations are still experimental, and only official integrations are currently supported.`
-		);
+		expect(configError).to.be.instanceOf(Error);
+		expect(configError.message).to.include('Astro integrations are still experimental.');
+	});
+	it('allows third-party "integration" values with the --experimental-integrations flag', async () => {
+		await validateConfig({ integrations: [{ name: '@my-plugin/a' }], experimentalIntegrations: true }, process.cwd()).catch((err) => err);
 	});
 });

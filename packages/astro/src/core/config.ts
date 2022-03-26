@@ -73,14 +73,7 @@ export const AstroConfigSchema = z.object({
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
 		// validate
-		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default([])
-			// validate: first-party integrations only
-			// TODO: Add `To use 3rd-party integrations or to create your own, use the --experimental-integrations flag.`,
-			.refine((arr) => arr.every((integration) => integration.name.startsWith('@astrojs/')), {
-				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
-			})
+		z.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) })).default([])
 	),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	styleOptions: z
@@ -133,6 +126,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
+	experimentalIntegrations: z.boolean().optional().default(false),
 	vite: z.any().optional().default({}), // TODO: we don’t need validation, but can we get better type inference?
 });
 
@@ -209,10 +203,24 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.optional()
 			.default({}),
 	});
-	return {
+	// First-Pass Validation
+	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
+	// Final-Pass Validation (perform checks that require the full config object)
+	if (!result.experimentalIntegrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
+		throw new Error([
+			`Astro integrations are still experimental.`,
+			``,
+			`Only official "@astrojs/*" integrations are currently supported.`,
+			`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
+			`Breaking changes may occur in this API before Astro v1.0 is released.`,
+			``
+		].join('\n'));
+	}
+	// If successful, return the result as a verified AstroConfig object.
+	return result;
 }
 
 /** Adds '/' to end of string but doesn’t double-up */
@@ -236,6 +244,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : false,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
+		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -256,6 +265,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 			astroConfig.buildOptions.legacyBuild = false;
 		}
 	}
+	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;
 }
@@ -311,6 +321,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
+
 	return validatedConfig;
 }
 
