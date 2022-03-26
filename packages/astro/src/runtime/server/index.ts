@@ -273,7 +273,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
-	return markHTMLString(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
+	return markHTMLString(`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -468,7 +468,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
 			return renderElement('style', {
 				children: styleChildren,
-				props: { ...style.props, 'astro-style': true },
+				props: { ...style.props, 'astro-style': result._metadata.legacyBuild ? true : undefined },
 			});
 		});
 	let needsHydrationStyles = false;
@@ -480,11 +480,11 @@ export async function renderHead(result: SSRResult): Promise<string> {
 			}
 			return renderElement('script', {
 				...script,
-				props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
+				props: { ...script.props, 'astro-script': result._metadata.legacyBuild ? result._metadata.pathname + '/script-' + i : undefined },
 			});
 		});
 	if (needsHydrationStyles) {
-		styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
+		styles.push(renderElement('style', { props: { 'astro-style': result._metadata.legacyBuild ? true : undefined }, children: 'astro-root, astro-fragment { display: contents; }' }));
 	}
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
