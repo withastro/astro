@@ -50,6 +50,7 @@ export default async function onMedia(
 				mql.addEventListener('change', cb, { once: true });
 			}
 		}
+		window.addEventListener('astro:locationchange', media, { once: true })
 	}
 	media();
 }

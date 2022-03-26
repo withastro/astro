@@ -65,7 +65,7 @@ export default async function onVisible(
 				io.observe(child);
 			}
 		}
+		window.addEventListener('astro:locationchange', visible, { once: true })
 	}
-
 	visible();
 }
