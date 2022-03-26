@@ -1787,6 +1787,17 @@ importers:
       astro-scripts: link:../../../scripts
       solid-js: 1.4.3
 
+  packages/integrations/spa:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      micromorph: ^0.1.2
+    dependencies:
+      micromorph: 0.1.2
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/svelte:
     specifiers:
       '@sveltejs/vite-plugin-svelte': ^1.0.0-next.45
