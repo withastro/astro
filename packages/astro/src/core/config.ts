@@ -210,14 +210,16 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	};
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (!result.experimentalIntegrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
-		throw new Error([
-			`Astro integrations are still experimental.`,
-			``,
-			`Only official "@astrojs/*" integrations are currently supported.`,
-			`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
-			`Breaking changes may occur in this API before Astro v1.0 is released.`,
-			``
-		].join('\n'));
+		throw new Error(
+			[
+				`Astro integrations are still experimental.`,
+				``,
+				`Only official "@astrojs/*" integrations are currently supported.`,
+				`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
+				`Breaking changes may occur in this API before Astro v1.0 is released.`,
+				``,
+			].join('\n')
+		);
 	}
 	// If successful, return the result as a verified AstroConfig object.
 	return result;

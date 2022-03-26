@@ -423,7 +423,7 @@ export interface AstroUserConfig {
 	 * Default: false
 	 */
 	experimentalIntegrations?: boolean;
-		
+
 	/**
 	 * @docs
 	 * @name vite
