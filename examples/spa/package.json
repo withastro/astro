@@ -1,0 +1,17 @@
+{
+  "name": "@example/spa",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "@astrojs/vue": "^0.0.2",
+    "@astrojs/spa": "^0.0.1",
+    "astro": "^0.25.2",
+    "vue": "^3.2.30"
+  }
+}
