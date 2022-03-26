@@ -1,0 +1,40 @@
+---
+import Counter from '../components/Counter.vue';
+
+export async function getStaticPaths() {
+  const { results: allPokemon } = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=2000`).then(res => res.json());
+  return allPokemon.map((pokemon, i, all) => ({
+		params: { pokemon: pokemon.name },
+		props: {
+			prev: `/${all[i - 1]?.name ?? ''}`,
+			index: i,
+			pokemon,
+			next: `/${all[i + 1]?.name ?? ''}`,
+		}
+	}));
+}
+
+const { pokemon, prev, next } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <title>{pokemon.name}</title>
+		<style>
+			main {
+				display: flex;
+			}
+		</style>
+  </head>
+
+  <body>
+    <h1>{pokemon.name}</h1>
+
+		<main>
+			<Counter client:visible>
+				Persistent!
+			</Counter>
+		</main>
+
+		<p><a href={prev}>Previous</a> / <a href={next}>Next</a></p>
+  </body>
+</html>

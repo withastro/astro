@@ -284,6 +284,18 @@ importers:
       astro: link:../../packages/astro
       sass: 1.49.9
 
+  examples/spa:
+    specifiers:
+      '@astrojs/spa': ^0.0.1
+      '@astrojs/vue': ^0.0.2
+      astro: ^0.25.2
+      vue: ^3.2.30
+    devDependencies:
+      '@astrojs/spa': link:../../packages/integrations/spa
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+      vue: 3.2.31
+
   examples/ssr:
     specifiers:
       '@astrojs/node': ^0.0.2
