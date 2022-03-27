@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { z } from 'zod';
 import stripAnsi from 'strip-ansi';
-import { formatConfigError, validateConfig } from '../dist/core/config.js';
+import { formatConfigErrorMessage } from '../dist/core/messages.js';
+import { validateConfig } from '../dist/core/config.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
@@ -22,7 +23,7 @@ describe('Config Validation', () => {
 	it('A validation error can be formatted correctly', async () => {
 		const configError = await validateConfig({ buildOptions: { sitemap: 42 } }, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
+		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
   ! buildOptions.sitemap  Expected boolean, received number.`
@@ -37,7 +38,7 @@ describe('Config Validation', () => {
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
+		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
   ! pages  Expected string, received object.

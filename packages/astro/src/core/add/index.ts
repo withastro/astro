@@ -54,6 +54,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	}
 	applyPolyfill();
 
+	// If no integrations were given, prompt the user for some popular ones.
 	if (names.length === 0) {
 		const response = await prompts([
 			{
@@ -72,16 +73,13 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 			},
 		]);
 
-		if (!response.frameworks && !response.addons) {
-			info(logging, null, msg.cancelled(`Integrations skipped.`, `You can always run ${cyan('astro add')} later!`));
-			return;
-		}
-		const selected = [response.frameworks ?? [], response.addons ?? []].flat(1);
-		if (selected.length === 0) {
-			error(logging, null, `\n${red('No integrations specified!')}\n${dim('Try running')} astro add again.`);
-			return;
-		}
-		names = selected;
+		names = [...(response.frameworks ?? []), ...(response.addons ?? [])];
+	}
+
+	// If still empty after prompting, exit gracefully.
+	if (names.length === 0) {
+		error(logging, null, `No integrations specified.`);
+		return;
 	}
 
 	// Some packages might have a common alias! We normalize those here.
