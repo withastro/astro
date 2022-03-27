@@ -284,15 +284,23 @@ importers:
       astro: link:../../packages/astro
       sass: 1.49.9
 
-  examples/spa:
+  examples/router:
     specifiers:
       '@astrojs/router': ^0.0.1
+      '@astrojs/spa': ^0.0.1
+      astro: ^0.25.2
+    dependencies:
+      '@astrojs/router': link:../../packages/router
+    devDependencies:
+      '@astrojs/spa': link:../../packages/integrations/spa
+      astro: link:../../packages/astro
+
+  examples/spa:
+    specifiers:
       '@astrojs/spa': ^0.0.1
       '@astrojs/vue': ^0.0.2
       astro: ^0.25.2
       vue: ^3.2.30
-    dependencies:
-      '@astrojs/router': link:../../packages/router
     devDependencies:
       '@astrojs/spa': link:../../packages/integrations/spa
       '@astrojs/vue': link:../../packages/integrations/vue
