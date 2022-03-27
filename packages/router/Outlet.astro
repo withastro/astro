@@ -1,0 +1,25 @@
+---
+const { default: route, id } = Astro.props;
+
+function getRoutePath(...args) {
+	return args.map(arg => arg.replace(/^\/|\/$/g, '')).join('/');
+}
+
+let Child = Fragment;
+if (route) {
+	try {
+		const { default: Component } = await import(`/src/pages/routes/${getRoutePath(id, route)}.astro`);
+		if (Component) {
+			Child = Component;
+		}
+	} catch (e) {}
+	try {
+		const { default: Component } = await import(`/src/pages/routes/${getRoutePath(id, route)}/index.astro`);
+		if (Component) {
+			Child = Component;
+		}
+	} catch (e) {}
+}
+---
+
+<router-outlet id={id} route={route}><Child /></router-outlet>

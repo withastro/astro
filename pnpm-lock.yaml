@@ -286,10 +286,13 @@ importers:
 
   examples/spa:
     specifiers:
+      '@astrojs/router': ^0.0.1
       '@astrojs/spa': ^0.0.1
       '@astrojs/vue': ^0.0.2
       astro: ^0.25.2
       vue: ^3.2.30
+    dependencies:
+      '@astrojs/router': link:../../packages/router
     devDependencies:
       '@astrojs/spa': link:../../packages/integrations/spa
       '@astrojs/vue': link:../../packages/integrations/vue
@@ -1483,6 +1486,17 @@ importers:
       '@vitejs/plugin-vue': 2.2.4_vite@2.8.6+vue@3.2.31
       vite: 2.8.6
       vue: 3.2.31
+
+  packages/router:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      micromorph: ^0.1.2
+    dependencies:
+      micromorph: 0.1.2
+    devDependencies:
+      astro: link:../astro
+      astro-scripts: link:../../scripts
 
   packages/webapi:
     specifiers:

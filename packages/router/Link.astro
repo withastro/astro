@@ -1,0 +1,5 @@
+---
+const { for: htmlFor, to, ...props } = Astro.props;
+---
+
+<router-link {...props} for={htmlFor} to={to}><a href="#"><slot /></a></router-link>

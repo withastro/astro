@@ -1,0 +1,28 @@
+---
+import { Link, Outlet } from '@astrojs/router';
+---
+
+<html lang="en">
+  <head>
+    <title>Router</title>
+		<style>
+			main {
+				display: flex;
+			}
+		</style>
+		<script type="module" hoist src="@astrojs/router/client.js" />
+  </head>
+
+  <body>
+    <h1>Router</h1>
+
+		<main>
+			<ul>
+				<li><Link for="tabs" to="/dashboard">Dashboard</Link></li>
+				<li><Link for="tabs" to="/about">About</Link></li>
+			</ul>
+
+			<Outlet id="tabs" default="/dashboard" />
+		</main>
+  </body>
+</html>

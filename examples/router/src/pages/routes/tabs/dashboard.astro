@@ -1,0 +1,15 @@
+---
+import { Link, Outlet } from '@astrojs/router';
+---
+
+<h2>Dashboard</h2>
+
+<div>
+	<ul>
+		<li><Link for="dashboard" to="/one">One</Link></li>
+		<li><Link for="dashboard" to="/two">Two</Link></li>
+		<li><Link for="dashboard" to="/three">Three</Link></li>
+	</ul>
+
+	<Outlet id="dashboard" default="/one" />
+</div>
