@@ -1,0 +1,18 @@
+---
+import Titlebar from '../../../components/Titlebar.astro';
+---
+
+<Titlebar>
+	<slot name="title" />
+</Titlebar>
+
+<div class="content">
+	<slot />
+</div>
+
+<style>
+	.content {
+		padding: 1rem;
+		display: flex;
+	}
+</style>

@@ -1,28 +1,52 @@
 ---
-import { Link, Outlet } from '@astrojs/router';
+import { Outlet } from '@astrojs/router';
+import Nav from '../components/Nav.astro';
 ---
 
 <html lang="en">
   <head>
     <title>Router</title>
 		<style>
-			main {
+			body {
 				display: flex;
+				flex-flow: column wrap;
+				min-height: 100vh;
+			}
+			header {
+				display: flex;
+				align-items: center;
+				width: 100vw;
+			}
+			html {
+				background: rgb(243 244 246 / 1);
+			}
+		</style>
+		<style global>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html {
+				font-family: system-ui, sans-serif;
+			}
+			ul[role="list"] {
+				list-style: none;
+			}
+			a {
+				text-decoration: none;
 			}
 		</style>
 		<script type="module" hoist src="@astrojs/router/client.js" />
   </head>
 
   <body>
-    <h1>Router</h1>
+    <header>
+			<Nav />
+		</header>
 
 		<main>
-			<ul>
-				<li><Link for="tabs" to="/dashboard">Dashboard</Link></li>
-				<li><Link for="tabs" to="/about">About</Link></li>
-			</ul>
-
-			<Outlet id="tabs" default="/dashboard" />
+			<Outlet id="main" default="/dashboard" />
 		</main>
   </body>
 </html>

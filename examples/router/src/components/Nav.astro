@@ -1,0 +1,36 @@
+---
+import { Link } from '@astrojs/router';
+---
+
+<nav>
+	<ul role="list">
+		<li><Link class="navlink" for="main" to="/dashboard">Dashboard</Link></li>
+		<li><Link class="navlink" for="main" to="/projects">Projects</Link></li>
+		<li><Link class="navlink" for="main" to="/team">Team</Link></li>
+	</ul>
+</nav>
+
+<style>
+	nav {
+		padding: 1rem;
+		background: rgb(31 41 55 / 1);
+		width: 100%;
+	}
+	ul {
+		display: flex;
+		gap: 0.5em;
+	}
+	.navlink {
+		color: rgb(209 213 219 / 1);
+		padding: 0.25em 0.67em;
+		border-radius: 4px;
+	}
+	.navlink:is(:hover, :focus) {
+		background: rgb(55 65 81 / 1);
+		color: white;
+	}
+	.navlink[aria-current="true"] {
+		background: rgb(17 24 39 / 1);
+		color: white;
+	}
+</style>

@@ -1,7 +1,9 @@
 ---
 import Box from '../../../components/Box.astro'
+import Layout from './_layout.astro';
 ---
 
-<h3>Two</h3>
-
-<Box color="blue" />
+<Layout>
+	<Fragment slot="title">Three</Fragment>
+	<Box color="blue" />
+</Layout>

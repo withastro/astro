@@ -288,11 +288,13 @@ importers:
     specifiers:
       '@astrojs/router': ^0.0.1
       '@astrojs/spa': ^0.0.1
+      '@astrojs/tailwind': ^0.0.2
       astro: ^0.25.2
     dependencies:
       '@astrojs/router': link:../../packages/router
     devDependencies:
       '@astrojs/spa': link:../../packages/integrations/spa
+      '@astrojs/tailwind': link:../../packages/integrations/tailwind
       astro: link:../../packages/astro
 
   examples/spa:

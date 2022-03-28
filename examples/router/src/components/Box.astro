@@ -5,10 +5,11 @@ const { color = "red" } = Astro.props;
 <div class="box" />
 
 <style define:vars={{ color }}>
-	.box {
-		--size: 400px;
-		width: var(--size);
-		height: var(--size);
-		background: var(--color);
-	}
+div {
+	display: block;
+	--size: 256px;
+	width: var(--size);
+	height: var(--size);
+	background: var(--color);
+}
 </style>

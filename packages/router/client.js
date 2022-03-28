@@ -4,16 +4,36 @@ function getRoutePath(...args) {
 	return args.map(arg => arg.replace(/^\/|\/$/, '')).join('/');
 }
 
+const s = new XMLSerializer();
 const p = new DOMParser();
+const initialChildren = new Set(Array.from(document.head.children).map(child => s.serializeToString(child)));
 class RouterOutlet extends HTMLElement {
+	constructor() {
+		super();
+	}
 	connectedCallback() {
 		this.isUpdating = false;
 		this.updateLinks();
 	}
 	updateLinks() {
-		document.querySelectorAll(`router-link[for="${this.getAttribute('id')}"]`).forEach(link => {
-			link.ariaCurrent = (link.to === this.route);
-		})
+		const current = this.getAttribute('route');
+		const links = document.querySelectorAll(`router-link[for="${this.getAttribute('id')}"]`);
+		for (const link of links) {
+			if (current === link.getAttribute('to')) {
+				link.parentElement.setAttribute("aria-current", "true");
+			} else {
+				link.parentElement.removeAttribute("aria-current");
+			}
+		}
+	}
+	mergeHead(newHead) {
+		const currentChildren = new Map(Array.from(document.head.children).map(child => [s.serializeToString(child), child]));
+		const newChildren = new Map(Array.from(newHead.children).map(child => [s.serializeToString(child), child]).filter(([key]) => !currentChildren.has(key) && !initialChildren.has(key) && !(!import.meta.env.PROD && key.includes('astro&amp;type=script&amp;index=0'))));
+		for (const [key, child] of currentChildren.entries()) {
+			if (initialChildren.has(key) || newChildren.has(key)) continue;
+			child.remove();
+		}
+		document.head.append(...newChildren.values());
 	}
 	static get observedAttributes() { return ['route']; }
 	async attributeChangedCallback(_, oldValue, newValue) {
@@ -22,9 +42,10 @@ class RouterOutlet extends HTMLElement {
 		if (oldValue === newValue) return;
 		this.isUpdating = true;
 		const text = await fetch(`/routes/${getRoutePath(this.getAttribute('id'), newValue)}`).then(res => res.text());
-		const children = p.parseFromString(text, 'text/html').body.children;
-		const clone = this.cloneNode(true)
-		clone.replaceChildren(...children);
+		const { head, body } = p.parseFromString(text, 'text/html');
+		const clone = this.cloneNode(true);
+		clone.replaceChildren(...body.children);
+		this.mergeHead(head);
 		await morph(this, clone);
 		this.updateLinks();
 		this.isUpdating = false;
@@ -44,11 +65,11 @@ class RouterLink extends HTMLElement {
 	}
 	connectedCallback() {
 		this.target = document.querySelector(`router-outlet#${this.getAttribute('for')}`);
-		this.addEventListener('click', this.handleClick);
+		this.parentElement.addEventListener('click', this.handleClick);
 	}
 	disconnectedCallback() {
 		this.target = null;
-		this.removeEventListener('click', this.handleClick);
+		this.parentElement.removeEventListener('click', this.handleClick);
 	}
 }
 customElements.define('router-link', RouterLink);

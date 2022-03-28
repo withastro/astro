@@ -1,24 +1,24 @@
 ---
 const { default: route, id } = Astro.props;
 
-function getRoutePath(...args) {
-	return args.map(arg => arg.replace(/^\/|\/$/g, '')).join('/');
+function getRoutePath(...parts: string[]) {
+	return parts.map(part => part.replace(/^\/|\/$/g, '')).join('/');
+}
+
+const routes = import.meta.glob('/src/pages/routes/**/*');
+const components = new Map();
+for (let [key, getComponent] of Object.entries(routes)) {
+	key = key.replace(`/src/pages/routes/`, '').split('.').slice(0, -1).join('').replace(/\/index$/, '');
+	components.set(key, getComponent)
 }
 
 let Child = Fragment;
 if (route) {
-	try {
-		const { default: Component } = await import(`/src/pages/routes/${getRoutePath(id, route)}.astro`);
-		if (Component) {
-			Child = Component;
-		}
-	} catch (e) {}
-	try {
-		const { default: Component } = await import(`/src/pages/routes/${getRoutePath(id, route)}/index.astro`);
-		if (Component) {
-			Child = Component;
-		}
-	} catch (e) {}
+	const target = getRoutePath(id, route);
+	const fn = components.get(target)
+	if (fn) {
+		Child = fn().then((mod) => mod.default);
+	}
 }
 ---
 

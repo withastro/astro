@@ -1,0 +1,36 @@
+---
+import { Link, Outlet } from '@astrojs/router';
+import Layout from './_layout.astro';
+---
+
+<Layout>
+	<Fragment slot="title">Dashboard</Fragment>
+
+	<div class="main">
+		<ul role="list">
+			<li><Link class="dash-link" for="dashboard" to="/one">One</Link></li>
+			<li><Link class="dash-link" for="dashboard" to="/two">Two</Link></li>
+			<li><Link class="dash-link" for="dashboard" to="/three">Three</Link></li>
+		</ul>
+		<Outlet id="dashboard" default="/one" />
+	</div>
+</Layout>
+
+<style>
+	.main {
+		display: grid;
+		width: 100%;
+		grid-template-columns: 1fr 3fr;
+	}
+	ul {
+		display: flex;
+		flex-flow: column nowrap;
+		gap: 0.5rem;
+	}
+	.dash-link {
+		color: black;
+	}
+	.dash-link[aria-current] {
+		font-weight: bold;
+	}
+</style>
