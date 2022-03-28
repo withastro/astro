@@ -42,19 +42,17 @@ export const defaultLogDestination = new Writable({
 		function getPrefix() {
 			let prefix = '';
 			let type = event.type;
-			if (event.showTimestamp) {
-				prefix += dim(dt.format(new Date()) + ' ');
-			}
 			if (type) {
+				// hide timestamp when type is undefined
+				prefix += dim(dt.format(new Date()) + ' ');
 				if (event.level === 'info') {
 					type = bold(cyan(`[${type}]`));
 				} else if (event.level === 'warn') {
 					type = bold(yellow(`[${type}]`));
 				} else if (event.level === 'error') {
 					type = bold(red(`[${type}]`));
-				} else {
-					throw new Error(`internal error: unknown log type "${type}"`);
 				}
+
 				prefix += `${type} `;
 			}
 			return reset(prefix);
@@ -98,7 +96,6 @@ export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // sam
 export type LoggerEvent = 'info' | 'warn' | 'error';
 
 export interface LogOptions {
-	showTimestamp?: boolean;
 	dest?: LogWritable<LogMessage>;
 	level?: LoggerLevel;
 }
@@ -106,7 +103,6 @@ export interface LogOptions {
 export const defaultLogOptions: Required<LogOptions> = {
 	dest: defaultLogDestination,
 	level: 'info',
-	showTimestamp: true,
 };
 
 export interface LogMessage {
@@ -114,7 +110,6 @@ export interface LogMessage {
 	level: LoggerLevel;
 	message: string;
 	args: Array<any>;
-	showTimestamp: boolean;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -135,13 +130,11 @@ export function enableVerboseLogging() {
 export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | null, ...args: Array<any>) {
 	const logLevel = opts.level ?? defaultLogOptions.level;
 	const dest = opts.dest ?? defaultLogOptions.dest;
-	const showTimestamp = opts.showTimestamp ?? defaultLogOptions.showTimestamp;
 	const event: LogMessage = {
 		type,
 		level,
 		args,
 		message: '',
-		showTimestamp,
 	};
 
 	// test if this level is enabled or not

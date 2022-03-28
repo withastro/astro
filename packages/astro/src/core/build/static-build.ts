@@ -169,7 +169,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	// TODO: use vite.mergeConfig() here?
-	info(opts.logging, 'build', `${bgGreen(black(' building client '))}\n`);
+	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`); 
 
 	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
@@ -207,8 +207,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		server: viteConfig.server,
 		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
-	info({ ...opts.logging, showTimestamp: false }, null, ``);
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer, performance.now())}.`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
 

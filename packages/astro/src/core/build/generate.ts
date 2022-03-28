@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
+import { bgGreen, bgMagenta, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
@@ -68,8 +68,7 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	const timer = performance.now();
-	const generateLogging = { ...opts.logging, showTimestamp: false };
-	info(opts.logging, 'build', `${bgMagenta(black(' generating html '))}\n`);
+	info(opts.logging, null, `\n${bgGreen(black(' generating html '))}`);
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const serverEntry = opts.buildConfig.serverEntry;
@@ -80,8 +79,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry);
 	}
-	info(generateLogging, null, ``);
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer, performance.now())}.`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
 async function generatePage(
@@ -93,7 +91,6 @@ async function generatePage(
 ) {
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
-	const generateLogging = { ...opts.logging, showTimestamp: false };
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
@@ -114,8 +111,8 @@ async function generatePage(
 		renderers,
 	};
 
-	const icon = pageData.route.type === 'page' ? cyan('▶') : magenta('λ');
-	info(generateLogging, null, `${icon} ${pageData.route.component}`);
+	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
+	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
 	for (let i = 0; i < pageData.paths.length; i++) {
 		const path = pageData.paths[i];
@@ -125,7 +122,7 @@ async function generatePage(
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(opts.astroConfig, path);
 		const lineIcon = i === pageData.paths.length - 1 ? '└─' : '├─';
-		info(generateLogging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 	}
 }
 

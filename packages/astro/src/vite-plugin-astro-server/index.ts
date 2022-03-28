@@ -209,7 +209,7 @@ async function handleRequest(
 	} catch (_err) {
 		debugger;
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		error({ ...logging, showTimestamp: false }, null, msg.formatErrorMessage(err));
+		error(logging, null, msg.formatErrorMessage(err));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }
