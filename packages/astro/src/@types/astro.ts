@@ -161,7 +161,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: AstroIntegration[];
+	integrations?: Array<AstroIntegration | AstroIntegration[]>;
 
 	/**
 	 * @docs

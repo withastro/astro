@@ -1,5 +1,11 @@
 # astro
 
+## 0.25.3
+
+### Patch Changes
+
+- [#2918](https://github.com/withastro/astro/pull/2918) [`77354c89`](https://github.com/withastro/astro/commit/77354c89bd606beba71231cce6ce935905de68a7) Thanks [@matthewp](https://github.com/matthewp)! - Prevent CSS from being added to the wrong pages
+
 ## 0.25.2
 
 ### Patch Changes
