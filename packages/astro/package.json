@@ -102,6 +102,7 @@
     "htmlparser2": "^7.2.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.9",
+    "micromatch": "^4.0.5",
     "micromorph": "^0.1.2",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
@@ -143,6 +144,7 @@
     "@types/diff": "^5.0.2",
     "@types/estree": "^0.0.51",
     "@types/html-escaper": "^3.0.0",
+    "@types/micromatch": "^4.0.2",
     "@types/mime": "^2.0.3",
     "@types/mocha": "^9.1.0",
     "@types/parse5": "^6.0.3",
@@ -155,7 +157,8 @@
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.10",
     "mocha": "^9.2.2",
-    "sass": "^1.49.9"
+    "sass": "^1.49.9",
+    "type-fest": "^2.12.1"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0",

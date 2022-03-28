@@ -206,7 +206,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: { scripts: [], renderers: [], adapter: undefined },
+		_ctx: { scripts: [], renderers: [], adapter: undefined, ignoredPages: [] },
 	};
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (!result.experimentalIntegrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {

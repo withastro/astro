@@ -24,6 +24,9 @@ export async function runHookConfigSetup({ config: _config, command }: { config:
 				updateConfig: (newConfig) => {
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
 				},
+				ignorePages: (glob: string) => {
+					updatedConfig._ctx.ignoredPages.push(glob);
+				},
 			});
 		}
 	}

@@ -4,6 +4,7 @@ import type { LogOptions } from '../../logger';
 import fs from 'fs';
 import path from 'path';
 import { compile } from 'path-to-regexp';
+import micromatch from 'micromatch';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger.js';
@@ -178,10 +179,15 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || fileURLToPath(config.projectRoot), resolved));
+			const pagePath = slash(path.relative(fileURLToPath(config.pages), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
 			const name = ext ? basename.slice(0, -ext.length) : basename;
+
+			if ((config._ctx?.ignoredPages || []).length > 0 && micromatch.isMatch(pagePath, config._ctx.ignoredPages)) {
+				return;
+			}
 
 			if (name[0] === '_') {
 				return;
