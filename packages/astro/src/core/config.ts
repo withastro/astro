@@ -140,7 +140,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		console.error('Update your configuration and install new dependencies:');
 		try {
 			const rendererKeywords = userConfig.renderers.map((r: string) => r.replace('@astrojs/renderer-', ''));
-			const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r}';`).join('\n');
+      const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r === "solid" ? "solid-js" : r}';`).join("\n");
 			const rendererIntegrations = rendererKeywords.map((r: string) => `    ${r}(),`).join('\n');
 			console.error('');
 			console.error(colors.dim('  // astro.config.js'));
