@@ -7,7 +7,6 @@ import { prependForwardSlash } from '../../../core/path.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
-import { errorHandler } from './error.js';
 import { getHmrScript } from './hmr.js';
 import { injectTags } from './html.js';
 export interface SSROptions {
@@ -216,11 +215,6 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 }
 
 export async function ssr(preloadedComponent: ComponentPreload, ssrOpts: SSROptions): Promise<RenderResponse> {
-	try {
-		const [renderers, mod] = preloadedComponent;
-		return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
-	} catch (e: unknown) {
-		await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
-		throw e;
-	}
+	const [renderers, mod] = preloadedComponent;
+	return await render(renderers, mod, ssrOpts); // NOTE: without "await", errors won’t get caught below
 }

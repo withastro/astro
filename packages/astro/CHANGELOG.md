@@ -1,5 +1,25 @@
 # astro
 
+## 0.25.4
+
+### Patch Changes
+
+- [#2907](https://github.com/withastro/astro/pull/2907) [`22b1432e`](https://github.com/withastro/astro/commit/22b1432e3eed6ff40a0ab383c8f1f06f0df10d62) Thanks [@delucis](https://github.com/delucis)! - Fix typing of `integrations` array in user config
+
+## 0.25.3
+
+### Patch Changes
+
+- [#2918](https://github.com/withastro/astro/pull/2918) [`77354c89`](https://github.com/withastro/astro/commit/77354c89bd606beba71231cce6ce935905de68a7) Thanks [@matthewp](https://github.com/matthewp)! - Prevent CSS from being added to the wrong pages
+
+## 0.25.2
+
+### Patch Changes
+
+- [#2894](https://github.com/withastro/astro/pull/2894) [`9d6e0b5d`](https://github.com/withastro/astro/commit/9d6e0b5dbac1e5c31f580c6234e977a3a3a4918f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add the "--experimental-integrations" flag to enable 3rd-party integrations.
+
+* [#2893](https://github.com/withastro/astro/pull/2893) [`f2684512`](https://github.com/withastro/astro/commit/f26845126863e7566e43f118af5d4eb2d991733c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - tailwind: add a default "contents" configuration that works for most Astro projects
+
 ## 0.25.1
 
 ### Patch Changes

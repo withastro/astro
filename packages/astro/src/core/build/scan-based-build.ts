@@ -76,6 +76,7 @@ export async function build(opts: ScanBasedBuildOptions): Promise<RollupOutput |
 			}),
 			rollupPluginAstroBuildCSS({
 				internals,
+				legacy: true,
 			}),
 			...(viteConfig.plugins || []),
 		],

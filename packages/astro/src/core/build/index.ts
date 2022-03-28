@@ -16,6 +16,8 @@ import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
+import { createSafeError } from '../util.js';
+import { fixViteErrorMessage } from '../errors.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -24,8 +26,9 @@ export interface BuildOptions {
 
 /** `astro build` */
 export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
+	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
-	await builder.build();
+	await builder.run();
 }
 
 class AstroBuilder {
@@ -35,32 +38,30 @@ class AstroBuilder {
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
-	private viteServer?: vite.ViteDevServer;
-	private viteConfig?: ViteConfigWithSSR;
+	private timer: Record<string, number>;
 
 	constructor(config: AstroConfig, options: BuildOptions) {
-		applyPolyfill();
-
 		if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
 			warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
 		}
-
-		if (options.mode) this.mode = options.mode;
+		if (options.mode) {
+			this.mode = options.mode;
+		}
 		this.config = config;
 		const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
+		this.timer = {};
 	}
 
-	async build() {
-		info(this.logging, 'build', 'Initial setup...');
-
-		const { logging, origin } = this;
-		const timer: Record<string, number> = {};
-		timer.init = performance.now();
-		timer.viteStart = performance.now();
+	/** Setup Vite and run any async setup logic that couldn't run inside of the constructor. */
+	private async setup() {
+		debug('build', 'Initial setup...');
+		const { logging } = this;
+		this.timer.init = performance.now();
+		this.timer.viteStart = performance.now();
 		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
 		const viteConfig = await createVite(
 			{
@@ -74,10 +75,14 @@ class AstroBuilder {
 		);
 		await runHookConfigDone({ config: this.config });
 		warnIfUsingExperimentalSSR(logging, this.config);
-		this.viteConfig = viteConfig;
 		const viteServer = await vite.createServer(viteConfig);
-		this.viteServer = viteServer;
-		debug('build', timerMessage('Vite started', timer.viteStart));
+		debug('build', timerMessage('Vite started', this.timer.viteStart));
+		return { viteConfig, viteServer };
+	}
+
+	/** Run the build logic. build() is marked private because usage should go through ".run()" */
+	private async build({ viteConfig, viteServer }: { viteConfig: ViteConfigWithSSR; viteServer: vite.ViteDevServer }) {
+		const { origin } = this;
 		const buildConfig: BuildConfig = {
 			client: new URL('./client/', this.config.dist),
 			server: new URL('./server/', this.config.dist),
@@ -86,15 +91,15 @@ class AstroBuilder {
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
-		info(this.logging, 'build', 'Collecting page data...');
-		timer.loadStart = performance.now();
+		info(this.logging, 'build', 'Collecting build information...');
+		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
 			astroConfig: this.config,
 			logging: this.logging,
 			manifest: this.manifest,
 			origin,
 			routeCache: this.routeCache,
-			viteServer: this.viteServer,
+			viteServer,
 			ssr: this.config.buildOptions.experimentalSsr,
 		});
 
@@ -104,21 +109,21 @@ class AstroBuilder {
 				// TODO: add better type inference to data.preload[1]
 				const frontmatter = (data.preload[1] as any).frontmatter;
 				if (Boolean(frontmatter.draft) && !this.config.buildOptions.drafts) {
-					debug('build', timerMessage(`Skipping draft page ${page}`, timer.loadStart));
+					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
 					delete allPages[page];
 				}
 			}
 		});
 
-		debug('build', timerMessage('All pages loaded', timer.loadStart));
+		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
 		// The names of each pages
 		const pageNames: string[] = [];
 
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
-		timer.buildStart = performance.now();
-		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(timer.init, performance.now())}`));
+		this.timer.buildStart = performance.now();
+		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`));
 
 		// Use the new faster static based build.
 		if (!this.config.buildOptions.legacyBuild) {
@@ -130,7 +135,7 @@ class AstroBuilder {
 				origin: this.origin,
 				pageNames,
 				routeCache: this.routeCache,
-				viteConfig: this.viteConfig,
+				viteConfig,
 				buildConfig,
 			});
 		} else {
@@ -141,13 +146,13 @@ class AstroBuilder {
 				origin: this.origin,
 				pageNames,
 				routeCache: this.routeCache,
-				viteConfig: this.viteConfig,
-				viteServer: this.viteServer,
+				viteConfig,
+				viteServer,
 			});
 		}
 
 		// Write any additionally generated assets to disk.
-		timer.assetsStart = performance.now();
+		this.timer.assetsStart = performance.now();
 		Object.keys(assets).map((k) => {
 			if (!assets[k]) return;
 			const filePath = new URL(`file://${k}`);
@@ -155,11 +160,11 @@ class AstroBuilder {
 			fs.writeFileSync(filePath, assets[k], 'utf8');
 			delete assets[k]; // free up memory
 		});
-		debug('build', timerMessage('Additional assets copied', timer.assetsStart));
+		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// Build your final sitemap.
 		if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
-			timer.sitemapStart = performance.now();
+			this.timer.sitemapStart = performance.now();
 			const sitemapFilter = this.config.buildOptions.sitemapFilter ? (this.config.buildOptions.sitemapFilter as (page: string) => boolean) : undefined;
 			const sitemap = generateSitemap(
 				pageNames.map((pageName) => new URL(pageName, this.config.buildOptions.site).href),
@@ -168,16 +173,27 @@ class AstroBuilder {
 			const sitemapPath = new URL('./sitemap.xml', this.config.dist);
 			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
 			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
-			debug('build', timerMessage('Sitemap built', timer.sitemapStart));
+			debug('build', timerMessage('Sitemap built', this.timer.sitemapStart));
 		}
 
 		// You're done! Time to clean up.
 		await viteServer.close();
 		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map((pd) => pd.route) });
 
-		if (logging.level && levels[logging.level] <= levels['info']) {
+		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
 			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';
-			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length, buildMode });
+			await this.printStats({ logging: this.logging, timeStart: this.timer.init, pageCount: pageNames.length, buildMode });
+		}
+	}
+
+	/** Build the given Astro project.  */
+	async run() {
+		const setupData = await this.setup();
+		try {
+			await this.build(setupData);
+		} catch (_err) {
+			debugger;
+			throw fixViteErrorMessage(createSafeError(_err), setupData.viteServer);
 		}
 	}
 
@@ -188,14 +204,12 @@ class AstroBuilder {
 
 		let messages: string[] = [];
 		if (buildMode === 'static') {
-			const timePerPage = Math.round(buildTime / pageCount);
-			const perPageMsg = colors.dim(`(${colors.bold(`${timePerPage}ms`)} avg per page + resources)`);
-			messages = [`${pageCount} pages built in`, colors.bold(total), perPageMsg];
+			messages = [`${pageCount} page(s) built in`, colors.bold(total)];
 		} else {
 			messages = ['Server built in', colors.bold(total)];
 		}
 
 		info(logging, 'build', messages.join(' '));
-		info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
+		info(logging, 'build', `${colors.bold('Complete!')}`);
 	}
 }

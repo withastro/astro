@@ -2,7 +2,7 @@ import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { RenderResponse, SSROptions } from '../core/render/dev/index';
-import { info, warn, error, LogOptions } from '../core/logger.js';
+import { debug, info, warn, error, LogOptions } from '../core/logger.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
@@ -10,11 +10,10 @@ import { createSafeError } from '../core/util.js';
 import { ssr, preload } from '../core/render/dev/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import * as msg from '../core/messages.js';
-
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
 import { RouteCache } from '../core/render/route-cache.js';
-import { AstroRequest } from '../core/render/request.js';
+import { fixViteErrorMessage } from '../core/errors.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -207,11 +206,10 @@ async function handleRequest(
 			const result = await ssr(preloadedComponent, options);
 			return await writeSSRResult(result, res, statusCode);
 		}
-	} catch (_err: any) {
+	} catch (_err) {
 		debugger;
-		info(logging, 'serve', msg.req({ url: pathname, statusCode: 500 }));
-		const err = createSafeError(_err);
-		error(logging, 'error', msg.err(err));
+		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
+		error(logging, null, msg.formatErrorMessage(err));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }
