@@ -8,6 +8,8 @@ import {
 	Hover,
 	LocationLink,
 	Position,
+	Range,
+	SemanticTokens,
 	SignatureHelp,
 	SignatureHelpContext,
 	SymbolInformation,
@@ -33,6 +35,7 @@ import {
 	toVirtualAstroFilePath,
 } from './utils';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
+import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 
 type BetterTS = typeof ts & {
 	getTouchingPropertyName(sourceFile: SourceFile, pos: number): Node;
@@ -49,6 +52,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
+	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 
 	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
 		this.configManager = configManager;
@@ -59,6 +63,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
+		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
@@ -97,6 +102,14 @@ export class TypeScriptPlugin implements Plugin {
 		});
 
 		return edit;
+	}
+
+	async getSemanticTokens(
+		textDocument: AstroDocument,
+		range?: Range,
+		cancellationToken?: CancellationToken
+	): Promise<SemanticTokens | null> {
+		return this.semanticTokensProvider.getSemanticTokens(textDocument, range, cancellationToken);
 	}
 
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {

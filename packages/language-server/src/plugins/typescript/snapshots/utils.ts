@@ -1,5 +1,4 @@
 import ts from 'typescript';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { AstroDocument } from '../../../core/documents';
 import astro2tsx from '../astro2tsx';
 import {
@@ -7,7 +6,6 @@ import {
 	getFrameworkFromFilePath,
 	isAstroFilePath,
 	isFrameworkFilePath,
-	isVirtualFrameworkFilePath,
 } from '../utils';
 import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 import { toTSX as svelte2tsx } from '@astrojs/svelte-language-integration';

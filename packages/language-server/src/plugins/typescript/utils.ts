@@ -1,9 +1,81 @@
 import ts from 'typescript';
 import { dirname, extname } from 'path';
 import { pathToUrl } from '../../utils';
-import { CompletionItemKind, DiagnosticSeverity, Position, Range, SymbolKind } from 'vscode-languageserver';
+import {
+	CompletionItemKind,
+	DiagnosticSeverity,
+	Position,
+	Range,
+	SymbolKind,
+	SemanticTokenModifiers,
+	SemanticTokenTypes,
+	SemanticTokensLegend,
+} from 'vscode-languageserver';
 import { mapRangeToOriginal } from '../../core/documents';
 import { SnapshotFragment } from './snapshots/DocumentSnapshot';
+
+export const enum TokenType {
+	class,
+	enum,
+	interface,
+	namespace,
+	typeParameter,
+	type,
+	parameter,
+	variable,
+	enumMember,
+	property,
+	function,
+	method,
+}
+
+export const enum TokenModifier {
+	declaration,
+	static,
+	async,
+	readonly,
+	defaultLibrary,
+	local,
+}
+
+export function getSemanticTokenLegend(): SemanticTokensLegend {
+	const tokenModifiers: string[] = [];
+
+	(
+		[
+			[TokenModifier.declaration, SemanticTokenModifiers.declaration],
+			[TokenModifier.static, SemanticTokenModifiers.static],
+			[TokenModifier.async, SemanticTokenModifiers.async],
+			[TokenModifier.readonly, SemanticTokenModifiers.readonly],
+			[TokenModifier.defaultLibrary, SemanticTokenModifiers.defaultLibrary],
+			[TokenModifier.local, 'local'],
+		] as const
+	).forEach(([tsModifier, legend]) => (tokenModifiers[tsModifier] = legend));
+
+	const tokenTypes: string[] = [];
+
+	(
+		[
+			[TokenType.class, SemanticTokenTypes.class],
+			[TokenType.enum, SemanticTokenTypes.enum],
+			[TokenType.interface, SemanticTokenTypes.interface],
+			[TokenType.namespace, SemanticTokenTypes.namespace],
+			[TokenType.typeParameter, SemanticTokenTypes.typeParameter],
+			[TokenType.type, SemanticTokenTypes.type],
+			[TokenType.parameter, SemanticTokenTypes.parameter],
+			[TokenType.variable, SemanticTokenTypes.variable],
+			[TokenType.enumMember, SemanticTokenTypes.enumMember],
+			[TokenType.property, SemanticTokenTypes.property],
+			[TokenType.function, SemanticTokenTypes.function],
+			[TokenType.method, SemanticTokenTypes.method],
+		] as const
+	).forEach(([tokenType, legend]) => (tokenTypes[tokenType] = legend));
+
+	return {
+		tokenModifiers,
+		tokenTypes,
+	};
+}
 
 export function symbolKindFromString(kind: string): SymbolKind {
 	switch (kind) {

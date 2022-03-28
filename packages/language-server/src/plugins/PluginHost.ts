@@ -19,6 +19,7 @@ import {
 	TextDocumentIdentifier,
 	WorkspaceEdit,
 	SymbolInformation,
+	SemanticTokens,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -123,6 +124,16 @@ export class PluginHost {
 
 		return flatten(
 			await this.execute<SymbolInformation[]>('getDocumentSymbols', [document, cancellationToken], ExecuteMode.Collect)
+		);
+	}
+
+	async getSemanticTokens(textDocument: TextDocumentIdentifier, range?: Range, cancellationToken?: CancellationToken) {
+		const document = this.getDocument(textDocument.uri);
+
+		return await this.execute<SemanticTokens>(
+			'getSemanticTokens',
+			[document, range, cancellationToken],
+			ExecuteMode.FirstNonNull
 		);
 	}
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode-languageserver';
-import { TextDocumentIdentifier } from 'vscode-languageserver';
+import { SemanticTokensRangeRequest, SemanticTokensRequest, TextDocumentIdentifier } from 'vscode-languageserver';
 import { ConfigManager } from './core/config/ConfigManager';
 import { DocumentManager } from './core/documents/DocumentManager';
 import { DiagnosticsManager } from './core/DiagnosticsManager';
@@ -8,9 +8,10 @@ import { CSSPlugin } from './plugins/css/CSSPlugin';
 import { HTMLPlugin } from './plugins/html/HTMLPlugin';
 import { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
-import { TypeScriptPlugin } from './plugins/typescript/TypeScriptPlugin';
+import { TypeScriptPlugin } from './plugins';
 import { debounceThrottle, urlToPath } from './utils';
 import { AstroDocument } from './core/documents';
+import { getSemanticTokenLegend } from './plugins/typescript/utils';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');
@@ -84,6 +85,11 @@ export function startLanguageServer(connection: vscode.Connection) {
 				colorProvider: true,
 				hoverProvider: true,
 				documentSymbolProvider: true,
+				semanticTokensProvider: {
+					legend: getSemanticTokenLegend(),
+					range: true,
+					full: true,
+				},
 				signatureHelpProvider: {
 					triggerCharacters: ['(', ',', '<'],
 					retriggerCharacters: [')'],
@@ -152,6 +158,13 @@ export function startLanguageServer(connection: vscode.Connection) {
 
 	connection.onDocumentSymbol((params: vscode.DocumentSymbolParams, cancellationToken) =>
 		pluginHost.getDocumentSymbols(params.textDocument, cancellationToken)
+	);
+
+	connection.onRequest(SemanticTokensRequest.type, (evt, cancellationToken) =>
+		pluginHost.getSemanticTokens(evt.textDocument, undefined, cancellationToken)
+	);
+	connection.onRequest(SemanticTokensRangeRequest.type, (evt, cancellationToken) =>
+		pluginHost.getSemanticTokens(evt.textDocument, evt.range, cancellationToken)
 	);
 
 	connection.onDocumentColor((params: vscode.DocumentColorParams) => pluginHost.getDocumentColors(params.textDocument));
