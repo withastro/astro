@@ -132,7 +132,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
-					inlineDynamicImports: true,
 				},
 			},
 			// must match an esbuild target
@@ -147,6 +146,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
+				legacy: false
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -200,6 +200,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
+				legacy: false
 			}),
 			...(viteConfig.plugins || []),
 		],

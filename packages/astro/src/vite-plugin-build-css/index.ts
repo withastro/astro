@@ -1,10 +1,12 @@
-import type { BuildInternals } from '../core/build/internal';
+import { BuildInternals } from '../core/build/internal';
+import type { ModuleInfo, PluginContext } from 'rollup';
 
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/dev/css.js';
-import { getPageDatasByChunk } from '../core/build/internal.js';
+import { getPageDatasByChunk, getPageDataByViteID, hasPageDataByViteID } from '../core/build/internal.js';
+import { resolvedVirtualModuleId as virtualPagesModuleId } from '../core/build/vite-plugin-pages.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -44,11 +46,63 @@ function isPageStyleVirtualModule(id: string) {
 
 interface PluginOptions {
 	internals: BuildInternals;
+	legacy: boolean;
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-	const { internals } = options;
+	const { internals, legacy } = options;
 	const styleSourceMap = new Map<string, string>();
+
+	function * walkStyles(ctx: PluginContext, id: string, seen = new Set<string>()): Generator<[string, string], void, unknown> {
+		seen.add(id);
+		if(styleSourceMap.has(id)) {
+			yield [id, styleSourceMap.get(id)!];
+		}
+
+		const info = ctx.getModuleInfo(id);
+		if(info) {
+			for(const importedId of info.importedIds) {
+				if(!seen.has(importedId)) {
+					yield * walkStyles(ctx, importedId, seen);
+				}
+			}
+		}
+	}
+
+	/**
+	 * This walks the dependency graph looking for styles that are imported
+	 * by a page and then creates a chunking containing all of the styles for that page.
+	 * Since there is only 1 entrypoint for the entire app, we do this in order
+	 * to prevent adding all styles to all pages.
+	 */
+	async function addStyles(this: PluginContext) {
+		for(const id of this.getModuleIds()) {
+			if(hasPageDataByViteID(internals, id)) {
+				let pageStyles = '';
+				for(const [_styleId, styles] of walkStyles(this, id)) {
+					pageStyles += styles;
+				}
+
+				// Pages with no styles, nothing more to do
+				if(!pageStyles) continue;
+
+				const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
+					loader: 'css',
+					minify: true,
+				});
+				const referenceId = this.emitFile({
+					name: 'entry' + '.css',
+					type: 'asset',
+					source: minifiedCSS,
+				});
+				const fileName = this.getFileName(referenceId);
+
+				// Add CSS file to the page's pageData, so that it will be rendered with
+				// the correct links.
+				getPageDataByViteID(internals, id)?.css.add(fileName);
+			}
+		}
+	}
 
 	return {
 		name: PLUGIN_NAME,
@@ -76,7 +130,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
 			}
 		},
-
 		async resolveId(id) {
 			if (isPageStyleVirtualModule(id)) {
 				return id;
@@ -108,6 +161,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		async renderChunk(_code, chunk) {
+			if(!legacy) return null;
+
 			let chunkCSS = '';
 			let isPureCSS = true;
 			for (const [id] of Object.entries(chunk.modules)) {
@@ -147,7 +202,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		// Delete CSS chunks so JS is not produced for them.
-		generateBundle(opts, bundle) {
+		async generateBundle(opts, bundle) {
 			const hasPureCSSChunks = internals.pureCSSChunks.size;
 			const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
 			const emptyChunkFiles = [...pureChunkFilenames]
@@ -155,6 +210,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				.join('|')
 				.replace(/\./g, '\\.');
 			const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
+
+			// Crawl the module graph to find CSS chunks to create
+			if(!legacy) {
+				await addStyles.call(this);
+			}
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {
