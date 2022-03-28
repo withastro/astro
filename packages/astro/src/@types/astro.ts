@@ -65,7 +65,9 @@ export interface AstroGlobalPartial {
 	resolve: (path: string) => string;
 	/** @deprecated Use `Astro.glob()` instead. */
 	fetchContent(globStr: string): Promise<any[]>;
-	glob<T = any>(globStr: string): Promise<T[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownGlobResult<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.astro`): Promise<AstroGlobResult[]>;
+	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	site: URL;
 }
 
