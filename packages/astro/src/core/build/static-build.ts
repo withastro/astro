@@ -146,7 +146,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false
+				legacy: false,
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -200,7 +200,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false
+				legacy: false,
 			}),
 			...(viteConfig.plugins || []),
 		],

@@ -13,7 +13,7 @@ describe('Page-level styles', () => {
 		await fixture.build();
 	});
 
-	it('Doesn\'t add page styles for a page without style imports', async () => {
+	it("Doesn't add page styles for a page without style imports", async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = await cheerioLoad(html);
 		expect($('link').length).to.equal(0);

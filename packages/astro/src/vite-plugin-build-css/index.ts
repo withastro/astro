@@ -53,17 +53,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	const { internals, legacy } = options;
 	const styleSourceMap = new Map<string, string>();
 
-	function * walkStyles(ctx: PluginContext, id: string, seen = new Set<string>()): Generator<[string, string], void, unknown> {
+	function* walkStyles(ctx: PluginContext, id: string, seen = new Set<string>()): Generator<[string, string], void, unknown> {
 		seen.add(id);
-		if(styleSourceMap.has(id)) {
+		if (styleSourceMap.has(id)) {
 			yield [id, styleSourceMap.get(id)!];
 		}
 
 		const info = ctx.getModuleInfo(id);
-		if(info) {
-			for(const importedId of info.importedIds) {
-				if(!seen.has(importedId)) {
-					yield * walkStyles(ctx, importedId, seen);
+		if (info) {
+			for (const importedId of info.importedIds) {
+				if (!seen.has(importedId)) {
+					yield* walkStyles(ctx, importedId, seen);
 				}
 			}
 		}
@@ -76,15 +76,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	 * to prevent adding all styles to all pages.
 	 */
 	async function addStyles(this: PluginContext) {
-		for(const id of this.getModuleIds()) {
-			if(hasPageDataByViteID(internals, id)) {
+		for (const id of this.getModuleIds()) {
+			if (hasPageDataByViteID(internals, id)) {
 				let pageStyles = '';
-				for(const [_styleId, styles] of walkStyles(this, id)) {
+				for (const [_styleId, styles] of walkStyles(this, id)) {
 					pageStyles += styles;
 				}
 
 				// Pages with no styles, nothing more to do
-				if(!pageStyles) continue;
+				if (!pageStyles) continue;
 
 				const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
 					loader: 'css',
@@ -161,7 +161,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		async renderChunk(_code, chunk) {
-			if(!legacy) return null;
+			if (!legacy) return null;
 
 			let chunkCSS = '';
 			let isPureCSS = true;
@@ -212,7 +212,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
 
 			// Crawl the module graph to find CSS chunks to create
-			if(!legacy) {
+			if (!legacy) {
 				await addStyles.call(this);
 			}
 
