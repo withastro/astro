@@ -14,12 +14,14 @@ export function createRequest(url: URL | string, headers: HeaderType, method: st
 	Object.defineProperties(request, {
 		canonicalURL: {
 			get() {
+				/* eslint-disable no-console */
 				console.warn(`Astro.request.canonicalURL has been moved to Astro.canonicalURL`);
 				return undefined;
 			}
 		},
 		params: {
 			get() {
+				/* eslint-disable no-console */
 				console.warn(`Astro.request.params has been moved to Astro.params`);
 				return undefined;
 			}
