@@ -4,9 +4,8 @@ import type { ModuleInfo, PluginContext } from 'rollup';
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/dev/css.js';
+import { isCSSRequest } from '../core/render/util.js';
 import { getPageDatasByChunk, getPageDataByViteID, hasPageDataByViteID } from '../core/build/internal.js';
-import { resolvedVirtualModuleId as virtualPagesModuleId } from '../core/build/vite-plugin-pages.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 

@@ -2,7 +2,7 @@ import type { ComponentInstance, GetStaticPathsItem, GetStaticPathsResult, GetSt
 import { LogOptions, warn, debug } from '../logger.js';
 
 import { generatePaginateFunction } from './paginate.js';
-import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../routing/index.js';
+import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../routing/validation.js';
 
 type RSSFn = (...args: any[]) => any;
 

@@ -20,6 +20,7 @@ import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
+import { runHookBuildServerSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -112,8 +113,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const { astroConfig, viteConfig } = opts;
 	const ssr = astroConfig.buildOptions.experimentalSsr;
 	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
-	// TODO: use vite.mergeConfig() here?
-	return await vite.build({
+
+	const viteBuildConfig = {
 		logLevel: 'error',
 		mode: 'production',
 		css: viteConfig.css,
@@ -122,7 +123,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			emptyOutDir: false,
 			manifest: false,
 			outDir: fileURLToPath(out),
-			ssr: true,
 			rollupOptions: {
 				input: [],
 				output: {
@@ -132,6 +132,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/asset.[hash][extname]',
 				},
 			},
+			ssr: true,
 			// must match an esbuild target
 			target: 'esnext',
 			// improve build performance
@@ -156,7 +157,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		server: viteConfig.server,
 		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
 		ssr: viteConfig.ssr,
-	} as ViteConfigWithSSR);
+		resolve: viteConfig.resolve
+	} as ViteConfigWithSSR;
+
+	await runHookBuildServerSetup({ config: astroConfig, vite: viteBuildConfig });
+
+	// TODO: use vite.mergeConfig() here?
+	return await vite.build(viteBuildConfig);
 }
 
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {

@@ -1,9 +1,9 @@
 import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
-import nodejs from '@astrojs/node';
+import deno from '@astrojs/deno';
 
 // https://astro.build/config
 export default defineConfig({
-	adapter: nodejs(),
+	adapter: deno(),
 	integrations: [svelte()],
 });

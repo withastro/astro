@@ -1,16 +1,8 @@
 import type { AstroConfig } from '../@types/astro';
 import { bold, cyan, dim, red, yellow, reset } from 'kleur/colors';
-import { performance } from 'perf_hooks';
-import { Writable } from 'stream';
 import stringWidth from 'string-width';
-import * as readline from 'readline';
-import debugPackage from 'debug';
+//import debugPackage from 'debug';
 import { format as utilFormat } from 'util';
-import { isBuildingToSSR } from './util.js';
-
-type ConsoleStream = Writable & {
-	fd: 1 | 2;
-};
 
 function getLoggerLocale(): string {
 	const defaultLocale = 'en-US';
@@ -29,14 +21,15 @@ const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
 	second: '2-digit',
 });
 
+
+
 let lastMessage: string;
 let lastMessageCount = 1;
-export const defaultLogDestination = new Writable({
-	objectMode: true,
-	write(event: LogMessage, _, callback) {
-		let dest: ConsoleStream = process.stderr;
+export const defaultLogDestination = {
+	write(event: LogMessage) {
+		let dest = console.error;
 		if (levels[event.level] < levels['error']) {
-			dest = process.stdout;
+			dest = console.log;
 		}
 
 		function getPrefix() {
@@ -65,14 +58,14 @@ export const defaultLogDestination = new Writable({
 			if (levels[event.level] < levels['error']) {
 				let lines = 1;
 				let len = stringWidth(`${getPrefix()}${message}`);
-				let cols = (dest as typeof process.stdout).columns;
+				let cols = (dest as unknown as typeof process.stdout).columns;
 				if (len > cols) {
 					lines = Math.ceil(len / cols);
 				}
 				for (let i = 0; i < lines; i++) {
-					readline.clearLine(dest, 0);
+					/*readline.clearLine(dest, 0);
 					readline.cursorTo(dest, 0);
-					readline.moveCursor(dest, 0, -1);
+					readline.moveCursor(dest, 0, -1);*/
 				}
 			}
 			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
@@ -80,15 +73,14 @@ export const defaultLogDestination = new Writable({
 			lastMessage = message;
 			lastMessageCount = 1;
 		}
-		dest.write(getPrefix());
-		dest.write(message);
-		dest.write('\n');
-
-		callback();
+		dest(getPrefix());
+		dest(message);
+		dest('\n');
+		return true;
 	},
-});
+};
 
-interface LogWritable<T> extends Writable {
+interface LogWritable<T> {
 	write: (chunk: T) => boolean;
 }
 
@@ -121,7 +113,7 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 export function enableVerboseLogging() {
-	debugPackage.enable('*,-babel');
+	//debugPackage.enable('*,-babel');
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
 	debug('cli', 'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".');
 }
@@ -154,7 +146,7 @@ const debuggers: Record<string, debugPackage.Debugger['log']> = {};
  */
 export function debug(type: string, ...messages: Array<any>) {
 	const namespace = `astro:${type}`;
-	debuggers[namespace] = debuggers[namespace] || debugPackage(namespace);
+	debuggers[namespace] = debuggers[namespace] || (() => {});// debugPackage(namespace);
 	return debuggers[namespace](...messages);
 }
 
@@ -199,17 +191,21 @@ function padStr(str: string, len: number) {
 }
 
 export let defaultLogLevel: LoggerLevel;
-if (process.argv.includes('--verbose')) {
-	defaultLogLevel = 'debug';
-} else if (process.argv.includes('--silent')) {
-	defaultLogLevel = 'silent';
+if(typeof process !== 'undefined') {
+	if (process.argv.includes('--verbose')) {
+		defaultLogLevel = 'debug';
+	} else if (process.argv.includes('--silent')) {
+		defaultLogLevel = 'silent';
+	} else {
+		defaultLogLevel = 'info';
+	}
 } else {
 	defaultLogLevel = 'info';
 }
 
 /** Print out a timer message for debug() */
-export function timerMessage(message: string, startTime: number = performance.now()) {
-	let timeDiff = performance.now() - startTime;
+export function timerMessage(message: string, startTime: number = Date.now()) {
+	let timeDiff = Date.now() - startTime;
 	let timeDisplay = timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
 }
@@ -218,7 +214,7 @@ export function timerMessage(message: string, startTime: number = performance.no
  * A warning that SSR is experimental. Remove when we can.
  */
 export function warnIfUsingExperimentalSSR(opts: LogOptions, config: AstroConfig) {
-	if (isBuildingToSSR(config)) {
+	if (config._ctx.adapter?.serverEntrypoint) {
 		warn(
 			opts,
 			'warning',

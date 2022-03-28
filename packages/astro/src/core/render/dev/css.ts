@@ -2,16 +2,7 @@ import type * as vite from 'vite';
 
 import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
-
-// https://vitejs.dev/guide/features.html#css-pre-processors
-export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
-
-const cssRe = new RegExp(
-	`\\.(${Array.from(STYLE_EXTENSIONS)
-		.map((s) => s.slice(1))
-		.join('|')})($|\\?)`
-);
-export const isCSSRequest = (request: string): boolean => cssRe.test(request);
+import { STYLE_EXTENSIONS } from '../util.js';
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {

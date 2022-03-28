@@ -4,6 +4,7 @@ import type * as vite from 'vite';
 import { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
+import type { ViteConfigWithSSR } from '../core/create-vite';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -681,6 +682,7 @@ export interface AstroIntegration {
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
+		'astro:build:server:setup': (options: { vite: ViteConfigWithSSR }) => void;
 		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL; routes: RouteData[] }) => void | Promise<void>;
 	};
 }
