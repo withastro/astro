@@ -30,7 +30,7 @@
     "@example/with-nanostores": "0.0.1",
     "@example/with-tailwindcss": "0.0.1",
     "@example/with-vite-plugin-pwa": "0.0.1",
-    "astro": "0.25.3",
+    "astro": "0.25.4",
     "@astrojs/prism": "0.4.1",
     "@test/custom-element-renderer": "0.1.0",
     "@test/static-build-pkg": "0.0.0",
