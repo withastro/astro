@@ -69,6 +69,41 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		}
 	}
 
+	/**
+	 * This walks the dependency graph looking for styles that are imported
+	 * by a page and then creates a chunking containing all of the styles for that page.
+	 * Since there is only 1 entrypoint for the entire app, we do this in order
+	 * to prevent adding all styles to all pages.
+	 */
+	async function addStyles(this: PluginContext) {
+		for(const id of this.getModuleIds()) {
+			if(hasPageDataByViteID(internals, id)) {
+				let pageStyles = '';
+				for(const [_styleId, styles] of walkStyles(this, id)) {
+					pageStyles += styles;
+				}
+
+				// Pages with no styles, nothing more to do
+				if(!pageStyles) continue;
+
+				const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
+					loader: 'css',
+					minify: true,
+				});
+				const referenceId = this.emitFile({
+					name: 'entry' + '.css',
+					type: 'asset',
+					source: minifiedCSS,
+				});
+				const fileName = this.getFileName(referenceId);
+
+				// Add CSS file to the page's pageData, so that it will be rendered with
+				// the correct links.
+				getPageDataByViteID(internals, id)?.css.add(fileName);
+			}
+		}
+	}
+
 	return {
 		name: PLUGIN_NAME,
 
@@ -178,32 +213,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 			// Crawl the module graph to find CSS chunks to create
 			if(!legacy) {
-				for(const id of this.getModuleIds()) {
-					if(hasPageDataByViteID(internals, id)) {
-						let pageStyles = '';
-						for(const [_styleId, styles] of walkStyles(this, id)) {
-							pageStyles += styles;
-						}
-
-						// Pages with no styles, nothing more to do
-						if(!pageStyles) continue;
-
-						const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
-							loader: 'css',
-							minify: true,
-						});
-						const referenceId = this.emitFile({
-							name: 'entry' + '.css',
-							type: 'asset',
-							source: minifiedCSS,
-						});
-						const fileName = this.getFileName(referenceId);
-
-						// Add CSS file to the page's pageData, so that it will be rendered with
-						// the correct links.
-						getPageDataByViteID(internals, id)?.css.add(fileName);
-					}
-				}
+				await addStyles.call(this);
 			}
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
