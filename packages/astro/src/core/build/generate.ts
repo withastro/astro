@@ -68,7 +68,7 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	const timer = performance.now();
-	info(opts.logging, null, `\n${bgGreen(black(' generating html '))}`);
+	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const serverEntry = opts.buildConfig.serverEntry;
