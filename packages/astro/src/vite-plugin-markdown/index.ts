@@ -95,9 +95,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export default async function load() {
 							return (await import(${JSON.stringify(fileId + '?content')}));
 						};
-						export function getContent() {
-							return load().then((m) => m.default)
-						};
+						export function Content(...args) {
+							return load().then((m) => m.default(...args))
+						}
+						Content.isAstroComponentFactory = true;
 						export function getHeaders() {
 							return load().then((m) => m.metadata.headers)
 						};`,
