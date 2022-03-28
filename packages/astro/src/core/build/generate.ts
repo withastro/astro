@@ -205,7 +205,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
 				return fullyRelativePath;
 			},
-			request: createRequest(url, new Headers()),
+			request: createRequest({ url, headers: new Headers(), logging }),
 			route: pageData.route,
 			routeCache,
 			site: astroConfig.buildOptions.site,

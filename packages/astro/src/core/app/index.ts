@@ -10,6 +10,7 @@ import { call as callEndpoint } from '../endpoint/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
+import { createRequest } from '../request.js';
 
 export class App {
 	#manifest: Manifest;
@@ -17,6 +18,7 @@ export class App {
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#routeCache: RouteCache;
 	#encoder = new TextEncoder();
+	#logging = defaultLogOptions;
 
 	constructor(manifest: Manifest) {
 		this.#manifest = manifest;
@@ -63,7 +65,7 @@ export class App {
 		const result = await render({
 			legacyBuild: false,
 			links,
-			logging: defaultLogOptions,
+			logging: this.#logging,
 			markdownRender: manifest.markdown.render,
 			mod,
 			origin: url.origin,
@@ -81,8 +83,7 @@ export class App {
 			routeCache: this.#routeCache,
 			site: this.#manifest.site,
 			ssr: true,
-			method: info.routeData.type === 'endpoint' ? '' : 'GET',
-			headers: request.headers,
+			request,
 		});
 
 		if (result.type === 'response') {
@@ -100,15 +101,14 @@ export class App {
 		});
 	}
 
-	async #callEndpoint(request: Request, routeData: RouteData, mod: ComponentInstance): Promise<Response> {
+	async #callEndpoint(request: Request, _routeData: RouteData, mod: ComponentInstance): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {
-			headers: request.headers,
 			logging: defaultLogOptions,
-			method: request.method,
 			origin: url.origin,
 			pathname: url.pathname,
+			request,
 			routeCache: this.#routeCache,
 			ssr: true,
 		});

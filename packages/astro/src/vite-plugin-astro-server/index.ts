@@ -129,7 +129,12 @@ async function handleRequest(
 	}
 
 	// Headers are only available when using SSR.
-	const request = createRequest(url, buildingToSSR ? req.headers : new Headers(), req.method);
+	const request = createRequest({
+		url,
+		headers: buildingToSSR ? req.headers : new Headers(),
+		method: req.method,
+		logging
+	});
 
 	try {
 		if (!pathname.startsWith(devRoot)) {

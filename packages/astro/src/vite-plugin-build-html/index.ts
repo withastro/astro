@@ -16,6 +16,7 @@ import { render as ssrRender } from '../core/render/dev/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
 import { RouteCache } from '../core/render/route-cache.js';
+import { createRequest } from '../core/request.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -87,8 +88,11 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 						astroConfig,
 						filePath: new URL(`./${component}`, astroConfig.projectRoot),
 						logging,
-						headers: new Headers(),
-						method: 'GET',
+						request: createRequest({
+							url: new URL(origin + pathname),
+							headers: new Headers(),
+							logging,
+						}),
 						mode: 'production',
 						origin,
 						pathname,
