@@ -12,6 +12,7 @@ import {
 	SelectionRange,
 	TextEdit,
 	InsertReplaceEdit,
+	FoldingRange,
 } from 'vscode-languageserver';
 import { TagInformation, offsetAt, positionAt } from './utils';
 import { SourceMapConsumer } from 'source-map';
@@ -329,6 +330,28 @@ export function mapCodeActionToOriginal(fragment: DocumentMapper, codeAction: Co
 			),
 		},
 		codeAction.kind
+	);
+}
+
+export function mapFoldingRangeToParent(fragment: DocumentMapper, foldingRange: FoldingRange): FoldingRange {
+	// Despite FoldingRange asking for a start and end line and a start and end character, FoldingRanges
+	// don't use the Range type, instead asking for 4 number. Not sure why, but it's not convenient
+	const range = mapRangeToOriginal(
+		fragment,
+		Range.create(
+			foldingRange.startLine,
+			foldingRange.startCharacter || 0,
+			foldingRange.endLine,
+			foldingRange.endCharacter || 0
+		)
+	);
+
+	return FoldingRange.create(
+		range.start.line,
+		range.end.line,
+		foldingRange.startCharacter ? range.start.character : undefined,
+		foldingRange.endCharacter ? range.end.character : undefined,
+		foldingRange.kind
 	);
 }
 

@@ -109,6 +109,25 @@ describe('HTML Plugin', () => {
 		});
 	});
 
+	describe('provides folding ranges', () => {
+		it('for html', () => {
+			const { plugin, document } = setup(`
+				<div>
+					<p>Astro</p>
+				</div>
+			`);
+
+			const foldingRanges = plugin.getFoldingRanges(document);
+
+			expect(foldingRanges).to.deep.equal([
+				{
+					startLine: 1,
+					endLine: 2,
+				},
+			]);
+		});
+	});
+
 	describe('provides document symbols', () => {
 		it('for html', () => {
 			const { plugin, document } = setup('<div><p>Astro</p></div>');
@@ -129,6 +148,27 @@ describe('HTML Plugin', () => {
 					kind: 8,
 				},
 			]);
+		});
+
+		it('should not provide document symbols if feature is disabled', () => {
+			const { plugin, document, configManager } = setup('<div><p>Astro</p></div>');
+
+			// Disable documentSymbols
+			configManager.updateConfig(<any>{
+				html: {
+					documentSymbols: {
+						enabled: false,
+					},
+				},
+			});
+
+			const symbols = plugin.getDocumentSymbols(document);
+
+			expect(
+				configManager.enabled(`html.documentSymbols.enabled`),
+				'Expected documentSymbols to be disabled in configManager'
+			).to.be.false;
+			expect(symbols, 'Expected symbols to be empty').to.be.empty;
 		});
 	});
 });

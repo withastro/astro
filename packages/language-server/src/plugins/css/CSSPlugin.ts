@@ -5,6 +5,7 @@ import {
 	CompletionContext,
 	CompletionList,
 	CompletionTriggerKind,
+	FoldingRange,
 	Hover,
 	Position,
 	Range,
@@ -18,6 +19,7 @@ import {
 	isInTag,
 	mapColorPresentationToOriginal,
 	mapCompletionItemToOriginal,
+	mapFoldingRangeToParent,
 	mapHoverToParent,
 	mapObjWithRangeToOriginal,
 	mapRangeToGenerated,
@@ -27,7 +29,7 @@ import {
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
 import type { Plugin } from '../interfaces';
 import { CSSDocument, CSSDocumentBase } from './CSSDocument';
-import { getLanguageService } from './language-service';
+import { getLanguage, getLanguageService } from './language-service';
 import { AttributeContext, getAttributeContextAtPosition } from '../../core/documents/parseHtml';
 import { StyleAttributeDocument } from './StyleAttributeDocument';
 import { getIdClassCompletion } from './features/getIdClassCompletions';
@@ -71,8 +73,9 @@ export class CSSPlugin implements Plugin {
 		}
 
 		const cssDocument = this.getCSSDocumentForStyleTag(styleTag, document);
+		const cssLang = extractLanguage(cssDocument);
 
-		if (shouldExcludeHover(cssDocument)) {
+		if (!isSupportedByLangService(cssLang)) {
 			return null;
 		}
 
@@ -174,7 +177,7 @@ export class CSSPlugin implements Plugin {
 			const cssLang = extractLanguage(cssDoc);
 			const langService = getLanguageService(cssLang);
 
-			if (shouldExcludeColor(cssLang)) {
+			if (!isSupportedByLangService(cssLang)) {
 				return [];
 			}
 
@@ -195,7 +198,10 @@ export class CSSPlugin implements Plugin {
 			const cssLang = extractLanguage(cssDoc);
 			const langService = getLanguageService(cssLang);
 
-			if ((!cssDoc.isInGenerated(range.start) && !cssDoc.isInGenerated(range.end)) || shouldExcludeColor(cssLang)) {
+			if (
+				(!cssDoc.isInGenerated(range.start) && !cssDoc.isInGenerated(range.end)) ||
+				!isSupportedByLangService(cssLang)
+			) {
 				return [];
 			}
 
@@ -205,6 +211,17 @@ export class CSSPlugin implements Plugin {
 		});
 
 		return flatten(allColorPres);
+	}
+
+	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {
+		const allFoldingRanges = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+			const cssLang = extractLanguage(cssDoc);
+			const langService = getLanguageService(cssLang);
+
+			return langService.getFoldingRanges(cssDoc).map((foldingRange) => mapFoldingRangeToParent(cssDoc, foldingRange));
+		});
+
+		return flatten(allFoldingRanges);
 	}
 
 	getDocumentSymbols(document: AstroDocument): SymbolInformation[] {
@@ -274,33 +291,13 @@ export class CSSPlugin implements Plugin {
 }
 
 /**
- * Exclude certain language when getting hover info
- * The CSS language service only supports CSS, LESS and SCSS,
- * which mean that we cannot support hover info in other languages
+ * Check is a CSSDocument's language is supported by the CSS language service
  */
-function shouldExcludeHover(document: CSSDocument | string) {
-	const language = typeof document === 'string' ? document : extractLanguage(document);
+function isSupportedByLangService(language: string) {
 	switch (language) {
-		case 'sass':
-		case 'stylus':
-		case 'styl':
-			return true;
-		default:
-			return false;
-	}
-}
-
-/**
- * Exclude certain language when getting colors
- * The CSS language service only supports CSS, LESS and SCSS,
- * which mean that we cannot support colors in other languages
- */
-function shouldExcludeColor(document: CSSDocument | string) {
-	const language = typeof document === 'string' ? document : extractLanguage(document);
-	switch (language) {
-		case 'sass':
-		case 'stylus':
-		case 'styl':
+		case 'css':
+		case 'scss':
+		case 'less':
 			return true;
 		default:
 			return false;
