@@ -4,7 +4,7 @@ import { appendForwardSlash } from '../../core/path.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
-export function getOutRoot(astroConfig: AstroConfig): URL {
+function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('./', astroConfig.dist);
 }
 

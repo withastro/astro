@@ -327,11 +327,6 @@ export async function resolveConfig(userConfig: AstroUserConfig, root: string, f
 	return validatedConfig;
 }
 
-export function formatConfigError(err: z.ZodError) {
-	const errorList = err.issues.map((issue) => `  ! ${colors.bold(issue.path.join('.'))}  ${colors.red(issue.message + '.')}`);
-	return `${colors.red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
-}
-
 function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {
 	const merged: Record<string, any> = { ...defaults };
 	for (const key in overrides) {

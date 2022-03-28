@@ -2,12 +2,13 @@
  * Dev server messages (organized here to prevent clutter)
  */
 
-import stripAnsi from 'strip-ansi';
 import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black, bgRed, bgWhite } from 'kleur/colors';
-import { pad, emoji, getLocalAddress, getNetworkLogging } from './dev/util.js';
 import os from 'os';
 import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../@types/astro';
+import { collectErrorMetadata, cleanErrorStack } from './errors.js';
+import { ZodError } from 'zod';
+import { emoji, getLocalAddress, getResolvedHostForVite, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
 
@@ -18,15 +19,15 @@ export function req({ url, statusCode, reqTime }: { url: string; statusCode: num
 	else if (statusCode >= 400) color = yellow;
 	else if (statusCode >= 300) color = dim;
 	else if (statusCode >= 200) color = green;
-	return `${bold(color(pad(`${statusCode}`, PREFIX_PADDING)))} ${pad(url, 40)} ${reqTime ? dim(Math.round(reqTime) + 'ms') : ''}`.trim();
+	return `${bold(color(`${statusCode}`.padStart(PREFIX_PADDING)))} ${url.padStart(40)} ${reqTime ? dim(Math.round(reqTime) + 'ms') : ''}`.trim();
 }
 
 export function reload({ file }: { file: string }): string {
-	return `${green(pad('reload', PREFIX_PADDING))} ${file}`;
+	return `${green('reload'.padStart(PREFIX_PADDING))} ${file}`;
 }
 
 export function hmr({ file }: { file: string }): string {
-	return `${green(pad('update', PREFIX_PADDING))} ${file}`;
+	return `${green('update'.padStart(PREFIX_PADDING))} ${file}`;
 }
 
 /** Display dev server host and startup time */
@@ -91,7 +92,7 @@ export function success(message: string, tip?: string) {
 	const badge = bgGreen(black(` success `));
 	const headline = green(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer]
+	return ['', `${badge} ${headline}`, footer]
 		.filter((v) => v !== undefined)
 		.map((msg) => `  ${msg}`)
 		.join('\n');
@@ -101,7 +102,7 @@ export function failure(message: string, tip?: string) {
 	const badge = bgRed(black(` error `));
 	const headline = red(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer]
+	return ['', `${badge} ${headline}`, footer]
 		.filter((v) => v !== undefined)
 		.map((msg) => `  ${msg}`)
 		.join('\n');
@@ -111,7 +112,7 @@ export function cancelled(message: string, tip?: string) {
 	const badge = bgYellow(black(` cancelled `));
 	const headline = yellow(message);
 	const footer = tip ? `\n  ▶ ${tip}` : undefined;
-	return ['', badge, headline, footer]
+	return ['', `${badge} ${headline}`, footer]
 		.filter((v) => v !== undefined)
 		.map((msg) => `  ${msg}`)
 		.join('\n');
@@ -122,15 +123,45 @@ export function portInUse({ port }: { port: number }): string {
 	return `Port ${port} in use. Trying a new one…`;
 }
 
-/** Pretty-print errors */
-export function err(error: Error): string {
-	if (!error.stack) return stripAnsi(error.message);
-	let message = stripAnsi(error.message);
-	let stack = stripAnsi(error.stack);
-	const split = stack.indexOf(message) + message.length;
-	message = stack.slice(0, split);
-	stack = stack.slice(split).replace(/^\n+/, '');
-	return `${message}\n${dim(stack)}`;
+const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
+
+export function getNetworkLogging(config: AstroConfig): 'none' | 'host-to-expose' | 'visible' {
+	// TODO: remove once --hostname is baselined
+	const host = getResolvedHostForVite(config);
+
+	if (host === false) {
+		return 'host-to-expose';
+	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {
+		return 'none';
+	} else {
+		return 'visible';
+	}
+}
+
+export function formatConfigErrorMessage(err: ZodError) {
+	const errorList = err.issues.map((issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`);
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
+}
+
+export function formatErrorMessage(_err: Error, args: string[] = []): string {
+	const err = collectErrorMetadata(_err);
+	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
+	if (err.id) {
+		args.push(`  ${bold('File:')}`);
+		args.push(red(`    ${err.id}`));
+	}
+	if (err.frame) {
+		args.push(`  ${bold('Code:')}`);
+		args.push(red(padMultilineString(err.frame, 4)));
+	}
+	if (args.length === 1 && err.stack) {
+		args.push(dim(cleanErrorStack(err.stack)));
+	} else if (err.stack) {
+		args.push(`  ${bold('Stacktrace:')}`);
+		args.push(dim(cleanErrorStack(err.stack)));
+		args.push(``);
+	}
+	return args.join('\n');
 }
 
 export function printHelp({
@@ -157,7 +188,7 @@ export function printHelp({
 		let raw = '';
 
 		for (const row of rows) {
-			raw += `${opts.prefix}${bold(pad(`${row[0]}`, opts.padding - opts.prefix.length))}`;
+			raw += `${opts.prefix}${bold(`${row[0]}`.padStart(opts.padding - opts.prefix.length))}`;
 			if (split) raw += '\n    ';
 			raw += dim(row[1]) + '\n';
 		}

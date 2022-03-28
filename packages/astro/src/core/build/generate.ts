@@ -1,21 +1,21 @@
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
-import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
-import type { PageBuildData, StaticBuildOptions, SingleFileBuiltModule } from './types';
-import type { BuildInternals } from '../../core/build/internal.js';
-import type { RenderOptions } from '../../core/render/core';
-
 import fs from 'fs';
+import { bgGreen, bgMagenta, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
+import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
-import { debug, error, info } from '../../core/logger.js';
-import { prependForwardSlash } from '../../core/path.js';
+import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type { BuildInternals } from '../../core/build/internal.js';
+import { debug, info } from '../../core/logger.js';
+import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutFile, getOutRoot, getOutFolder } from './common.js';
-import { getPageDataByComponent, eachPageData } from './internal.js';
-import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
+import { getOutputFilename } from '../util.js';
+import { getOutFile, getOutFolder } from './common.js';
+import { eachPageData, getPageDataByComponent } from './internal.js';
+import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
@@ -67,7 +67,8 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 }
 
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
+	const timer = performance.now();
+	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const serverEntry = opts.buildConfig.serverEntry;
@@ -78,6 +79,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry);
 	}
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
 async function generatePage(
@@ -109,31 +111,18 @@ async function generatePage(
 		renderers,
 	};
 
-	const icon = pageData.route.type === 'page' ? cyan('</>') : magenta('{-}');
+	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
 	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
-	// Throttle the paths to avoid overloading the CPU with too many tasks.
-	const renderPromises = [];
-	for (const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
-		for (const path of paths) {
-			renderPromises.push(generatePath(path, opts, generationOptions));
-		}
-		// This blocks generating more paths until these 10 complete.
-		await Promise.all(renderPromises);
+	for (let i = 0; i < pageData.paths.length; i++) {
+		const path = pageData.paths[i];
+		await generatePath(path, opts, generationOptions);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
-		let shouldLogTimeChange = !getTimeStat(timeStart, timeEnd).startsWith('0');
-		for (const path of paths) {
-			const timeIncrease = shouldLogTimeChange ? ` ${dim(`+${timeChange}`)}` : '';
-			info(opts.logging, null, `    ${dim('┃')} ${path}${timeIncrease}`);
-			// Should only log build time on the first generated path
-			// Logging for all generated paths adds extra noise
-			shouldLogTimeChange = false;
-		}
-		// Reset timeStart for the next batch of rendered paths
-		timeStart = performance.now();
-		// This empties the array without allocating a new one.
-		renderPromises.length = 0;
+		const timeIncrease = `(+${timeChange})`;
+		const filePath = getOutputFilename(opts.astroConfig, path);
+		const lineIcon = i === pageData.paths.length - 1 ? '└─' : '├─';
+		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 	}
 }
 
@@ -175,65 +164,61 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		}
 	}
 
-	try {
-		const options: RenderOptions = {
-			legacyBuild: false,
-			links,
-			logging,
-			markdownRender: astroConfig.markdownOptions.render,
-			mod,
-			origin,
-			pathname,
-			scripts,
-			renderers,
-			async resolve(specifier: string) {
-				const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
-				if (typeof hashedFilePath !== 'string') {
-					// If no "astro:scripts/before-hydration.js" script exists in the build,
-					// then we can assume that no before-hydration scripts are needed.
-					// Return this as placeholder, which will be ignored by the browser.
-					// TODO: In the future, we hope to run this entire script through Vite,
-					// removing the need to maintain our own custom Vite-mimic resolve logic.
-					if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
-						return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
-					}
-					throw new Error(`Cannot find the built path for ${specifier}`);
+	const options: RenderOptions = {
+		legacyBuild: false,
+		links,
+		logging,
+		markdownRender: astroConfig.markdownOptions.render,
+		mod,
+		origin,
+		pathname,
+		scripts,
+		renderers,
+		async resolve(specifier: string) {
+			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
+			if (typeof hashedFilePath !== 'string') {
+				// If no "astro:scripts/before-hydration.js" script exists in the build,
+				// then we can assume that no before-hydration scripts are needed.
+				// Return this as placeholder, which will be ignored by the browser.
+				// TODO: In the future, we hope to run this entire script through Vite,
+				// removing the need to maintain our own custom Vite-mimic resolve logic.
+				if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+					return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 				}
-				const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
-				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
-				return fullyRelativePath;
-			},
-			method: 'GET',
-			headers: new Headers(),
-			route: pageData.route,
-			routeCache,
-			site: astroConfig.buildOptions.site,
-			ssr: opts.astroConfig.buildOptions.experimentalSsr,
-		};
-
-		let body: string;
-		if (pageData.route.type === 'endpoint') {
-			const result = await callEndpoint(mod as unknown as EndpointHandler, options);
-
-			if (result.type === 'response') {
-				throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
+				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			body = result.body;
-		} else {
-			const result = await render(options);
+			const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
+			const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
+			return fullyRelativePath;
+		},
+		method: 'GET',
+		headers: new Headers(),
+		route: pageData.route,
+		routeCache,
+		site: astroConfig.buildOptions.site,
+		ssr: opts.astroConfig.buildOptions.experimentalSsr,
+	};
 
-			// If there's a redirect or something, just do nothing.
-			if (result.type !== 'html') {
-				return;
-			}
-			body = result.html;
+	let body: string;
+	if (pageData.route.type === 'endpoint') {
+		const result = await callEndpoint(mod as unknown as EndpointHandler, options);
+
+		if (result.type === 'response') {
+			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
 		}
+		body = result.body;
+	} else {
+		const result = await render(options);
 
-		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
-		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
-		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, body, 'utf-8');
-	} catch (err) {
-		error(opts.logging, 'build', `Error rendering:`, err);
+		// If there's a redirect or something, just do nothing.
+		if (result.type !== 'html') {
+			return;
+		}
+		body = result.html;
 	}
+
+	const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
+	const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
+	await fs.promises.mkdir(outFolder, { recursive: true });
+	await fs.promises.writeFile(outFile, body, 'utf-8');
 }
