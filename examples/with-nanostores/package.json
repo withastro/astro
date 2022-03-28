@@ -25,6 +25,6 @@
     "@astrojs/solid-js": "^0.0.3",
     "@astrojs/svelte": "^0.0.2",
     "@astrojs/vue": "^0.0.2",
-    "astro": "^0.25.3"
+    "astro": "^0.25.4"
   }
 }
