@@ -30,7 +30,7 @@ export async function getStaticPaths({ paginate, rss }) {
 // page
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
+let canonicalURL = Astro.canonicalURL;
 
 // collection
 interface MarkdownFrontmatter {

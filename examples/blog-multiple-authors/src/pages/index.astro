@@ -18,7 +18,7 @@ interface MarkdownFrontmatter {
 // All variables are available to use in the HTML template below.
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
+let canonicalURL = Astro.canonicalURL;
 
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./post/*.md');

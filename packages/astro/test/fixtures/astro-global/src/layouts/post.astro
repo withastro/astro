@@ -4,7 +4,7 @@ const { content } = Astro.props;
 <html>
   <head>
     <title>{content.title}</title>
-    <link rel="canonical" href={Astro.request.canonicalURL.href}>
+    <link rel="canonical" href={Astro.canonicalURL.href}>
   </head>
   <body>
     <slot></slot>

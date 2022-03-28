@@ -4,7 +4,7 @@ import Nav from '../components/Nav.astro';
 import authorData from '../data/authors.json';
 
 const { content } = Astro.props;
-let canonicalURL = Astro.request.canonicalURL;
+let canonicalURL = Astro.canonicalURL;
 ---
 
 <html lang={content.lang || 'en'}>

@@ -25,7 +25,7 @@ describe('Astro.*', () => {
 		expect($('#nested-child-pathname').text()).to.equal('/');
 	});
 
-	it('Astro.request.canonicalURL', async () => {
+	it('Astro.canonicalURL', async () => {
 		// given a URL, expect the following canonical URL
 		const canonicalURLs = {
 			'/index.html': 'https://mysite.dev/blog/',
