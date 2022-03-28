@@ -6,7 +6,7 @@ import Pagination from '../../components/Pagination.astro';
 import authorData from '../../data/authors.json';
 
 export async function getStaticPaths({ paginate, rss }) {
-	const allPosts = await Astro.glob<MarkdownFrontmatter>('../post/*.md');
+	const allPosts = await Astro.glob('../post/*.md');
 	const sortedPosts = allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 
 	// Generate an RSS feed from this collection of posts.
@@ -31,16 +31,6 @@ export async function getStaticPaths({ paginate, rss }) {
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
-
-// collection
-interface MarkdownFrontmatter {
-	frontmatter: {
-		date: number;
-		description: string;
-		title: string;
-	}
-}
-
 const { page } = Astro.props;
 ---
 

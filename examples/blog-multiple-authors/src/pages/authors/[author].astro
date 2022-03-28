@@ -2,22 +2,12 @@
 import MainHead from '../../components/MainHead.astro';
 import Nav from '../../components/Nav.astro';
 import PostPreview from '../../components/PostPreview.astro';
-import Pagination from '../../components/Pagination.astro';
 import authorData from '../../data/authors.json';
 
 export async function getStaticPaths() {
-	const allPosts = await Astro.glob<MarkdownFrontmatter>('../post/*.md');
+	const allPosts = await Astro.glob('../post/*.md');
 	let allAuthorsUnique = [...new Set(allPosts.map((p) => p.frontmatter.author))];
 	return allAuthorsUnique.map((author) => ({ params: { author }, props: { allPosts } }));
-}
-
-interface MarkdownFrontmatter {
-	frontmatter: {
-		date: number;
-		description: string;
-		title: string;
-		author: string;
-	}
 }
 
 const { allPosts } = Astro.props;

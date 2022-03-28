@@ -4,11 +4,7 @@ import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-interface MarkdownFrontmatter {
-	frontmatter: {publishDate: number};
-}
-
-const projects = (await Astro.glob<MarkdownFrontmatter>('./project/**/*.md'))
+const projects = (await Astro.glob('./project/**/*.md'))
 	.filter(({ frontmatter }) => !!frontmatter.publishDate)
 	.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
 ---

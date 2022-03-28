@@ -65,8 +65,8 @@ export interface AstroGlobalPartial {
 	resolve: (path: string) => string;
 	/** @deprecated Use `Astro.glob()` instead. */
 	fetchContent(globStr: string): Promise<any[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownGlobResult<T>[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.astro`): Promise<AstroGlobResult[]>;
+	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>; 
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	site: URL;
 }
@@ -505,8 +505,8 @@ export interface ComponentInstance {
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
-export interface MarkdownInstance {
-	frontmatter: Record<string, any>;
+export interface MarkdownInstance<T extends Record<string, any>> {
+	frontmatter: T;
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;

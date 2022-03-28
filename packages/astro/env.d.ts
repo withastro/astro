@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-type Astro = import('./dist/types/@types/astro').AstroGlobal;
+type Astro = import('astro').AstroGlobal;
 
 // We duplicate the description here because editors won't show the JSDoc comment from the imported type (but will for its properties, ex: Astro.request will show the AstroGlobal.request description)
 /**
