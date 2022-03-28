@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^0.11.0",
-    "@vercel/node": "^1.14.0",
     "esbuild": "0.14.25",
     "globby": "^12.2.0"
   },

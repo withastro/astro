@@ -1,17 +1,21 @@
 import type { AstroIntegration, AstroConfig } from 'astro';
-import fs from 'fs/promises';
+import type { IncomingMessage, ServerResponse } from 'http';
 import type { PathLike } from 'fs';
+
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { globby } from 'globby';
 import esbuild from 'esbuild';
 
-export type { VercelApiHandler, VercelRequest, VercelRequestBody, VercelRequestCookies, VercelRequestQuery, VercelResponse } from '@vercel/node';
+export type VercelRequest = IncomingMessage;
+export type VercelResponse = ServerResponse;
+export type VercelHandler = (request: VercelRequest, response: VercelResponse) => void | Promise<void>;
 
 const writeJson = (path: PathLike, data: any) => fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
 
 const ENDPOINT_GLOB = 'api/**/*.{js,ts,tsx}';
 
-export function vercelFunctions(): AstroIntegration {
+function vercelFunctions(): AstroIntegration {
 	let _config: AstroConfig;
 	let output: URL;
 
@@ -59,11 +63,14 @@ export function vercelFunctions(): AstroIntegration {
 					entryPoints: endpoints.map((endpoint) => new URL(endpoint, _config.pages)).map(fileURLToPath),
 					outdir: fileURLToPath(new URL('./server/pages/api/', output)),
 					outbase: fileURLToPath(new URL('./api/', _config.pages)),
+					inject: [fileURLToPath(new URL('./shims.js', import.meta.url))],
 					bundle: true,
 					target: 'node14',
 					platform: 'node',
 					format: 'cjs',
 				});
+
+				await writeJson(new URL(`./package.json`, output), { type: 'commonjs' });
 			},
 		},
 	};
