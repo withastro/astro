@@ -43,10 +43,10 @@ export function padMultilineString(source: string, n = 2) {
 
 const STATUS_CODE_REGEXP = /^\/?[0-9]{3}$/;
 
-/** 
+/**
  * Get the correct output filename for a route, based on your config.
  * Handles both "/foo" and "foo" `name` formats.
- * Handles `/404` and `/` correctly.  
+ * Handles `/404` and `/` correctly.
  */
 export function getOutputFilename(astroConfig: AstroConfig, name: string) {
 	if (name === '/' || name === '') {

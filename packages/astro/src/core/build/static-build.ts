@@ -169,7 +169,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	// TODO: use vite.mergeConfig() here?
-	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`); 
+	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
 	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
