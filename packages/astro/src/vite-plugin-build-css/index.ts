@@ -3,7 +3,7 @@ import type { BuildInternals } from '../core/build/internal';
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/dev/css.js';
+import { isCSSRequest } from '../core/render/util.js';
 import { getPageDatasByChunk } from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';

@@ -81,8 +81,7 @@ export class App {
 			routeCache: this.#routeCache,
 			site: this.#manifest.site,
 			ssr: true,
-			method: info.routeData.type === 'endpoint' ? '' : 'GET',
-			headers: request.headers,
+			request,
 		});
 
 		if (result.type === 'response') {

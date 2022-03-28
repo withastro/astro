@@ -3,6 +3,7 @@ import type { ViteDevServer } from 'vite';
 import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
+import type { ViteConfigWithSSR } from '../core/create-vite.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
 	if (_config.adapter) {
@@ -87,6 +88,14 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
 			await integration.hooks['astro:build:start']({ buildConfig });
+		}
+	}
+}
+
+export async function runHookBuildServerSetup({ config, vite }: { config: AstroConfig, vite: ViteConfigWithSSR }) {
+	for (const integration of config.integrations) {
+		if (integration.hooks['astro:build:server:setup']) {
+			await integration.hooks['astro:build:server:setup']({ vite });
 		}
 	}
 }

@@ -2,7 +2,7 @@ import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params,
 import type { LogOptions } from '../logger.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
-import { getParams } from '../routing/index.js';
+import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
 
