@@ -15,7 +15,7 @@
     "@astrojs/sitemap": "^0.0.2",
     "@astrojs/tailwind": "^0.0.2",
     "@astrojs/turbolinks": "^0.0.2",
-    "astro": "^0.25.2"
+    "astro": "^0.25.3"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
