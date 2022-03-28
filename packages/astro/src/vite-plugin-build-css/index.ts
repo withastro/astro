@@ -199,6 +199,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 						});
 						const fileName = this.getFileName(referenceId);
 
+						// Add CSS file to the page's pageData, so that it will be rendered with
+						// the correct links.
 						getPageDataByViteID(internals, id)?.css.add(fileName);
 					}
 				}
