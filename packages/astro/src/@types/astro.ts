@@ -507,7 +507,7 @@ export interface MarkdownInstance {
 	frontmatter: Record<string, any>;
 	file: string;
 	url: string | undefined;
-	getContent(): Promise<AstroComponentFactory>;
+	Content: AstroComponentFactory;
 	getHeaders(): Promise<{ depth: number, slug: string, text: string }[]>;
 }
 
