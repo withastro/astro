@@ -6,12 +6,12 @@ export function get({ id: idStr }) {
 		const product = productMap.get(id);
 
 		return {
-			body: JSON.stringify(product)
+			body: JSON.stringify(product),
 		};
 	} else {
 		return new Response(null, {
 			status: 400,
-			statusText: 'Not found'
+			statusText: 'Not found',
 		});
 	}
 }

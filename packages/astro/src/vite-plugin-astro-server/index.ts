@@ -129,11 +129,11 @@ async function handleRequest(
 	}
 
 	let body: ArrayBuffer | undefined = undefined;
-	if(!(req.method === 'GET' || req.method === 'HEAD')) {
+	if (!(req.method === 'GET' || req.method === 'HEAD')) {
 		let bytes: string[] = [];
-		await new Promise(resolve => {
+		await new Promise((resolve) => {
 			req.setEncoding('utf-8');
-			req.on('data', bts => bytes.push(bts));
+			req.on('data', (bts) => bytes.push(bts));
 			req.on('close', resolve);
 		});
 		body = new TextEncoder().encode(bytes.join('')).buffer;

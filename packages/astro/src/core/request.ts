@@ -19,7 +19,7 @@ export function createRequest({ url, headers, method = 'GET', body = undefined, 
 	const request = new Request(url.toString(), {
 		method: method,
 		headers: headersObj,
-		body
+		body,
 	});
 
 	Object.defineProperties(request, {

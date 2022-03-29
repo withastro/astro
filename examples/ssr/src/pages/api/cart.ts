@@ -6,15 +6,15 @@ export function get(_params: any, request: Request) {
 	let userId = cookie ? lightcookie.parse(cookie)['user-id'] : '1'; // default for testing
 	if (!userId || !userCartItems.has(userId)) {
 		return {
-			body: JSON.stringify({ items: [] })
+			body: JSON.stringify({ items: [] }),
 		};
 	}
 	let items = userCartItems.get(userId);
 	let array = Array.from(items.values());
 
 	return {
-		body: JSON.stringify({ items: array })
-	}
+		body: JSON.stringify({ items: array }),
+	};
 }
 
 interface AddToCartItem {
@@ -41,7 +41,7 @@ export async function post(_params: any, request: Request) {
 
 	return {
 		body: JSON.stringify({
-			ok: true
-		})
+			ok: true,
+		}),
 	};
 }
