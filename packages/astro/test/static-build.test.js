@@ -21,7 +21,7 @@ describe('Static build', () => {
 		expect(html).to.be.a('string');
 	});
 
-	it('can build pages using fetchContent', async () => {
+	it('can build pages using Astro.glob()', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		const link = $('.posts a');

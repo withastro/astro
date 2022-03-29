@@ -277,34 +277,25 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 /** Create the Astro.fetchContent() runtime function. */
-function createFetchContentFn(url: URL, site: URL) {
-	let sitePathname = site.pathname;
-	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
-		let allEntries = [...Object.entries(importMetaGlobResult)];
-		if (allEntries.length === 0) {
-			throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
-		}
-		return allEntries
-			.map(([spec, mod]) => {
-				// Only return Markdown files for now.
-				if (!mod.frontmatter) {
-					return;
-				}
-				const urlSpec = new URL(spec, url).pathname;
-				return {
-					...mod.frontmatter,
-					Content: mod.default,
-					content: mod.metadata,
-					file: new URL(spec, url),
-					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined,
-				};
-			})
-			.filter(Boolean);
+function createDeprecatedFetchContentFn() {
+	return () => {
+		throw new Error('Deprecated: Astro.fetchContent() has been replaced with Astro.glob().');
 	};
-	// This has to be cast because the type of fetchContent is the type of the function
-	// that receives the import.meta.glob result, but the user is using it as
-	// another type.
-	return fetchContent as unknown as AstroGlobalPartial['fetchContent'];
+}
+
+/** Create the Astro.glob() runtime function. */
+function createAstroGlobFn() {
+	const globHandler = (importMetaGlobResult: Record<string, any>, globValue: () => any) => {
+		let allEntries = [...Object.values(importMetaGlobResult)];
+		if (allEntries.length === 0) {
+			throw new Error(`Astro.glob(${JSON.stringify(globValue())}) - no matches found.`);
+		}
+		// Map over the `import()` promises, calling to load them.
+		return Promise.all(allEntries.map(fn => fn()));
+	};
+	// Cast the return type because the argument that the user sees (string) is different from the argument
+	// that the runtime sees post-compiler (Record<string, Module>).
+	return globHandler as unknown as AstroGlobalPartial['glob'];
 }
 
 // This is used to create the top-level Astro global; the one that you can use
@@ -313,10 +304,10 @@ export function createAstro(filePathname: string, _site: string, projectRootStr:
 	const site = new URL(_site);
 	const url = new URL(filePathname, site);
 	const projectRoot = new URL(projectRootStr);
-	const fetchContent = createFetchContentFn(url, site);
 	return {
 		site,
-		fetchContent,
+		fetchContent: createDeprecatedFetchContentFn(),
+		glob: createAstroGlobFn(),
 		// INVESTIGATE is there a use-case for multi args?
 		resolve(...segments: string[]) {
 			let resolved = segments.reduce((u, segment) => new URL(segment, u), url).pathname;

@@ -3,15 +3,13 @@ import Debug from 'astro/debug';
 
 // all the content that should be generated
 export async function getStaticPaths() {
-    const data = Astro.fetchContent('../../data/posts/*.md')
+    const data = await Astro.glob('../../data/posts/*.md')
 
-    const allArticles = data.map(({ astro, file, url, ...article }) => {
+    const allArticles = data.map((article) => {
         return {
-      	    params: { slug: article.slug },
+      	    params: { slug: article.frontmatter.slug },
       	    props: {
 	            article: article,
-    		    content: astro.html,
-	    	    md: astro.source,
 	        }
         }
     })

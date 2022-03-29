@@ -7,7 +7,7 @@ import Footer from '../components/Footer/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
 // Data Fetching: List all Markdown posts in the repo.
-const projects = Astro.fetchContent('./project/**/*.md');
+const projects = await Astro.glob('./project/**/*.md');
 const featuredProject = projects[0];
 
 // Full Astro Component Syntax:
