@@ -48,7 +48,7 @@ describe('Astro.*', () => {
 		expect($('#site').attr('href')).to.equal('https://mysite.dev/blog/');
 	});
 
-	it('Astro.fetchContent() returns the correct "url" property, including buildOptions.site subpath', async () => {
+	it('Astro.glob() correctly returns an array of all posts', async () => {
 		const html = await fixture.readFile('/posts/1/index.html');
 		const $ = cheerio.load(html);
 		expect($('.post-url').attr('href')).to.equal('/blog/post/post-2');

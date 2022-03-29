@@ -1,6 +1,6 @@
 ---
 export async function getStaticPaths({paginate}) {
-  const data = Astro.fetchContent('../../post/*.md');
+  const data = await Astro.glob('../../post/*.md');
   return paginate(data, {pageSize: 1});
 }
 const { page } = Astro.props;
