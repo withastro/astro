@@ -11,7 +11,7 @@ export async function getStaticPaths({paginate}) {
   });
 }
 const { page, filter } = Astro.props;
-const { params, canonicalURL} = Astro.request;
+const { params, canonicalURL} = Astro;
 ---
 
 <html>

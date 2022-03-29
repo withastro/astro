@@ -28,10 +28,8 @@ export interface SSROptions {
 	routeCache: RouteCache;
 	/** Vite instance */
 	viteServer: vite.ViteDevServer;
-	/** Method */
-	method: string;
-	/** Headers */
-	headers: Headers;
+	/** Request */
+	request: Request;
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -64,7 +62,7 @@ export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROpt
 
 /** use Vite to SSR */
 export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
-	const { astroConfig, filePath, logging, mode, origin, pathname, method, headers, route, routeCache, viteServer } = ssrOpts;
+	const { astroConfig, filePath, logging, mode, origin, pathname, request, route, routeCache, viteServer } = ssrOpts;
 	const legacy = astroConfig.buildOptions.legacyBuild;
 
 	// Add hoisted script tags
@@ -144,12 +142,11 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 			}
 		},
 		renderers,
+		request,
 		route,
 		routeCache,
 		site: astroConfig.buildOptions.site,
 		ssr: astroConfig.buildOptions.experimentalSsr,
-		method,
-		headers,
 	});
 
 	if (route?.type === 'endpoint' || content.type === 'response') {

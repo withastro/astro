@@ -1,6 +1,5 @@
 import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, SSRLoadedRenderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
-import type { AstroRequest } from './request';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
@@ -71,12 +70,11 @@ export interface RenderOptions {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
-	method: string;
-	headers: Headers;
+	request: Request;
 }
 
 export async function render(opts: RenderOptions): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
-	const { headers, legacyBuild, links, logging, origin, markdownRender, method, mod, pathname, scripts, renderers, resolve, route, routeCache, site, ssr } = opts;
+	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, request, resolve, route, routeCache, site, ssr } = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
 		logging,
@@ -107,11 +105,10 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html'; html:
 		pathname,
 		resolve,
 		renderers,
+		request,
 		site,
 		scripts,
 		ssr,
-		method,
-		headers,
 	});
 
 	let page = await renderPage(result, Component, pageProps, null);

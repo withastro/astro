@@ -4,7 +4,6 @@ import type * as vite from 'vite';
 import { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
-import type { AstroRequest } from '../core/render/request';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -51,10 +50,14 @@ export interface BuildConfig {
  * Docs: https://docs.astro.build/reference/api-reference/#astro-global
  */
 export interface AstroGlobal extends AstroGlobalPartial {
+	/** get the current canonical URL */
+	canonicalURL: URL;
+	/** get page params (dynamic pages only) */
+	params: Params;
 	/** set props for this astro component (along with default values) */
 	props: Record<string, number | string | any>;
 	/** get information about this page */
-	request: AstroRequest;
+	request: Request;
 	/** see if slots are used */
 	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string): Promise<string> };
 }
@@ -632,7 +635,7 @@ export interface EndpointOutput<Output extends Body = Body> {
 }
 
 export interface EndpointHandler {
-	[method: string]: (params: any, request: AstroRequest) => EndpointOutput | Response;
+	[method: string]: (params: any, request: Request) => EndpointOutput | Response;
 }
 
 export interface AstroRenderer {

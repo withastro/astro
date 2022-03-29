@@ -14,6 +14,7 @@ import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { fixViteErrorMessage } from '../core/errors.js';
+import { createRequest } from '../core/request.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -116,9 +117,24 @@ async function handleRequest(
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
+	const buildingToSSR = !!config._ctx.adapter?.serverEntrypoint;
 	const url = new URL(origin + req.url);
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
+	if(!buildingToSSR) {
+		// Prevent user from depending on search params when not doing SSR.
+		for(const [key] of url.searchParams) {
+			url.searchParams.delete(key);
+		}
+	}
+
+	// Headers are only available when using SSR.
+	const request = createRequest({
+		url,
+		headers: buildingToSSR ? req.headers : new Headers(),
+		method: req.method,
+		logging
+	});
 
 	try {
 		if (!pathname.startsWith(devRoot)) {
@@ -165,10 +181,9 @@ async function handleRequest(
 					filePath: filePathCustom404,
 					logging,
 					mode: 'development',
-					method: 'GET',
-					headers: new Headers(Object.entries(req.headers as Record<string, any>)),
 					origin,
 					pathname: rootRelativeUrl,
+					request,
 					route: routeCustom404,
 					routeCache,
 					viteServer,
@@ -189,8 +204,7 @@ async function handleRequest(
 			route,
 			routeCache,
 			viteServer,
-			method: req.method || 'GET',
-			headers: new Headers(Object.entries(req.headers as Record<string, any>)),
+			request,
 		};
 
 		// Route successfully matched! Render it.

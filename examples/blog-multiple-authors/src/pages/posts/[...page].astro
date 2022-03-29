@@ -28,9 +28,9 @@ export async function getStaticPaths({ paginate, rss }) {
 }
 
 // page
-let title = 'Don’s Blog';
-let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
+const title = 'Don’s Blog';
+const description = 'An example blog on Astro';
+const { canonicalURL } = Astro;
 const { page } = Astro.props;
 ---
 

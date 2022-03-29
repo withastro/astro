@@ -17,7 +17,7 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 <html dir={content.dir ?? 'ltr'} lang={content.lang ?? 'en-us'} class="initial">
 	<head>
 		<HeadCommon />
-		<HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
+		<HeadSEO {content} canonicalURL={Astro.canonicalURL} />
 		<title>{content.title ? `${content.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}</title>
 		<style>
 			body {

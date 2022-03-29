@@ -1,6 +1,5 @@
 import shorthash from 'shorthash';
 import type { AstroComponentMetadata, AstroGlobalPartial, EndpointHandler, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
-import type { AstroRequest } from '../../core/render/request';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
@@ -388,7 +387,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 }
 
 // Renders an endpoint request to completion, returning the body.
-export async function renderEndpoint(mod: EndpointHandler, request: AstroRequest, params: Params) {
+export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
 	const chosenMethod = request.method?.toLowerCase() ?? 'get';
 	const handler = mod[chosenMethod];
 
