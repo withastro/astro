@@ -168,7 +168,6 @@ export interface AstroUserConfig {
 	integrations?: Array<AstroIntegration | AstroIntegration[]>;
 
 	/**
-	 * @docs
 	 * @name adapter
 	 * @type {AstroIntegration}
 	 * @default `undefined`
