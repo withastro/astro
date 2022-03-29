@@ -11,7 +11,7 @@ if(!isLoggedIn(Astro.request)) {
 // They must be logged in.
 
 const user = { name: 'test'}; // getUser?
-const cart = await getCart();
+const cart = await getCart(Astro.request);
 ---
 <html>
 <head>
