@@ -36,4 +36,25 @@ describe('API routes in SSR', () => {
 		const body = await response.json();
 		expect(body.length).to.equal(3);
 	});
+
+	describe('Dev', () => {
+		let devServer;
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Can POST to API routes', async () => {
+			const response = await fixture.fetch('/food.json', {
+				method: 'POST',
+				body: `some data`
+			})
+			expect(response.status).to.equal(200);
+			const text = await response.text();
+			expect(text).to.equal(`ok`);
+		});
+	});
 });
