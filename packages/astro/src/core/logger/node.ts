@@ -15,7 +15,7 @@ let lastMessage: string;
 let lastMessageCount = 1;
 export const nodeLogDestination = new Writable({
 	objectMode: true,
-	write(event: LogMessage) {
+	write(event: LogMessage, _, callback) {
 		let dest: ConsoleStream = process.stderr;
 		if (levels[event.level] < levels['error']) {
 			dest = process.stdout;
@@ -66,7 +66,7 @@ export const nodeLogDestination = new Writable({
 		dest.write(getPrefix());
 		dest.write(message);
 		dest.write('\n');
-		return true;
+		callback();
 	},
 });
 
