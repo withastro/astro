@@ -3,8 +3,7 @@ import type { RenderOptions } from '../render/core';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
-export type EndpointOptions = Pick<RenderOptions, 'logging' | 'origin' | 
-	'request' | 'route' | 'routeCache' | 'pathname' | 'route' | 'site' | 'ssr'>;
+export type EndpointOptions = Pick<RenderOptions, 'logging' | 'origin' | 'request' | 'route' | 'routeCache' | 'pathname' | 'route' | 'site' | 'ssr'>;
 
 type EndpointCallResult =
 	| {

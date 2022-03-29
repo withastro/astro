@@ -121,9 +121,9 @@ async function handleRequest(
 	const url = new URL(origin + req.url);
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
-	if(!buildingToSSR) {
+	if (!buildingToSSR) {
 		// Prevent user from depending on search params when not doing SSR.
-		for(const [key] of url.searchParams) {
+		for (const [key] of url.searchParams) {
 			url.searchParams.delete(key);
 		}
 	}
@@ -133,7 +133,7 @@ async function handleRequest(
 		url,
 		headers: buildingToSSR ? req.headers : new Headers(),
 		method: req.method,
-		logging
+		logging,
 	});
 
 	try {

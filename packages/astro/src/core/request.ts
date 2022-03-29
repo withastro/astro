@@ -11,18 +11,12 @@ export interface CreateRequestOptions {
 	logging: LogOptions;
 }
 
-export function createRequest({
-	url,
-	headers,
-	method = 'GET',
-	logging
-}: CreateRequestOptions): Request {
-	let headersObj = headers instanceof Headers ? headers :
-		new Headers(Object.entries(headers as Record<string, any>));
-	
+export function createRequest({ url, headers, method = 'GET', logging }: CreateRequestOptions): Request {
+	let headersObj = headers instanceof Headers ? headers : new Headers(Object.entries(headers as Record<string, any>));
+
 	const request = new Request(url.toString(), {
 		method: method,
-		headers: headersObj
+		headers: headersObj,
 	});
 
 	Object.defineProperties(request, {
@@ -30,14 +24,14 @@ export function createRequest({
 			get() {
 				warn(logging, 'deprecation', `Astro.request.canonicalURL has been moved to Astro.canonicalURL`);
 				return undefined;
-			}
+			},
 		},
 		params: {
 			get() {
 				warn(logging, 'deprecation', `Astro.request.params has been moved to Astro.params`);
 				return undefined;
-			}
-		}
+			},
+		},
 	});
 
 	return request;
