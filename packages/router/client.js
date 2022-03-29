@@ -3,28 +3,62 @@ import morph from 'micromorph';
 function getRoutePath(...args) {
 	return args.map(arg => arg.replace(/^\/|\/$/, '')).join('/');
 }
+function syncAttributes() {
+	let hash = window.location.hash.split('/').slice(1);
+	let n = document;
+	while (n = n.querySelector('router-outlet')) {
+		const route = hash[0];
+		if (route) {
+			n.setAttribute('data-skip', '');
+			n.setAttribute('route', route);
+			hash = hash.slice(1);
+		}
+	}
+}
+window.addEventListener('popstate', () => syncAttributes());
 
 const s = new XMLSerializer();
 const p = new DOMParser();
 const initialChildren = new Set(Array.from(document.head.children).map(child => s.serializeToString(child)));
 class RouterOutlet extends HTMLElement {
-	constructor() {
-		super();
-	}
 	connectedCallback() {
 		this.isUpdating = false;
+		this.update();
+	}
+	update() {
+		if (this.hasAttribute('data-skip')) {
+			this.removeAttribute('data-skip');
+		} else {
+			this.updateLocation();
+		}
 		this.updateLinks();
 	}
 	updateLinks() {
-		const current = this.getAttribute('route');
+		const current = this.getAttribute('route').replace(/^\/|\/$/g, '');
 		const links = document.querySelectorAll(`router-link[for="${this.getAttribute('id')}"]`);
 		for (const link of links) {
-			if (current === link.getAttribute('to')) {
+			if (current === link.getAttribute('to').replace(/^\/|\/$/g, '')) {
 				link.parentElement.setAttribute("aria-current", "true");
 			} else {
 				link.parentElement.removeAttribute("aria-current");
 			}
 		}
+	}
+	updateLocation() {
+		// any parent route should skip this
+		if (this.querySelector('router-outlet')) return;
+		// this will be the deepest router-outlet on the page
+		const path = [];
+		let n = this;
+		while (n = n.closest('router-outlet')) {
+			path.splice(-1, 0, n.getAttribute('route').replace(/^\/|\/$/g, ''));
+			n = n.parentElement;
+		}
+		const pathname = `/${path.join('/')}`
+		const url = new URL(window.location.toString().replace(/\/$/, '') + '/');
+		if (url.hash.endsWith(pathname)) return;
+		url.hash = pathname;
+		window.history.pushState({}, '', url)
 	}
 	mergeHead(newHead) {
 		const currentChildren = new Map(Array.from(document.head.children).map(child => [s.serializeToString(child), child]));
@@ -47,7 +81,7 @@ class RouterOutlet extends HTMLElement {
 		clone.replaceChildren(...body.children);
 		this.mergeHead(head);
 		await morph(this, clone);
-		this.updateLinks();
+		this.update();
 		this.isUpdating = false;
 	}
 }
@@ -61,7 +95,7 @@ class RouterLink extends HTMLElement {
 	handleClick(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		this.target.setAttribute('route', this.getAttribute('to'));
+		this.target.setAttribute('route', this.getAttribute('to').replace(/^\/|\/$/g, ''));
 	}
 	connectedCallback() {
 		this.target = document.querySelector(`router-outlet#${this.getAttribute('for')}`);
