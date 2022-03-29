@@ -71,7 +71,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
-	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
+	const ssr = isBuildingToSSR(opts.astroConfig);
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.dist;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
