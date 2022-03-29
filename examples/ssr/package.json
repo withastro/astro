@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev-api": "node server/dev-api.mjs",
-    "dev-server": "astro dev --experimental-ssr",
-    "dev": "concurrently \"npm run dev-api\" \"astro dev --experimental-ssr\"",
+    "dev": "astro dev --experimental-ssr",
     "start": "astro dev",
     "build": "astro build --experimental-ssr",
     "server": "node server/server.mjs"

@@ -18,6 +18,7 @@ const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
+		enforce: 'post',
 		options(opts) {
 			return addRollupInput(opts, [virtualModuleId]);
 		},

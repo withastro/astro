@@ -60,7 +60,7 @@ export async function getCart(): Promise<Cart> {
 }
 
 export async function addToUserCart(id: number | string, name: string): Promise<void> {
-	await fetch(`${origin}/api/add-to-cart`, {
+	await fetch(`${origin}/api/cart`, {
 		credentials: 'same-origin',
 		method: 'POST',
 		mode: 'no-cors',
