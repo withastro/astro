@@ -50,8 +50,8 @@ describe('API routes in SSR', () => {
 		it('Can POST to API routes', async () => {
 			const response = await fixture.fetch('/food.json', {
 				method: 'POST',
-				body: `some data`
-			})
+				body: `some data`,
+			});
 			expect(response.status).to.equal(200);
 			const text = await response.text();
 			expect(text).to.equal(`ok`);

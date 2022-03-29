@@ -45,7 +45,7 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	const { status, headers, body } = webResponse;
 	res.writeHead(status, Object.fromEntries(headers.entries()));
 	if (body) {
-		if(body instanceof Readable) {
+		if (body instanceof Readable) {
 			body.pipe(res);
 			return;
 		} else {
