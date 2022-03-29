@@ -6,7 +6,7 @@ import { resolveConfig, loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
-import { loadApp } from '../dist/core/app/node.js';
+import { nodeLogDestination } from '../dist/core/logger/node.js';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 
@@ -71,17 +71,23 @@ export async function loadFixture(inlineConfig) {
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, projectRoot: cwd });
 
+	/** @type {import('../src/core/logger/core').LogOptions} */
+	const logging = {
+		dest: nodeLogDestination,
+		level: 'error'
+	};
+
 	return {
-		build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
+		build: (opts = {}) => build(config, { mode: 'development', logging, ...opts }),
 		startDevServer: async (opts = {}) => {
-			const devResult = await dev(config, { logging: 'error', ...opts });
+			const devResult = await dev(config, { logging, ...opts });
 			config.devOptions.port = devResult.address.port; // update port
 			return devResult;
 		},
 		config,
 		fetch: (url, init) => fetch(`http://${'127.0.0.1'}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
 		preview: async (opts = {}) => {
-			const previewServer = await preview(config, { logging: 'error', ...opts });
+			const previewServer = await preview(config, { logging, ...opts });
 			return previewServer;
 		},
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
