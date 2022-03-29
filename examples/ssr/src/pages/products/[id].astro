@@ -6,7 +6,7 @@ import { getProduct } from '../../api';
 import '../../styles/common.css';
 
 const id = Number(Astro.params.id);
-const product = await getProduct(id);
+const product = await getProduct(Astro.request, id);
 ---
 
 <html lang="en">
