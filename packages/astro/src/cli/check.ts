@@ -57,7 +57,7 @@ function offsetAt({ line, character }: { line: number; character: number }, text
 	return i;
 }
 
-function pad(str: string, len: number) {
+function generateString(str: string, len: number) {
 	return Array.from({ length: len }, () => str).join('');
 }
 
@@ -86,8 +86,8 @@ export async function check(astroConfig: AstroConfig) {
 					const lineNumStr = d.range.start.line.toString();
 					const lineNumLen = lineNumStr.length;
 					console.error(`${bgWhite(black(lineNumStr))}  ${str}`);
-					let tildes = pad('~', d.range.end.character - d.range.start.character);
-					let spaces = pad(' ', d.range.start.character + lineNumLen - 1);
+					let tildes = generateString('~', d.range.end.character - d.range.start.character);
+					let spaces = generateString(' ', d.range.start.character + lineNumLen - 1);
 					console.error(`   ${spaces}${bold(red(tildes))}\n`);
 					result.errors++;
 					break;

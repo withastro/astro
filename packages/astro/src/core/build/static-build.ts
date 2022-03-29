@@ -41,7 +41,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const timer: Record<string, number> = {};
 
 	timer.buildStart = performance.now();
-	info(opts.logging, 'build', 'Discovering entrypoints...');
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
@@ -97,7 +96,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.ssr = performance.now();
 	info(opts.logging, 'build', 'Building for SSR...');
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
-	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}`));
+	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
@@ -107,7 +106,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 	}
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())}\n`));
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
@@ -132,7 +130,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
-					inlineDynamicImports: true,
 				},
 			},
 			// must match an esbuild target
@@ -147,6 +144,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
+				legacy: false,
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -171,7 +169,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	// TODO: use vite.mergeConfig() here?
-	info(opts.logging, null, `\n${bgGreen(black(' building resources '))}\n`);
+	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
 	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
@@ -200,6 +198,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
+				legacy: false,
 			}),
 			...(viteConfig.plugins || []),
 		],
@@ -209,7 +208,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		server: viteConfig.server,
 		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}\n`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
 

@@ -105,6 +105,10 @@ export function getPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 	return undefined;
 }
 
+export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): boolean {
+	return internals.pagesByViteID.has(viteid);
+}
+
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }

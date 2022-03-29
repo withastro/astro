@@ -1,11 +1,12 @@
-import type { AstroConfig } from '../@types/astro';
-import type { ErrorPayload } from 'vite';
 import eol from 'eol';
-import path from 'path';
-import slash from 'slash';
 import fs from 'fs';
-import { fileURLToPath, pathToFileURL } from 'url';
+import path from 'path';
 import resolve from 'resolve';
+import slash from 'slash';
+import { fileURLToPath, pathToFileURL } from 'url';
+import type { ErrorPayload } from 'vite';
+import type { AstroConfig } from '../@types/astro';
+import { removeEndingForwardSlash } from './path.js';
 
 /** Normalize URL to its canonical form */
 export function canonicalURL(url: string, base?: string): URL {
@@ -33,6 +34,28 @@ export function isObject(value: unknown): value is Record<string, any> {
 /** Wraps an object in an array. If an array is passed, ignore it. */
 export function arraify<T>(target: T | T[]): T[] {
 	return Array.isArray(target) ? target : [target];
+}
+
+export function padMultilineString(source: string, n = 2) {
+	const lines = source.split(/\r?\n/);
+	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
+}
+
+const STATUS_CODE_REGEXP = /^\/?[0-9]{3}$/;
+
+/**
+ * Get the correct output filename for a route, based on your config.
+ * Handles both "/foo" and "foo" `name` formats.
+ * Handles `/404` and `/` correctly.
+ */
+export function getOutputFilename(astroConfig: AstroConfig, name: string) {
+	if (name === '/' || name === '') {
+		return path.posix.join(name, 'index.html');
+	}
+	if (astroConfig.buildOptions.pageUrlFormat === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
+		return path.posix.join(name, 'index.html');
+	}
+	return `${removeEndingForwardSlash(name || 'index')}.html`;
 }
 
 /** is a specifier an npm package? */
@@ -135,6 +158,28 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 
 export function isBuildingToSSR(config: AstroConfig): boolean {
 	return !!config._ctx.adapter?.serverEntrypoint;
+}
+
+export function emoji(char: string, fallback: string) {
+	return process.platform !== 'win32' ? char : fallback;
+}
+
+// TODO: remove once --hostname is baselined
+export function getResolvedHostForVite(config: AstroConfig) {
+	if (config.devOptions.host === false && config.devOptions.hostname !== 'localhost') {
+		return config.devOptions.hostname;
+	} else {
+		return config.devOptions.host;
+	}
+}
+
+export function getLocalAddress(serverAddress: string, config: AstroConfig): string {
+	const host = getResolvedHostForVite(config);
+	if (typeof host === 'boolean' || host === 'localhost') {
+		return 'localhost';
+	} else {
+		return serverAddress;
+	}
 }
 
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl

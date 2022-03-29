@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { z } from 'zod';
 import stripAnsi from 'strip-ansi';
-import { formatConfigError, validateConfig } from '../dist/core/config.js';
+import { formatConfigErrorMessage } from '../dist/core/messages.js';
+import { validateConfig } from '../dist/core/config.js';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {
@@ -22,7 +23,7 @@ describe('Config Validation', () => {
 	it('A validation error can be formatted correctly', async () => {
 		const configError = await validateConfig({ buildOptions: { sitemap: 42 } }, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
+		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
   ! buildOptions.sitemap  Expected boolean, received number.`
@@ -37,7 +38,7 @@ describe('Config Validation', () => {
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
+		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
   ! pages  Expected string, received object.
@@ -64,11 +65,10 @@ describe('Config Validation', () => {
 	});
 	it('blocks third-party "integration" values', async () => {
 		const configError = await validateConfig({ integrations: [{ name: '@my-plugin/a' }] }, process.cwd()).catch((err) => err);
-		expect(configError instanceof z.ZodError).to.equal(true);
-		const formattedError = stripAnsi(formatConfigError(configError));
-		expect(formattedError).to.equal(
-			`[config] Astro found issue(s) with your configuration:
-  ! integrations  Astro integrations are still experimental, and only official integrations are currently supported.`
-		);
+		expect(configError).to.be.instanceOf(Error);
+		expect(configError.message).to.include('Astro integrations are still experimental.');
+	});
+	it('allows third-party "integration" values with the --experimental-integrations flag', async () => {
+		await validateConfig({ integrations: [{ name: '@my-plugin/a' }], experimentalIntegrations: true }, process.cwd()).catch((err) => err);
 	});
 });

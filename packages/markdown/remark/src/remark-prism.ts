@@ -1,6 +1,6 @@
 import { visit } from 'unist-util-visit';
 import Prism from 'prismjs';
-import { addAstro } from '@astrojs/prism';
+import { addAstro } from '@astrojs/prism/internal';
 import loadLanguages from 'prismjs/components/index.js';
 const noVisit = new Set(['root', 'html', 'text']);
 

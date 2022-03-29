@@ -11,7 +11,6 @@ import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 
 load.use([loadTypeScript]);
 
@@ -74,14 +73,7 @@ export const AstroConfigSchema = z.object({
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
 		// validate
-		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default([])
-			// validate: first-party integrations only
-			// TODO: Add `To use 3rd-party integrations or to create your own, use the --experimental-integrations flag.`,
-			.refine((arr) => arr.every((integration) => integration.name.startsWith('@astrojs/')), {
-				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
-			})
+		z.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) })).default([])
 	),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	styleOptions: z
@@ -134,6 +126,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
+	experimentalIntegrations: z.boolean().optional().default(false),
 	vite: z.any().optional().default({}), // TODO: we don’t need validation, but can we get better type inference?
 });
 
@@ -147,7 +140,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		console.error('Update your configuration and install new dependencies:');
 		try {
 			const rendererKeywords = userConfig.renderers.map((r: string) => r.replace('@astrojs/renderer-', ''));
-			const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r}';`).join('\n');
+			const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r === 'solid' ? 'solid-js' : r}';`).join('\n');
 			const rendererIntegrations = rendererKeywords.map((r: string) => `    ${r}(),`).join('\n');
 			console.error('');
 			console.error(colors.dim('  // astro.config.js'));
@@ -210,10 +203,26 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.optional()
 			.default({}),
 	});
-	return {
+	// First-Pass Validation
+	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
+	// Final-Pass Validation (perform checks that require the full config object)
+	if (!result.experimentalIntegrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
+		throw new Error(
+			[
+				`Astro integrations are still experimental.`,
+				``,
+				`Only official "@astrojs/*" integrations are currently supported.`,
+				`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
+				`Breaking changes may occur in this API before Astro v1.0 is released.`,
+				``,
+			].join('\n')
+		);
+	}
+	// If successful, return the result as a verified AstroConfig object.
+	return result;
 }
 
 /** Adds '/' to end of string but doesn’t double-up */
@@ -237,6 +246,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : false,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
+		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -257,6 +267,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 			astroConfig.buildOptions.legacyBuild = false;
 		}
 	}
+	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;
 }
@@ -264,6 +275,28 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
+}
+
+/**
+ * Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file
+ * Note: currently the same as loadConfig but only returns the `filePath`
+ * instead of the resolved config
+ */
+export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL | undefined> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+	let userConfigPath: string | undefined;
+
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
+	}
+	// Automatically load config file using Proload
+	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+	if (config) {
+		return pathToFileURL(config.filePath);
+	}
 }
 
 /** Attempt to load an `astro.config.mjs` file */
@@ -290,12 +323,8 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
-	return validatedConfig;
-}
 
-export function formatConfigError(err: z.ZodError) {
-	const errorList = err.issues.map((issue) => `  ! ${colors.bold(issue.path.join('.'))}  ${colors.red(issue.message + '.')}`);
-	return `${colors.red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
+	return validatedConfig;
 }
 
 function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {

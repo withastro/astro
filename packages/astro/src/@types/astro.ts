@@ -33,6 +33,7 @@ export interface CLIFlags {
 	/** @deprecated */
 	experimentalStaticBuild?: boolean;
 	experimentalSsr?: boolean;
+	experimentalIntegrations?: boolean;
 	legacyBuild?: boolean;
 	drafts?: boolean;
 }
@@ -163,7 +164,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: AstroIntegration[];
+	integrations?: Array<AstroIntegration | AstroIntegration[]>;
 
 	/**
 	 * @docs
@@ -419,6 +420,12 @@ export interface AstroUserConfig {
 		 */
 		trailingSlash?: 'always' | 'never' | 'ignore';
 	};
+
+	/**
+	 * Enable experimental support for 3rd-party integrations.
+	 * Default: false
+	 */
+	experimentalIntegrations?: boolean;
 
 	/**
 	 * @docs

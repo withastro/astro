@@ -6,7 +6,7 @@ import { eachPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
 
 export const virtualModuleId = '@astrojs-pages-virtual-entry';
-const resolvedVirtualModuleId = '\0' + virtualModuleId;
+export const resolvedVirtualModuleId = '\0' + virtualModuleId;
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
