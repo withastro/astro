@@ -1,8 +1,8 @@
 ---
-export function getStaticPaths({paginate}) {
-  const allPosts = Astro.fetchContent('../../post/*.md');
+export async function getStaticPaths({paginate}) {
+  const allPosts = await Astro.glob('../../post/*.md');
   return ['red', 'blue'].map((filter) => {
-    const filteredPosts = allPosts.filter((post) => post.tag === filter);
+    const filteredPosts = allPosts.filter((post) => post.frontmatter.tag === filter);
     return paginate(filteredPosts, {
       params: { slug: filter },
       props: { filter },
@@ -11,7 +11,7 @@ export function getStaticPaths({paginate}) {
   });
 }
 const { page, filter } = Astro.props;
-const { params, canonicalURL} = Astro.request;
+const { params, canonicalURL} = Astro;
 ---
 
 <html>

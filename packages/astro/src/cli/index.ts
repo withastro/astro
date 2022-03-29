@@ -12,8 +12,9 @@ import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
-import { formatConfigError, loadConfig } from '../core/config.js';
-import { printHelp } from '../core/messages.js';
+import { loadConfig } from '../core/config.js';
+import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
+import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
@@ -102,40 +103,33 @@ export async function cli(args: string[]) {
 		// For now, `add` has to resolve the config again internally
 		config = await loadConfig({ cwd: projectRoot, flags });
 	} catch (err) {
-		throwAndExit(err);
-		return;
+		return throwAndExit(err);
 	}
 
 	switch (cmd) {
 		case 'add': {
 			try {
 				const packages = flags._.slice(3) as string[];
-				await add(packages, { cwd: projectRoot, flags, logging });
-				process.exit(0);
+				return await add(packages, { cwd: projectRoot, flags, logging });
 			} catch (err) {
-				throwAndExit(err);
+				return throwAndExit(err);
 			}
-			return;
 		}
 		case 'dev': {
 			try {
 				await devServer(config, { logging });
-
-				await new Promise(() => {}); // don’t close dev server
+				return await new Promise(() => {}); // lives forever
 			} catch (err) {
-				throwAndExit(err);
+				return throwAndExit(err);
 			}
-			return;
 		}
 
 		case 'build': {
 			try {
-				await build(config, { logging });
-				process.exit(0);
+				return await build(config, { logging });
 			} catch (err) {
-				throwAndExit(err);
+				return throwAndExit(err);
 			}
-			return;
 		}
 
 		case 'check': {
@@ -145,11 +139,10 @@ export async function cli(args: string[]) {
 
 		case 'preview': {
 			try {
-				await preview(config, { logging }); // this will keep running
+				return await preview(config, { logging }); // this will keep running
 			} catch (err) {
-				throwAndExit(err);
+				return throwAndExit(err);
 			}
-			return;
 		}
 
 		default: {
@@ -159,14 +152,11 @@ export async function cli(args: string[]) {
 }
 
 /** Display error and exit */
-function throwAndExit(err: any) {
+function throwAndExit(err: unknown) {
 	if (err instanceof z.ZodError) {
-		console.error(formatConfigError(err));
-	} else if (err.stack) {
-		const [mainMsg, ...stackMsg] = err.stack.split('\n');
-		console.error(colors.red(mainMsg) + '\n' + colors.dim(stackMsg.join('\n')));
+		console.error(formatConfigErrorMessage(err));
 	} else {
-		console.error(colors.red(err.toString() || err));
+		console.error(formatErrorMessage(createSafeError(err)));
 	}
 	process.exit(1);
 }

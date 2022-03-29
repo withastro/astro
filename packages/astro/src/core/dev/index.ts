@@ -7,7 +7,7 @@ import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { getResolvedHostForVite } from './util.js';
+import { getResolvedHostForVite } from '../util.js';
 
 export interface DevOptions {
 	logging: LogOptions;

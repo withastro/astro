@@ -17,11 +17,12 @@ interface Cart {
 	}>;
 }
 
-const { MODE } = import.meta.env;
-const origin = MODE === 'development' ? `http://127.0.0.1:3000` : `http://127.0.0.1:8085`;
+function getOrigin(request: Request): string {
+	return new URL(request.url).origin.replace('localhost', '127.0.0.1');
+}
 
-async function get<T>(endpoint: string, cb: (response: Response) => Promise<T>): Promise<T> {
-	const response = await fetch(`${origin}${endpoint}`, {
+async function get<T>(incomingReq: Request, endpoint: string, cb: (response: Response) => Promise<T>): Promise<T> {
+	const response = await fetch(`${getOrigin(incomingReq)}${endpoint}`, {
 		credentials: 'same-origin',
 	});
 	if (!response.ok) {
@@ -31,36 +32,36 @@ async function get<T>(endpoint: string, cb: (response: Response) => Promise<T>):
 	return cb(response);
 }
 
-export async function getProducts(): Promise<Product[]> {
-	return get<Product[]>('/api/products', async (response) => {
+export async function getProducts(incomingReq: Request): Promise<Product[]> {
+	return get<Product[]>(incomingReq, '/api/products', async (response) => {
 		const products: Product[] = await response.json();
 		return products;
 	});
 }
 
-export async function getProduct(id: number): Promise<Product> {
-	return get<Product>(`/api/products/${id}`, async (response) => {
+export async function getProduct(incomingReq: Request, id: number): Promise<Product> {
+	return get<Product>(incomingReq, `/api/products/${id}`, async (response) => {
 		const product: Product = await response.json();
 		return product;
 	});
 }
 
-export async function getUser(): Promise<User> {
-	return get<User>(`/api/user`, async (response) => {
+export async function getUser(incomingReq: Request): Promise<User> {
+	return get<User>(incomingReq, `/api/user`, async (response) => {
 		const user: User = await response.json();
 		return user;
 	});
 }
 
-export async function getCart(): Promise<Cart> {
-	return get<Cart>(`/api/cart`, async (response) => {
+export async function getCart(incomingReq: Request): Promise<Cart> {
+	return get<Cart>(incomingReq, `/api/cart`, async (response) => {
 		const cart: Cart = await response.json();
 		return cart;
 	});
 }
 
 export async function addToUserCart(id: number | string, name: string): Promise<void> {
-	await fetch(`${origin}/api/add-to-cart`, {
+	await fetch(`${location.origin}/api/cart`, {
 		credentials: 'same-origin',
 		method: 'POST',
 		mode: 'no-cors',

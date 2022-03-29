@@ -25,7 +25,7 @@ describe('Astro.*', () => {
 		expect($('#nested-child-pathname').text()).to.equal('/');
 	});
 
-	it('Astro.request.canonicalURL', async () => {
+	it('Astro.canonicalURL', async () => {
 		// given a URL, expect the following canonical URL
 		const canonicalURLs = {
 			'/index.html': 'https://mysite.dev/blog/',
@@ -48,7 +48,7 @@ describe('Astro.*', () => {
 		expect($('#site').attr('href')).to.equal('https://mysite.dev/blog/');
 	});
 
-	it('Astro.fetchContent() returns the correct "url" property, including buildOptions.site subpath', async () => {
+	it('Astro.glob() correctly returns an array of all posts', async () => {
 		const html = await fixture.readFile('/posts/1/index.html');
 		const $ = cheerio.load(html);
 		expect($('.post-url').attr('href')).to.equal('/blog/post/post-2');

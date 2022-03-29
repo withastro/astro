@@ -3,7 +3,7 @@ import TextDecorationSkip from './TextDecorationSkip.astro';
 import Cart from './Cart.svelte';
 import { getCart } from '../api';
 
-const cart = await getCart();
+const cart = await getCart(Astro.request);
 const cartCount = cart.items.reduce((sum, item) => sum + item.count, 0);
 ---
 <style>

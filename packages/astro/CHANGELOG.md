@@ -1,5 +1,11 @@
 # astro
 
+## 0.25.4
+
+### Patch Changes
+
+- [#2907](https://github.com/withastro/astro/pull/2907) [`22b1432e`](https://github.com/withastro/astro/commit/22b1432e3eed6ff40a0ab383c8f1f06f0df10d62) Thanks [@delucis](https://github.com/delucis)! - Fix typing of `integrations` array in user config
+
 ## 0.25.3
 
 ### Patch Changes

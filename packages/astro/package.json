@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.25.3",
+  "version": "0.25.4",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -85,6 +85,7 @@
     "@proload/core": "^0.2.2",
     "@proload/plugin-tsm": "^0.1.1",
     "@web/parse5-utils": "^1.3.0",
+    "ast-types": "^0.14.2",
     "boxen": "^6.2.1",
     "ci-info": "^3.3.0",
     "common-ancestor-path": "^1.0.1",
@@ -97,7 +98,7 @@
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
     "fast-xml-parser": "^4.0.7",
-    "html-entities": "^2.3.2",
+    "html-entities": "^2.3.3",
     "html-escaper": "^3.0.3",
     "htmlparser2": "^7.2.0",
     "kleur": "^4.1.4",
@@ -109,10 +110,11 @@
     "parse5": "^6.0.1",
     "path-to-regexp": "^6.2.0",
     "postcss": "^8.4.12",
-    "postcss-load-config": "^3.1.3",
+    "postcss-load-config": "^3.1.4",
     "preferred-pm": "^3.0.3",
     "prismjs": "^1.27.0",
     "prompts": "^2.4.2",
+    "recast": "^0.20.5",
     "rehype-slug": "^5.0.1",
     "resolve": "^1.22.0",
     "rollup": "^2.70.1",
@@ -130,7 +132,7 @@
     "tsconfig-resolver": "^3.0.1",
     "vite": "^2.8.6",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.14.2"
+    "zod": "^3.14.3"
   },
   "devDependencies": {
     "@babel/types": "^7.17.0",

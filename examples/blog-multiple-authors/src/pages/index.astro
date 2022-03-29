@@ -6,25 +6,18 @@ import PostPreview from '../components/PostPreview.astro';
 import Pagination from '../components/Pagination.astro';
 import authorData from '../data/authors.json';
 
-interface MarkdownFrontmatter {
-	date: number;
-	image: string;
-	author: string;
-}
-
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
 // It will run during the build, but never in the browser.
 // All variables are available to use in the HTML template below.
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
+let canonicalURL = Astro.canonicalURL;
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./post/*.md');
-allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
+let allPosts = await Astro.glob('./post/*.md');
+allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 let firstPage = allPosts.slice(0, 2);
-
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
@@ -32,14 +25,14 @@ let firstPage = allPosts.slice(0, 2);
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<MainHead {title} {description} image={allPosts[0].image} {canonicalURL} />
+		<MainHead {title} {description} image={allPosts[0].frontmatter.image} {canonicalURL} />
 	</head>
 
 	<body>
 		<Nav {title} />
 
 		<main class="wrapper">
-			{allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+			{allPosts.map((post) => <PostPreview post={post} author={authorData[post.frontmatter.author]} />)}
 		</main>
 
 		<footer>

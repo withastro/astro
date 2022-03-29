@@ -1,9 +1,10 @@
 ---
-const val = Number(Astro.request.params.id);
+const val = Number(Astro.params.id);
 ---
 <html>
 <head>
 	<title>Test app</title>
+	<style>body { font-size: 11px; }</style>
 </head>
 <body>
 	<h1>Item { val }</h1>

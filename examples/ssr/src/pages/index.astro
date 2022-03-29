@@ -5,7 +5,7 @@ import ProductListing from '../components/ProductListing.astro';
 import { getProducts } from '../api';
 import '../styles/common.css';
 
-const products = await getProducts();
+const products = await getProducts(Astro.request);
 ---
 <html>
 <head>

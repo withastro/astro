@@ -8,7 +8,7 @@ export function getStaticPaths() {
 		params: { pizza: 'grimaldis/new-york' },
   }]
 }
-const { pizza } = Astro.request.params
+const { pizza } = Astro.params
 ---
 <html lang="en">
 	<head>

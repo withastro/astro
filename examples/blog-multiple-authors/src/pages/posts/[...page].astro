@@ -6,8 +6,8 @@ import Pagination from '../../components/Pagination.astro';
 import authorData from '../../data/authors.json';
 
 export async function getStaticPaths({ paginate, rss }) {
-	const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
-	const sortedPosts = allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
+	const allPosts = await Astro.glob('../post/*.md');
+	const sortedPosts = allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 
 	// Generate an RSS feed from this collection of posts.
 	// NOTE: This is disabled by default, since it requires `buildOptions.site` to be set in your "astro.config.mjs" file.
@@ -28,24 +28,16 @@ export async function getStaticPaths({ paginate, rss }) {
 }
 
 // page
-let title = 'Don’s Blog';
-let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
-
-// collection
-interface MarkdownFrontmatter {
-	date: number;
-	description: string;
-	title: string;
-}
-
+const title = 'Don’s Blog';
+const description = 'An example blog on Astro';
+const { canonicalURL } = Astro;
 const { page } = Astro.props;
 ---
 
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<MainHead {title} {description} image={page.data[0].image} canonicalURL={canonicalURL.toString()} prev={page.url.prev} next={page.url.next} />
+		<MainHead {title} {description} image={page.data[0].frontmatter.image} canonicalURL={canonicalURL.toString()} prev={page.url.prev} next={page.url.next} />
 
 		<style lang="scss">
 			.title {
@@ -70,7 +62,7 @@ const { page } = Astro.props;
 		<main class="wrapper">
 			<h2 class="title">All Posts</h2>
 			<small class="count">{page.start + 1}–{page.end + 1} of {page.total}</small>
-			{page.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+			{page.data.map((post) => <PostPreview post={post} author={authorData[post.frontmatter.author]} />)}
 		</main>
 
 		<footer>

@@ -1,21 +1,23 @@
-import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
-import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
-import type { OutputChunk, PreRenderedChunk, PluginContext } from 'rollup';
-import type { AllPagesData } from '../core/build/types';
-import type { BuildInternals } from '../core/build/internal';
-import parse5 from 'parse5';
-import srcsetParse from 'srcset-parse';
-import * as npath from 'path';
+import { createElement, createScript, getAttribute, hasAttribute, insertBefore, remove, setAttribute } from '@web/parse5-utils';
 import { promises as fs } from 'fs';
-import { getAttribute, hasAttribute, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
-import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, getAttributes } from './extract-assets.js';
-import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
+import parse5 from 'parse5';
+import * as npath from 'path';
+import type { OutputChunk, PluginContext, PreRenderedChunk } from 'rollup';
+import srcsetParse from 'srcset-parse';
+import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
+import type { AstroConfig } from '../@types/astro';
+import type { BuildInternals } from '../core/build/internal';
+import type { AllPagesData } from '../core/build/types';
+import type { LogOptions } from '../core/logger.js';
+import { prependDotSlash } from '../core/path.js';
 import { render as ssrRender } from '../core/render/dev/index.js';
-import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
-import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
 import { RouteCache } from '../core/render/route-cache.js';
+import { getOutputFilename } from '../core/util.js';
+import { getAstroPageStyleId, getAstroStyleId } from '../vite-plugin-build-css/index.js';
+import { addRollupInput } from './add-rollup-input.js';
+import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getAttributes, getTextContent } from './extract-assets.js';
+import { hasSrcSet, isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory } from './util.js';
+import { createRequest } from '../core/request.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -25,7 +27,6 @@ const ASTRO_PAGE_PREFIX = '@astro-page';
 const ASTRO_SCRIPT_PREFIX = '@astro-script';
 
 const ASTRO_EMPTY = '@astro-empty';
-const STATUS_CODE_REGEXP = /^[0-9]{3}$/;
 
 interface PluginOptions {
 	astroConfig: AstroConfig;
@@ -87,8 +88,11 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 						astroConfig,
 						filePath: new URL(`./${component}`, astroConfig.projectRoot),
 						logging,
-						headers: new Headers(),
-						method: 'GET',
+						request: createRequest({
+							url: new URL(origin + pathname),
+							headers: new Headers(),
+							logging,
+						}),
 						mode: 'production',
 						origin,
 						pathname,
@@ -487,14 +491,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 
 				const outHTML = parse5.serialize(document);
 				const name = pathname.substr(1);
-				let outPath: string;
-
-				// Output directly to 404.html rather than 404/index.html
-				if (astroConfig.buildOptions.pageUrlFormat === 'file' || STATUS_CODE_REGEXP.test(name)) {
-					outPath = `${removeEndingForwardSlash(name || 'index')}.html`;
-				} else {
-					outPath = npath.posix.join(name, 'index.html');
-				}
+				const outPath = getOutputFilename(astroConfig, name);
 
 				this.emitFile({
 					fileName: outPath,
