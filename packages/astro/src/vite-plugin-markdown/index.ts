@@ -76,7 +76,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		},
 		async load(id) {
 			// A markdown file has been imported via ESM!
-			// Return the file's JS representation, including all Markdown 
+			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.startsWith(VIRTUAL_MODULE_ID)) {
 				const sitePathname = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';

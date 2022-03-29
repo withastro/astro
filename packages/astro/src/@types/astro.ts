@@ -67,7 +67,7 @@ export interface AstroGlobalPartial {
 	/** @deprecated Use `Astro.glob()` instead. */
 	fetchContent(globStr: string): Promise<any[]>;
 	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>; 
+	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	site: URL;
 }
@@ -517,7 +517,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
-	getHeaders(): Promise<{ depth: number, slug: string, text: string }[]>;
+	getHeaders(): Promise<{ depth: number; slug: string; text: string }[]>;
 }
 
 export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;

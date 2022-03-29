@@ -291,7 +291,7 @@ function createAstroGlobFn() {
 			throw new Error(`Astro.glob(${JSON.stringify(globValue())}) - no matches found.`);
 		}
 		// Map over the `import()` promises, calling to load them.
-		return Promise.all(allEntries.map(fn => fn()));
+		return Promise.all(allEntries.map((fn) => fn()));
 	};
 	// Cast the return type because the argument that the user sees (string) is different from the argument
 	// that the runtime sees post-compiler (Record<string, Module>).

@@ -1,7 +1,7 @@
 import { parse as babelParser } from '@babel/parser';
 import type { ArrowFunctionExpressionKind, CallExpressionKind, StringLiteralKind } from 'ast-types/gen/kinds';
 import type { NodePath } from 'ast-types/lib/node-path';
-import { parse, print, types, visit } from "recast";
+import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 
@@ -53,21 +53,23 @@ export default function astro({ config }: AstroPluginOptions): Plugin {
 					// Wrap the `Astro.glob()` argument with `import.meta.glob`.
 					const argsPath = path.get('arguments', 0) as NodePath;
 					const args = argsPath.value;
-					argsPath.replace({
-						type: 'CallExpression',
-						callee: {
-							type: 'MemberExpression',
-							object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
-							property: { type: 'Identifier', name: 'glob' },
-							computed: false,
-						},
-						arguments: [args],
-					} as CallExpressionKind,
+					argsPath.replace(
+						{
+							type: 'CallExpression',
+							callee: {
+								type: 'MemberExpression',
+								object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
+								property: { type: 'Identifier', name: 'glob' },
+								computed: false,
+							},
+							arguments: [args],
+						} as CallExpressionKind,
 						{
 							type: 'ArrowFunctionExpression',
 							body: args,
-							params: []
-						} as ArrowFunctionExpressionKind);
+							params: [],
+						} as ArrowFunctionExpressionKind
+					);
 					return false;
 				},
 			});
