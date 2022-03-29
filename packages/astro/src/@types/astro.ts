@@ -345,6 +345,7 @@ export interface AstroUserConfig {
 		 */
 		experimentalStaticBuild?: boolean;
 		/**
+		 * @deprecated
 		 * Enable a build for SSR support.
 		 * Default: false
 		 */
