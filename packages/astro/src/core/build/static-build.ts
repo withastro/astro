@@ -110,7 +110,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
-	const ssr = astroConfig.buildOptions.experimentalSsr;
+	const ssr = isBuildingToSSR(astroConfig);
 	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
