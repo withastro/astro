@@ -157,7 +157,8 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 }
 
 export function isBuildingToSSR(config: AstroConfig): boolean {
-	return !!config._ctx.adapter?.serverEntrypoint;
+	const serverEntrypoint = config._ctx?.adapter?.serverEntrypoint;
+	return typeof serverEntrypoint === 'string';
 }
 
 export function emoji(char: string, fallback: string) {
