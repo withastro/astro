@@ -65,7 +65,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 export async function runHookServerSetup({ config, server }: { config: AstroConfig; server: ViteDevServer }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:setup']) {
-			await integration.hooks['astro:server:setup']({ server });
+			await integration.hooks['astro:server:setup']({ config, server });
 		}
 	}
 }
@@ -73,7 +73,7 @@ export async function runHookServerSetup({ config, server }: { config: AstroConf
 export async function runHookServerStart({ config, address }: { config: AstroConfig; address: AddressInfo }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:start']) {
-			await integration.hooks['astro:server:start']({ address });
+			await integration.hooks['astro:server:start']({ config, address });
 		}
 	}
 }
@@ -81,7 +81,7 @@ export async function runHookServerStart({ config, address }: { config: AstroCon
 export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:done']) {
-			await integration.hooks['astro:server:done']();
+			await integration.hooks['astro:server:done']({ config });
 		}
 	}
 }
@@ -89,7 +89,7 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig; buildConfig: BuildConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
-			await integration.hooks['astro:build:start']({ buildConfig });
+			await integration.hooks['astro:build:start']({ config, buildConfig });
 		}
 	}
 }
@@ -97,7 +97,7 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[]; routes: RouteData[] }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
-			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes });
+			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes, config });
 		}
 	}
 }
