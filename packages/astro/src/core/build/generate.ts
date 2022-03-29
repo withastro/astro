@@ -12,7 +12,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutputFilename } from '../util.js';
+import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
@@ -197,7 +197,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		route: pageData.route,
 		routeCache,
 		site: astroConfig.buildOptions.site,
-		ssr: opts.astroConfig.buildOptions.experimentalSsr,
+		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 
 	let body: string;

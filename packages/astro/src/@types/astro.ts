@@ -32,6 +32,7 @@ export interface CLIFlags {
 	config?: string;
 	/** @deprecated */
 	experimentalStaticBuild?: boolean;
+	/** @deprecated */
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
 	legacyBuild?: boolean;

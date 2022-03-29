@@ -6,7 +6,7 @@ import { debug, info, warn, error, LogOptions } from '../core/logger.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
-import { createSafeError } from '../core/util.js';
+import { createSafeError, isBuildingToSSR } from '../core/util.js';
 import { ssr, preload } from '../core/render/dev/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import * as msg from '../core/messages.js';
@@ -185,7 +185,7 @@ async function handleRequest(
 			routeCache,
 			pathname: rootRelativeUrl,
 			logging,
-			ssr: config.buildOptions.experimentalSsr,
+			ssr: isBuildingToSSR(config),
 		});
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);

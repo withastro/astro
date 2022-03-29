@@ -9,6 +9,8 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
 import { getHmrScript } from './hmr.js';
 import { injectTags } from './html.js';
+import { isBuildingToSSR } from '../../util.js';
+
 export interface SSROptions {
 	/** an instance of the AstroConfig */
 	astroConfig: AstroConfig;
@@ -146,7 +148,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 		route,
 		routeCache,
 		site: astroConfig.buildOptions.site,
-		ssr: astroConfig.buildOptions.experimentalSsr,
+		ssr: isBuildingToSSR(astroConfig),
 	});
 
 	if (route?.type === 'endpoint' || content.type === 'response') {
