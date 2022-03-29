@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from './logger';
+import type { LogOptions } from './logger/core';
 
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';

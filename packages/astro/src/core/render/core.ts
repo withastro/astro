@@ -1,5 +1,5 @@
 import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, SSRLoadedRenderer, RouteData, SSRElement } from '../../@types/astro';
-import type { LogOptions } from '../logger.js';
+import type { LogOptions } from '../logger/core.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';

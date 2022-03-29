@@ -1,4 +1,4 @@
-import npath from 'path';
+import npath from 'path-browserify';
 
 /** Normalize URL to its canonical form */
 export function createCanonicalURL(url: string, base?: string): URL {

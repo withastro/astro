@@ -8,7 +8,7 @@ import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { BuildInternals } from '../core/build/internal';
 import type { AllPagesData } from '../core/build/types';
-import type { LogOptions } from '../core/logger.js';
+import type { LogOptions } from '../core/logger/core.js';
 import { prependDotSlash } from '../core/path.js';
 import { render as ssrRender } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';

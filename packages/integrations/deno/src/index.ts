@@ -1,42 +1,30 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 
+interface Options {
+	port?: number;
+	hostname?: string;
+}
 
-
-export function getAdapter(): AstroAdapter {
+export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/deno',
 		serverEntrypoint: '@astrojs/deno/server.js',
+		args: args ?? {},
+		exports: ['stop', 'handle']
 	};
 }
 
-export default function createIntegration(): AstroIntegration {
+export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/deno',
 		hooks: {
-			'astro:config:setup': ({ config, command }) => {
-			},
 			'astro:config:done': ({ setAdapter }) => {
-				setAdapter(getAdapter());
+				setAdapter(getAdapter(args));
 			},
 			'astro:build:server:setup': ({ vite }) => {
-				Object.assign(vite, {
-					resolve: {
-						...(vite.resolve ?? {}),
-						alias: {
-							...(vite.resolve?.alias ?? {}),
-							'events': 'events-browserify-mfsu',
-							'path': 'path-browserify',
-							'tty': 'tty-browserify'
-						}
-					},
-					ssr: {
-						...(vite.ssr ?? {})
-					},
-				})
 				vite.ssr = {
 					noExternal: true
 				};
-
 			}
 		},
 	};

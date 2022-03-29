@@ -4,7 +4,8 @@ import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup, runHookServerDone, runHookServerSetup, runHookServerStart } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { defaultLogOptions, info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger.js';
+import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { getResolvedHostForVite } from '../util.js';
@@ -19,7 +20,7 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(config: AstroConfig, options: DevOptions = { logging: defaultLogOptions }): Promise<DevServer> {
+export default async function dev(config: AstroConfig, options: DevOptions = { logging: nodeLogOptions }): Promise<DevServer> {
 	const devStart = performance.now();
 	applyPolyfill();
 	config = await runHookConfigSetup({ config, command: 'dev' });

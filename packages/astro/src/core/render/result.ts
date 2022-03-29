@@ -1,7 +1,7 @@
 import { bold } from 'kleur/colors';
 import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
-import { LogOptions, warn } from '../logger.js';
+import { LogOptions, warn } from '../logger/core.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
 

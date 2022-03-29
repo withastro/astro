@@ -20,12 +20,8 @@
   },
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
-  },
-  "dependencies": {
-    "path-browserify": "^1.0.1",
-    "tty-browserify": "^0.0.1",
-    "events-browserify-mfsu": "^3.2.0"
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "deno test --allow-run --allow-read --allow-net ./test/"
   },
   "devDependencies": {
     "astro": "workspace:*",

@@ -1,35 +1,50 @@
 import './shim.js';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import { Server } from "https://deno.land/std@0.132.0/http/server.ts";
 
-export async function start(manifest: SSRManifest) {
-	const app = new App(manifest);
+interface Options {
+	port?: number;
+	hostname?: string;
+	start?: boolean;
+}
 
-	// Start listening on port 8080 of localhost.
-	const server = Deno.listen({ port: 8085 });
-	console.log(`HTTP webserver running.  Access it at:  http://127.0.0.1:8085/`);
+let _server: Server | undefined = undefined;
+let _startPromise: Promise<void> | undefined = undefined;
 
-	// Connections to the server will be yielded up as an async iterable.
-	for await (const conn of server) {
-		// In order to not be blocking, we need to handle each connection individually
-		// without awaiting the function
-		serveHttp(conn, app);
+export function start(manifest: SSRManifest, options: Options) {
+	if(options.start === false) {
+		return;
 	}
 
+	const app = new App(manifest);
+
+	const handler = async (request: Request) => {
+		const response = await app.render(request);
+		return response;
+	};
+
+	_server = new Server({
+    port: options.port ?? 8085,
+    hostname: options.hostname ?? "0.0.0.0",
+    handler,
+    //onError: options.onError,
+  });
+
+  _startPromise = _server.listenAndServe();
 }
 
-async function render(request: Request, app: App) {
-	const response = await app.render(request);
-	console.log(response)
-	return response;
-}
-
-async function serveHttp(conn: Deno.Conn, app: App) {
-  // This "upgrades" a network connection into an HTTP connection.
-  const httpConn = Deno.serveHttp(conn);
-  // Each request sent over the HTTP connection will be yielded as an async
-  // iterator from the HTTP connection.
-  for await (const requestEvent of httpConn) {
-		requestEvent.respondWith(render(requestEvent.request, app))
-  }
+export function createExports(manifest: SSRManifest) {
+	const app = new App(manifest);
+	return {
+		async stop() {
+			if(_server) {
+			 _server.close();
+			}
+			await Promise.resolve(_startPromise);
+		},
+		async handle(request: Request) {
+			return app.render(request);
+		}
+	}
 }

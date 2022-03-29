@@ -2,7 +2,7 @@ import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { RenderResponse, SSROptions } from '../core/render/dev/index';
-import { debug, info, warn, error, LogOptions } from '../core/logger.js';
+import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';

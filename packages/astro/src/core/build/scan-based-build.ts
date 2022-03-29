@@ -2,7 +2,7 @@ import type { ViteDevServer } from 'vite';
 import type { RollupOutput, RollupWatcher } from 'rollup';
 import type { AstroConfig, RouteType } from '../../@types/astro';
 import type { AllPagesData, PageBuildData } from './types';
-import type { LogOptions } from '../logger';
+import type { LogOptions } from '../logger/core';
 import type { ViteConfigWithSSR } from '../create-vite.js';
 
 import { fileURLToPath } from 'url';
