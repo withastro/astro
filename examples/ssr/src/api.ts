@@ -60,7 +60,7 @@ export async function getCart(incomingReq: Request): Promise<Cart> {
 	});
 }
 
-export async function addToUserCart( id: number | string, name: string): Promise<void> {
+export async function addToUserCart(id: number | string, name: string): Promise<void> {
 	await fetch(`${location.origin}/api/cart`, {
 		credentials: 'same-origin',
 		method: 'POST',
