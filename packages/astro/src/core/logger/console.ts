@@ -39,19 +39,6 @@ export const consoleLogDestination = {
 		// For repeat messages, only update the message counter
 		if (message === lastMessage) {
 			lastMessageCount++;
-			if (levels[event.level] < levels['error']) {
-				let lines = 1;
-				let len = stringWidth(`${getPrefix()}${message}`);
-				let cols = (dest as unknown as typeof process.stdout).columns;
-				if (len > cols) {
-					lines = Math.ceil(len / cols);
-				}
-				for (let i = 0; i < lines; i++) {
-					/*readline.clearLine(dest, 0);
-					readline.cursorTo(dest, 0);
-					readline.moveCursor(dest, 0, -1);*/
-				}
-			}
 			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
 		} else {
 			lastMessage = message;
