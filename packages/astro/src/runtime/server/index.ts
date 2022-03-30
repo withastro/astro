@@ -412,7 +412,8 @@ async function replaceHeadInjection(result: SSRResult, html: string): Promise<st
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any): Promise<string> {
 	const Component = await componentFactory(result, props, children);
 	if (!isAstroComponent(Component)) {
-		throw new Error('Cannot return a Response from a nested component.');
+		const response: Response = Component;
+		throw response;
 	}
 
 	let template = await renderAstroComponent(Component);
@@ -425,20 +426,31 @@ export async function renderPage(
 	props: any,
 	children: any
 ): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
-	const response = await componentFactory(result, props, children);
+	try {
+		const response = await componentFactory(result, props, children);
 
-	if (isAstroComponent(response)) {
-		let template = await renderAstroComponent(response);
-		const html = await replaceHeadInjection(result, template);
-		return {
-			type: 'html',
-			html,
-		};
-	} else {
-		return {
-			type: 'response',
-			response,
-		};
+		if (isAstroComponent(response)) {
+			let template = await renderAstroComponent(response);
+			const html = await replaceHeadInjection(result, template);
+			return {
+				type: 'html',
+				html,
+			};
+		} else {
+			return {
+				type: 'response',
+				response,
+			};
+		}
+	} catch(err) {
+		if(err instanceof Response) {
+			return {
+				type: 'response',
+				response: err
+			};
+		} else {
+			throw err;
+		}
 	}
 }
 
