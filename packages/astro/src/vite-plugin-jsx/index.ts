@@ -1,14 +1,14 @@
 import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import type { LogOptions } from '../core/logger/core.js';
 
 import babel from '@babel/core';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
 import path from 'path';
-import { error } from '../core/logger.js';
+import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();

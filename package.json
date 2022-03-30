@@ -12,7 +12,7 @@
     "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "test": "pnpm run test --filter astro --filter @astrojs/webapi",
+    "test": "pnpm run test --filter astro --filter @astrojs/webapi --filter @astrojs/deno",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "pnpm run test --filter create-astro",
     "test:smoke": "node scripts/smoke/index.js",

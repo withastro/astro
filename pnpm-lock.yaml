@@ -467,6 +467,7 @@ importers:
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.0
       '@types/parse5': ^6.0.3
+      '@types/path-browserify': ^1.0.0
       '@types/prettier': ^2.4.4
       '@types/resolve': ^1.20.1
       '@types/rimraf': ^3.0.2
@@ -499,6 +500,7 @@ importers:
       mocha: ^9.2.2
       ora: ^6.1.0
       parse5: ^6.0.1
+      path-browserify: ^1.0.1
       path-to-regexp: ^6.2.0
       postcss: ^8.4.12
       postcss-load-config: ^3.1.4
@@ -560,6 +562,7 @@ importers:
       mime: 3.0.0
       ora: 6.1.0
       parse5: 6.0.1
+      path-browserify: 1.0.1
       path-to-regexp: 6.2.0
       postcss: 8.4.12
       postcss-load-config: 3.1.4_postcss@8.4.12
@@ -600,6 +603,7 @@ importers:
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.0
       '@types/parse5': 6.0.3
+      '@types/path-browserify': 1.0.0
       '@types/prettier': 2.4.4
       '@types/resolve': 1.20.1
       '@types/rimraf': 3.0.2
@@ -1189,6 +1193,22 @@ importers:
       '@types/yargs-parser': 21.0.0
       astro-scripts: link:../../scripts
       uvu: 0.5.3
+
+  packages/integrations/deno:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/deno/test/fixtures/basics:
+    specifiers:
+      '@astrojs/deno': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/deno': link:../../..
+      astro: link:../../../../../astro
 
   packages/integrations/lit:
     specifiers:
@@ -3968,6 +3988,10 @@ packages:
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
+
+  /@types/path-browserify/1.0.0:
+    resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
+    dev: true
 
   /@types/prettier/2.4.4:
     resolution: {integrity: sha512-ReVR2rLTV1kvtlWFyuot+d1pkpG2Fw/XKE3PDAdj57rbM97ttSp9JZ2UsP+2EHTylra9cUf6JA7tGwW1INzUrA==}
@@ -8459,6 +8483,10 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.3.1
+    dev: false
+
+  /path-browserify/1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: false
 
   /path-exists/4.0.0:

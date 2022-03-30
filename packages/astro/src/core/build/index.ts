@@ -1,5 +1,5 @@
 import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
-import type { LogOptions } from '../logger';
+import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -7,7 +7,8 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import { debug, defaultLogOptions, info, levels, timerMessage, warn, warnIfUsingExperimentalSSR } from '../logger.js';
+import { debug, info, levels, timerMessage, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { nodeLogOptions } from '../logger/node.js';
 import { createRouteManifest } from '../routing/index.js';
 import { generateSitemap } from '../render/sitemap.js';
 import { collectPagesData } from './page-data.js';
@@ -25,7 +26,7 @@ export interface BuildOptions {
 }
 
 /** `astro build` */
-export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
+export default async function build(config: AstroConfig, options: BuildOptions = { logging: nodeLogOptions }): Promise<void> {
 	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
 	await builder.run();
