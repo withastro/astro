@@ -7,9 +7,9 @@ const photoInfo = await fetch(
   `https://api.nasa.gov/planetary/apod?date=${product}&api_key=${NASA_API_KEY}`
 ).then((res) => res.json());
 
-if (photoInfo?.code >= 400) {
-  return Astro.redirect('/')
-}
+// if (photoInfo?.code >= 400) {
+//   return Astro.redirect('/')
+// }
 
 type PhotoInfo = {
   title: string;
