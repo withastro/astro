@@ -81,6 +81,13 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 		css: {
 			postcss: astroConfig.styleOptions.postcss || {},
 		},
+		resolve: {
+			alias: {
+				// This is needed for Deno compatibility, as the non-browser version
+				// of this module depends on Node `crypto`
+				'randombytes': 'randombytes/browser'
+			}
+		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
 			external: [...ALWAYS_EXTERNAL],
