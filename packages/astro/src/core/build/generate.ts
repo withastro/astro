@@ -5,7 +5,7 @@ import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { debug, info } from '../../core/logger.js';
+import { debug, info } from '../logger/core.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';

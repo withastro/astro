@@ -1,9 +1,8 @@
 import { bold } from 'kleur/colors';
 import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
-import { LogOptions, warn } from '../logger.js';
-import { isCSSRequest } from './dev/css.js';
-import { canonicalURL as utilCanonicalURL } from '../util.js';
+import { LogOptions, warn } from '../logger/core.js';
+import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
 
 function onlyAvailableInSSR(name: string) {
@@ -71,10 +70,10 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, markdownRender, origin, params, pathname, renderers, request, resolve, site } = args;
+	const { legacyBuild, markdownRender, params, pathname, renderers, request, resolve, site } = args;
 
 	const url = new URL(request.url);
-	const canonicalURL = utilCanonicalURL('.' + pathname, site ?? url.origin);
+	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then

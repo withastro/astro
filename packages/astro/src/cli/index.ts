@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import { enableVerboseLogging, LogOptions } from '../core/logger.js';
+import { LogOptions } from '../core/logger/core.js';
 
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { defaultLogDestination } from '../core/logger.js';
+import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
 import build from '../core/build/index.js';
 import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
@@ -87,7 +87,7 @@ export async function cli(args: string[]) {
 
 	// logLevel
 	let logging: LogOptions = {
-		dest: defaultLogDestination,
+		dest: nodeLogDestination,
 		level: 'info',
 	};
 	if (flags.verbose) {
