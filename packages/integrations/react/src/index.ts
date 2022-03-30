@@ -30,7 +30,7 @@ function getRenderer() {
 function getViteConfiguration() {
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/react/client.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
+			include: [ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
 			exclude: ['@astrojs/react/server.js'],
 		},
 		resolve: {
