@@ -18,6 +18,20 @@ export function arraify<T>(target: T | T[]): T[] {
 	return Array.isArray(target) ? target : [target];
 }
 
+/** Flattens deeply nested objects to be a single level deep. */
+export function flatten(obj: Record<string, any>, parentKey = '') {
+  const flattened: Record<string, any> = {}
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key]
+		if (typeof value === 'object' && (value !== null || Array.isArray(value))) {
+      Object.assign(flattened, flatten(value, [parentKey, key].filter(x => x).join('.')))
+    } else {
+      flattened[[parentKey, key].filter(x => x).join('.')] = value
+    }
+  })
+  return flattened
+}
+
 export function padMultilineString(source: string, n = 2) {
 	const lines = source.split(/\r?\n/);
 	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
