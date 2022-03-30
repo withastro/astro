@@ -1,4 +1,5 @@
 import { AstroIntegration } from 'astro';
+import { version as ReactVersion } from 'react-dom/package.json';
 
 function getRenderer() {
 	return {
@@ -28,6 +29,9 @@ function getRenderer() {
 
 function getViteConfiguration() {
 	return {
+		define: {
+			'process.env.REACT_HYDRATION_ENTRYPOINT': ReactVersion.startsWith('18.') ? 'react-dom/client' : 'react-dom',
+		},
 		optimizeDeps: {
 			include: ['@astrojs/react/client.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
 			exclude: ['@astrojs/react/server.js'],
