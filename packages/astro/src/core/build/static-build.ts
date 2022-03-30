@@ -218,7 +218,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });
 
-	const buildResult = await vite.build();
+	const buildResult = await vite.build(viteBuildConfig);
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
