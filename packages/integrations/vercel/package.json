@@ -15,6 +15,7 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./server-entrypoint": "./dist/server-entrypoint.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -22,9 +23,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.11.0",
-    "esbuild": "0.14.25",
-    "globby": "^12.2.0"
+    "@astrojs/webapi": "^0.11.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
