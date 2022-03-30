@@ -8,10 +8,6 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
-    "@astrojs/renderer-preact": "workspace:*",
-    "@astrojs/renderer-react": "workspace:*",
-    "@astrojs/renderer-svelte": "workspace:*",
-    "@astrojs/renderer-vue": "workspace:*",
     "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
     "arg": "^5.0.1",
