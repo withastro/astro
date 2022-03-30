@@ -23,14 +23,6 @@ describe('API routes in SSR', () => {
 		expect(html).to.not.be.empty;
 	});
 
-	it('Static files work too', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/static.txt');
-		const response = await app.render(request);
-		const txt = await response.text();
-		expect(txt).to.include('Hello, world!');
-	});
-
 	it('Can load the API route too', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/food.json');
