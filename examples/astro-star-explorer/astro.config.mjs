@@ -5,5 +5,5 @@ import nodeAdapter from '@astrojs/node'
 // https://astro.build/config
 export default defineConfig({
   integrations: [svelte()],
-  adapter: nodeAdapter(),
+  // adapter: nodeAdapter(),
 });
