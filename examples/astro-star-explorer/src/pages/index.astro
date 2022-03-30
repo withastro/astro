@@ -1,9 +1,59 @@
 ---
 import Layout from '../components/Layout.astro'
+
+const { NASA_API_KEY } = import.meta.env
+const exampleDate = '2021-03-29'
+const { title, url } = await fetch(
+  `https://api.nasa.gov/planetary/apod?date=${exampleDate}&api_key=${NASA_API_KEY}`
+).then((res) => res.json());
 ---
 <Layout>
-	<h1>Galaxy explorer</h1>
-	<p>Explore the universe, buy some prints!</p>
+	<main>
+		<h1>Galaxy explorer</h1>
+		<p>A universe of imagery, all ready to print!</p>
 
-	<a href=`/product/2021-03-29`>Show me the latest</a>
+		<a class="banner-cta" href=`/product/2021-03-29`>
+			<img class="banner-cta__image" src={url} alt={title} />
+			<span class="banner-cta__text">Check out today's pick ➜</span>
+		</a>
+	</main>
 </Layout>
+
+<style>
+	main {
+		padding: 0 1rem;
+	}
+	.banner-cta {
+		height: 200px;
+		display: block;
+		position: relative;
+		transition: transform 0.4s;
+	}
+
+	.banner-cta:hover {
+		transform: translateY(-0.3rem);
+	}
+
+	.banner-cta::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(transparent, var(--text));
+		border-radius: 0.5rem;
+	}
+
+	.banner-cta__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 0.5rem;
+	}
+	.banner-cta__text {
+		position: absolute;
+		z-index: 1;
+		bottom: 0.5rem;
+		right: 1rem;
+		font-family: var(--font-heading);
+		color: white;
+	}
+</style>
