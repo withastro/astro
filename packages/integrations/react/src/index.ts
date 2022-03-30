@@ -1,10 +1,10 @@
 import { AstroIntegration } from 'astro';
-import { version as ReactVersion } from 'react-dom/package.json';
+import { version as ReactVersion } from 'react-dom';
 
 function getRenderer() {
 	return {
 		name: '@astrojs/react',
-		clientEntrypoint: '@astrojs/react/client.js',
+		clientEntrypoint: ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js',
 		serverEntrypoint: '@astrojs/react/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
@@ -29,9 +29,6 @@ function getRenderer() {
 
 function getViteConfiguration() {
 	return {
-		define: {
-			'process.env.REACT_HYDRATION_ENTRYPOINT': ReactVersion.startsWith('18.') ? 'react-dom/client' : 'react-dom',
-		},
 		optimizeDeps: {
 			include: ['@astrojs/react/client.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
 			exclude: ['@astrojs/react/server.js'],
