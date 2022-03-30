@@ -7,7 +7,7 @@ const usingReact18 = version.startsWith('18.');
 // Import the correct hydration method based on the version of React.
 const hydrateFn = (
 	async () => usingReact18
-		? (await import('react-dom/client')).hydrateRoot
+		? (await import('react-dom/client.js')).hydrateRoot
 		: (await import('react-dom')).hydrate
 )();
 

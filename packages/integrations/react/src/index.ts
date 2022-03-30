@@ -36,7 +36,7 @@ function getViteConfiguration() {
 			dedupe: ['react', 'react-dom'],
 		},
 		ssr: {
-			external: ['react-dom/server.js'],
+			external: ['react-dom/server.js', 'react-dom/client.js'],
 		},
 	};
 }
