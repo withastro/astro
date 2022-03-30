@@ -1,5 +1,13 @@
 # @astrojs/language-server
 
+## 0.13.3
+
+### Patch Changes
+
+- 1fb21ff: Add support for folding CSS
+- 99d7536: Add support for semantic tokens
+- b363c00: Improve completions for components
+
 ## 0.13.2
 
 ### Patch Changes
