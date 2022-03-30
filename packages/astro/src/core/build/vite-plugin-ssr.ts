@@ -42,6 +42,7 @@ ${
 	adapter.exports
 		? `const _exports = adapter.createExports(_manifest, _args);
 ${adapter.exports.map((name) => `export const ${name} = _exports['${name}'];`).join('\n')}
+${adapter.exports.includes('_default') ? `export default _default` : ''}
 `
 		: ''
 }

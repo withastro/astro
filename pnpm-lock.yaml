@@ -1350,12 +1350,8 @@ importers:
       '@astrojs/webapi': ^0.11.0
       astro: workspace:*
       astro-scripts: workspace:*
-      esbuild: 0.14.25
-      globby: ^12.2.0
     dependencies:
       '@astrojs/webapi': link:../../webapi
-      esbuild: 0.14.25
-      globby: 12.2.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
