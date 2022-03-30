@@ -56,7 +56,7 @@ const { productName, size, quantity } = atcParams
     gap: 1rem;
 		padding: 2rem 1rem;
 		border-radius: 0.5rem;
-		box-shadow: 0 4px 20px hsl(var(--grey-8));
+		box-shadow: 0 4px 20px hsl(var(--grey-8), 0.5);
   }
 	ul > li {
 		margin-bottom: 0.2rem;
@@ -69,6 +69,7 @@ const { productName, size, quantity } = atcParams
   }
   .input {
     padding: 0.8rem 0.5rem;
+		font-family: var(--font-base);
     border: 1px solid hsl(var(--grey-8));
     border-radius: 0.3rem;
     color: var(--text);
