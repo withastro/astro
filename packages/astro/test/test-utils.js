@@ -74,7 +74,7 @@ export async function loadFixture(inlineConfig) {
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = {
 		dest: nodeLogDestination,
-		level: 'error'
+		level: 'error',
 	};
 
 	return {

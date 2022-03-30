@@ -1,4 +1,3 @@
-
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
 /** Basic stylesheet for RSS feeds */
 export const PRETTY_FEED_V3 = `<?xml version="1.0" encoding="utf-8"?>

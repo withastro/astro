@@ -157,7 +157,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		server: viteConfig.server,
 		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
 		ssr: viteConfig.ssr,
-		resolve: viteConfig.resolve
+		resolve: viteConfig.resolve,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'server' });

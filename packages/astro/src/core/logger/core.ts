@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../../@types/astro';
-import { bold, dim  } from 'kleur/colors';
+import { bold, dim } from 'kleur/colors';
 import stringWidth from 'string-width';
 
 interface LogWritable<T> {
@@ -90,7 +90,7 @@ export function table(opts: LogOptions, columns: number[]) {
 }
 
 export function debug(...args: any[]) {
-	if('_astroGlobalDebug' in globalThis) {
+	if ('_astroGlobalDebug' in globalThis) {
 		(globalThis as any)._astroGlobalDebug(...args);
 	}
 }
@@ -105,7 +105,7 @@ function padStr(str: string, len: number) {
 }
 
 export let defaultLogLevel: LoggerLevel;
-if(typeof process !== 'undefined') {
+if (typeof process !== 'undefined') {
 	if (process.argv.includes('--verbose')) {
 		defaultLogLevel = 'debug';
 	} else if (process.argv.includes('--silent')) {

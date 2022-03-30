@@ -10,5 +10,5 @@ Deno.test({
 			const html = await resp.text();
 			assert(html);
 		});
-	}
+	},
 });

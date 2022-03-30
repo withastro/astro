@@ -10,7 +10,6 @@ type ConsoleStream = Writable & {
 	fd: 1 | 2;
 };
 
-
 let lastMessage: string;
 let lastMessageCount = 1;
 export const nodeLogDestination = new Writable({
@@ -124,7 +123,6 @@ export const logger = {
 	warn: warn.bind(null, nodeLogOptions),
 	error: error.bind(null, nodeLogOptions),
 };
-
 
 export function enableVerboseLogging() {
 	//debugPackage.enable('*,-babel');

@@ -21,7 +21,7 @@ export class App {
 	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
-		level: 'info'
+		level: 'info',
 	};
 
 	constructor(manifest: Manifest) {

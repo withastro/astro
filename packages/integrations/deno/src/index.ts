@@ -10,7 +10,7 @@ export function getAdapter(args?: Options): AstroAdapter {
 		name: '@astrojs/deno',
 		serverEntrypoint: '@astrojs/deno/server.js',
 		args: args ?? {},
-		exports: ['stop', 'handle']
+		exports: ['stop', 'handle'],
 	};
 }
 
@@ -22,12 +22,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				setAdapter(getAdapter(args));
 			},
 			'astro:build:setup': ({ vite, target }) => {
-				if(target === 'server') {
+				if (target === 'server') {
 					vite.ssr = {
-						noExternal: true
+						noExternal: true,
 					};
 				}
-			}
+			},
 		},
 	};
 }
