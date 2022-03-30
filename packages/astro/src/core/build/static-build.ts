@@ -20,7 +20,7 @@ import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
-import { runHookBuildServerSetup } from '../../integrations/index.js';
+import { runHookBuildSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -160,7 +160,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		resolve: viteConfig.resolve
 	} as ViteConfigWithSSR;
 
-	await runHookBuildServerSetup({ config: astroConfig, vite: viteBuildConfig });
+	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'server' });
 
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build(viteBuildConfig);
@@ -180,7 +180,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
-	const buildResult = await vite.build({
+	const viteBuildConfig = {
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
@@ -214,7 +214,11 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
 		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
-	});
+	} as ViteConfigWithSSR;
+
+	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });
+
+	const buildResult = await vite.build();
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }

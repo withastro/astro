@@ -92,10 +92,10 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 	}
 }
 
-export async function runHookBuildServerSetup({ config, vite }: { config: AstroConfig, vite: ViteConfigWithSSR }) {
+export async function runHookBuildSetup({ config, vite, target }: { config: AstroConfig, vite: ViteConfigWithSSR, target: 'server' | 'client' }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:build:server:setup']) {
-			await integration.hooks['astro:build:server:setup']({ vite });
+		if (integration.hooks['astro:build:setup']) {
+			await integration.hooks['astro:build:setup']({ vite, target });
 		}
 	}
 }

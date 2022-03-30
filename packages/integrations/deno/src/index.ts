@@ -21,10 +21,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:config:done': ({ setAdapter }) => {
 				setAdapter(getAdapter(args));
 			},
-			'astro:build:server:setup': ({ vite }) => {
-				vite.ssr = {
-					noExternal: true
-				};
+			'astro:build:setup': ({ vite, target }) => {
+				if(target === 'server') {
+					vite.ssr = {
+						noExternal: true
+					};
+				}
 			}
 		},
 	};
