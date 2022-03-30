@@ -1,0 +1,84 @@
+---
+import Layout from '../components/Layout.astro'
+import parseCartRequest, { AddToCartParams } from '../utils/parseCartRequest'
+
+let atcParams: AddToCartParams
+try {
+	atcParams = await parseCartRequest(Astro.request)
+} catch {
+	return Astro.redirect(Astro.request.headers.get('referer') + '?error')
+}
+const { productName, size, quantity } = atcParams
+---
+
+<Layout>
+	<main>
+		<h1>Checkout</h1>
+		<form class="form">
+			<section class="product-details">
+				<h2>Product details</h2>
+				<ul>
+					<li>{productName}</li>
+					<li>Size: {size}</li>
+					<li>Quantity: {quantity}</li>
+				</ul>
+			</section>
+			<label class="label">
+				<span>Name</span>
+				<input class="input" name="name" placeholder="John doe">
+			</label>
+			<label class="label">
+				<span>Address</span>
+				<input class="input" name="address" placeholder="123 Moonlander Lane">
+			</label>
+			<label class="label">
+				<span>Card Number</span>
+				<input class="input" name="cardNumber" placeholder="42 4242 4242 4242">
+			</label>
+		</form>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: auto;
+		max-width: 600px;
+	}
+	.product-details {
+		background: var(--bg);
+		padding: 0.2rem 0.7rem;
+		border-radius: 0.4rem;
+	}
+	.form {
+		display: flex;
+    flex-direction: column;
+		background: hsl(12, 17%, 100%, 50%);
+    gap: 1rem;
+		padding: 2rem 1rem;
+		border-radius: 0.5rem;
+		box-shadow: 0 4px 20px hsl(var(--grey-8));
+  }
+	ul > li {
+		margin-bottom: 0.2rem;
+	}
+  .label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+  }
+  .input {
+    padding: 0.8rem 0.5rem;
+    border: 1px solid hsl(var(--grey-8));
+    border-radius: 0.3rem;
+    color: var(--text);
+  }
+  .add-to-cart {
+    color: var(--text);
+    background: var(--gradient-primary);
+    background-size: 100% 200%;
+    transition: background-position-y 0.2s;
+    border-radius: 0.3rem;
+    color: var(--bg);
+  }
+</style>

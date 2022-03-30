@@ -1,0 +1,120 @@
+---
+import Layout from '../../components/Layout.astro'
+
+const { product } = Astro.params
+const { NASA_API_KEY } = import.meta.env
+const photoInfo = await fetch(
+  `https://api.nasa.gov/planetary/apod?date=${product}&api_key=${NASA_API_KEY}`
+).then((res) => res.json());
+
+// const photoInfo = (await import('../../exData')).default
+
+if (photoInfo?.code >= 400) {
+  return Astro.redirect('/')
+}
+
+type PhotoInfo = {
+  title: string;
+  date: string;
+  explanation: string;
+  copyright: string;
+  url: string;
+	media_type: 'image' | 'video';
+  hdurl: string;
+}
+
+const { title, date, url } = photoInfo as PhotoInfo
+const formattedDate = (new Date(`${date}:00:00:00`)).toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+})
+
+const parsedUrl = new URL(Astro.request.url)
+const error = 'One of the form fields is invalid. Please try again.'
+---
+
+<Layout>
+  <main class="container">
+    <img class="image" src={url} width="960" height="960" />
+    <div>
+      <div class="heading">
+        <h1>{title}</h1>
+        <time datetime={date}>{formattedDate}</time>
+				{parsedUrl.searchParams.has('error') && 
+				<p class="error-banner">{error}</p>}
+      </div>
+      <form class="form" action="/quick-checkout" method="post">
+        <label class="label">
+          <span>Quantity</span>
+          <input class="input" type="number" name="quantity">
+        </label>
+        <label class="label">
+          <span>Print size</span>
+          <select class="input" name="size">
+            <option value="12x12">12 x 12</option>
+            <option value="24x24">24 x 24</option>
+            <option value="36x36">36 x 36</option>
+          </select>
+        </label>
+				<input hidden name="productName" value={title}>
+        <button class="add-to-cart" type="submit">Add to cart</button>
+      </form>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 1000px;
+    margin: auto;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: hsl(var(--grey-9), 0.5);
+  }
+	.error-banner {
+		background: #FF2F57;
+		color: white;
+		padding: 0.3rem 0.8rem;
+		border-radius: 0.2rem;
+	}
+  .image {
+    width: 100%;
+    height: auto;
+  }
+  .heading {
+    margin-bottom: 2rem;
+  }
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+  }
+  .input {
+    padding: 0.8rem 0.5rem;
+    border: 1px solid hsl(var(--grey-8));
+    border-radius: 0.3rem;
+    color: var(--text);
+  }
+  .add-to-cart {
+    color: var(--text);
+    background: var(--gradient-primary);
+    background-size: 100% 200%;
+    transition: background-position-y 0.2s;
+    border-radius: 0.3rem;
+    color: var(--bg);
+  }
+
+  .add-to-cart:hover, .add-to-cart:focus {
+    background-position-y: 100%;
+  }
+</style>

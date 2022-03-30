@@ -1,0 +1,20 @@
+{
+  "name": "@example/minimal",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev --experimental-ssr",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "@astrojs/svelte": "^0.0.2",
+    "@astrojs/tailwind": "^0.0.2",
+    "astro": "workspace:*",
+    "svelte": "^3.46.4"
+  },
+  "dependencies": {
+    "@astrojs/node": "^0.0.2"
+  }
+}

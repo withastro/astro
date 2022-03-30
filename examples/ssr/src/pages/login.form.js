@@ -1,4 +1,5 @@
 export function post(params, request) {
+	console.log('alskjfasd')
 	return new Response(null, {
 		status: 301,
 		headers: {

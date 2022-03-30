@@ -41,6 +41,21 @@ importers:
       turbo: 1.1.10
       typescript: 4.6.3
 
+  examples/astro-star-explorer:
+    specifiers:
+      '@astrojs/node': ^0.0.2
+      '@astrojs/svelte': ^0.0.2
+      '@astrojs/tailwind': ^0.0.2
+      astro: workspace:*
+      svelte: ^3.46.4
+    dependencies:
+      '@astrojs/node': link:../../packages/integrations/node
+    devDependencies:
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/tailwind': link:../../packages/integrations/tailwind
+      astro: link:../../packages/astro
+      svelte: 3.46.4
+
   examples/blog:
     specifiers:
       '@astrojs/preact': ^0.0.2
