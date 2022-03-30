@@ -26,7 +26,7 @@ export interface BuildOptions {
 
 /** `astro build` */
 export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
-	config = await runHookConfigSetup({ config, command: 'build' });
+	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
 	await builder.run();
 }
@@ -62,6 +62,7 @@ class AstroBuilder {
 		const { logging } = this;
 		this.timer.init = performance.now();
 		this.timer.viteStart = performance.now();
+		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
 		const viteConfig = await createVite(
 			{
 				mode: this.mode,
