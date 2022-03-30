@@ -10,7 +10,8 @@ import { z } from 'zod';
 import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
-import { arraify, isObject } from './util.js';
+import { arraify, isObject, flatten } from './util.js';
+import { dset } from 'dset';
 
 load.use([loadTypeScript]);
 
@@ -43,7 +44,7 @@ async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<Post
 	}
 }
 
-export const AstroConfigSchema = z.object({
+export const LegacyAstroConfigSchema = z.object({
 	projectRoot: z
 		.string()
 		.optional()
@@ -69,13 +70,6 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('./dist')
 		.transform((val) => new URL(val)),
-	integrations: z.preprocess(
-		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
-		// validate
-		z.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) })).default([])
-	),
-	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	styleOptions: z
 		.object({
 			postcss: z
@@ -126,9 +120,155 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	experimentalIntegrations: z.boolean().optional().default(false),
-	vite: z.any().optional().default({}), // TODO: we don’t need validation, but can we get better type inference?
+	experimentalIntegrations: z.boolean().optional().default(false)
 });
+
+export const AstroConfigSchema = z.object({
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	logLevel: z
+		.union([z.literal('error'), z.literal('warn'), z.literal('info'), z.literal('silent')])
+		.optional()
+		.default('info'),
+	root: z
+		.string()
+		.optional()
+		.default('.')
+		.transform((val) => new URL(val)),
+	srcDir: z
+		.string()
+		.optional()
+		.default('./src')
+		.transform((val) => new URL(val)),
+	publicDir: z
+		.string()
+		.optional()
+		.default('./public')
+		.transform((val) => new URL(val)),
+	outDir: z
+		.string()
+		.optional()
+		.default('./dist')
+		.transform((val) => new URL(val)),
+	site: z
+		.string()
+		.optional()
+		.transform((val) => (val ? addTrailingSlash(val) : val)),
+	base: z.string().optional().default('/'),
+	trailingSlash: z
+		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
+		.optional()
+		.default('ignore'),
+	build: z
+		.object({
+			format: z
+				.union([z.literal('file'), z.literal('directory')])
+				.optional()
+				.default('directory'),
+		})
+		.optional()
+		.default({}),
+	server: z
+		.object({
+			host: z.union([z.string(), z.boolean()]).optional().default(false),
+			port: z.number().optional().default(3000),
+		})
+		.or(
+			z.function(
+				z.tuple([
+					z
+						.object({
+							command: z
+								.union([z.literal('dev'), z.literal('preview')])
+								.optional(),
+						})
+						.optional(),
+				])
+			)
+		)
+		.optional()
+		.default({}),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) })).default([])
+	),
+	style: z
+		.object({
+			postcss: z
+				.object({
+					options: z.any(),
+					plugins: z.array(z.any()),
+				})
+				.optional()
+				.default({ options: {}, plugins: [] }),
+		})
+		.optional()
+		.default({}),
+	markdown: z
+		.object({
+			drafts: z.boolean().optional().default(false),
+		})
+		.passthrough()
+		.optional()
+		.default({}),
+	vite: z.object({}).passthrough().optional().default({}),
+	experimental: z
+		.object({
+			ssr: z.boolean().optional().default(false),
+			integrations: z.boolean().optional().default(false),
+		})
+		.optional()
+		.default({}),
+});
+
+const configMigrationMap = new Map<string, any>([
+	['projectRoot', 'root'],
+	['src', 'srcDir'],
+	['pages', null],
+	['public', 'publicDir'],
+	['dist', 'outDir'],
+	['integrations', 'integrations'],
+	['adapter', 'adapter'],
+	['styleOptions', 'style'],
+	['markdownOptions.render.0', null],
+	['markdownOptions.render.1', 'markdown'],
+	['buildOptions', 'build'],
+	['buildOptions.site', 'site'],
+	['buildOptions.sitemapFilter', null],
+	['buildOptions.sitemap', null],
+	['buildOptions.pageUrlFormat', 'build.format'],
+	['buildOptions.legacyBuild', null],
+	['buildOptions.experimentalStaticBuild', null],
+	['buildOptions.experimentalSsr', 'experimental.ssr'],
+	['buildOptions.drafts', 'markdown.drafts'],
+	['devOptions', null],
+	['devOptions.host', 'server.host'],
+	['devOptions.port', 'server.port'],
+	['devOptions.trailingSlash', 'trailingSlash'],
+	['experimentalIntegrations', 'experimental.integrations']
+]);
+
+function migrateConfig(legacyConfig: ReturnType<typeof LegacyAstroConfigSchema['parse']>) {
+	const flat = flatten(legacyConfig);
+	const newConfig: Record<string, any> = {};
+	const instructions = [];
+	outer: for (let [key, value] of Object.entries(flat)) {
+		for (const k of configMigrationMap.keys()) {
+			if (key.startsWith(k)) {
+				const newKey = configMigrationMap.get(k);
+				if (newKey) {
+					key = key.replace(k, newKey);
+				} else {
+					instructions.push(`${key} has been removed`);
+					continue outer;
+				}
+			}
+		}
+		dset(newConfig, key, value);
+	}
+	return newConfig;
+}
 
 /** Turn raw config values into normalized values */
 export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
@@ -162,11 +302,8 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		}
 		process.exit(1);
 	}
-	/* eslint-enable no-console */
 
-	// We need to extend the global schema to add transforms that are relative to root.
-	// This is type checked against the global schema to make sure we still match.
-	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
+	const LegacyAstroConfigRelativeSchema = LegacyAstroConfigSchema.extend({
 		projectRoot: z
 			.string()
 			.default('.')
@@ -203,13 +340,66 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.optional()
 			.default({}),
 	});
+
+	let oldConfig;
+	try {
+		oldConfig = await LegacyAstroConfigRelativeSchema.parseAsync(userConfig);
+	} catch (e) {}
+	if (oldConfig) {
+		console.error('Astro configuration has changed in v1.0.0!');
+		console.error('Update your configuration:');
+		try {
+			const newConfig = migrateConfig(userConfig);
+			console.log(JSON.stringify(newConfig));
+		} catch (err) {
+			// We tried, better to just exit.
+		}
+		process.exit(1);
+	}
+	/* eslint-enable no-console */
+
+	// We need to extend the global schema to add transforms that are relative to root.
+	// This is type checked against the global schema to make sure we still match.
+	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
+		root: z
+			.string()
+			.default('.')
+			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+		srcDir: z
+			.string()
+			.default('./src')
+			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+		publicDir: z
+			.string()
+			.default('./public')
+			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+		outDir: z
+			.string()
+			.default('./dist')
+			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+		style: z
+			.object({
+				postcss: z.preprocess(
+					(val) => resolvePostcssConfig(val, fileProtocolRoot),
+					z
+						.object({
+							options: z.any(),
+							plugins: z.array(z.any()),
+						})
+						.optional()
+						.default({ options: {}, plugins: [] })
+				),
+			})
+			.optional()
+			.default({}),
+	});
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
 	// Final-Pass Validation (perform checks that require the full config object)
-	if (!result.experimentalIntegrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
+	if (!result.experimental.integrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
 		throw new Error(
 			[
 				`Astro integrations are still experimental.`,
@@ -316,8 +506,9 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}): Promise<AstroConfig> {
-	const mergedConfig = mergeCLIFlags(userConfig, flags);
-	const validatedConfig = await validateConfig(mergedConfig, root);
+	const validatedConfig = await validateConfig(userConfig, root);
+	const mergedConfig = mergeCLIFlags(validatedConfig, flags);
+	console.log(mergedConfig);
 
 	return validatedConfig;
 }
