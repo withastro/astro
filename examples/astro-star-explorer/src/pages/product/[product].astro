@@ -7,8 +7,6 @@ const photoInfo = await fetch(
   `https://api.nasa.gov/planetary/apod?date=${product}&api_key=${NASA_API_KEY}`
 ).then((res) => res.json());
 
-// const photoInfo = (await import('../../exData')).default
-
 if (photoInfo?.code >= 400) {
   return Astro.redirect('/')
 }
@@ -58,7 +56,7 @@ const error = 'One of the form fields is invalid. Please try again.'
           </select>
         </label>
 				<input hidden name="productName" value={title}>
-        <button class="add-to-cart" type="submit">Add to cart</button>
+        <button class="add-to-cart" type="submit">Quick add</button>
       </form>
     </div>
   </main>
@@ -102,6 +100,7 @@ const error = 'One of the form fields is invalid. Please try again.'
   .input {
     padding: 0.8rem 0.5rem;
     border: 1px solid hsl(var(--grey-8));
+		font-family: var(--font-base);
     border-radius: 0.3rem;
     color: var(--text);
   }
