@@ -1,12 +1,18 @@
 import { newHTMLDataProvider } from 'vscode-html-languageservice';
 
-export const astroAttributes = newHTMLDataProvider('astro-attributes', {
+export const classListAttribute = newHTMLDataProvider('class-list', {
 	version: 1,
 	globalAttributes: [
 		{
 			name: 'class:list',
 			description: 'Utility to provide a list of class',
 		},
+	],
+});
+
+export const astroAttributes = newHTMLDataProvider('astro-attributes', {
+	version: 1,
+	globalAttributes: [
 		{
 			name: 'set:html',
 			description: 'Inject unescaped HTML into this tag',
@@ -75,6 +81,7 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 		{
 			name: 'client:load',
 			description: 'Start importing the component JS at page load. Hydrate the component when import completes.',
+			valueSet: 'v',
 			references: [
 				{
 					name: 'Astro documentation',
@@ -86,6 +93,7 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			name: 'client:idle',
 			description:
 				'Start importing the component JS as soon as main thread is free (uses requestIdleCallback()). Hydrate the component when import completes.',
+			valueSet: 'v',
 			references: [
 				{
 					name: 'Astro documentation',
@@ -97,6 +105,7 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			name: 'client:visible',
 			description:
 				'Start importing the component JS as soon as the element enters the viewport (uses IntersectionObserver). Hydrate the component when import completes. Useful for content lower down on the page.',
+			valueSet: 'v',
 			references: [
 				{
 					name: 'Astro documentation',
@@ -119,6 +128,7 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			name: 'client:only',
 			description:
 				'Start importing the component JS at page load and hydrate when the import completes, similar to client:load. The component will be skipped at build time, useful for components that are entirely dependent on client-side APIs. This is best avoided unless absolutely needed, in most cases it is best to render placeholder content on the server and delay any browser API calls until the component hydrates in the browser.',
+			valueSet: 'v',
 			references: [
 				{
 					name: 'Astro documentation',

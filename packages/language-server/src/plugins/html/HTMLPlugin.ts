@@ -16,13 +16,18 @@ import { AstroDocument } from '../../core/documents/AstroDocument';
 import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
 import { LSHTMLConfig } from '../../core/config/interfaces';
 import { isPossibleComponent } from '../../utils';
-import { astroAttributes, astroDirectives } from './features/astro-attributes';
+import { astroAttributes, astroDirectives, classListAttribute } from './features/astro-attributes';
+import { removeDataAttrCompletion } from './utils';
 
 export class HTMLPlugin implements Plugin {
 	__name = 'html';
 
 	private lang = getLanguageService({
+		customDataProviders: [astroAttributes, classListAttribute],
+	});
+	private attributeOnlyLang = getLanguageService({
 		customDataProviders: [astroAttributes],
+		useDefaultDataProvider: false,
 	});
 	private componentLang = getLanguageService({
 		customDataProviders: [astroAttributes, astroDirectives],
@@ -94,11 +99,11 @@ export class HTMLPlugin implements Plugin {
 		// If we're in a component starting tag, we do not want HTML language completions
 		// as HTML attributes are not valid for components
 		const results = isInComponentStartTag(html, document.offsetAt(position))
-			? CompletionList.create([])
-			: this.lang.doComplete(document, position, html);
+			? removeDataAttrCompletion(this.attributeOnlyLang.doComplete(document, position, html).items)
+			: this.lang.doComplete(document, position, html).items;
 
 		return CompletionList.create(
-			[...results.items, ...this.getLangCompletions(results.items), ...emmetResults.items],
+			[...results, ...this.getLangCompletions(results), ...emmetResults.items],
 			// Emmet completions change on every keystroke, so they are never complete
 			emmetResults.items.length > 0
 		);

@@ -45,21 +45,6 @@ export function isPossibleComponent(node: Node): boolean {
 	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]/);
 }
 
-/**
- * Return true if a specific node could be a component with a client directive on it.
- * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
- */
-export function isPossibleClientComponent(node: Node): boolean {
-	if (isPossibleComponent(node) && node.attributes) {
-		for (let [name] of Object.entries(node.attributes)) {
-			if (name.startsWith('client:')) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 /** Flattens an array */
 export function flatten<T>(arr: T[][]): T[] {
 	return arr.reduce((all, item) => [...all, ...item], []);

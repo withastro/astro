@@ -14,15 +14,22 @@ import {
 	TextEdit,
 } from 'vscode-languageserver';
 import ts from 'typescript';
-import { Node } from 'vscode-html-languageservice';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
-import { isInsideFrontmatter } from '../../../core/documents/utils';
-import { isPossibleClientComponent, urlToPath } from '../../../utils';
-import { isAstroFilePath, toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
+import { isInComponentStartTag, isInsideFrontmatter } from '../../../core/documents/utils';
+import { isPossibleComponent } from '../../../utils';
+import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
+import { getLanguageService, Node } from 'vscode-html-languageservice';
+import { astroDirectives } from '../../html/features/astro-attributes';
+import { removeDataAttrCompletion } from '../../html/utils';
 
 export class CompletionsProviderImpl {
 	private readonly docManager: DocumentManager;
 	private readonly languageServiceManager: TypeScriptLanguageServiceManager;
+
+	public directivesHTMLLang = getLanguageService({
+		customDataProviders: [astroDirectives],
+		useDefaultDataProvider: false,
+	});
 
 	constructor(docManager: DocumentManager, languageServiceManager: TypeScriptLanguageServiceManager) {
 		this.docManager = docManager;
@@ -44,51 +51,24 @@ export class CompletionsProviderImpl {
 			if (frontmatter) items.push(frontmatter);
 		}
 
-		if (completionContext?.triggerCharacter === ':') {
-			const clientHint = this.getClientHintCompletion(doc, position, completionContext);
-			if (clientHint) items.push(...clientHint);
-		}
-
-		if (!this.isInsideFrontmatter(document, position)) {
+		const offset = document.offsetAt(position);
+		if (!isInsideFrontmatter(document.getText(), offset)) {
 			const props = await this.getPropCompletions(document, position, completionContext);
 			if (props.length) {
 				items.push(...props);
 			}
 		}
 
+		const html = document.html;
+		if (isInComponentStartTag(html, offset)) {
+			const node = html.findNodeAt(offset);
+			const isAstro = await this.isAstroComponent(document, node);
+			if (!isAstro) {
+				items.push(...removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items));
+			}
+		}
+
 		return CompletionList.create(items, true);
-	}
-
-	private getClientHintCompletion(
-		document: AstroDocument,
-		position: Position,
-		completionContext?: CompletionContext
-	): CompletionItem[] | null {
-		const node = document.html.findNodeAt(document.offsetAt(position));
-		if (!isPossibleClientComponent(node)) return null;
-
-		return [
-			{
-				label: ':load',
-				insertText: 'load',
-				commitCharacters: ['l'],
-			},
-			{
-				label: ':idle',
-				insertText: 'idle',
-				commitCharacters: ['i'],
-			},
-			{
-				label: ':visible',
-				insertText: 'visible',
-				commitCharacters: ['v'],
-			},
-			{
-				label: ':media',
-				insertText: 'media',
-				commitCharacters: ['m'],
-			},
-		];
 	}
 
 	private getComponentScriptCompletion(
@@ -137,7 +117,7 @@ export class CompletionsProviderImpl {
 		const html = document.html;
 
 		const node = html.findNodeAt(offset);
-		if (!this.isComponentTag(node)) {
+		if (!isPossibleComponent(node)) {
 			return [];
 		}
 		const inAttribute = node.start + node.tag!.length < offset;
@@ -162,8 +142,7 @@ export class CompletionsProviderImpl {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
 		// Get the source file
-		const filePath = urlToPath(document.uri);
-		const tsFilePath = toVirtualAstroFilePath(filePath!);
+		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
 
 		const program = lang.getProgram();
 		const sourceFile = program?.getSourceFile(tsFilePath);
@@ -179,28 +158,25 @@ export class CompletionsProviderImpl {
 			return [];
 		}
 
-		// Get the import's type
+		// Get the component's props type
 		const componentType = this.getPropType(importType, typeChecker);
 		if (!componentType) {
 			return [];
 		}
 
-		const completionItems: CompletionItem[] = [];
+		let completionItems: CompletionItem[] = [];
 
-		// Add completions for this types props
-		for (let baseType of componentType.getBaseTypes() || []) {
-			const members = baseType.getSymbol()?.members || [];
-			members.forEach((mem) => {
-				let completionItem = this.getCompletionItemForTypeMember(mem, typeChecker);
-				completionItems.push(completionItem);
-			});
-		}
+		// Add completions for this component's props type properties
+		const properties = componentType.getProperties().filter((property) => property.name !== 'children') || [];
 
-		// Add completions for this types base members
-		const members = componentType.getSymbol()?.members || [];
-		members.forEach((mem) => {
-			let completionItem = this.getCompletionItemForTypeMember(mem, typeChecker);
+		properties.forEach((property) => {
+			let completionItem = this.getCompletionItemForProperty(property, typeChecker);
 			completionItems.push(completionItem);
+		});
+
+		// Ensure that props shows up first as a completion, despite this plugin being ran after the HTML one
+		completionItems = completionItems.map((item) => {
+			return { ...item, sortText: '_' };
 		});
 
 		return completionItems;
@@ -257,7 +233,7 @@ export class CompletionsProviderImpl {
 		return null;
 	}
 
-	private getCompletionItemForTypeMember(mem: ts.Symbol, typeChecker: ts.TypeChecker) {
+	private getCompletionItemForProperty(mem: ts.Symbol, typeChecker: ts.TypeChecker) {
 		let item: CompletionItem = {
 			label: mem.name,
 			insertText: mem.name,
@@ -280,15 +256,34 @@ export class CompletionsProviderImpl {
 		return item;
 	}
 
-	private isComponentTag(node: Node): boolean {
-		if (!node.tag) {
+	private async isAstroComponent(document: AstroDocument, node: Node): Promise<boolean> {
+		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
+
+		// Get the source file
+		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
+
+		const program = lang.getProgram();
+		const sourceFile = program?.getSourceFile(tsFilePath);
+		const typeChecker = program?.getTypeChecker();
+		if (!sourceFile || !typeChecker) {
 			return false;
 		}
-		const firstChar = node.tag[0];
-		return /[A-Z]/.test(firstChar);
-	}
 
-	private isInsideFrontmatter(document: AstroDocument, position: Position) {
-		return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+		const componentName = node.tag!;
+		const imp = this.getImportedSymbol(sourceFile, componentName);
+		const importType = imp && typeChecker.getTypeAtLocation(imp);
+		if (!importType) {
+			return false;
+		}
+
+		const symbolDeclaration = importType.getSymbol()?.declarations;
+
+		if (symbolDeclaration) {
+			const fileName = symbolDeclaration[0].getSourceFile().fileName;
+
+			return fileName.endsWith('.astro');
+		}
+
+		return false;
 	}
 }
