@@ -5,6 +5,7 @@
     "allowJs": true,
     "module": "ES2020",
     "outDir": "./dist",
+    "resolveJsonModule": true,
     "target": "ES2020"
   }
 }
