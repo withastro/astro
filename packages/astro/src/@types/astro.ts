@@ -502,7 +502,6 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
-		ignoredPages: string[];
 	};
 }
 
@@ -672,7 +671,6 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
-			ignorePages: (glob: string) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
