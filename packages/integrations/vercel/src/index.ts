@@ -41,6 +41,14 @@ export default function vercel(): AstroIntegration {
 					version: 3,
 					basePath: '/',
 					pages404: false,
+					// redirects: [
+					// 	{
+					// 		source: '/nice/',
+					// 		destination: '/stuff',
+					// 		statusCode: 308,
+					// 		regex: '^/nice.*$',
+					// 	},
+					// ],
 					rewrites: routes.map((route) => ({
 						source: route.pathname,
 						destination: '/__astro_entry',
