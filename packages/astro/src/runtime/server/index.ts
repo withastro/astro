@@ -442,11 +442,11 @@ export async function renderPage(
 				response,
 			};
 		}
-	} catch(err) {
-		if(err instanceof Response) {
+	} catch (err) {
+		if (err instanceof Response) {
 			return {
 				type: 'response',
-				response: err
+				response: err,
 			};
 		} else {
 			throw err;
