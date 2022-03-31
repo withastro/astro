@@ -244,10 +244,10 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : false,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
-		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
-		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
+		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : undefined,
+		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
+		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : undefined,
+		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 	};
 }
 
