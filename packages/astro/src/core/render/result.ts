@@ -75,10 +75,10 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = expression(...args);
-				return await renderSlot(this.#result, slot).then((res) => res != null ? String(res) : res);
+				return await renderSlot(this.#result, slot).then((res) => (res != null ? String(res) : res));
 			}
 		}
-		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => res != null ? String(res) : res);
+		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => (res != null ? String(res) : res));
 		if (cacheable) this.#cache.set(name, content);
 		return content;
 	}
