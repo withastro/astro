@@ -4,6 +4,7 @@
 
 # Deep Directories
 **/dist
+**/.output
 **/smoke
 **/node_modules
 **/fixtures
