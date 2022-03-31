@@ -172,6 +172,12 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
+		const ssr = !!astroConfig._ctx.adapter?.serverEntrypoint;
+		// If SSR, copy public over
+		if(ssr) {
+			await copyFiles(astroConfig.public, opts.buildConfig.client);
+		}
+
 		return null;
 	}
 
@@ -232,6 +238,23 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 		files.map(async (filename) => {
 			const url = new URL(filename, opts.astroConfig.dist);
 			await fs.promises.rm(url);
+		})
+	);
+}
+
+async function copyFiles(fromFolder: URL, toFolder: URL) {
+	const files = await glob('**/*', {
+		cwd: fileURLToPath(fromFolder),
+	});
+
+	// Make the directory
+	await fs.promises.mkdir(toFolder, { recursive: true });
+
+	await Promise.all(
+		files.map(async (filename) => {
+			const from = new URL(filename, fromFolder);
+			const to = new URL(filename, toFolder);
+			return fs.promises.copyFile(from, to);
 		})
 	);
 }
