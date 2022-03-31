@@ -5,7 +5,7 @@ function getRenderer() {
 	return {
 		name: '@astrojs/react',
 		clientEntrypoint: ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js',
-		serverEntrypoint: '@astrojs/react/server.js',
+		serverEntrypoint: ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
 			const {
@@ -18,7 +18,7 @@ function getRenderer() {
 						{},
 						{
 							runtime: 'automatic',
-							importSource: '@astrojs/react',
+							importSource: ReactVersion.startsWith('18.') ? 'react' : '@astrojs/react',
 						}
 					),
 				],
@@ -31,13 +31,13 @@ function getViteConfiguration() {
 	return {
 		optimizeDeps: {
 			include: [ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
-			exclude: ['@astrojs/react/server.js'],
+			exclude: [ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js'], 
 		},
 		resolve: {
 			dedupe: ['react', 'react-dom'],
 		},
 		ssr: {
-			external: ['react-dom/server.js', 'react-dom/client.js'],
+			external: ReactVersion.startsWith('18.') ? ['react-dom/server', 'react-dom/client'] : ['react-dom/server.js', 'react-dom/client.js'],
 		},
 	};
 }
