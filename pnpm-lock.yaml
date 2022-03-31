@@ -92,16 +92,16 @@ importers:
       '@types/react': ^17.0.43
       astro: ^0.25.4
       preact: ^10.6.6
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
       '@algolia/client-search': 4.13.0
       '@docsearch/css': 3.0.0
-      '@docsearch/react': 3.0.0_73997327e0ab5ab2aaf50785071cd6bd
+      '@docsearch/react': 3.0.0_9e0989ed96c3582fc46f3bba1f5ac769
       '@types/react': 17.0.43
       preact: 10.6.6
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       '@astrojs/react': link:../../packages/integrations/react
@@ -144,8 +144,8 @@ importers:
       astro: ^0.25.4
       lit: ^2.2.1
       preact: ^10.6.6
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
       solid-js: ^1.3.13
       svelte: ^3.46.4
       vue: ^3.2.31
@@ -153,8 +153,8 @@ importers:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.1
       preact: 10.6.6
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       solid-js: 1.3.13
       svelte: 3.46.4
       vue: 3.2.31
@@ -182,11 +182,11 @@ importers:
     specifiers:
       '@astrojs/react': ^0.0.2
       astro: ^0.25.4
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
@@ -236,8 +236,8 @@ importers:
       astro: ^0.25.4
       lit: ^2.2.1
       preact: ^10.6.6
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
       solid-js: ^1.3.13
       svelte: ^3.46.4
       vue: ^3.2.31
@@ -245,8 +245,8 @@ importers:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.1
       preact: 10.6.6
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       solid-js: 1.3.13
       svelte: 3.46.4
       vue: 3.2.31
@@ -315,12 +315,12 @@ importers:
     specifiers:
       '@astrojs/react': ^0.0.2
       astro: ^0.25.4
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
       sass: ^1.49.9
     dependencies:
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
@@ -335,14 +335,14 @@ importers:
       '@astrojs/vue': ^0.0.2
       astro: ^0.25.4
       preact: ^10.6.6
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
       svelte: ^3.46.4
       vue: ^3.2.31
     dependencies:
       preact: 10.6.6
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       svelte: 3.46.4
       vue: 3.2.31
     devDependencies:
@@ -392,18 +392,18 @@ importers:
       astro: ^0.25.4
       nanostores: ^0.5.12
       preact: ^10.6.6
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
       solid-nanostores: 0.0.6
       vue: ^3.2.31
     dependencies:
       '@nanostores/preact': 0.1.3_nanostores@0.5.12+preact@10.6.6
-      '@nanostores/react': 0.1.5_f66e5a41ef8212ca2b6be35009893a5b
+      '@nanostores/react': 0.1.5_33de46f26c75888291546388c72611d1
       '@nanostores/vue': 0.4.1_nanostores@0.5.12+vue@3.2.31
       nanostores: 0.5.12
       preact: 10.6.6
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       solid-nanostores: 0.0.6
       vue: 3.2.31
     devDependencies:
@@ -1011,10 +1011,16 @@ importers:
       '@astrojs/react': workspace:*
       '@astrojs/vue': workspace:*
       astro: workspace:*
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      vue: ^3.2.31
     dependencies:
       '@astrojs/react': link:../../../../integrations/react
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      vue: 3.2.31
 
   packages/astro/test/fixtures/remote-css:
     specifiers:
@@ -1276,17 +1282,21 @@ importers:
   packages/integrations/react:
     specifiers:
       '@babel/plugin-transform-react-jsx': ^7.17.3
+      '@types/react': ^17.0.43
+      '@types/react-dom': ^17.0.14
       astro: workspace:*
       astro-scripts: workspace:*
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
       '@babel/plugin-transform-react-jsx': 7.17.3
     devDependencies:
+      '@types/react': 17.0.43
+      '@types/react-dom': 17.0.14
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
 
   packages/integrations/sitemap:
     specifiers:
@@ -1461,12 +1471,12 @@ importers:
   packages/renderers/renderer-react:
     specifiers:
       '@babel/plugin-transform-react-jsx': ^7.17.3
-      react: ^17.0.2
-      react-dom: ^17.0.2
+      react: ^18.0.0
+      react-dom: ^18.0.0
     dependencies:
       '@babel/plugin-transform-react-jsx': 7.17.3
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
 
   packages/renderers/renderer-solid:
     specifiers:
@@ -3304,7 +3314,7 @@ packages:
     resolution: {integrity: sha512-1kkV7tkAsiuEd0shunYRByKJe3xQDG2q7wYg24SOw1nV9/2lwEd4WrUYRJC/ukGTl2/kHeFxsaUvtiOy0y6fFA==}
     dev: false
 
-  /@docsearch/react/3.0.0_73997327e0ab5ab2aaf50785071cd6bd:
+  /@docsearch/react/3.0.0_9e0989ed96c3582fc46f3bba1f5ac769:
     resolution: {integrity: sha512-yhMacqS6TVQYoBh/o603zszIb5Bl8MIXuOc6Vy617I74pirisDzzcNh0NEaYQt50fVVR3khUbeEhUEWEWipESg==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 18.0.0'
@@ -3316,8 +3326,8 @@ packages:
       '@docsearch/css': 3.0.0
       '@types/react': 17.0.43
       algoliasearch: 4.13.0
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
     transitivePeerDependencies:
       - '@algolia/client-search'
     dev: false
@@ -3469,7 +3479,7 @@ packages:
       preact: 10.6.6
     dev: false
 
-  /@nanostores/react/0.1.5_f66e5a41ef8212ca2b6be35009893a5b:
+  /@nanostores/react/0.1.5_33de46f26c75888291546388c72611d1:
     resolution: {integrity: sha512-1XEsszpCDcxNeX21QJ+4mFROdn45ulahJ9oLJEo0IA2HZPkwfjSzG+iSXImqFU5nzo0earvlD09z4C9olf8Sxw==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
@@ -3478,8 +3488,8 @@ packages:
       react-dom: '>=16.8.0'
     dependencies:
       nanostores: 0.5.12
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
     dev: false
 
   /@nanostores/vue/0.4.1_nanostores@0.5.12+vue@3.2.31:
@@ -4022,11 +4032,16 @@ packages:
 
   /@types/prop-types/15.7.4:
     resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
-    dev: false
 
   /@types/pug/2.0.6:
     resolution: {integrity: sha512-SnHmG9wN1UVmagJOnyo/qkk0Z7gejYxOYYmaAwr5u2yFYfsupN3sg10kyzN8Hep/2zbHxCnsumxOoRIRMBwKCg==}
     dev: false
+
+  /@types/react-dom/17.0.14:
+    resolution: {integrity: sha512-H03xwEP1oXmSfl3iobtmQ/2dHF5aBHr8aUMwyGZya6OW45G+xtdzmq6HkncefiBt5JU8DVyaWl/nWZbjZCnzAQ==}
+    dependencies:
+      '@types/react': 17.0.43
+    dev: true
 
   /@types/react/17.0.43:
     resolution: {integrity: sha512-8Q+LNpdxf057brvPu1lMtC5Vn7J119xrP1aq4qiaefNioQUYANF/CYeK4NsKorSZyUGJ66g0IM+4bbjwx45o2A==}
@@ -4034,7 +4049,6 @@ packages:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.11
-    dev: false
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
@@ -4066,7 +4080,6 @@ packages:
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
-    dev: false
 
   /@types/semver/6.2.3:
     resolution: {integrity: sha512-KQf+QAMWKMrtBMsB8/24w53tEsxllMj6TuA80TT/5igJalLI/zm0L3oXRbIAl4Ohfc85gyHX/jhMwsVkmhLU4A==}
@@ -5249,7 +5262,6 @@ packages:
 
   /csstype/3.0.11:
     resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
-    dev: false
 
   /csv-generate/3.4.3:
     resolution: {integrity: sha512-w/T+rqR0vwvHqWs/1ZyMDWtHHSJaN06klRqJXBEpDJaM/+dZkso0OKh1VcuuYvK3XM53KysVNq8Ko/epCK8wOw==}
@@ -8279,6 +8291,7 @@ packages:
   /object-assign/4.1.1:
     resolution: {integrity: sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /object-hash/2.2.0:
     resolution: {integrity: sha512-gScRMn0bS5fH+IuwyIFgnh9zBdo4DV+6GhygmWM9HyNJSgS0hScp1f5vjtm7oIIOiT9trXrShAkLFSc2IqKNgw==}
@@ -8798,22 +8811,20 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
-  /react-dom/17.0.2_react@17.0.2:
-    resolution: {integrity: sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==}
+  /react-dom/18.0.0_react@18.0.0:
+    resolution: {integrity: sha512-XqX7uzmFo0pUceWFCt7Gff6IyIMzFUn7QMZrbrQfGxtaxXZIcGQzoNpRLE3fQLnS4XzLLPMZX2T9TRcSrasicw==}
     peerDependencies:
-      react: 17.0.2
+      react: ^18.0.0
     dependencies:
       loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react: 17.0.2
-      scheduler: 0.20.2
+      react: 18.0.0
+      scheduler: 0.21.0
 
-  /react/17.0.2:
-    resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}
+  /react/18.0.0:
+    resolution: {integrity: sha512-x+VL6wbT4JRVPm7EGxXhZ8w8LTROaxPXOqhlGyVSrv0sB1jkyFGgXxJ8LVoPRLvPR6/CIZGFmfzqUa2NYeMr2A==}
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-      object-assign: 4.1.1
 
   /read-pkg-up/7.0.1:
     resolution: {integrity: sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==}
@@ -9206,11 +9217,10 @@ packages:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
     dev: false
 
-  /scheduler/0.20.2:
-    resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
+  /scheduler/0.21.0:
+    resolution: {integrity: sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==}
     dependencies:
       loose-envify: 1.4.0
-      object-assign: 4.1.1
 
   /section-matter/1.0.0:
     resolution: {integrity: sha512-vfD3pmTzGpufjScBh50YHKzEu2lxBWhVEHsNGoEXmCmn2hKGfeNLYMzCJpe8cD7gqX7TJluOVpBkAequ6dgMmA==}

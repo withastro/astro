@@ -111,7 +111,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
-	const ssr = astroConfig.buildOptions.experimentalSsr;
+	const ssr = isBuildingToSSR(astroConfig);
 	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
 
 	const viteBuildConfig = {
@@ -169,16 +169,21 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
+	const ssr = isBuildingToSSR(astroConfig);
+	const out = ssr ? opts.buildConfig.client : astroConfig.dist;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
+		// If SSR, copy public over
+		if (ssr) {
+			await copyFiles(astroConfig.public, out);
+		}
+
 		return null;
 	}
 
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
-
-	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
 	const viteBuildConfig = {
 		logLevel: 'info',
@@ -232,6 +237,23 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 		files.map(async (filename) => {
 			const url = new URL(filename, opts.astroConfig.dist);
 			await fs.promises.rm(url);
+		})
+	);
+}
+
+async function copyFiles(fromFolder: URL, toFolder: URL) {
+	const files = await glob('**/*', {
+		cwd: fileURLToPath(fromFolder),
+	});
+
+	// Make the directory
+	await fs.promises.mkdir(toFolder, { recursive: true });
+
+	await Promise.all(
+		files.map(async (filename) => {
+			const from = new URL(filename, fromFolder);
+			const to = new URL(filename, toFolder);
+			return fs.promises.copyFile(from, to);
 		})
 	);
 }

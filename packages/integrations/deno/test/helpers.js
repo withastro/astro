@@ -13,7 +13,7 @@ export async function runBuild(fixturePath) {
 export async function runBuildAndStartApp(fixturePath, cb) {
 	const url = new URL(fixturePath, dir);
 	const close = await runBuild(fixturePath);
-	const mod = await import(new URL('./dist/entry.mjs', url));
+	const mod = await import(new URL('./dist/server/entry.mjs', url));
 	await cb();
 	await mod.stop();
 	await close();

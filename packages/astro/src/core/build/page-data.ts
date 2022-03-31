@@ -10,6 +10,7 @@ import { debug } from '../logger/core.js';
 import { preload as ssrPreload } from '../render/dev/index.js';
 import { generateRssFunction } from '../render/rss.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
+import { isBuildingToSSR } from '../util.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -33,7 +34,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
 
-	const buildMode = astroConfig.buildOptions.experimentalSsr ? 'ssr' : 'static';
+	const buildMode = isBuildingToSSR(astroConfig) ? 'ssr' : 'static';
 
 	const dataCollectionLogTimeout = setInterval(() => {
 		info(opts.logging, 'build', 'The data collection step may take longer for larger projects...');

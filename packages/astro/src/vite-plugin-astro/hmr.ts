@@ -81,6 +81,9 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 
 	const mod = ctx.modules.find((m) => m.file === ctx.file);
 	const file = ctx.file.replace(config.projectRoot.pathname, '/');
+
+	// Note: this intentionally ONLY applies to Astro components
+	// HMR is handled for other file types by their respective plugins
 	if (ctx.file.endsWith('.astro')) {
 		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
 	}

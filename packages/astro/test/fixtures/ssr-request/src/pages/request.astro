@@ -1,0 +1,10 @@
+---
+const origin = new URL(Astro.request.url).origin;
+---
+
+<html>
+<head><title>Testing</title></head>
+<body>
+<h1 id="origin">{origin}</h1>
+</body>
+</html>

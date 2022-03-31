@@ -4,36 +4,32 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 // Asset bundling
-describe('Dynamic pages in SSR', () => {
+describe('Using Astro.request in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-dynamic/',
-			buildOptions: { experimentalSsr: true },
+			projectRoot: './fixtures/ssr-request/',
+			buildOptions: {
+				experimentalSsr: true,
+			},
 			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});
 
-	async function fetchHTML(path) {
+	it('Gets the request pased in', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com' + path);
+		const request = new Request('http://example.com/request');
 		const response = await app.render(request);
 		const html = await response.text();
-		return html;
-	}
-
-	it('Do not have to implement getStaticPaths', async () => {
-		const html = await fetchHTML('/123');
 		const $ = cheerioLoad(html);
-		expect($('h1').text()).to.equal('Item 123');
+		expect($('#origin').text()).to.equal('http://example.com');
 	});
 
-	it('Includes page styles', async () => {
-		const html = await fetchHTML('/123');
-		const $ = cheerioLoad(html);
-		expect($('link').length).to.equal(1);
+	it('public file is copied over', async () => {
+		const json = await fixture.readFile('/client/cars.json');
+		expect(json).to.not.be.undefined;
 	});
 });

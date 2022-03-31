@@ -21,7 +21,9 @@
   "exports": {
     ".": "./dist/index.js",
     "./client.js": "./client.js",
+    "./client-v17.js": "./client-v17.js",
     "./server.js": "./server.js",
+    "./server-v17.js": "./server-v17.js",
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
@@ -34,14 +36,16 @@
     "@babel/plugin-transform-react-jsx": "^7.17.3"
   },
   "devDependencies": {
+    "@types/react": "^17.0.43",
+    "@types/react-dom": "^17.0.14",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^17.0.2 || ^18.0.0",
+    "react-dom": "^17.0.2 || ^18.0.0"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

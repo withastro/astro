@@ -39,7 +39,7 @@ function printAstroHelp() {
 			['--project-root <path>', 'Specify the path to the project root folder.'],
 			['--no-sitemap', 'Disable sitemap generation (build only).'],
 			['--legacy-build', 'Use the build strategy prior to 0.24.0'],
-			['--experimental-ssr', 'Enable SSR compilation.'],
+			['--experimental-ssr', 'Enable SSR compilation fot 3rd-party adapters.'],
 			['--drafts', 'Include markdown draft pages in the build.'],
 			['--verbose', 'Enable verbose logging'],
 			['--silent', 'Disable logging'],

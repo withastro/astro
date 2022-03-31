@@ -28,6 +28,12 @@ export interface CreateResultArgs {
 	request: Request;
 }
 
+function getFunctionExpression(slot: any) {
+	if (!slot) return;
+	if (slot.expressions?.length !== 1) return;
+	return slot.expressions[0] as (...args: any[]) => any;
+}
+
 class Slots {
 	#cache = new Map<string, string>();
 	#result: SSRResult;
@@ -56,15 +62,24 @@ class Slots {
 		return Boolean(this.#slots[name]);
 	}
 
-	public async render(name: string) {
+	public async render(name: string, args: any[] = []) {
+		const cacheable = args.length === 0;
 		if (!this.#slots) return undefined;
-		if (this.#cache.has(name)) {
+		if (cacheable && this.#cache.has(name)) {
 			const result = this.#cache.get(name);
 			return result;
 		}
 		if (!this.has(name)) return undefined;
-		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => (res != null ? res.toString() : res));
-		this.#cache.set(name, content);
+		if (!cacheable) {
+			const component = await this.#slots[name]();
+			const expression = getFunctionExpression(component);
+			if (expression) {
+				const slot = expression(...args);
+				return await renderSlot(this.#result, slot).then((res) => res != null ? String(res) : res);
+			}
+		}
+		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => res != null ? String(res) : res);
+		if (cacheable) this.#cache.set(name, content);
 		return content;
 	}
 }

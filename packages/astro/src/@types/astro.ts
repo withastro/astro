@@ -60,7 +60,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/** get information about this page */
 	request: Request;
 	/** see if slots are used */
-	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string): Promise<string> };
+	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string, args?: any[]): Promise<string> };
 }
 
 export interface AstroGlobalPartial {
@@ -345,7 +345,8 @@ export interface AstroUserConfig {
 		 */
 		experimentalStaticBuild?: boolean;
 		/**
-		 * Enable a build for SSR support.
+		 * Enable SSR support for 3rd-party adapters.
+		 * Not required when using a built-in adapter.
 		 * Default: false
 		 */
 		experimentalSsr?: boolean;

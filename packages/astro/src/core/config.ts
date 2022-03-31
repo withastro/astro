@@ -261,12 +261,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
 	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 	if (typeof flags.legacyBuild === 'boolean') astroConfig.buildOptions.legacyBuild = flags.legacyBuild;
-	if (typeof flags.experimentalSsr === 'boolean') {
-		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
-		if (flags.experimentalSsr) {
-			astroConfig.buildOptions.legacyBuild = false;
-		}
-	}
+	if (typeof flags.experimentalSsr === 'boolean') astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;
