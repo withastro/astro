@@ -33,7 +33,6 @@ export interface CLIFlags {
 	config?: string;
 	/** @deprecated */
 	experimentalStaticBuild?: boolean;
-	/** @deprecated */
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
 	legacyBuild?: boolean;
@@ -346,8 +345,8 @@ export interface AstroUserConfig {
 		 */
 		experimentalStaticBuild?: boolean;
 		/**
-		 * @deprecated
-		 * Enable a build for SSR support.
+		 * Enable SSR support for 3rd-party adapters.
+		 * Not requuired when using a built-in adapter.
 		 * Default: false
 		 */
 		experimentalSsr?: boolean;

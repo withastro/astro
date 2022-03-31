@@ -236,10 +236,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		// eslint-disable-next-line no-console
 		console.warn(`Passing --experimental-static-build is no longer necessary and is now the default. The flag will be removed in a future version of Astro.`);
 	}
-	if (flags.experimentalSsr) {
-		// eslint-disable-next-line no-console
-		console.warn(`Passing --experimental-ssr is no longer necessary. The flag will be removed in a future version of Astro.`);
-	}
 	return {
 		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
@@ -249,6 +245,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : false,
+		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
 		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
@@ -264,6 +261,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
 	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 	if (typeof flags.legacyBuild === 'boolean') astroConfig.buildOptions.legacyBuild = flags.legacyBuild;
+	if (typeof flags.experimentalSsr === 'boolean') astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;
