@@ -1,8 +1,12 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
+import esbuild from 'esbuild';
+import { fileURLToPath } from 'url';
 
 const writeJson = (path: PathLike, data: any) => fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
+
+const ENTRYFILE = '__astro_entry';
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -13,8 +17,6 @@ export function getAdapter(): AstroAdapter {
 }
 
 export default function vercel(): AstroIntegration {
-	let entryFile: string;
-
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
@@ -26,14 +28,27 @@ export default function vercel(): AstroIntegration {
 				setAdapter(getAdapter());
 			},
 			'astro:build:start': async ({ buildConfig, config }) => {
-				entryFile = buildConfig.serverEntry;
+				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
 				buildConfig.client = new URL('./static/', config.dist);
-				buildConfig.server = new URL('./functions/', config.dist);
+				buildConfig.server = new URL('./server/pages/', config.dist);
 			},
 			'astro:build:done': async ({ dir, routes }) => {
-				await writeJson(new URL(`./functions/package.json`, dir), {
-					type: 'commonjs',
+				const pagesDir = new URL('./server/pages/', dir);
+
+				// FIX: Remove these two line before merging
+				await fs.mkdir(pagesDir, { recursive: true });
+				await fs.rename(new URL(`./${ENTRYFILE}.mjs`, dir), new URL(`./${ENTRYFILE}.mjs`, pagesDir));
+
+				await esbuild.build({
+					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, pagesDir))],
+					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, pagesDir)),
+					bundle: true,
+					format: 'cjs',
+					platform: 'node',
+					target: 'node14',
 				});
+
+				await fs.rm(new URL(`./${ENTRYFILE}.mjs`, pagesDir));
 
 				// Routes Manifest
 				// https://vercel.com/docs/file-system-api#configuration/routes
@@ -51,20 +66,8 @@ export default function vercel(): AstroIntegration {
 					// ],
 					rewrites: routes.map((route) => ({
 						source: route.pathname,
-						destination: '/__astro_entry',
+						destination: `/${ENTRYFILE}`,
 					})),
-				});
-
-				// Functions Manifest
-				// https://vercel.com/docs/file-system-api#configuration/functions
-				await writeJson(new URL(`./functions-manifest.json`, dir), {
-					version: 1,
-					pages: {
-						__astro_entry: {
-							runtime: 'nodejs14',
-							handler: `functions/${entryFile}`,
-						},
-					},
 				});
 			},
 		},
