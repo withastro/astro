@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
