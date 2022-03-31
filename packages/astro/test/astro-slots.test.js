@@ -112,4 +112,33 @@ describe('Slots', () => {
 			expect($('#default')).to.have.lengthOf(1); // the default slot is filled
 		}
 	});
+
+	it('Slots.render() API', async () => {
+		// Simple imperative slot render
+		{
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render')).to.have.lengthOf(1);
+			expect($('#render').text()).to.equal('render');
+		}
+
+		// Child function render without args
+		{
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render-fn')).to.have.lengthOf(1);
+			expect($('#render-fn').text()).to.equal('render-fn');
+		}
+
+		// Child function render with args
+		{
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render-args')).to.have.lengthOf(1);
+			expect($('#render-args').text()).to.equal('render-args');
+		}
+	});
 });
