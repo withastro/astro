@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev --experimental-ssr",
+    "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build --experimental-ssr",
+    "build": "astro build",
     "server": "node server/server.mjs"
   },
   "devDependencies": {

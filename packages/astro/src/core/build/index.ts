@@ -17,7 +17,7 @@ import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
-import { createSafeError } from '../util.js';
+import { createSafeError, isBuildingToSSR } from '../util.js';
 import { fixViteErrorMessage } from '../errors.js';
 
 export interface BuildOptions {
@@ -101,7 +101,7 @@ class AstroBuilder {
 			origin,
 			routeCache: this.routeCache,
 			viteServer,
-			ssr: this.config.buildOptions.experimentalSsr,
+			ssr: isBuildingToSSR(this.config),
 		});
 
 		// Filter pages by using conditions based on their frontmatter.
@@ -182,7 +182,7 @@ class AstroBuilder {
 		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map((pd) => pd.route) });
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
-			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';
+			const buildMode = isBuildingToSSR(this.config) ? 'ssr' : 'static';
 			await this.printStats({ logging: this.logging, timeStart: this.timer.init, pageCount: pageNames.length, buildMode });
 		}
 	}

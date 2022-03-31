@@ -345,7 +345,8 @@ export interface AstroUserConfig {
 		 */
 		experimentalStaticBuild?: boolean;
 		/**
-		 * Enable a build for SSR support.
+		 * Enable SSR support for 3rd-party adapters.
+		 * Not required when using a built-in adapter.
 		 * Default: false
 		 */
 		experimentalSsr?: boolean;

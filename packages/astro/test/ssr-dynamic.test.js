@@ -11,9 +11,7 @@ describe('Dynamic pages in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/ssr-dynamic/',
-			buildOptions: {
-				experimentalSsr: true,
-			},
+			buildOptions: { experimentalSsr: true },
 			adapter: testAdapter(),
 		});
 		await fixture.build();
