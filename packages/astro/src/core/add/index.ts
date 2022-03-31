@@ -10,7 +10,7 @@ import preferredPM from 'preferred-pm';
 import ora from 'ora';
 import { resolveConfigURL } from '../config.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { error, info, debug, LogOptions } from '../logger.js';
+import { error, info, debug, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import * as msg from '../messages.js';
 import * as CONSTS from './consts.js';

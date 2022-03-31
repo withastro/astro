@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
 import type { PluginContext } from 'rollup';
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import type { LogOptions } from '../core/logger/core.js';
 
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';

@@ -1,6 +1,6 @@
 # @astrojs/node
 
-An experimental static-side rendering adapter for use with Node.js servers.
+An experimental server-side rendering adapter for use with Node.js servers.
 
 In your astro.config.mjs use:
 

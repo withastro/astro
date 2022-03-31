@@ -1,6 +1,6 @@
 import type { ComponentInstance, GetStaticPathsResult } from '../../@types/astro';
-import type { LogOptions } from '../logger';
-import { warn } from '../logger.js';
+import type { LogOptions } from '../logger/core';
+import { warn } from '../logger/core.js';
 
 interface ValidationOptions {
 	ssr: boolean;

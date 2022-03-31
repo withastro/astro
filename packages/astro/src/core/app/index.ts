@@ -1,8 +1,9 @@
 import type { ComponentInstance, EndpointHandler, ManifestData, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
+import type { LogOptions } from '../logger/core.js';
 
 import mime from 'mime';
-import { defaultLogOptions } from '../logger.js';
+import { consoleLogDestination } from '../logger/console.js';
 export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
 import { render } from '../render/core.js';
@@ -18,7 +19,10 @@ export class App {
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#routeCache: RouteCache;
 	#encoder = new TextEncoder();
-	#logging = defaultLogOptions;
+	#logging: LogOptions = {
+		dest: consoleLogDestination,
+		level: 'info',
+	};
 
 	constructor(manifest: Manifest) {
 		this.#manifest = manifest;
@@ -26,7 +30,7 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.#routeCache = new RouteCache(defaultLogOptions);
+		this.#routeCache = new RouteCache(this.#logging);
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -105,7 +109,7 @@ export class App {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {
-			logging: defaultLogOptions,
+			logging: this.#logging,
 			origin: url.origin,
 			pathname: url.pathname,
 			request,

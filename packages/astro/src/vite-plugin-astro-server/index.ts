@@ -2,7 +2,7 @@ import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { RenderResponse, SSROptions } from '../core/render/dev/index';
-import { debug, info, warn, error, LogOptions } from '../core/logger.js';
+import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
@@ -15,6 +15,7 @@ import serverErrorTemplate from '../template/5xx.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { fixViteErrorMessage } from '../core/errors.js';
 import { createRequest } from '../core/request.js';
+import { Readable } from 'stream';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -44,12 +45,17 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	const { status, headers, body } = webResponse;
 	res.writeHead(status, Object.fromEntries(headers.entries()));
 	if (body) {
-		const reader = body.getReader();
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) break;
-			if (value) {
-				res.write(value);
+		if (body instanceof Readable) {
+			body.pipe(res);
+			return;
+		} else {
+			const reader = body.getReader();
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				if (value) {
+					res.write(value);
+				}
 			}
 		}
 	}
@@ -134,7 +140,7 @@ async function handleRequest(
 		await new Promise((resolve) => {
 			req.setEncoding('utf-8');
 			req.on('data', (bts) => bytes.push(bts));
-			req.on('close', resolve);
+			req.on('end', resolve);
 		});
 		body = new TextEncoder().encode(bytes.join('')).buffer;
 	}
