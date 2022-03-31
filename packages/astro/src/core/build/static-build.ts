@@ -169,13 +169,14 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
+	const ssr = isBuildingToSSR(astroConfig);
+	const out = ssr ? opts.buildConfig.client : astroConfig.dist;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
-		const ssr = !!astroConfig._ctx.adapter?.serverEntrypoint;
 		// If SSR, copy public over
-		if(ssr) {
-			await copyFiles(astroConfig.public, opts.buildConfig.client);
+		if (ssr) {
+			await copyFiles(astroConfig.public, out);
 		}
 
 		return null;
@@ -183,8 +184,6 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
-
-	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
 
 	const viteBuildConfig = {
 		logLevel: 'info',
