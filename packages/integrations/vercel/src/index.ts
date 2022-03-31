@@ -35,10 +35,6 @@ export default function vercel(): AstroIntegration {
 			'astro:build:done': async ({ dir, routes }) => {
 				const pagesDir = new URL('./server/pages/', dir);
 
-				// FIX: Remove these two line before merging
-				await fs.mkdir(pagesDir, { recursive: true });
-				await fs.rename(new URL(`./${ENTRYFILE}.mjs`, dir), new URL(`./${ENTRYFILE}.mjs`, pagesDir));
-
 				await esbuild.build({
 					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, pagesDir))],
 					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, pagesDir)),
@@ -56,14 +52,6 @@ export default function vercel(): AstroIntegration {
 					version: 3,
 					basePath: '/',
 					pages404: false,
-					// redirects: [
-					// 	{
-					// 		source: '/nice/',
-					// 		destination: '/stuff',
-					// 		statusCode: 308,
-					// 		regex: '^/nice.*$',
-					// 	},
-					// ],
 					rewrites: routes.map((route) => ({
 						source: route.pathname,
 						destination: `/${ENTRYFILE}`,
