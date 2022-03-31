@@ -81,9 +81,9 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 
 	const mod = ctx.modules.find((m) => m.file === ctx.file);
 	const file = ctx.file.replace(config.projectRoot.pathname, '/');
-	if (ctx.file.endsWith('.astro')) {
-		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
-	}
+	
+	ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
+	
 	if (mod?.isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {
