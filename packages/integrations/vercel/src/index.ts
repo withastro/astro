@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
 import esbuild from 'esbuild';
@@ -17,6 +17,7 @@ export function getAdapter(): AstroAdapter {
 }
 
 export default function vercel(): AstroIntegration {
+	let _config: AstroConfig;
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
@@ -24,13 +25,14 @@ export default function vercel(): AstroIntegration {
 				config.dist = new URL('./.output/', config.projectRoot);
 				config.buildOptions.pageUrlFormat = 'directory';
 			},
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
+				_config = config;
 			},
-			'astro:build:start': async ({ buildConfig, config }) => {
+			'astro:build:start': async ({ buildConfig }) => {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
-				buildConfig.client = new URL('./static/', config.dist);
-				buildConfig.server = new URL('./server/pages/', config.dist);
+				buildConfig.client = new URL('./static/', _config.dist);
+				buildConfig.server = new URL('./server/pages/', _config.dist);
 			},
 			'astro:build:done': async ({ dir, routes }) => {
 				const pagesDir = new URL('./server/pages/', dir);
