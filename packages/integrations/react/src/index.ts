@@ -35,7 +35,7 @@ function getViteConfiguration() {
 	return {
 		optimizeDeps: {
 			include: [ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
-			exclude: [ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js'], 
+			exclude: [ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js'],
 		},
 		resolve: {
 			dedupe: ['react', 'react-dom'],
