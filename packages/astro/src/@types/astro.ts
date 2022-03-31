@@ -60,7 +60,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/** get information about this page */
 	request: Request;
 	/** see if slots are used */
-	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string): Promise<string> };
+	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string, args?: any[]): Promise<string> };
 }
 
 export interface AstroGlobalPartial {
