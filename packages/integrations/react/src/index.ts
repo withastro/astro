@@ -1,10 +1,11 @@
 import { AstroIntegration } from 'astro';
+import { version as ReactVersion } from 'react-dom';
 
 function getRenderer() {
 	return {
 		name: '@astrojs/react',
-		clientEntrypoint: '@astrojs/react/client.js',
-		serverEntrypoint: '@astrojs/react/server.js',
+		clientEntrypoint: ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js',
+		serverEntrypoint: ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
 			const {
@@ -17,7 +18,11 @@ function getRenderer() {
 						{},
 						{
 							runtime: 'automatic',
-							importSource: '@astrojs/react',
+							// This option tells the JSX transform how to construct the "*/jsx-runtime" import.
+							// In React v17, we had to shim this due to an export map issue in React.
+							// In React v18, this issue was fixed and we can import "react/jsx-runtime" directly.
+							// See `./jsx-runtime.js` for more details.
+							importSource: ReactVersion.startsWith('18.') ? 'react' : '@astrojs/react',
 						}
 					),
 				],
@@ -29,14 +34,14 @@ function getRenderer() {
 function getViteConfiguration() {
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/react/client.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
-			exclude: ['@astrojs/react/server.js'],
+			include: [ReactVersion.startsWith('18.') ? '@astrojs/react/client.js' : '@astrojs/react/client-v17.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
+			exclude: [ReactVersion.startsWith('18.') ? '@astrojs/react/server.js' : '@astrojs/react/server-v17.js'], 
 		},
 		resolve: {
 			dedupe: ['react', 'react-dom'],
 		},
 		ssr: {
-			external: ['react-dom/server.js'],
+			external: ReactVersion.startsWith('18.') ? ['react-dom/server', 'react-dom/client'] : ['react-dom/server.js', 'react-dom/client.js'],
 		},
 	};
 }
