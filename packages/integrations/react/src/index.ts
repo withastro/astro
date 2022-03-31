@@ -18,6 +18,10 @@ function getRenderer() {
 						{},
 						{
 							runtime: 'automatic',
+							// This option tells the JSX transform how to construct the "*/jsx-runtime" import.
+							// In React v17, we had to shim this due to an export map issue in React.
+							// In React v18, this issue was fixed and we can import "react/jsx-runtime" directly.
+							// See `./jsx-runtime.js` for more details.
 							importSource: ReactVersion.startsWith('18.') ? 'react' : '@astrojs/react',
 						}
 					),
