@@ -2,7 +2,6 @@
 const { title = 'Galaxy explorer' } = Astro.props
 ---
 
-<noscript>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,11 +11,12 @@ const { title = 'Galaxy explorer' } = Astro.props
   <link rel="stylesheet" href="/fonts.css">
   <title>{title}</title>
 </head>
+<noscript>
 <body>
   <slot />
 </body>
-</html>
 </noscript>
+</html>
 
 <style>
   * {
