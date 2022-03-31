@@ -37,6 +37,7 @@ export default function vercel(): AstroIntegration {
 			'astro:build:done': async ({ dir, routes }) => {
 				const pagesDir = new URL('./server/pages/', dir);
 
+				// Convert server entry to CommonJS
 				await esbuild.build({
 					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, pagesDir))],
 					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, pagesDir)),
@@ -45,7 +46,6 @@ export default function vercel(): AstroIntegration {
 					platform: 'node',
 					target: 'node14',
 				});
-
 				await fs.rm(new URL(`./${ENTRYFILE}.mjs`, pagesDir));
 
 				// Routes Manifest
