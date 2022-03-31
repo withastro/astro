@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from './logger';
+import type { LogOptions } from './logger/core';
 
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
@@ -80,6 +80,13 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 		},
 		css: {
 			postcss: astroConfig.styleOptions.postcss || {},
+		},
+		resolve: {
+			alias: {
+				// This is needed for Deno compatibility, as the non-browser version
+				// of this module depends on Node `crypto`
+				randombytes: 'randombytes/browser',
+			},
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {

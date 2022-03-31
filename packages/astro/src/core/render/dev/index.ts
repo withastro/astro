@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import type { AstroConfig, AstroRenderer, ComponentInstance, RouteData, RuntimeMode, SSRElement, SSRLoadedRenderer } from '../../../@types/astro';
-import { LogOptions } from '../../logger.js';
+import { LogOptions } from '../../logger/core.js';
 import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { RouteCache } from '../route-cache.js';

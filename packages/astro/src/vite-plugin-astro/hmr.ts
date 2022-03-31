@@ -1,9 +1,9 @@
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import type { LogOptions } from '../core/logger/core.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
-import { info } from '../core/logger.js';
+import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 
 interface TrackCSSDependenciesOptions {

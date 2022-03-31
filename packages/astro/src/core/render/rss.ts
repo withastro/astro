@@ -1,7 +1,8 @@
 import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
 
 import { XMLValidator } from 'fast-xml-parser';
-import { canonicalURL, isValidURL, PRETTY_FEED_V3 } from '../util.js';
+import { PRETTY_FEED_V3 } from './pretty-feed.js';
+import { createCanonicalURL, isValidURL } from './util.js';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {
@@ -38,7 +39,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 	// title, description, customData
 	xml += `<title><![CDATA[${rssData.title}]]></title>`;
 	xml += `<description><![CDATA[${rssData.description}]]></description>`;
-	xml += `<link>${canonicalURL(site).href}</link>`;
+	xml += `<link>${createCanonicalURL(site).href}</link>`;
 	if (typeof rssData.customData === 'string') xml += rssData.customData;
 	// items
 	for (const result of rssData.items) {
@@ -49,7 +50,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
 		xml += `<title><![CDATA[${result.title}]]></title>`;
 		// If the item's link is already a valid URL, don't mess with it.
-		const itemLink = isValidURL(result.link) ? result.link : canonicalURL(result.link, site).href;
+		const itemLink = isValidURL(result.link) ? result.link : createCanonicalURL(result.link, site).href;
 		xml += `<link>${itemLink}</link>`;
 		xml += `<guid>${itemLink}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;

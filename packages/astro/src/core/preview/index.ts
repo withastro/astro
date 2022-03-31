@@ -1,12 +1,12 @@
 import type { AstroConfig } from '../../@types/astro';
-import type { LogOptions } from '../logger';
+import type { LogOptions } from '../logger/core';
 import type { AddressInfo } from 'net';
 import http from 'http';
 import sirv from 'sirv';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import * as msg from '../messages.js';
-import { error, info } from '../logger.js';
+import { error, info } from '../logger/core.js';
 import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
