@@ -678,12 +678,12 @@ export interface AstroIntegration {
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
 		'astro:config:done'?: (options: { config: AstroConfig; setAdapter: (adapter: AstroAdapter) => void }) => void | Promise<void>;
-		'astro:server:setup'?: (options: { config: Readonly<AstroConfig>; server: vite.ViteDevServer }) => void | Promise<void>;
-		'astro:server:start'?: (options: { config: Readonly<AstroConfig>; address: AddressInfo }) => void | Promise<void>;
-		'astro:server:done'?: (options: { config: Readonly<AstroConfig> }) => void | Promise<void>;
-		'astro:build:start'?: (options: { config: Readonly<AstroConfig>; buildConfig: BuildConfig }) => void | Promise<void>;
-		'astro:build:setup'?: (options: { config: Readonly<AstroConfig>; vite: ViteConfigWithSSR; target: 'client' | 'server' }) => void;
-		'astro:build:done'?: (options: { config: Readonly<AstroConfig>; pages: { pathname: string }[]; dir: URL; routes: RouteData[] }) => void | Promise<void>;
+		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
+		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
+		'astro:server:done'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
+		'astro:build:setup'?: (options: { vite: ViteConfigWithSSR; target: 'client' | 'server' }) => void;
+		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL; routes: RouteData[] }) => void | Promise<void>;
 	};
 }
 

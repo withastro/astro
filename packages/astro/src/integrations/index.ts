@@ -63,7 +63,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 export async function runHookServerSetup({ config, server }: { config: AstroConfig; server: ViteDevServer }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:setup']) {
-			await integration.hooks['astro:server:setup']({ config, server });
+			await integration.hooks['astro:server:setup']({ server });
 		}
 	}
 }
@@ -71,7 +71,7 @@ export async function runHookServerSetup({ config, server }: { config: AstroConf
 export async function runHookServerStart({ config, address }: { config: AstroConfig; address: AddressInfo }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:start']) {
-			await integration.hooks['astro:server:start']({ config, address });
+			await integration.hooks['astro:server:start']({ address });
 		}
 	}
 }
@@ -79,7 +79,7 @@ export async function runHookServerStart({ config, address }: { config: AstroCon
 export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:server:done']) {
-			await integration.hooks['astro:server:done']({ config });
+			await integration.hooks['astro:server:done']();
 		}
 	}
 }
@@ -87,7 +87,7 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig; buildConfig: BuildConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
-			await integration.hooks['astro:build:start']({ config, buildConfig });
+			await integration.hooks['astro:build:start']({ buildConfig });
 		}
 	}
 }
@@ -95,7 +95,7 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 export async function runHookBuildSetup({ config, vite, target }: { config: AstroConfig; vite: ViteConfigWithSSR; target: 'server' | 'client' }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:setup']) {
-			await integration.hooks['astro:build:setup']({ config, vite, target });
+			await integration.hooks['astro:build:setup']({ vite, target });
 		}
 	}
 }
@@ -103,7 +103,7 @@ export async function runHookBuildSetup({ config, vite, target }: { config: Astr
 export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[]; routes: RouteData[] }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
-			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes, config });
+			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes });
 		}
 	}
 }
