@@ -43,12 +43,21 @@ type TailwindOptions =
 				 * @default true
 				 */
 				applyAstroPreset?: boolean;
+				/**
+				 * Apply Tailwind's base styles
+				 * Disabling this is useful when further customization of Tailwind styles
+				 * and directives is required. See {@link https://tailwindcss.com/docs/functions-and-directives#tailwind Tailwind's docs}
+				 * for more details on directives and customization.
+				 * @default: true
+				 */
+				applyBaseStyles?: boolean;
 			};
 	  }
 	| undefined;
 
 export default function tailwindIntegration(options: TailwindOptions): AstroIntegration {
 	const applyAstroConfigPreset = options?.config?.applyAstroPreset ?? true;
+	const applyBaseStyles = options?.config?.applyBaseStyles ?? true;
 	const customConfigPath = options?.config?.path;
 	return {
 		name: '@astrojs/tailwind',
@@ -71,8 +80,10 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 				config.styleOptions.postcss.plugins.push(tailwindPlugin(tailwindConfig));
 				config.styleOptions.postcss.plugins.push(autoprefixerPlugin);
 
-				// Inject the Tailwind base import
-				injectScript('page-ssr', `import '@astrojs/tailwind/base.css';`);
+				if (applyBaseStyles) {
+					// Inject the Tailwind base import
+					injectScript('page-ssr', `import '@astrojs/tailwind/base.css';`);
+				}
 			},
 		},
 	};
