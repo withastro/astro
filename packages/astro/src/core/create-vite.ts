@@ -67,7 +67,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],
-		publicDir: fileURLToPath(astroConfig.public),
+		publicDir: fileURLToPath(astroConfig.publicDir),
 		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
 		server: {
