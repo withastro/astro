@@ -10,7 +10,6 @@ import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, info, levels, timerMessage, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
 import { nodeLogOptions } from '../logger/node.js';
 import { createRouteManifest } from '../routing/index.js';
-import { generateSitemap } from '../render/sitemap.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -41,9 +40,6 @@ class AstroBuilder {
 	private timer: Record<string, number>;
 
 	constructor(config: AstroConfig, options: BuildOptions) {
-		if (!config.site && config.buildOptions.sitemap !== false) {
-			warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
-		}
 		if (options.mode) {
 			this.mode = options.mode;
 		}
@@ -147,20 +143,6 @@ class AstroBuilder {
 			delete assets[k]; // free up memory
 		});
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
-
-		// Build your final sitemap.
-		if (this.config.buildOptions.sitemap && this.config.site) {
-			this.timer.sitemapStart = performance.now();
-			const sitemapFilter = this.config.buildOptions.sitemapFilter ? (this.config.buildOptions.sitemapFilter as (page: string) => boolean) : undefined;
-			const sitemap = generateSitemap(
-				pageNames.map((pageName) => new URL(pageName, this.config.site).href),
-				sitemapFilter
-			);
-			const sitemapPath = new URL('./sitemap.xml', this.config.outDir);
-			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
-			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
-			debug('build', timerMessage('Sitemap built', this.timer.sitemapStart));
-		}
 
 		// You're done! Time to clean up.
 		await viteServer.close();

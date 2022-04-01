@@ -4,11 +4,8 @@ import { loadFixture } from './test-utils.js';
 describe('getStaticPaths - build calls', () => {
 	before(async () => {
 		const fixture = await loadFixture({
-			projectRoot: './fixtures/astro-get-static-paths/',
-			buildOptions: {
-				site: 'https://mysite.dev/blog/',
-				sitemap: false,
-			},
+			root: './fixtures/astro-get-static-paths/',
+			site: 'https://mysite.dev/blog/',
 		});
 		await fixture.build();
 	});

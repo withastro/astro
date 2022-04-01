@@ -10,7 +10,7 @@ describe('Config Validation', () => {
 	});
 
 	it('Zod errors are returned when invalid config is used', async () => {
-		const configError = await validateConfig({ buildOptions: { sitemap: 42 } }, process.cwd()).catch((err) => err);
+		const configError = await validateConfig({ site: 42 }, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
 	});
 
@@ -21,12 +21,12 @@ describe('Config Validation', () => {
 	});
 
 	it('A validation error can be formatted correctly', async () => {
-		const configError = await validateConfig({ buildOptions: { sitemap: 42 } }, process.cwd()).catch((err) => err);
+		const configError = await validateConfig({ site: 42 }, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
 		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
-  ! buildOptions.sitemap  Expected boolean, received number.`
+  ! site  Expected string, received number.`
 		);
 	});
 
