@@ -6,7 +6,7 @@ import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
-import { createSafeError, isBuildingToSSR } from '../core/util.js';
+import { createSafeError, resolvePages, isBuildingToSSR } from '../core/util.js';
 import { ssr, preload } from '../core/render/dev/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import * as msg from '../core/messages.js';
@@ -101,7 +101,7 @@ async function handle500Response(viteServer: vite.ViteDevServer, origin: string,
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
-	const relPages = config.pages.href.replace(config.root.href, '');
+	const relPages = resolvePages(config).href.replace(config.root.href, '');
 	return manifest.routes.find((r) => r.component === relPages + '404.astro');
 }
 
