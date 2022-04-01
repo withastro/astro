@@ -243,7 +243,7 @@ const configMigrationMap = new Map<string, any>([
 	['buildOptions.pageUrlFormat', 'build.format'], // ✅
 	['buildOptions.legacyBuild', null], // ✅
 	['buildOptions.experimentalStaticBuild', null], // ✅
-	['buildOptions.experimentalSsr', 'experimental.ssr'],
+	['experimental.ssr', 'experimental.ssr'],
 	['buildOptions.drafts', 'markdown.drafts'],
 	['devOptions', null],
 	['devOptions.host', 'server.host'], // ✅
@@ -445,7 +445,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
 	if (typeof flags.experimentalSsr === 'boolean') {
-		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
+		astroConfig.experimental.ssr = flags.experimentalSsr;
 	}
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
