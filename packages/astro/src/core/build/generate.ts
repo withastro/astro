@@ -151,7 +151,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 	debug('build', `Generating: ${pathname}`);
 
-	const site = astroConfig.buildOptions.site;
+	const site = astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
@@ -196,7 +196,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		request: createRequest({ url, headers: new Headers(), logging }),
 		route: pageData.route,
 		routeCache,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site,
 		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 

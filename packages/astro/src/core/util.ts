@@ -157,7 +157,7 @@ export function isBuildingToSSR(config: AstroConfig): boolean {
 	if (!adapter) return false;
 
 	if (typeof adapter.serverEntrypoint === 'string') {
-		if (!adapter.name.startsWith('@astrojs/') && !config.buildOptions.experimentalSsr) {
+		if (!adapter.name.startsWith('@astrojs/') && !config.experimental.ssr) {
 			throw new Error(
 				[
 					`Server-side rendering (SSR) is still experimental.`,

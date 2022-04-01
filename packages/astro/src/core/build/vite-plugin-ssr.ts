@@ -95,7 +95,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site,
 		markdown: {
 			render: astroConfig.markdownOptions.render,
 		},

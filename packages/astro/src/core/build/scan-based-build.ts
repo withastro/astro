@@ -84,6 +84,6 @@ export async function build(opts: ScanBasedBuildOptions): Promise<RollupOutput |
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.site ? new URL(astroConfig.site).pathname : '/',
 	});
 }

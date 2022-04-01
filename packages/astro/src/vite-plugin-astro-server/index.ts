@@ -74,7 +74,7 @@ async function writeSSRResult(result: RenderResponse, res: http.ServerResponse, 
 }
 
 async function handle404Response(origin: string, config: AstroConfig, req: http.IncomingMessage, res: http.ServerResponse) {
-	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+	const site = config.site ? new URL(config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	let html = '';
@@ -120,7 +120,7 @@ async function handleRequest(
 	res: http.ServerResponse
 ) {
 	const reqStart = performance.now();
-	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+	const site = config.site ? new URL(config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
