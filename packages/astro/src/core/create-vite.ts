@@ -79,7 +79,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			},
 		},
 		css: {
-			postcss: astroConfig.styleOptions.postcss || {},
+			postcss: astroConfig.style.postcss || {},
 		},
 		resolve: {
 			alias: {
