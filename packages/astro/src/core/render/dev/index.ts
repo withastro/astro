@@ -20,7 +20,7 @@ export interface SSROptions {
 	logging: LogOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
-	/** production website, needed for some RSS & Sitemap functions */
+	/** production website, needed for some RSS functions */
 	origin: string;
 	/** the web request (needed for dynamic routes) */
 	pathname: string;

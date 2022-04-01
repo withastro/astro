@@ -26,7 +26,6 @@ export interface AstroComponentMetadata {
 export interface CLIFlags {
 	projectRoot?: string;
 	site?: string;
-	sitemap?: boolean;
 	host?: string | boolean;
 	port?: number;
 	config?: string;
