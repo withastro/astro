@@ -3,8 +3,7 @@ import { IPseudoClassData } from 'vscode-css-languageservice';
 export const pseudoClass: IPseudoClassData[] = [
 	{
 		name: ':global()',
-		description: `[astro] :global modifier
-Apply styles to a selector globally`,
+		description: 'Apply styles to a selector globally',
 		references: [
 			{
 				name: 'Astro documentation',

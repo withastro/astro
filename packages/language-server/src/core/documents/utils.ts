@@ -11,6 +11,7 @@ export interface TagInformation {
 	startPos: Position;
 	endPos: Position;
 	container: { start: number; end: number };
+	closed: boolean;
 }
 
 export function* walk(node: Node): Generator<Node, void, unknown> {
@@ -60,6 +61,8 @@ function extractTags(text: string, tag: 'script' | 'style' | 'template', html?: 
 			startPos,
 			endPos,
 			container,
+			// vscode-html-languageservice types does not contain this, despite it existing. Annoying
+			closed: (matchedNode as any).closed,
 		};
 	}
 }

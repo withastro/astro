@@ -63,6 +63,16 @@ describe('CSS Plugin', () => {
 			expect(globalCompletion, 'Expected completions to contain :global modifier').to.not.be.null;
 		});
 
+		it('should not provide completions for unclosed style tags', () => {
+			const { plugin, document } = setup('<style>');
+
+			const completions = plugin.getCompletions(document, Position.create(0, 7), {
+				triggerCharacter: '.',
+			} as CompletionContext);
+
+			expect(completions).to.be.null;
+		});
+
 		it('should not provide completions if feature is disabled', () => {
 			const { plugin, document, configManager } = setup('<style></style>');
 
@@ -118,6 +128,14 @@ describe('CSS Plugin', () => {
 				},
 				range: Range.create(0, 12, 0, 22),
 			});
+		});
+
+		it('should not provide hover info for unclosed style tags', () => {
+			const { plugin, document } = setup('<style>h1 {color:blue;}');
+
+			const hoverInfo = plugin.doHover(document, Position.create(0, 8));
+
+			expect(hoverInfo).to.be.null;
 		});
 
 		it('should not provide hover info if feature is disabled', () => {

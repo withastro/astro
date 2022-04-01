@@ -57,6 +57,13 @@ export class CSSPlugin implements Plugin {
 
 		const styleTag = this.getStyleTagForPosition(document, position);
 
+		// We technically can return results even for open tags, however, a lot of the info returned is not valid
+		// Since most editors will automatically close the tag before the user start working in them, this shouldn't be a problem
+		if (styleTag && !styleTag.closed) {
+			return null;
+		}
+
+		// If we don't have a style tag at this position, we might be in a style property instead, let's check
 		if (!styleTag) {
 			const attributeContext = getAttributeContextAtPosition(document, position);
 
@@ -114,7 +121,10 @@ export class CSSPlugin implements Plugin {
 
 		const styleTag = this.getStyleTagForPosition(document, position);
 
-		// If we don't have a style tag at this position, we might be in a style property instead, let's check
+		if (styleTag && !styleTag.closed) {
+			return null;
+		}
+
 		if (!styleTag) {
 			const attributeContext = getAttributeContextAtPosition(document, position);
 			if (!attributeContext) {
