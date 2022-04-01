@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 import * as msg from '../messages.js';
 import { error, info } from '../logger/core.js';
 import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
-import { resolveServerConfig } from '../util.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
@@ -74,9 +73,8 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		}
 	});
 
-	const serverConfig = resolveServerConfig(config, 'preview');
-	let { port } = serverConfig;
-	const host = getResolvedHostForHttpServer(serverConfig.host);
+	let { port } = config.server;
+	const host = getResolvedHostForHttpServer(config.server.host);
 
 	let httpServer: http.Server;
 

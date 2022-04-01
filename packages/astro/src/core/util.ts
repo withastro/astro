@@ -184,10 +184,6 @@ export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-export function resolveServerConfig(config: AstroConfig, command: 'dev' | 'preview') {
-	return typeof config.server === 'function' ? config.server({ command }) : config.server;
-}
-
 export function getLocalAddress(serverAddress: string, host: string | boolean): string {
 	if (typeof host === 'boolean' || host === 'localhost') {
 		return 'localhost';

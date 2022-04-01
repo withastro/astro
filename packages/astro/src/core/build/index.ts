@@ -44,10 +44,9 @@ class AstroBuilder {
 			this.mode = options.mode;
 		}
 		this.config = config;
-		const port = resolveServerConfig(config, 'preview').port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
-		this.origin = config.site ? new URL(config.site).origin : `http://localhost:${port}`;
+		this.origin = config.site ? new URL(config.site).origin : `http://localhost:${config.server.port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
 		this.timer = {};
 	}

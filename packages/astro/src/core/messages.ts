@@ -51,7 +51,7 @@ export function devStart({
 	const networkPrefix = `${dim('┃')} Network  `;
 
 	const { address: networkAddress, port } = devServerAddressInfo;
-	const host = typeof config.server === 'function' ? config.server({ command: 'dev' }).host : config.server.host;
+	const { host } = config.server;
 	const localAddress = getLocalAddress(networkAddress, host);
 	const networkLogging = getNetworkLogging(host);
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;

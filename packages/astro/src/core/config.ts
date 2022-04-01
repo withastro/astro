@@ -171,23 +171,6 @@ export const AstroConfigSchema = z.object({
 			host: z.union([z.string(), z.boolean()]).optional().default(false),
 			port: z.number().optional().default(3000),
 		})
-		.or(
-			z
-				.function()
-				.args(
-					z
-						.object({
-							command: z.union([z.literal('dev'), z.literal('preview')]).optional(),
-						})
-						.optional()
-				)
-				.returns(
-					z.object({
-						host: z.union([z.string(), z.boolean()]).optional().default(false),
-						port: z.number().optional().default(3000),
-					})
-				)
-		)
 		.optional()
 		.default({}),
 	integrations: z.preprocess(
@@ -450,23 +433,22 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 }
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
-	astroConfig.buildOptions = astroConfig.buildOptions || {};
-	astroConfig.devOptions = astroConfig.devOptions || {};
-	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
-	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
-	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
+function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIFlags) {
+	if (typeof flags.site === 'string') astroConfig.site = flags.site;
+	if (typeof flags.port === 'number') astroConfig.server.port = flags.port;
+	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.server.host = flags.host;
 	if (typeof flags.experimentalSsr === 'boolean') {
-		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
+		astroConfig.experimental.ssr = flags.experimentalSsr;
 	}
-	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
-	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
+	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimental.integrations = flags.experimentalIntegrations;
+	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	return astroConfig;
 }
 
 interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
+	cmd: string;
 }
 
 /**
@@ -474,7 +456,7 @@ interface LoadConfigOptions {
  * Note: currently the same as loadConfig but only returns the `filePath`
  * instead of the resolved config
  */
-export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL | undefined> {
+export async function resolveConfigURL(configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>): Promise<URL | undefined> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
@@ -508,16 +490,18 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	return resolveConfig(userConfig, root, flags);
+	return resolveConfig(userConfig, root, flags, configOptions.cmd);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
-export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}): Promise<AstroConfig> {
+export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}, cmd: string): Promise<AstroConfig> {
+	if (typeof userConfig.server === 'function') {
+		userConfig.server = userConfig.server({ command: cmd === 'dev' ? 'dev' : 'preview' });
+	}
 	const validatedConfig = await validateConfig(userConfig, root);
 	const mergedConfig = mergeCLIFlags(validatedConfig, flags);
-	console.log(mergedConfig);
 
-	return validatedConfig;
+	return mergedConfig;
 }
 
 function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {
