@@ -120,7 +120,7 @@ export const LegacyAstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	experimentalIntegrations: z.boolean().optional().default(false)
+	experimentalIntegrations: z.boolean().optional().default(false),
 });
 
 export const AstroConfigSchema = z.object({
@@ -177,9 +177,7 @@ export const AstroConfigSchema = z.object({
 				z.tuple([
 					z
 						.object({
-							command: z
-								.union([z.literal('dev'), z.literal('preview')])
-								.optional(),
+							command: z.union([z.literal('dev'), z.literal('preview')]).optional(),
 						})
 						.optional(),
 				])
@@ -246,7 +244,7 @@ const configMigrationMap = new Map<string, any>([
 	['devOptions.host', 'server.host'],
 	['devOptions.port', 'server.port'],
 	['devOptions.trailingSlash', 'trailingSlash'],
-	['experimentalIntegrations', 'experimental.integrations']
+	['experimentalIntegrations', 'experimental.integrations'],
 ]);
 
 function migrateConfig(legacyConfig: ReturnType<typeof LegacyAstroConfigSchema['parse']>) {
