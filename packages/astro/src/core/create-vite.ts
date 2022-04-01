@@ -48,7 +48,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: ViteConfigWithSSR = {
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
+		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
@@ -68,7 +68,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.public),
-		root: fileURLToPath(astroConfig.projectRoot),
+		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)

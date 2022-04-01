@@ -64,7 +64,7 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 		hooks: {
 			'astro:config:setup': async ({ config, injectScript }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.projectRoot, customConfigPath);
+				const userConfig = await getUserConfig(config.root, customConfigPath);
 
 				if (customConfigPath && !userConfig?.value) {
 					throw new Error(`Could not find a Tailwind config at ${JSON.stringify(customConfigPath)}. Does the file exist?`);

@@ -26,14 +26,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-			filename = new URL('.' + filename, config.projectRoot).pathname;
+		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
+			filename = new URL('.' + filename, config.root).pathname;
 		}
 		return filename;
 	}
 	function relativeToRoot(pathname: string) {
 		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
-		const url = new URL(arg, config.projectRoot);
+		const url = new URL(arg, config.root);
 		return slash(fileURLToPath(url)) + url.search;
 	}
 
@@ -42,7 +42,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	let viteDevServer: vite.ViteDevServer | null = null;
 
 	// Variables for determing if an id starts with /src...
-	const srcRootWeb = config.src.pathname.slice(config.projectRoot.pathname.length - 1);
+	const srcRootWeb = config.src.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
 	return {
@@ -201,7 +201,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
     
     \`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
     
-    **${id.replace(fileURLToPath(config.projectRoot), '')}**
+    **${id.replace(fileURLToPath(config.root), '')}**
     \`\`\`astro
     ${source}
     \`\`\`

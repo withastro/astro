@@ -198,7 +198,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 
 	// run transformIndexHtml() in dev to run Vite dev transformations
 	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
-		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
+		const relativeURL = filePath.href.replace(astroConfig.root.href, '/');
 		html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
 	}
 

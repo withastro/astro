@@ -24,7 +24,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				if (dist) {
 					config.dist = dist;
 				} else {
-					config.dist = new URL('./netlify/', config.projectRoot);
+					config.dist = new URL('./netlify/', config.root);
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {

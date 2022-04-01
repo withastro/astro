@@ -177,7 +177,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
-			const file = slash(path.relative(cwd || fileURLToPath(config.projectRoot), resolved));
+			const file = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
@@ -285,7 +285,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 	if (fs.existsSync(config.pages)) {
 		walk(fileURLToPath(config.pages), [], []);
 	} else {
-		const pagesDirRootRelative = config.pages.href.slice(config.projectRoot.href.length);
+		const pagesDirRootRelative = config.pages.href.slice(config.root.href.length);
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
