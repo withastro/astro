@@ -4,7 +4,7 @@ import { execa } from "execa";
  *  Credit: Azhar22 
  *  @see https://github.com/azhar22k/ourl/blob/master/index.js
  */
-const commands = ()=>{
+const commands =():any=>{
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT)
 	const platform  = (isGitPod) ? 'gitpod' : process.platform
 
@@ -23,16 +23,15 @@ const commands = ()=>{
   }
 }  
 
-
-const browser = url => new Promise((res,rej)=>{
+//@ts-ignore
+const browser = async(url:any):any=>{
 	try{
 		const [command,args=[]] = commands()
-		execa(command,[...args,encodeURI(url)])
-		return res()
+		return execa(command,[...args,encodeURI(url)])
 	}catch(err){
-		return rej(err)
+		throw Error(`${err}`)
 	}
-})
+} 
 
 export default browser
 
