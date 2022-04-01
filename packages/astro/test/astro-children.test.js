@@ -6,7 +6,7 @@ describe('Component children', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-children/' });
+		fixture = await loadFixture({ root: './fixtures/astro-children/' });
 		await fixture.build();
 	});
 

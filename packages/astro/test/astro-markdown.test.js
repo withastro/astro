@@ -7,7 +7,7 @@ describe('Astro Markdown', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-markdown/',
+			root: './fixtures/astro-markdown/',
 		});
 		await fixture.build();
 	});

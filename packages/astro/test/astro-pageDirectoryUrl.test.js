@@ -6,7 +6,7 @@ describe('build format', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-page-directory-url',
+			root: './fixtures/astro-page-directory-url',
 			build: {
 				format: 'file',
 			},

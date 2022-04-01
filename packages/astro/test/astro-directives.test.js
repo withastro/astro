@@ -6,7 +6,7 @@ describe('Directives', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-directives/' });
+		fixture = await loadFixture({ root: './fixtures/astro-directives/' });
 		await fixture.build();
 	});
 

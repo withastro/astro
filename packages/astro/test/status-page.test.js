@@ -7,7 +7,7 @@ describe('Status Code Pages', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/status-code/',
+			root: './fixtures/status-code/',
 		});
 		await fixture.build();
 	});

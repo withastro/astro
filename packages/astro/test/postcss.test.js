@@ -10,7 +10,7 @@ describe('PostCSS', () => {
 	let bundledCSS;
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/postcss',
+			root: './fixtures/postcss',
 		});
 		await fixture.build();
 
