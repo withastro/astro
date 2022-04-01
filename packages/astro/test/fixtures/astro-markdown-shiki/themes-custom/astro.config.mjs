@@ -3,7 +3,8 @@ const serendipity = JSON.parse(
 );
 
 export default {
-	markdownOptions: {
-		render: ["@astrojs/markdown-remark", { syntaxHighlight: 'shiki', shikiConfig: { theme: serendipity } }],
+	markdown: {
+		syntaxHighlight: 'shiki',
+		shikiConfig: { theme: serendipity },
 	},
 }

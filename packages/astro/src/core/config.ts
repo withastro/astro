@@ -211,6 +211,18 @@ export const AstroConfigSchema = z.object({
 	markdown: z
 		.object({
 			drafts: z.boolean().optional().default(false),
+			mode: z
+				.union([z.literal('md'), z.literal('mdx')])
+				.optional()
+				.default('md'),
+			syntaxHighlight: z
+				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+				.optional()
+				.default('shiki'),
+			// TODO: add better type checking
+			shikiConfig: z.any().optional().default({}),
+			remarkPlugins: z.array(z.any()).optional().default([]),
+			rehypePlugins: z.array(z.any()).optional().default([]),
 		})
 		.passthrough()
 		.optional()
