@@ -74,7 +74,9 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		}
 	});
 
-	const { host, port } = resolveServerConfig(config, 'preview');
+	const serverConfig = resolveServerConfig(config, 'preview');
+	let { port } = serverConfig;
+	const host = getResolvedHostForHttpServer(serverConfig.host);
 
 	let httpServer: http.Server;
 
@@ -84,7 +86,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		let showedListenMsg = false;
 		return new Promise<void>((resolve, reject) => {
 			const listen = () => {
-				httpServer = server.listen(port, getResolvedHostForHttpServer(host), async () => {
+				httpServer = server.listen(port, host, async () => {
 					if (!showedListenMsg) {
 						const devServerAddressInfo = server.address() as AddressInfo;
 						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, config, devServerAddressInfo, https: false, site: baseURL }));
