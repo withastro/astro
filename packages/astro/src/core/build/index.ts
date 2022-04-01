@@ -85,8 +85,8 @@ class AstroBuilder {
 	private async build({ viteConfig, viteServer }: { viteConfig: ViteConfigWithSSR; viteServer: vite.ViteDevServer }) {
 		const { origin } = this;
 		const buildConfig: BuildConfig = {
-			client: new URL('./client/', this.config.dist),
-			server: new URL('./server/', this.config.dist),
+			client: new URL('./client/', this.config.outDir),
+			server: new URL('./server/', this.config.outDir),
 			serverEntry: 'entry.mjs',
 			staticMode: undefined,
 		};
@@ -171,7 +171,7 @@ class AstroBuilder {
 				pageNames.map((pageName) => new URL(pageName, this.config.site).href),
 				sitemapFilter
 			);
-			const sitemapPath = new URL('./sitemap.xml', this.config.dist);
+			const sitemapPath = new URL('./sitemap.xml', this.config.outDir);
 			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
 			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
 			debug('build', timerMessage('Sitemap built', this.timer.sitemapStart));

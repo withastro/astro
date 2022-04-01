@@ -106,7 +106,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			if (rssResult.xml) {
 				const { url, content } = rssResult.xml;
 				if (content) {
-					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
 					if (assets[fileURLToPath(rssFile)]) {
 						throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
 					}
@@ -115,7 +115,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			}
 			if (rssResult.xsl?.content) {
 				const { url, content } = rssResult.xsl;
-				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
 				if (assets[fileURLToPath(stylesheetFile)]) {
 					throw new Error(
 						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
