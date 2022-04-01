@@ -426,7 +426,7 @@ function addTrailingSlash(str: string): string {
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
 function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
-		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
+		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,

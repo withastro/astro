@@ -7,7 +7,7 @@ describe('Dynamic components', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-dynamic/',
+			root: './fixtures/astro-dynamic/',
 		});
 		await fixture.build();
 	});

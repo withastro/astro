@@ -7,7 +7,7 @@ describe('Code component inside static build', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static-build-code-component/',
+			root: './fixtures/static-build-code-component/',
 		});
 		await fixture.build();
 	});

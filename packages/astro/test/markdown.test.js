@@ -7,7 +7,7 @@ describe('Markdown tests', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/markdown/',
+			root: './fixtures/markdown/',
 		});
 		await fixture.build();
 	});

@@ -55,7 +55,7 @@ polyfill(globalThis, {
  *   .clean()          - Async. Removes the project’s dist folder.
  */
 export async function loadFixture(inlineConfig) {
-	if (!inlineConfig || !inlineConfig.root) throw new Error("Must provide { projectRoot: './fixtures/...' }");
+	if (!inlineConfig || !inlineConfig.root) throw new Error("Must provide { root: './fixtures/...' }");
 
 	// load config
 	let cwd = inlineConfig.root;

@@ -7,7 +7,7 @@ describe('Vue component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/vue-component/',
+			root: './fixtures/vue-component/',
 		});
 	});
 

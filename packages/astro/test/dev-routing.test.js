@@ -10,7 +10,7 @@ describe('Development Routing', () => {
 		let devServer;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/without-site-config/' });
+			fixture = await loadFixture({ root: './fixtures/without-site-config/' });
 			devServer = await fixture.startDevServer();
 		});
 
@@ -142,7 +142,7 @@ describe('Development Routing', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+				root: './fixtures/with-subpath-no-trailing-slash/',
 				outDir: './dist-4009',
 			});
 			devServer = await fixture.startDevServer();

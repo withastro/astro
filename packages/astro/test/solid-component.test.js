@@ -7,7 +7,7 @@ describe('Solid component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/solid-component/',
+			root: './fixtures/solid-component/',
 		});
 	});
 

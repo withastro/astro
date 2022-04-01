@@ -7,7 +7,7 @@ let fixture;
 describe('React Components', () => {
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/react-component/',
+			root: './fixtures/react-component/',
 		});
 	});
 

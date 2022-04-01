@@ -7,7 +7,7 @@ describe('CSS Bundling (ESM import)', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-css-bundling-import/',
+			root: './fixtures/astro-css-bundling-import/',
 		});
 		await fixture.build();
 	});

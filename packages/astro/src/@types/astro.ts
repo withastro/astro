@@ -24,7 +24,7 @@ export interface AstroComponentMetadata {
 
 /** The flags supported by the Astro CLI */
 export interface CLIFlags {
-	projectRoot?: string;
+	root?: string;
 	site?: string;
 	host?: string | boolean;
 	port?: number;
@@ -85,13 +85,13 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name projectRoot
-	 * @cli --project-root
+	 * @cli --root
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
 	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the `astro.config.js` file, since Astro needs to know your project root before it can locate your config file.
 	 *
-	 * If you provide a relative path (ex: `--project-root: './my-project'`) Astro will resolve it against your current working directory.
+	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
 	 * #### Examples
 	 *
@@ -101,7 +101,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 * ```bash
-	 * $ astro build --project-root ./my-project-directory
+	 * $ astro build --root ./my-project-directory
 	 * ```
 	 */
 	projectRoot?: string;
