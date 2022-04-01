@@ -148,8 +148,8 @@ export async function cli(args: string[]) {
 		}
 		case 'docs':{
 			try{
-				browser('https://docs.astro.build/')
-				}catch(err){
+				await browser('https://docs.astro.build/')
+			}catch(err){
 				throwAndExit(err)
 			}
 		}
