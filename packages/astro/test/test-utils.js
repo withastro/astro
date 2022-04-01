@@ -69,7 +69,7 @@ export async function loadFixture(inlineConfig) {
 	}
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
-	config = merge(config, { ...inlineConfig, projectRoot: cwd });
+	config = merge(config, { ...inlineConfig, root: cwd });
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = {
