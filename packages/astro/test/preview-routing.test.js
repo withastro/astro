@@ -16,8 +16,8 @@ describe('Preview Routing', () => {
 					build: {
 						format: 'directory',
 					},
-					devOptions: {
-						trailingSlash: 'never',
+					trailingSlash: 'never',
+					server: {
 						port: 4000,
 					},
 				});
