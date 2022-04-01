@@ -1,4 +1,4 @@
-import type { OutputBundle, OutputChunk } from 'rollup';
+import astroRemark from '@astrojs/markdown-remark';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
@@ -97,7 +97,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 		routes,
 		site: astroConfig.site,
 		markdown: {
-			render: astroConfig.markdownOptions.render,
+			render: [astroRemark, astroConfig.markdown],
 		},
 		pageMap: null as any,
 		renderers: [],

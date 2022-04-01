@@ -1,3 +1,4 @@
+import astroRemark from '@astrojs/markdown-remark';
 import { transform } from '@astrojs/compiler';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -112,15 +113,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// This returns the compiled markdown -> astro component that renders to HTML.
 			if (id.endsWith('.md')) {
 				const source = await fs.promises.readFile(id, 'utf8');
-				let render = config.markdownOptions.render;
-				let renderOpts = {};
-				if (Array.isArray(render)) {
-					renderOpts = render[1];
-					render = render[0];
-				}
-				if (typeof render === 'string') {
-					({ default: render } = await import(render));
-				}
+				const render = astroRemark;
+				const renderOpts = config.markdown;
 
 				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
