@@ -425,10 +425,6 @@ function addTrailingSlash(str: string): string {
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
 function resolveFlags(flags: Partial<Flags>): CLIFlags {
-	if (flags.experimentalStaticBuild) {
-		// eslint-disable-next-line no-console
-		console.warn(`Passing --experimental-static-build is no longer necessary and is now the default. The flag will be removed in a future version of Astro.`);
-	}
 	return {
 		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
