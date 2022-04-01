@@ -11,13 +11,14 @@ import build from '../core/build/index.js';
 import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
+import browser from '../browser/index.js';
 import { check } from './check.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand = 'help' | 'version' | 'add' | 'docs' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -26,6 +27,7 @@ function printAstroHelp() {
 		headline: 'Futuristic web development tool.',
 		commands: [
 			['add', 'Add an integration to your configuration.'],
+			['docs', 'Launch Astro\'s Doc site from the terminal '],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -144,7 +146,13 @@ export async function cli(args: string[]) {
 				return throwAndExit(err);
 			}
 		}
-
+		case 'docs':{
+			try{
+				browser('https://docs.astro.build/')
+				}catch(err){
+				throwAndExit(err)
+			}
+		}
 		default: {
 			throw new Error(`Error running ${cmd}`);
 		}
