@@ -1,5 +1,9 @@
 import { execa } from "execa";
 
+/**
+ *  Credit: Azhar22 
+ *  @see https://github.com/azhar22k/ourl/blob/master/index.js
+ */
 const commands = ()=>{
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT)
 	const platform  = (isGitPod) ? 'gitpod' : process.platform
@@ -15,12 +19,12 @@ const commands = ()=>{
 	  case 'gitpod':
     		return ['/ide/bin/remote-cli/gitpod-code', ['--openExternal']]
     default:
-      throw new Error(`Sorry but it appears that your Platform: "${platform}" isn't supported.`);
+      throw new Error(`Sorry but it appears that your Platform: "${platform}" isn't supported. \nTo view Astro's Docs visit:\nhttps://docs.astro.build`);
   }
 }  
 
 
-const launch = url => new Promise((res,rej)=>{
+const browser = url => new Promise((res,rej)=>{
 	try{
 		const [command,args=[]] = commands()
 		execa(command,[...args,encodeURI(url)])
@@ -30,6 +34,5 @@ const launch = url => new Promise((res,rej)=>{
 	}
 })
 
-launch('https://docs.astro.build/')
-launch('https://rainsberger.ca')
-launch('https://www.google.com')
+export default browser
+
