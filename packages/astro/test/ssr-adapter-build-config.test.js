@@ -41,7 +41,7 @@ describe('Integration buildConfig hook', () => {
 							},
 						});
 					},
-					'astro:build:start': ({ buildConfig	}) => {
+					'astro:build:start': ({ buildConfig }) => {
 						buildConfig.server = new URL('./dist/.root/server/', _config.projectRoot);
 						buildConfig.client = new URL('./dist/.root/client/', _config.projectRoot);
 					},
@@ -67,5 +67,5 @@ describe('Integration buildConfig hook', () => {
 	it('Puts the server entry into the server folder', async () => {
 		let data = await fixture.readFile('/.root/server/entry.mjs');
 		expect(data).to.not.be.undefined;
-	})
+	});
 });
