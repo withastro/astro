@@ -81,7 +81,7 @@ export async function loadFixture(inlineConfig) {
 		build: (opts = {}) => build(config, { mode: 'development', logging, ...opts }),
 		startDevServer: async (opts = {}) => {
 			const devResult = await dev(config, { logging, ...opts });
-			config.devOptions.port = devResult.address.port; // update port
+			config.server.port = devResult.address.port; // update port
 			return devResult;
 		},
 		config,

@@ -8,7 +8,7 @@ import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/co
 import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { getResolvedHostForVite } from '../util.js';
+import { resolveServerConfig } from '../util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -24,11 +24,11 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const devStart = performance.now();
 	applyPolyfill();
 	config = await runHookConfigSetup({ config, command: 'dev' });
+	const { host, port } = resolveServerConfig(config, 'dev');
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
-			// TODO: remove call once --hostname is baselined
-			server: { host: getResolvedHostForVite(config) },
+			server: { host },
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);
@@ -36,7 +36,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	warnIfUsingExperimentalSSR(options.logging, config);
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config, server: viteServer });
-	await viteServer.listen(config.devOptions.port);
+	await viteServer.listen(port);
 
 	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
 	const site = config.site ? new URL(config.site) : undefined;
