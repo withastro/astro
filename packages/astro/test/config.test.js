@@ -26,7 +26,7 @@ describe('config', () => {
 
 	describe('host', () => {
 		it('can be specified in astro.config.mjs', async () => {
-			expect(hostFixture.config.devOptions.host).to.equal(true);
+			expect(hostFixture.config.server.host).to.equal(true);
 		});
 
 		it('can be specified via --host flag', async () => {

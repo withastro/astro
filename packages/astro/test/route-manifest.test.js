@@ -7,11 +7,8 @@ const cwd = new URL('./fixtures/route-manifest/', import.meta.url);
 const create = (dir, trailingSlash) => {
 	return createRouteManifest({
 		config: {
-			projectRoot: cwd,
-			pages: new URL(dir, cwd),
-			devOptions: {
-				trailingSlash,
-			},
+			root: cwd,
+			trailingSlash,
 		},
 		cwd: fileURLToPath(cwd),
 	});
