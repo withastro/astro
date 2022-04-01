@@ -1,3 +1,4 @@
+import astroRemark from '@astrojs/markdown-remark';
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import type { AstroConfig, AstroRenderer, ComponentInstance, RouteData, RuntimeMode, SSRElement, SSRLoadedRenderer } from '../../../@types/astro';
@@ -119,7 +120,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 		legacyBuild: false,
 		links,
 		logging,
-		markdownRender: astroConfig.markdownOptions.render,
+		markdownRender: [astroRemark, astroConfig.markdown],
 		mod,
 		origin,
 		pathname,

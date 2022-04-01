@@ -1,5 +1,5 @@
 export default {
-	markdownOptions: {
-		render: ['@astrojs/markdown-remark', { syntaxHighlight: 'shiki' }],
+	markdown: {
+		syntaxHighlight: 'shiki',
 	},
 }
