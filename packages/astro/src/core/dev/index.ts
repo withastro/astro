@@ -8,7 +8,6 @@ import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/co
 import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { resolveServerConfig } from '../util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -24,7 +23,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const devStart = performance.now();
 	applyPolyfill();
 	config = await runHookConfigSetup({ config, command: 'dev' });
-	const { host, port } = resolveServerConfig(config, 'dev');
+	const { host, port } = config.server;
 	const viteConfig = await createVite(
 		{
 			mode: 'development',

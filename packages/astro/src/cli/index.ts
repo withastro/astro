@@ -100,7 +100,7 @@ export async function cli(args: string[]) {
 	try {
 		// Note: ideally, `loadConfig` would return the config AND its filePath
 		// For now, `add` has to resolve the config again internally
-		config = await loadConfig({ cwd: root, flags });
+		config = await loadConfig({ cwd: root, flags, cmd });
 	} catch (err) {
 		return throwAndExit(err);
 	}
