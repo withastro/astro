@@ -2,6 +2,7 @@ import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
 import { z } from 'zod';
+import type { ShikiConfig, Plugin } from '@astrojs/markdown-remark';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
@@ -71,6 +72,34 @@ export interface AstroGlobalPartial {
 	site: URL;
 }
 
+type ServerConfig = {
+	/**
+	 * @docs
+	 * @name server.host
+	 * @type {string | boolean}
+	 * @default `false`
+	 * @version 0.24.0
+	 * @description
+	 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+	 * - `false` - do not expose on a network IP address
+	 * - `true` - listen on all addresses, including LAN and public addresses
+	 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
+	 */
+	host?: string | boolean;
+
+	/**
+	 * @docs
+	 * @name server.port
+	 * @type {number}
+	 * @default `3000`
+	 * @description
+	 * Set which port the dev server should listen on.
+	 *
+	 * If the given port is already in use, Astro will automatically try the next available port.
+	 */
+	port?: number;
+};
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -84,7 +113,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name projectRoot
+	 * @name root
 	 * @cli --root
 	 * @type {string}
 	 * @default `"."` (current working directory)
@@ -97,37 +126,37 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   projectRoot: './my-project-directory'
+	 *   root: './my-project-directory'
 	 * }
 	 * ```
 	 * ```bash
 	 * $ astro build --root ./my-project-directory
 	 * ```
 	 */
-	projectRoot?: string;
+	root?: string;
 
 	/**
 	 * @docs
-	 * @name dist
+	 * @name outDir
 	 * @type {string}
-	 * @default `"./dist"`
+	 * @default `"./outDir"`
 	 * @description Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
 	 *
 	 * ```js
 	 * {
-	 *   dist: './my-custom-build-directory'
+	 *   outDir: './my-custom-build-directory'
 	 * }
 	 * ```
 	 */
-	dist?: string;
+	outDir?: string;
 
 	/**
 	 * @docs
-	 * @name public
+	 * @name publicDir
 	 * @type {string}
-	 * @default `"./public"`
+	 * @default `"./publicDir"`
 	 * @description
 	 * Set the directory for your static assets. Files in this directory are served at `/` during dev and copied to your build directory during build. These files are always served or copied as-is, without transform or bundling.
 	 *
@@ -135,11 +164,11 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 *   public: './my-custom-public-directory'
+	 *   publicDir: './my-custom-publicDir-directory'
 	 * }
 	 * ```
 	 */
-	public?: string;
+	publicDir?: string;
 
 	/**
 	 * @docs
@@ -180,137 +209,62 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name markdownOptions
-	 * @type {{render: MarkdownRenderOptions}}
-	 * @see [Markdown guide](/en/guides/markdown-content/)
+	 * @name buildOptions.site
+	 * @type {string}
 	 * @description
-	 * Configure how markdown files (`.md`) are rendered.
+	 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
+	 *
+	 * Astro will match the site pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
 	 *
 	 * ```js
-	 * import { defineConfig } from "astro/config";
-	 * import astroRemark from "@astrojs/markdown-remark";
-	 * import customRehypePlugin from "/path/to/rehypePlugin.mjs";
-	 *
-	 * export default defineConfig({
-	 *   // Enable Custom Markdown options, plugins, etc.
-	 *   markdownOptions: {
-	 *     render: [
-	 *       // The Remark parser to parse Markdown content
-	 *       astroRemark,
-	 *       {
-	 *         // Add a Remark plugin to your project.
-	 *         remarkPlugins: ["remark-code-titles"],
-	 *
-	 *         // Add a Rehype plugin to your project.
-	 *         rehypePlugins: [
-	 *           "rehype-slug",
-	 *           [customRehypePlugin, { configKey: "value" }],
-	 *           ["rehype-autolink-headings", { behavior: "prepend" }],
-	 *         ],
-	 *       },
-	 *     ],
-	 *   },
-	 * });
+	 * {
+	 *   buildOptions: {
+	 *     // Example: Tell Astro the final URL of your deployed website.
+	 * 	   site: 'https://www.my-site.dev/docs'
+	 *   }
+	 * }
 	 * ```
 	 */
-	markdownOptions?: {
-		render?: MarkdownRenderOptions;
-	};
+	site?: string;
+
+	/**
+	 * @docs
+	 * @name trailingSlash
+	 * @type {('always' | 'never' | 'ignore')}
+	 * @default `'always'`
+	 * @see buildOptions.pageUrlFormat
+	 * @description
+	 *
+	 * Set the route matching behavior of the dev server. Choose from the following options:
+	 *   - 'always' - Only match URLs that include a trailing slash (ex: "/foo/")
+	 *   - 'never' - Never match URLs that include a trailing slash (ex: "/foo")
+	 *   - 'ignore' - Match URLs regardless of whether a trailing "/" exists
+	 *
+	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
+	 *
+	 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+	 *
+	 * ```js
+	 * {
+	 *   // Example: Require a trailing slash during development
+	 * 	 trailingSlash: 'always'
+	 * }
+	 * ```
+	 */
+	trailingSlash?: 'always' | 'never' | 'ignore';
 
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Build Options
+	 * @name Markdown
+	 * @see [Markdown guide](/en/guides/markdown-content/)
+	 * @description
+	 * Configure how markdown files (`.md`) are rendered.
 	 */
-	buildOptions?: {
+	markdown?: {
 		/**
 		 * @docs
-		 * @name buildOptions.site
-		 * @type {string}
-		 * @description
-		 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
-		 *
-		 * Astro will match the site pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
-		 *
-		 * ```js
-		 * {
-		 *   buildOptions: {
-		 *     // Example: Tell Astro the final URL of your deployed website.
-		 * 	   site: 'https://www.my-site.dev/docs'
-		 *   }
-		 * }
-		 * ```
-		 */
-		site?: string;
-
-		/**
-		 * @docs
-		 * @name buildOptions.sitemap
-		 * @type {boolean}
-		 * @default `true`
-		 * @description
-		 * Generate a sitemap for your build. Set to false to disable.
-		 *
-		 * Astro will automatically generate a sitemap including all generated pages on your site. If you need more control over your sitemap, consider generating it yourself using a [Non-HTML Page](/en/core-concepts/astro-pages/#non-html-pages).
-		 *
-		 * ```js
-		 * {
-		 *   buildOptions: {
-		 *     // Example: Disable automatic sitemap generation
-		 * 	   sitemap: false
-		 *   }
-		 * }
-		 * ```
-		 */
-		sitemap?: boolean;
-
-		/**
-		 * @docs
-		 * @name buildOptions.sitemapFilter
-		 * @typeraw {(page: string) => boolean}
-		 * @see buildOptions.sitemap
-		 * @description
-		 * By default, all pages are included in your generated sitemap.
-		 * You can filter included pages by URL using `buildOptions.sitemapFilter`.
-		 *
-		 * The `page` function parameter is the full URL of your rendered page, including your `buildOptions.site` domain.
-		 * Return `true` to include a page in your sitemap, and `false` to remove it.
-		 *
-		 * ```js
-		 * {
-		 *   buildOptions: {
-		 * 	   sitemap: true
-		 * 	   sitemapFilter: (page) => page !== 'http://example.com/secret-page')
-		 *   }
-		 * }
-		 * ```
-		 */
-		sitemapFilter?: (page: string) => boolean;
-
-		/**
-		 * @docs
-		 * @name buildOptions.pageUrlFormat
-		 * @type {('file' | 'directory')}
-		 * @default `'directory'`
-		 * @description
-		 * Control the output file format of each page.
-		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
-		 *
-		 * ```js
-		 * {
-		 *   buildOptions: {
-		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 * 	   pageUrlFormat: 'file'
-		 *   }
-		 * }
-		 * ```
-		 */
-		pageUrlFormat?: 'file' | 'directory';
-
-		/**
-		 * @docs
-		 * @name buildOptions.drafts
+		 * @name markdown.drafts
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
@@ -320,7 +274,7 @@ export interface AstroUserConfig {
 		 *
 		 * ```js
 		 * {
-		 *   buildOptions: {
+		 *   markdown: {
 		 *     // Example: Include all drafts in your final build
 		 * 	   drafts: true,
 		 *   }
@@ -328,104 +282,89 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		drafts?: boolean;
+
 		/**
-		 * Enables "legacy build mode" for compatibility with older Astro versions.
-		 * Default: false
+		 * @docs
+		 * @name markdown.mode
+		 * @type {'md' | 'mdx'}
+		 * @default `md`
+		 * @description
+		 * Whether to target markdown or mdx files
+		 * ```
 		 */
-		legacyBuild?: boolean;
+		mode?: 'md' | 'mdx';
+
 		/**
-		 * @deprecated
-		 * Experimental: Enables "static build mode" for faster builds.
-		 * Default: true
+		 * @docs
+		 * @name markdown.syntaxHighlight
+		 * @type {'shiki' | 'prism' | false}
+		 * @default `shiki`
+		 * @description
+		 * Which syntax highlighter to use, if any.
+		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
+		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
+		 * - false - do not apply syntax highlighting
+		 * ```
 		 */
-		experimentalStaticBuild?: boolean;
+		syntaxHighlight?: 'shiki' | 'prism' | false;
+
 		/**
-		 * Enable SSR support for 3rd-party adapters.
-		 * Not required when using a built-in adapter.
-		 * Default: false
+		 * @docs
+		 * @name markdown.shikiConfig
+		 * @type {ShikiConfig}
+		 * @description
+		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
-		experimentalSsr?: boolean;
+		shikiConfig?: ShikiConfig;
+
+		/**
+		 * @docs
+		 * @name markdown.remarkPlugins
+		 * @type {Plugin}
+		 */
+		remarkPlugins?: Plugin[];
+		/**
+		 * @docs
+		 * @name markdown.rehypePlugins
+		 * @type {Plugin}
+		 */
+		rehypePlugins?: Plugin[];
 	};
 
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Dev Options
+	 * @name Build
 	 */
-	devOptions?: {
+	build?: {
 		/**
 		 * @docs
-		 * @name devOptions.host
-		 * @type {string | boolean}
-		 * @default `false`
-		 * @version 0.24.0
+		 * @name build.format
+		 * @type {('file' | 'directory')}
+		 * @default `'directory'`
 		 * @description
-		 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
-		 * - `false` - do not expose on a network IP address
-		 * - `true` - listen on all addresses, including LAN and public addresses
-		 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
-		 */
-		host?: string | boolean;
-
-		/**
-		 * @docs
-		 * @name devOptions.hostname
-		 * @type {string}
-		 * @default `'localhost'`
-		 * @deprecated Use `host` instead
-		 * @description
-		 * > **This option is deprecated.** Consider using `host` instead.
-		 *
-		 * Set which IP addresses the dev server should listen on. Set this to 0.0.0.0 to listen on all addresses, including LAN and public addresses.
-		 */
-		hostname?: string;
-
-		/**
-		 * @docs
-		 * @name devOptions.port
-		 * @type {number}
-		 * @default `3000`
-		 * @description
-		 * Set which port the dev server should listen on.
-		 *
-		 * If the given port is already in use, Astro will automatically try the next available port.
-		 */
-		port?: number;
-
-		/**
-		 * @docs
-		 * @name devOptions.trailingSlash
-		 * @type {('always' | 'never' | 'ignore')}
-		 * @default `'always'`
-		 * @see buildOptions.pageUrlFormat
-		 * @description
-		 *
-		 * Set the route matching behavior of the dev server. Choose from the following options:
-		 *   - 'always' - Only match URLs that include a trailing slash (ex: "/foo/")
-		 *   - 'never' - Never match URLs that include a trailing slash (ex: "/foo")
-		 *   - 'ignore' - Match URLs regardless of whether a trailing "/" exists
-		 *
-		 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
-		 *
-		 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+		 * Control the output file format of each page.
+		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
+		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
 		 *
 		 * ```js
 		 * {
-		 *   devOptions: {
-		 *     // Example: Require a trailing slash during development
-		 * 	   trailingSlash: 'always'
+		 *   build: {
+		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
+		 * 	   format: 'file'
 		 *   }
 		 * }
 		 * ```
 		 */
-		trailingSlash?: 'always' | 'never' | 'ignore';
+		format?: 'file' | 'directory';
 	};
 
 	/**
-	 * Enable experimental support for 3rd-party integrations.
-	 * Default: false
+	 * @docs
+	 * @kind heading
+	 * @name Server
 	 */
-	experimentalIntegrations?: boolean;
+	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
 
 	/**
 	 * @docs
@@ -460,6 +399,25 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Experimental
+	 */
+	experimental?: {
+		/**
+		 * Enable experimental support for 3rd-party integrations.
+		 * Default: false
+		 */
+		integrations?: boolean;
+
+		/**
+		 * Enable a build for SSR support.
+		 * Default: false
+		 */
+		ssr?: boolean;
+	};
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
