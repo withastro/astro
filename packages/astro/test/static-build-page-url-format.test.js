@@ -11,7 +11,7 @@ describe("Static build - format: 'file'", () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static-build-page-url-format/',
+			root: './fixtures/static-build-page-url-format/',
 		});
 		await fixture.build();
 	});

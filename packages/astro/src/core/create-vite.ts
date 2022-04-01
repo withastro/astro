@@ -109,8 +109,8 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
-async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]> {
-	const pkgUrl = new URL('./package.json', projectRoot);
+async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
+	const pkgUrl = new URL('./package.json', root);
 	const pkgPath = fileURLToPath(pkgUrl);
 	if (!fs.existsSync(pkgPath)) return [];
 
@@ -123,7 +123,7 @@ async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]>
 		if (isCommonNotAstro(dep)) return false;
 		// Attempt: package is named `astro-something`. ✅ Likely a community package
 		if (/^astro\-/.test(dep)) return true;
-		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, projectRoot);
+		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
 		const depPkgPath = fileURLToPath(depPkgUrl);
 		if (!fs.existsSync(depPkgPath)) return false;
 

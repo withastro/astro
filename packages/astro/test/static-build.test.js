@@ -11,7 +11,7 @@ describe('Static build', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static build/',
+			root: './fixtures/static build/',
 		});
 		await fixture.build();
 	});

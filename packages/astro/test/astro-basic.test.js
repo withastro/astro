@@ -8,7 +8,7 @@ describe('Astro basics', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-basic/',
+			root: './fixtures/astro-basic/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();

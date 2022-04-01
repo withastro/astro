@@ -6,7 +6,7 @@ describe('Doctype', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-doctype/' });
+		fixture = await loadFixture({ root: './fixtures/astro-doctype/' });
 		await fixture.build();
 	});
 

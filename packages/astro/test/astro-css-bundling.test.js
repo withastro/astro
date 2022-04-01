@@ -16,7 +16,7 @@ describe('CSS Bundling', function () {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-css-bundling/',
+			root: './fixtures/astro-css-bundling/',
 		});
 		await fixture.build({ mode: 'production' });
 	});

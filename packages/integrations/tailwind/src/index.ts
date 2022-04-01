@@ -17,16 +17,16 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	});
 }
 
-async function getUserConfig(projectRoot: URL, configPath?: string) {
-	const resolvedProjectRoot = fileURLToPath(projectRoot);
+async function getUserConfig(root: URL, configPath?: string) {
+	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
 	if (configPath) {
 		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
-		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, projectRoot));
+		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	return await load('tailwind', { mustExist: false, cwd: resolvedProjectRoot, filePath: userConfigPath });
+	return await load('tailwind', { mustExist: false, cwd: resolvedRoot, filePath: userConfigPath });
 }
 
 type TailwindOptions =

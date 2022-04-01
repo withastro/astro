@@ -9,7 +9,7 @@ describe('Error display', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/errors',
+			root: './fixtures/errors',
 		});
 	});
 
