@@ -70,6 +70,17 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 						},
 					],
 				},
+				{
+					name: 'global',
+					description: 'Opts-out of automatic CSS scoping, all contents will be available globally',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro documentation',
+							url: 'https://docs.astro.build/en/guides/styling/#global-styles',
+						},
+					],
+				},
 			],
 		},
 	],

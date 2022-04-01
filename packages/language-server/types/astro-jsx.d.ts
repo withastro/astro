@@ -42,6 +42,11 @@ declare namespace astroHTML.JSX {
 	interface AstroDefineVars {
 		'define:vars'?: any;
 	}
+	
+	// Usable exclusively on style tags
+	interface AstroStyleGlobal {
+		'global'?: boolean;
+	}
 
 	type Element = HTMLElement;
 
@@ -995,7 +1000,7 @@ declare namespace astroHTML.JSX {
 		source: HTMLProps<HTMLSourceElement>;
 		span: HTMLProps<HTMLSpanElement>;
 		strong: HTMLProps<HTMLElement>;
-		style: HTMLProps<HTMLStyleElement> & AstroDefineVars;
+		style: HTMLProps<HTMLStyleElement> & AstroDefineVars & AstroStyleGlobal;
 		sub: HTMLProps<HTMLElement>;
 		summary: HTMLProps<HTMLElement>;
 		sup: HTMLProps<HTMLElement>;
