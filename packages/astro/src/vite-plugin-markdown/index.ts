@@ -23,8 +23,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-			filename = new URL('.' + filename, config.projectRoot).pathname;
+		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
+			filename = new URL('.' + filename, config.root).pathname;
 		}
 		return filename;
 	}
@@ -32,7 +32,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 	// Weird Vite behavior: Vite seems to use a fake "index.html" importer when you
 	// have `enforce: pre`. This can probably be removed once the vite issue is fixed.
 	// see: https://github.com/vitejs/vite/issues/5981
-	const fakeRootImporter = fileURLToPath(new URL('index.html', config.projectRoot));
+	const fakeRootImporter = fileURLToPath(new URL('index.html', config.root));
 	function isRootImport(importer: string | undefined) {
 		if (!importer) {
 			return true;
@@ -151,8 +151,8 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname: fileUrl.pathname.substr(config.projectRoot.pathname.length - 1),
-					projectRoot: config.projectRoot.toString(),
+					pathname: fileUrl.pathname.substr(config.root.pathname.length - 1),
+					projectRoot: config.root.toString(),
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',

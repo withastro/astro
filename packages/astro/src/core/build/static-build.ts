@@ -44,7 +44,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.buildStart = performance.now();
 
 	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
+		const astroModuleURL = new URL('./' + component, astroConfig.root);
 		const astroModuleId = prependForwardSlash(component);
 
 		// Track the page data in internals

@@ -37,7 +37,7 @@ const configCache = new WeakMap<AstroConfig, CompilationCache>();
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
+	const pathname = filenameURL.pathname.substr(config.root.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
@@ -47,7 +47,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
 		pathname,
-		projectRoot: config.projectRoot.toString(),
+		projectRoot: config.root.toString(),
 		site: config.buildOptions.site,
 		sourcefile: filename,
 		sourcemap: 'both',

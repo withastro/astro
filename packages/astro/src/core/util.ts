@@ -20,16 +20,16 @@ export function arraify<T>(target: T | T[]): T[] {
 
 /** Flattens deeply nested objects to be a single level deep. */
 export function flatten(obj: Record<string, any>, parentKey = '') {
-  const flattened: Record<string, any> = {}
-  Object.keys(obj).forEach((key) => {
-    const value = obj[key]
+	const flattened: Record<string, any> = {};
+	Object.keys(obj).forEach((key) => {
+		const value = obj[key];
 		if (typeof value === 'object' && (value !== null || Array.isArray(value))) {
-      Object.assign(flattened, flatten(value, [parentKey, key].filter(x => x).join('.')))
-    } else {
-      flattened[[parentKey, key].filter(x => x).join('.')] = value
-    }
-  })
-  return flattened
+			Object.assign(flattened, flatten(value, [parentKey, key].filter((x) => x).join('.')));
+		} else {
+			flattened[[parentKey, key].filter((x) => x).join('.')] = value;
+		}
+	});
+	return flattened;
 }
 
 export function padMultilineString(source: string, n = 2) {
@@ -48,7 +48,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string) {
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.buildOptions.pageUrlFormat === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
+	if (astroConfig.build.format === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
 		return path.posix.join(name, 'index.html');
 	}
 	return `${removeEndingForwardSlash(name || 'index')}.html`;
@@ -111,7 +111,7 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 
 export function resolveDependency(dep: string, astroConfig: AstroConfig) {
 	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(astroConfig.projectRoot),
+		basedir: fileURLToPath(astroConfig.root),
 	});
 	// For Windows compat, we need a fully resolved `file://` URL string
 	return pathToFileURL(resolved).toString();
