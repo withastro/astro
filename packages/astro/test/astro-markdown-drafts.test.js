@@ -25,8 +25,8 @@ describe('Astro Markdown with draft posts enabled', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-markdown-drafts/',
-			buildOptions: {
+			root: './fixtures/astro-markdown-drafts/',
+			markdown: {
 				drafts: true,
 			},
 		});
