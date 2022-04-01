@@ -90,11 +90,11 @@ export async function loadFixture(inlineConfig) {
 			const previewServer = await preview(config, { logging, ...opts });
 			return previewServer;
 		},
-		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
-		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
-		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
+		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
+		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
+		clean: () => fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
 		loadTestAdapterApp: async () => {
-			const url = new URL('./server/entry.mjs', config.dist);
+			const url = new URL('./server/entry.mjs', config.outDir);
 			const { createApp } = await import(url);
 			return createApp();
 		},

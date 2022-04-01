@@ -53,7 +53,7 @@ export async function build(opts: ScanBasedBuildOptions): Promise<RollupOutput |
 		build: {
 			emptyOutDir: true,
 			minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
-			outDir: fileURLToPath(astroConfig.dist),
+			outDir: fileURLToPath(astroConfig.outDir),
 			rollupOptions: {
 				// The `input` will be populated in the build rollup plugin.
 				input: [],
