@@ -104,7 +104,7 @@ class AstroBuilder {
 			if ('frontmatter' in data.preload[1]) {
 				// TODO: add better type inference to data.preload[1]
 				const frontmatter = (data.preload[1] as any).frontmatter;
-				if (Boolean(frontmatter.draft) && !this.config.buildOptions.drafts) {
+				if (Boolean(frontmatter.draft) && !this.config.markdown.drafts) {
 					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
 					delete allPages[page];
 				}
