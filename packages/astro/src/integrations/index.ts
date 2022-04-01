@@ -103,7 +103,7 @@ export async function runHookBuildSetup({ config, vite, target }: { config: Astr
 export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[]; routes: RouteData[] }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
-			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes });
+			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.outDir, routes });
 		}
 	}
 }

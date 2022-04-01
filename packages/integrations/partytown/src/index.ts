@@ -26,7 +26,7 @@ export default function createPlugin(): AstroIntegration {
 				server.middlewares.use(sirv(partytownLibDirectory, { mount: '/~partytown', dev: true, etag: true, extensions: [] }));
 			},
 			'astro:build:done': async () => {
-				await copyLibFiles(fileURLToPath(new URL('~partytown', config.dist)), { debugDir: false });
+				await copyLibFiles(fileURLToPath(new URL('~partytown', config.outDir)), { debugDir: false });
 			},
 		},
 	};

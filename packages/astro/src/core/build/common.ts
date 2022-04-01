@@ -5,7 +5,7 @@ import { appendForwardSlash } from '../../core/path.js';
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	return new URL('./', astroConfig.dist);
+	return new URL('./', astroConfig.outDir);
 }
 
 export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
