@@ -101,7 +101,7 @@ async function handle500Response(viteServer: vite.ViteDevServer, origin: string,
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
-	const relPages = config.pages.href.replace(config.projectRoot.href, '');
+	const relPages = config.pages.href.replace(config.root.href, '');
 	return manifest.routes.find((r) => r.component === relPages + '404.astro');
 }
 
@@ -174,7 +174,7 @@ async function handleRequest(
 			}
 		}
 
-		const filePath = new URL(`./${route.component}`, config.projectRoot);
+		const filePath = new URL(`./${route.component}`, config.root);
 		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
@@ -192,7 +192,7 @@ async function handleRequest(
 			log404(logging, pathname);
 			const routeCustom404 = getCustom404Route(config, manifest);
 			if (routeCustom404) {
-				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.projectRoot);
+				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.root);
 				const preloadedCompCustom404 = await preload({ astroConfig: config, filePath: filePathCustom404, viteServer });
 				const result = await ssr(preloadedCompCustom404, {
 					astroConfig: config,

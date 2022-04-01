@@ -68,7 +68,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				scripts: new Set(),
 				preload: await ssrPreload({
 					astroConfig,
-					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
+					filePath: new URL(`./${route.component}`, astroConfig.root),
 					viteServer,
 				})
 					.then((routes) => {
@@ -135,7 +135,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			scripts: new Set(),
 			preload: await ssrPreload({
 				astroConfig,
-				filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
+				filePath: new URL(`./${route.component}`, astroConfig.root),
 				viteServer,
 			}),
 		};
@@ -149,7 +149,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<RouteCacheEntry> {
 	const { astroConfig, logging, routeCache, ssr, viteServer } = opts;
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
-	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);
+	const filePath = new URL(`./${route.component}`, astroConfig.root);
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	const result = await callGetStaticPaths({ mod, route, isValidate: false, logging, ssr });
 	routeCache.set(route, result);

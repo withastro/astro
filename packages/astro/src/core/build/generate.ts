@@ -51,7 +51,7 @@ function* throttle(max: number, inPaths: string[]) {
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig): string {
-	return facadeId.slice(fileURLToPath(astroConfig.projectRoot).length);
+	return facadeId.slice(fileURLToPath(astroConfig.root).length);
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
