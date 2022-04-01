@@ -35,7 +35,6 @@ export interface CLIFlags {
 	experimentalStaticBuild?: boolean;
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
-	legacyBuild?: boolean;
 	drafts?: boolean;
 }
 

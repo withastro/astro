@@ -126,8 +126,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 import "${path}";
 ---
 `;
-						} else if (isScriptRequest(path)) {
-							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
+					} else if (isScriptRequest(path)) {
+						extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
 
 <script type="module" src={(await import("${path}?url")).default}></script>
 
@@ -137,19 +137,16 @@ or consider make it a module like so:
 	import MyModule from "${path}";
 </script>
 `;
-						}
-
-						warn(
-							args.logging,
-							`deprecation`,
-							`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`
-						);
-						// Intentionally return an empty string so that it is not relied upon.
-						return '';
 					}
 
-					return astroGlobal.resolve(path);
+					warn(
+						args.logging,
+						`deprecation`,
+						`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
+${extra}`
+					);
+					// Intentionally return an empty string so that it is not relied upon.
+					return '';
 				},
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
