@@ -33,7 +33,7 @@ describe('Config Validation', () => {
 	it('Multiple validation errors can be formatted correctly', async () => {
 		const veryBadConfig = {
 			integrations: [42],
-			buildOptions: { pageUrlFormat: 'invalid' },
+			build: { format: 'invalid' },
 			pages: {},
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
@@ -43,7 +43,7 @@ describe('Config Validation', () => {
 			`[config] Astro found issue(s) with your configuration:
   ! pages  Expected string, received object.
   ! integrations.0  Expected object, received number.
-  ! buildOptions.pageUrlFormat  Invalid input.`
+  ! build.format  Invalid input.`
 		);
 	});
 

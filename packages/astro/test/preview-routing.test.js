@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 describe('Preview Routing', () => {
-	describe('pageUrlFormat: directory', () => {
+	describe('build format: directory', () => {
 		describe('Subpath without trailing slash and trailingSlash: never', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
@@ -13,8 +13,8 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
-					buildOptions: {
-						pageUrlFormat: 'directory',
+					build: {
+						format: 'directory',
 					},
 					devOptions: {
 						trailingSlash: 'never',
@@ -182,7 +182,7 @@ describe('Preview Routing', () => {
 		});
 	});
 
-	describe('pageUrlFormat: file', () => {
+	describe('build format: file', () => {
 		describe('Subpath without trailing slash and trailingSlash: never', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
@@ -193,8 +193,8 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
-					buildOptions: {
-						pageUrlFormat: 'file',
+					build: {
+						format: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'never',
@@ -251,8 +251,8 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
-					buildOptions: {
-						pageUrlFormat: 'file',
+					build: {
+						format: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'always',
@@ -313,8 +313,8 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
-					buildOptions: {
-						pageUrlFormat: 'file',
+					build: {
+						format: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'ignore',
@@ -375,8 +375,8 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
-					buildOptions: {
-						pageUrlFormat: 'file',
+					build: {
+						format: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'ignore',
