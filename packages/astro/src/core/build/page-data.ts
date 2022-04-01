@@ -100,7 +100,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 				throw err;
 			});
-		const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
+		const rssFn = generateRssFunction(astroConfig.site, route);
 		for (const rssCallArg of result.rss) {
 			const rssResult = rssFn(rssCallArg);
 			if (rssResult.xml) {

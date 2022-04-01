@@ -48,7 +48,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	const transformResult = await transform(source, {
 		pathname,
 		projectRoot: config.root.toString(),
-		site: config.buildOptions.site,
+		site: config.site,
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(viteID(new URL('../runtime/server/index.js', import.meta.url)))}`,

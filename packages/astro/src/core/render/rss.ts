@@ -87,7 +87,7 @@ export function generateRSSStylesheet() {
 export function generateRssFunction(site: string | undefined, route: RouteData): RSSFunction {
 	return function rssUtility(args: RSS): RSSResult {
 		if (!site) {
-			throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+			throw new Error(`[${route.component}] rss() tried to generate RSS but "site" missing in astro.config.mjs`);
 		}
 		let result: RSSResult = {} as any;
 		const { dest, ...rssData } = args;
