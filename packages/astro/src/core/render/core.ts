@@ -126,7 +126,7 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html'; html:
 	html = html.replace('<!--astro:head:injected-->', '');
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!legacyBuild && !/<!doctype html/i.test(html)) {
+	if (!/<!doctype html/i.test(html)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
 
