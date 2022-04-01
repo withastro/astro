@@ -7,11 +7,8 @@ describe('Astro.*', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-global/',
-			buildOptions: {
-				site: 'https://mysite.dev/blog/',
-				sitemap: false,
-			},
+			root: './fixtures/astro-global/',
+			site: 'https://mysite.dev/blog/',
 		});
 		await fixture.build();
 	});

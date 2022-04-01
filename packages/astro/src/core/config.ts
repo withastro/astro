@@ -428,7 +428,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
-		sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
@@ -442,7 +441,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	astroConfig.buildOptions = astroConfig.buildOptions || {};
 	astroConfig.devOptions = astroConfig.devOptions || {};
-	if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
 	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;

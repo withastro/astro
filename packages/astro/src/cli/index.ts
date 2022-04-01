@@ -37,7 +37,6 @@ function printAstroHelp() {
 			['--host [optional IP]', 'Expose server on network'],
 			['--config <path>', 'Specify the path to the Astro config file.'],
 			['--project-root <path>', 'Specify the path to the project root folder.'],
-			['--no-sitemap', 'Disable sitemap generation (build only).'],
 			['--legacy-build', 'Use the build strategy prior to 0.24.0'],
 			['--experimental-ssr', 'Enable SSR compilation fot 3rd-party adapters.'],
 			['--drafts', 'Include markdown draft pages in the build.'],

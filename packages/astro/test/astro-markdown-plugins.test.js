@@ -19,9 +19,6 @@ describe('Astro Markdown plugins', () => {
 					},
 				],
 			},
-			buildOptions: {
-				sitemap: false,
-			},
 		});
 		await fixture.build();
 	});
