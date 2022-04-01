@@ -144,7 +144,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					sourcemap: 'external',
 					sourcefile: id,
 					// Pass relevant Vite options, if needed:
-					define: config.vite.define,
+					define: config.vite?.define,
 				});
 
 				let SUFFIX = '';

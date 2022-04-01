@@ -227,7 +227,7 @@ export const AstroConfigSchema = z.object({
 		.passthrough()
 		.optional()
 		.default({}),
-	vite: z.object({}).passthrough().optional().default({}),
+	vite: z.any().optional().default({}),
 	experimental: z
 		.object({
 			ssr: z.boolean().optional().default(false),
@@ -414,7 +414,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
 	// Final-Pass Validation (perform checks that require the full config object)
-	if (!result.experimental.integrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
+	if (!result.experimental?.integrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
 		throw new Error(
 			[
 				`Astro integrations are still experimental.`,
@@ -457,7 +457,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
 	if (typeof flags.experimentalSsr === 'boolean') {
-		astroConfig.experimental.ssr = flags.experimentalSsr;
+		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
 	}
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
