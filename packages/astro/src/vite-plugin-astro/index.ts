@@ -42,7 +42,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	let viteDevServer: vite.ViteDevServer | null = null;
 
 	// Variables for determing if an id starts with /src...
-	const srcRootWeb = config.src.pathname.slice(config.root.pathname.length - 1);
+	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
 	return {
