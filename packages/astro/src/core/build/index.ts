@@ -12,7 +12,6 @@ import { nodeLogOptions } from '../logger/node.js';
 import { createRouteManifest } from '../routing/index.js';
 import { generateSitemap } from '../render/sitemap.js';
 import { collectPagesData } from './page-data.js';
-import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
@@ -126,31 +125,17 @@ class AstroBuilder {
 		this.timer.buildStart = performance.now();
 		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`));
 
-		// Use the new faster static based build.
-		if (!this.config.buildOptions.legacyBuild) {
-			await staticBuild({
-				allPages,
-				astroConfig: this.config,
-				logging: this.logging,
-				manifest: this.manifest,
-				origin: this.origin,
-				pageNames,
-				routeCache: this.routeCache,
-				viteConfig,
-				buildConfig,
-			});
-		} else {
-			await scanBasedBuild({
-				allPages,
-				astroConfig: this.config,
-				logging: this.logging,
-				origin: this.origin,
-				pageNames,
-				routeCache: this.routeCache,
-				viteConfig,
-				viteServer,
-			});
-		}
+		await staticBuild({
+			allPages,
+			astroConfig: this.config,
+			logging: this.logging,
+			manifest: this.manifest,
+			origin: this.origin,
+			pageNames,
+			routeCache: this.routeCache,
+			viteConfig,
+			buildConfig,
+		});
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
