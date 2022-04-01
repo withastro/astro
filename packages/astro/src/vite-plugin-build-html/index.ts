@@ -48,7 +48,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
 	// The filepath root of the src folder
-	const srcRoot = astroConfig.src.pathname;
+	const srcRoot = astroConfig.srcDir.pathname;
 	// The web path of the src folter
 	const srcRootWeb = srcRoot.substr(astroConfig.root.pathname.length - 1);
 

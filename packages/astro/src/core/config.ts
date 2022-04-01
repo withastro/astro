@@ -226,28 +226,28 @@ export const AstroConfigSchema = z.object({
 });
 
 const configMigrationMap = new Map<string, any>([
-	['projectRoot', 'root'],
+	['projectRoot', 'root'], // ✅
 	['src', 'srcDir'],
 	['pages', null],
-	['public', 'publicDir'],
-	['dist', 'outDir'],
-	['integrations', 'integrations'],
-	['adapter', 'adapter'],
-	['styleOptions', 'style'],
+	['public', 'publicDir'], // ✅
+	['dist', 'outDir'], // ✅
+	['integrations', 'integrations'], // ✅
+	['adapter', 'adapter'], // ✅
+	['styleOptions', 'style'], // ✅
 	['markdownOptions.render.0', null],
 	['markdownOptions.render.1', 'markdown'],
 	['buildOptions', 'build'],
-	['buildOptions.site', 'site'],
+	['buildOptions.site', 'site'], // ✅
 	['buildOptions.sitemapFilter', null],
 	['buildOptions.sitemap', null],
-	['buildOptions.pageUrlFormat', 'build.format'],
-	['buildOptions.legacyBuild', null],
-	['buildOptions.experimentalStaticBuild', null],
+	['buildOptions.pageUrlFormat', 'build.format'], // ✅
+	['buildOptions.legacyBuild', null], // ✅
+	['buildOptions.experimentalStaticBuild', null], // ✅
 	['buildOptions.experimentalSsr', 'experimental.ssr'],
 	['buildOptions.drafts', 'markdown.drafts'],
 	['devOptions', null],
-	['devOptions.host', 'server.host'],
-	['devOptions.port', 'server.port'],
+	['devOptions.host', 'server.host'], // ✅
+	['devOptions.port', 'server.port'], // ✅
 	['devOptions.trailingSlash', 'trailingSlash'],
 	['experimentalIntegrations', 'experimental.integrations'],
 ]);
