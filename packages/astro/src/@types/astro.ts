@@ -30,8 +30,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	/** @deprecated */
-	experimentalStaticBuild?: boolean;
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
 	drafts?: boolean;
