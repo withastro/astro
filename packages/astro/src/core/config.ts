@@ -433,7 +433,15 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 }
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIFlags) {
+function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
+	if (typeof astroConfig.server === 'function') {
+		astroConfig.server = astroConfig.server({ command: cmd === 'dev' ? 'dev' : 'preview' });
+	}
+
+	astroConfig.server = astroConfig.server || {};
+	astroConfig.experimental = astroConfig.experimental || {};
+	astroConfig.markdown = astroConfig.markdown || {};
+
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
 	if (typeof flags.port === 'number') astroConfig.server.port = flags.port;
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.server.host = flags.host;
@@ -495,13 +503,12 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}, cmd: string): Promise<AstroConfig> {
-	if (typeof userConfig.server === 'function') {
-		userConfig.server = userConfig.server({ command: cmd === 'dev' ? 'dev' : 'preview' });
-	}
-	const validatedConfig = await validateConfig(userConfig, root);
-	const mergedConfig = mergeCLIFlags(validatedConfig, flags);
+	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
+	const validatedConfig = await validateConfig(mergedConfig, root);
 
-	return mergedConfig;
+	console.log(validatedConfig.srcDir);
+
+	return validatedConfig;
 }
 
 function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {
