@@ -35,7 +35,7 @@ describe('API routes in SSR', () => {
 		expect(body.length).to.equal(3);
 	});
 
-	describe('Dev', () => {
+	describe('API Routes - Dev', () => {
 		let devServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
