@@ -1,3 +1,4 @@
+import { AstroConfig } from './../../../@types/astro';
 import type { AstroConfig, ManifestData, RouteData } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
@@ -55,7 +56,7 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
+function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const pathname = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -82,7 +83,7 @@ function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOption
 	return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
 
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['trailingSlash']): string {
+function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
 	if (addTrailingSlash === 'always') {
 		return '\\/$';
 	}
@@ -92,7 +93,7 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['tr
 	return '\\/?$';
 }
 
-function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
+function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const template = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -265,7 +266,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const trailingSlash = item.isPage ? config.devOptions.trailingSlash : 'never';
+				const trailingSlash = item.isPage ? config.trailingSlash : 'never';
 				const pattern = getPattern(segments, trailingSlash);
 				const generate = getGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
