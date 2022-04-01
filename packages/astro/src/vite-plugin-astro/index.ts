@@ -14,6 +14,7 @@ import ancestor from 'common-ancestor-path';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { resolvePages } from '../core/util.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -94,7 +95,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			const filename = normalizeFilename(parsedId.filename);
 			const fileUrl = new URL(`file://${filename}`);
 			let source = await fs.promises.readFile(fileUrl, 'utf-8');
-			const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
+			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script hoist src="${PAGE_SCRIPT_ID}" />`;
 			}

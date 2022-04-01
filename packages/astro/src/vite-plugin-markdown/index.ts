@@ -8,6 +8,7 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
+import { resolvePages } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -123,7 +124,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 
 				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
-				const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
+				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
