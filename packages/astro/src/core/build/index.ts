@@ -42,7 +42,7 @@ class AstroBuilder {
 	private timer: Record<string, number>;
 
 	constructor(config: AstroConfig, options: BuildOptions) {
-		if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
+		if (!config.site && config.buildOptions.sitemap !== false) {
 			warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
 		}
 		if (options.mode) {
@@ -52,7 +52,7 @@ class AstroBuilder {
 		const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
-		this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
+		this.origin = config.site ? new URL(config.site).origin : `http://localhost:${port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
 		this.timer = {};
 	}
@@ -164,11 +164,11 @@ class AstroBuilder {
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// Build your final sitemap.
-		if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
+		if (this.config.buildOptions.sitemap && this.config.site) {
 			this.timer.sitemapStart = performance.now();
 			const sitemapFilter = this.config.buildOptions.sitemapFilter ? (this.config.buildOptions.sitemapFilter as (page: string) => boolean) : undefined;
 			const sitemap = generateSitemap(
-				pageNames.map((pageName) => new URL(pageName, this.config.buildOptions.site).href),
+				pageNames.map((pageName) => new URL(pageName, this.config.site).href),
 				sitemapFilter
 			);
 			const sitemapPath = new URL('./sitemap.xml', this.config.dist);

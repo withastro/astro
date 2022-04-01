@@ -155,7 +155,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.site ? new URL(astroConfig.site).pathname : '/',
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
 	} as ViteConfigWithSSR;
@@ -218,7 +218,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
+		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });

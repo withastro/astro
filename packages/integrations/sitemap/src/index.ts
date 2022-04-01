@@ -25,7 +25,7 @@ export default function createPlugin(): AstroIntegration {
 				config = _config;
 			},
 			'astro:build:done': async ({ pages, dir }) => {
-				const finalSiteUrl = config.buildOptions.site;
+				const finalSiteUrl = config.site;
 				if (!finalSiteUrl) {
 					return;
 				}

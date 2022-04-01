@@ -64,7 +64,7 @@ export function subpathNotUsedTemplate(base: string, pathname: string) {
 		statusCode: 404,
 		title: 'Not found',
 		tabTitle: '404: Not Found',
-		body: `<p>In your <code>buildOptions.site</code> you have your base path set to <a href="${base}">${base}</a>. Do you want to go there instead?</p>
+		body: `<p>In your <code>site</code> you have your base path set to <a href="${base}">${base}</a>. Do you want to go there instead?</p>
 <p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`,
 	});
 }
