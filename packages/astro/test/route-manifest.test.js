@@ -1,15 +1,16 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 import { createRouteManifest } from '../dist/core/routing/index.js';
+import { validateConfig } from '../dist/core/config.js';
 
 const cwd = new URL('./fixtures/route-manifest/', import.meta.url);
 
-const create = (dir, trailingSlash) => {
+const create = async (dir, trailingSlash) => {
 	return createRouteManifest({
-		config: {
-			root: cwd,
+		config: await validateConfig({
+			root: cwd.pathname,
 			trailingSlash,
-		},
+		}),
 		cwd: fileURLToPath(cwd),
 	});
 };
@@ -21,8 +22,8 @@ function cleanRoutes(routes) {
 }
 
 describe('route manifest', () => {
-	it('creates routes with trailingSlashes = always', () => {
-		const { routes } = create('basic', 'always');
+	it('creates routes with trailingSlashes = always', async () => {
+		const { routes } = await create('basic', 'always');
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
 				type: 'page',
@@ -58,8 +59,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('creates routes with trailingSlashes = never', () => {
-		const { routes } = create('basic', 'never');
+	it('creates routes with trailingSlashes = never', async () => {
+		const { routes } = await create('basic', 'never');
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
 				type: 'page',
@@ -95,8 +96,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('creates routes with trailingSlashes = ignore', () => {
-		const { routes } = create('basic', 'ignore');
+	it('creates routes with trailingSlashes = ignore', async () => {
+		const { routes } = await create('basic', 'ignore');
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
 				type: 'page',
@@ -132,8 +133,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('encodes invalid characters', () => {
-		const { routes } = create('encoding', 'always');
+	it('encodes invalid characters', async () => {
+		const { routes } = await create('encoding', 'always');
 
 		// had to remove ? and " because windows
 
@@ -148,28 +149,28 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('ignores files and directories with leading underscores', () => {
-		const { routes } = create('hidden-underscore', 'always');
+	it('ignores files and directories with leading underscores', async () => {
+		const { routes } = await create('hidden-underscore', 'always');
 
 		expect(routes.map((r) => r.component).filter(Boolean)).to.deep.equal(['hidden-underscore/index.astro', 'hidden-underscore/e/f/g/h.astro']);
 	});
 
-	it('ignores files and directories with leading dots except .well-known', () => {
-		const { routes } = create('hidden-dot', 'always');
+	it('ignores files and directories with leading dots except .well-known', async () => {
+		const { routes } = await create('hidden-dot', 'always');
 
 		expect(routes.map((r) => r.component).filter(Boolean)).to.deep.equal(['hidden-dot/.well-known/dnt-policy.astro']);
 	});
 
-	it('fails if dynamic params are not separated', () => {
-		expect(() => create('invalid-params', 'always')).to.throw('Invalid route invalid-params/[foo][bar].astro — parameters must be separated');
+	it('fails if dynamic params are not separated', async () => {
+		expect(() => await create('invalid-params', 'always')).to.throw('Invalid route invalid-params/[foo][bar].astro — parameters must be separated');
 	});
 
-	it('disallows rest parameters inside segments', () => {
-		expect(() => create('invalid-rest', 'always')).to.throw('Invalid route invalid-rest/foo-[...rest]-bar.astro — rest parameter must be a standalone segment');
+	it('disallows rest parameters inside segments', async () => {
+		expect(() => await create('invalid-rest', 'always')).to.throw('Invalid route invalid-rest/foo-[...rest]-bar.astro — rest parameter must be a standalone segment');
 	});
 
-	it('ignores things that look like lockfiles', () => {
-		const { routes } = create('lockfiles', 'always');
+	it('ignores things that look like lockfiles', async () => {
+		const { routes } = await create('lockfiles', 'always');
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
 				type: 'page',
@@ -181,8 +182,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('ignores invalid route extensions', () => {
-		const { routes } = create('invalid-extension', 'always');
+	it('ignores invalid route extensions', async () => {
+		const { routes } = await create('invalid-extension', 'always');
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
 				type: 'page',
@@ -202,8 +203,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('allows multiple slugs', () => {
-		const { routes } = create('multiple-slugs', 'always');
+	it('allows multiple slugs', async () => {
+		const { routes } = await create('multiple-slugs', 'always');
 
 		expect(cleanRoutes(routes)).to.deep.equal([
 			{
@@ -216,8 +217,8 @@ describe('route manifest', () => {
 		]);
 	});
 
-	it('sorts routes correctly', () => {
-		const { routes } = create('sorting', 'always');
+	it('sorts routes correctly', async () => {
+		const { routes } = await create('sorting', 'always');
 
 		expect(routes.map((p) => p.component)).to.deep.equal([
 			'sorting/index.astro',
