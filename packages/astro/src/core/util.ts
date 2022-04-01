@@ -180,17 +180,11 @@ export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-// TODO: remove once --hostname is baselined
-export function getResolvedHostForVite(config: AstroConfig) {
-	if (config.devOptions.host === false && config.devOptions.hostname !== 'localhost') {
-		return config.devOptions.hostname;
-	} else {
-		return config.devOptions.host;
-	}
+export function resolveServerConfig(config: AstroConfig, command: 'dev' | 'preview') {
+	return typeof config.server === 'function' ? config.server({ command }) : config.server;
 }
 
-export function getLocalAddress(serverAddress: string, config: AstroConfig): string {
-	const host = getResolvedHostForVite(config);
+export function getLocalAddress(serverAddress: string, host: string | boolean): string {
 	if (typeof host === 'boolean' || host === 'localhost') {
 		return 'localhost';
 	} else {
