@@ -1,4 +1,3 @@
-import { AstroConfig } from './../../../@types/astro';
 import type { AstroConfig, ManifestData, RouteData } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
@@ -8,6 +7,7 @@ import { compile } from 'path-to-regexp';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
+import { resolvePages } from '../../util.js';
 
 interface Part {
 	content: string;
@@ -283,10 +283,12 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 		});
 	}
 
-	if (fs.existsSync(config.pages)) {
-		walk(fileURLToPath(config.pages), [], []);
+	const pages = resolvePages(config);
+
+	if (fs.existsSync(pages)) {
+		walk(fileURLToPath(pages), [], []);
 	} else {
-		const pagesDirRootRelative = config.pages.href.slice(config.root.href.length);
+		const pagesDirRootRelative = pages.href.slice(config.root.href.length);
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}

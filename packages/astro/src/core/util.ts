@@ -152,6 +152,10 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 	}
 }
 
+export function resolvePages(config: AstroConfig) {
+	return new URL('./pages', config.srcDir);
+}
+
 export function isBuildingToSSR(config: AstroConfig): boolean {
 	const adapter = config._ctx.adapter;
 	if (!adapter) return false;

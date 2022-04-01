@@ -34,14 +34,12 @@ describe('Config Validation', () => {
 		const veryBadConfig = {
 			integrations: [42],
 			build: { format: 'invalid' },
-			pages: {},
 		};
 		const configError = await validateConfig(veryBadConfig, process.cwd()).catch((err) => err);
 		expect(configError instanceof z.ZodError).to.equal(true);
 		const formattedError = stripAnsi(formatConfigErrorMessage(configError));
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
-  ! pages  Expected string, received object.
   ! integrations.0  Expected object, received number.
   ! build.format  Invalid input.`
 		);
