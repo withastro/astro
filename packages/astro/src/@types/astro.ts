@@ -28,7 +28,6 @@ export interface CLIFlags {
 	site?: string;
 	sitemap?: boolean;
 	host?: string | boolean;
-	hostname?: string;
 	port?: number;
 	config?: string;
 	/** @deprecated */

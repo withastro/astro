@@ -11,8 +11,8 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
 					build: {
 						format: 'directory',
 					},
@@ -69,11 +69,10 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
-					buildOptions: {},
-					devOptions: {
-						trailingSlash: 'always',
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
+					trailingSlash: 'always',
+					server: {
 						port: 4001,
 					},
 				});
@@ -129,11 +128,10 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002/', import.meta.url),
-					buildOptions: {},
-					devOptions: {
-						trailingSlash: 'ignore',
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002/', import.meta.url),
+					trailingSlash: 'ignore',
+					server: {
 						port: 4002,
 					},
 				});
@@ -191,13 +189,13 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
 					build: {
 						format: 'file',
 					},
-					devOptions: {
-						trailingSlash: 'never',
+					trailingSlash: 'never',
+					server: {
 						port: 4003,
 					},
 				});
@@ -249,13 +247,13 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
 					build: {
 						format: 'file',
 					},
-					devOptions: {
-						trailingSlash: 'always',
+					trailingSlash: 'always',
+					server: {
 						port: 4004,
 					},
 				});
@@ -311,13 +309,13 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
 					build: {
 						format: 'file',
 					},
-					devOptions: {
-						trailingSlash: 'ignore',
+					trailingSlash: 'ignore',
+					server: {
 						port: 4005,
 					},
 				});
@@ -373,13 +371,13 @@ describe('Preview Routing', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
+					root: './fixtures/with-subpath-no-trailing-slash/',
+					outDir: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
 					build: {
 						format: 'file',
 					},
-					devOptions: {
-						trailingSlash: 'ignore',
+					trailingSlash: 'ignore',
+					server: {
 						port: 4006,
 					},
 				});

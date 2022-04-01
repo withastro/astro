@@ -1,49 +1,27 @@
 import { expect } from 'chai';
-import { cli, loadFixture, cliServerLogSetup } from './test-utils.js';
+import { loadFixture, cliServerLogSetup } from './test-utils.js';
 import { fileURLToPath } from 'url';
 import { isIPv4 } from 'net';
 
 describe('config', () => {
-	let hostnameFixture;
 	let hostFixture;
 	let portFixture;
 
 	before(async () => {
-		[hostnameFixture, hostFixture, portFixture] = await Promise.all([
+		[hostFixture, portFixture] = await Promise.all([
 			loadFixture({
-				projectRoot: './fixtures/config-host/',
-				devOptions: {
-					hostname: '0.0.0.0',
-				},
-			}),
-			loadFixture({
-				projectRoot: './fixtures/config-host/',
-				devOptions: {
+				root: './fixtures/config-host/',
+				server: {
 					host: true,
 				},
 			}),
 			loadFixture({
-				projectRoot: './fixtures/config-host/',
-				devOptions: {
+				root: './fixtures/config-host/',
+				server: {
 					port: 5006,
 				},
 			}),
 		]);
-	});
-
-	// TODO: remove test once --hostname is baselined
-	describe('hostname', () => {
-		it('can be specified in astro.config.mjs', async () => {
-			expect(hostnameFixture.config.devOptions.hostname).to.equal('0.0.0.0');
-		});
-
-		it('can be specified via --hostname flag', async () => {
-			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--hostname', '0.0.0.0']);
-
-			const networkURL = new URL(network);
-			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
-		});
 	});
 
 	describe('host', () => {
@@ -56,7 +34,7 @@ describe('config', () => {
 			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--host']);
 
 			const networkURL = new URL(network);
-			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
 		});
 	});
 
@@ -67,13 +45,13 @@ describe('config', () => {
 			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname]);
 
 			const networkURL = new URL(network);
-			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
 		});
 	});
 
 	describe('port', () => {
 		it('can be specified in astro.config.mjs', async () => {
-			expect(portFixture.config.devOptions.port).to.deep.equal(5006);
+			expect(portFixture.config.server.port).to.deep.equal(5006);
 		});
 	});
 });

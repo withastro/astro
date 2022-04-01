@@ -45,7 +45,7 @@ describe('astro cli', () => {
 	});
 
 	['dev', 'preview'].forEach((cmd) => {
-		const networkLogFlags = [['--host'], ['--host', '0.0.0.0'], ['--hostname', '0.0.0.0']];
+		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
 		networkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(flagValue ? [flag, flagValue] : [flag], cmd);
@@ -66,7 +66,6 @@ describe('astro cli', () => {
 
 		const hostToExposeFlags = [
 			['', ''],
-			['--hostname', 'localhost'],
 		];
 		hostToExposeFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue} - host to expose`, async () => {
@@ -84,7 +83,6 @@ describe('astro cli', () => {
 		const noNetworkLogFlags = [
 			['--host', 'localhost'],
 			['--host', '127.0.0.1'],
-			['--hostname', '127.0.0.1'],
 		];
 		noNetworkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue} - no network log`, async () => {

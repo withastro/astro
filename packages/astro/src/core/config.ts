@@ -111,7 +111,6 @@ export const LegacyAstroConfigSchema = z.object({
 	devOptions: z
 		.object({
 			host: z.union([z.string(), z.boolean()]).optional().default(false),
-			hostname: z.string().optional().default('localhost'),
 			port: z.number().optional().default(3000),
 			trailingSlash: z
 				.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -173,15 +172,21 @@ export const AstroConfigSchema = z.object({
 			port: z.number().optional().default(3000),
 		})
 		.or(
-			z.function(
-				z.tuple([
+			z
+				.function()
+				.args(
 					z
 						.object({
 							command: z.union([z.literal('dev'), z.literal('preview')]).optional(),
 						})
-						.optional(),
-				])
-			)
+						.optional()
+				)
+				.returns(
+					z.object({
+						host: z.union([z.string(), z.boolean()]).optional().default(false),
+						port: z.number().optional().default(3000),
+					})
+				)
 		)
 		.optional()
 		.default({}),
@@ -430,7 +435,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
-		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
 		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
 		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
@@ -446,8 +450,9 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.devOptions.host = flags.host;
-	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
-	if (typeof flags.experimentalSsr === 'boolean') astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
+	if (typeof flags.experimentalSsr === 'boolean') {
+		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
+	}
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimentalIntegrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;

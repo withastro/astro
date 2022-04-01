@@ -16,7 +16,7 @@ import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
-import { createSafeError, isBuildingToSSR } from '../util.js';
+import { createSafeError, resolveServerConfig, isBuildingToSSR } from '../util.js';
 import { fixViteErrorMessage } from '../errors.js';
 
 export interface BuildOptions {
@@ -48,7 +48,7 @@ class AstroBuilder {
 			this.mode = options.mode;
 		}
 		this.config = config;
-		const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
+		const port = resolveServerConfig(config, 'preview').port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
 		this.origin = config.site ? new URL(config.site).origin : `http://localhost:${port}`;

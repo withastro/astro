@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import * as msg from '../messages.js';
 import { error, info } from '../logger/core.js';
 import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
+import { resolveServerConfig } from '../util.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
@@ -73,8 +74,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		}
 	});
 
-	let { port } = config.devOptions;
-	const host = getResolvedHostForHttpServer(config);
+	const { host, port } = resolveServerConfig(config, 'preview');
 
 	let httpServer: http.Server;
 
@@ -84,7 +84,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		let showedListenMsg = false;
 		return new Promise<void>((resolve, reject) => {
 			const listen = () => {
-				httpServer = server.listen(port, host, async () => {
+				httpServer = server.listen(port, getResolvedHostForHttpServer(host), async () => {
 					if (!showedListenMsg) {
 						const devServerAddressInfo = server.address() as AddressInfo;
 						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, config, devServerAddressInfo, https: false, site: baseURL }));
