@@ -131,7 +131,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					if (hoistedScript.type === 'external') {
 						const src = hoistedScript.src!;
 						if (src.startsWith('/') && !isBrowserPath(src)) {
-							const publicDir = config.public.pathname.replace(/\/$/, '').split('/').pop() + '/';
+							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
 							throw new Error(
 								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${filename}`
 							);
