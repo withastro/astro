@@ -70,5 +70,48 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
+## Configuration
+
+### filter
+
+All pages are included in your sitemap by default. By adding a custom `filter`, you can filter included pages by URL.
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      filter: (page) => page !== 'https://stargazers.club/secret-vip-lounge'
+    }),
+  ],
+}
+```
+
+The `page` function parameter is the full URL of your rendered page, including your `site` domain. Return `true` to include a page in your sitemap, and `false` to remove it.
+
+### canonicalURL
+
+If present, we use the `site` config option as the base for all sitemap URLs. Use `canonicalURL` to override this.
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      // https://astronaut.party will be used for all sitemap URLs instead
+      canonicalURL: 'https://astronaut.party',
+    }),
+  ],
+}
+```
+
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
