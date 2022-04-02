@@ -1,11 +1,5 @@
 # @astrojs/netlify
 
-## 0.1.0
-
-### Minor Changes
-
-- [#2962](https://github.com/withastro/astro/pull/2962) [`17c02925`](https://github.com/withastro/astro/commit/17c02925c52027246000305cea1f9a7b6f484b00) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update config options to resepect [RFC0019](https://github.com/withastro/rfcs/blob/main/proposals/0019-config-finalization.md)
-
 ## 0.0.2
 
 ### Patch Changes
