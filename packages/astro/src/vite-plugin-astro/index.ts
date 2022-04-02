@@ -96,7 +96,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let source = await fs.promises.readFile(fileUrl, 'utf-8');
 			const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script hoist src="${PAGE_SCRIPT_ID}" />`;
+				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}
 			if (query.astro) {
 				if (query.type === 'style') {

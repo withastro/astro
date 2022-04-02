@@ -122,10 +122,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
 						if (isCSSRequest(path)) {
 							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
-
-<style global>
-@import "${path}";
-</style>
+---
+import "${path}";
+---
 `;
 						} else if (isScriptRequest(path)) {
 							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
@@ -134,7 +133,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 or consider make it a module like so:
 
-<script type="module" hoist>
+<script>
 	import MyModule from "${path}";
 </script>
 `;
