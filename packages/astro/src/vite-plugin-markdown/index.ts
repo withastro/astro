@@ -9,6 +9,7 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
+import { appendForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 
 interface AstroPluginOptions {
@@ -81,7 +82,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.startsWith(VIRTUAL_MODULE_ID)) {
-				const sitePathname = config.base;
+				const sitePathname = config.site ? appendForwardSlash(new URL(config.base, config.site).pathname) : '/'; 
 				const fileId = id.substring(VIRTUAL_MODULE_ID.length);
 				const fileUrl = fileId.includes('/pages/') ? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined;
 				const source = await fs.promises.readFile(fileId, 'utf8');

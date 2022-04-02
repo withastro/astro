@@ -12,6 +12,7 @@ import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject, flatten } from './util.js';
 import { dset } from 'dset';
+import { appendForwardSlash, trimSlashes } from './path.js'
 
 load.use([loadTypeScript]);
 
@@ -44,83 +45,18 @@ async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<Post
 	}
 }
 
-export const LegacyAstroConfigSchema = z.object({
-	projectRoot: z
-		.string()
-		.optional()
-		.default('.')
-		.transform((val) => new URL(val)),
-	src: z
-		.string()
-		.optional()
-		.default('./src')
-		.transform((val) => new URL(val)),
-	pages: z
-		.string()
-		.optional()
-		.default('./src/pages')
-		.transform((val) => new URL(val)),
-	public: z
-		.string()
-		.optional()
-		.default('./public')
-		.transform((val) => new URL(val)),
-	dist: z
-		.string()
-		.optional()
-		.default('./dist')
-		.transform((val) => new URL(val)),
-	styleOptions: z
-		.object({
-			postcss: z
-				.object({
-					options: z.any(),
-					plugins: z.array(z.any()),
-				})
-				.optional()
-				.default({ options: {}, plugins: [] }),
-		})
-		.optional()
-		.default({}),
-	markdownOptions: z
-		.object({
-			render: z.any().optional().default(['@astrojs/markdown-remark', {}]),
-		})
-		.strict()
-		.optional()
-		.default({}),
-	buildOptions: z
-		.object({
-			site: z
-				.string()
-				.optional()
-				.transform((val) => (val ? addTrailingSlash(val) : val)),
-			sitemapFilter: z.function().optional(),
-			sitemap: z.boolean().optional().default(true),
-			pageUrlFormat: z
-				.union([z.literal('file'), z.literal('directory')])
-				.optional()
-				.default('directory'),
-			legacyBuild: z.boolean().optional().default(false),
-			experimentalStaticBuild: z.boolean().optional().default(true),
-			experimentalSsr: z.boolean().optional().default(false),
-			drafts: z.boolean().optional().default(false),
-		})
-		.optional()
-		.default({}),
-	devOptions: z
-		.object({
-			host: z.union([z.string(), z.boolean()]).optional().default(false),
-			port: z.number().optional().default(3000),
-			trailingSlash: z
-				.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
-				.optional()
-				.default('ignore'),
-		})
-		.optional()
-		.default({}),
-	experimentalIntegrations: z.boolean().optional().default(false),
-});
+export const LegacyAstroConfigKeys = new Set([
+	'projectRoot',
+	'src',
+	'pages',
+	'public',
+	'dist',
+	'styleOptions',
+	'markdownOptions',
+	'buildOptions',
+	'devOptions',
+	'experimentalIntegrations'
+]);
 
 export const AstroConfigSchema = z.object({
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
@@ -151,12 +87,12 @@ export const AstroConfigSchema = z.object({
 	site: z
 		.string()
 		.optional()
-		.transform((val) => (val ? addTrailingSlash(val) : val)),
+		.transform((val) => (val ? appendForwardSlash(val) : val)),
 	base: z
 		.string()
 		.optional()
-		.default('/')
-		.transform((val) => (val ? addTrailingSlash(val) : val)),
+		.default('./')
+		.transform((val) => (val ? appendForwardSlash(trimSlashes(val)) : val)),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
@@ -230,7 +166,6 @@ const configMigrationMap = new Map<string, any>([
 	['pages', null],
 	['public', 'publicDir'], // ✅
 	['dist', 'outDir'], // ✅
-	['integrations', 'integrations'], // ✅
 	['adapter', 'adapter'], // ✅
 	['styleOptions', 'style'], // ✅
 	['markdownOptions.render.0', null],
@@ -251,7 +186,7 @@ const configMigrationMap = new Map<string, any>([
 	['experimentalIntegrations', 'experimental.integrations'],
 ]);
 
-function migrateConfig(legacyConfig: ReturnType<typeof LegacyAstroConfigSchema['parse']>) {
+function migrateConfig(legacyConfig: Record<string, any>) {
 	const flat = flatten(legacyConfig);
 	const newConfig: Record<string, any> = {};
 	const instructions = [];
@@ -305,50 +240,14 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		process.exit(1);
 	}
 
-	const LegacyAstroConfigRelativeSchema = LegacyAstroConfigSchema.extend({
-		projectRoot: z
-			.string()
-			.default('.')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
-		src: z
-			.string()
-			.default('./src')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
-		pages: z
-			.string()
-			.default('./src/pages')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
-		public: z
-			.string()
-			.default('./public')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
-		dist: z
-			.string()
-			.default('./dist')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
-		styleOptions: z
-			.object({
-				postcss: z.preprocess(
-					(val) => resolvePostcssConfig(val, fileProtocolRoot),
-					z
-						.object({
-							options: z.any(),
-							plugins: z.array(z.any()),
-						})
-						.optional()
-						.default({ options: {}, plugins: [] })
-				),
-			})
-			.optional()
-			.default({}),
-	});
-
-	let oldConfig;
-	try {
-		oldConfig = await LegacyAstroConfigRelativeSchema.parseAsync(userConfig);
-	} catch (e) {}
+	let oldConfig = false;
+	for (const key of Object.keys(userConfig)) {
+		if (LegacyAstroConfigKeys.has(key)) {
+			oldConfig = true;
+			break;
+		}
+	}
 	if (oldConfig) {
-		console.error('Astro configuration has changed in v1.0.0!');
 		console.error('Update your configuration:');
 		try {
 			const newConfig = migrateConfig(userConfig);
@@ -366,19 +265,19 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		root: z
 			.string()
 			.default('.')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		srcDir: z
 			.string()
 			.default('./src')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		publicDir: z
 			.string()
 			.default('./public')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		outDir: z
 			.string()
 			.default('./dist')
-			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		style: z
 			.object({
 				postcss: z.preprocess(
@@ -415,11 +314,6 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	}
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
-}
-
-/** Adds '/' to end of string but doesn’t double-up */
-function addTrailingSlash(str: string): string {
-	return str.replace(/\/*$/, '/');
 }
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
@@ -461,6 +355,7 @@ interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
 	cmd: string;
+	validate?: boolean;
 }
 
 /**
