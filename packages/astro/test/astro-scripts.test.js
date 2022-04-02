@@ -8,7 +8,7 @@ describe('Scripts (hoisted and not)', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-scripts/',
+			root: './fixtures/astro-scripts/',
 			vite: {
 				build: {
 					assetsInlineLimit: 0,

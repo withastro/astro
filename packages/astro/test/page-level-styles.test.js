@@ -8,7 +8,7 @@ describe('Page-level styles', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/page-level-styles/',
+			root: './fixtures/page-level-styles/',
 		});
 		await fixture.build();
 	});

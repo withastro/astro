@@ -48,7 +48,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: ViteConfigWithSSR = {
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
+		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
@@ -67,8 +67,8 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],
-		publicDir: fileURLToPath(astroConfig.public),
-		root: fileURLToPath(astroConfig.projectRoot),
+		publicDir: fileURLToPath(astroConfig.publicDir),
+		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
@@ -79,7 +79,7 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			},
 		},
 		css: {
-			postcss: astroConfig.styleOptions.postcss || {},
+			postcss: astroConfig.style.postcss || {},
 		},
 		resolve: {
 			alias: {
@@ -109,8 +109,8 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
-async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]> {
-	const pkgUrl = new URL('./package.json', projectRoot);
+async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
+	const pkgUrl = new URL('./package.json', root);
 	const pkgPath = fileURLToPath(pkgUrl);
 	if (!fs.existsSync(pkgPath)) return [];
 
@@ -123,7 +123,7 @@ async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]>
 		if (isCommonNotAstro(dep)) return false;
 		// Attempt: package is named `astro-something`. ✅ Likely a community package
 		if (/^astro\-/.test(dep)) return true;
-		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, projectRoot);
+		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
 		const depPkgPath = fileURLToPath(depPkgUrl);
 		if (!fs.existsSync(depPkgPath)) return false;
 

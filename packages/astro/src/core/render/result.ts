@@ -118,17 +118,16 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					  }
 					: onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
-					if (!legacyBuild) {
-						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
-						if (isCSSRequest(path)) {
-							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
+					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
+					if (isCSSRequest(path)) {
+						extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
 
 <style global>
 @import "${path}";
 </style>
 `;
-						} else if (isScriptRequest(path)) {
-							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
+					} else if (isScriptRequest(path)) {
+						extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
 
 <script type="module" src={(await import("${path}?url")).default}></script>
 
@@ -138,19 +137,16 @@ or consider make it a module like so:
 	import MyModule from "${path}";
 </script>
 `;
-						}
-
-						warn(
-							args.logging,
-							`deprecation`,
-							`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`
-						);
-						// Intentionally return an empty string so that it is not relied upon.
-						return '';
 					}
 
-					return astroGlobal.resolve(path);
+					warn(
+						args.logging,
+						`deprecation`,
+						`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
+${extra}`
+					);
+					// Intentionally return an empty string so that it is not relied upon.
+					return '';
 				},
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
@@ -159,6 +155,7 @@ ${extra}`
 				// Ensure this API is not exposed to users
 				enumerable: false,
 				writable: false,
+				// TODO: remove 1. markdown parser logic 2. update MarkdownRenderOptions to take a function only
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
 				value: async function (content: string, opts: any) {
 					let [mdRender, renderOpts] = markdownRender;

@@ -9,8 +9,10 @@ describe('API routes in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-api-route/',
-			buildOptions: { experimentalSsr: true },
+			root: './fixtures/ssr-api-route/',
+			experimental: {
+				ssr: true,
+			},
 			adapter: testAdapter(),
 		});
 		await fixture.build();

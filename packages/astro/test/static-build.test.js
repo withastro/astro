@@ -11,7 +11,7 @@ describe('Static build', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static build/',
+			root: './fixtures/static build/',
 		});
 		await fixture.build();
 	});
@@ -72,7 +72,7 @@ describe('Static build', () => {
 			const $ = cheerioLoad(html);
 			const links = $('link[rel=stylesheet]');
 			for (const link of links) {
-				const href = $(link).attr('href').slice('/subpath'.length);
+				const href = $(link).attr('href');
 				const data = await fixture.readFile(addLeadingSlash(href));
 				if (expected.test(data)) {
 					return true;

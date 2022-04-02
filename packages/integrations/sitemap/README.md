@@ -50,7 +50,7 @@ export default {
 
 ## Getting started
 
-`@astrojs/sitemap` requires a deployment / site URL for generation. Add your site's URL under your `astro.config.*` using the `buildOptions.site` property:
+`@astrojs/sitemap` requires a deployment / site URL for generation. Add your site's URL under your `astro.config.*` using the `site` property:
 
 __astro.config.mjs__
 
@@ -59,9 +59,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default {
   // ...
-  buildOptions: {
-    site: 'https://stargazers.club',
-  },
+  site: 'https://stargazers.club',
   integrations: [sitemap()],
 }
 ```

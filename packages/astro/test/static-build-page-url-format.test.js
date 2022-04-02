@@ -6,12 +6,12 @@ function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
-describe("Static build - pageUrlFormat: 'file'", () => {
+describe("Static build - format: 'file'", () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static-build-page-url-format/',
+			root: './fixtures/static-build-page-url-format/',
 		});
 		await fixture.build();
 	});

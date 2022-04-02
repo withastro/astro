@@ -9,7 +9,7 @@ describe('Tailwind', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/tailwindcss/',
+			root: './fixtures/tailwindcss/',
 		});
 	});
 

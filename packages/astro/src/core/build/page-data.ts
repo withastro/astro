@@ -68,7 +68,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				scripts: new Set(),
 				preload: await ssrPreload({
 					astroConfig,
-					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
+					filePath: new URL(`./${route.component}`, astroConfig.root),
 					viteServer,
 				})
 					.then((routes) => {
@@ -100,13 +100,13 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 				throw err;
 			});
-		const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
+		const rssFn = generateRssFunction(astroConfig.site, route);
 		for (const rssCallArg of result.rss) {
 			const rssResult = rssFn(rssCallArg);
 			if (rssResult.xml) {
 				const { url, content } = rssResult.xml;
 				if (content) {
-					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
 					if (assets[fileURLToPath(rssFile)]) {
 						throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
 					}
@@ -115,7 +115,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			}
 			if (rssResult.xsl?.content) {
 				const { url, content } = rssResult.xsl;
-				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
 				if (assets[fileURLToPath(stylesheetFile)]) {
 					throw new Error(
 						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
@@ -135,7 +135,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			scripts: new Set(),
 			preload: await ssrPreload({
 				astroConfig,
-				filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
+				filePath: new URL(`./${route.component}`, astroConfig.root),
 				viteServer,
 			}),
 		};
@@ -149,7 +149,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<RouteCacheEntry> {
 	const { astroConfig, logging, routeCache, ssr, viteServer } = opts;
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
-	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);
+	const filePath = new URL(`./${route.component}`, astroConfig.root);
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	const result = await callGetStaticPaths({ mod, route, isValidate: false, logging, ssr });
 	routeCache.set(route, result);

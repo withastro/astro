@@ -48,9 +48,9 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
 	// The filepath root of the src folder
-	const srcRoot = astroConfig.src.pathname;
+	const srcRoot = astroConfig.srcDir.pathname;
 	// The web path of the src folter
-	const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
+	const srcRootWeb = srcRoot.substr(astroConfig.root.pathname.length - 1);
 
 	// A map of pages to rendered HTML
 	const renderedPageMap = new Map<string, string>();
@@ -86,7 +86,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 					const id = ASTRO_PAGE_PREFIX + pathname;
 					const response = await ssrRender(renderers, mod, {
 						astroConfig,
-						filePath: new URL(`./${component}`, astroConfig.projectRoot),
+						filePath: new URL(`./${component}`, astroConfig.root),
 						logging,
 						request: createRequest({
 							url: new URL(origin + pathname),
@@ -162,7 +162,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 							if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
 								astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
 							} else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
-								const resolved = new URL('.' + src, astroConfig.projectRoot);
+								const resolved = new URL('.' + src, astroConfig.root);
 								astroAssetMap.set(src, fs.readFile(resolved));
 							}
 						}
@@ -173,7 +173,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 								if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
 									astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
 								} else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
-									const resolved = new URL('.' + url, astroConfig.projectRoot);
+									const resolved = new URL('.' + url, astroConfig.root);
 									astroAssetMap.set(url, fs.readFile(resolved));
 								}
 							}
@@ -403,7 +403,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 						let src = getAttribute(script, 'src');
 						// If this is projectRoot relative, get the fullpath to match the facadeId.
 						if (src?.startsWith(srcRootWeb)) {
-							src = new URL('.' + src, astroConfig.projectRoot).pathname;
+							src = new URL('.' + src, astroConfig.root).pathname;
 						}
 						// On windows the facadeId doesn't start with / but does not Unix :/
 						if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {

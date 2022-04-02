@@ -37,7 +37,7 @@ const configCache = new WeakMap<AstroConfig, CompilationCache>();
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
+	const pathname = filenameURL.pathname.substr(config.root.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
@@ -47,30 +47,28 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
 		pathname,
-		projectRoot: config.projectRoot.toString(),
-		site: config.buildOptions.site,
+		projectRoot: config.root.toString(),
+		site: config.site ? new URL(config.base, config.site).toString() : undefined,
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(viteID(new URL('../runtime/server/index.js', import.meta.url)))}`,
-		experimentalStaticExtraction: !config.buildOptions.legacyBuild,
-		// TODO add experimental flag here
+		// TODO: baseline flag
+		experimentalStaticExtraction: true,
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 
 			try {
 				// In the static build, grab any @import as CSS dependencies for HMR.
-				if (!config.buildOptions.legacyBuild) {
-					value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
-						rawCSSDeps.add(spec);
-						// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
-						// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
-						if (lang === '.css') {
-							return createImportPlaceholder(spec);
-						} else {
-							return match;
-						}
-					});
-				}
+				value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
+					rawCSSDeps.add(spec);
+					// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
+					// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
+					if (lang === '.css') {
+						return createImportPlaceholder(spec);
+					} else {
+						return match;
+					}
+				});
 
 				const result = await transformWithVite({
 					value,

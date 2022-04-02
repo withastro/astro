@@ -7,7 +7,7 @@ describe('Client only components', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-client-only/',
+			root: './fixtures/astro-client-only/',
 		});
 		await fixture.build();
 	});

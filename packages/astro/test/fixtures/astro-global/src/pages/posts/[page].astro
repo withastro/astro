@@ -4,7 +4,7 @@ export async function getStaticPaths({paginate}) {
   return paginate(data, {pageSize: 1});
 }
 const { page } = Astro.props;
-const { params, canonicalURL} = Astro;
+const { params, canonicalURL } = Astro;
 ---
 
 <html>

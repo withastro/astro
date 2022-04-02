@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-describe('pageUrlFormat', () => {
+describe('build format', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-page-directory-url',
-			buildOptions: {
-				pageUrlFormat: 'file',
+			root: './fixtures/astro-page-directory-url',
+			build: {
+				format: 'file',
 			},
 		});
 		await fixture.build();
