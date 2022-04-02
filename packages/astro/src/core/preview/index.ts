@@ -29,7 +29,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 	const defaultOrigin = 'http://localhost';
 	const trailingSlash = config.trailingSlash;
 	/** Base request URL. */
-	let baseURL = new URL(config.base || '/', new URL(config.site || '/', defaultOrigin));
+	let baseURL = new URL(config.base, new URL(config.site || '/', defaultOrigin));
 	const staticFileServer = sirv(fileURLToPath(config.outDir), {
 		dev: true,
 		etag: true,
