@@ -13,6 +13,6 @@
     "astro": "^0.25.4"
   },
   "dependencies": {
-    "svelte": "^3.46.4"
+    "svelte": "^3.46.6"
   }
 }

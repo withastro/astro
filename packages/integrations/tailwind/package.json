@@ -27,13 +27,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "tailwindcss": "^3.0.23",
-    "autoprefixer": "^10.4.4",
     "@proload/core": "^0.2.2",
-    "postcss": "^8.4.12"
+    "autoprefixer": "^10.4.4",
+    "postcss": "^8.4.12",
+    "tailwindcss": "^3.0.23"
   },
   "devDependencies": {
-    "@types/tailwindcss": "^3.0.9",
+    "@types/tailwindcss": "^3.0.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },

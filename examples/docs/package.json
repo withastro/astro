@@ -13,7 +13,7 @@
     "@docsearch/css": "^3.0.0",
     "@docsearch/react": "^3.0.0",
     "@types/react": "^17.0.43",
-    "preact": "^10.6.6",
+    "preact": "^10.7.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
