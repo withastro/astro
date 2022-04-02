@@ -176,7 +176,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	if (!input.size) {
 		// If SSR, copy public over
 		if (ssr) {
-			await copyFiles(astroConfig.public, out);
+			await copyFiles(astroConfig.publicDir, out);
 		}
 
 		return null;

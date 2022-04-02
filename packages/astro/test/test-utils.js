@@ -36,7 +36,7 @@ polyfill(globalThis, {
 
 /**
  * Load Astro fixture
- * @param {AstroConfig} inlineConfig Astro config partial (note: must specify projectRoot)
+ * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
  * @returns {Promise<Fixture>} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
@@ -70,6 +70,14 @@ export async function loadFixture(inlineConfig) {
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, root: cwd });
+
+	// Note: the inline config doesn't run through config validation where these normalizations usually occur
+	if (typeof inlineConfig.site === 'string') {
+		config.site = new URL(inlineConfig.site);
+	}
+	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
+		config.base = inlineConfig.base + '/';
+	}
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = {
