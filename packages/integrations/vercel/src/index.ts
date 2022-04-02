@@ -23,8 +23,8 @@ export default function vercel(): AstroIntegration {
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
-				config.dist = new URL('./.output/', config.projectRoot);
-				config.buildOptions.pageUrlFormat = 'directory';
+				config.outDir = new URL('./.output/', config.outDir);
+				config.build.format = 'directory';
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
@@ -32,8 +32,8 @@ export default function vercel(): AstroIntegration {
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
-				buildConfig.client = new URL('./static/', _config.dist);
-				buildConfig.server = new URL('./server/pages/', _config.dist);
+				buildConfig.client = new URL('./static/', _config.outDir);
+				buildConfig.server = new URL('./server/pages/', _config.outDir);
 			},
 			'astro:build:done': async ({ dir, routes }) => {
 				const pagesDir = new URL('./server/pages/', dir);
