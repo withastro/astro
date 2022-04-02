@@ -14,7 +14,12 @@ export default {
 	viteConfig() {
 		return {
 			optimizeDeps: {
-				include: ['@astrojs/renderer-preact/client.js', 'preact', 'preact/jsx-runtime', 'preact-render-to-string'],
+				include: [
+					'@astrojs/renderer-preact/client.js',
+					'preact',
+					'preact/jsx-runtime',
+					'preact-render-to-string',
+				],
 				exclude: ['@astrojs/renderer-preact/server.js'],
 			},
 			ssr: {

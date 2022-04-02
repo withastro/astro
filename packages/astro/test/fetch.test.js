@@ -18,7 +18,10 @@ describe('Global Fetch', () => {
 	it('Is available in Astro components', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('#astro-component').text()).to.equal('function', 'Fetch supported in .astro components');
+		expect($('#astro-component').text()).to.equal(
+			'function',
+			'Fetch supported in .astro components'
+		);
 	});
 	it('Is available in non-Astro components', async () => {
 		const html = await fixture.readFile('/index.html');
@@ -31,6 +34,9 @@ describe('Global Fetch', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('#already-imported').text()).to.equal('function', 'Existing fetch imports respected');
-		expect($('#custom-declaration').text()).to.equal('number', 'Custom fetch declarations respected');
+		expect($('#custom-declaration').text()).to.equal(
+			'number',
+			'Custom fetch declarations respected'
+		);
 	});
 });

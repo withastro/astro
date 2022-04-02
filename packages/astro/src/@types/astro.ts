@@ -56,7 +56,10 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/** get information about this page */
 	request: Request;
 	/** see if slots are used */
-	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string, args?: any[]): Promise<string> };
+	slots: Record<string, true | undefined> & {
+		has(slotName: string): boolean;
+		render(slotName: string, args?: any[]): Promise<string>;
+	};
 }
 
 export interface AstroGlobalPartial {
@@ -560,7 +563,12 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	};
 }
 
-export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
+export type AsyncRendererComponentFn<U> = (
+	Component: any,
+	props: any,
+	children: string | undefined,
+	metadata?: AstroComponentMetadata
+) => Promise<U>;
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
@@ -578,7 +586,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	getHeaders(): Promise<{ depth: number; slug: string; text: string }[]>;
 }
 
-export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
+export type GetHydrateCallback = () => Promise<
+	(element: Element, innerHTML: string | null) => void
+>;
 
 /**
  * getStaticPaths() options
@@ -606,14 +616,20 @@ export interface JSXTransformConfig {
 	plugins?: babel.PluginItem[];
 }
 
-export type JSXTransformFn = (options: { mode: string; ssr: boolean }) => Promise<JSXTransformConfig>;
+export type JSXTransformFn = (options: {
+	mode: string;
+	ssr: boolean;
+}) => Promise<JSXTransformConfig>;
 
 export interface ManifestData {
 	routes: RouteData[];
 }
 
 export type MarkdownRenderOptions = [string | MarkdownParser, Record<string, any>];
-export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
+export type MarkdownParser = (
+	contents: string,
+	options?: Record<string, any>
+) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {
 	frontmatter: {
@@ -731,13 +747,23 @@ export interface AstroIntegration {
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
-		'astro:config:done'?: (options: { config: AstroConfig; setAdapter: (adapter: AstroAdapter) => void }) => void | Promise<void>;
+		'astro:config:done'?: (options: {
+			config: AstroConfig;
+			setAdapter: (adapter: AstroAdapter) => void;
+		}) => void | Promise<void>;
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
-		'astro:build:setup'?: (options: { vite: ViteConfigWithSSR; target: 'client' | 'server' }) => void;
-		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL; routes: RouteData[] }) => void | Promise<void>;
+		'astro:build:setup'?: (options: {
+			vite: ViteConfigWithSSR;
+			target: 'client' | 'server';
+		}) => void;
+		'astro:build:done'?: (options: {
+			pages: { pathname: string }[];
+			dir: URL;
+			routes: RouteData[];
+		}) => void | Promise<void>;
 	};
 }
 
@@ -821,7 +847,11 @@ export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
-	createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
+	createAstro(
+		Astro: AstroGlobalPartial,
+		props: Record<string, any>,
+		slots: Record<string, any> | null
+	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
 	_metadata: SSRMetadata;
 }

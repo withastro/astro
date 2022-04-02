@@ -30,7 +30,9 @@ function getEsbuildLoader(fileExt: string): string {
 
 function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
 	const renderersWithJSXSupport = renderers.filter((r) => r.jsxImportSource);
-	return new Map(renderersWithJSXSupport.map((r) => [r.jsxImportSource, r] as [string, AstroRenderer]));
+	return new Map(
+		renderersWithJSXSupport.map((r) => [r.jsxImportSource, r] as [string, AstroRenderer])
+	);
 }
 
 interface TransformJSXOptions {
@@ -41,7 +43,13 @@ interface TransformJSXOptions {
 	ssr: boolean;
 }
 
-async function transformJSX({ code, mode, id, ssr, renderer }: TransformJSXOptions): Promise<TransformResult> {
+async function transformJSX({
+	code,
+	mode,
+	id,
+	ssr,
+	renderer,
+}: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
 	const plugins = [...(options.plugins || [])];
@@ -117,7 +125,13 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					sourcefile: id,
 					sourcemap: 'inline',
 				});
-				return transformJSX({ code: jsxCode, id, renderer: [...jsxRenderers.values()][0], mode, ssr });
+				return transformJSX({
+					code: jsxCode,
+					id,
+					renderer: [...jsxRenderers.values()][0],
+					mode,
+					ssr,
+				});
 			}
 
 			// Attempt: Multiple JSX renderers
@@ -165,7 +179,13 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				const jsxRenderer = jsxRenderers.get(importSource);
 				// if renderer not installed for this JSX source, throw error
 				if (!jsxRenderer) {
-					error(logging, 'renderer', `${colors.yellow(id)} No renderer installed for ${importSource}. Try adding \`@astrojs/${importSource}\` to your project.`);
+					error(
+						logging,
+						'renderer',
+						`${colors.yellow(
+							id
+						)} No renderer installed for ${importSource}. Try adding \`@astrojs/${importSource}\` to your project.`
+					);
 					return null;
 				}
 				// downlevel any non-standard syntax, but preserve JSX
@@ -175,7 +195,13 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					sourcefile: id,
 					sourcemap: 'inline',
 				});
-				return await transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as AstroRenderer, mode, ssr });
+				return await transformJSX({
+					code: jsxCode,
+					id,
+					renderer: jsxRenderers.get(importSource) as AstroRenderer,
+					mode,
+					ssr,
+				});
 			}
 
 			// if we still can’t tell, throw error
@@ -185,7 +211,9 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				'renderer',
 				`${colors.yellow(id)}
 Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
-Add ${colors.cyan(IMPORT_STATEMENTS[defaultRenderer] || `import '${defaultRenderer}';`)} or ${colors.cyan(`/* jsxImportSource: ${defaultRenderer} */`)} to this file.
+Add ${colors.cyan(
+					IMPORT_STATEMENTS[defaultRenderer] || `import '${defaultRenderer}';`
+				)} or ${colors.cyan(`/* jsxImportSource: ${defaultRenderer} */`)} to this file.
 `
 			);
 			return null;

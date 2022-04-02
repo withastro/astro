@@ -1,5 +1,9 @@
 import { parse as babelParser } from '@babel/parser';
-import type { ArrowFunctionExpressionKind, CallExpressionKind, StringLiteralKind } from 'ast-types/gen/kinds';
+import type {
+	ArrowFunctionExpressionKind,
+	CallExpressionKind,
+	StringLiteralKind,
+} from 'ast-types/gen/kinds';
 import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
@@ -58,7 +62,11 @@ export default function astro({ config }: AstroPluginOptions): Plugin {
 							type: 'CallExpression',
 							callee: {
 								type: 'MemberExpression',
-								object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
+								object: {
+									type: 'MetaProperty',
+									meta: { type: 'Identifier', name: 'import' },
+									property: { type: 'Identifier', name: 'meta' },
+								},
 								property: { type: 'Identifier', name: 'glob' },
 								computed: false,
 							},

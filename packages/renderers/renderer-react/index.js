@@ -22,7 +22,13 @@ export default {
 	viteConfig() {
 		return {
 			optimizeDeps: {
-				include: ['@astrojs/renderer-react/client.js', 'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom'],
+				include: [
+					'@astrojs/renderer-react/client.js',
+					'react',
+					'react/jsx-runtime',
+					'react/jsx-dev-runtime',
+					'react-dom',
+				],
 				exclude: ['@astrojs/renderer-react/server.js'],
 			},
 			resolve: {

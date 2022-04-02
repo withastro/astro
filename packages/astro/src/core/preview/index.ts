@@ -24,7 +24,10 @@ export interface PreviewServer {
 const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 
 /** The primary dev action */
-export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
+export default async function preview(
+	config: AstroConfig,
+	{ logging }: PreviewOptions
+): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
 	const trailingSlash = config.trailingSlash;
@@ -61,7 +64,10 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
 				sendError('Not Found (trailingSlash is set to "never")');
 				return;
-			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot && !HAS_FILE_EXTENSION_REGEXP.test(pathname):
+			case !hasTrailingSlash &&
+				trailingSlash == 'always' &&
+				!isRoot &&
+				!HAS_FILE_EXTENSION_REGEXP.test(pathname):
 				sendError('Not Found (trailingSlash is set to "always")');
 				return;
 			default: {
@@ -87,7 +93,17 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				httpServer = server.listen(port, host, async () => {
 					if (!showedListenMsg) {
 						const devServerAddressInfo = server.address() as AddressInfo;
-						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, config, devServerAddressInfo, https: false, site: baseURL }));
+						info(
+							logging,
+							null,
+							msg.devStart({
+								startupTime: performance.now() - timerStart,
+								config,
+								devServerAddressInfo,
+								https: false,
+								site: baseURL,
+							})
+						);
 					}
 					showedListenMsg = true;
 					resolve();

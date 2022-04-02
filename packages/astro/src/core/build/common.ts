@@ -8,7 +8,11 @@ function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('./', astroConfig.outDir);
 }
 
-export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
+export function getOutFolder(
+	astroConfig: AstroConfig,
+	pathname: string,
+	routeType: RouteType
+): URL {
 	const outRoot = getOutRoot(astroConfig);
 
 	// This is the root folder to write to.
@@ -30,7 +34,12 @@ export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeTy
 	}
 }
 
-export function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
+export function getOutFile(
+	astroConfig: AstroConfig,
+	outFolder: URL,
+	pathname: string,
+	routeType: RouteType
+): URL {
 	switch (routeType) {
 		case 'endpoint':
 			return new URL(npath.basename(pathname), outFolder);

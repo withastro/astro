@@ -126,7 +126,8 @@ describe('Astro Markdown Shiki', () => {
 
 	describe('Wrap', () => {
 		describe('wrap = true', () => {
-			const style = 'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+			const style =
+				'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 			let fixture;
 
 			before(async () => {

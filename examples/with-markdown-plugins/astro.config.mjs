@@ -6,6 +6,11 @@ export default defineConfig({
 	// Enable Custom Markdown options, plugins, etc.
 	markdown: {
 		remarkPlugins: ['remark-code-titles'],
-		rehypePlugins: [['rehype-autolink-headings', { behavior: 'prepend' }], ['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+		rehypePlugins: [
+			['rehype-autolink-headings', { behavior: 'prepend' }],
+			['rehype-toc', { headings: ['h2', 'h3'] }],
+			[addClasses, { 'h1,h2,h3': 'title' }],
+			'rehype-slug',
+		],
 	},
 });

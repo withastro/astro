@@ -108,11 +108,17 @@ async function testAll() {
 	await Promise.all(
 		TEMPLATES.map(async ({ value: template }) => {
 			// setup: `npm init astro`
-			await execa('../../create-astro.mjs', [template, '--template', template, '--commit', GITHUB_SHA, '--force-overwrite'], {
-				cwd: FIXTURES_DIR,
-			});
+			await execa(
+				'../../create-astro.mjs',
+				[template, '--template', template, '--commit', GITHUB_SHA, '--force-overwrite'],
+				{
+					cwd: FIXTURES_DIR,
+				}
+			);
 			// setup: `pnpm install` (note: running multiple `pnpm`s in parallel in CI will conflict)
-			await execa('pnpm', ['install', '--no-package-lock', '--silent'], { cwd: path.join(FIXTURES_DIR, template) });
+			await execa('pnpm', ['install', '--no-package-lock', '--silent'], {
+				cwd: path.join(FIXTURES_DIR, template),
+			});
 		})
 	);
 

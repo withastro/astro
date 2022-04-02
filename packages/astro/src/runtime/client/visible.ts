@@ -5,7 +5,11 @@ import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
  * We target the children because `astro-root` is set to `display: contents`
  * which doesn't work with IntersectionObserver
  */
-export default async function onVisible(astroId: string, options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
+export default async function onVisible(
+	astroId: string,
+	options: HydrateOptions,
+	getHydrateCallback: GetHydrateCallback
+) {
 	const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
 	if (roots.length === 0) {
 		throw new Error(`Unable to find the root for the component ${options.name}`);

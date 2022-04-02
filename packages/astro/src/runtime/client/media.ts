@@ -3,7 +3,11 @@ import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
 /**
  * Hydrate this component when a matching media query is found
  */
-export default async function onMedia(astroId: string, options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
+export default async function onMedia(
+	astroId: string,
+	options: HydrateOptions,
+	getHydrateCallback: GetHydrateCallback
+) {
 	const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
 	if (roots.length === 0) {
 		throw new Error(`Unable to find the root for the component ${options.name}`);

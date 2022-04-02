@@ -9,7 +9,8 @@
 
 const CI_INSTRUCTIONS = {
 	NETLIFY: 'https://docs.netlify.com/configure-builds/manage-dependencies/#node-js-and-javascript',
-	GITHUB_ACTIONS: 'https://docs.github.com/en/actions/guides/building-and-testing-nodejs#specifying-the-nodejs-version',
+	GITHUB_ACTIONS:
+		'https://docs.github.com/en/actions/guides/building-and-testing-nodejs#specifying-the-nodejs-version',
 	VERCEL: 'https://vercel.com/docs/runtimes#official-runtimes/node-js/node-js-version',
 };
 
@@ -17,7 +18,10 @@ const CI_INSTRUCTIONS = {
 async function main() {
 	// Check for ESM support.
 	// Load the "supports-esm" package in an way that works in both ESM & CJS.
-	let supportsESM = typeof require !== 'undefined' ? require('supports-esm') : (await import('supports-esm')).default;
+	let supportsESM =
+		typeof require !== 'undefined'
+			? require('supports-esm')
+			: (await import('supports-esm')).default;
 
 	// Check for CJS->ESM named export support.
 	// "path-to-regexp" is a real-world package that we depend on, that only
@@ -79,7 +83,9 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 				break;
 			}
 		}
-		console.log(`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`);
+		console.log(
+			`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`
+		);
 		console.log(`Documentation: https://docs.astro.build/guides/deploy`);
 		if (CI_INSTRUCTIONS[platform]) {
 			console.log(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);

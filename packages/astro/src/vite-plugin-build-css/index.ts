@@ -5,7 +5,11 @@ import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/util.js';
-import { getPageDatasByChunk, getPageDataByViteID, hasPageDataByViteID } from '../core/build/internal.js';
+import {
+	getPageDatasByChunk,
+	getPageDataByViteID,
+	hasPageDataByViteID,
+} from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -52,7 +56,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	const { internals, legacy } = options;
 	const styleSourceMap = new Map<string, string>();
 
-	function* walkStyles(ctx: PluginContext, id: string, seen = new Set<string>()): Generator<[string, string], void, unknown> {
+	function* walkStyles(
+		ctx: PluginContext,
+		id: string,
+		seen = new Set<string>()
+	): Generator<[string, string], void, unknown> {
 		seen.add(id);
 		if (styleSourceMap.has(id)) {
 			yield [id, styleSourceMap.get(id)!];
@@ -203,12 +211,19 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		// Delete CSS chunks so JS is not produced for them.
 		async generateBundle(opts, bundle) {
 			const hasPureCSSChunks = internals.pureCSSChunks.size;
-			const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
+			const pureChunkFilenames = new Set(
+				[...internals.pureCSSChunks].map((chunk) => chunk.fileName)
+			);
 			const emptyChunkFiles = [...pureChunkFilenames]
 				.map((file) => path.basename(file))
 				.join('|')
 				.replace(/\./g, '\\.');
-			const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
+			const emptyChunkRE = new RegExp(
+				opts.format === 'es'
+					? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
+					: `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
+				'g'
+			);
 
 			// Crawl the module graph to find CSS chunks to create
 			if (!legacy) {

@@ -1,4 +1,9 @@
-import type { ComponentInstance, EndpointHandler, ManifestData, RouteData } from '../../@types/astro';
+import type {
+	ComponentInstance,
+	EndpointHandler,
+	ManifestData,
+	RouteData,
+} from '../../@types/astro';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
 import type { LogOptions } from '../logger/core.js';
 
@@ -9,7 +14,10 @@ import { matchRoute } from '../routing/match.js';
 import { render } from '../render/core.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { RouteCache } from '../render/route-cache.js';
-import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import {
+	createLinkStylesheetElementSet,
+	createModuleScriptElementWithSrcSet,
+} from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
 import { createRequest } from '../request.js';
 
@@ -58,7 +66,11 @@ export class App {
 		}
 	}
 
-	async #renderPage(request: Request, routeData: RouteData, mod: ComponentInstance): Promise<Response> {
+	async #renderPage(
+		request: Request,
+		routeData: RouteData,
+		mod: ComponentInstance
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
 		const renderers = manifest.renderers;
@@ -105,7 +117,11 @@ export class App {
 		});
 	}
 
-	async #callEndpoint(request: Request, _routeData: RouteData, mod: ComponentInstance): Promise<Response> {
+	async #callEndpoint(
+		request: Request,
+		_routeData: RouteData,
+		mod: ComponentInstance
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {

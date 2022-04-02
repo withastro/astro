@@ -4,7 +4,11 @@ import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
  * Hydrate this component as soon as the main thread is free
  * (or after a short delay, if `requestIdleCallback`) isn't supported
  */
-export default async function onIdle(astroId: string, options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
+export default async function onIdle(
+	astroId: string,
+	options: HydrateOptions,
+	getHydrateCallback: GetHydrateCallback
+) {
 	const cb = async () => {
 		const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
 		if (roots.length === 0) {

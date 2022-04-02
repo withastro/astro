@@ -7,7 +7,9 @@ export default (element) => (Component, props, children) =>
 		createElement(
 			Component,
 			{ ...props, suppressHydrationWarning: true },
-			children != null ? createElement(StaticHtml, { value: children, suppressHydrationWarning: true }) : children
+			children != null
+				? createElement(StaticHtml, { value: children, suppressHydrationWarning: true })
+				: children
 		),
 		element
 	);

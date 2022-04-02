@@ -13,7 +13,12 @@ function getViteConfiguration() {
 			exclude: ['@astrojs/lit/server.js'],
 		},
 		ssr: {
-			external: ['lit-element/lit-element.js', '@lit-labs/ssr/lib/install-global-dom-shim.js', '@lit-labs/ssr/lib/render-lit-html.js', '@lit-labs/ssr/lib/lit-element-renderer.js'],
+			external: [
+				'lit-element/lit-element.js',
+				'@lit-labs/ssr/lib/install-global-dom-shim.js',
+				'@lit-labs/ssr/lib/render-lit-html.js',
+				'@lit-labs/ssr/lib/lit-element-renderer.js',
+			],
 		},
 	};
 }
@@ -24,7 +29,10 @@ export default function (): AstroIntegration {
 		hooks: {
 			'astro:config:setup': ({ updateConfig, addRenderer, injectScript }) => {
 				// Inject the necessary polyfills on every page (inlined for speed).
-				injectScript('head-inline', readFileSync(new URL('../client-shim.min.js', import.meta.url), { encoding: 'utf-8' }));
+				injectScript(
+					'head-inline',
+					readFileSync(new URL('../client-shim.min.js', import.meta.url), { encoding: 'utf-8' })
+				);
 				// Inject the hydration code, before a component is hydrated.
 				injectScript('before-hydration', `import '@astrojs/lit/hydration-support.js';`);
 				// Add the lit renderer so that Astro can understand lit components.

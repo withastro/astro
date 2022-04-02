@@ -127,5 +127,8 @@ export const logger = {
 export function enableVerboseLogging() {
 	//debugPackage.enable('*,-babel');
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
-	debug('cli', 'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".');
+	debug(
+		'cli',
+		'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".'
+	);
 }

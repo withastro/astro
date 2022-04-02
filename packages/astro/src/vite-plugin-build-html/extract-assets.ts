@@ -12,7 +12,9 @@ function getSrcSetUrls(srcset: string) {
 		return [];
 	}
 	const srcsetParts = srcset.includes(',') ? srcset.split(',') : [srcset];
-	const urls = srcsetParts.map((url) => url.trim()).map((url) => (url.includes(' ') ? url.split(' ')[0] : url));
+	const urls = srcsetParts
+		.map((url) => url.trim())
+		.map((url) => (url.includes(' ') ? url.split(' ')[0] : url));
 	return urls;
 }
 
@@ -116,9 +118,20 @@ export function isHashedAsset(node: Element) {
 	}
 }
 
-export function resolveAssetFilePath(browserPath: string, htmlDir: string, projectRootDir: string, absolutePathPrefix?: string) {
-	const _browserPath = absolutePathPrefix && browserPath[0] === '/' ? '/' + npath.posix.relative(absolutePathPrefix, browserPath) : browserPath;
-	return npath.join(_browserPath.startsWith('/') ? projectRootDir : htmlDir, _browserPath.split('/').join(npath.sep));
+export function resolveAssetFilePath(
+	browserPath: string,
+	htmlDir: string,
+	projectRootDir: string,
+	absolutePathPrefix?: string
+) {
+	const _browserPath =
+		absolutePathPrefix && browserPath[0] === '/'
+			? '/' + npath.posix.relative(absolutePathPrefix, browserPath)
+			: browserPath;
+	return npath.join(
+		_browserPath.startsWith('/') ? projectRootDir : htmlDir,
+		_browserPath.split('/').join(npath.sep)
+	);
 }
 
 export function getSourceAttribute(node: Element) {
