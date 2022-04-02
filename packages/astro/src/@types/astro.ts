@@ -137,6 +137,23 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name srcDir
+	 * @type {string}
+	 * @default `"./src"`
+	 * @description Set the directory that Astro will read your site from.
+	 *
+	 * The value can be either an absolute file system path or a path relative to the project root.
+	 *
+	 * ```js
+	 * {
+	 *   srcDir: './www'
+	 * }
+	 * ```
+	 */
+	srcDir?: string;
+
+	/**
+	 * @docs
 	 * @name outDir
 	 * @type {string}
 	 * @default `"./outDir"`
@@ -209,23 +226,33 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name buildOptions.site
+	 * @name site
 	 * @type {string}
 	 * @description
 	 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
 	 *
-	 * Astro will match the site pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
-	 *
 	 * ```js
 	 * {
-	 *   buildOptions: {
-	 *     // Example: Tell Astro the final URL of your deployed website.
-	 * 	   site: 'https://www.my-site.dev/docs'
-	 *   }
+	 * 	 site: 'https://www.my-site.dev'
 	 * }
 	 * ```
 	 */
 	site?: string;
+
+	/**
+	 * @docs
+	 * @name base
+	 * @type {string}
+	 * @description
+	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
+	 *
+	 * ```js
+	 * {
+	 * 	 base: '/docs'
+	 * }
+	 * ```
+	 */
+	 base?: string;
 
 	/**
 	 * @docs
