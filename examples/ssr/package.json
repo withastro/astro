@@ -9,15 +9,15 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^0.0.2",
     "@astrojs/node": "^0.0.2",
-    "astro": "^0.25.4",
-    "concurrently": "^7.0.0",
+    "@astrojs/svelte": "^0.0.2",
+    "astro": "^0.26.0",
+    "concurrently": "^7.1.0",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
     "vite-imagetools": "^4.0.3"
   },
   "dependencies": {
-    "svelte": "^3.46.4"
+    "svelte": "^3.46.6"
   }
 }
