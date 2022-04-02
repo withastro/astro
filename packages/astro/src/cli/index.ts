@@ -27,7 +27,7 @@ function printAstroHelp() {
 		headline: 'Futuristic web development tool.',
 		commands: [
 			['add', 'Add an integration to your configuration.'],
-			['docs', 'Launch Astro\'s Doc site from the terminal '],
+			['docs', 'Launch Astro\'s Doc site from the terminal. '],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -60,6 +60,7 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
+	if (cmd === 'docs') return 'docs';
 
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
@@ -149,6 +150,7 @@ export async function cli(args: string[]) {
 		case 'docs':{
 			try{
 				await browser('https://docs.astro.build/')
+				process.exit(0)
 			}catch(err){
 				throwAndExit(err)
 			}
