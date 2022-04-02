@@ -18,8 +18,6 @@ let config = await loadConfig({
 	cwd: fileURLToPath(projDir),
 });
 
-config.buildOptions.legacyBuild = false;
-
 const server = await dev(config, { logging: { level: 'error' } });
 
 // Prime the server so initial memory is created

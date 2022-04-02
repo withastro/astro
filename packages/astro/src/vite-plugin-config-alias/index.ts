@@ -70,9 +70,9 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 };
 
 /** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
-export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; [key: string]: unknown }): vite.PluginOption {
+export default function configAliasVitePlugin(astroConfig: { root?: URL; [key: string]: unknown }): vite.PluginOption {
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
-	const configAlias = getConfigAlias(astroConfig.projectRoot && url.fileURLToPath(astroConfig.projectRoot));
+	const configAlias = getConfigAlias(astroConfig.root && url.fileURLToPath(astroConfig.root));
 
 	// if no config alias was found, bypass this plugin
 	if (!configAlias) return {} as vite.PluginOption;

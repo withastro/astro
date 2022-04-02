@@ -7,11 +7,9 @@ describe('Pagination', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-pagination/',
-			buildOptions: {
-				site: 'https://mysite.dev/blog/',
-				sitemap: false,
-			},
+			root: './fixtures/astro-pagination/',
+			site: 'https://mysite.dev/',
+			base: '/blog',
 		});
 		await fixture.build();
 	});

@@ -10,7 +10,7 @@ export async function getStaticPaths({ paginate, rss }) {
 	const sortedPosts = allPosts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 
 	// Generate an RSS feed from this collection of posts.
-	// NOTE: This is disabled by default, since it requires `buildOptions.site` to be set in your "astro.config.mjs" file.
+	// NOTE: This is disabled by default, since it requires `site` to be set in your "astro.config.mjs" file.
 	//   rss({
 	//     title: 'Don’s Blog',
 	//     description: 'An example blog on Astro',

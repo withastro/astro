@@ -44,7 +44,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.buildStart = performance.now();
 
 	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
+		const astroModuleURL = new URL('./' + component, astroConfig.root);
 		const astroModuleId = prependForwardSlash(component);
 
 		// Track the page data in internals
@@ -87,7 +87,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(astroConfig.dist, new Set('.git'));
+	emptyDir(astroConfig.outDir, new Set('.git'));
 
 	timer.clientBuild = performance.now();
 	// Run client build first, so the assets can be fed into the SSR rendered version.
@@ -112,7 +112,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const ssr = isBuildingToSSR(astroConfig);
-	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
+	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
 	const viteBuildConfig = {
 		logLevel: 'error',
@@ -155,7 +155,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.site ? new URL(astroConfig.site).pathname : '/',
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
 	} as ViteConfigWithSSR;
@@ -170,13 +170,13 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
 	const ssr = isBuildingToSSR(astroConfig);
-	const out = ssr ? opts.buildConfig.client : astroConfig.dist;
+	const out = ssr ? opts.buildConfig.client : astroConfig.outDir;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
 		// If SSR, copy public over
 		if (ssr) {
-			await copyFiles(astroConfig.public, out);
+			await copyFiles(astroConfig.publicDir, out);
 		}
 
 		return null;
@@ -184,7 +184,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
-
+	
 	const viteBuildConfig = {
 		logLevel: 'info',
 		mode: 'production',
@@ -218,7 +218,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
+		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });
@@ -231,11 +231,11 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: fileURLToPath(opts.astroConfig.dist),
+		cwd: fileURLToPath(opts.astroConfig.outDir),
 	});
 	await Promise.all(
 		files.map(async (filename) => {
-			const url = new URL(filename, opts.astroConfig.dist);
+			const url = new URL(filename, opts.astroConfig.outDir);
 			await fs.promises.rm(url);
 		})
 	);

@@ -22,19 +22,19 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 		hooks: {
 			'astro:config:setup': ({ config }) => {
 				if (dist) {
-					config.dist = dist;
+					config.outDir = dist;
 				} else {
-					config.dist = new URL('./netlify/', config.projectRoot);
+					config.outDir = new URL('./netlify/', config.root);
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter(config.buildOptions.site));
+				setAdapter(getAdapter(new URL(config.base, config.site).toString()));
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
-				buildConfig.client = _config.dist;
-				buildConfig.server = new URL('./functions/', _config.dist);
+				buildConfig.client = _config.outDir;
+				buildConfig.server = new URL('./functions/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
 				const _redirectsURL = new URL('./_redirects', dir);

@@ -6,7 +6,7 @@ describe('Class List', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-class-list/' });
+		fixture = await loadFixture({ root: './fixtures/astro-class-list/' });
 		await fixture.build();
 	});
 

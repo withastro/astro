@@ -17,16 +17,16 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	});
 }
 
-async function getUserConfig(projectRoot: URL, configPath?: string) {
-	const resolvedProjectRoot = fileURLToPath(projectRoot);
+async function getUserConfig(root: URL, configPath?: string) {
+	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
 	if (configPath) {
 		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
-		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, projectRoot));
+		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	return await load('tailwind', { mustExist: false, cwd: resolvedProjectRoot, filePath: userConfigPath });
+	return await load('tailwind', { mustExist: false, cwd: resolvedRoot, filePath: userConfigPath });
 }
 
 type TailwindOptions =
@@ -64,21 +64,21 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 		hooks: {
 			'astro:config:setup': async ({ config, injectScript }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.projectRoot, customConfigPath);
+				const userConfig = await getUserConfig(config.root, customConfigPath);
 
 				if (customConfigPath && !userConfig?.value) {
 					throw new Error(`Could not find a Tailwind config at ${JSON.stringify(customConfigPath)}. Does the file exist?`);
 				}
 
-				const tailwindConfig: TailwindConfig = (userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.src);
+				const tailwindConfig: TailwindConfig = (userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 				if (applyAstroConfigPreset && userConfig?.value) {
 					// apply Astro config as a preset to user config
 					// this avoids merging or applying nested spread operators ourselves
-					tailwindConfig.presets = [getDefaultTailwindConfig(config.src), ...(tailwindConfig.presets || [])];
+					tailwindConfig.presets = [getDefaultTailwindConfig(config.srcDir), ...(tailwindConfig.presets || [])];
 				}
 
-				config.styleOptions.postcss.plugins.push(tailwindPlugin(tailwindConfig));
-				config.styleOptions.postcss.plugins.push(autoprefixerPlugin);
+				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));
+				config.style.postcss.plugins.push(autoprefixerPlugin);
 
 				if (applyBaseStyles) {
 					// Inject the Tailwind base import

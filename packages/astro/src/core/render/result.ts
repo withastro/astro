@@ -158,6 +158,7 @@ ${extra}`
 				// Ensure this API is not exposed to users
 				enumerable: false,
 				writable: false,
+				// TODO: remove 1. markdown parser logic 2. update MarkdownRenderOptions to take a function only
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
 				value: async function (content: string, opts: any) {
 					let [mdRender, renderOpts] = markdownRender;

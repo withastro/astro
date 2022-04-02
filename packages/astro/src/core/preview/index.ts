@@ -27,10 +27,10 @@ const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
-	const trailingSlash = config.devOptions.trailingSlash;
+	const trailingSlash = config.trailingSlash;
 	/** Base request URL. */
-	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
-	const staticFileServer = sirv(fileURLToPath(config.dist), {
+	let baseURL = new URL(config.base, new URL(config.site || '/', defaultOrigin));
+	const staticFileServer = sirv(fileURLToPath(config.outDir), {
 		dev: true,
 		etag: true,
 		maxAge: 0,
@@ -59,10 +59,10 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
 		switch (true) {
 			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
-				sendError('Not Found (devOptions.trailingSlash is set to "never")');
+				sendError('Not Found (trailingSlash is set to "never")');
 				return;
 			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot && !HAS_FILE_EXTENSION_REGEXP.test(pathname):
-				sendError('Not Found (devOptions.trailingSlash is set to "always")');
+				sendError('Not Found (trailingSlash is set to "always")');
 				return;
 			default: {
 				// HACK: rewrite req.url so that sirv finds the file
@@ -73,8 +73,8 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		}
 	});
 
-	let { port } = config.devOptions;
-	const host = getResolvedHostForHttpServer(config);
+	let { port } = config.server;
+	const host = getResolvedHostForHttpServer(config.server.host);
 
 	let httpServer: http.Server;
 

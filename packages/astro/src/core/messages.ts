@@ -8,7 +8,7 @@ import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../@types/astro';
 import { collectErrorMetadata, cleanErrorStack } from './errors.js';
 import { ZodError } from 'zod';
-import { emoji, getLocalAddress, getResolvedHostForVite, padMultilineString } from './util.js';
+import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
 
@@ -51,8 +51,8 @@ export function devStart({
 	const networkPrefix = `${dim('┃')} Network  `;
 
 	const { address: networkAddress, port } = devServerAddressInfo;
-	const localAddress = getLocalAddress(networkAddress, config);
-	const networkLogging = getNetworkLogging(config);
+	const localAddress = getLocalAddress(networkAddress, config.server.host);
+	const networkLogging = getNetworkLogging(config.server.host);
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	let addresses = [];
 
@@ -125,10 +125,7 @@ export function portInUse({ port }: { port: number }): string {
 
 const LOCAL_IP_HOSTS = new Set(['localhost', '127.0.0.1']);
 
-export function getNetworkLogging(config: AstroConfig): 'none' | 'host-to-expose' | 'visible' {
-	// TODO: remove once --hostname is baselined
-	const host = getResolvedHostForVite(config);
-
+export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-expose' | 'visible' {
 	if (host === false) {
 		return 'host-to-expose';
 	} else if (typeof host === 'string' && LOCAL_IP_HOSTS.has(host)) {

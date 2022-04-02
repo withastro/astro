@@ -6,7 +6,7 @@ describe('Global Fetch', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+		fixture = await loadFixture({ root: './fixtures/fetch/' });
 		await fixture.build();
 	});
 

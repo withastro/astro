@@ -1,3 +1,4 @@
+import astroRemark from '@astrojs/markdown-remark';
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import type { AstroConfig, AstroRenderer, ComponentInstance, RouteData, RuntimeMode, SSRElement, SSRLoadedRenderer } from '../../../@types/astro';
@@ -20,7 +21,7 @@ export interface SSROptions {
 	logging: LogOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
-	/** production website, needed for some RSS & Sitemap functions */
+	/** production website, needed for some RSS functions */
 	origin: string;
 	/** the web request (needed for dynamic routes) */
 	pathname: string;
@@ -65,13 +66,14 @@ export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROpt
 /** use Vite to SSR */
 export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
 	const { astroConfig, filePath, logging, mode, origin, pathname, request, route, routeCache, viteServer } = ssrOpts;
-	const legacy = astroConfig.buildOptions.legacyBuild;
+	// TODO: clean up "legacy" flag passed through helper functions
+	const isLegacyBuild = false;
 
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
+	const scripts = createModuleScriptElementWithSrcSet(!isLegacyBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !legacy) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !isLegacyBuild) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -93,7 +95,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	if (!legacy) {
+	if (!isLegacyBuild) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				scripts.add({
@@ -114,10 +116,11 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	}
 
 	let content = await coreRender({
-		legacyBuild: astroConfig.buildOptions.legacyBuild,
+		// TODO: Remove this flag once legacyBuild support is removed
+		legacyBuild: isLegacyBuild,
 		links,
 		logging,
-		markdownRender: astroConfig.markdownOptions.render,
+		markdownRender: [astroRemark, astroConfig.markdown],
 		mod,
 		origin,
 		pathname,
@@ -126,28 +129,21 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 		// TODO: Can we pass the hydration code more directly through Vite, so that we
 		// don't need to copy-paste and maintain Vite's import resolution here?
 		async resolve(s: string) {
-			// The legacy build needs these to remain unresolved so that vite HTML
-			// Can do the resolution. Without this condition the build output will be
-			// broken in the legacy build. This can be removed once the legacy build is removed.
-			if (!astroConfig.buildOptions.legacyBuild) {
-				const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-				if (resolvedPath.includes('node_modules/.vite')) {
-					return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
-				}
-				// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
-				if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
-					return '/@id' + prependForwardSlash(resolvedUrl);
-				}
-				return '/@fs' + prependForwardSlash(resolvedPath);
-			} else {
-				return s;
+			const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+			if (resolvedPath.includes('node_modules/.vite')) {
+				return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
 			}
+			// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
+			if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
+				return '/@id' + prependForwardSlash(resolvedUrl);
+			}
+			return '/@fs' + prependForwardSlash(resolvedPath);
 		},
 		renderers,
 		request,
 		route,
 		routeCache,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
 	});
 
@@ -159,7 +155,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	const tags: vite.HtmlTagDescriptor[] = [];
 
 	// dev only: inject Astro HMR client
-	if (mode === 'development' && legacy) {
+	if (mode === 'development' && isLegacyBuild) {
 		tags.push({
 			tag: 'script',
 			attrs: { type: 'module' },
@@ -171,7 +167,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	}
 
 	// inject CSS
-	if (legacy) {
+	if (isLegacyBuild) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				tags.push({
@@ -195,12 +191,6 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 
 	// add injected tags
 	let html = injectTags(content.html, tags);
-
-	// run transformIndexHtml() in dev to run Vite dev transformations
-	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
-		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-		html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
-	}
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!/<!doctype html/i.test(html)) {

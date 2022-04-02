@@ -4,11 +4,9 @@ import { loadFixture } from './test-utils.js';
 describe('getStaticPaths - build calls', () => {
 	before(async () => {
 		const fixture = await loadFixture({
-			projectRoot: './fixtures/astro-get-static-paths/',
-			buildOptions: {
-				site: 'https://mysite.dev/blog/',
-				sitemap: false,
-			},
+			root: './fixtures/astro-get-static-paths/',
+			site: 'https://mysite.dev/',
+			base: '/blog',
 		});
 		await fixture.build();
 	});
@@ -23,7 +21,7 @@ describe('getStaticPaths - 404 behavior', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-get-static-paths/' });
+		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
 

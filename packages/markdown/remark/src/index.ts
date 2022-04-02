@@ -1,4 +1,4 @@
-import type { AstroMarkdownOptions, MarkdownRenderingOptions } from './types';
+import type { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
@@ -20,7 +20,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
 import matter from 'gray-matter';
 
-export { AstroMarkdownOptions, MarkdownRenderingOptions };
+export { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin };
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {

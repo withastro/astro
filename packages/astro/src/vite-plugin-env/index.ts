@@ -14,7 +14,7 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 	if (viteConfig.envPrefix) {
 		envPrefixes = Array.isArray(viteConfig.envPrefix) ? viteConfig.envPrefix : [viteConfig.envPrefix];
 	}
-	const fullEnv = loadEnv(viteConfig.mode, viteConfig.envDir ?? fileURLToPath(astroConfig.projectRoot), '');
+	const fullEnv = loadEnv(viteConfig.mode, viteConfig.envDir ?? fileURLToPath(astroConfig.root), '');
 	const privateKeys = Object.keys(fullEnv).filter((key) => {
 		// don't expose any variables also on `process.env`
 		// note: this filters out `CLI_ARGS=1` passed to node!

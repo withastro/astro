@@ -11,9 +11,9 @@ describe('Integration buildConfig hook', () => {
 	before(async () => {
 		let _config;
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-request/',
-			buildOptions: {
-				experimentalSsr: true,
+			root: './fixtures/ssr-request/',
+			experimental: {
+				ssr: true,
 			},
 			adapter: {
 				name: 'my-ssr-adapter',
@@ -42,8 +42,8 @@ describe('Integration buildConfig hook', () => {
 						});
 					},
 					'astro:build:start': ({ buildConfig }) => {
-						buildConfig.server = new URL('./dist/.root/server/', _config.projectRoot);
-						buildConfig.client = new URL('./dist/.root/client/', _config.projectRoot);
+						buildConfig.server = new URL('./dist/.root/server/', _config.root);
+						buildConfig.client = new URL('./dist/.root/client/', _config.root);
 					},
 					'astro:config:done': ({ config, setAdapter }) => {
 						_config = config;

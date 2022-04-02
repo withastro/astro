@@ -1,12 +1,13 @@
+import astroRemark from '@astrojs/markdown-remark';
 import fs from 'fs';
-import { bgGreen, bgMagenta, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, info } from '../logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
@@ -51,7 +52,7 @@ function* throttle(max: number, inPaths: string[]) {
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig): string {
-	return facadeId.slice(fileURLToPath(astroConfig.projectRoot).length);
+	return facadeId.slice(fileURLToPath(astroConfig.root).length);
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
@@ -73,7 +74,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 
 	const ssr = isBuildingToSSR(opts.astroConfig);
 	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.dist;
+	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
@@ -151,7 +152,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 	debug('build', `Generating: ${pathname}`);
 
-	const site = astroConfig.buildOptions.site;
+	const site = astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
@@ -170,7 +171,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		legacyBuild: false,
 		links,
 		logging,
-		markdownRender: astroConfig.markdownOptions.render,
+		markdownRender: [astroRemark, astroConfig.markdown],
 		mod,
 		origin,
 		pathname,
@@ -196,7 +197,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		request: createRequest({ url, headers: new Headers(), logging }),
 		route: pageData.route,
 		routeCache,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : astroConfig.site,
 		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 

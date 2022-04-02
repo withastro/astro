@@ -64,7 +64,7 @@ function generateString(str: string, len: number) {
 export async function run() {}
 
 export async function check(astroConfig: AstroConfig) {
-	const root = astroConfig.projectRoot;
+	const root = astroConfig.root;
 	let checker = new AstroCheck(root.toString());
 	await openAllDocuments(root, [], checker);
 

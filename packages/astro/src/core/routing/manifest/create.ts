@@ -7,6 +7,7 @@ import { compile } from 'path-to-regexp';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
+import { resolvePages } from '../../util.js';
 
 interface Part {
 	content: string;
@@ -55,7 +56,7 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
+function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const pathname = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -82,7 +83,7 @@ function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOption
 	return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
 
-function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['trailingSlash']): string {
+function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash']): string {
 	if (addTrailingSlash === 'always') {
 		return '\\/$';
 	}
@@ -92,7 +93,7 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['tr
 	return '\\/?$';
 }
 
-function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
+function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const template = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -177,7 +178,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
-			const file = slash(path.relative(cwd || fileURLToPath(config.projectRoot), resolved));
+			const file = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
@@ -265,7 +266,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const trailingSlash = item.isPage ? config.devOptions.trailingSlash : 'never';
+				const trailingSlash = item.isPage ? config.trailingSlash : 'never';
 				const pattern = getPattern(segments, trailingSlash);
 				const generate = getGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
@@ -282,10 +283,12 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 		});
 	}
 
-	if (fs.existsSync(config.pages)) {
-		walk(fileURLToPath(config.pages), [], []);
+	const pages = resolvePages(config);
+
+	if (fs.existsSync(pages)) {
+		walk(fileURLToPath(pages), [], []);
 	} else {
-		const pagesDirRootRelative = config.pages.href.slice(config.projectRoot.href.length);
+		const pagesDirRootRelative = pages.href.slice(config.root.href.length);
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}

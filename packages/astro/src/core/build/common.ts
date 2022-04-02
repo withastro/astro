@@ -5,7 +5,7 @@ import { appendForwardSlash } from '../../core/path.js';
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	return new URL('./', astroConfig.dist);
+	return new URL('./', astroConfig.outDir);
 }
 
 export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
@@ -16,7 +16,7 @@ export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeTy
 		case 'endpoint':
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 		case 'page':
-			switch (astroConfig.buildOptions.pageUrlFormat) {
+			switch (astroConfig.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
@@ -35,7 +35,7 @@ export function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: s
 		case 'endpoint':
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':
-			switch (astroConfig.buildOptions.pageUrlFormat) {
+			switch (astroConfig.build.format) {
 				case 'directory': {
 					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);
