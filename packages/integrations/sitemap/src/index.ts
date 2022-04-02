@@ -47,9 +47,9 @@ export default function createPlugin({ filter, canonicalURL }: SitemapOptions = 
 				config = _config;
 			},
 			'astro:build:done': async ({ pages, dir }) => {
-				const finalSiteUrl = canonicalURL || config.buildOptions.site;
+				const finalSiteUrl = canonicalURL || config.site;
 				if (!finalSiteUrl) {
-					console.warn('The Sitemap integration requires either the `site` config option or `canonicalURL` integration option to work. Skipping.');
+					console.warn('The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.');
 					return;
 				}
 				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
