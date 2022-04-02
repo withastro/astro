@@ -55,7 +55,8 @@ polyfill(globalThis, {
  *   .clean()          - Async. Removes the project’s dist folder.
  */
 export async function loadFixture(inlineConfig) {
-	if (!inlineConfig || !inlineConfig.root) throw new Error("Must provide { root: './fixtures/...' }");
+	if (!inlineConfig || !inlineConfig.root)
+		throw new Error("Must provide { root: './fixtures/...' }");
 
 	// load config
 	let cwd = inlineConfig.root;
@@ -93,12 +94,14 @@ export async function loadFixture(inlineConfig) {
 			return devResult;
 		},
 		config,
-		fetch: (url, init) => fetch(`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`, init),
+		fetch: (url, init) =>
+			fetch(`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`, init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(config, { logging, ...opts });
 			return previewServer;
 		},
-		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
+		readFile: (filePath) =>
+			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		clean: () => fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
 		loadTestAdapterApp: async () => {
@@ -120,7 +123,11 @@ function merge(a, b) {
 	const c = {};
 	for (const k of allKeys) {
 		const needsObjectMerge =
-			typeof a[k] === 'object' && typeof b[k] === 'object' && (Object.keys(a[k]).length || Object.keys(b[k]).length) && !Array.isArray(a[k]) && !Array.isArray(b[k]);
+			typeof a[k] === 'object' &&
+			typeof b[k] === 'object' &&
+			(Object.keys(a[k]).length || Object.keys(b[k]).length) &&
+			!Array.isArray(a[k]) &&
+			!Array.isArray(b[k]);
 		if (needsObjectMerge) {
 			c[k] = merge(a[k] || {}, b[k] || {});
 			continue;

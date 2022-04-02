@@ -2,7 +2,11 @@ import type * as vite from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/render/util.js';
 
-export type TransformHook = (code: string, id: string, ssr?: boolean) => Promise<vite.TransformResult>;
+export type TransformHook = (
+	code: string,
+	id: string,
+	ssr?: boolean
+) => Promise<vite.TransformResult>;
 
 /** Load vite:css’ transform() hook */
 export function getViteTransform(viteConfig: vite.ResolvedConfig): TransformHook {
@@ -21,7 +25,13 @@ interface TransformWithViteOptions {
 }
 
 /** Transform style using Vite hook */
-export async function transformWithVite({ value, lang, transformHook, id, ssr }: TransformWithViteOptions): Promise<vite.TransformResult | null> {
+export async function transformWithVite({
+	value,
+	lang,
+	transformHook,
+	id,
+	ssr,
+}: TransformWithViteOptions): Promise<vite.TransformResult | null> {
 	if (!STYLE_EXTENSIONS.has(lang)) {
 		return null; // only preprocess langs supported by Vite
 	}

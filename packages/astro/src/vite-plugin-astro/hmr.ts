@@ -13,7 +13,10 @@ interface TrackCSSDependenciesOptions {
 	deps: Set<string>;
 }
 
-export async function trackCSSDependencies(this: RollupPluginContext, opts: TrackCSSDependenciesOptions): Promise<void> {
+export async function trackCSSDependencies(
+	this: RollupPluginContext,
+	opts: TrackCSSDependenciesOptions
+): Promise<void> {
 	const { viteDevServer, filename, deps, id } = opts;
 	// Dev, register CSS dependencies for HMR.
 	if (viteDevServer) {

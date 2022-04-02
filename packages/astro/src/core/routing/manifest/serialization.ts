@@ -1,6 +1,12 @@
 import type { RouteData, SerializedRouteData } from '../../../@types/astro';
 
-function createRouteData(pattern: RegExp, params: string[], component: string, pathname: string | undefined, type: 'page' | 'endpoint'): RouteData {
+function createRouteData(
+	pattern: RegExp,
+	params: string[],
+	component: string,
+	pathname: string | undefined,
+	type: 'page' | 'endpoint'
+): RouteData {
 	return {
 		type,
 		pattern,

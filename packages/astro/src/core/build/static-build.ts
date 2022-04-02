@@ -64,7 +64,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
-				...renderers.filter((renderer) => !!renderer.clientEntrypoint).map((renderer) => renderer.clientEntrypoint!),
+				...renderers
+					.filter((renderer) => !!renderer.clientEntrypoint)
+					.map((renderer) => renderer.clientEntrypoint!),
 			]);
 
 			// Add hoisted scripts
@@ -149,7 +151,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) && vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+			isBuildingToSSR(opts.astroConfig) &&
+				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
@@ -166,7 +169,11 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	return await vite.build(viteBuildConfig);
 }
 
-async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
+async function clientBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	input: Set<string>
+) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
 	const ssr = isBuildingToSSR(astroConfig);
@@ -260,7 +267,9 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const serverRoot = opts.buildConfig.staticMode ? opts.buildConfig.client : opts.buildConfig.server;
+	const serverRoot = opts.buildConfig.staticMode
+		? opts.buildConfig.client
+		: opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);
 	const clientAssets = new URL('./assets/', clientRoot);

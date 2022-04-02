@@ -3,7 +3,9 @@
 
 const NODE_VERSION = parseFloat(process.versions.node);
 if (NODE_VERSION < 13.9) {
-	throw new Error(`Package @lit-labs/ssr requires Node version v13.9 or higher. Please update Node to use @astrojs/renderer-lit`);
+	throw new Error(
+		`Package @lit-labs/ssr requires Node version v13.9 or higher. Please update Node to use @astrojs/renderer-lit`
+	);
 }
 
 export default {

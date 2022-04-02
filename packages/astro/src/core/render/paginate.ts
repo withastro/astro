@@ -1,7 +1,17 @@
-import { GetStaticPathsResult, Page, PaginateFunction, Params, Props, RouteData } from '../../@types/astro';
+import {
+	GetStaticPathsResult,
+	Page,
+	PaginateFunction,
+	Params,
+	Props,
+	RouteData,
+} from '../../@types/astro';
 
 export function generatePaginateFunction(routeMatch: RouteData): PaginateFunction {
-	return function paginateUtility(data: any[], args: { pageSize?: number; params?: Params; props?: Props } = {}) {
+	return function paginateUtility(
+		data: any[],
+		args: { pageSize?: number; params?: Params; props?: Props } = {}
+	) {
 		let { pageSize: _pageSize, params: _params, props: _props } = args;
 		const pageSize = _pageSize || 10;
 		const paramName = 'page';
@@ -41,8 +51,20 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
 						lastPage: lastPage,
 						url: {
 							current: routeMatch.generate({ ...params }),
-							next: pageNum === lastPage ? undefined : routeMatch.generate({ ...params, page: String(pageNum + 1) }),
-							prev: pageNum === 1 ? undefined : routeMatch.generate({ ...params, page: !includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1) }),
+							next:
+								pageNum === lastPage
+									? undefined
+									: routeMatch.generate({ ...params, page: String(pageNum + 1) }),
+							prev:
+								pageNum === 1
+									? undefined
+									: routeMatch.generate({
+											...params,
+											page:
+												!includesFirstPageNumber && pageNum - 1 === 1
+													? undefined
+													: String(pageNum - 1),
+									  }),
 						},
 					} as Page,
 				},

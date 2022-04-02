@@ -19,7 +19,9 @@ function renderToStaticMarkup(Component, props, children) {
 			children: children != null ? ssr(`<astro-fragment>${children}</astro-fragment>`) : children,
 		})
 	);
-	return { html: html + `<script>window._$HY||(_$HY={events:[],completed:new WeakSet,r:{}})</script>` };
+	return {
+		html: html + `<script>window._$HY||(_$HY={events:[],completed:new WeakSet,r:{}})</script>`,
+	};
 }
 
 export default {

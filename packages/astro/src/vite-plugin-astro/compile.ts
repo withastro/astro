@@ -34,7 +34,13 @@ function safelyReplaceImportPlaceholder(code: string) {
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
-async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
+async function compile(
+	config: AstroConfig,
+	filename: string,
+	source: string,
+	viteTransform: TransformHook,
+	opts: { ssr: boolean }
+): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
 	const pathname = filenameURL.pathname.substr(config.root.pathname.length - 1);
@@ -51,7 +57,9 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		site: config.site ? new URL(config.base, config.site).toString() : undefined,
 		sourcefile: filename,
 		sourcemap: 'both',
-		internalURL: `/@fs${prependForwardSlash(viteID(new URL('../runtime/server/index.js', import.meta.url)))}`,
+		internalURL: `/@fs${prependForwardSlash(
+			viteID(new URL('../runtime/server/index.js', import.meta.url))
+		)}`,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
@@ -59,16 +67,19 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 
 			try {
 				// In the static build, grab any @import as CSS dependencies for HMR.
-				value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
-					rawCSSDeps.add(spec);
-					// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
-					// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
-					if (lang === '.css') {
-						return createImportPlaceholder(spec);
-					} else {
-						return match;
+				value.replace(
+					/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi,
+					(match, spec) => {
+						rawCSSDeps.add(spec);
+						// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
+						// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
+						if (lang === '.css') {
+							return createImportPlaceholder(spec);
+						} else {
+							return match;
+						}
 					}
-				});
+				);
 
 				const result = await transformWithVite({
 					value,
@@ -120,7 +131,13 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
+export async function cachedCompilation(
+	config: AstroConfig,
+	filename: string,
+	source: string,
+	viteTransform: TransformHook,
+	opts: { ssr: boolean }
+): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();

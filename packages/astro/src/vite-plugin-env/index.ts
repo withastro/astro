@@ -12,9 +12,15 @@ interface EnvPluginOptions {
 function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig) {
 	let envPrefixes: string[] = ['PUBLIC_'];
 	if (viteConfig.envPrefix) {
-		envPrefixes = Array.isArray(viteConfig.envPrefix) ? viteConfig.envPrefix : [viteConfig.envPrefix];
+		envPrefixes = Array.isArray(viteConfig.envPrefix)
+			? viteConfig.envPrefix
+			: [viteConfig.envPrefix];
 	}
-	const fullEnv = loadEnv(viteConfig.mode, viteConfig.envDir ?? fileURLToPath(astroConfig.root), '');
+	const fullEnv = loadEnv(
+		viteConfig.mode,
+		viteConfig.envDir ?? fileURLToPath(astroConfig.root),
+		''
+	);
 	const privateKeys = Object.keys(fullEnv).filter((key) => {
 		// don't expose any variables also on `process.env`
 		// note: this filters out `CLI_ARGS=1` passed to node!
@@ -44,7 +50,9 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 	return references;
 }
 
-export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
+export default function envVitePlugin({
+	config: astroConfig,
+}: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any> | null;
 	let config: vite.ResolvedConfig;
 	let replacements: Record<string, string>;
@@ -69,7 +77,10 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
-					const entries = Object.entries(privateEnv).map(([key, value]) => [`import.meta.env.${key}`, value]);
+					const entries = Object.entries(privateEnv).map(([key, value]) => [
+						`import.meta.env.${key}`,
+						value,
+					]);
 					replacements = Object.fromEntries(entries);
 					// These additional replacements are needed to match Vite
 					replacements = Object.assign(replacements, {

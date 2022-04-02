@@ -37,7 +37,10 @@ export interface ShikiConfig {
  */
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
-const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig, scopedClassName?: string | null) => {
+const remarkShiki = async (
+	{ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig,
+	scopedClassName?: string | null
+) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighterAsync = highlighterCacheAsync.get(cacheID);
 	if (!highlighterAsync) {
@@ -63,15 +66,24 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 			// &lt;span class=&quot;line&quot;
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`);
+			html = html.replace(
+				'<pre class="shiki"',
+				`<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`
+			);
 			// Replace "shiki" css variable naming with "astro".
-			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
+			html = html.replace(
+				/style="(background-)?color: var\(--shiki-/g,
+				'style="$1color: var(--astro-code-'
+			);
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
 			} else if (wrap === true) {
-				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+				html = html.replace(
+					/style="(.*?)"/,
+					'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
+				);
 			}
 
 			// Apply scopedClassName to all nested lines

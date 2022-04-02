@@ -35,6 +35,9 @@ export function createModuleScriptElementWithSrc(src: string, site?: string): SS
 	};
 }
 
-export function createModuleScriptElementWithSrcSet(srces: string[], site?: string): Set<SSRElement> {
+export function createModuleScriptElementWithSrcSet(
+	srces: string[],
+	site?: string
+): Set<SSRElement> {
 	return new Set<SSRElement>(srces.map((src) => createModuleScriptElementWithSrc(src, site)));
 }

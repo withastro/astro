@@ -48,7 +48,10 @@ describe('astro cli', () => {
 		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
 		networkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture(flagValue ? [flag, flagValue] : [flag], cmd);
+				const { local, network } = await cliServerLogSetupWithFixture(
+					flagValue ? [flag, flagValue] : [flag],
+					cmd
+				);
 
 				expect(local).to.not.be.undefined;
 				expect(network).to.not.be.undefined;
@@ -56,11 +59,23 @@ describe('astro cli', () => {
 				const localURL = new URL(local);
 				const networkURL = new URL(network);
 
-				expect(localURL.hostname).to.be.equal(flagValue ?? 'localhost', `Expected local URL to be on localhost`);
+				expect(localURL.hostname).to.be.equal(
+					flagValue ?? 'localhost',
+					`Expected local URL to be on localhost`
+				);
 				// Note: our tests run in parallel so this could be 3000+!
-				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
-				expect(networkURL.port).to.be.equal(localURL.port, `Expected local and network ports to be equal`);
-				expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
+				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(
+					3000,
+					`Expected Port to be >= 3000`
+				);
+				expect(networkURL.port).to.be.equal(
+					localURL.port,
+					`Expected local and network ports to be equal`
+				);
+				expect(isIPv4(networkURL.hostname)).to.be.equal(
+					true,
+					`Expected network URL to respect --host flag`
+				);
 			});
 		});
 

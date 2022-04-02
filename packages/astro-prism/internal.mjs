@@ -8,7 +8,9 @@ export function addAstro(Prism) {
 		scriptLang = 'typescript';
 	} else {
 		scriptLang = 'javascript';
-		console.warn('Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.');
+		console.warn(
+			'Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.'
+		);
 	}
 
 	let script = Prism.util.clone(Prism.languages[scriptLang]);
@@ -38,10 +40,14 @@ export function addAstro(Prism) {
 	spread = re(spread).source;
 
 	Prism.languages.astro = Prism.languages.extend('markup', script);
-	Prism.languages.astro.tag.pattern = re(/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/.source);
+	Prism.languages.astro.tag.pattern = re(
+		/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/
+			.source
+	);
 
 	Prism.languages.astro.tag.inside['tag'].pattern = /^<\/?[^\s>\/]*/i;
-	Prism.languages.astro.tag.inside['attr-value'].pattern = /=(?!\{)(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s'">]+)/i;
+	Prism.languages.astro.tag.inside['attr-value'].pattern =
+		/=(?!\{)(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s'">]+)/i;
 	Prism.languages.astro.tag.inside['tag'].inside['class-name'] = /^[A-Z]\w*(?:\.[A-Z]\w*)*$/;
 	Prism.languages.astro.tag.inside['comment'] = script['comment'];
 
@@ -109,7 +115,11 @@ export function addAstro(Prism) {
 
 					if (token.content[0].content[0].content === '</') {
 						// Closing tag
-						if (openedTags.length > 0 && openedTags[openedTags.length - 1].tagName === stringifyToken(token.content[0].content[1])) {
+						if (
+							openedTags.length > 0 &&
+							openedTags[openedTags.length - 1].tagName ===
+								stringifyToken(token.content[0].content[1])
+						) {
 							// Pop matching opening tag
 							openedTags.pop();
 						}
@@ -127,7 +137,12 @@ export function addAstro(Prism) {
 				} else if (openedTags.length > 0 && token.type === 'punctuation' && token.content === '{') {
 					// Here we might have entered a Astro context inside a tag
 					openedTags[openedTags.length - 1].openedBraces++;
-				} else if (openedTags.length > 0 && openedTags[openedTags.length - 1].openedBraces > 0 && token.type === 'punctuation' && token.content === '}') {
+				} else if (
+					openedTags.length > 0 &&
+					openedTags[openedTags.length - 1].openedBraces > 0 &&
+					token.type === 'punctuation' &&
+					token.content === '}'
+				) {
 					// Here we might have left a Astro context inside a tag
 					openedTags[openedTags.length - 1].openedBraces--;
 				} else {
@@ -141,7 +156,10 @@ export function addAstro(Prism) {
 					let plainText = stringifyToken(token);
 
 					// And merge text with adjacent text
-					if (i < tokens.length - 1 && (typeof tokens[i + 1] === 'string' || tokens[i + 1].type === 'plain-text')) {
+					if (
+						i < tokens.length - 1 &&
+						(typeof tokens[i + 1] === 'string' || tokens[i + 1].type === 'plain-text')
+					) {
 						plainText += stringifyToken(tokens[i + 1]);
 						tokens.splice(i + 1, 1);
 					}

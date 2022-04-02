@@ -124,7 +124,9 @@ export const AstroConfigSchema = z.object({
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
 		// validate
-		z.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) })).default([])
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default([])
 	),
 	style: z
 		.object({
@@ -168,7 +170,11 @@ export const AstroConfigSchema = z.object({
 });
 
 /** Turn raw config values into normalized values */
-export async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
+export async function validateConfig(
+	userConfig: any,
+	root: string,
+	cmd: string
+): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
@@ -176,8 +182,12 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 		console.error('Astro "renderers" are now "integrations"!');
 		console.error('Update your configuration and install new dependencies:');
 		try {
-			const rendererKeywords = userConfig.renderers.map((r: string) => r.replace('@astrojs/renderer-', ''));
-			const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r === 'solid' ? 'solid-js' : r}';`).join('\n');
+			const rendererKeywords = userConfig.renderers.map((r: string) =>
+				r.replace('@astrojs/renderer-', '')
+			);
+			const rendererImports = rendererKeywords
+				.map((r: string) => `  import ${r} from '@astrojs/${r === 'solid' ? 'solid-js' : r}';`)
+				.join('\n');
 			const rendererIntegrations = rendererKeywords.map((r: string) => `    ${r}(),`).join('\n');
 			console.error('');
 			console.error(colors.dim('  // astro.config.js'));
@@ -208,7 +218,9 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 		}
 	}
 	if (oldConfig) {
-		throw new Error(`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`);
+		throw new Error(
+			`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`
+		);
 	}
 	/* eslint-enable no-console */
 
@@ -233,7 +245,8 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		server: z.preprocess(
 			// preprocess
-			(val) => (typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val),
+			(val) =>
+				typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val,
 			// validate
 			z
 				.object({
@@ -265,7 +278,10 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
 	// Final-Pass Validation (perform checks that require the full config object)
-	if (!result.experimental?.integrations && !result.integrations.every((int) => int.name.startsWith('@astrojs/'))) {
+	if (
+		!result.experimental?.integrations &&
+		!result.integrations.every((int) => int.name.startsWith('@astrojs/'))
+	) {
 		throw new Error(
 			[
 				`Astro integrations are still experimental.`,
@@ -288,9 +304,11 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
-		host: typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
+		host:
+			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
-		experimentalIntegrations: typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
+		experimentalIntegrations:
+			typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -301,15 +319,21 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	astroConfig.experimental = astroConfig.experimental || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.experimentalSsr === 'boolean') astroConfig.experimental.ssr = flags.experimentalSsr;
-	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimental.integrations = flags.experimentalIntegrations;
+	if (typeof flags.experimentalSsr === 'boolean')
+		astroConfig.experimental.ssr = flags.experimentalSsr;
+	if (typeof flags.experimentalIntegrations === 'boolean')
+		astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
-	// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-	// TODO: Come back here and refactor to remove this expected error.
-	if (typeof flags.port === 'number') astroConfig.server.port = flags.port;
-	// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-	// TODO: Come back here and refactor to remove this expected error.
-	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.server.host = flags.host;
+	if (typeof flags.port === 'number') {
+		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+		// TODO: Come back here and refactor to remove this expected error.
+		astroConfig.server.port = flags.port;
+	}
+	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') {
+		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+		// TODO: Come back here and refactor to remove this expected error.
+		astroConfig.server.host = flags.host;
+	}
 	return astroConfig;
 }
 
@@ -325,7 +349,9 @@ interface LoadConfigOptions {
  * Note: currently the same as loadConfig but only returns the `filePath`
  * instead of the resolved config
  */
-export async function resolveConfigURL(configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>): Promise<URL | undefined> {
+export async function resolveConfigURL(
+	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>
+): Promise<URL | undefined> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
@@ -363,14 +389,23 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
-export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}, cmd: string): Promise<AstroConfig> {
+export async function resolveConfig(
+	userConfig: AstroUserConfig,
+	root: string,
+	flags: CLIFlags = {},
+	cmd: string
+): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
 	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
 
 	return validatedConfig;
 }
 
-function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {
+function mergeConfigRecursively(
+	defaults: Record<string, any>,
+	overrides: Record<string, any>,
+	rootPath: string
+) {
 	const merged: Record<string, any> = { ...defaults };
 	for (const key in overrides) {
 		const value = overrides[key];
@@ -405,6 +440,10 @@ function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record
 	return merged;
 }
 
-export function mergeConfig(defaults: Record<string, any>, overrides: Record<string, any>, isRoot = true): Record<string, any> {
+export function mergeConfig(
+	defaults: Record<string, any>,
+	overrides: Record<string, any>,
+	isRoot = true
+): Record<string, any> {
 	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
 }

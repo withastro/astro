@@ -58,12 +58,21 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 
 					// throw an error if an invalid hydration directive was provided
 					if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
-						throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map((d) => `"client:${d}"`).join(', ')}`);
+						throw new Error(
+							`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map(
+								(d) => `"client:${d}"`
+							).join(', ')}`
+						);
 					}
 
 					// throw an error if the query wasn't provided for client:media
-					if (extracted.hydration.directive === 'media' && typeof extracted.hydration.value !== 'string') {
-						throw new Error('Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"');
+					if (
+						extracted.hydration.directive === 'media' &&
+						typeof extracted.hydration.value !== 'string'
+					) {
+						throw new Error(
+							'Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"'
+						);
 					}
 
 					break;
@@ -88,20 +97,27 @@ interface HydrateScriptOptions {
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
-export async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>): Promise<SSRElement> {
+export async function generateHydrateScript(
+	scriptOptions: HydrateScriptOptions,
+	metadata: Required<AstroComponentMetadata>
+): Promise<SSRElement> {
 	const { renderer, result, astroId, props } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
 	if (!componentExport) {
-		throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`);
+		throw new Error(
+			`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`
+		);
 	}
 
 	let hydrationSource = ``;
 
 	hydrationSource += renderer.clientEntrypoint
-		? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(componentUrl)}"), import("${await result.resolve(
-				renderer.clientEntrypoint
-		  )}")]);
+		? `const [{ ${
+				componentExport.value
+		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
+				componentUrl
+		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
 		: `await import("${await result.resolve(componentUrl)}");
@@ -113,7 +129,9 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 		props: { type: 'module', 'data-astro-component-hydration': true },
 		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
 ${`import '${await result.resolve('astro:scripts/before-hydration.js')}';`}
-setup("${astroId}", {name:"${metadata.displayName}",${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
+setup("${astroId}", {name:"${metadata.displayName}",${
+			metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''
+		}}, async () => {
   ${hydrationSource}
 });
 `,

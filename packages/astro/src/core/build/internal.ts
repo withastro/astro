@@ -76,13 +76,22 @@ export function createBuildInternals(): BuildInternals {
 	};
 }
 
-export function trackPageData(internals: BuildInternals, component: string, pageData: PageBuildData, componentModuleId: string, componentURL: URL): void {
+export function trackPageData(
+	internals: BuildInternals,
+	component: string,
+	pageData: PageBuildData,
+	componentModuleId: string,
+	componentURL: URL
+): void {
 	pageData.moduleSpecifier = componentModuleId;
 	internals.pagesByComponent.set(component, pageData);
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
-export function* getPageDatasByChunk(internals: BuildInternals, chunk: RenderedChunk): Generator<PageBuildData, void, unknown> {
+export function* getPageDatasByChunk(
+	internals: BuildInternals,
+	chunk: RenderedChunk
+): Generator<PageBuildData, void, unknown> {
 	const pagesByViteID = internals.pagesByViteID;
 	for (const [modulePath] of Object.entries(chunk.modules)) {
 		if (pagesByViteID.has(modulePath)) {
@@ -91,14 +100,20 @@ export function* getPageDatasByChunk(internals: BuildInternals, chunk: RenderedC
 	}
 }
 
-export function getPageDataByComponent(internals: BuildInternals, component: string): PageBuildData | undefined {
+export function getPageDataByComponent(
+	internals: BuildInternals,
+	component: string
+): PageBuildData | undefined {
 	if (internals.pagesByComponent.has(component)) {
 		return internals.pagesByComponent.get(component);
 	}
 	return undefined;
 }
 
-export function getPageDataByViteID(internals: BuildInternals, viteid: ViteID): PageBuildData | undefined {
+export function getPageDataByViteID(
+	internals: BuildInternals,
+	viteid: ViteID
+): PageBuildData | undefined {
 	if (internals.pagesByViteID.has(viteid)) {
 		return internals.pagesByViteID.get(viteid);
 	}

@@ -67,14 +67,22 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 				const userConfig = await getUserConfig(config.root, customConfigPath);
 
 				if (customConfigPath && !userConfig?.value) {
-					throw new Error(`Could not find a Tailwind config at ${JSON.stringify(customConfigPath)}. Does the file exist?`);
+					throw new Error(
+						`Could not find a Tailwind config at ${JSON.stringify(
+							customConfigPath
+						)}. Does the file exist?`
+					);
 				}
 
-				const tailwindConfig: TailwindConfig = (userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
+				const tailwindConfig: TailwindConfig =
+					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 				if (applyAstroConfigPreset && userConfig?.value) {
 					// apply Astro config as a preset to user config
 					// this avoids merging or applying nested spread operators ourselves
-					tailwindConfig.presets = [getDefaultTailwindConfig(config.srcDir), ...(tailwindConfig.presets || [])];
+					tailwindConfig.presets = [
+						getDefaultTailwindConfig(config.srcDir),
+						...(tailwindConfig.presets || []),
+					];
 				}
 
 				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));

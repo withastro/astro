@@ -38,7 +38,10 @@ function generateSitemap(pages: string[]) {
 	return sitemap;
 }
 
-export default function createPlugin({ filter, canonicalURL }: SitemapOptions = {}): AstroIntegration {
+export default function createPlugin({
+	filter,
+	canonicalURL,
+}: SitemapOptions = {}): AstroIntegration {
 	let config: AstroConfig;
 	return {
 		name: '@astrojs/sitemap',
@@ -49,7 +52,9 @@ export default function createPlugin({ filter, canonicalURL }: SitemapOptions = 
 			'astro:build:done': async ({ pages, dir }) => {
 				const finalSiteUrl = canonicalURL || config.site;
 				if (!finalSiteUrl) {
-					console.warn('The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.');
+					console.warn(
+						'The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.'
+					);
 					return;
 				}
 				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);

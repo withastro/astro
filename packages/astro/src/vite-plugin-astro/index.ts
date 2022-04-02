@@ -105,10 +105,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
+					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
+						ssr: Boolean(opts?.ssr),
+					});
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
-					await trackCSSDependencies.call(this, { viteDevServer, id, filename, deps: transformResult.rawCSSDeps });
+					await trackCSSDependencies.call(this, {
+						viteDevServer,
+						id,
+						filename,
+						deps: transformResult.rawCSSDeps,
+					});
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
@@ -120,7 +127,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
+					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
+						ssr: Boolean(opts?.ssr),
+					});
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
@@ -139,13 +148,18 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 
 					return {
-						code: hoistedScript.type === 'inline' ? hoistedScript.code! : `import "${hoistedScript.src!}";`,
+						code:
+							hoistedScript.type === 'inline'
+								? hoistedScript.code!
+								: `import "${hoistedScript.src!}";`,
 					};
 				}
 			}
 
 			try {
-				const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
+				const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
+					ssr: Boolean(opts?.ssr),
+				});
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
@@ -182,12 +196,19 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
 				if (scannedFrontmatter) {
 					try {
-						await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
+						await esbuild.transform(scannedFrontmatter[1], {
+							loader: 'ts',
+							sourcemap: false,
+							sourcefile: id,
+						});
 					} catch (frontmatterErr: any) {
 						// Improve the error by replacing the phrase "unexpected end of file"
 						// with "unexpected end of frontmatter" in the esbuild error message.
 						if (frontmatterErr && frontmatterErr.message) {
-							frontmatterErr.message = frontmatterErr.message.replace('end of file', 'end of frontmatter');
+							frontmatterErr.message = frontmatterErr.message.replace(
+								'end of file',
+								'end of frontmatter'
+							);
 						}
 						throw frontmatterErr;
 					}

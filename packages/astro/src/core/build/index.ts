@@ -7,13 +7,25 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import { debug, info, levels, timerMessage, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import {
+	debug,
+	info,
+	levels,
+	timerMessage,
+	warn,
+	warnIfUsingExperimentalSSR,
+} from '../logger/core.js';
 import { nodeLogOptions } from '../logger/node.js';
 import { createRouteManifest } from '../routing/index.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
-import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
+import {
+	runHookBuildDone,
+	runHookBuildStart,
+	runHookConfigDone,
+	runHookConfigSetup,
+} from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
 import { createSafeError, isBuildingToSSR } from '../util.js';
 import { fixViteErrorMessage } from '../errors.js';
@@ -24,7 +36,10 @@ export interface BuildOptions {
 }
 
 /** `astro build` */
-export default async function build(config: AstroConfig, options: BuildOptions = { logging: nodeLogOptions }): Promise<void> {
+export default async function build(
+	config: AstroConfig,
+	options: BuildOptions = { logging: nodeLogOptions }
+): Promise<void> {
 	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
 	await builder.run();
@@ -46,7 +61,9 @@ class AstroBuilder {
 		this.config = config;
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
-		this.origin = config.site ? new URL(config.site).origin : `http://localhost:${config.server.port}`;
+		this.origin = config.site
+			? new URL(config.site).origin
+			: `http://localhost:${config.server.port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
 		this.timer = {};
 	}
@@ -76,7 +93,13 @@ class AstroBuilder {
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
-	private async build({ viteConfig, viteServer }: { viteConfig: ViteConfigWithSSR; viteServer: vite.ViteDevServer }) {
+	private async build({
+		viteConfig,
+		viteServer,
+	}: {
+		viteConfig: ViteConfigWithSSR;
+		viteServer: vite.ViteDevServer;
+	}) {
 		const { origin } = this;
 		const buildConfig: BuildConfig = {
 			client: new URL('./client/', this.config.outDir),
@@ -118,7 +141,11 @@ class AstroBuilder {
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		this.timer.buildStart = performance.now();
-		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`));
+		info(
+			this.logging,
+			'build',
+			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
+		);
 
 		await staticBuild({
 			allPages,
@@ -145,11 +172,20 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await viteServer.close();
-		await runHookBuildDone({ config: this.config, pages: pageNames, routes: Object.values(allPages).map((pd) => pd.route) });
+		await runHookBuildDone({
+			config: this.config,
+			pages: pageNames,
+			routes: Object.values(allPages).map((pd) => pd.route),
+		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
 			const buildMode = isBuildingToSSR(this.config) ? 'ssr' : 'static';
-			await this.printStats({ logging: this.logging, timeStart: this.timer.init, pageCount: pageNames.length, buildMode });
+			await this.printStats({
+				logging: this.logging,
+				timeStart: this.timer.init,
+				pageCount: pageNames.length,
+				buildMode,
+			});
 		}
 	}
 
@@ -165,7 +201,17 @@ class AstroBuilder {
 	}
 
 	/** Stats */
-	private async printStats({ logging, timeStart, pageCount, buildMode }: { logging: LogOptions; timeStart: number; pageCount: number; buildMode: 'static' | 'ssr' }) {
+	private async printStats({
+		logging,
+		timeStart,
+		pageCount,
+		buildMode,
+	}: {
+		logging: LogOptions;
+		timeStart: number;
+		pageCount: number;
+		buildMode: 'static' | 'ssr';
+	}) {
 		const buildTime = performance.now() - timeStart;
 		const total = getTimeStat(timeStart, performance.now());
 

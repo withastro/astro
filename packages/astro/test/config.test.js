@@ -31,10 +31,17 @@ describe('config', () => {
 
 		it('can be specified via --host flag', async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-			const { network } = await cliServerLogSetup(['--root', fileURLToPath(projectRootURL), '--host']);
+			const { network } = await cliServerLogSetup([
+				'--root',
+				fileURLToPath(projectRootURL),
+				'--host',
+			]);
 
 			const networkURL = new URL(network);
-			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(
+				true,
+				`Expected network URL to respect --host flag`
+			);
 		});
 	});
 
@@ -42,10 +49,18 @@ describe('config', () => {
 		it('can be passed via --config', async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			const configFileURL = new URL('./fixtures/config-path/config/my-config.mjs', import.meta.url);
-			const { network } = await cliServerLogSetup(['--root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname]);
+			const { network } = await cliServerLogSetup([
+				'--root',
+				fileURLToPath(projectRootURL),
+				'--config',
+				configFileURL.pathname,
+			]);
 
 			const networkURL = new URL(network);
-			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(
+				true,
+				`Expected network URL to respect --host flag`
+			);
 		});
 	});
 

@@ -15,7 +15,11 @@ export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 
-export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
+export function vitePluginSSR(
+	buildOpts: StaticBuildOptions,
+	internals: BuildInternals,
+	adapter: AstroAdapter
+): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
@@ -91,7 +95,8 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules[BEFORE_HYDRATION_SCRIPT_ID] = 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
+		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 
 	const ssrManifest: SerializedSSRManifest = {
 		routes,

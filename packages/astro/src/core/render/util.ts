@@ -19,7 +19,16 @@ export function isValidURL(url: string): boolean {
 }
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
-export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
+export const STYLE_EXTENSIONS = new Set([
+	'.css',
+	'.pcss',
+	'.postcss',
+	'.scss',
+	'.sass',
+	'.styl',
+	'.stylus',
+	'.less',
+]);
 
 const cssRe = new RegExp(
 	`\\.(${Array.from(STYLE_EXTENSIONS)

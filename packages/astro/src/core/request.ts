@@ -13,8 +13,17 @@ export interface CreateRequestOptions {
 	logging: LogOptions;
 }
 
-export function createRequest({ url, headers, method = 'GET', body = undefined, logging }: CreateRequestOptions): Request {
-	let headersObj = headers instanceof Headers ? headers : new Headers(Object.entries(headers as Record<string, any>));
+export function createRequest({
+	url,
+	headers,
+	method = 'GET',
+	body = undefined,
+	logging,
+}: CreateRequestOptions): Request {
+	let headersObj =
+		headers instanceof Headers
+			? headers
+			: new Headers(Object.entries(headers as Record<string, any>));
 
 	const request = new Request(url.toString(), {
 		method: method,
@@ -25,7 +34,11 @@ export function createRequest({ url, headers, method = 'GET', body = undefined, 
 	Object.defineProperties(request, {
 		canonicalURL: {
 			get() {
-				warn(logging, 'deprecation', `Astro.request.canonicalURL has been moved to Astro.canonicalURL`);
+				warn(
+					logging,
+					'deprecation',
+					`Astro.request.canonicalURL has been moved to Astro.canonicalURL`
+				);
 				return undefined;
 			},
 		},

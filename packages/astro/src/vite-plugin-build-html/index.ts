@@ -1,4 +1,12 @@
-import { createElement, createScript, getAttribute, hasAttribute, insertBefore, remove, setAttribute } from '@web/parse5-utils';
+import {
+	createElement,
+	createScript,
+	getAttribute,
+	hasAttribute,
+	insertBefore,
+	remove,
+	setAttribute,
+} from '@web/parse5-utils';
 import { promises as fs } from 'fs';
 import parse5 from 'parse5';
 import * as npath from 'path';
@@ -15,8 +23,21 @@ import { RouteCache } from '../core/render/route-cache.js';
 import { getOutputFilename } from '../core/util.js';
 import { getAstroPageStyleId, getAstroStyleId } from '../vite-plugin-build-css/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getAttributes, getTextContent } from './extract-assets.js';
-import { hasSrcSet, isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory } from './util.js';
+import {
+	findAssets,
+	findExternalScripts,
+	findInlineScripts,
+	findInlineStyles,
+	getAttributes,
+	getTextContent,
+} from './extract-assets.js';
+import {
+	hasSrcSet,
+	isBuildableImage,
+	isBuildableLink,
+	isHoistedScript,
+	isInSrcDirectory,
+} from './util.js';
 import { createRequest } from '../core/request.js';
 
 // This package isn't real ESM, so have to coerce it
@@ -45,7 +66,8 @@ function relativePath(from: string, to: string): string {
 }
 
 export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
-	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } =
+		options;
 
 	// The filepath root of the src folder
 	const srcRoot = astroConfig.srcDir.pathname;
@@ -322,7 +344,12 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 
 			// Keep track of links added so we don't do so twice.
 			const linkChunksAdded = new Set<string>();
-			const appendStyleChunksBefore = (ref: parse5.Element, pathname: string, referenceIds: string[] | undefined, attrs: Record<string, any> = {}) => {
+			const appendStyleChunksBefore = (
+				ref: parse5.Element,
+				pathname: string,
+				referenceIds: string[] | undefined,
+				attrs: Record<string, any> = {}
+			) => {
 				let added = false;
 				if (referenceIds) {
 					const lastNode = ref;
@@ -433,7 +460,12 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 								if (!pageCSSAdded) {
 									const attrs = getAttributes(node);
 									delete attrs['data-astro-injected'];
-									pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+									pageCSSAdded = appendStyleChunksBefore(
+										node,
+										pathname,
+										cssChunkMap.get(styleId),
+										attrs
+									);
 								}
 								remove(node);
 								break;
