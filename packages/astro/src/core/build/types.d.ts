@@ -1,5 +1,12 @@
 import type { ComponentPreload } from '../render/dev/index';
-import type { AstroConfig, BuildConfig, ManifestData, RouteData, ComponentInstance, SSRLoadedRenderer } from '../../@types/astro';
+import type {
+	AstroConfig,
+	BuildConfig,
+	ManifestData,
+	RouteData,
+	ComponentInstance,
+	SSRLoadedRenderer,
+} from '../../@types/astro';
 import type { ViteConfigWithSSR } from '../../create-vite';
 import type { LogOptions } from '../../logger';
 import type { RouteCache } from '../../render/route-cache.js';

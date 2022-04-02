@@ -79,7 +79,8 @@ function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['trailingS
 		})
 		.join('');
 
-	const trailing = addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
+	const trailing =
+		addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
 	return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
 
@@ -155,7 +156,10 @@ function comparator(a: Item, b: Item) {
 		}
 
 		if (!aSubPart.dynamic && aSubPart.content !== bSubPart.content) {
-			return bSubPart.content.length - aSubPart.content.length || (aSubPart.content < bSubPart.content ? -1 : 1);
+			return (
+				bSubPart.content.length - aSubPart.content.length ||
+				(aSubPart.content < bSubPart.content ? -1 : 1)
+			);
 		}
 	}
 
@@ -168,7 +172,10 @@ function comparator(a: Item, b: Item) {
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
+export function createRouteManifest(
+	{ config, cwd }: { config: AstroConfig; cwd?: string },
+	logging: LogOptions
+): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
 	const validPageExtensions: Set<string> = new Set(['.astro', '.md']);
@@ -196,7 +203,9 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			}
 			const segment = isDir ? basename : name;
 			if (/^\$/.test(segment)) {
-				throw new Error(`Invalid route ${file} — Astro's Collections API has been replaced by dynamic route params.`);
+				throw new Error(
+					`Invalid route ${file} — Astro's Collections API has been replaced by dynamic route params.`
+				);
 			}
 			if (/\]\[/.test(segment)) {
 				throw new Error(`Invalid route ${file} — parameters must be separated`);
@@ -269,7 +278,9 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 				const trailingSlash = item.isPage ? config.trailingSlash : 'never';
 				const pattern = getPattern(segments, trailingSlash);
 				const generate = getGenerator(segments, trailingSlash);
-				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
+				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
+					? `/${segments.map((segment) => segment[0].content).join('/')}`
+					: null;
 
 				routes.push({
 					type: item.isPage ? 'page' : 'endpoint',

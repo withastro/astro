@@ -5,7 +5,16 @@ import { readFile } from 'node:fs/promises';
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
-const descriptors = ['new releases', 'hot and fresh updates', 'shiny updates', 'exciting changes', 'package updates', 'awesome updates', 'bug fixes and features', 'updates'];
+const descriptors = [
+	'new releases',
+	'hot and fresh updates',
+	'shiny updates',
+	'exciting changes',
+	'package updates',
+	'awesome updates',
+	'bug fixes and features',
+	'updates',
+];
 const verbs = [
 	'just went out!',
 	'just launched!',
@@ -47,7 +56,9 @@ const plurals = new Map([
 ]);
 
 function pluralize(text) {
-	return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => (plurals.has(match) ? plurals.get(match) : `${match}s`));
+	return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) =>
+		plurals.has(match) ? plurals.get(match) : `${match}s`
+	);
 }
 
 function singularlize(text) {
@@ -57,7 +68,9 @@ function singularlize(text) {
 const packageMap = new Map();
 async function generatePackageMap() {
 	const packageRoot = new URL('../../packages/', import.meta.url);
-	const packages = await glob(['*/package.json', '*/*/package.json'], { cwd: fileURLToPath(packageRoot) });
+	const packages = await glob(['*/package.json', '*/*/package.json'], {
+		cwd: fileURLToPath(packageRoot),
+	});
 	await Promise.all(
 		packages.map(async (pkg) => {
 			const pkgFile = fileURLToPath(new URL(pkg, packageRoot));
@@ -77,7 +90,11 @@ async function run() {
 			if (!p) {
 				throw new Error(`Unable to find entrypoint for "${name}"!`);
 			}
-			return { name, version, url: new URL(`${p}/CHANGELOG.md#${version.replace(/\./g, '')}`, baseUrl).toString() };
+			return {
+				name,
+				version,
+				url: new URL(`${p}/CHANGELOG.md#${version.replace(/\./g, '')}`, baseUrl).toString(),
+			};
 		})
 	);
 
@@ -87,7 +104,9 @@ async function run() {
 
 	if (packages.length === 1) {
 		const { name, version, url } = packages[0];
-		console.log(`${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)`);
+		console.log(
+			`${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)`
+		);
 	} else {
 		console.log(`${emoji} Some ${descriptor} ${pluralize(verb)}\n`);
 		for (const { name, version, url } of packages) {

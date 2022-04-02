@@ -43,7 +43,10 @@ interface CreateViteOptions {
 }
 
 /** Return a common starting point for all Vite actions */
-export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig, logging, mode }: CreateViteOptions): Promise<ViteConfigWithSSR> {
+export async function createVite(
+	commandConfig: ViteConfigWithSSR,
+	{ astroConfig, logging, mode }: CreateViteOptions
+): Promise<ViteConfigWithSSR> {
 	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
@@ -72,7 +75,10 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 		envPrefix: 'PUBLIC_',
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
-			hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test
+			hmr:
+				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
+					? false
+					: undefined, // disable HMR for test
 			// handle Vite URLs
 			proxy: {
 				// add proxies here
@@ -127,7 +133,11 @@ async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
 		const depPkgPath = fileURLToPath(depPkgUrl);
 		if (!fs.existsSync(depPkgPath)) return false;
 
-		const { dependencies = {}, peerDependencies = {}, keywords = [] } = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
+		const {
+			dependencies = {},
+			peerDependencies = {},
+			keywords = [],
+		} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
 		// Attempt: package relies on `astro`. ✅ Definitely an Astro package
 		if (peerDependencies.astro || dependencies.astro) return true;
 		// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
@@ -181,7 +191,10 @@ function isCommonNotAstro(dep: string): boolean {
 	return (
 		COMMON_DEPENDENCIES_NOT_ASTRO.includes(dep) ||
 		COMMON_PREFIXES_NOT_ASTRO.some(
-			(prefix) => (prefix.startsWith('@') ? dep.startsWith(prefix) : dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix)) // check prefix omitting @scope/
+			(prefix) =>
+				prefix.startsWith('@')
+					? dep.startsWith(prefix)
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
 		)
 	);
 }

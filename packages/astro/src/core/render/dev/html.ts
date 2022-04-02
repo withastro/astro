@@ -98,7 +98,10 @@ function serializeTag({ tag, attrs, children }: vite.HtmlTagDescriptor, indent =
 	if (unaryTags.has(tag)) {
 		return `<${tag}${serializeAttrs(attrs)}>`;
 	} else {
-		return `<${tag}${serializeAttrs(attrs)}>${serializeTags(children, incrementIndent(indent))}</${tag}>`;
+		return `<${tag}${serializeAttrs(attrs)}>${serializeTags(
+			children,
+			incrementIndent(indent)
+		)}</${tag}>`;
 	}
 }
 

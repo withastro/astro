@@ -82,9 +82,13 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.startsWith(VIRTUAL_MODULE_ID)) {
-				const sitePathname = config.site ? appendForwardSlash(new URL(config.base, config.site).pathname) : '/';
+				const sitePathname = config.site
+					? appendForwardSlash(new URL(config.base, config.site).pathname)
+					: '/';
 				const fileId = id.substring(VIRTUAL_MODULE_ID.length);
-				const fileUrl = fileId.includes('/pages/') ? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined;
+				const fileUrl = fileId.includes('/pages/')
+					? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
+					: undefined;
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
 				return {
@@ -160,7 +164,11 @@ export const frontmatter = ${JSON.stringify(content)};
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
-				const { code } = await esbuild.transform(tsResult, { loader: 'ts', sourcemap: false, sourcefile: id });
+				const { code } = await esbuild.transform(tsResult, {
+					loader: 'ts',
+					sourcemap: false,
+					sourcefile: id,
+				});
 				return {
 					code,
 					map: null,

@@ -5,7 +5,9 @@ import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 // inject these as ESM imports into actual code, where they would not
 // resolve correctly.
 const SCRIPT_ID_PREFIX = `astro:scripts/`;
-export const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'before-hydration' as InjectedScriptStage}.js`;
+export const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${
+	'before-hydration' as InjectedScriptStage
+}.js`;
 export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStage}.js`;
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
@@ -45,7 +47,9 @@ export default function astroScriptsPlugin({ config }: { config: AstroConfig }):
 			// for the frontend AND some hydrated components exist in
 			// the final build. We can detect this by looking for a
 			// `astro/client/*` input, which signifies both conditions are met.
-			const hasHydratedComponents = Array.isArray(options.input) && options.input.some((input) => input.startsWith('astro/client'));
+			const hasHydratedComponents =
+				Array.isArray(options.input) &&
+				options.input.some((input) => input.startsWith('astro/client'));
 			const hasHydrationScripts = config._ctx.scripts.some((s) => s.stage === 'before-hydration');
 			if (hasHydratedComponents && hasHydrationScripts) {
 				this.emitFile({

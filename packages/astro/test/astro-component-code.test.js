@@ -14,7 +14,10 @@ describe('<Code>', () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);
 		expect($('pre')).to.have.lengthOf(1);
-		expect($('pre').attr('style')).to.equal('background-color: #0d1117; overflow-x: auto;', 'applies default and overflow');
+		expect($('pre').attr('style')).to.equal(
+			'background-color: #0d1117; overflow-x: auto;',
+			'applies default and overflow'
+		);
 		expect($('pre > code')).to.have.lengthOf(1);
 
 		// test: contains some generated spans
@@ -36,7 +39,10 @@ describe('<Code>', () => {
 		const $ = cheerio.load(html);
 		expect($('pre')).to.have.lengthOf(1);
 		expect($('pre').attr('class')).to.equal('astro-code');
-		expect($('pre').attr('style')).to.equal('background-color: #2e3440ff; overflow-x: auto;', 'applies custom theme');
+		expect($('pre').attr('style')).to.equal(
+			'background-color: #2e3440ff; overflow-x: auto;',
+			'applies custom theme'
+		);
 	});
 
 	it('<Code wrap>', async () => {
@@ -45,7 +51,9 @@ describe('<Code>', () => {
 			const $ = cheerio.load(html);
 			expect($('pre')).to.have.lengthOf(1);
 			// test: applies wrap overflow
-			expect($('pre').attr('style')).to.equal('background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;');
+			expect($('pre').attr('style')).to.equal(
+				'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;'
+			);
 		}
 		{
 			let html = await fixture.readFile('/wrap-false/index.html');

@@ -33,7 +33,11 @@ const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({ headers = []
 				{headers
 					.filter(({ depth }) => depth > 1 && depth < 4)
 					.map((header) => (
-						<li class={`header-link depth-${header.depth} ${activeId === header.slug ? 'active' : ''}`.trim()}>
+						<li
+							class={`header-link depth-${header.depth} ${
+								activeId === header.slug ? 'active' : ''
+							}`.trim()}
+						>
 							<a href={`#${header.slug}`}>{header.text}</a>
 						</li>
 					))}

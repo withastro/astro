@@ -2,7 +2,20 @@
  * Dev server messages (organized here to prevent clutter)
  */
 
-import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black, bgRed, bgWhite } from 'kleur/colors';
+import {
+	bold,
+	dim,
+	red,
+	green,
+	underline,
+	yellow,
+	bgYellow,
+	cyan,
+	bgGreen,
+	black,
+	bgRed,
+	bgWhite,
+} from 'kleur/colors';
 import os from 'os';
 import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../@types/astro';
@@ -13,13 +26,23 @@ import { emoji, getLocalAddress, padMultilineString } from './util.js';
 const PREFIX_PADDING = 6;
 
 /** Display  */
-export function req({ url, statusCode, reqTime }: { url: string; statusCode: number; reqTime?: number }): string {
+export function req({
+	url,
+	statusCode,
+	reqTime,
+}: {
+	url: string;
+	statusCode: number;
+	reqTime?: number;
+}): string {
 	let color = dim;
 	if (statusCode >= 500) color = red;
 	else if (statusCode >= 400) color = yellow;
 	else if (statusCode >= 300) color = dim;
 	else if (statusCode >= 200) color = green;
-	return `${bold(color(`${statusCode}`.padStart(PREFIX_PADDING)))} ${url.padStart(40)} ${reqTime ? dim(Math.round(reqTime) + 'ms') : ''}`.trim();
+	return `${bold(color(`${statusCode}`.padStart(PREFIX_PADDING)))} ${url.padStart(40)} ${
+		reqTime ? dim(Math.round(reqTime) + 'ms') : ''
+	}`.trim();
 }
 
 export function reload({ file }: { file: string }): string {
@@ -53,17 +76,23 @@ export function devStart({
 	const { address: networkAddress, port } = devServerAddressInfo;
 	const localAddress = getLocalAddress(networkAddress, config.server.host);
 	const networkLogging = getNetworkLogging(config.server.host);
-	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	const toDisplayUrl = (hostname: string) =>
+		`${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	let addresses = [];
 
 	if (networkLogging === 'none') {
 		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`];
 	} else if (networkLogging === 'host-to-expose') {
-		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --host to expose')}`];
+		addresses = [
+			`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`,
+			`${networkPrefix}${dim('use --host to expose')}`,
+		];
 	} else {
 		addresses = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
-			.filter((networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4')
+			.filter(
+				(networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4'
+			)
 			.map(({ address }) => {
 				if (address.includes('127.0.0.1')) {
 					const displayAddress = address.replace('127.0.0.1', localAddress);
@@ -76,7 +105,14 @@ export function devStart({
 			.sort((msg) => (msg.startsWith(localPrefix) ? -1 : 1));
 	}
 
-	const messages = [`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`, '', ...addresses, ''];
+	const messages = [
+		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
+			`started in ${Math.round(startupTime)}ms`
+		)}`,
+		'',
+		...addresses,
+		'',
+	];
 	return messages.map((msg) => `  ${msg}`).join('\n');
 }
 
@@ -136,8 +172,12 @@ export function getNetworkLogging(host: string | boolean): 'none' | 'host-to-exp
 }
 
 export function formatConfigErrorMessage(err: ZodError) {
-	const errorList = err.issues.map((issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`);
-	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
+	const errorList = err.issues.map(
+		(issue) => `  ! ${bold(issue.path.join('.'))}  ${red(issue.message + '.')}`
+	);
+	return `${red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join(
+		'\n'
+	)}`;
 }
 
 export function formatErrorMessage(_err: Error, args: string[] = []): string {
@@ -196,7 +236,12 @@ export function printHelp({
 	let message = [];
 
 	if (headline) {
-		message.push(linebreak(), `  ${bgGreen(black(` ${commandName} `))} ${green(`v${process.env.PACKAGE_VERSION ?? ''}`)} ${headline}`);
+		message.push(
+			linebreak(),
+			`  ${bgGreen(black(` ${commandName} `))} ${green(
+				`v${process.env.PACKAGE_VERSION ?? ''}`
+			)} ${headline}`
+		);
 	}
 
 	if (usage) {
@@ -204,7 +249,11 @@ export function printHelp({
 	}
 
 	if (commands) {
-		message.push(linebreak(), title('Commands'), table(commands, { padding: 28, prefix: '  astro ' }));
+		message.push(
+			linebreak(),
+			title('Commands'),
+			table(commands, { padding: 28, prefix: '  astro ' })
+		);
 	}
 
 	if (flags) {

@@ -4,7 +4,12 @@ import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type {
+	AstroConfig,
+	ComponentInstance,
+	EndpointHandler,
+	SSRLoadedRenderer,
+} from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, info } from '../logger/core.js';
 import { prependForwardSlash } from '../../core/path.js';
@@ -12,7 +17,10 @@ import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
-import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import {
+	createLinkStylesheetElementSet,
+	createModuleScriptElementWithSrcSet,
+} from '../render/ssr-element.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
@@ -56,19 +64,30 @@ export function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig)
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
-export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
+export function chunkIsPage(
+	astroConfig: AstroConfig,
+	output: OutputAsset | OutputChunk,
+	internals: BuildInternals
+) {
 	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
 	if (chunk.facadeModuleId) {
-		const facadeToEntryId = prependForwardSlash(rootRelativeFacadeId(chunk.facadeModuleId, astroConfig));
+		const facadeToEntryId = prependForwardSlash(
+			rootRelativeFacadeId(chunk.facadeModuleId, astroConfig)
+		);
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
 	return false;
 }
 
-export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+export async function generatePages(
+	result: RollupOutput,
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	facadeIdToPageDataMap: Map<string, PageBuildData>
+) {
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
@@ -101,7 +120,9 @@ async function generatePage(
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
 
 	if (!pageModule) {
-		throw new Error(`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`);
+		throw new Error(
+			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
+		);
 	}
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
@@ -141,7 +162,11 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
 
-async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
+async function generatePath(
+	pathname: string,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions
+) {
 	const { astroConfig, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
@@ -197,7 +222,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		request: createRequest({ url, headers: new Headers(), logging }),
 		route: pageData.route,
 		routeCache,
-		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : astroConfig.site,
+		site: astroConfig.site
+			? new URL(astroConfig.base, astroConfig.site).toString()
+			: astroConfig.site,
 		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 

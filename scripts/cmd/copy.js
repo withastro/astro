@@ -63,7 +63,9 @@ export default async function copy() {
 	await Promise.all(
 		files.map((file) => {
 			const dest = resolve(file.replace(/^[^/]+/, 'dist'));
-			return fs.mkdir(dirname(dest), { recursive: true }).then(() => fs.copyFile(resolve(file), dest));
+			return fs
+				.mkdir(dirname(dest), { recursive: true })
+				.then(() => fs.copyFile(resolve(file), dest));
 		})
 	);
 }

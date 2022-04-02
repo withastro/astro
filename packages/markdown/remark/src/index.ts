@@ -23,7 +23,10 @@ import matter from 'gray-matter';
 export * from './types.js';
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
-export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
+export async function renderMarkdownWithFrontmatter(
+	contents: string,
+	opts?: MarkdownRenderingOptions | null
+) {
 	const { data: frontmatter, content } = matter(contents);
 	const value = await renderMarkdown(content, opts);
 	return { ...value, frontmatter };
@@ -70,7 +73,15 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
-	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
+	parser.use([
+		[
+			markdownToHtml as any,
+			{
+				allowDangerousHtml: true,
+				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
+			},
+		],
+	]);
 
 	loadedRehypePlugins.forEach(([plugin, opts]) => {
 		parser.use([[plugin, opts]]);
@@ -85,7 +96,10 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
 	let result: string;
 	try {
-		const vfile = await parser.use([rehypeCollectHeaders]).use(rehypeStringify, { allowDangerousHtml: true }).process(content);
+		const vfile = await parser
+			.use([rehypeCollectHeaders])
+			.use(rehypeStringify, { allowDangerousHtml: true })
+			.process(content);
 		result = vfile.toString();
 	} catch (err) {
 		console.error(err);

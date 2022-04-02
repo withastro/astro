@@ -14,4 +14,5 @@ export async function generate(ast: t.File) {
 	return code;
 }
 
-export const parse = (code: string) => parser.parse(code, { sourceType: 'unambiguous', plugins: ['typescript'] });
+export const parse = (code: string) =>
+	parser.parse(code, { sourceType: 'unambiguous', plugins: ['typescript'] });

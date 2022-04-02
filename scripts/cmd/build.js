@@ -26,9 +26,17 @@ export default async function build(...args) {
 	const patterns = args
 		.filter((f) => !!f) // remove empty args
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
-	let entryPoints = [].concat(...(await Promise.all(patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
+	let entryPoints = [].concat(
+		...(await Promise.all(
+			patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true }))
+		))
+	);
 
-	const { type = 'module', version, dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
+	const {
+		type = 'module',
+		version,
+		dependencies = {},
+	} = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
 	// expose PACKAGE_VERSION on process.env for CLI utils
 	config.define = { 'process.env.PACKAGE_VERSION': JSON.stringify(version) };
 	const format = type === 'module' ? 'esm' : 'cjs';
@@ -56,7 +64,9 @@ export default async function build(...args) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
 				} else {
 					if (result.warnings.length) {
-						console.log(dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n')));
+						console.log(
+							dim(`[${date}] `) + yellow('⚠ updated with warnings:\n' + result.warnings.join('\n'))
+						);
 					}
 					console.log(dim(`[${date}] `) + green('✔ updated'));
 				}

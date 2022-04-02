@@ -1,5 +1,14 @@
 import { bold } from 'kleur/colors';
-import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
+import type {
+	AstroGlobal,
+	AstroGlobalPartial,
+	MarkdownParser,
+	MarkdownRenderOptions,
+	Params,
+	SSRElement,
+	SSRLoadedRenderer,
+	SSRResult,
+} from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
@@ -45,7 +54,9 @@ class Slots {
 		if (slots) {
 			for (const key of Object.keys(slots)) {
 				if ((this as any)[key] !== undefined) {
-					throw new Error(`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`);
+					throw new Error(
+						`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`
+					);
 				}
 				Object.defineProperty(this, key, {
 					get() {
@@ -75,10 +86,14 @@ class Slots {
 			const expression = getFunctionExpression(component);
 			if (expression) {
 				const slot = expression(...args);
-				return await renderSlot(this.#result, slot).then((res) => (res != null ? String(res) : res));
+				return await renderSlot(this.#result, slot).then((res) =>
+					res != null ? String(res) : res
+				);
 			}
 		}
-		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => (res != null ? String(res) : res));
+		const content = await renderSlot(this.#result, this.#slots[name]).then((res) =>
+			res != null ? String(res) : res
+		);
 		if (cacheable) this.#cache.set(name, content);
 		return content;
 	}
@@ -98,7 +113,11 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
 		/** This function returns the `Astro` faux-global */
-		createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
+		createAstro(
+			astroGlobal: AstroGlobalPartial,
+			props: Record<string, any>,
+			slots: Record<string, any> | null
+		) {
 			const astroSlots = new Slots(result, slots);
 
 			const Astro = {
@@ -142,7 +161,9 @@ or consider make it a module like so:
 						warn(
 							args.logging,
 							`deprecation`,
-							`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
+							`${bold(
+								'Astro.resolve()'
+							)} is deprecated. We see that you are trying to resolve ${path}.
 ${extra}`
 						);
 						// Intentionally return an empty string so that it is not relied upon.

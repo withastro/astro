@@ -1,4 +1,13 @@
-import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, SSRLoadedRenderer, RouteData, SSRElement } from '../../@types/astro';
+import type {
+	ComponentInstance,
+	EndpointHandler,
+	MarkdownRenderOptions,
+	Params,
+	Props,
+	SSRLoadedRenderer,
+	RouteData,
+	SSRElement,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
@@ -19,7 +28,9 @@ export const enum GetParamsAndPropsError {
 	NoMatchingStaticPath,
 }
 
-export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props] | GetParamsAndPropsError> {
+export async function getParamsAndProps(
+	opts: GetParamsAndPropsOptions
+): Promise<[Params, Props] | GetParamsAndPropsError> {
 	const { logging, mod, route, routeCache, pathname, ssr } = opts;
 	// Handle dynamic routes
 	let params: Params = {};
@@ -73,8 +84,26 @@ export interface RenderOptions {
 	request: Request;
 }
 
-export async function render(opts: RenderOptions): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
-	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, request, resolve, route, routeCache, site, ssr } = opts;
+export async function render(
+	opts: RenderOptions
+): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
+	const {
+		legacyBuild,
+		links,
+		logging,
+		origin,
+		markdownRender,
+		mod,
+		pathname,
+		scripts,
+		renderers,
+		request,
+		resolve,
+		route,
+		routeCache,
+		site,
+		ssr,
+	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
 		logging,
@@ -86,14 +115,18 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html'; html:
 	});
 
 	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-		throw new Error(`[getStaticPath] route pattern matched, but no matching static path found. (${pathname})`);
+		throw new Error(
+			`[getStaticPath] route pattern matched, but no matching static path found. (${pathname})`
+		);
 	}
 	const [params, pageProps] = paramsAndPropsRes;
 
 	// Validate the page component before rendering the page
 	const Component = await mod.default;
-	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+	if (!Component)
+		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
+	if (!Component.isAstroComponentFactory)
+		throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({
 		legacyBuild,

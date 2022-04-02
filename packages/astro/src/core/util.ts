@@ -41,7 +41,9 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string) {
 }
 
 /** is a specifier an npm package? */
-export function parseNpmName(spec: string): { scope?: string; name: string; subpath?: string } | undefined {
+export function parseNpmName(
+	spec: string
+): { scope?: string; name: string; subpath?: string } | undefined {
 	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;
 
@@ -66,7 +68,9 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message) ? err : new Error(JSON.stringify(err));
+	return err instanceof Error || (err && err.name && err.message)
+		? err
+		: new Error(JSON.stringify(err));
 }
 
 /** generate code frame from esbuild error */
@@ -90,7 +94,10 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 		const isFocusedLine = lineNo === loc.line - 1;
 		output += isFocusedLine ? '> ' : '  ';
 		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
-		if (isFocusedLine) output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(' ')}^\n`;
+		if (isFocusedLine)
+			output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(
+				' '
+			)}^\n`;
 	}
 	return output;
 }

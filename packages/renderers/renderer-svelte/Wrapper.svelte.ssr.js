@@ -8,7 +8,12 @@ const App = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 		children.default = () => `<astro-fragment>${__astro_children}</astro-fragment>`;
 	}
 
-	return `${validate_component(Component || missing_component, 'svelte:component').$$render($$result, Object.assign(props), {}, children)}`;
+	return `${validate_component(Component || missing_component, 'svelte:component').$$render(
+		$$result,
+		Object.assign(props),
+		{},
+		children
+	)}`;
 });
 
 export default App;

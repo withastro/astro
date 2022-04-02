@@ -10,8 +10,15 @@ describe('Astro Markdown plugins', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-markdown-plugins/',
 			markdown: {
-				remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-				rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+				remarkPlugins: [
+					'remark-code-titles',
+					['rehype-autolink-headings', { behavior: 'prepend' }],
+				],
+				rehypePlugins: [
+					['rehype-toc', { headings: ['h2', 'h3'] }],
+					[addClasses, { 'h1,h2,h3': 'title' }],
+					'rehype-slug',
+				],
 			},
 		});
 		await fixture.build();
