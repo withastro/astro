@@ -1,4 +1,4 @@
-import type { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin } from './types';
+import { MarkdownRenderingOptions, astroMarkdownOptions } from './types.js';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
@@ -20,7 +20,7 @@ import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
 import matter from 'gray-matter';
 
-export { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin };
+export * from './types.js';
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
@@ -35,11 +35,8 @@ export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = astroMarkdownOptions.parse(opts ?? {});
 	const scopedClassName = opts?.$?.scopedClassName;
-	const mode = opts?.mode ?? 'mdx';
-	const syntaxHighlight = opts?.syntaxHighlight ?? 'shiki';
-	const shikiConfig = opts?.shikiConfig ?? {};
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
