@@ -13,7 +13,10 @@ import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
 import { appendForwardSlash, trimSlashes } from './path.js';
+
 // These two imports make astroMarkdownOptions work
+// If you remove them, TypeScript throws an error similar to this:
+// `The inferred type of 'AstroConfigSchema' cannot be named without a reference to '../../../markdown/remark/node_modules/@types/unist'. This is likely not portable. A type annotation is necessary`
 import type {} from 'shiki';
 import type {} from 'unist';
 
@@ -142,7 +145,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	markdown: astroMarkdownOptions.default({}).default({}),
+	markdown: astroMarkdownOptions.default({}),
 	vite: z.any().optional().default({}),
 	experimental: z
 		.object({
