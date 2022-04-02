@@ -4,7 +4,8 @@ import fs from 'fs/promises';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 
-const writeJson = (path: PathLike, data: any) => fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
+const writeJson = (path: PathLike, data: any) =>
+	fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
 
 const ENTRYFILE = '__astro_entry';
 
