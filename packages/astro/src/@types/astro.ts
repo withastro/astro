@@ -349,7 +349,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.shikiConfig
-		 * @type {Partial<ShikiConfig>}
+		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
 		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
