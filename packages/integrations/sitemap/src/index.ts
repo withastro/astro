@@ -54,7 +54,7 @@ export default function createPlugin({ filter, canonicalURL }: SitemapOptions = 
 				}
 				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
 				if (filter) {
-					pageUrls.filter((page: string) => filter(page));
+					pageUrls = pageUrls.filter((page: string) => filter(page));
 				}
 				const sitemapContent = generateSitemap(pageUrls);
 				fs.writeFileSync(new URL('sitemap.xml', dir), sitemapContent);
