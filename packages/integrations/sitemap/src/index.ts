@@ -16,6 +16,12 @@ type SitemapOptions =
 			 * ```
 			 */
 			filter?(page: string): string;
+
+			/**
+			 * If present, we use the `site` config option as the base for all sitemap URLs
+			 * Use `canonicalURL` to override this
+			 */
+			canonicalURL?: string;
 	  }
 	| undefined;
 
@@ -32,7 +38,7 @@ function generateSitemap(pages: string[]) {
 	return sitemap;
 }
 
-export default function createPlugin({ filter }: SitemapOptions = {}): AstroIntegration {
+export default function createPlugin({ filter, canonicalURL }: SitemapOptions = {}): AstroIntegration {
 	let config: AstroConfig;
 	return {
 		name: '@astrojs/sitemap',
@@ -41,8 +47,9 @@ export default function createPlugin({ filter }: SitemapOptions = {}): AstroInte
 				config = _config;
 			},
 			'astro:build:done': async ({ pages, dir }) => {
-				const finalSiteUrl = config.buildOptions.site;
+				const finalSiteUrl = canonicalURL || config.buildOptions.site;
 				if (!finalSiteUrl) {
+					console.warn('The Sitemap integration requires either the `site` config option or `canonicalURL` integration option to work. Skipping.');
 					return;
 				}
 				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
