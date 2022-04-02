@@ -1,5 +1,51 @@
 # astro
 
+## 0.26.0
+
+### Minor Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Implement RFC [#0017](https://github.com/withastro/rfcs/blob/main/proposals/0017-markdown-content-redesign.md)
+
+  - New Markdown API
+  - New `Astro.glob()` API
+  - **BREAKING CHANGE:** Removed `Astro.fetchContent()` (replaced by `Astro.glob()`)
+
+  ```diff
+  // v0.25
+  - let allPosts = Astro.fetchContent('./posts/*.md');
+  // v0.26+
+  + let allPosts = await Astro.glob('./posts/*.md');
+  ```
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Implement [RFC0016](https://github.com/withastro/rfcs/blob/main/proposals/0016-style-script-defaults.md) which changes the default behavior of `script`, introduces `is:inline`, and changes `<style global>` to `<style is:global>`
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Implements the Astro.request RFC
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update config options to resepect [RFC0019](https://github.com/withastro/rfcs/blob/main/proposals/0019-config-finalization.md)
+
+### Patch Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Allow components to return a Response
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - `--experimental-ssr` now is only required when using a 3rd-party adapter
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve `Astro.slots` API to support passing arguments to function-based slots.
+
+  This allows for more ergonomic utility components that accept a callback function as a child.
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes non-GET API routes in dev with Node 14
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update CLI error format and style
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update `@astrojs/compiler`, fixing some bugs related to RegExp usage in frontmatter
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add a Deno adapter for SSR
+
+* [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix for copying public when using SSR and not client JS
+
+* Updated dependencies [[`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee)]:
+  - @astrojs/markdown-remark@0.8.0
+
 ## 0.25.4
 
 ### Patch Changes
@@ -53,7 +99,7 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
 
@@ -73,7 +119,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -133,7 +179,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -229,7 +275,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -267,9 +313,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -289,7 +335,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -373,7 +419,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -397,9 +443,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -511,12 +557,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -678,12 +724,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -2038,10 +2084,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -2061,10 +2107,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

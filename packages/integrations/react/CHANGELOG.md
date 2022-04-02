@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 0.1.0
+
+### Minor Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for React v18
+
 ## 0.0.2
 
 ### Patch Changes
