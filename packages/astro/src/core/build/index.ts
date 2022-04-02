@@ -15,7 +15,7 @@ import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
-import { createSafeError, resolveServerConfig, isBuildingToSSR } from '../util.js';
+import { createSafeError, isBuildingToSSR } from '../util.js';
 import { fixViteErrorMessage } from '../errors.js';
 
 export interface BuildOptions {
