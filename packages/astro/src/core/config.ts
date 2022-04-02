@@ -59,10 +59,6 @@ export const LegacyAstroConfigKeys = new Set([
 
 export const AstroConfigSchema = z.object({
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
-	logLevel: z
-		.union([z.literal('error'), z.literal('warn'), z.literal('info'), z.literal('silent')])
-		.optional()
-		.default('info'),
 	root: z
 		.string()
 		.optional()
