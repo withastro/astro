@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.8.0
+
+### Minor Changes
+
+- [#2962](https://github.com/withastro/astro/pull/2962) [`17c02925`](https://github.com/withastro/astro/commit/17c02925c52027246000305cea1f9a7b6f484b00) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update config options to resepect [RFC0019](https://github.com/withastro/rfcs/blob/main/proposals/0019-config-finalization.md)
+
 ## 0.7.0
 
 ### Minor Changes
@@ -187,10 +193,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
