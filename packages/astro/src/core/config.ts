@@ -10,8 +10,7 @@ import { z } from 'zod';
 import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
-import { arraify, isObject, flatten } from './util.js';
-import { dset } from 'dset';
+import { arraify, isObject } from './util.js';
 import { appendForwardSlash, trimSlashes } from './path.js'
 
 load.use([loadTypeScript]);
@@ -160,53 +159,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 });
 
-const configMigrationMap = new Map<string, any>([
-	['projectRoot', 'root'], // ✅
-	['src', 'srcDir'],
-	['pages', null],
-	['public', 'publicDir'], // ✅
-	['dist', 'outDir'], // ✅
-	['adapter', 'adapter'], // ✅
-	['styleOptions', 'style'], // ✅
-	['markdownOptions.render.0', null],
-	['markdownOptions.render.1', 'markdown'],
-	['buildOptions', 'build'],
-	['buildOptions.site', 'site'], // ✅
-	['buildOptions.sitemapFilter', null],
-	['buildOptions.sitemap', null],
-	['buildOptions.pageUrlFormat', 'build.format'], // ✅
-	['buildOptions.legacyBuild', null], // ✅
-	['buildOptions.experimentalStaticBuild', null], // ✅
-	['experimental.ssr', 'experimental.ssr'],
-	['buildOptions.drafts', 'markdown.drafts'],
-	['devOptions', null],
-	['devOptions.host', 'server.host'], // ✅
-	['devOptions.port', 'server.port'], // ✅
-	['devOptions.trailingSlash', 'trailingSlash'],
-	['experimentalIntegrations', 'experimental.integrations'],
-]);
-
-function migrateConfig(legacyConfig: Record<string, any>) {
-	const flat = flatten(legacyConfig);
-	const newConfig: Record<string, any> = {};
-	const instructions = [];
-	outer: for (let [key, value] of Object.entries(flat)) {
-		for (const k of configMigrationMap.keys()) {
-			if (key.startsWith(k)) {
-				const newKey = configMigrationMap.get(k);
-				if (newKey) {
-					key = key.replace(k, newKey);
-				} else {
-					instructions.push(`${key} has been removed`);
-					continue outer;
-				}
-			}
-		}
-		dset(newConfig, key, value);
-	}
-	return newConfig;
-}
-
 /** Turn raw config values into normalized values */
 export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
@@ -248,14 +200,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		}
 	}
 	if (oldConfig) {
-		console.error('Update your configuration:');
-		try {
-			const newConfig = migrateConfig(userConfig);
-			console.log(JSON.stringify(newConfig));
-		} catch (err) {
-			// We tried, better to just exit.
-		}
-		process.exit(1);
+		throw new Error(`Legacy configuration found. Please update your configuration to the new format!\nSee https://astro.build/config-v1 for more information.`)
 	}
 	/* eslint-enable no-console */
 
