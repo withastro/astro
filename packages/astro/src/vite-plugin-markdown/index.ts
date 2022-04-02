@@ -148,7 +148,7 @@ ${setup}`.trim();
 				let { code: tsResult } = await transform(astroResult, {
 					pathname: fileUrl.pathname.substr(config.root.pathname.length - 1),
 					projectRoot: config.root.toString(),
-					site: new URL(config.base, config.site).toString(),
+					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
 					sourcemap: 'inline',
 					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
