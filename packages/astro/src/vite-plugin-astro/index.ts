@@ -63,7 +63,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const { query: fromQuery, filename } = parseAstroRequest(from);
 				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
 					const resolvedURL = new URL(id, `file://${filename}`);
-					const resolved = resolvedURL.pathname;
+					const resolved = resolvedURL.pathname
 					if (isBrowserPath(resolved)) {
 						return relativeToRoot(resolved + resolvedURL.search);
 					}
@@ -96,7 +96,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let source = await fs.promises.readFile(fileUrl, 'utf-8');
 			const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script hoist src="${PAGE_SCRIPT_ID}" />`;
+				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}
 			if (query.astro) {
 				if (query.type === 'style') {
@@ -125,6 +125,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					if (!hoistedScript) {
 						throw new Error(`No hoisted script at index ${query.index}`);
+					}
+
+					if (hoistedScript.type === 'external') {
+						const src = hoistedScript.src!;
+						if (src.startsWith('/') && !isBrowserPath(src)) {
+							const publicDir = config.public.pathname.replace(/\/$/, '').split('/').pop() + '/';
+							throw new Error(`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${filename}`)
+						}
 					}
 
 					return {

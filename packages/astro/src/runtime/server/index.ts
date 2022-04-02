@@ -535,16 +535,17 @@ function getHTMLElementName(constructor: typeof HTMLElement) {
 }
 
 function renderElement(name: string, { props: _props, children = '' }: SSRElement, shouldEscape = true) {
-	// Do not print `hoist`, `lang`, `global`
+	// Do not print `hoist`, `lang`, `is:global`
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
 	if (defineVars) {
 		if (name === 'style') {
-			if (props.global) {
+			if (props['is:global']) {
 				children = defineStyleVars(`:root`, defineVars) + '\n' + children;
 			} else {
 				children = defineStyleVars(`.astro-${astroId}`, defineVars) + '\n' + children;
 			}
-			delete props.global;
+			delete props['is:global'];
+			delete props['is:scoped'];
 		}
 		if (name === 'script') {
 			delete props.hoist;
