@@ -44,7 +44,7 @@ async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<Post
 	}
 }
 
-export const LegacyAstroConfigKeys = new Set([
+export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'projectRoot',
 	'src',
 	'pages',
@@ -202,7 +202,7 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 
 	let oldConfig = false;
 	for (const key of Object.keys(userConfig)) {
-		if (LegacyAstroConfigKeys.has(key)) {
+		if (LEGACY_ASTRO_CONFIG_KEYS.has(key)) {
 			oldConfig = true;
 			break;
 		}

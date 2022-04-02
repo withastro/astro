@@ -9,10 +9,10 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.25.4",
-    "@astrojs/preact": "^0.0.2"
+    "@astrojs/preact": "^0.0.2",
+    "astro": "^0.25.4"
   },
   "dependencies": {
-    "preact": "^10.6.6"
+    "preact": "^10.7.0"
   }
 }

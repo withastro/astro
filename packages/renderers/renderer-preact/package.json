@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.17.3",
-    "preact": "^10.6.6",
+    "preact": "^10.7.0",
     "preact-render-to-string": "^5.1.20"
   },
   "engines": {
