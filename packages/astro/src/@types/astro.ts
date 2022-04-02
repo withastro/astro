@@ -285,17 +285,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `md`
-		 * @description
-		 * Whether to target markdown or mdx files
-		 * ```
-		 */
-		mode?: 'md' | 'mdx';
-
-		/**
-		 * @docs
 		 * @name markdown.syntaxHighlight
 		 * @type {'shiki' | 'prism' | false}
 		 * @default `shiki`
@@ -418,6 +407,48 @@ export interface AstroUserConfig {
 		 */
 		ssr?: boolean;
 	};
+
+	// Legacy config options to be removed
+	/**
+	 * @deprecated `projectRoot` has been renamed to `root`
+	 */
+	projectRoot?: never;
+	/**
+	 * @deprecated `src` has been renamed to `srcDir`
+	 */
+	src?: never;
+	/**
+	 * @deprecated `pages` has been removed. It is no longer configurable.
+	 */
+	pages?: never;
+	/**
+	 * @deprecated `public` has been renamed to `publicDir`
+	 */
+	public?: never;
+	/**
+	 * @deprecated `dist` has been renamed to `outDir`
+	 */
+	dist?: never;
+	/**
+	 * @deprecated `styleOptions` has been renamed to `style`
+	 */
+	styleOptions?: never;
+	/**
+	 * @deprecated `markdownOptions` has been renamed to `markdown`
+	 */
+	markdownOptions?: never;
+	/**
+	 * @deprecated `buildOptions` has been renamed to `build`
+	 */
+	buildOptions?: never;
+	/**
+	 * @deprecated `devOptions` has been renamed to `server`
+	 */
+	devOptions?: never;
+	/**
+	 * @deprecated `experimentalIntegrations` has been renamed to `experimental: { integrations: true }`
+	 */
+	experimentalIntegrations?: never;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
