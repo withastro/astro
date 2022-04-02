@@ -1,4 +1,4 @@
 
 export default {
-	site: 'http://example.com/blog',
+	site: 'http://example.com',
 }

@@ -74,7 +74,6 @@ export interface AstroGlobalPartial {
 
 type ServerConfig = {
 	/**
-	 * @docs
 	 * @name server.host
 	 * @type {string | boolean}
 	 * @default `false`
@@ -88,7 +87,6 @@ type ServerConfig = {
 	host?: string | boolean;
 
 	/**
-	 * @docs
 	 * @name server.port
 	 * @type {number}
 	 * @default `3000`
@@ -152,7 +150,6 @@ export interface AstroUserConfig {
 	 */
 	srcDir?: string;
 
-
 	/**
 	 * @docs
 	 * @name publicDir
@@ -189,40 +186,6 @@ export interface AstroUserConfig {
 	outDir?: string;
 
 	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
-	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
-	 */
-	adapter?: AstroIntegration;
-
-	/**
-	 * @docs
-	 * @name integrations
-	 * @type {AstroIntegration[]}
-	 * @default `[]`
-	 * @description
-	 * Add Integrations to your project to extend Astro.
-	 *
-	 * Integrations are your one-stop shop to add new frameworks (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
-	 *
-	 * Setting this configuration will disable Astro's default integration, so it is recommended to provide a renderer for every framework that you use:
-	 *
-	 * Note: Integrations are currently under active development, and only first-party integrations are supported. In the future, 3rd-party integrations will be allowed.
-	 *
-	 * ```js
-	 * import react from '@astrojs/react';
-	 * import vue from '@astrojs/vue';
-	 * {
-	 *   // Example: Use Astro with Vue + React, and no other frameworks.
-	 *   integrations: [react(), vue()]
-	 * }
-	 * ```
-	 */
-	integrations?: Array<AstroIntegration | AstroIntegration[]>;
-
-	/**
 	 * @docs
 	 * @name site
 	 * @type {string}
@@ -231,7 +194,7 @@ export interface AstroUserConfig {
 	 *
 	 * ```js
 	 * {
-	 * 	 site: 'https://www.my-site.dev'
+	 *   site: 'https://www.my-site.dev'
 	 * }
 	 * ```
 	 */
@@ -242,15 +205,15 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
+	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `/docs`.
 	 *
 	 * ```js
 	 * {
-	 * 	 base: '/docs'
+	 *   base: '/docs'
 	 * }
 	 * ```
 	 */
-	 base?: string;
+	base?: string;
 
 	/**
 	 * @docs
@@ -261,9 +224,9 @@ export interface AstroUserConfig {
 	 * @description
 	 *
 	 * Set the route matching behavior of the dev server. Choose from the following options:
-	 *   - 'always' - Only match URLs that include a trailing slash (ex: "/foo/")
-	 *   - 'never' - Never match URLs that include a trailing slash (ex: "/foo")
-	 *   - 'ignore' - Match URLs regardless of whether a trailing "/" exists
+	 *   - `'always'` - Only match URLs that include a trailing slash (ex: "/foo/")
+	 *   - `'never'` - Never match URLs that include a trailing slash (ex: "/foo")
+	 *   - `'ignore'` - Match URLs regardless of whether a trailing "/" exists
 	 *
 	 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
 	 *
@@ -272,7 +235,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Require a trailing slash during development
-	 * 	 trailingSlash: 'always'
+	 *   trailingSlash: 'always'
 	 * }
 	 * ```
 	 */
@@ -281,12 +244,87 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Markdown
-	 * @see [Markdown guide](/en/guides/markdown-content/)
-	 * @description
-	 * Configure how markdown files (`.md`) are rendered.
+	 * @name Build Options
 	 */
-	markdown?: {
+	build?: {
+		/**
+		 * @docs
+		 * @name build.format
+		 * @typeraw {('file' | 'directory')}
+		 * @default `'directory'`
+		 * @description
+		 * Control the output file format of each page.
+		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
+		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
+		 *     format: 'file'
+		 *   }
+		 * }
+		 * ```
+		 */
+		format?: 'file' | 'directory';
+	};
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Server Options
+	 * @description
+	 * 
+	 * Customize the Astro dev server, used by both `astro dev` and `astro serve`.
+	 * 
+     * ```js
+	 * {
+	 *   server: {port: 1234, host: true}
+	 * }
+	 * ```
+	 * 
+	 * To set different configuration based on the command run ("dev", "preview") a function can also be passed to this configuration option.
+	 * 
+     * ```js
+	 * {
+	 *   // Example: Use the function syntax to customize based on command
+	 *   server: (command) => ({port: command === 'dev' ? 3000 : 4000})
+	 * }
+	 * ```
+	 */
+
+	/**
+	 * @docs
+	 * @name server.host
+	 * @type {string | boolean}
+	 * @default `false`
+	 * @version 0.24.0
+	 * @description
+	 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+	 * - `false` - do not expose on a network IP address
+	 * - `true` - listen on all addresses, including LAN and public addresses
+	 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
+	 */
+
+	/**
+	 * @docs
+	 * @name server.port
+	 * @type {number}
+	 * @default `3000`
+	 * @description
+	 * Set which port the dev server should listen on.
+	 *
+	 * If the given port is already in use, Astro will automatically try the next available port.
+	 */
+
+	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Markdown Options
+	 */
+	 markdown?: {
 		/**
 		 * @docs
 		 * @name markdown.drafts
@@ -301,12 +339,21 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: Include all drafts in your final build
-		 * 	   drafts: true,
+		 *     drafts: true,
 		 *   }
 		 * }
 		 * ```
 		 */
 		drafts?: boolean;
+
+		/**
+		 * @docs
+		 * @name markdown.shikiConfig
+		 * @type {ShikiConfig}
+		 * @description
+		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 */
+		 shikiConfig?: ShikiConfig;
 
 		/**
 		 * @docs
@@ -317,73 +364,94 @@ export interface AstroUserConfig {
 		 * Which syntax highlighter to use, if any.
 		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
-		 * - false - do not apply syntax highlighting
+		 * - `false` - do not apply syntax highlighting.
+		 * 
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: Switch to use prism for syntax highlighting in Markdown
+		 *     syntaxHighlight: 'prism',
+		 *   }
+		 * }
 		 * ```
 		 */
 		syntaxHighlight?: 'shiki' | 'prism' | false;
 
 		/**
 		 * @docs
-		 * @name markdown.shikiConfig
-		 * @type {ShikiConfig}
-		 * @description
-		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
-		 */
-		shikiConfig?: ShikiConfig;
-
-		/**
-		 * @docs
 		 * @name markdown.remarkPlugins
-		 * @type {Plugin}
+		 * @type {Plugin[]}
+		 * @description
+		 * Pass a custom [Remark](https://github.com/remarkjs/remark) plugin to customize how your Markdown is built.
+		 * 
+  		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 * 
+  		 * ```js
+  		 * {
+		 *   markdown: {
+		 *     // Example: The default set of remark plugins used by Astro
+		 *     remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+		 *   },
+  		 * };
+  		 * ```
 		 */
 		remarkPlugins?: Plugin[];
 		/**
 		 * @docs
 		 * @name markdown.rehypePlugins
-		 * @type {Plugin}
+		 * @type {Plugin[]}
+		 * @description
+		 * Pass a custom [Rehype](https://github.com/remarkjs/remark-rehype) plugin to customize how your Markdown is built.
+		 * 
+  		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 * 
+  		 * ```js
+  		 * {
+		 *   markdown: {
+		 *     // Example: The default set of rehype plugins used by Astro
+         *     rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+		 *   },
+  		 * };
+  		 * ```
 		 */
 		rehypePlugins?: Plugin[];
 	};
 
 	/**
-	 * @docs
-	 * @kind heading
-	 * @name Build
+	 * @name adapter
+	 * @type {AstroIntegration}
+	 * @default `undefined`
+	 * @description
+	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
 	 */
-	build?: {
-		/**
-		 * @docs
-		 * @name build.format
-		 * @type {('file' | 'directory')}
-		 * @default `'directory'`
-		 * @description
-		 * Control the output file format of each page.
-		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
-		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
-		 *
-		 * ```js
-		 * {
-		 *   build: {
-		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
-		 * 	   format: 'file'
-		 *   }
-		 * }
-		 * ```
-		 */
-		format?: 'file' | 'directory';
-	};
+	 adapter?: AstroIntegration;
+
+	 /**
+	  * @docs
+	  * @kind heading
+	  * @name Integrations
+	  * @description
+	  * 
+	  * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
+	  * 
+	  * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	  *
+	  * ```js
+	  * import react from '@astrojs/react';
+	  * import tailwind from '@astrojs/tailwind';
+	  * {
+	  *   // Example: Add React + Tailwind support to Astro
+	  *   integrations: [react(), tailwind()]
+	  * }
+	  * ```
+	  */
+	 integrations?: Array<AstroIntegration | AstroIntegration[]>;
+
 
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Server
-	 */
-	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
-
-	/**
-	 * @docs
-	 * @name vite
-	 * @type {vite.UserConfig}
+	 * @name Vite
 	 * @description
 	 *
 	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
@@ -395,9 +463,9 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   vite: {
-	 * 	   ssr: {
-	 *      // Example: Force a broken package to skip SSR processing, if needed
-	 * 		external: ['broken-npm-package'],
+	 *     ssr: {
+	 *       // Example: Force a broken package to skip SSR processing, if needed
+	 *       external: ['broken-npm-package'],
 	 *     }
 	 *   }
 	 * }
@@ -407,19 +475,14 @@ export interface AstroUserConfig {
 	 * {
 	 *   vite: {
 	 *     // Example: Add custom vite plugins directly to your Astro project
-	 * 	   plugins: [myPlugin()],
+	 *     plugins: [myPlugin()],
 	 *   }
 	 * }
 	 * ```
 	 */
 	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
 
-	/**
-	 * @docs
-	 * @kind heading
-	 * @name Experimental
-	 */
-	experimental?: {
+	 experimental?: {
 		/**
 		 * Enable experimental support for 3rd-party integrations.
 		 * Default: false
@@ -432,6 +495,9 @@ export interface AstroUserConfig {
 		 */
 		ssr?: boolean;
 	};
+
+
+	 
 
 	// Legacy options to be removed
 

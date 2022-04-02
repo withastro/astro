@@ -5,7 +5,8 @@ describe('getStaticPaths - build calls', () => {
 	before(async () => {
 		const fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
-			site: 'https://mysite.dev/blog/',
+			site: 'https://mysite.dev/',
+			base: '/blog',
 		});
 		await fixture.build();
 	});

@@ -94,7 +94,7 @@ describe('Development Routing', () => {
 			fixture = await loadFixture({
 				root: './fixtures/with-subpath-no-trailing-slash/',
 				outDir: './dist-4008',
-				site: 'http://example.com/blog',
+				site: 'http://example.com',
 				base: '/blog',
 			});
 			devServer = await fixture.startDevServer();
@@ -144,6 +144,7 @@ describe('Development Routing', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/with-subpath-no-trailing-slash/',
+				base: '/blog',
 				outDir: './dist-4009',
 			});
 			devServer = await fixture.startDevServer();

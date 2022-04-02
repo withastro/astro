@@ -67,13 +67,13 @@ export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROpt
 export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
 	const { astroConfig, filePath, logging, mode, origin, pathname, request, route, routeCache, viteServer } = ssrOpts;
 	// TODO: clean up "legacy" flag passed through helper functions
-	const legacy = false;
+	const isLegacyBuild = false;
 
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
+	const scripts = createModuleScriptElementWithSrcSet(!isLegacyBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !legacy) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !isLegacyBuild) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -95,7 +95,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	if (!legacy) {
+	if (!isLegacyBuild) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				scripts.add({
@@ -116,8 +116,8 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	}
 
 	let content = await coreRender({
-		// TODO: remove legacyBuild flag
-		legacyBuild: false,
+		// TODO: Remove this flag once legacyBuild support is removed
+		legacyBuild: isLegacyBuild,
 		links,
 		logging,
 		markdownRender: [astroRemark, astroConfig.markdown],
@@ -155,7 +155,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	const tags: vite.HtmlTagDescriptor[] = [];
 
 	// dev only: inject Astro HMR client
-	if (mode === 'development' && legacy) {
+	if (mode === 'development' && isLegacyBuild) {
 		tags.push({
 			tag: 'script',
 			attrs: { type: 'module' },
@@ -167,7 +167,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	}
 
 	// inject CSS
-	if (legacy) {
+	if (isLegacyBuild) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				tags.push({

@@ -81,8 +81,13 @@ export const AstroConfigSchema = z.object({
 		.transform((val) => new URL(val)),
 	site: z
 		.string()
+		.url()
 		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val)),
+		.transform((val) => (val ? appendForwardSlash(val) : val))
+		.refine((val) => !val || new URL(val).pathname.length <= 1, {
+			message: '"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
+			
+		  }),
 	base: z
 		.string()
 		.optional()
@@ -101,13 +106,19 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	server: z
-		.object({
+	server: z.preprocess(
+		// preprocess
+		// NOTE: Uses the "error" command here because this is overwritten by the 
+		// individualized schema parser with the correct command.
+		(val) => (typeof val === 'function' ? val({ command: 'error' }) : val),
+		// validate
+		z.object({
 			host: z.union([z.string(), z.boolean()]).optional().default(false),
 			port: z.number().optional().default(3000),
 		})
 		.optional()
 		.default({}),
+	),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
@@ -156,7 +167,7 @@ export const AstroConfigSchema = z.object({
 });
 
 /** Turn raw config values into normalized values */
-export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
+export async function validateConfig(userConfig: any, root: string, cmd: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
@@ -219,6 +230,17 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.string()
 			.default('./dist')
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		server: z.preprocess(
+			// preprocess
+			(val) => (typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val),
+			// validate
+			z.object({
+				host: z.union([z.string(), z.boolean()]).optional().default(false),
+				port: z.number().optional().default(3000),
+			})
+			.optional()
+			.default({}),
+		),
 		style: z
 			.object({
 				postcss: z.preprocess(
@@ -273,22 +295,19 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
-	if (typeof astroConfig.server === 'function') {
-		astroConfig.server = astroConfig.server({ command: cmd === 'dev' ? 'dev' : 'preview' });
-	}
-
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.experimental = astroConfig.experimental || {};
 	astroConfig.markdown = astroConfig.markdown || {};
-
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.port === 'number') astroConfig.server.port = flags.port;
-	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.server.host = flags.host;
-	if (typeof flags.experimentalSsr === 'boolean') {
-		astroConfig.experimental.ssr = flags.experimentalSsr;
-	}
+	if (typeof flags.experimentalSsr === 'boolean') astroConfig.experimental.ssr = flags.experimentalSsr;
 	if (typeof flags.experimentalIntegrations === 'boolean') astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
+	// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+	// TODO: Come back here and refactor to remove this expected error.
+	if (typeof flags.port === 'number') astroConfig.server.port = flags.port;
+	// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
+	// TODO: Come back here and refactor to remove this expected error.
+	if (typeof flags.host === 'string' || typeof flags.host === 'boolean') astroConfig.server.host = flags.host;
 	return astroConfig;
 }
 
@@ -344,7 +363,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}, cmd: string): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
-	const validatedConfig = await validateConfig(mergedConfig, root);
+	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
 
 	return validatedConfig;
 }
