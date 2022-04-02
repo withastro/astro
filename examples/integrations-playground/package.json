@@ -10,12 +10,12 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.0.2",
-    "@astrojs/partytown": "^0.1.0",
-    "@astrojs/react": "^0.1.0",
-    "@astrojs/sitemap": "^0.1.0",
-    "@astrojs/tailwind": "^0.1.0",
+    "@astrojs/partytown": "^0.0.2",
+    "@astrojs/react": "^0.0.2",
+    "@astrojs/sitemap": "^0.0.2",
+    "@astrojs/tailwind": "^0.0.2",
     "@astrojs/turbolinks": "^0.0.2",
-    "astro": "^0.26.0"
+    "astro": "^0.25.4"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",

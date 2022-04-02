@@ -21,10 +21,10 @@
   },
   "devDependencies": {
     "@astrojs/preact": "^0.0.2",
-    "@astrojs/react": "^0.1.0",
+    "@astrojs/react": "^0.0.2",
     "@astrojs/solid-js": "^0.0.3",
     "@astrojs/svelte": "^0.0.2",
     "@astrojs/vue": "^0.0.2",
-    "astro": "^0.26.0"
+    "astro": "^0.25.4"
   }
 }
