@@ -3,5 +3,7 @@ import deno from '@astrojs/deno';
 
 export default defineConfig({
 	adapter: deno(),
-	buildOptions: { experimentalSsr: true }
+	experimental: {
+		ssr: true
+	}
 })
