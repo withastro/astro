@@ -143,7 +143,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 		request,
 		route,
 		routeCache,
-		site: astroConfig.site,
+		site: new URL(astroConfig.base, astroConfig.site).toString(),
 		ssr: isBuildingToSSR(astroConfig),
 	});
 

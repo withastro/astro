@@ -28,7 +28,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter(config.site));
+				setAdapter(getAdapter(new URL(config.base, config.site).toString()));
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
