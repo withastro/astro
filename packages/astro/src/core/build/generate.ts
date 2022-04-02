@@ -197,7 +197,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		request: createRequest({ url, headers: new Headers(), logging }),
 		route: pageData.route,
 		routeCache,
-		site: astroConfig.site,
+		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : astroConfig.site,
 		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 
