@@ -36,8 +36,7 @@ function printAstroHelp() {
 		flags: [
 			['--host [optional IP]', 'Expose server on network'],
 			['--config <path>', 'Specify the path to the Astro config file.'],
-			['--project-root <path>', 'Specify the path to the project root folder.'],
-			['--no-sitemap', 'Disable sitemap generation (build only).'],
+			['--root <path>', 'Specify the path to the project root folder.'],
 			['--legacy-build', 'Use the build strategy prior to 0.24.0'],
 			['--experimental-ssr', 'Enable SSR compilation fot 3rd-party adapters.'],
 			['--drafts', 'Include markdown draft pages in the build.'],
@@ -74,7 +73,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const cmd = resolveCommand(flags);
-	const projectRoot = flags.projectRoot;
+	const root = flags.root;
 
 	switch (cmd) {
 		case 'help':
@@ -101,7 +100,7 @@ export async function cli(args: string[]) {
 	try {
 		// Note: ideally, `loadConfig` would return the config AND its filePath
 		// For now, `add` has to resolve the config again internally
-		config = await loadConfig({ cwd: projectRoot, flags });
+		config = await loadConfig({ cwd: root, flags, cmd });
 	} catch (err) {
 		return throwAndExit(err);
 	}
@@ -110,7 +109,7 @@ export async function cli(args: string[]) {
 		case 'add': {
 			try {
 				const packages = flags._.slice(3) as string[];
-				return await add(packages, { cwd: projectRoot, flags, logging });
+				return await add(packages, { cwd: root, flags, logging });
 			} catch (err) {
 				return throwAndExit(err);
 			}

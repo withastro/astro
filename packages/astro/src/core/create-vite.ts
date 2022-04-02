@@ -43,12 +43,15 @@ interface CreateViteOptions {
 }
 
 /** Return a common starting point for all Vite actions */
-export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig, logging, mode }: CreateViteOptions): Promise<ViteConfigWithSSR> {
+export async function createVite(
+	commandConfig: ViteConfigWithSSR,
+	{ astroConfig, logging, mode }: CreateViteOptions
+): Promise<ViteConfigWithSSR> {
 	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: ViteConfigWithSSR = {
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
+		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
@@ -67,19 +70,22 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],
-		publicDir: fileURLToPath(astroConfig.public),
-		root: fileURLToPath(astroConfig.projectRoot),
+		publicDir: fileURLToPath(astroConfig.publicDir),
+		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
-			hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test
+			hmr:
+				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
+					? false
+					: undefined, // disable HMR for test
 			// handle Vite URLs
 			proxy: {
 				// add proxies here
 			},
 		},
 		css: {
-			postcss: astroConfig.styleOptions.postcss || {},
+			postcss: astroConfig.style.postcss || {},
 		},
 		resolve: {
 			alias: {
@@ -109,8 +115,8 @@ export async function createVite(commandConfig: ViteConfigWithSSR, { astroConfig
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
-async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]> {
-	const pkgUrl = new URL('./package.json', projectRoot);
+async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
+	const pkgUrl = new URL('./package.json', root);
 	const pkgPath = fileURLToPath(pkgUrl);
 	if (!fs.existsSync(pkgPath)) return [];
 
@@ -123,11 +129,15 @@ async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]>
 		if (isCommonNotAstro(dep)) return false;
 		// Attempt: package is named `astro-something`. ✅ Likely a community package
 		if (/^astro\-/.test(dep)) return true;
-		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, projectRoot);
+		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
 		const depPkgPath = fileURLToPath(depPkgUrl);
 		if (!fs.existsSync(depPkgPath)) return false;
 
-		const { dependencies = {}, peerDependencies = {}, keywords = [] } = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
+		const {
+			dependencies = {},
+			peerDependencies = {},
+			keywords = [],
+		} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
 		// Attempt: package relies on `astro`. ✅ Definitely an Astro package
 		if (peerDependencies.astro || dependencies.astro) return true;
 		// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
@@ -181,7 +191,10 @@ function isCommonNotAstro(dep: string): boolean {
 	return (
 		COMMON_DEPENDENCIES_NOT_ASTRO.includes(dep) ||
 		COMMON_PREFIXES_NOT_ASTRO.some(
-			(prefix) => (prefix.startsWith('@') ? dep.startsWith(prefix) : dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix)) // check prefix omitting @scope/
+			(prefix) =>
+				prefix.startsWith('@')
+					? dep.startsWith(prefix)
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
 		)
 	);
 }

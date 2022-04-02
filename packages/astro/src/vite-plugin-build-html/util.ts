@@ -12,7 +12,12 @@ function startsWithSrcRoot(pathname: string, srcRoot: string, srcRootWeb: string
 	); // Windows fix: some paths are missing leading "/"
 }
 
-export function isInSrcDirectory(node: parse5.Element, attr: string, srcRoot: string, srcRootWeb: string): boolean {
+export function isInSrcDirectory(
+	node: parse5.Element,
+	attr: string,
+	srcRoot: string,
+	srcRootWeb: string
+): boolean {
 	const value = getAttribute(node, attr);
 	return value ? startsWithSrcRoot(value, srcRoot, srcRootWeb) : false;
 }
@@ -21,7 +26,11 @@ export function isAstroInjectedLink(node: parse5.Element): boolean {
 	return isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
 }
 
-export function isBuildableLink(node: parse5.Element, srcRoot: string, srcRootWeb: string): boolean {
+export function isBuildableLink(
+	node: parse5.Element,
+	srcRoot: string,
+	srcRootWeb: string
+): boolean {
 	if (isAstroInjectedLink(node)) {
 		return true;
 	}
@@ -34,7 +43,11 @@ export function isBuildableLink(node: parse5.Element, srcRoot: string, srcRootWe
 	return startsWithSrcRoot(href, srcRoot, srcRootWeb);
 }
 
-export function isBuildableImage(node: parse5.Element, srcRoot: string, srcRootWeb: string): boolean {
+export function isBuildableImage(
+	node: parse5.Element,
+	srcRoot: string,
+	srcRootWeb: string
+): boolean {
 	if (getTagName(node) === 'img') {
 		const src = getAttribute(node, 'src');
 		return src ? startsWithSrcRoot(src, srcRoot, srcRootWeb) : false;

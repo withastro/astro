@@ -28,14 +28,20 @@ export function mkdirp(dir: string) {
 	}
 }
 
-const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
+const { version } = JSON.parse(
+	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
+);
 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-	console.log(`If you encounter a problem, visit ${cyan('https://github.com/withastro/astro/issues')} to search or file a new issue.\n`);
+	console.log(
+		`If you encounter a problem, visit ${cyan(
+			'https://github.com/withastro/astro/issues'
+		)} to search or file a new issue.\n`
+	);
 
 	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
 
@@ -74,7 +80,9 @@ export async function main() {
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
-	const templateTarget = options.template.includes('/') ? options.template : `withastro/astro/examples/${options.template}#latest`;
+	const templateTarget = options.template.includes('/')
+		? options.template
+		: `withastro/astro/examples/${options.template}#latest`;
 
 	const emitter = degit(`${templateTarget}${hash}`, {
 		cache: false,
@@ -118,13 +126,25 @@ export async function main() {
 
 		// Warning for issue #655
 		if (err.message === 'zlib: unexpected end of file') {
-			console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/withastro' to fix this error."));
-			console.log(yellow('For more information check out this issue: https://github.com/withastro/astro/issues/655'));
+			console.log(
+				yellow(
+					"This seems to be a cache related problem. Remove the folder '~/.degit/github/withastro' to fix this error."
+				)
+			);
+			console.log(
+				yellow(
+					'For more information check out this issue: https://github.com/withastro/astro/issues/655'
+				)
+			);
 		}
 
 		// Helpful message when encountering the "could not find commit hash for ..." error
 		if (err.code === 'MISSING_REF') {
-			console.log(yellow("This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."));
+			console.log(
+				yellow(
+					"This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."
+				)
+			);
 			console.log(
 				yellow(
 					"If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"
@@ -178,8 +198,13 @@ export async function main() {
 						)
 					).flat(1);
 					// merge and sort dependencies
-					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(integrationEntries) };
-					packageJSON.devDependencies = Object.fromEntries(Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0])));
+					packageJSON.devDependencies = {
+						...(packageJSON.devDependencies ?? {}),
+						...Object.fromEntries(integrationEntries),
+					};
+					packageJSON.devDependencies = Object.fromEntries(
+						Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0]))
+					);
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
 					break;
 				}
@@ -196,7 +221,9 @@ export async function main() {
 				const component = COUNTER_COMPONENTS[integration.id as keyof typeof COUNTER_COMPONENTS];
 				const componentName = path.basename(component.filename, path.extname(component.filename));
 				const absFileLoc = path.resolve(cwd, component.filename);
-				importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
+				importStatements.push(
+					`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`
+				);
 				components.push(`<${componentName} client:visible />`);
 				await fs.promises.writeFile(absFileLoc, component.content);
 			})
@@ -225,7 +252,11 @@ export async function main() {
 	}
 
 	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
-	console.log(`  ${i++}: ${bold(cyan('git init && git add -A && git commit -m "Initial commit"'))} (optional step)`);
+	console.log(
+		`  ${i++}: ${bold(
+			cyan('git init && git add -A && git commit -m "Initial commit"')
+		)} (optional step)`
+	);
 	console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);

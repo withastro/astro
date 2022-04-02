@@ -11,7 +11,7 @@ describe.skip('Custom Elements', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/custom-elements/',
+			root: './fixtures/custom-elements/',
 			intergrations: ['@test/custom-element-renderer'],
 		});
 		await fixture.build();

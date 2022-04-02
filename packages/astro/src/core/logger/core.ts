@@ -47,7 +47,12 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions, level: LoggerLevel, type: string | null, ...args: Array<any>) {
+export function log(
+	opts: LogOptions,
+	level: LoggerLevel,
+	type: string | null,
+	...args: Array<any>
+) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
 	const event: LogMessage = {
@@ -120,7 +125,8 @@ if (typeof process !== 'undefined') {
 /** Print out a timer message for debug() */
 export function timerMessage(message: string, startTime: number = Date.now()) {
 	let timeDiff = Date.now() - startTime;
-	let timeDisplay = timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
+	let timeDisplay =
+		timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
 }
 

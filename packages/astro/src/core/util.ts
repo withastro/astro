@@ -34,14 +34,16 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string) {
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.buildOptions.pageUrlFormat === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
+	if (astroConfig.build.format === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
 		return path.posix.join(name, 'index.html');
 	}
 	return `${removeEndingForwardSlash(name || 'index')}.html`;
 }
 
 /** is a specifier an npm package? */
-export function parseNpmName(spec: string): { scope?: string; name: string; subpath?: string } | undefined {
+export function parseNpmName(
+	spec: string
+): { scope?: string; name: string; subpath?: string } | undefined {
 	// not an npm package
 	if (!spec || spec[0] === '.' || spec[0] === '/') return undefined;
 
@@ -66,7 +68,9 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 
 /** Coalesce any throw variable to an Error instance. */
 export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message) ? err : new Error(JSON.stringify(err));
+	return err instanceof Error || (err && err.name && err.message)
+		? err
+		: new Error(JSON.stringify(err));
 }
 
 /** generate code frame from esbuild error */
@@ -90,14 +94,17 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 		const isFocusedLine = lineNo === loc.line - 1;
 		output += isFocusedLine ? '> ' : '  ';
 		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
-		if (isFocusedLine) output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(' ')}^\n`;
+		if (isFocusedLine)
+			output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(
+				' '
+			)}^\n`;
 	}
 	return output;
 }
 
 export function resolveDependency(dep: string, astroConfig: AstroConfig) {
 	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(astroConfig.projectRoot),
+		basedir: fileURLToPath(astroConfig.root),
 	});
 	// For Windows compat, we need a fully resolved `file://` URL string
 	return pathToFileURL(resolved).toString();
@@ -138,12 +145,16 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 	}
 }
 
+export function resolvePages(config: AstroConfig) {
+	return new URL('./pages', config.srcDir);
+}
+
 export function isBuildingToSSR(config: AstroConfig): boolean {
 	const adapter = config._ctx.adapter;
 	if (!adapter) return false;
 
 	if (typeof adapter.serverEntrypoint === 'string') {
-		if (!adapter.name.startsWith('@astrojs/') && !config.buildOptions.experimentalSsr) {
+		if (!adapter.name.startsWith('@astrojs/') && !config.experimental.ssr) {
 			throw new Error(
 				[
 					`Server-side rendering (SSR) is still experimental.`,
@@ -166,17 +177,7 @@ export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-// TODO: remove once --hostname is baselined
-export function getResolvedHostForVite(config: AstroConfig) {
-	if (config.devOptions.host === false && config.devOptions.hostname !== 'localhost') {
-		return config.devOptions.hostname;
-	} else {
-		return config.devOptions.host;
-	}
-}
-
-export function getLocalAddress(serverAddress: string, config: AstroConfig): string {
-	const host = getResolvedHostForVite(config);
+export function getLocalAddress(serverAddress: string, host: string | boolean): string {
 	if (typeof host === 'boolean' || host === 'localhost') {
 		return 'localhost';
 	} else {

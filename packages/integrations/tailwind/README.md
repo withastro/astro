@@ -82,6 +82,19 @@ export default {
 }
 ```
 
+We will include `@tailwind` directives for each of Tailwind's layers to enable Tailwind styles by default. If you need to customize this behavior, with Tailwind's [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer) for example, opt-out via the `config.applyBaseStyles` integration option:
+
+__astro.config.mjs__
+
+```js
+export default {
+  // ...
+  integrations: [tailwind({
+    config: { applyBaseStyles: false },
+  })],
+}
+```
+
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

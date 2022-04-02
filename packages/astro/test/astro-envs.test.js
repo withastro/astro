@@ -6,7 +6,7 @@ describe('Environment Variables', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-envs/',
+			root: './fixtures/astro-envs/',
 		});
 
 		await fixture.build();

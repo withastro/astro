@@ -1,4 +1,12 @@
-import { createElement, createScript, getAttribute, hasAttribute, insertBefore, remove, setAttribute } from '@web/parse5-utils';
+import {
+	createElement,
+	createScript,
+	getAttribute,
+	hasAttribute,
+	insertBefore,
+	remove,
+	setAttribute,
+} from '@web/parse5-utils';
 import { promises as fs } from 'fs';
 import parse5 from 'parse5';
 import * as npath from 'path';
@@ -15,8 +23,21 @@ import { RouteCache } from '../core/render/route-cache.js';
 import { getOutputFilename } from '../core/util.js';
 import { getAstroPageStyleId, getAstroStyleId } from '../vite-plugin-build-css/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getAttributes, getTextContent } from './extract-assets.js';
-import { hasSrcSet, isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory } from './util.js';
+import {
+	findAssets,
+	findExternalScripts,
+	findInlineScripts,
+	findInlineStyles,
+	getAttributes,
+	getTextContent,
+} from './extract-assets.js';
+import {
+	hasSrcSet,
+	isBuildableImage,
+	isBuildableLink,
+	isHoistedScript,
+	isInSrcDirectory,
+} from './util.js';
 import { createRequest } from '../core/request.js';
 
 // This package isn't real ESM, so have to coerce it
@@ -45,12 +66,13 @@ function relativePath(from: string, to: string): string {
 }
 
 export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
-	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } =
+		options;
 
 	// The filepath root of the src folder
-	const srcRoot = astroConfig.src.pathname;
+	const srcRoot = astroConfig.srcDir.pathname;
 	// The web path of the src folter
-	const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
+	const srcRootWeb = srcRoot.substr(astroConfig.root.pathname.length - 1);
 
 	// A map of pages to rendered HTML
 	const renderedPageMap = new Map<string, string>();
@@ -86,7 +108,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 					const id = ASTRO_PAGE_PREFIX + pathname;
 					const response = await ssrRender(renderers, mod, {
 						astroConfig,
-						filePath: new URL(`./${component}`, astroConfig.projectRoot),
+						filePath: new URL(`./${component}`, astroConfig.root),
 						logging,
 						request: createRequest({
 							url: new URL(origin + pathname),
@@ -162,7 +184,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 							if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
 								astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
 							} else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
-								const resolved = new URL('.' + src, astroConfig.projectRoot);
+								const resolved = new URL('.' + src, astroConfig.root);
 								astroAssetMap.set(src, fs.readFile(resolved));
 							}
 						}
@@ -173,7 +195,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 								if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
 									astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
 								} else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
-									const resolved = new URL('.' + url, astroConfig.projectRoot);
+									const resolved = new URL('.' + url, astroConfig.root);
 									astroAssetMap.set(url, fs.readFile(resolved));
 								}
 							}
@@ -322,7 +344,12 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 
 			// Keep track of links added so we don't do so twice.
 			const linkChunksAdded = new Set<string>();
-			const appendStyleChunksBefore = (ref: parse5.Element, pathname: string, referenceIds: string[] | undefined, attrs: Record<string, any> = {}) => {
+			const appendStyleChunksBefore = (
+				ref: parse5.Element,
+				pathname: string,
+				referenceIds: string[] | undefined,
+				attrs: Record<string, any> = {}
+			) => {
 				let added = false;
 				if (referenceIds) {
 					const lastNode = ref;
@@ -403,7 +430,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 						let src = getAttribute(script, 'src');
 						// If this is projectRoot relative, get the fullpath to match the facadeId.
 						if (src?.startsWith(srcRootWeb)) {
-							src = new URL('.' + src, astroConfig.projectRoot).pathname;
+							src = new URL('.' + src, astroConfig.root).pathname;
 						}
 						// On windows the facadeId doesn't start with / but does not Unix :/
 						if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
@@ -433,7 +460,12 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 								if (!pageCSSAdded) {
 									const attrs = getAttributes(node);
 									delete attrs['data-astro-injected'];
-									pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+									pageCSSAdded = appendStyleChunksBefore(
+										node,
+										pathname,
+										cssChunkMap.get(styleId),
+										attrs
+									);
 								}
 								remove(node);
 								break;

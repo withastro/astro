@@ -13,7 +13,7 @@
     "@nanostores/react": "^0.1.5",
     "@nanostores/vue": "^0.4.1",
     "nanostores": "^0.5.12",
-    "preact": "^10.6.6",
+    "preact": "^10.7.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "solid-nanostores": "0.0.6",
@@ -21,10 +21,10 @@
   },
   "devDependencies": {
     "@astrojs/preact": "^0.0.2",
-    "@astrojs/react": "^0.0.2",
+    "@astrojs/react": "^0.1.0",
     "@astrojs/solid-js": "^0.0.3",
     "@astrojs/svelte": "^0.0.2",
     "@astrojs/vue": "^0.0.2",
-    "astro": "^0.25.4"
+    "astro": "^0.26.0"
   }
 }

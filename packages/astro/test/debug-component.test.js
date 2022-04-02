@@ -14,7 +14,7 @@ describe('<Debug />', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/debug-component/' });
+		fixture = await loadFixture({ root: './fixtures/debug-component/' });
 		devServer = await fixture.startDevServer();
 	});
 

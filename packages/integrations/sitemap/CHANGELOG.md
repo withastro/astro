@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 0.1.0
+
+### Minor Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update config options to resepect [RFC0019](https://github.com/withastro/rfcs/blob/main/proposals/0019-config-finalization.md)
+
+### Patch Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add new sitemap configuration options:
+  - `filter`: filter pages to include in your sitemap
+  - `canonicalURL`: override your astro.config `site` with a custom base URL
+
 ## 0.0.2
 
 ### Patch Changes

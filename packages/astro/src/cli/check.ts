@@ -8,7 +8,11 @@ import * as path from 'path';
 import { pathToFileURL } from 'url';
 import * as fs from 'fs';
 
-async function openAllDocuments(workspaceUri: URL, filePathsToIgnore: string[], checker: AstroCheck) {
+async function openAllDocuments(
+	workspaceUri: URL,
+	filePathsToIgnore: string[],
+	checker: AstroCheck
+) {
 	const files = await glob('**/*.astro', {
 		cwd: workspaceUri.pathname,
 		ignore: ['node_modules/**'].concat(filePathsToIgnore.map((ignore) => `${ignore}/**`)),
@@ -64,7 +68,7 @@ function generateString(str: string, len: number) {
 export async function run() {}
 
 export async function check(astroConfig: AstroConfig) {
-	const root = astroConfig.projectRoot;
+	const root = astroConfig.root;
 	let checker = new AstroCheck(root.toString());
 	await openAllDocuments(root, [], checker);
 
@@ -79,7 +83,11 @@ export async function check(astroConfig: AstroConfig) {
 		diag.diagnostics.forEach((d) => {
 			switch (d.severity) {
 				case DiagnosticSeverity.Error: {
-					console.error(`${bold(cyan(path.relative(root.pathname, diag.filePath)))}:${bold(yellow(d.range.start.line))}:${bold(yellow(d.range.start.character))} - ${d.message}`);
+					console.error(
+						`${bold(cyan(path.relative(root.pathname, diag.filePath)))}:${bold(
+							yellow(d.range.start.line)
+						)}:${bold(yellow(d.range.start.character))} - ${d.message}`
+					);
 					let startOffset = offsetAt({ line: d.range.start.line, character: 0 }, diag.text);
 					let endOffset = offsetAt({ line: d.range.start.line + 1, character: 0 }, diag.text);
 					let str = diag.text.substring(startOffset, endOffset - 1);

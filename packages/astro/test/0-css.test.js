@@ -12,7 +12,7 @@ let fixture;
 
 describe('CSS', function () {
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/0-css/' });
+		fixture = await loadFixture({ root: './fixtures/0-css/' });
 	});
 
 	// test HTML and CSS contents for accuracy
@@ -214,37 +214,49 @@ describe('CSS', function () {
 			it('<style>', async () => {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => name !== 'svelte-css' && /^svelte-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find(
+					(name) => name !== 'svelte-css' && /^svelte-[A-Za-z0-9-]+/.test(name)
+				);
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-css');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:Comic Sans MS`));
+				expect(bundledCSS).to.match(
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+				);
 			});
 
 			it('<style lang="sass">', async () => {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => name !== 'svelte-sass' && /^svelte-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find(
+					(name) => name !== 'svelte-sass' && /^svelte-[A-Za-z0-9-]+/.test(name)
+				);
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-sass');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:Comic Sans MS`));
+				expect(bundledCSS).to.match(
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+				);
 			});
 
 			it('<style lang="scss">', async () => {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => name !== 'svelte-scss' && /^svelte-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find(
+					(name) => name !== 'svelte-scss' && /^svelte-[A-Za-z0-9-]+/.test(name)
+				);
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-scss');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:Comic Sans MS`));
+				expect(bundledCSS).to.match(
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+				);
 			});
 		});
 	});
@@ -285,7 +297,14 @@ describe('CSS', function () {
 		});
 
 		it('resolves Styles from React', async () => {
-			const styles = ['ReactCSS.css', 'ReactModules.module.css', 'ReactModules.module.scss', 'ReactModules.module.sass', 'ReactSass.sass', 'ReactScss.scss'];
+			const styles = [
+				'ReactCSS.css',
+				'ReactModules.module.css',
+				'ReactModules.module.scss',
+				'ReactModules.module.sass',
+				'ReactSass.sass',
+				'ReactScss.scss',
+			];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
@@ -293,7 +312,11 @@ describe('CSS', function () {
 		});
 
 		it('resolves CSS from Svelte', async () => {
-			const scripts = ['SvelteCSS.svelte?svelte&type=style&lang.css', 'SvelteSass.svelte?svelte&type=style&lang.css', 'SvelteScss.svelte?svelte&type=style&lang.css'];
+			const scripts = [
+				'SvelteCSS.svelte?svelte&type=style&lang.css',
+				'SvelteSass.svelte?svelte&type=style&lang.css',
+				'SvelteScss.svelte?svelte&type=style&lang.css',
+			];
 			for (const script of scripts) {
 				const src = $(`script[src$="${script}"]`).attr('src');
 				expect((await fixture.fetch(src)).status, script).to.equal(200);

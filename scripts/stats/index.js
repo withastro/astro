@@ -78,12 +78,21 @@ export async function run() {
 		per_page: 100,
 		since: twentyFourHoursAgo.toISOString(),
 	});
-	const issuesLastTwentyFourHours = allIssuesLastTwentyFourHours.filter((iss) => new Date(iss.created_at) > twentyFourHoursAgo && !iss.pull_request);
-	const pullsLastTwentyFourHours = allIssuesLastTwentyFourHours.filter((iss) => new Date(iss.created_at) > twentyFourHoursAgo && iss.pull_request);
+	const issuesLastTwentyFourHours = allIssuesLastTwentyFourHours.filter(
+		(iss) => new Date(iss.created_at) > twentyFourHoursAgo && !iss.pull_request
+	);
+	const pullsLastTwentyFourHours = allIssuesLastTwentyFourHours.filter(
+		(iss) => new Date(iss.created_at) > twentyFourHoursAgo && iss.pull_request
+	);
 
 	const entry = [
 		// Date (Human Readable)
-		`"${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}"`,
+		`"${new Date().toLocaleDateString('en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		})}"`,
 		// Commits in last 24 hours
 		(await countCommits(twentyFourHoursAgo)).length,
 		// New Issues(All) in last 24 hours
@@ -103,7 +112,8 @@ export async function run() {
 		// Bugs: Needs Triage
 		(await countCards(COLUMN_ID_BUGS_NEEDS_TRIAGE)).length,
 		// Bugs: Accepted
-		(await countCards(COLUMN_ID_BUGS_ACCEPTED)).length + (await countCards(COLUMN_ID_BUGS_PRIORITIZED)).length,
+		(await countCards(COLUMN_ID_BUGS_ACCEPTED)).length +
+			(await countCards(COLUMN_ID_BUGS_PRIORITIZED)).length,
 		// RFC: In Progress
 		0, // (await countCards(COLUMN_ID_RFCS_IN_PROGRESS)).length,
 		// RFC: Accepted

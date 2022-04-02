@@ -1,4 +1,4 @@
-import type { OutputBundle, OutputChunk } from 'rollup';
+import astroRemark from '@astrojs/markdown-remark';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
@@ -15,7 +15,11 @@ export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 
-export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
+export function vitePluginSSR(
+	buildOpts: StaticBuildOptions,
+	internals: BuildInternals,
+	adapter: AstroAdapter
+): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
@@ -92,13 +96,14 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules[BEFORE_HYDRATION_SCRIPT_ID] = 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
+		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site,
 		markdown: {
-			render: astroConfig.markdownOptions.render,
+			render: [astroRemark, astroConfig.markdown],
 		},
 		pageMap: null as any,
 		renderers: [],

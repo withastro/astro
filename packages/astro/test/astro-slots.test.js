@@ -6,7 +6,7 @@ describe('Slots', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
+		fixture = await loadFixture({ root: './fixtures/astro-slots/' });
 		await fixture.build();
 	});
 

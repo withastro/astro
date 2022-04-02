@@ -23,10 +23,19 @@ export default function createPlugin(): AstroIntegration {
 				config = _config;
 			},
 			'astro:server:setup': ({ server }) => {
-				server.middlewares.use(sirv(partytownLibDirectory, { mount: '/~partytown', dev: true, etag: true, extensions: [] }));
+				server.middlewares.use(
+					sirv(partytownLibDirectory, {
+						mount: '/~partytown',
+						dev: true,
+						etag: true,
+						extensions: [],
+					})
+				);
 			},
 			'astro:build:done': async () => {
-				await copyLibFiles(fileURLToPath(new URL('~partytown', config.dist)), { debugDir: false });
+				await copyLibFiles(fileURLToPath(new URL('~partytown', config.outDir)), {
+					debugDir: false,
+				});
 			},
 		},
 	};

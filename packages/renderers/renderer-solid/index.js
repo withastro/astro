@@ -18,7 +18,13 @@ export default {
 		// We inject the dev mode only if the user explicitely wants it or if we are in dev (serve) mode
 		const replaceDev = options.mode === 'development' || options.command === 'serve';
 
-		const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
+		const nestedDeps = [
+			'solid-js',
+			'solid-js/web',
+			'solid-js/store',
+			'solid-js/html',
+			'solid-js/h',
+		];
 
 		return {
 			/**

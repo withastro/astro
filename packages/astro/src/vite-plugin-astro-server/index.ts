@@ -6,7 +6,7 @@ import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
-import { createSafeError, isBuildingToSSR } from '../core/util.js';
+import { createSafeError, resolvePages, isBuildingToSSR } from '../core/util.js';
 import { ssr, preload } from '../core/render/dev/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import * as msg from '../core/messages.js';
@@ -22,7 +22,11 @@ interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-const BAD_VITE_MIDDLEWARE = ['viteIndexHtmlMiddleware', 'vite404Middleware', 'viteSpaFallbackMiddleware'];
+const BAD_VITE_MIDDLEWARE = [
+	'viteIndexHtmlMiddleware',
+	'vite404Middleware',
+	'viteSpaFallbackMiddleware',
+];
 function removeViteHttpMiddleware(server: vite.Connect.Server) {
 	for (let i = server.stack.length - 1; i > 0; i--) {
 		// @ts-expect-error using internals until https://github.com/vitejs/vite/pull/4640 is merged
@@ -62,7 +66,11 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	res.end();
 }
 
-async function writeSSRResult(result: RenderResponse, res: http.ServerResponse, statusCode: 200 | 404) {
+async function writeSSRResult(
+	result: RenderResponse,
+	res: http.ServerResponse,
+	statusCode: 200 | 404
+) {
 	if (result.type === 'response') {
 		const { response } = result;
 		await writeWebResponse(res, response);
@@ -73,20 +81,36 @@ async function writeSSRResult(result: RenderResponse, res: http.ServerResponse, 
 	writeHtmlResponse(res, statusCode, html);
 }
 
-async function handle404Response(origin: string, config: AstroConfig, req: http.IncomingMessage, res: http.ServerResponse) {
-	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+async function handle404Response(
+	origin: string,
+	config: AstroConfig,
+	req: http.IncomingMessage,
+	res: http.ServerResponse
+) {
+	const site = config.site ? new URL(config.base, config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	let html = '';
 	if (pathname === '/' && !pathname.startsWith(devRoot)) {
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
-		html = notFoundTemplate({ statusCode: 404, title: 'Not found', tabTitle: '404: Not Found', pathname });
+		html = notFoundTemplate({
+			statusCode: 404,
+			title: 'Not found',
+			tabTitle: '404: Not Found',
+			pathname,
+		});
 	}
 	writeHtmlResponse(res, 404, html);
 }
 
-async function handle500Response(viteServer: vite.ViteDevServer, origin: string, req: http.IncomingMessage, res: http.ServerResponse, err: any) {
+async function handle500Response(
+	viteServer: vite.ViteDevServer,
+	origin: string,
+	req: http.IncomingMessage,
+	res: http.ServerResponse,
+	err: any
+) {
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	const html = serverErrorTemplate({
 		statusCode: 500,
@@ -101,7 +125,7 @@ async function handle500Response(viteServer: vite.ViteDevServer, origin: string,
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
-	const relPages = config.pages.href.replace(config.projectRoot.href, '');
+	const relPages = resolvePages(config).href.replace(config.root.href, '');
 	return manifest.routes.find((r) => r.component === relPages + '404.astro');
 }
 
@@ -120,7 +144,7 @@ async function handleRequest(
 	res: http.ServerResponse
 ) {
 	const reqStart = performance.now();
-	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+	const site = config.site ? new URL(config.base, config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
@@ -174,7 +198,7 @@ async function handleRequest(
 			}
 		}
 
-		const filePath = new URL(`./${route.component}`, config.projectRoot);
+		const filePath = new URL(`./${route.component}`, config.root);
 		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
@@ -188,12 +212,20 @@ async function handleRequest(
 			ssr: isBuildingToSSR(config),
 		});
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);
+			warn(
+				logging,
+				'getStaticPaths',
+				`Route pattern matched, but no matching static path found. (${pathname})`
+			);
 			log404(logging, pathname);
 			const routeCustom404 = getCustom404Route(config, manifest);
 			if (routeCustom404) {
-				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.projectRoot);
-				const preloadedCompCustom404 = await preload({ astroConfig: config, filePath: filePathCustom404, viteServer });
+				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.root);
+				const preloadedCompCustom404 = await preload({
+					astroConfig: config,
+					filePath: filePathCustom404,
+					viteServer,
+				});
 				const result = await ssr(preloadedCompCustom404, {
 					astroConfig: config,
 					filePath: filePathCustom404,

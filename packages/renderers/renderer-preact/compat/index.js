@@ -21,7 +21,12 @@ export default {
 				dedupe: ['react', 'react-dom'],
 			},
 			optimizeDeps: {
-				include: ['@astrojs/renderer-preact/client.js', 'preact/compat', 'preact/compat/jsx-runtime', 'preact-render-to-string'],
+				include: [
+					'@astrojs/renderer-preact/client.js',
+					'preact/compat',
+					'preact/compat/jsx-runtime',
+					'preact-render-to-string',
+				],
 			},
 			ssr: {
 				external: ['preact-render-to-string'],

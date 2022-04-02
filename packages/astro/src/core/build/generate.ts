@@ -1,17 +1,26 @@
+import astroRemark from '@astrojs/markdown-remark';
 import fs from 'fs';
-import { bgGreen, bgMagenta, black, cyan, dim, green, magenta } from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type {
+	AstroConfig,
+	ComponentInstance,
+	EndpointHandler,
+	SSRLoadedRenderer,
+} from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, info } from '../logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
-import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import {
+	createLinkStylesheetElementSet,
+	createModuleScriptElementWithSrcSet,
+} from '../render/ssr-element.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
@@ -51,29 +60,40 @@ function* throttle(max: number, inPaths: string[]) {
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig): string {
-	return facadeId.slice(fileURLToPath(astroConfig.projectRoot).length);
+	return facadeId.slice(fileURLToPath(astroConfig.root).length);
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
-export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
+export function chunkIsPage(
+	astroConfig: AstroConfig,
+	output: OutputAsset | OutputChunk,
+	internals: BuildInternals
+) {
 	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
 	if (chunk.facadeModuleId) {
-		const facadeToEntryId = prependForwardSlash(rootRelativeFacadeId(chunk.facadeModuleId, astroConfig));
+		const facadeToEntryId = prependForwardSlash(
+			rootRelativeFacadeId(chunk.facadeModuleId, astroConfig)
+		);
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
 	return false;
 }
 
-export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+export async function generatePages(
+	result: RollupOutput,
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	facadeIdToPageDataMap: Map<string, PageBuildData>
+) {
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
 	const ssr = isBuildingToSSR(opts.astroConfig);
 	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.dist;
+	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
@@ -100,7 +120,9 @@ async function generatePage(
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
 
 	if (!pageModule) {
-		throw new Error(`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`);
+		throw new Error(
+			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
+		);
 	}
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
@@ -140,7 +162,11 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
 
-async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
+async function generatePath(
+	pathname: string,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions
+) {
 	const { astroConfig, logging, origin, routeCache } = opts;
 	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
@@ -151,7 +177,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 	debug('build', `Generating: ${pathname}`);
 
-	const site = astroConfig.buildOptions.site;
+	const site = astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
@@ -170,7 +196,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		legacyBuild: false,
 		links,
 		logging,
-		markdownRender: astroConfig.markdownOptions.render,
+		markdownRender: [astroRemark, astroConfig.markdown],
 		mod,
 		origin,
 		pathname,
@@ -196,7 +222,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		request: createRequest({ url, headers: new Headers(), logging }),
 		route: pageData.route,
 		routeCache,
-		site: astroConfig.buildOptions.site,
+		site: astroConfig.site
+			? new URL(astroConfig.base, astroConfig.site).toString()
+			: astroConfig.site,
 		ssr: isBuildingToSSR(opts.astroConfig),
 	};
 

@@ -6,7 +6,7 @@ describe('Attributes', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
+		fixture = await loadFixture({ root: './fixtures/astro-attrs/' });
 		await fixture.build();
 	});
 

@@ -7,7 +7,7 @@ describe('Svelte component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/svelte-component/',
+			root: './fixtures/svelte-component/',
 		});
 	});
 

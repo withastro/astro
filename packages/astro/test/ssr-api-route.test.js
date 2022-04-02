@@ -9,8 +9,10 @@ describe('API routes in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-api-route/',
-			buildOptions: { experimentalSsr: true },
+			root: './fixtures/ssr-api-route/',
+			experimental: {
+				ssr: true,
+			},
 			adapter: testAdapter(),
 		});
 		await fixture.build();
@@ -35,7 +37,7 @@ describe('API routes in SSR', () => {
 		expect(body.length).to.equal(3);
 	});
 
-	describe('Dev', () => {
+	describe('API Routes - Dev', () => {
 		let devServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();

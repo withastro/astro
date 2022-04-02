@@ -1,3 +1,4 @@
+import astroRemark from '@astrojs/markdown-remark';
 import { transform } from '@astrojs/compiler';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -8,6 +9,8 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
+import { appendForwardSlash } from '../core/path.js';
+import { resolvePages } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -23,8 +26,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-			filename = new URL('.' + filename, config.projectRoot).pathname;
+		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
+			filename = new URL('.' + filename, config.root).pathname;
 		}
 		return filename;
 	}
@@ -32,7 +35,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 	// Weird Vite behavior: Vite seems to use a fake "index.html" importer when you
 	// have `enforce: pre`. This can probably be removed once the vite issue is fixed.
 	// see: https://github.com/vitejs/vite/issues/5981
-	const fakeRootImporter = fileURLToPath(new URL('index.html', config.projectRoot));
+	const fakeRootImporter = fileURLToPath(new URL('index.html', config.root));
 	function isRootImport(importer: string | undefined) {
 		if (!importer) {
 			return true;
@@ -79,9 +82,13 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.startsWith(VIRTUAL_MODULE_ID)) {
-				const sitePathname = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';
+				const sitePathname = config.site
+					? appendForwardSlash(new URL(config.base, config.site).pathname)
+					: '/';
 				const fileId = id.substring(VIRTUAL_MODULE_ID.length);
-				const fileUrl = fileId.includes('/pages/') ? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined;
+				const fileUrl = fileId.includes('/pages/')
+					? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
+					: undefined;
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
 				return {
@@ -111,19 +118,12 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// This returns the compiled markdown -> astro component that renders to HTML.
 			if (id.endsWith('.md')) {
 				const source = await fs.promises.readFile(id, 'utf8');
-				let render = config.markdownOptions.render;
-				let renderOpts = {};
-				if (Array.isArray(render)) {
-					renderOpts = render[1];
-					render = render[0];
-				}
-				if (typeof render === 'string') {
-					({ default: render } = await import(render));
-				}
+				const render = astroRemark;
+				const renderOpts = config.markdown;
 
 				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
-				const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
+				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
@@ -151,9 +151,9 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname: fileUrl.pathname.substr(config.projectRoot.pathname.length - 1),
-					projectRoot: config.projectRoot.toString(),
-					site: config.buildOptions.site,
+					pathname: fileUrl.pathname.substr(config.root.pathname.length - 1),
+					projectRoot: config.root.toString(),
+					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
 					sourcemap: 'inline',
 					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
@@ -164,7 +164,11 @@ export const frontmatter = ${JSON.stringify(content)};
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
-				const { code } = await esbuild.transform(tsResult, { loader: 'ts', sourcemap: false, sourcefile: id });
+				const { code } = await esbuild.transform(tsResult, {
+					loader: 'ts',
+					sourcemap: false,
+					sourcefile: id,
+				});
 				return {
 					code,
 					map: null,

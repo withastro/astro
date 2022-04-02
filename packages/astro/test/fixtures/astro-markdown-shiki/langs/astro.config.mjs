@@ -3,25 +3,17 @@ const riGrammar = JSON.parse(
 );
 
 export default {
-	markdownOptions: {
-		render: [
-			"@astrojs/markdown-remark",
-			{
-				syntaxHighlight: 'shiki',
-				shikiConfig: {
-					langs: [
-						{
-							id: 'rinfo',
-							scopeName: 'source.rinfo',
-							grammar: riGrammar,
-							aliases: ['ri'],
-						},
-					],
+	markdown: {
+		syntaxHighlight: 'shiki',
+		shikiConfig: {
+			langs: [
+				{
+					id: 'rinfo',
+					scopeName: 'source.rinfo',
+					grammar: riGrammar,
+					aliases: ['ri'],
 				},
-			},
-		],
-	},
-	buildOptions: {
-		sitemap: false,
+			],
+		},
 	},
 }

@@ -10,11 +10,11 @@ describe('Using Astro.request in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-request/',
-			buildOptions: {
-				experimentalSsr: true,
-			},
+			root: './fixtures/ssr-request/',
 			adapter: testAdapter(),
+			experimental: {
+				ssr: true,
+			},
 		});
 		await fixture.build();
 	});
