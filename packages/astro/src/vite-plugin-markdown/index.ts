@@ -81,7 +81,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.startsWith(VIRTUAL_MODULE_ID)) {
-				const sitePathname = config.site ? new URL(config.site).pathname : '/';
+				const sitePathname = config.base;
 				const fileId = id.substring(VIRTUAL_MODULE_ID.length);
 				const fileUrl = fileId.includes('/pages/') ? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined;
 				const source = await fs.promises.readFile(fileId, 'utf8');
@@ -148,7 +148,7 @@ ${setup}`.trim();
 				let { code: tsResult } = await transform(astroResult, {
 					pathname: fileUrl.pathname.substr(config.root.pathname.length - 1),
 					projectRoot: config.root.toString(),
-					site: config.site,
+					site: new URL(config.base, config.site).toString(),
 					sourcefile: id,
 					sourcemap: 'inline',
 					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,

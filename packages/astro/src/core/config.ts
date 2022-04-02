@@ -152,7 +152,11 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.optional()
 		.transform((val) => (val ? addTrailingSlash(val) : val)),
-	base: z.string().optional().default('/'),
+	base: z
+		.string()
+		.optional()
+		.default('/')
+		.transform((val) => (val ? addTrailingSlash(val) : val)),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
@@ -505,8 +509,6 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}, cmd: string): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
 	const validatedConfig = await validateConfig(mergedConfig, root);
-
-	console.log(validatedConfig.srcDir);
 
 	return validatedConfig;
 }
