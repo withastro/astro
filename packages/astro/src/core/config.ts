@@ -2,6 +2,7 @@ import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
 import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
 
+import { astroMarkdownOptions } from '@astrojs/markdown-remark';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
@@ -12,6 +13,9 @@ import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
 import { appendForwardSlash, trimSlashes } from './path.js';
+// These two imports make astroMarkdownOptions work
+import type {} from 'shiki';
+import type {} from 'unist';
 
 load.use([loadTypeScript]);
 
@@ -138,25 +142,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	markdown: z
-		.object({
-			drafts: z.boolean().optional().default(false),
-			mode: z
-				.union([z.literal('md'), z.literal('mdx')])
-				.optional()
-				.default('md'),
-			syntaxHighlight: z
-				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
-				.optional()
-				.default('shiki'),
-			// TODO: add better type checking
-			shikiConfig: z.any().optional().default({}),
-			remarkPlugins: z.array(z.any()).optional().default([]),
-			rehypePlugins: z.array(z.any()).optional().default([]),
-		})
-		.passthrough()
-		.optional()
-		.default({}),
+	markdown: astroMarkdownOptions.default({}).default({}),
 	vite: z.any().optional().default({}),
 	experimental: z
 		.object({
