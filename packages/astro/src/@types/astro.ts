@@ -152,22 +152,6 @@ export interface AstroUserConfig {
 	 */
 	srcDir?: string;
 
-	/**
-	 * @docs
-	 * @name outDir
-	 * @type {string}
-	 * @default `"./outDir"`
-	 * @description Set the directory that `astro build` writes your final build to.
-	 *
-	 * The value can be either an absolute file system path or a path relative to the project root.
-	 *
-	 * ```js
-	 * {
-	 *   outDir: './my-custom-build-directory'
-	 * }
-	 * ```
-	 */
-	outDir?: string;
 
 	/**
 	 * @docs
@@ -186,6 +170,32 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	publicDir?: string;
+
+	/**
+	 * @docs
+	 * @name outDir
+	 * @type {string}
+	 * @default `"./outDir"`
+	 * @description Set the directory that `astro build` writes your final build to.
+	 *
+	 * The value can be either an absolute file system path or a path relative to the project root.
+	 *
+	 * ```js
+	 * {
+	 *   outDir: './my-custom-build-directory'
+	 * }
+	 * ```
+	 */
+	outDir?: string;
+
+	/**
+	 * @name adapter
+	 * @type {AstroIntegration}
+	 * @default `undefined`
+	 * @description
+	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 */
+	adapter?: AstroIntegration;
 
 	/**
 	 * @docs
@@ -211,18 +221,6 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	integrations?: Array<AstroIntegration | AstroIntegration[]>;
-
-	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
-	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
-	 */
-	adapter?: AstroIntegration;
-
-	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
-	renderers?: string[];
 
 	/**
 	 * @docs
@@ -435,46 +433,29 @@ export interface AstroUserConfig {
 		ssr?: boolean;
 	};
 
-	// Legacy config options to be removed
-	/**
-	 * @deprecated `projectRoot` has been renamed to `root`
-	 */
+	// Legacy options to be removed
+
+	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
+	renderers?: never;
+	/** @deprecated `projectRoot` has been renamed to `root` */
 	projectRoot?: never;
-	/**
-	 * @deprecated `src` has been renamed to `srcDir`
-	 */
+	/** @deprecated `src` has been renamed to `srcDir` */
 	src?: never;
-	/**
-	 * @deprecated `pages` has been removed. It is no longer configurable.
-	 */
+	/** @deprecated `pages` has been removed. It is no longer configurable. */
 	pages?: never;
-	/**
-	 * @deprecated `public` has been renamed to `publicDir`
-	 */
+	/** @deprecated `public` has been renamed to `publicDir` */
 	public?: never;
-	/**
-	 * @deprecated `dist` has been renamed to `outDir`
-	 */
+	/** @deprecated `dist` has been renamed to `outDir` */
 	dist?: never;
-	/**
-	 * @deprecated `styleOptions` has been renamed to `style`
-	 */
+	/** @deprecated `styleOptions` has been renamed to `style` */
 	styleOptions?: never;
-	/**
-	 * @deprecated `markdownOptions` has been renamed to `markdown`
-	 */
+	/** @deprecated `markdownOptions` has been renamed to `markdown` */
 	markdownOptions?: never;
-	/**
-	 * @deprecated `buildOptions` has been renamed to `build`
-	 */
+	/** @deprecated `buildOptions` has been renamed to `build` */
 	buildOptions?: never;
-	/**
-	 * @deprecated `devOptions` has been renamed to `server`
-	 */
+	/** @deprecated `devOptions` has been renamed to `server` */
 	devOptions?: never;
-	/**
-	 * @deprecated `experimentalIntegrations` has been renamed to `experimental: { integrations: true }`
-	 */
+	/** @deprecated `experimentalIntegrations` has been renamed to `experimental: { integrations: true }` */
 	experimentalIntegrations?: never;
 }
 
