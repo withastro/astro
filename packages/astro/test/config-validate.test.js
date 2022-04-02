@@ -61,6 +61,6 @@ describe('Config Validation', () => {
 		expect(configError.message).to.include('Astro integrations are still experimental.');
 	});
 	it('allows third-party "integration" values with the --experimental-integrations flag', async () => {
-		await validateConfig({ integrations: [{ name: '@my-plugin/a' }], experimental: { integrations: true }}, process.cwd()).catch((err) => err);
+		await validateConfig({ integrations: [{ name: '@my-plugin/a' }], experimental: { integrations: true } }, process.cwd()).catch((err) => err);
 	});
 });

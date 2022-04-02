@@ -184,7 +184,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
-	
+
 	const viteBuildConfig = {
 		logLevel: 'info',
 		mode: 'production',

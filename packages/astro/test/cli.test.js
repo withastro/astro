@@ -64,9 +64,7 @@ describe('astro cli', () => {
 			});
 		});
 
-		const hostToExposeFlags = [
-			['', ''],
-		];
+		const hostToExposeFlags = [['', '']];
 		hostToExposeFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue} - host to expose`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture([flag, flagValue], cmd);

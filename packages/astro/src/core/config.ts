@@ -11,7 +11,7 @@ import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
-import { appendForwardSlash, trimSlashes } from './path.js'
+import { appendForwardSlash, trimSlashes } from './path.js';
 
 load.use([loadTypeScript]);
 
@@ -54,7 +54,7 @@ export const LegacyAstroConfigKeys = new Set([
 	'markdownOptions',
 	'buildOptions',
 	'devOptions',
-	'experimentalIntegrations'
+	'experimentalIntegrations',
 ]);
 
 export const AstroConfigSchema = z.object({
@@ -85,9 +85,9 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.transform((val) => (val ? appendForwardSlash(val) : val))
 		.refine((val) => !val || new URL(val).pathname.length <= 1, {
-			message: '"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
-			
-		  }),
+			message:
+				'"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
+		}),
 	base: z
 		.string()
 		.optional()
@@ -108,16 +108,17 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	server: z.preprocess(
 		// preprocess
-		// NOTE: Uses the "error" command here because this is overwritten by the 
+		// NOTE: Uses the "error" command here because this is overwritten by the
 		// individualized schema parser with the correct command.
 		(val) => (typeof val === 'function' ? val({ command: 'error' }) : val),
 		// validate
-		z.object({
-			host: z.union([z.string(), z.boolean()]).optional().default(false),
-			port: z.number().optional().default(3000),
-		})
-		.optional()
-		.default({}),
+		z
+			.object({
+				host: z.union([z.string(), z.boolean()]).optional().default(false),
+				port: z.number().optional().default(3000),
+			})
+			.optional()
+			.default({})
 	),
 	integrations: z.preprocess(
 		// preprocess
@@ -207,7 +208,7 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 		}
 	}
 	if (oldConfig) {
-		throw new Error(`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`)
+		throw new Error(`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`);
 	}
 	/* eslint-enable no-console */
 
@@ -234,12 +235,13 @@ export async function validateConfig(userConfig: any, root: string, cmd: string)
 			// preprocess
 			(val) => (typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val),
 			// validate
-			z.object({
-				host: z.union([z.string(), z.boolean()]).optional().default(false),
-				port: z.number().optional().default(3000),
-			})
-			.optional()
-			.default({}),
+			z
+				.object({
+					host: z.union([z.string(), z.boolean()]).optional().default(false),
+					port: z.number().optional().default(3000),
+				})
+				.optional()
+				.default({})
 		),
 		style: z
 			.object({

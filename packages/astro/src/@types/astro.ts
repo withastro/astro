@@ -274,18 +274,18 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Server Options
 	 * @description
-	 * 
+	 *
 	 * Customize the Astro dev server, used by both `astro dev` and `astro serve`.
-	 * 
-     * ```js
+	 *
+	 * ```js
 	 * {
 	 *   server: {port: 1234, host: true}
 	 * }
 	 * ```
-	 * 
+	 *
 	 * To set different configuration based on the command run ("dev", "preview") a function can also be passed to this configuration option.
-	 * 
-     * ```js
+	 *
+	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
 	 *   server: (command) => ({port: command === 'dev' ? 3000 : 4000})
@@ -324,7 +324,7 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Markdown Options
 	 */
-	 markdown?: {
+	markdown?: {
 		/**
 		 * @docs
 		 * @name markdown.drafts
@@ -353,7 +353,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
-		 shikiConfig?: ShikiConfig;
+		shikiConfig?: ShikiConfig;
 
 		/**
 		 * @docs
@@ -365,7 +365,7 @@ export interface AstroUserConfig {
 		 * - `shiki` - use the [Shiki](https://github.com/shikijs/shiki) highlighter
 		 * - `prism` - use the [Prism](https://prismjs.com/) highlighter
 		 * - `false` - do not apply syntax highlighting.
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   markdown: {
@@ -383,17 +383,17 @@ export interface AstroUserConfig {
 		 * @type {Plugin[]}
 		 * @description
 		 * Pass a custom [Remark](https://github.com/remarkjs/remark) plugin to customize how your Markdown is built.
-		 * 
-  		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
-		 * 
-  		 * ```js
-  		 * {
+		 *
+		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 *
+		 * ```js
+		 * {
 		 *   markdown: {
 		 *     // Example: The default set of remark plugins used by Astro
 		 *     remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
 		 *   },
-  		 * };
-  		 * ```
+		 * };
+		 * ```
 		 */
 		remarkPlugins?: Plugin[];
 		/**
@@ -402,17 +402,17 @@ export interface AstroUserConfig {
 		 * @type {Plugin[]}
 		 * @description
 		 * Pass a custom [Rehype](https://github.com/remarkjs/remark-rehype) plugin to customize how your Markdown is built.
-		 * 
-  		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
-		 * 
-  		 * ```js
-  		 * {
+		 *
+		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 *
+		 * ```js
+		 * {
 		 *   markdown: {
 		 *     // Example: The default set of rehype plugins used by Astro
-         *     rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+		 *     rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
 		 *   },
-  		 * };
-  		 * ```
+		 * };
+		 * ```
 		 */
 		rehypePlugins?: Plugin[];
 	};
@@ -424,29 +424,28 @@ export interface AstroUserConfig {
 	 * @description
 	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
 	 */
-	 adapter?: AstroIntegration;
+	adapter?: AstroIntegration;
 
-	 /**
-	  * @docs
-	  * @kind heading
-	  * @name Integrations
-	  * @description
-	  * 
-	  * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
-	  * 
-	  * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
-	  *
-	  * ```js
-	  * import react from '@astrojs/react';
-	  * import tailwind from '@astrojs/tailwind';
-	  * {
-	  *   // Example: Add React + Tailwind support to Astro
-	  *   integrations: [react(), tailwind()]
-	  * }
-	  * ```
-	  */
-	 integrations?: Array<AstroIntegration | AstroIntegration[]>;
-
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Integrations
+	 * @description
+	 *
+	 * Extend Astro with custom integrations. Integrations are your one-stop-shop for adding framework support (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
+	 *
+	 * Read our [Integrations Guide](/en/guides/integrations-guide/) for help getting started with Astro Integrations.
+	 *
+	 * ```js
+	 * import react from '@astrojs/react';
+	 * import tailwind from '@astrojs/tailwind';
+	 * {
+	 *   // Example: Add React + Tailwind support to Astro
+	 *   integrations: [react(), tailwind()]
+	 * }
+	 * ```
+	 */
+	integrations?: Array<AstroIntegration | AstroIntegration[]>;
 
 	/**
 	 * @docs
@@ -482,7 +481,7 @@ export interface AstroUserConfig {
 	 */
 	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
 
-	 experimental?: {
+	experimental?: {
 		/**
 		 * Enable experimental support for 3rd-party integrations.
 		 * Default: false
@@ -495,9 +494,6 @@ export interface AstroUserConfig {
 		 */
 		ssr?: boolean;
 	};
-
-
-	 
 
 	// Legacy options to be removed
 

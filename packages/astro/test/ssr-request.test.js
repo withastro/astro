@@ -13,8 +13,8 @@ describe('Using Astro.request in SSR', () => {
 			root: './fixtures/ssr-request/',
 			adapter: testAdapter(),
 			experimental: {
-				ssr: true
-			}
+				ssr: true,
+			},
 		});
 		await fixture.build();
 	});
