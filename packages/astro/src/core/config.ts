@@ -196,7 +196,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 		}
 	}
 	if (oldConfig) {
-		throw new Error(`Legacy configuration found. Please update your configuration to the new format!\nSee https://astro.build/config-v1 for more information.`)
+		throw new Error(`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`)
 	}
 	/* eslint-enable no-console */
 
