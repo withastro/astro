@@ -18,10 +18,10 @@ import '../styles/index.css';
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet" />
 
 <!-- Scrollable a11y code helper -->
-<script type="module" src="/make-scrollable-code-focusable.js"></script>
+<script src="/make-scrollable-code-focusable.js" is:inline></script>
 
 <!-- This is intentionally inlined to avoid FOUC -->
-<script>
+<script is:inline>
 	const root = document.documentElement;
 	const theme = localStorage.getItem('theme');
 	if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -32,7 +32,7 @@ import '../styles/index.css';
 </script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
-<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9"></script>
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9" is:inline></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}

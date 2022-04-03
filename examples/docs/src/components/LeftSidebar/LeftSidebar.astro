@@ -43,7 +43,7 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 	</ul>
 </nav>
 
-<script>
+<script is:inline>
 	window.addEventListener('DOMContentLoaded', (event) => {
 		var target = document.querySelector('[aria-current="page"]');
 		if (target && target.offsetTop > window.innerHeight - 100) {
