@@ -157,7 +157,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name publicDir
 	 * @type {string}
-	 * @default `"./publicDir"`
+	 * @default `"./public"`
 	 * @description
 	 * Set the directory for your static assets. Files in this directory are served at `/` during dev and copied to your build directory during build. These files are always served or copied as-is, without transform or bundling.
 	 *
@@ -175,7 +175,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name outDir
 	 * @type {string}
-	 * @default `"./outDir"`
+	 * @default `"./out"`
 	 * @description Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
