@@ -96,4 +96,6 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
 	process.exit(1);
 }
 
-main();
+main()
+	.then(() => process.exit(0))
+	.catch(() => process.exit(1));
