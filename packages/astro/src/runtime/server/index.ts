@@ -150,9 +150,8 @@ export async function renderComponent(
 	slots: any = {}
 ) {
 	Component = await Component;
-	const children = await renderSlot(result, slots?.default);
-
 	if (Component === Fragment) {
+		const children = await renderSlot(result, slots?.default);
 		if (children == null) {
 			return children;
 		}
@@ -197,6 +196,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		throw new Error(message);
 	}
 
+	const children = await renderSlot(result, slots?.default);
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
