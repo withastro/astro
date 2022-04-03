@@ -50,8 +50,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkJsx] : [])
-		.use(isMDX ? [remarkExpressions] : [])
+		.use(isMDX ? [remarkJsx, remarkExpressions] : [])
 		.use([remarkUnwrap]);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
@@ -91,10 +90,8 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	});
 
 	parser
-		.use(isMDX ? [rehypeJsx] : [])
-		.use(isMDX ? [rehypeExpressions] : [])
-		.use(isMDX ? [] : [rehypeRaw])
-		.use(isMDX ? [rehypeEscape] : [])
+		.use(isMDX ? [rehypeJsx, rehypeExpressions] : [rehypeRaw])
+		.use(rehypeEscape)
 		.use(rehypeIslands);
 
 	let result: string;
