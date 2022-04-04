@@ -43,7 +43,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					// Which mean that since we get no hover info for this, we instead get JSX hover info. So we'll just specify a description ourselves for this specific case
 					name: 'charset',
 					description:
-						"(Deprecated) It's unnecessary to specify the charset attribute, because documents must use UTF-8, and the script element inherits its character encoding from the document.",
+						"**Deprecated**\n\nIt's unnecessary to specify the charset attribute, because documents must use UTF-8, and the script element inherits its character encoding from the document.",
 				},
 				{
 					name: 'define:vars',
@@ -52,6 +52,29 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 						{
 							name: 'Astro documentation',
 							url: 'https://docs.astro.build/en/guides/styling/#variables-in-scripts--styles',
+						},
+					],
+				},
+				{
+					name: 'hoist',
+					description:
+						'**Deprecated in Astro >= 0.26.0**\n\nBuilds, optimizes, and bundles your script with the other JavaScript on the page',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro documentation',
+							url: 'https://docs.astro.build/en/core-concepts/astro-components/#using-hoisted-scripts',
+						},
+					],
+				},
+				{
+					name: 'is:inline',
+					description: 'Leave a script tag inline in the page template. No processing will be done on its content',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro documentation',
+							url: 'https://docs.astro.build/en/migrate/#new-default-script-behavior',
 						},
 					],
 				},
@@ -72,12 +95,35 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 				},
 				{
 					name: 'global',
+					description:
+						'**Deprecated in favor of `is:global` in >= Astro 0.26.0**\n\nOpts-out of automatic CSS scoping, all contents will be available globally',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro documentation',
+							url: 'https://docs.astro.build/en/guides/styling/#global-styles',
+						},
+					],
+				},
+				{
+					name: 'is:global',
 					description: 'Opts-out of automatic CSS scoping, all contents will be available globally',
 					valueSet: 'v',
 					references: [
 						{
 							name: 'Astro documentation',
 							url: 'https://docs.astro.build/en/guides/styling/#global-styles',
+						},
+					],
+				},
+				{
+					name: 'is:inline',
+					description: 'Leave a style tag inline in the page template. No processing will be done on its content',
+					valueSet: 'v',
+					references: [
+						{
+							name: 'Astro documentation',
+							url: 'https://docs.astro.build/en/migrate/#new-default-script-behavior',
 						},
 					],
 				},

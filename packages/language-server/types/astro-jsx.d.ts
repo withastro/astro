@@ -42,10 +42,18 @@ declare namespace astroHTML.JSX {
 	interface AstroDefineVars {
 		'define:vars'?: any;
 	}
-	
+
 	// Usable exclusively on style tags
-	interface AstroStyleGlobal {
-		'global'?: boolean;
+	interface AstroStyle {
+		global?: boolean;
+		'is:global'?: boolean;
+		'is:inline'?: boolean;
+	}
+
+	// Usable exclusively on script tags
+	interface AstroScript {
+		hoist?: boolean;
+		'is:inline'?: boolean;
 	}
 
 	type Element = HTMLElement;
@@ -73,155 +81,141 @@ declare namespace astroHTML.JSX {
 	type TransitionEventHandler<T extends EventTarget> = EventHandler<TransitionEvent, T>;
 	type MessageEventHandler<T extends EventTarget> = EventHandler<MessageEvent, T>;
 
-	// See CSS 3 CSS-wide keywords https://www.w3.org/TR/css3-values/#common-keywords
-	// See CSS 3 Explicit Defaulting https://www.w3.org/TR/css-cascade-3/#defaulting-keywords
-	// "all CSS properties can accept these values"
-	type CSSWideKeyword = 'initial' | 'inherit' | 'unset';
-
-	// See CSS 3 <percentage> type https://drafts.csswg.org/css-values-3/#percentages
-	type CSSPercentage = string;
-
-	// See CSS 3 <length> type https://drafts.csswg.org/css-values-3/#lengths
-	type CSSLength = number | string;
-
-	// This interface is not complete. Only properties accepting
-	// unit-less numbers are listed here (see CSSProperty.js in React)
-
 	interface DOMAttributes<T extends EventTarget> {
 		children?: Children;
 
 		// Clipboard Events
-		oncopy?: ClipboardEventHandler<T> | undefined | null;
-		oncut?: ClipboardEventHandler<T> | undefined | null;
-		onpaste?: ClipboardEventHandler<T> | undefined | null;
+		oncopy?: ClipboardEventHandler<T> | string | undefined | null;
+		oncut?: ClipboardEventHandler<T> | string | undefined | null;
+		onpaste?: ClipboardEventHandler<T> | string | undefined | null;
 
 		// Composition Events
-		oncompositionend?: CompositionEventHandler<T> | undefined | null;
-		oncompositionstart?: CompositionEventHandler<T> | undefined | null;
-		oncompositionupdate?: CompositionEventHandler<T> | undefined | null;
+		oncompositionend?: CompositionEventHandler<T> | string | undefined | null;
+		oncompositionstart?: CompositionEventHandler<T> | string | undefined | null;
+		oncompositionupdate?: CompositionEventHandler<T> | string | undefined | null;
 
 		// Focus Events
-		onfocus?: FocusEventHandler<T> | undefined | null;
-		onfocusin?: FocusEventHandler<T> | undefined | null;
-		onfocusout?: FocusEventHandler<T> | undefined | null;
-		onblur?: FocusEventHandler<T> | undefined | null;
+		onfocus?: FocusEventHandler<T> | string | undefined | null;
+		onfocusin?: FocusEventHandler<T> | string | undefined | null;
+		onfocusout?: FocusEventHandler<T> | string | undefined | null;
+		onblur?: FocusEventHandler<T> | string | undefined | null;
 
 		// Form Events
-		onchange?: FormEventHandler<T> | undefined | null;
-		oninput?: FormEventHandler<T> | undefined | null;
-		onreset?: FormEventHandler<T> | undefined | null;
-		onsubmit?: EventHandler<SubmitEvent, T> | undefined | null;
-		oninvalid?: EventHandler<Event, T> | undefined | null;
-		onbeforeinput?: EventHandler<InputEvent, T> | undefined | null;
+		onchange?: FormEventHandler<T> | string | undefined | null;
+		oninput?: FormEventHandler<T> | string | undefined | null;
+		onreset?: FormEventHandler<T> | string | undefined | null;
+		onsubmit?: EventHandler<SubmitEvent, T> | string | undefined | null;
+		oninvalid?: EventHandler<Event, T> | string | undefined | null;
+		onbeforeinput?: EventHandler<InputEvent, T> | string | undefined | null;
 
 		// Image Events
-		onload?: EventHandler | undefined | null;
-		onerror?: EventHandler | undefined | null; // also a Media Event
+		onload?: EventHandler | string | undefined | null;
+		onerror?: EventHandler | string | undefined | null; // also a Media Event
 
 		// Detail Events
-		ontoggle?: EventHandler<Event, T> | undefined | null;
+		ontoggle?: EventHandler<Event, T> | string | undefined | null;
 
 		// Keyboard Events
-		onkeydown?: KeyboardEventHandler<T> | undefined | null;
-		onkeypress?: KeyboardEventHandler<T> | undefined | null;
-		onkeyup?: KeyboardEventHandler<T> | undefined | null;
+		onkeydown?: KeyboardEventHandler<T> | string | undefined | null;
+		onkeypress?: KeyboardEventHandler<T> | string | undefined | null;
+		onkeyup?: KeyboardEventHandler<T> | string | undefined | null;
 
 		// Media Events
-		onabort?: EventHandler<Event, T> | undefined | null;
-		oncanplay?: EventHandler<Event, T> | undefined | null;
-		oncanplaythrough?: EventHandler<Event, T> | undefined | null;
-		oncuechange?: EventHandler<Event, T> | undefined | null;
-		ondurationchange?: EventHandler<Event, T> | undefined | null;
-		onemptied?: EventHandler<Event, T> | undefined | null;
-		onencrypted?: EventHandler<Event, T> | undefined | null;
-		onended?: EventHandler<Event, T> | undefined | null;
-		onloadeddata?: EventHandler<Event, T> | undefined | null;
-		onloadedmetadata?: EventHandler<Event, T> | undefined | null;
-		onloadstart?: EventHandler<Event, T> | undefined | null;
-		onpause?: EventHandler<Event, T> | undefined | null;
-		onplay?: EventHandler<Event, T> | undefined | null;
-		onplaying?: EventHandler<Event, T> | undefined | null;
-		onprogress?: EventHandler<Event, T> | undefined | null;
-		onratechange?: EventHandler<Event, T> | undefined | null;
-		onseeked?: EventHandler<Event, T> | undefined | null;
-		onseeking?: EventHandler<Event, T> | undefined | null;
-		onstalled?: EventHandler<Event, T> | undefined | null;
-		onsuspend?: EventHandler<Event, T> | undefined | null;
-		ontimeupdate?: EventHandler<Event, T> | undefined | null;
-		onvolumechange?: EventHandler<Event, T> | undefined | null;
-		onwaiting?: EventHandler<Event, T> | undefined | null;
+		onabort?: EventHandler<Event, T> | string | undefined | null;
+		oncanplay?: EventHandler<Event, T> | string | undefined | null;
+		oncanplaythrough?: EventHandler<Event, T> | string | undefined | null;
+		oncuechange?: EventHandler<Event, T> | string | undefined | null;
+		ondurationchange?: EventHandler<Event, T> | string | undefined | null;
+		onemptied?: EventHandler<Event, T> | string | undefined | null;
+		onencrypted?: EventHandler<Event, T> | string | undefined | null;
+		onended?: EventHandler<Event, T> | string | undefined | null;
+		onloadeddata?: EventHandler<Event, T> | string | undefined | null;
+		onloadedmetadata?: EventHandler<Event, T> | string | undefined | null;
+		onloadstart?: EventHandler<Event, T> | string | undefined | null;
+		onpause?: EventHandler<Event, T> | string | undefined | null;
+		onplay?: EventHandler<Event, T> | string | undefined | null;
+		onplaying?: EventHandler<Event, T> | string | undefined | null;
+		onprogress?: EventHandler<Event, T> | string | undefined | null;
+		onratechange?: EventHandler<Event, T> | string | undefined | null;
+		onseeked?: EventHandler<Event, T> | string | undefined | null;
+		onseeking?: EventHandler<Event, T> | string | undefined | null;
+		onstalled?: EventHandler<Event, T> | string | undefined | null;
+		onsuspend?: EventHandler<Event, T> | string | undefined | null;
+		ontimeupdate?: EventHandler<Event, T> | string | undefined | null;
+		onvolumechange?: EventHandler<Event, T> | string | undefined | null;
+		onwaiting?: EventHandler<Event, T> | string | undefined | null;
 
 		// MouseEvents
-		onauxclick?: MouseEventHandler<T> | undefined | null;
-		onclick?: MouseEventHandler<T> | undefined | null;
-		oncontextmenu?: MouseEventHandler<T> | undefined | null;
-		ondblclick?: MouseEventHandler<T> | undefined | null;
-		ondrag?: DragEventHandler<T> | undefined | null;
-		ondragend?: DragEventHandler<T> | undefined | null;
-		ondragenter?: DragEventHandler<T> | undefined | null;
-		ondragexit?: DragEventHandler<T> | undefined | null;
-		ondragleave?: DragEventHandler<T> | undefined | null;
-		ondragover?: DragEventHandler<T> | undefined | null;
-		ondragstart?: DragEventHandler<T> | undefined | null;
-		ondrop?: DragEventHandler<T> | undefined | null;
-		onmousedown?: MouseEventHandler<T> | undefined | null;
-		onmouseenter?: MouseEventHandler<T> | undefined | null;
-		onmouseleave?: MouseEventHandler<T> | undefined | null;
-		onmousemove?: MouseEventHandler<T> | undefined | null;
-		onmouseout?: MouseEventHandler<T> | undefined | null;
-		onmouseover?: MouseEventHandler<T> | undefined | null;
-		onmouseup?: MouseEventHandler<T> | undefined | null;
+		onauxclick?: MouseEventHandler<T> | string | undefined | null;
+		onclick?: MouseEventHandler<T> | string | undefined | null;
+		oncontextmenu?: MouseEventHandler<T> | string | undefined | null;
+		ondblclick?: MouseEventHandler<T> | string | undefined | null;
+		ondrag?: DragEventHandler<T> | string | undefined | null;
+		ondragend?: DragEventHandler<T> | string | undefined | null;
+		ondragenter?: DragEventHandler<T> | string | undefined | null;
+		ondragexit?: DragEventHandler<T> | string | undefined | null;
+		ondragleave?: DragEventHandler<T> | string | undefined | null;
+		ondragover?: DragEventHandler<T> | string | undefined | null;
+		ondragstart?: DragEventHandler<T> | string | undefined | null;
+		ondrop?: DragEventHandler<T> | string | undefined | null;
+		onmousedown?: MouseEventHandler<T> | string | undefined | null;
+		onmouseenter?: MouseEventHandler<T> | string | undefined | null;
+		onmouseleave?: MouseEventHandler<T> | string | undefined | null;
+		onmousemove?: MouseEventHandler<T> | string | undefined | null;
+		onmouseout?: MouseEventHandler<T> | string | undefined | null;
+		onmouseover?: MouseEventHandler<T> | string | undefined | null;
+		onmouseup?: MouseEventHandler<T> | string | undefined | null;
 
 		// Selection Events
-		onselect?: EventHandler<Event, T> | undefined | null;
-		onselectionchange?: EventHandler<Event, T> | undefined | null;
-		onselectstart?: EventHandler<Event, T> | undefined | null;
+		onselect?: EventHandler<Event, T> | string | undefined | null;
+		onselectionchange?: EventHandler<Event, T> | string | undefined | null;
+		onselectstart?: EventHandler<Event, T> | string | undefined | null;
 
 		// Touch Events
-		ontouchcancel?: TouchEventHandler<T> | undefined | null;
-		ontouchend?: TouchEventHandler<T> | undefined | null;
-		ontouchmove?: TouchEventHandler<T> | undefined | null;
-		ontouchstart?: TouchEventHandler<T> | undefined | null;
+		ontouchcancel?: TouchEventHandler<T> | string | undefined | null;
+		ontouchend?: TouchEventHandler<T> | string | undefined | null;
+		ontouchmove?: TouchEventHandler<T> | string | undefined | null;
+		ontouchstart?: TouchEventHandler<T> | string | undefined | null;
 
 		// Pointer Events
-		ongotpointercapture?: PointerEventHandler<T> | undefined | null;
-		onpointercancel?: PointerEventHandler<T> | undefined | null;
-		onpointerdown?: PointerEventHandler<T> | undefined | null;
-		onpointerenter?: PointerEventHandler<T> | undefined | null;
-		onpointerleave?: PointerEventHandler<T> | undefined | null;
-		onpointermove?: PointerEventHandler<T> | undefined | null;
-		onpointerout?: PointerEventHandler<T> | undefined | null;
-		onpointerover?: PointerEventHandler<T> | undefined | null;
-		onpointerup?: PointerEventHandler<T> | undefined | null;
-		onlostpointercapture?: PointerEventHandler<T> | undefined | null;
+		ongotpointercapture?: PointerEventHandler<T> | string | undefined | null;
+		onpointercancel?: PointerEventHandler<T> | string | undefined | null;
+		onpointerdown?: PointerEventHandler<T> | string | undefined | null;
+		onpointerenter?: PointerEventHandler<T> | string | undefined | null;
+		onpointerleave?: PointerEventHandler<T> | string | undefined | null;
+		onpointermove?: PointerEventHandler<T> | string | undefined | null;
+		onpointerout?: PointerEventHandler<T> | string | undefined | null;
+		onpointerover?: PointerEventHandler<T> | string | undefined | null;
+		onpointerup?: PointerEventHandler<T> | string | undefined | null;
+		onlostpointercapture?: PointerEventHandler<T> | string | undefined | null;
 
 		// UI Events
-		onscroll?: UIEventHandler<T> | undefined | null;
-		onresize?: UIEventHandler<T> | undefined | null;
+		onscroll?: UIEventHandler<T> | string | undefined | null;
+		onresize?: UIEventHandler<T> | string | undefined | null;
 
 		// Wheel Events
-		onwheel?: WheelEventHandler<T> | undefined | null;
+		onwheel?: WheelEventHandler<T> | string | undefined | null;
 
 		// Animation Events
-		onanimationstart?: AnimationEventHandler<T> | undefined | null;
-		onanimationend?: AnimationEventHandler<T> | undefined | null;
-		onanimationiteration?: AnimationEventHandler<T> | undefined | null;
+		onanimationstart?: AnimationEventHandler<T> | string | undefined | null;
+		onanimationend?: AnimationEventHandler<T> | string | undefined | null;
+		onanimationiteration?: AnimationEventHandler<T> | string | undefined | null;
 
 		// Transition Events
-		ontransitionstart?: TransitionEventHandler<T> | undefined | null;
-		ontransitionrun?: TransitionEventHandler<T> | undefined | null;
-		ontransitionend?: TransitionEventHandler<T> | undefined | null;
-		ontransitioncancel?: TransitionEventHandler<T> | undefined | null;
+		ontransitionstart?: TransitionEventHandler<T> | string | undefined | null;
+		ontransitionrun?: TransitionEventHandler<T> | string | undefined | null;
+		ontransitionend?: TransitionEventHandler<T> | string | undefined | null;
+		ontransitioncancel?: TransitionEventHandler<T> | string | undefined | null;
 
 		// Message Events
-		onmessage?: MessageEventHandler<T> | undefined | null;
-		onmessageerror?: MessageEventHandler<T> | undefined | null;
+		onmessage?: MessageEventHandler<T> | string | undefined | null;
+		onmessageerror?: MessageEventHandler<T> | string | undefined | null;
 
 		// Global Events
-		oncancel?: EventHandler<Event, T> | undefined | null;
-		onclose?: EventHandler<Event, T> | undefined | null;
-		onfullscreenchange?: EventHandler<Event, T> | undefined | null;
-		onfullscreenerror?: EventHandler<Event, T> | undefined | null;
+		oncancel?: EventHandler<Event, T> | string | undefined | null;
+		onclose?: EventHandler<Event, T> | string | undefined | null;
+		onfullscreenchange?: EventHandler<Event, T> | string | undefined | null;
+		onfullscreenerror?: EventHandler<Event, T> | string | undefined | null;
 	}
 
 	// All the WAI-ARIA 1.1 attributes from https://www.w3.org/TR/wai-aria-1.1/
@@ -993,14 +987,14 @@ declare namespace astroHTML.JSX {
 		ruby: HTMLProps<HTMLElement>;
 		s: HTMLProps<HTMLElement>;
 		samp: HTMLProps<HTMLElement>;
-		script: HTMLProps<HTMLElement> & AstroDefineVars;
+		script: HTMLProps<HTMLElement> & AstroDefineVars & AstroScript;
 		section: HTMLProps<HTMLElement>;
 		select: HTMLProps<HTMLSelectElement>;
 		small: HTMLProps<HTMLElement>;
 		source: HTMLProps<HTMLSourceElement>;
 		span: HTMLProps<HTMLSpanElement>;
 		strong: HTMLProps<HTMLElement>;
-		style: HTMLProps<HTMLStyleElement> & AstroDefineVars & AstroStyleGlobal;
+		style: HTMLProps<HTMLStyleElement> & AstroDefineVars & AstroStyle;
 		sub: HTMLProps<HTMLElement>;
 		summary: HTMLProps<HTMLElement>;
 		sup: HTMLProps<HTMLElement>;
