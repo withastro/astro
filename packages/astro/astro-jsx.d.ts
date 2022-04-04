@@ -25,9 +25,9 @@ declare namespace astroHTML.JSX {
 	}
 
 	type AstroBuiltinProps = import('astro').AstroBuiltinProps;
-	type AstroBuiltinAttributes = import('astro').AstroBuiltinAttributes
+	type AstroBuiltinAttributes = import('astro').AstroBuiltinAttributes;
 	type AstroDefineVarsAttribute = import('astro').AstroDefineVarsAttribute;
-	type AstroScriptAttributes = import('astro').AstroScriptAttributes & AstroDefineVarsAttribute
+	type AstroScriptAttributes = import('astro').AstroScriptAttributes & AstroDefineVarsAttribute;
 	type AstroStyleAttributes = import('astro').AstroStyleAttributes & AstroDefineVarsAttribute;
 
 	// Certain Astro methods returns AstroComponent using AstroComponentFactory
