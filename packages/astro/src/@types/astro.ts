@@ -175,7 +175,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name outDir
 	 * @type {string}
-	 * @default `"./out"`
+	 * @default `"./dist"`
 	 * @description Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
