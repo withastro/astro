@@ -13,6 +13,35 @@ export interface AstroBuiltinProps {
 	'client:idle'?: boolean;
 	'client:media'?: string;
 	'client:visible'?: boolean;
+	'client:only'?: boolean | string;
+}
+
+export interface AstroBuiltinAttributes {
+	'class:list'?:
+		| Record<string, boolean>
+		| Record<any, any>
+		| Iterable<string>
+		| Iterable<any>
+		| string;
+	'set:html'?: any;
+	'set:text'?: any;
+}
+
+export interface AstroDefineVarsAttribute {
+	'define:vars'?: any;
+}
+
+export interface AstroStyleAttributes {
+	/** @deprecated Use `is:global` instead */
+	global?: boolean;
+	'is:global'?: boolean;
+	'is:inline'?: boolean;
+}
+
+export interface AstroScriptAttributes {
+	/** @deprecated Hoist is now the default behavior */
+	hoist?: boolean;
+	'is:inline'?: boolean;
 }
 
 export interface AstroComponentMetadata {
