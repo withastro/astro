@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.8.0",
-    "astro": "^0.26.0"
+    "@astrojs/markdown-remark": "^0.8.1",
+    "astro": "^0.26.1"
   }
 }

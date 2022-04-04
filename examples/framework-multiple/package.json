@@ -15,7 +15,7 @@
     "@astrojs/solid-js": "^0.0.3",
     "@astrojs/svelte": "^0.0.2",
     "@astrojs/vue": "^0.0.2",
-    "astro": "^0.26.0"
+    "astro": "^0.26.1"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
