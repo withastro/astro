@@ -59,5 +59,8 @@
     "@astrojs/webapi": "0.11.0",
     "astro-scripts": "0.0.2"
   },
-  "changesets": []
+  "changesets": [
+    "shiny-rice-worry",
+    "stale-walls-whisper"
+  ]
 }
