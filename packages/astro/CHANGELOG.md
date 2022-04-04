@@ -1,5 +1,18 @@
 # astro
 
+## 0.26.1
+
+### Patch Changes
+
+- [#2978](https://github.com/withastro/astro/pull/2978) [`3f0bc5af`](https://github.com/withastro/astro/commit/3f0bc5af57550ee28697ba4910208276bd23fb3f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case where default slots could be rendered too early for Astro components. Slots are now only rendered on demand.
+
+* [#2973](https://github.com/withastro/astro/pull/2973) [`75919537`](https://github.com/withastro/astro/commit/75919537be17f3c11991d5bfc24a7d75b7c32e36) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates the @docs default value listed for config.publicDir and config.outputDir
+
+- [#2974](https://github.com/withastro/astro/pull/2974) [`82445879`](https://github.com/withastro/astro/commit/824458790a45e9b476e8acf6c406c49d28740dea) Thanks [@JuanM04](https://github.com/JuanM04)! - Prevent CLI from hanging
+
+- Updated dependencies [[`ad3c3916`](https://github.com/withastro/astro/commit/ad3c391696c5b9cc350a22831717682e73e25776)]:
+  - @astrojs/markdown-remark@0.8.1
+
 ## 0.26.0
 
 ### Minor Changes
@@ -99,7 +112,7 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
 
@@ -119,7 +132,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -179,7 +192,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -275,7 +288,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -313,9 +326,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -335,7 +348,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -419,7 +432,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -443,9 +456,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -557,12 +570,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -724,12 +737,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -2084,10 +2097,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -2107,10 +2120,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

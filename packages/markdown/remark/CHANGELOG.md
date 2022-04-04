@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.8.1
+
+### Patch Changes
+
+- [#2971](https://github.com/withastro/astro/pull/2971) [`ad3c3916`](https://github.com/withastro/astro/commit/ad3c391696c5b9cc350a22831717682e73e25776) Thanks [@JuanM04](https://github.com/JuanM04)! - Escape expressions when mode == 'md'
+
 ## 0.8.0
 
 ### Minor Changes
@@ -193,10 +199,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
