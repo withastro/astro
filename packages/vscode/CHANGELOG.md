@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.13.4
+
+### Patch Changes
+
+- 74c9961: Fixed Astro syntax to detect `<Markdown />` component correctly
+- Updated dependencies [5874655]
+  - @astrojs/language-server@0.13.4
+
 ## 0.13.3
 
 ### Patch Changes

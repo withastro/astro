@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.13.4
+
+### Patch Changes
+
+- 5874655: Add support for Astro 0.26.0 attributes
+
 ## 0.13.3
 
 ### Patch Changes
