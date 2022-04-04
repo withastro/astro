@@ -7,7 +7,7 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "release": "pnpm run build && changeset publish",
+    "release": "pnpm run build && changeset publish --tag latest",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
