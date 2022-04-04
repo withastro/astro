@@ -61,6 +61,7 @@
   },
   "changesets": [
     "shiny-rice-worry",
-    "stale-walls-whisper"
+    "stale-walls-whisper",
+    "thin-cameras-clean"
   ]
 }
