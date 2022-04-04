@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      /**For testing import json file*/
+      "resolveJsonModule": true
+    },
+    "exclude": [
+      /**For testing exclude */
+      "./dist"
+    ]
+}

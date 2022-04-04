@@ -28,7 +28,10 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
 			filePath,
 			{
 				start,
-				length: range ? fragment.offsetAt(fragment.getGeneratedPosition(range.end)) - start : fragment.text.length,
+				length: range
+					? fragment.offsetAt(fragment.getGeneratedPosition(range.end)) - start
+					: // We don't want tokens for things added by astro2tsx
+					  fragment.text.lastIndexOf('export default function (_props:') || fragment.text.length,
 			},
 			ts.SemanticClassificationFormat.TwentyTwenty
 		);

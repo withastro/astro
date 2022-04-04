@@ -4,7 +4,7 @@ import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { normalizePath } from '../../../utils';
 import { EventEmitter } from 'events';
 import * as DocumentSnapshotUtils from './utils';
-import { toVirtualFilePath } from '../utils';
+import { ensureRealFilePath, toVirtualFilePath } from '../utils';
 
 /**
  * Every snapshot corresponds to a unique file on disk.
@@ -185,7 +185,9 @@ export class SnapshotManager {
 			this.lastLogged = date;
 
 			const projectFiles = this.getProjectFileNames();
-			const allFiles = Array.from(new Set([...projectFiles, ...this.getFileNames()]));
+			let allFiles = Array.from(new Set([...projectFiles, ...this.getFileNames()]));
+			allFiles = allFiles.map((file) => ensureRealFilePath(file));
+
 			console.log(
 				'SnapshotManager File Statistics:\n' +
 					`Project files: ${projectFiles.length}\n` +

@@ -1,4 +1,4 @@
-import type { AppCompletionList } from '../../interfaces';
+import type { AppCompletionList, CompletionsProvider } from '../../interfaces';
 import type { FunctionDeclaration } from 'typescript';
 import type { AstroDocument, DocumentManager } from '../../../core/documents';
 import {
@@ -22,7 +22,7 @@ import { getLanguageService, Node } from 'vscode-html-languageservice';
 import { astroDirectives } from '../../html/features/astro-attributes';
 import { removeDataAttrCompletion } from '../../html/utils';
 
-export class CompletionsProviderImpl {
+export class CompletionsProviderImpl implements CompletionsProvider {
 	private readonly docManager: DocumentManager;
 	private readonly languageServiceManager: TypeScriptLanguageServiceManager;
 
@@ -51,20 +51,19 @@ export class CompletionsProviderImpl {
 			if (frontmatter) items.push(frontmatter);
 		}
 
+		const html = document.html;
 		const offset = document.offsetAt(position);
-		if (!isInsideFrontmatter(document.getText(), offset)) {
+		if (isInComponentStartTag(html, offset)) {
 			const props = await this.getPropCompletions(document, position, completionContext);
 			if (props.length) {
 				items.push(...props);
 			}
-		}
 
-		const html = document.html;
-		if (isInComponentStartTag(html, offset)) {
 			const node = html.findNodeAt(offset);
 			const isAstro = await this.isAstroComponent(document, node);
 			if (!isAstro) {
-				items.push(...removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items));
+				const directives = removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items);
+				items.push(...directives);
 			}
 		}
 

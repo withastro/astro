@@ -75,7 +75,7 @@ export async function getLanguageServiceForTsconfig(
 }
 
 async function createLanguageService(tsconfigPath: string, docContext: LanguageServiceDocumentContext) {
-	const workspaceRoot = tsconfigPath ? dirname(tsconfigPath) : process.cwd();
+	const workspaceRoot = tsconfigPath ? dirname(tsconfigPath) : '';
 
 	// `raw` here represent the tsconfig merged with any extended config
 	const { compilerOptions, fileNames: files, raw: fullConfig } = getParsedTSConfig();

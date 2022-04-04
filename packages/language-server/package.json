@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\""
+    "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 20000 --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\""
   },
   "dependencies": {
     "@astrojs/svelte-language-integration": "^0.1.2",

@@ -41,7 +41,7 @@ export class AstroPlugin implements Plugin {
 		return completions;
 	}
 
-	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[]> {
+	getFoldingRanges(document: AstroDocument): FoldingRange[] {
 		const foldingRanges: FoldingRange[] = [];
 		const { frontmatter } = document.astroMeta;
 

@@ -22,6 +22,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 		const symbols: SymbolInformation[] = [];
 		this.collectSymbols(navTree, fragment, undefined, (symbol) => symbols.push(symbol));
 
+		const originalContainerName = symbols[0].name;
 		const result: SymbolInformation[] = [];
 
 		// Add a "Frontmatter" namespace for the frontmatter if we have a closed one
@@ -33,7 +34,8 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 					Range.create(
 						document.positionAt(document.astroMeta.frontmatter.startOffset as number),
 						document.positionAt(document.astroMeta.frontmatter.endOffset as number)
-					)
+					),
+					document.getURL()
 				)
 			);
 		}
@@ -46,7 +48,8 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 				Range.create(
 					document.positionAt(document.astroMeta.frontmatter.endOffset ?? 0),
 					document.positionAt(document.getTextLength())
-				)
+				),
+				document.getURL()
 			)
 		);
 
@@ -54,7 +57,9 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 			symbol = mapSymbolInformationToOriginal(fragment, symbol);
 
 			if (document.offsetAt(symbol.location.range.end) >= (document.astroMeta.content.firstNonWhitespaceOffset ?? 0)) {
-				symbol.containerName = 'Template';
+				if (symbol.containerName === originalContainerName) {
+					symbol.containerName = 'Template';
+				}
 
 				// For some reason, it seems like TypeScript thinks that the "class" attribute is a real class, weird
 				if (symbol.kind === SymbolKind.Class && symbol.name === '<class>') {

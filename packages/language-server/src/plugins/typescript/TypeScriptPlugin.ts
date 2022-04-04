@@ -109,6 +109,10 @@ export class TypeScriptPlugin implements Plugin {
 		range?: Range,
 		cancellationToken?: CancellationToken
 	): Promise<SemanticTokens | null> {
+		if (!this.featureEnabled('semanticTokens')) {
+			return null;
+		}
+
 		return this.semanticTokensProvider.getSemanticTokens(textDocument, range, cancellationToken);
 	}
 
