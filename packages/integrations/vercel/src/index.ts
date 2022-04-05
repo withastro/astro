@@ -23,7 +23,7 @@ export default function vercel(): AstroIntegration {
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
-				config.outDir = new URL('./.output/', config.outDir);
+				config.outDir = new URL('./.output/', config.root);
 				config.build.format = 'directory';
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
