@@ -146,7 +146,7 @@ export const AstroConfigSchema = z.object({
 			mode: z
 				.union([z.literal('md'), z.literal('mdx')])
 				.optional()
-				.default('md'),
+				.default('mdx'),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
 				.optional()
