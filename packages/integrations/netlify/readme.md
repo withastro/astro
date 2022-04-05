@@ -2,14 +2,18 @@
 
 Deploy your server-side rendered (SSR) Astro app to [Netlify](https://www.netlify.com/).
 
-Use this adapter in your Astro configuration file:
+Use this adapter in your Astro configuration file, alongside a valid deployment URL:
 
 ```js
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
-	adapter: netlify()
+	adapter: netlify(),
+  // Where your Netlify app will be deployed.
+  // Feel free to use a local URL (i.e. http://localhost:8080)
+  // to test local builds via the netlify CLI
+  site: 'https://my-production-url.netlify.app',
 });
 ```
 
@@ -23,7 +27,9 @@ netlify deploy
 
 ## Configuration
 
-The output folder is configuration with the `dist` property when creating the adapter.
+### dist
+
+We build to a `netlify` directory at the base of your project. To change this, use the `dist` option:
 
 ```js
 import { defineConfig } from 'astro/config';
