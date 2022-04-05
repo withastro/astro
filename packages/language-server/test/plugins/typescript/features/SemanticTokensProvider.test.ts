@@ -96,6 +96,20 @@ describe('TypeScript Plugin#SemanticTokenProvider', () => {
 			},
 			{
 				line: 10,
+				character: 19,
+				length: 'Astro'.length,
+				type: TokenType.type,
+				modifiers: [TokenModifier.readonly],
+			},
+			{
+				line: 10,
+				character: 25,
+				length: 'props'.length,
+				type: TokenType.property,
+				modifiers: [],
+			},
+			{
+				line: 10,
 				character: 34,
 				length: 'Props'.length,
 				type: TokenType.interface,

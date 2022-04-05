@@ -2,7 +2,7 @@ import { AstroDocument } from '../../core/documents';
 import { dirname, resolve } from 'path';
 import ts from 'typescript';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import { normalizePath } from '../../utils';
+import { AstroVersion, getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 import { ensureRealFilePath, findTsConfigPath } from './utils';
@@ -45,7 +45,7 @@ export async function getLanguageService(
 	docContext: LanguageServiceDocumentContext
 ): Promise<LanguageServiceContainer> {
 	const tsconfigPath = findTsConfigPath(path, workspaceUris);
-	return getLanguageServiceForTsconfig(tsconfigPath, docContext);
+	return getLanguageServiceForTsconfig(tsconfigPath, docContext, workspaceUris);
 }
 
 export async function forAllLanguageServices(cb: (service: LanguageServiceContainer) => any): Promise<void> {
@@ -60,13 +60,14 @@ export async function forAllLanguageServices(cb: (service: LanguageServiceContai
  */
 export async function getLanguageServiceForTsconfig(
 	tsconfigPath: string,
-	docContext: LanguageServiceDocumentContext
+	docContext: LanguageServiceDocumentContext,
+	workspaceUris: string[]
 ): Promise<LanguageServiceContainer> {
 	let service: LanguageServiceContainer;
 	if (services.has(tsconfigPath)) {
 		service = await services.get(tsconfigPath)!;
 	} else {
-		const newService = createLanguageService(tsconfigPath, docContext);
+		const newService = createLanguageService(tsconfigPath, docContext, workspaceUris);
 		services.set(tsconfigPath, newService);
 		service = await newService;
 	}
@@ -74,8 +75,16 @@ export async function getLanguageServiceForTsconfig(
 	return service;
 }
 
-async function createLanguageService(tsconfigPath: string, docContext: LanguageServiceDocumentContext) {
-	const workspaceRoot = tsconfigPath ? dirname(tsconfigPath) : '';
+async function createLanguageService(
+	tsconfigPath: string,
+	docContext: LanguageServiceDocumentContext,
+	workspaceUris: string[]
+) {
+	const tsconfigRoot = tsconfigPath ? dirname(tsconfigPath) : process.cwd();
+
+	const workspacePaths = workspaceUris.map((uri) => urlToPath(uri) as string);
+	const workspacePath = workspacePaths.find((uri: string) => tsconfigRoot.startsWith(uri)) || workspacePaths[0];
+	const astroVersion = getUserAstroVersion(workspacePath);
 
 	// `raw` here represent the tsconfig merged with any extended config
 	const { compilerOptions, fileNames: files, raw: fullConfig } = getParsedTSConfig();
@@ -86,18 +95,27 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 		docContext.globalSnapshotManager,
 		files,
 		fullConfig,
-		workspaceRoot || process.cwd()
+		tsconfigRoot || process.cwd()
 	);
 
 	const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, compilerOptions);
 
-	let languageServerDirectory: string;
-	try {
-		languageServerDirectory = dirname(require.resolve('@astrojs/language-server'));
-	} catch (e) {
-		languageServerDirectory = __dirname;
+	const scriptFileNames: string[] = [];
+
+	// Before Astro 1.0, JSX definitions were inside of the language-server instead of inside Astro
+	// TODO: Remove this and astro-jsx.d.ts in types when we consider having support for Astro < 1.0 unnecessary
+	if (astroVersion.major === 0 || astroVersion.full === '1.0.0-beta.0') {
+		let languageServerDirectory: string;
+		try {
+			languageServerDirectory = dirname(require.resolve('@astrojs/language-server'));
+		} catch (e) {
+			languageServerDirectory = __dirname;
+		}
+		const astroTSXFile = ts.sys.resolvePath(resolve(languageServerDirectory, '../types/astro-jsx.d.ts'));
+		scriptFileNames.push(astroTSXFile);
+
+		console.warn("Version lower than 1.0 detected, using internal types instead of Astro's");
 	}
-	const astroTSXFile = ts.sys.resolvePath(resolve(languageServerDirectory, '../types/astro-jsx.d.ts'));
 
 	const host: ts.LanguageServiceHost = {
 		getNewLine: () => ts.sys.newLine,
@@ -109,12 +127,14 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 		readDirectory: astroModuleLoader.readDirectory,
 
 		getCompilationSettings: () => compilerOptions,
-		getCurrentDirectory: () => workspaceRoot,
+		getCurrentDirectory: () => tsconfigRoot,
 		getDefaultLibFileName: ts.getDefaultLibFilePath,
 
 		getProjectVersion: () => projectVersion.toString(),
 		getScriptFileNames: () =>
-			Array.from(new Set([...snapshotManager.getProjectFileNames(), ...snapshotManager.getFileNames(), astroTSXFile])),
+			Array.from(
+				new Set([...snapshotManager.getProjectFileNames(), ...snapshotManager.getFileNames(), ...scriptFileNames])
+			),
 		getScriptSnapshot,
 		getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
 	};
@@ -224,11 +244,21 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 		let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {};
 
 		// If our user has types in their config but it doesn't include the types needed for Astro, add them to the config
-		if (configJson.compilerOptions?.types && !configJson.compilerOptions?.types.includes('astro/env')) {
-			configJson.compilerOptions.types.push('astro/env');
+		if (configJson.compilerOptions?.types) {
+			if (!configJson.compilerOptions?.types.includes('astro/env')) {
+				configJson.compilerOptions.types.push('astro/env');
+			}
+
+			if (
+				astroVersion.major >= 1 &&
+				astroVersion.full !== '1.0.0-beta.0' &&
+				!configJson.compilerOptions?.types.includes('astro/astro-jsx')
+			) {
+				configJson.compilerOptions.types.push('astro/astro-jsx');
+			}
 		}
 
-		configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(), configJson.compilerOptions);
+		configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(astroVersion), configJson.compilerOptions);
 
 		// Delete include so that .astro files don't get mistakenly excluded by the user
 		delete configJson.include;
@@ -254,7 +284,7 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 		const project = ts.parseJsonConfigFileContent(
 			configJson,
 			ts.sys,
-			workspaceRoot,
+			tsconfigRoot,
 			forcedCompilerOptions,
 			tsconfigPath,
 			undefined,
@@ -279,11 +309,17 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 /**
  * Default configuration used as a base and when the user doesn't have any
  */
-function getDefaultCompilerOptions(): ts.CompilerOptions {
+function getDefaultCompilerOptions(astroVersion: AstroVersion): ts.CompilerOptions {
+	const types = ['astro/env'];
+
+	if (astroVersion.major >= 1 && astroVersion.full !== '1.0.0-beta.0') {
+		types.push('astro/astro-jsx');
+	}
+
 	return {
 		maxNodeModuleJsDepth: 2,
 		allowSyntheticDefaultImports: true,
-		types: ['astro/env'],
+		types: types,
 	};
 }
 

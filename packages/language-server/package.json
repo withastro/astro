@@ -37,7 +37,7 @@
     "@types/lodash": "^4.14.179",
     "@types/mocha": "^9.1.0",
     "@types/sinon": "^10.0.11",
-    "astro": "^0.23.7",
+    "astro": "^1.0.0-beta.1",
     "astro-scripts": "0.0.1",
     "chai": "^4.3.6",
     "cross-env": "^7.0.3",

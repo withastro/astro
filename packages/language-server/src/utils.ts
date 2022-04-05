@@ -127,3 +127,47 @@ export function debounceThrottle<T extends (...args: any) => void>(fn: T, millis
 
 	return maybeCall as any;
 }
+
+export interface AstroVersion {
+	full: string;
+	major: number;
+	minor: number;
+	patch: number;
+	exist: boolean;
+}
+
+export function getUserAstroVersion(basePath: string): AstroVersion {
+	let version = '0.0.0';
+	let exist = true;
+
+	try {
+		const astroPackageJson = require.resolve('astro/package.json', { paths: [basePath] });
+
+		version = require(astroPackageJson).version;
+	} catch {
+		// If we couldn't find it inside the workspace's node_modules, it might means we're in the monorepo
+		try {
+			const monorepoPackageJson = require.resolve('./packages/astro/package.json', { paths: [basePath] });
+			version = require(monorepoPackageJson).version;
+		} catch (e) {
+			// If we still couldn't find it, it probably just doesn't exist
+			exist = false;
+			console.error(e);
+		}
+	}
+
+	let [major, minor, patch] = version.split('.');
+
+	if (patch.includes('-')) {
+		const patchParts = patch.split('-');
+		patch = patchParts[0];
+	}
+
+	return {
+		full: version,
+		major: Number(major),
+		minor: Number(minor),
+		patch: Number(patch),
+		exist,
+	};
+}
