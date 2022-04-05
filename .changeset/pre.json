@@ -60,6 +60,7 @@
     "astro-scripts": "0.0.2"
   },
   "changesets": [
+    "angry-suits-thank",
     "shiny-rice-worry",
     "sour-laws-raise",
     "stale-walls-whisper",

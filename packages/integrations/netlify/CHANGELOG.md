@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.1.1-beta.0
+
+### Patch Changes
+
+- [#2996](https://github.com/withastro/astro/pull/2996) [`77aa3a5c`](https://github.com/withastro/astro/commit/77aa3a5c504c5f51ed1c4d2c8abc4997397deec2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add human-readable error when a site is not provided in your astro.config
+
 ## 0.1.0
 
 ### Minor Changes
@@ -19,6 +25,6 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
