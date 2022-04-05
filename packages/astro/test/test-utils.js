@@ -177,10 +177,10 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 
 	let local;
 	let network;
-	if (messages[1].includes('Local')) {
+	if (messages[1]?.includes('Local')) {
 		local = messages[1].replace(/Local\s*/g, '');
 	}
-	if (messages[2].includes('Network')) {
+	if (messages[2]?.includes('Network')) {
 		network = messages[2].replace(/Network\s*/g, '');
 	}
 
