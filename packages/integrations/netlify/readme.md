@@ -9,10 +9,10 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
-	adapter: netlify(),
-  // Where your Netlify app will be deployed.
+  adapter: netlify(),
+  // Where your production Netlify app will be deployed.
   // Feel free to use an example URL (i.e. http://example.com)
-  // to test local builds, in case you aren't deploying yet!
+  // to test local and preview builds, in case you don't have a production URL!
   site: 'https://my-production-url.netlify.app',
 });
 ```
