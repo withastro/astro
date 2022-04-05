@@ -33,7 +33,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 					site = new URL(config.base, config.site);
 				} catch {
 					throw new Error(
-						'The Netlify adapter requires a deployment URL. Ensure a "site" is specified either in your astro.config or in the Netlify adapter configuration options. If you provided a "base" in your astro.config, ensure it is a valid path.'
+						'The Netlify adapter requires a deployment URL. Ensure a "site" is specified in your astro.config. If you provided a "base" in your astro.config, ensure it is a valid path.'
 					);
 				}
 				setAdapter(getAdapter(site.toString()));
