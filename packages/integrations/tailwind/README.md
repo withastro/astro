@@ -27,6 +27,14 @@ pnpx astro add tailwind
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
+Then simply import your stylesheet :tada:.
+
+```yml
+---
+import "../styles/your-tailwind-styles.css";
+---
+```
+
 ### Install dependencies manually
 
 First, install the `@astrojs/tailwind` integration like so:
