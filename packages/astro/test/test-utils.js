@@ -151,19 +151,32 @@ export function cli(/** @type {string[]} */ ...args) {
 
 export async function parseCliDevStart(proc) {
 	let stdout = '';
+	let stderr = '';
 
 	for await (const chunk of proc.stdout) {
 		stdout += chunk;
-
 		if (chunk.includes('Local')) break;
+	}
+	if (!stdout) {
+		for await (const chunk of proc.stderr) {
+			stderr += chunk;
+			break;
+		}
 	}
 
 	proc.kill();
 	stdout = stripAnsi(stdout);
+	stderr = stripAnsi(stderr);
+
+	if (stderr) {
+		throw new Error(stderr);
+	}
+	
 	const messages = stdout
 		.split('\n')
 		.filter((ln) => !!ln.trim())
 		.map((ln) => ln.replace(/[🚀┃]/g, '').replace(/\s+/g, ' ').trim());
+
 	return { messages };
 }
 
@@ -172,11 +185,8 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 
 	const { messages } = await parseCliDevStart(proc);
 
-	const localRaw = (messages[1] ?? '').includes('Local') ? messages[1] : undefined;
-	const networkRaw = (messages[2] ?? '').includes('Network') ? messages[2] : undefined;
-
-	const local = localRaw?.replace(/Local\s*/g, '');
-	const network = networkRaw?.replace(/Network\s*/g, '');
+	const local = messages.find(msg => msg.includes('Local'))?.replace(/Local\s*/g, '');
+	const network = messages.find(msg => msg.includes('Network'))?.replace(/Network\s*/g, '');
 
 	return { local, network };
 }

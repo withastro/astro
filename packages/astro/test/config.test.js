@@ -64,6 +64,60 @@ describe('config', () => {
 		});
 	});
 
+	describe('relative path', () => {
+		it('can be passed via relative --config', async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+			const configFileURL = 'my-config.mjs';
+			const { local } = await cliServerLogSetup([
+				'--root',
+				fileURLToPath(projectRootURL),
+				'--config',
+				configFileURL,
+			]);
+
+			const localURL = new URL(local);
+			expect(localURL.port).to.equal('8080');
+		});
+	})
+
+	describe('relative path with leading ./', () => {
+		it('can be passed via relative --config', async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+			const configFileURL = './my-config.mjs';
+			const { local } = await cliServerLogSetup([
+				'--root',
+				fileURLToPath(projectRootURL),
+				'--config',
+				configFileURL,
+			]);
+
+			const localURL = new URL(local);
+			expect(localURL.port).to.equal('8080');
+		});
+	})
+
+	describe('incorrect path', () => {
+		it('fails and exits when config does not exist', async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+			const configFileURL = './does-not-exist.mjs';
+			let exit = 0;
+			try {
+				await cliServerLogSetup([
+					'--root',
+					fileURLToPath(projectRootURL),
+					'--config',
+					configFileURL,
+				]);
+			} catch (e) {
+				if (e.message.includes('Unable to resolve --config')) {
+					exit = 1;
+				}
+			}
+			
+			expect(exit).to.equal(1, "Throws helpful error message when --config does not exist");
+		});
+	})
+
 	describe('port', () => {
 		it('can be specified in astro.config.mjs', async () => {
 			expect(portFixture.config.server.port).to.deep.equal(5006);
