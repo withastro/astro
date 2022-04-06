@@ -119,7 +119,7 @@ export class App {
 
 	async #callEndpoint(
 		request: Request,
-		_routeData: RouteData,
+		routeData: RouteData,
 		mod: ComponentInstance
 	): Promise<Response> {
 		const url = new URL(request.url);
@@ -129,6 +129,7 @@ export class App {
 			origin: url.origin,
 			pathname: url.pathname,
 			request,
+			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
 		});
