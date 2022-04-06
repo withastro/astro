@@ -151,15 +151,26 @@ export function cli(/** @type {string[]} */ ...args) {
 
 export async function parseCliDevStart(proc) {
 	let stdout = '';
+	let stderr = '';
 
 	for await (const chunk of proc.stdout) {
 		stdout += chunk;
-
 		if (chunk.includes('Local')) break;
+	}
+	if (!stdout) {
+		for await (const chunk of proc.stderr) {
+			stderr += chunk;
+			break;
+		}
 	}
 
 	proc.kill();
 	stdout = stripAnsi(stdout);
+	stderr = stripAnsi(stderr);
+
+	if (stderr) {
+		throw new Error(stderr);
+	}
 	
 	const messages = stdout
 		.split('\n')

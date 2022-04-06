@@ -97,7 +97,7 @@ describe('config', () => {
 	})
 
 	describe('incorrect path', () => {
-		it('fails and exists when config does not exist', async () => {
+		it('fails and exits when config does not exist', async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			const configFileURL = './does-not-exist.mjs';
 			let exit = 0;
@@ -109,10 +109,12 @@ describe('config', () => {
 					configFileURL,
 				]);
 			} catch (e) {
-				exit = 1;
+				if (e.message.includes('Unable to resolve --config')) {
+					exit = 1;
+				}
 			}
 			
-			expect(exit).to.equal(1);
+			expect(exit).to.equal(1, "Throws helpful error message when --config does not exist");
 		});
 	})
 
