@@ -11,8 +11,8 @@ import build from '../core/build/index.js';
 import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
-import browser from '../browser/index.js';
 import { check } from './check.js';
+import { openInBrowser } from './browser.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
@@ -145,14 +145,15 @@ export async function cli(args: string[]) {
 				return throwAndExit(err);
 			}
 		}
-		case 'docs':{
-			try{
-				await browser('https://docs.astro.build/')//Launches System Browser
-				process.exit(0)
-			}catch(err){
-				throwAndExit(err)
+
+		case 'docs': {
+			try {
+				return await openInBrowser('https://docs.astro.build/')
+			} catch (err) {
+				return throwAndExit(err)
 			}
 		}
+
 		default: {
 			throw new Error(`Error running ${cmd}`);
 		}
