@@ -82,13 +82,30 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
 	 */
 	canonicalURL: URL;
-	/** get page params (dynamic pages only) */
+	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 *
+	 * Example usage:
+	 * ```astro
+	 * ---
+	 * export async function getStaticPaths() {
+	 *    return [
+	 *     { params: { id: '1' } },
+	 *   ];
+	 * }
+	 *
+	 * const { id } = Astro.params;
+	 * ---
+	 * <h1>{id}</h1>
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#params)
+	 */
 	params: Params;
 	/** List of props passed to this component
 	 *
-	 * A common way to get specific props is through destructuring, ex:
+	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
 	 * ```javascript
-	 *  const { name } = Astro.props
+	 * const { name } = Astro.props
 	 * ```
 	 *
 	 * [Astro documentation](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
@@ -98,13 +115,28 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 *
 	 * For example, to get an URL object of the current URL, you can use:
 	 * ```javascript
-	 *  const url = new URL(Astro.request.url);
+	 * const url = new URL(Astro.request.url);
 	 * ```
 	 *
 	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrorequest)
 	 */
 	request: Request;
-	/** see if slots are used */
+	/** Redirect to another page (**SSR Only**)
+	 *
+	 * Example usage:
+	 * ```typescript
+	 * if(!isLoggedIn) {
+	 *   return Astro.redirect('/login');
+	 * }
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 */
+	redirect(path: string): Response;
+	/** Utility functions for modifying an Astro component’s slotted children
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+	 */
 	slots: Record<string, true | undefined> & {
 		/**
 		 * Check whether content for this slot name exists
@@ -112,7 +144,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 * Example usage:
 		 * ```typescript
 		 *	if (Astro.slots.has('default')) {
-		 *		// Do something...
+		 *   // Do something...
 		 *	}
 		 * ```
 		 *
@@ -127,7 +159,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 * ---
 		 * let html: string = '';
 		 * if (Astro.slots.has('default')) {
-		 *		html = await Astro.slots.render('default')
+		 *   html = await Astro.slots.render('default')
 		 * }
 		 * ---
 		 * <Fragment set:html={html} />
@@ -151,7 +183,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * Example usage:
 	 * ```typescript
-	 * const posts = await Astro.glob('../pages/post/*.md'); // returns an array of posts that live at ./src/pages/post/*.md
+	 * const posts = await Astro.glob('../pages/post/*.md');
 	 * ```
 	 *
 	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroglob)
