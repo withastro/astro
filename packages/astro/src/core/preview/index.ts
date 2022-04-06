@@ -18,6 +18,7 @@ export interface PreviewServer {
 	host?: string;
 	port: number;
 	server: http.Server;
+	closed(): Promise<void>;
 	stop(): Promise<void>;
 }
 
@@ -133,9 +134,18 @@ export default async function preview(
 	// Start listening on `hostname:port`.
 	await startServer(startServerTime);
 
+	// Resolves once the server is closed
+	function closed() {
+		return new Promise<void>((resolve, reject) => {
+			httpServer!.addListener('close', resolve);
+			httpServer!.addListener('error', reject);
+		})
+	}
+
 	return {
 		host,
 		port,
+		closed,
 		server: httpServer!,
 		stop: async () => {
 			await new Promise((resolve, reject) => {

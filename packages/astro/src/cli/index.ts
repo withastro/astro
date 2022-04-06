@@ -138,8 +138,8 @@ export async function cli(args: string[]) {
 
 		case 'preview': {
 			try {
-				await preview(config, { logging });
-				return await new Promise(() => {}); // lives forever
+				const server = await preview(config, { logging });
+				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);
 			}
