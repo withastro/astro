@@ -18,7 +18,16 @@ import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core
 import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'add' | 'docs' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand =
+	| 'help'
+	| 'version'
+	| 'add'
+	| 'docs'
+	| 'dev'
+	| 'build'
+	| 'preview'
+	| 'reload'
+	| 'check';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -27,7 +36,7 @@ function printAstroHelp() {
 		headline: 'Futuristic web development tool.',
 		commands: [
 			['add', 'Add an integration to your configuration.'],
-			['docs', 'Launch Astro\'s Doc site directly from the terminal. '],
+			['docs', "Launch Astro's Doc site directly from the terminal. "],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -148,9 +157,9 @@ export async function cli(args: string[]) {
 
 		case 'docs': {
 			try {
-				return await openInBrowser('https://docs.astro.build/')
+				return await openInBrowser('https://docs.astro.build/');
 			} catch (err) {
-				return throwAndExit(err)
+				return throwAndExit(err);
 			}
 		}
 

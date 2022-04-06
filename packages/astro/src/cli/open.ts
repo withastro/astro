@@ -5,7 +5,7 @@ import { execa } from 'execa';
  *  Credit: Azhar22
  *  @see https://github.com/azhar22k/ourl/blob/master/index.js
  */
-const getPlatformSpecificCommand = (): [string]|[string, string[]] => {
+const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT);
 	const platform = isGitPod ? 'gitpod' : process.platform;
 
@@ -29,4 +29,4 @@ const getPlatformSpecificCommand = (): [string]|[string, string[]] => {
 export async function openInBrowser(url: string): Promise<ExecaChildProcess> {
 	const [command, args = []] = getPlatformSpecificCommand();
 	return execa(command, [...args, encodeURI(url)]);
-};
+}
