@@ -12,7 +12,7 @@ import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
-import { openInBrowser } from './browser.js';
+import { openInBrowser } from './open.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
