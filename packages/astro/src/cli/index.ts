@@ -12,12 +12,13 @@ import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
+import { openInBrowser } from './open.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand = 'help' | 'version' | 'add' | 'docs' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -26,6 +27,7 @@ function printAstroHelp() {
 		headline: 'Futuristic web development tool.',
 		commands: [
 			['add', 'Add an integration to your configuration.'],
+			['docs', 'Launch Astro\'s Doc site directly from the terminal. '],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -58,11 +60,10 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
-
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
 
-	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	const supportedCommands = new Set(['dev', 'build', 'preview', 'check', 'docs']);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
 	}
@@ -142,6 +143,14 @@ export async function cli(args: string[]) {
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);
+			}
+		}
+
+		case 'docs': {
+			try {
+				return await openInBrowser('https://docs.astro.build/')
+			} catch (err) {
+				return throwAndExit(err)
 			}
 		}
 
