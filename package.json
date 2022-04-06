@@ -19,7 +19,8 @@
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w .",
-    "version": "changeset version && pnpm install --no-frozen-lockfile"
+    "version": "changeset version && pnpm install --no-frozen-lockfile",
+    "prepare": "husky install"
   },
   "workspaces": [
     "compiled/*",
@@ -51,6 +52,11 @@
       ]
     }
   },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts}": [
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
     "@astrojs/webapi": "workspace:*"
   },
@@ -66,8 +72,11 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.7",
     "prettier": "^2.6.2",
     "pretty-bytes": "^6.0.0",
+    "pretty-quick": "^3.1.3",
     "tiny-glob": "^0.2.9",
     "turbo": "^1.1.10",
     "typescript": "~4.6.3"
