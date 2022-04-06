@@ -32,8 +32,8 @@ export default function createPlugin(): AstroIntegration {
 					})
 				);
 			},
-			'astro:build:done': async () => {
-				await copyLibFiles(fileURLToPath(new URL('~partytown', config.outDir)), {
+			'astro:build:done': async ({ dir }) => {
+				await copyLibFiles(fileURLToPath(new URL('~partytown', dir)), {
 					debugDir: false,
 				});
 			},
