@@ -139,7 +139,7 @@ export default async function preview(
 		return new Promise<void>((resolve, reject) => {
 			httpServer!.addListener('close', resolve);
 			httpServer!.addListener('error', reject);
-		})
+		});
 	}
 
 	return {
