@@ -798,12 +798,19 @@ export interface AstroIntegration {
 
 export type RouteType = 'page' | 'endpoint';
 
+export interface RoutePart {
+	content: string;
+	dynamic: boolean;
+	spread: boolean;
+}
+
 export interface RouteData {
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
 	pattern: RegExp;
+	segments: RoutePart[][];
 	type: RouteType;
 }
 

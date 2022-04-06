@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData, RouteData } from '../../../@types/astro';
+import type { AstroConfig, ManifestData, RouteData, RoutePart } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
 import fs from 'fs';
@@ -9,16 +9,10 @@ import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
 import { resolvePages } from '../../util.js';
 
-interface Part {
-	content: string;
-	dynamic: boolean;
-	spread: boolean;
-}
-
 interface Item {
 	basename: string;
 	ext: string;
-	parts: Part[];
+	parts: RoutePart[];
 	file: string;
 	isDir: boolean;
 	isIndex: boolean;
@@ -35,7 +29,7 @@ function countOccurrences(needle: string, haystack: string) {
 }
 
 function getParts(part: string, file: string) {
-	const result: Part[] = [];
+	const result: RoutePart[] = [];
 	part.split(/\[(.+?\(.+?\)|.+?)\]/).map((str, i) => {
 		if (!str) return;
 		const dynamic = i % 2 === 1;
@@ -56,7 +50,7 @@ function getParts(part: string, file: string) {
 	return result;
 }
 
-function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
+function getPattern(segments: RoutePart[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const pathname = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -94,7 +88,7 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 	return '\\/?$';
 }
 
-function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['trailingSlash']) {
+function getGenerator(segments: RoutePart[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const template = segments
 		.map((segment) => {
 			return segment[0].spread
@@ -181,7 +175,7 @@ export function createRouteManifest(
 	const validPageExtensions: Set<string> = new Set(['.astro', '.md']);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
-	function walk(dir: string, parentSegments: Part[][], parentParams: string[]) {
+	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
@@ -285,6 +279,7 @@ export function createRouteManifest(
 				routes.push({
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
+					segments,
 					params,
 					component,
 					generate,
