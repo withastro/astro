@@ -138,7 +138,7 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-  	adapter: netlify(),
+    adapter: netlify(),
   });
   ```
 
@@ -158,7 +158,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-  	adapter: nodejs(),
+    adapter: nodejs(),
   };
   ```
 
@@ -218,7 +218,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-  	adapter: nodejs(),
+    adapter: nodejs(),
   };
   ```
 
@@ -314,7 +314,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-  	renderers: [],
+    renderers: [],
   });
   ```
 
@@ -352,9 +352,9 @@
 
   ```json
   {
-  	"scripts": {
-  		"build": "astro build --legacy-build"
-  	}
+    "scripts": {
+      "build": "astro build --legacy-build"
+    }
   }
   ```
 
@@ -374,7 +374,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-  	const content = await Astro.slots.render('default');
+    const content = await Astro.slots.render('default');
   }
   ```
 
@@ -458,7 +458,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-  	const content = await Astro.slots.render('default');
+    const content = await Astro.slots.render('default');
   }
   ```
 
@@ -482,9 +482,9 @@
 
   ```json
   {
-  	"scripts": {
-  		"build": "astro build --legacy-build"
-  	}
+    "scripts": {
+      "build": "astro build --legacy-build"
+    }
   }
   ```
 
@@ -596,12 +596,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -763,12 +763,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -2123,10 +2123,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	markdownOptions: {
-  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-  	},
+    markdownOptions: {
+      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+    },
   };
   ```
 
@@ -2146,10 +2146,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	name: '@matthewp/my-renderer',
-  	server: './server.js',
-  	client: './client.js',
-  	hydrationPolyfills: ['./my-polyfill.js'],
+    name: '@matthewp/my-renderer',
+    server: './server.js',
+    client: './client.js',
+    hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
