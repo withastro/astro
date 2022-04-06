@@ -171,7 +171,7 @@ export async function parseCliDevStart(proc) {
 	if (stderr) {
 		throw new Error(stderr);
 	}
-	
+
 	const messages = stdout
 		.split('\n')
 		.filter((ln) => !!ln.trim())
@@ -185,8 +185,8 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 
 	const { messages } = await parseCliDevStart(proc);
 
-	const local = messages.find(msg => msg.includes('Local'))?.replace(/Local\s*/g, '');
-	const network = messages.find(msg => msg.includes('Network'))?.replace(/Network\s*/g, '');
+	const local = messages.find((msg) => msg.includes('Local'))?.replace(/Local\s*/g, '');
+	const network = messages.find((msg) => msg.includes('Network'))?.replace(/Network\s*/g, '');
 
 	return { local, network };
 }

@@ -78,7 +78,7 @@ describe('config', () => {
 			const localURL = new URL(local);
 			expect(localURL.port).to.equal('8080');
 		});
-	})
+	});
 
 	describe('relative path with leading ./', () => {
 		it('can be passed via relative --config', async () => {
@@ -94,7 +94,7 @@ describe('config', () => {
 			const localURL = new URL(local);
 			expect(localURL.port).to.equal('8080');
 		});
-	})
+	});
 
 	describe('incorrect path', () => {
 		it('fails and exits when config does not exist', async () => {
@@ -113,10 +113,10 @@ describe('config', () => {
 					exit = 1;
 				}
 			}
-			
-			expect(exit).to.equal(1, "Throws helpful error message when --config does not exist");
+
+			expect(exit).to.equal(1, 'Throws helpful error message when --config does not exist');
 		});
-	})
+	});
 
 	describe('port', () => {
 		it('can be specified in astro.config.mjs', async () => {
