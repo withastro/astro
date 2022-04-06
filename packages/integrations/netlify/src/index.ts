@@ -54,7 +54,8 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 						_redirects += `
 ${route.pathname}    /.netlify/functions/${entryFile}    200`;
 					} else {
-						const pattern = '/' + route.segments.map(([part]) => part.dynamic ? '*' : part.content).join('/');
+						const pattern =
+							'/' + route.segments.map(([part]) => (part.dynamic ? '*' : part.content)).join('/');
 						_redirects += `
 ${pattern}    /.netlify/functions/${entryFile}    200`;
 					}

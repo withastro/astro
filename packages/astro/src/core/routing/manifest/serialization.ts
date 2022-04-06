@@ -16,7 +16,7 @@ function createRouteData(
 		// TODO bring back
 		generate: () => '',
 		pathname: pathname || undefined,
-		segments
+		segments,
 	};
 }
 

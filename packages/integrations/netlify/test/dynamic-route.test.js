@@ -16,16 +16,18 @@ describe('Dynamic pages', () => {
 				ssr: true,
 			},
 			adapter: netlifyAdapter({
-				dist: new URL('./fixtures/dynamic-route/dist/', import.meta.url)
+				dist: new URL('./fixtures/dynamic-route/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
 			vite: {
 				resolve: {
-					alias: { 
-						'@astrojs/netlify/netlify-functions.js': fileURLToPath(new URL('../dist/netlify-functions.js', import.meta.url))
-					}
-				}
-			}
+					alias: {
+						'@astrojs/netlify/netlify-functions.js': fileURLToPath(
+							new URL('../dist/netlify-functions.js', import.meta.url)
+						),
+					},
+				},
+			},
 		});
 		await fixture.build();
 	});
