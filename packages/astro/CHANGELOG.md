@@ -1,5 +1,17 @@
 # astro
 
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- [#3001](https://github.com/withastro/astro/pull/3001) [`25cc9218`](https://github.com/withastro/astro/commit/25cc9218f8bfe0b0d1645fb869929d7fc89042c8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix relative config handling with the `--config` flag
+
+* [#3008](https://github.com/withastro/astro/pull/3008) [`8bd49c95`](https://github.com/withastro/astro/commit/8bd49c95365f7bbce41e19b7e8658ad639c22f31) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
+
+- [#3011](https://github.com/withastro/astro/pull/3011) [`c6f8bce7`](https://github.com/withastro/astro/commit/c6f8bce7c35cc4fd450fe1b6cc8297a81e413b8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dynamic routes in the Netlify adapter
+
+* [#2958](https://github.com/withastro/astro/pull/2958) [`d0777ad3`](https://github.com/withastro/astro/commit/d0777ad3aff0084d7fc0e159ac32ebea062d921c) Thanks [@aFuzzyBear](https://github.com/aFuzzyBear)! - Add `astro docs` command which opens the Astro docs in your preferred browser.
+
 ## 1.0.0-beta.3
 
 ### Patch Changes
@@ -138,7 +150,7 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
 
@@ -158,7 +170,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -218,7 +230,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -314,7 +326,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -352,9 +364,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -374,7 +386,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -458,7 +470,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -482,9 +494,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -596,12 +608,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -763,12 +775,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -2123,10 +2135,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -2146,10 +2158,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
