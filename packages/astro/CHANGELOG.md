@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.3
+
+### Patch Changes
+
+- [#3004](https://github.com/withastro/astro/pull/3004) [`9724d844`](https://github.com/withastro/astro/commit/9724d844b32fb30c91ec3d060421bbb0cc36428a) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix bug causing `astro preview` server to close immediately
+
+* [#3006](https://github.com/withastro/astro/pull/3006) [`68e1e2dd`](https://github.com/withastro/astro/commit/68e1e2dd31db2bdf073c30e3ff48b7f54dd61d8d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dynamic API routes in SSR
+
 ## 1.0.0-beta.2
 
 ### Patch Changes
@@ -130,7 +138,7 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
 
@@ -150,7 +158,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -210,7 +218,7 @@
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -306,7 +314,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -344,9 +352,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -366,7 +374,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -450,7 +458,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -474,9 +482,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -588,12 +596,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -755,12 +763,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -2115,10 +2123,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -2138,10 +2146,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
