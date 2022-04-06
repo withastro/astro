@@ -174,6 +174,7 @@ class AstroBuilder {
 		await viteServer.close();
 		await runHookBuildDone({
 			config: this.config,
+			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
 		});
