@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.1.1-beta.1
+
+### Patch Changes
+
+- [#3011](https://github.com/withastro/astro/pull/3011) [`c6f8bce7`](https://github.com/withastro/astro/commit/c6f8bce7c35cc4fd450fe1b6cc8297a81e413b8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dynamic routes in the Netlify adapter
+
 ## 0.1.1-beta.0
 
 ### Patch Changes
@@ -25,6 +31,6 @@
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```

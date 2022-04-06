@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 0.0.4-beta.0
+
+### Patch Changes
+
+- [#3003](https://github.com/withastro/astro/pull/3003) [`13b782f4`](https://github.com/withastro/astro/commit/13b782f421871af36978f29154c715c66739d475) Thanks [@ryansolid](https://github.com/ryansolid)! - Improve nested hydration with Solid
+
 ## 0.0.3
 
 ### Patch Changes
