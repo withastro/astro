@@ -138,7 +138,8 @@ export async function cli(args: string[]) {
 
 		case 'preview': {
 			try {
-				return await preview(config, { logging }); // this will keep running
+				const server = await preview(config, { logging });
+				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);
 			}
