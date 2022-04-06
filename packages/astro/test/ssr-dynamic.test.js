@@ -27,6 +27,14 @@ describe('Dynamic pages in SSR', () => {
 		return html;
 	}
 
+	async function fetchJSON(path) {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com' + path);
+		const response = await app.render(request);
+		const json = await response.json();
+		return json;
+	}
+
 	it('Do not have to implement getStaticPaths', async () => {
 		const html = await fetchHTML('/123');
 		const $ = cheerioLoad(html);
@@ -37,5 +45,10 @@ describe('Dynamic pages in SSR', () => {
 		const html = await fetchHTML('/123');
 		const $ = cheerioLoad(html);
 		expect($('link').length).to.equal(1);
+	});
+
+	it('Dynamic API routes work', async () => {
+		const json = await fetchJSON('/api/products/33');
+		expect(json.id).to.equal('33');
 	});
 });
