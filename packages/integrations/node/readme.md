@@ -5,11 +5,12 @@ An experimental server-side rendering adapter for use with Node.js servers.
 In your astro.config.mjs use:
 
 ```js
+import { defineConfig } from 'astro/config';
 import nodejs from '@astrojs/node';
 
-export default {
+export default defineConfig({
   adapter: nodejs()
-}
+})
 ```
 
 After performing a build there will be a `dist/server/entry.mjs` module that works like a middleware function. You can use with any framework that supports the Node `request` and `response` objects. For example, with Express you can do:
