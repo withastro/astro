@@ -378,12 +378,8 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	let userConfigPath: string | undefined;
 
 	if (flags?.config) {
-		if (path.isAbsolute(flags.config)) {
-			userConfigPath = flags.config;
-		} else {
-			userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-			userConfigPath = fileURLToPath(new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString())));
-		}
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString())));
 	}
 
 	// Automatically load config file using Proload
