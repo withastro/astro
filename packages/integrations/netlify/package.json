@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 20000"
   },
   "dependencies": {
     "@astrojs/webapi": "^0.11.0"
