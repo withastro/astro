@@ -23,7 +23,7 @@ export default function vercel(): AstroIntegration {
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
-				config.outDir = new URL('./.output/', config.outDir);
+				config.outDir = new URL('./.output/', config.root);
 				config.build.format = 'directory';
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -33,21 +33,39 @@ export default function vercel(): AstroIntegration {
 			'astro:build:start': async ({ buildConfig }) => {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = new URL('./server/pages/', _config.outDir);
+				buildConfig.server = new URL('./server/tmp/', _config.outDir);
 			},
 			'astro:build:done': async ({ dir, routes }) => {
-				const pagesDir = new URL('./server/pages/', dir);
+				/*
+					Why do we need two folders? Why don't we just generate all inside `server/pages/`?
+					When the app builds, it throws some metadata inside a `chunks/` folder.
+
+					./server/
+						pages/
+							__astro_entry.mjs
+							chunks/
+								(lots of js files)
+					
+					Those chunks will count as serverless functions (which cost money), so we
+					need to bundle as much as possible in one file. Hence, the following code
+				*/
+
+				const tmpDir = new URL('./server/tmp/', dir);
+				const bundleDir = new URL('./server/pages/', dir);
+
+				await fs.mkdir(bundleDir, { recursive: true });
 
 				// Convert server entry to CommonJS
 				await esbuild.build({
-					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, pagesDir))],
-					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, pagesDir)),
+					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, tmpDir))],
+					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, bundleDir)),
 					bundle: true,
 					format: 'cjs',
 					platform: 'node',
 					target: 'node14',
 				});
-				await fs.rm(new URL(`./${ENTRYFILE}.mjs`, pagesDir));
+
+				await fs.rm(tmpDir, { recursive: true });
 
 				// Routes Manifest
 				// https://vercel.com/docs/file-system-api#configuration/routes
