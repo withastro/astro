@@ -33,11 +33,11 @@ export default function vercel(): AstroIntegration {
 			'astro:build:start': async ({ buildConfig }) => {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = new URL('./server/out/', _config.outDir);
+				buildConfig.server = new URL('./server/tmp/', _config.outDir);
 			},
 			'astro:build:done': async ({ dir, routes }) => {
 				/*
-					Why do we have two folder? Why don't we just generate all inside server/pages?
+					Why do we need two folders? Why don't we just generate all inside `server/pages/`?
 					When the app builds, it throws some metadata inside a `chunks/` folder.
 
 					./server/
@@ -50,14 +50,14 @@ export default function vercel(): AstroIntegration {
 					need to bundle as much as possible in one file. Hence, the following code
 				*/
 
-				const serverOutDir = new URL('./server/out/', dir);
+				const tmpDir = new URL('./server/tmp/', dir);
 				const bundleDir = new URL('./server/pages/', dir);
 
 				await fs.mkdir(bundleDir, { recursive: true });
 
 				// Convert server entry to CommonJS
 				await esbuild.build({
-					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, serverOutDir))],
+					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, tmpDir))],
 					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, bundleDir)),
 					bundle: true,
 					format: 'cjs',
@@ -65,7 +65,7 @@ export default function vercel(): AstroIntegration {
 					target: 'node14',
 				});
 
-				await fs.rm(serverOutDir, { recursive: true });
+				await fs.rm(tmpDir, { recursive: true });
 
 				// Routes Manifest
 				// https://vercel.com/docs/file-system-api#configuration/routes
