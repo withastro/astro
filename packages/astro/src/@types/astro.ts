@@ -104,7 +104,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/** List of props passed to this component
 	 *
 	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
-	 * ```javascript
+	 * ```typescript
 	 * const { name } = Astro.props
 	 * ```
 	 *
@@ -113,8 +113,8 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	props: Record<string, number | string | any>;
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
-	 * For example, to get an URL object of the current URL, you can use:
-	 * ```javascript
+	 * For example, to get a URL object of the current URL, you can use:
+	 * ```typescript
 	 * const url = new URL(Astro.request.url);
 	 * ```
 	 *
@@ -192,7 +192,7 @@ export interface AstroGlobalPartial {
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
-	 * Returns an [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
+	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
 	 *
 	 * If `site` is undefined, the URL object will instead be built from `localhost`
 	 *
