@@ -49,7 +49,7 @@ describe('CSS Bundling (ESM import)', () => {
 		}
 	});
 
-	it('?raw CSS imports are ignored', async () => {
+	it('?raw and ?url CSS imports are ignored', async () => {
 		// note: this test is a little confusing as well, but the main idea is that
 		// page-3.astro should have site.css imported as an ESM in InlineLayout.astro
 		// as well as the styles from page-3.css as an inline <style>.
@@ -67,11 +67,13 @@ describe('CSS Bundling (ESM import)', () => {
 		// test 1: insure green is included (site.css)
 		expect(css.indexOf('p{color:red}')).to.be.greaterThanOrEqual(0);
 
-		// test 2: insure yellow is not included as an import (page-3.css)
-		expect(css.indexOf('p{color:yellow}')).to.be.lessThan(0);
+		// test 2: insure purple is not included as an import (page-3.css)
+		// this makes sure the styles imported with ?raw and ?url weren't bundled
+		expect(css.indexOf('p{color:purple}')).to.be.lessThan(0);
 
-		// test 3: insure yellow was inlined (page-3.css inlined with set:html)
+		// test 3: insure purple was inlined (page-3.css inlined with set:html)
+		// this makes sure the styles imported with ?url were inlined
 		let inlineCss = $('style').html().replace(/\s/g, '').replace('/n', '');
-		expect(inlineCss.indexOf('p{color:yellow;}')).to.be.greaterThanOrEqual(0);
+		expect(inlineCss.indexOf('p{color:purple;}')).to.be.greaterThanOrEqual(0);
 	})
 });
