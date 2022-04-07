@@ -1,15 +1,14 @@
-import { BuildInternals } from '../core/build/internal';
-import type { ModuleInfo, PluginContext } from 'rollup';
-
-import * as path from 'path';
 import esbuild from 'esbuild';
+import * as path from 'path';
+import type { PluginContext } from 'rollup';
 import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/util.js';
+import { BuildInternals } from '../core/build/internal';
 import {
-	getPageDatasByChunk,
 	getPageDataByViteID,
+	getPageDatasByChunk,
 	hasPageDataByViteID,
 } from '../core/build/internal.js';
+import { isCSSRequest } from '../core/render/util.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 

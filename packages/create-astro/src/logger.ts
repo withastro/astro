@@ -1,4 +1,4 @@
-import { bold, blue, dim, red, yellow } from 'kleur/colors';
+import { blue, bold, dim, red, yellow } from 'kleur/colors';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
 

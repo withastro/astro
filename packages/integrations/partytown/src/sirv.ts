@@ -31,10 +31,10 @@
  */
 
 import * as fs from 'fs';
-import { join, normalize, resolve } from 'path';
 // import { totalist } from 'totalist/sync';
 // import { parse } from '@polka/url';
 import { lookup } from 'mrmime';
+import { join, normalize, resolve } from 'path';
 import { URL } from 'url';
 
 const noop = () => {};

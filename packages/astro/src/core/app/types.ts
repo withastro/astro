@@ -1,8 +1,8 @@
 import type {
+	ComponentInstance,
+	MarkdownRenderOptions,
 	RouteData,
 	SerializedRouteData,
-	MarkdownRenderOptions,
-	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 

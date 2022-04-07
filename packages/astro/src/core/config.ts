@@ -1,17 +1,16 @@
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
-import type { Arguments as Flags } from 'yargs-parser';
-import type * as Postcss from 'postcss';
-
-import * as colors from 'kleur/colors';
-import path from 'path';
-import { pathToFileURL, fileURLToPath } from 'url';
-import { mergeConfig as mergeViteConfig } from 'vite';
-import { z } from 'zod';
 import load, { ProloadError } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
+import * as colors from 'kleur/colors';
+import path from 'path';
+import type * as Postcss from 'postcss';
 import postcssrc from 'postcss-load-config';
-import { arraify, isObject } from './util.js';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { mergeConfig as mergeViteConfig } from 'vite';
+import type { Arguments as Flags } from 'yargs-parser';
+import { z } from 'zod';
+import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
 import { appendForwardSlash, trimSlashes } from './path.js';
+import { arraify, isObject } from './util.js';
 
 load.use([loadTypeScript]);
 

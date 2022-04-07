@@ -1,21 +1,20 @@
 /* eslint-disable no-console */
 
-import type { AstroConfig } from '../@types/astro';
-import { LogOptions } from '../core/logger/core.js';
-
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
-import build from '../core/build/index.js';
+import type { AstroConfig } from '../@types/astro';
 import add from '../core/add/index.js';
+import build from '../core/build/index.js';
+import { loadConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
+import { LogOptions } from '../core/logger/core.js';
+import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
+import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
+import { createSafeError } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
-import { loadConfig } from '../core/config.js';
-import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
-import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =

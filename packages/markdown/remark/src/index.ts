@@ -1,24 +1,22 @@
-import type { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin } from './types';
-
-import createCollectHeaders from './rehype-collect-headers.js';
-import scopedStyles from './remark-scoped-styles.js';
-import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.js';
-import rehypeExpressions from './rehype-expressions.js';
-import rehypeIslands from './rehype-islands.js';
-import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
-import rehypeJsx from './rehype-jsx.js';
-import rehypeEscape from './rehype-escape.js';
-import remarkPrism from './remark-prism.js';
-import remarkShiki from './remark-shiki.js';
-import remarkUnwrap from './remark-unwrap.js';
-import { loadPlugins } from './load-plugins.js';
-
-import { unified } from 'unified';
+import matter from 'gray-matter';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
-import rehypeStringify from 'rehype-stringify';
-import rehypeRaw from 'rehype-raw';
-import matter from 'gray-matter';
+import { unified } from 'unified';
+import { loadPlugins } from './load-plugins.js';
+import createCollectHeaders from './rehype-collect-headers.js';
+import rehypeEscape from './rehype-escape.js';
+import rehypeExpressions from './rehype-expressions.js';
+import rehypeIslands from './rehype-islands.js';
+import rehypeJsx from './rehype-jsx.js';
+import { loadRemarkExpressions, remarkExpressions } from './remark-expressions.js';
+import { loadRemarkJsx, remarkJsx } from './remark-jsx.js';
+import remarkPrism from './remark-prism.js';
+import scopedStyles from './remark-scoped-styles.js';
+import remarkShiki from './remark-shiki.js';
+import remarkUnwrap from './remark-unwrap.js';
+import type { AstroMarkdownOptions, MarkdownRenderingOptions, Plugin, ShikiConfig } from './types';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin };
 

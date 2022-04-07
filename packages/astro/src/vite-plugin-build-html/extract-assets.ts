@@ -1,7 +1,7 @@
+import { findElements, findNodes, getAttribute, getTagName, hasAttribute } from '@web/parse5-utils';
 import { Document, Element, Node } from 'parse5';
-import npath from 'path';
-import { findElements, getTagName, getAttribute, findNodes, hasAttribute } from '@web/parse5-utils';
 import adapter from 'parse5/lib/tree-adapters/default.js';
+import npath from 'path';
 
 const hashedLinkRels = ['stylesheet', 'preload'];
 const linkRels = [...hashedLinkRels, 'icon', 'manifest', 'apple-touch-icon', 'mask-icon'];

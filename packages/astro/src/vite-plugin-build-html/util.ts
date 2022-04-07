@@ -1,4 +1,4 @@
-import { getAttribute, hasAttribute, getTagName } from '@web/parse5-utils';
+import { getAttribute, getTagName, hasAttribute } from '@web/parse5-utils';
 import parse5 from 'parse5';
 import { isStylesheetLink } from './extract-assets.js';
 

@@ -1,4 +1,4 @@
-import { SKIP, visit } from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
 
 export default function rehypeEscape(): any {
 	return function (node: any): any {

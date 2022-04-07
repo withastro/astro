@@ -3,24 +3,24 @@
  */
 
 import {
-	bold,
-	dim,
-	red,
-	green,
-	underline,
-	yellow,
-	bgYellow,
-	cyan,
 	bgGreen,
-	black,
 	bgRed,
 	bgWhite,
+	bgYellow,
+	black,
+	bold,
+	cyan,
+	dim,
+	green,
+	red,
+	underline,
+	yellow,
 } from 'kleur/colors';
-import os from 'os';
 import type { AddressInfo } from 'net';
-import type { AstroConfig } from '../@types/astro';
-import { collectErrorMetadata, cleanErrorStack } from './errors.js';
+import os from 'os';
 import { ZodError } from 'zod';
+import type { AstroConfig } from '../@types/astro';
+import { cleanErrorStack, collectErrorMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;

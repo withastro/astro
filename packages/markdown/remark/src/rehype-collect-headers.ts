@@ -1,5 +1,5 @@
-import { visit } from 'unist-util-visit';
 import slugger from 'github-slugger';
+import { visit } from 'unist-util-visit';
 
 /**  */
 export default function createCollectHeaders() {

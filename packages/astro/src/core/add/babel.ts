@@ -1,7 +1,7 @@
-import traverse from '@babel/traverse';
 import generator from '@babel/generator';
-import * as t from '@babel/types';
 import parser from '@babel/parser';
+import traverse from '@babel/traverse';
+import * as t from '@babel/types';
 
 // @ts-ignore @babel/traverse isn't ESM and needs this trick
 export const visit = traverse.default as typeof traverse;

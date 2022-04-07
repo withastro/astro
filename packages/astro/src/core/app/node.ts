@@ -1,9 +1,8 @@
-import type { SSRManifest, SerializedSSRManifest } from './types';
-
 import * as fs from 'fs';
-import { App } from './index.js';
-import { deserializeManifest } from './common.js';
 import { IncomingMessage } from 'http';
+import { deserializeManifest } from './common.js';
+import { App } from './index.js';
+import type { SerializedSSRManifest, SSRManifest } from './types';
 
 function createRequestFromNodeRequest(req: IncomingMessage): Request {
 	let url = `http://${req.headers.host}${req.url}`;

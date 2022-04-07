@@ -1,25 +1,24 @@
+import mime from 'mime';
 import type {
 	ComponentInstance,
 	EndpointHandler,
 	ManifestData,
 	RouteData,
 } from '../../@types/astro';
-import type { SSRManifest as Manifest, RouteInfo } from './types';
-import type { LogOptions } from '../logger/core.js';
-
-import mime from 'mime';
-import { consoleLogDestination } from '../logger/console.js';
-export { deserializeManifest } from './common.js';
-import { matchRoute } from '../routing/match.js';
-import { render } from '../render/core.js';
 import { call as callEndpoint } from '../endpoint/index.js';
+import { consoleLogDestination } from '../logger/console.js';
+import type { LogOptions } from '../logger/core.js';
+import { prependForwardSlash } from '../path.js';
+import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,
 	createModuleScriptElementWithSrcSet,
 } from '../render/ssr-element.js';
-import { prependForwardSlash } from '../path.js';
-import { createRequest } from '../request.js';
+import { matchRoute } from '../routing/match.js';
+import type { RouteInfo, SSRManifest as Manifest } from './types';
+
+export { deserializeManifest } from './common.js';
 
 export class App {
 	#manifest: Manifest;

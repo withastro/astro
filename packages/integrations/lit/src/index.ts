@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
 import type { AstroIntegration } from 'astro';
+import { readFileSync } from 'node:fs';
 
 function getViteConfiguration() {
 	return {

@@ -1,15 +1,15 @@
-import type { ComponentPreload } from '../render/dev/index';
 import type {
 	AstroConfig,
 	BuildConfig,
+	ComponentInstance,
 	ManifestData,
 	RouteData,
-	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { ViteConfigWithSSR } from '../../create-vite';
 import type { LogOptions } from '../../logger';
 import type { RouteCache } from '../../render/route-cache.js';
+import type { ComponentPreload } from '../render/dev/index';
 
 export type ComponentPath = string;
 export type ViteID = string;

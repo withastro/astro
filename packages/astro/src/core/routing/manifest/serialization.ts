@@ -1,4 +1,4 @@
-import type { RouteData, SerializedRouteData, RoutePart } from '../../../@types/astro';
+import type { RouteData, RoutePart, SerializedRouteData } from '../../../@types/astro';
 
 function createRouteData(
 	pattern: RegExp,

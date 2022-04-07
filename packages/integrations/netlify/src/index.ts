@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import fs from 'fs';
 
 export function getAdapter(site: string | undefined): AstroAdapter {

@@ -11,8 +11,8 @@ import type {
 } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
+import { createCanonicalURL, isCSSRequest } from './util.js';
 
 function onlyAvailableInSSR(name: string) {
 	return function () {

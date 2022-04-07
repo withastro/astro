@@ -1,11 +1,10 @@
-import type { AstroConfig, ManifestData, RouteData, RoutePart } from '../../../@types/astro';
-import type { LogOptions } from '../../logger/core';
-
 import fs from 'fs';
 import path from 'path';
 import { compile } from 'path-to-regexp';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import type { AstroConfig, ManifestData, RouteData, RoutePart } from '../../../@types/astro';
+import type { LogOptions } from '../../logger/core';
 import { warn } from '../../logger/core.js';
 import { resolvePages } from '../../util.js';
 

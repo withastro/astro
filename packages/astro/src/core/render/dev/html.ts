@@ -1,6 +1,5 @@
-import type * as vite from 'vite';
-
 import htmlparser2 from 'htmlparser2';
+import type * as vite from 'vite';
 
 /** Inject tags into HTML (note: for best performance, group as many tags as possible into as few calls as you can) */
 export function injectTags(html: string, tags: vite.HtmlTagDescriptor[]): string {

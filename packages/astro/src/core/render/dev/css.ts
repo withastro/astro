@@ -1,6 +1,5 @@
-import type * as vite from 'vite';
-
 import path from 'path';
+import type * as vite from 'vite';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
