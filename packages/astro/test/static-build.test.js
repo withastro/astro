@@ -6,14 +6,32 @@ function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
+/**
+ * @typedef {import('../src/core/logger/core').LogMessage} LogMessage
+ */
+
 describe('Static build', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {LogMessage[]} */
+	let logs = [];
 
 	before(async () => {
+		/** @type {import('../src/core/logger/core').LogOptions} */
+		const logging = {
+			dest: {
+				write(chunk) {
+					logs.push(chunk);
+				}
+			},
+			level: 'warn',
+		};
+
+
 		fixture = await loadFixture({
 			root: './fixtures/static build/',
 		});
-		await fixture.build();
+		await fixture.build({ logging });
 	});
 
 	it('Builds out .astro pages', async () => {
@@ -136,5 +154,15 @@ describe('Static build', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		expect($('#ssr-config').text()).to.equal('testing');
+	});
+
+	it('warns when accessing headers', async () => {
+		let found = false;
+		for(const log of logs) {
+			if(log.type === 'ssg' && /[hH]eaders are not exposed in static-site generation/.test(log.args[0])) {
+				found = true;
+			}
+		}
+		expect(found).to.equal(true, 'Found the log message');
 	});
 });
