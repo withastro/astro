@@ -48,7 +48,7 @@ function isPageStyleVirtualModule(id: string) {
 }
 
 function isRawOrUrlModule(id: string) {
-	return id.match(/(\?|\&)([^=]+)(raw|url)/gm)
+	return id.match(/(\?|\&)([^=]+)(raw|url)/gm);
 }
 
 interface PluginOptions {

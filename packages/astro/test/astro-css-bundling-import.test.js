@@ -75,5 +75,5 @@ describe('CSS Bundling (ESM import)', () => {
 		// this makes sure the styles imported with ?url were inlined
 		let inlineCss = $('style').html().replace(/\s/g, '').replace('/n', '');
 		expect(inlineCss.indexOf('p{color:purple;}')).to.be.greaterThanOrEqual(0);
-	})
+	});
 });
