@@ -45,8 +45,14 @@ const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 ${
 	adapter.exports
 		? `const _exports = adapter.createExports(_manifest, _args);
-${adapter.exports.map((name) => `export const ${name} = _exports['${name}'];`).join('\n')}
-${adapter.exports.includes('_default') ? `export default _default` : ''}
+${adapter.exports.map((name) => {
+	if(name === 'default') {
+		return `const _default = _exports['default'];
+export { _default as default };`;
+	} else {
+		return `export const ${name} = _exports['${name}'];`
+	}
+}).join('\n')}
 `
 		: ''
 }
