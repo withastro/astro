@@ -13,7 +13,7 @@ export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/vercel',
 		serverEntrypoint: '@astrojs/vercel/server-entrypoint',
-		exports: ['_default'],
+		exports: ['default'],
 	};
 }
 
