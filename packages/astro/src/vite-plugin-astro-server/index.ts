@@ -176,6 +176,7 @@ async function handleRequest(
 		method: req.method,
 		body,
 		logging,
+		ssr: buildingToSSR
 	});
 
 	try {

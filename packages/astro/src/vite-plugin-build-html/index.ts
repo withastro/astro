@@ -114,6 +114,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 							url: new URL(origin + pathname),
 							headers: new Headers(),
 							logging,
+							ssr: false,
 						}),
 						mode: 'production',
 						origin,

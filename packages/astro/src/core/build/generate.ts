@@ -191,6 +191,7 @@ async function generatePath(
 		}
 	}
 
+	const ssr = isBuildingToSSR(opts.astroConfig);
 	const url = new URL(origin + pathname);
 	const options: RenderOptions = {
 		legacyBuild: false,
@@ -219,13 +220,13 @@ async function generatePath(
 			const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
 			return fullyRelativePath;
 		},
-		request: createRequest({ url, headers: new Headers(), logging }),
+		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		route: pageData.route,
 		routeCache,
 		site: astroConfig.site
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
-		ssr: isBuildingToSSR(opts.astroConfig),
+		ssr,
 	};
 
 	let body: string;
