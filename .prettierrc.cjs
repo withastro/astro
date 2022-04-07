@@ -14,5 +14,6 @@ module.exports = {
     },
   ],
   pluginSearchDirs: ['./assets'],
+  importOrder: ['^[./]'],
   plugins: [require.resolve('@ianvs/prettier-plugin-sort-imports')],
 };
