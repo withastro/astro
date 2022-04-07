@@ -47,7 +47,24 @@ function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: s
 
 async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
-	res.writeHead(status, Object.fromEntries(headers.entries()));
+
+	let _headers = {};
+	if('raw' in headers) {
+		// Node fetch allows you to get the raw headers, which includes multiples of the same type.
+		// This is needed because Set-Cookie *must* be called for each cookie, and can't be
+		// concatenated together.
+		type HeadersWithRaw = Headers & {
+			raw: () => Record<string, string[]>
+		};
+
+		for(const [key, value] of Object.entries((headers as HeadersWithRaw).raw())) {
+			res.setHeader(key, value);
+		}
+	} else {
+		_headers = Object.fromEntries(headers.entries());
+	}
+
+	res.writeHead(status, _headers);
 	if (body) {
 		if (body instanceof Readable) {
 			body.pipe(res);
