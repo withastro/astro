@@ -12,7 +12,7 @@ polyfill(globalThis, {
 export const createExports = (manifest: SSRManifest) => {
 	const app = new App(manifest);
 
-	const _default = async (req: IncomingMessage, res: ServerResponse) => {
+	const handler = async (req: IncomingMessage, res: ServerResponse) => {
 		let request: Request;
 
 		try {
@@ -30,5 +30,5 @@ export const createExports = (manifest: SSRManifest) => {
 		await setResponse(res, await app.render(request));
 	};
 
-	return { _default };
+	return { 'default': handler };
 };
