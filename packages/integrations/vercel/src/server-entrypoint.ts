@@ -30,5 +30,5 @@ export const createExports = (manifest: SSRManifest) => {
 		await setResponse(res, await app.render(request));
 	};
 
-	return { 'default': handler };
+	return { default: handler };
 };
