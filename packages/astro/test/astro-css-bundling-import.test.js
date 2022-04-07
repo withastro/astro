@@ -48,4 +48,30 @@ describe('CSS Bundling (ESM import)', () => {
 			}
 		}
 	});
+
+	it('?raw CSS imports are ignored', async () => {
+		// note: this test is a little confusing as well, but the main idea is that
+		// page-3.astro should have site.css imported as an ESM in InlineLayout.astro
+		// as well as the styles from page-3.css as an inline <style>.
+		const html = await fixture.readFile('/page-3/index.html');
+		const $ = cheerio.load(html);
+
+		let css = '';
+
+		for (const style of $('link[rel=stylesheet]')) {
+			const href = style.attribs.href.replace(/^\.\./, '');
+			if (!href) continue;
+			css += await fixture.readFile(href);
+		}
+
+		// test 1: insure green is included (site.css)
+		expect(css.indexOf('p{color:red}')).to.be.greaterThanOrEqual(0);
+
+		// test 2: insure yellow is not included as an import (page-3.css)
+		expect(css.indexOf('p{color:yellow}')).to.be.lessThan(0);
+
+		// test 3: insure yellow was inlined (page-3.css inlined with set:html)
+		let inlineCss = $('style').html().replace(/\s/g, '').replace('/n', '');
+		expect(inlineCss.indexOf('p{color:yellow;}')).to.be.greaterThanOrEqual(0);
+	})
 });
