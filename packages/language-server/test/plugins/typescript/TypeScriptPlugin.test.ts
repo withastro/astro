@@ -69,6 +69,30 @@ describe('TypeScript Plugin', () => {
 		});
 	});
 
+	describe('provide diagnostics', async () => {
+		it('return diagnostics', async () => {
+			const { plugin, document } = setup('diagnostics/basic.astro');
+
+			const diagnostics = await plugin.getDiagnostics(document);
+			expect(diagnostics).to.not.be.empty;
+		});
+
+		it('should not provide diagnostics if feature is disabled', async () => {
+			const { plugin, document, configManager } = setup('diagnostics/basic.astro');
+
+			configManager.updateConfig(<any>{
+				typescript: {
+					diagnostics: {
+						enabled: false,
+					},
+				},
+			});
+
+			const diagnostics = await plugin.getDiagnostics(document);
+			expect(diagnostics).to.be.empty;
+		});
+	});
+
 	describe('provide semantic tokens', async () => {
 		it('return semantic tokens for full document', async () => {
 			const { plugin, document } = setup('semanticTokens/frontmatter.astro');

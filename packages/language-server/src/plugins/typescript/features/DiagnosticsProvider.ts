@@ -62,6 +62,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					isNoCantEndWithTS(diag) &&
 					isNoSpreadExpected(diag) &&
 					isNoCantResolveJSONModule(diag) &&
+					isNoCantReturnOutsideFunction(diag) &&
 					isNoMarkdownBlockQuoteWithinMarkdown(sourceFile, markdownBoundaries, diag)
 				);
 			})
@@ -172,6 +173,12 @@ function isNoCantEndWithTS(diagnostic: Diagnostic) {
 
 function isNoSpreadExpected(diagnostic: Diagnostic) {
 	return diagnostic.code !== 1005;
+}
+
+// This is technically a valid diagnostic, but due to how we format our TSX, the frontmatter is at top-level so we have
+// to ignore this. It wasn't a problem before because users didn't need to return things but they can now with SSR
+function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
+	return diagnostic.code !== 1108;
 }
 
 function isWithinBoundaries(boundaries: BoundaryTuple[], start: number): boolean {
