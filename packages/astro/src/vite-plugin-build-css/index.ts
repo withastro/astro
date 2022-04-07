@@ -47,6 +47,10 @@ function isPageStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_PAGE_STYLE_PREFIX);
 }
 
+function isRawOrUrlModule(id: string) {
+	return id.match(/(\?|\&)([^=]+)(raw|url)/gm)
+}
+
 interface PluginOptions {
 	internals: BuildInternals;
 	legacy: boolean;
@@ -69,7 +73,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		const info = ctx.getModuleInfo(id);
 		if (info) {
 			for (const importedId of info.importedIds) {
-				if (!seen.has(importedId)) {
+				if (!seen.has(importedId) && !isRawOrUrlModule(importedId)) {
 					yield* walkStyles(ctx, importedId, seen);
 				}
 			}
