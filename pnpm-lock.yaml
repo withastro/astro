@@ -7,6 +7,7 @@ importers:
       '@astrojs/webapi': workspace:*
       '@changesets/changelog-github': ^0.4.4
       '@changesets/cli': ^2.22.0
+      '@ianvs/prettier-plugin-sort-imports': ^3.3.0
       '@octokit/action': ^3.18.0
       '@typescript-eslint/eslint-plugin': ^5.17.0
       '@typescript-eslint/parser': ^5.17.0
@@ -26,6 +27,7 @@ importers:
     devDependencies:
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.22.0
+      '@ianvs/prettier-plugin-sort-imports': 3.3.0_prettier@2.6.2
       '@octokit/action': 3.18.0
       '@typescript-eslint/eslint-plugin': 5.17.0_689ff565753ecf7c3328c07fad067df5
       '@typescript-eslint/parser': 5.17.0_eslint@8.12.0+typescript@4.6.3
@@ -3378,6 +3380,23 @@ packages:
 
   /@humanwhocodes/object-schema/1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
+    dev: true
+
+  /@ianvs/prettier-plugin-sort-imports/3.3.0_prettier@2.6.2:
+    resolution: {integrity: sha512-wUnIp5/SYmbfoAimtob8lzFGA689i/hk3yzoIhoEzFBBGIJA8zvlDMZLcQpc9c1PoVIt3DW3XZtZPTm0UTxKPw==}
+    peerDependencies:
+      prettier: 2.x
+    dependencies:
+      '@babel/core': 7.17.8
+      '@babel/generator': 7.17.7
+      '@babel/parser': 7.17.8
+      '@babel/traverse': 7.17.3
+      '@babel/types': 7.17.0
+      javascript-natural-sort: 0.7.1
+      lodash: 4.17.21
+      prettier: 2.6.2
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@iconify/types/1.1.0:
@@ -7249,6 +7268,10 @@ packages:
       chalk: 4.1.2
       filelist: 1.0.2
       minimatch: 3.1.2
+    dev: true
+
+  /javascript-natural-sort/0.7.1:
+    resolution: {integrity: sha1-+eIwPUUH9tdDVac2ZNFED7Wg71k=}
     dev: true
 
   /jest-worker/26.6.2:

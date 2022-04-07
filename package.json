@@ -57,6 +57,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.4",
     "@changesets/cli": "^2.22.0",
+    "@ianvs/prettier-plugin-sort-imports": "^3.3.0",
     "@octokit/action": "^3.18.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
