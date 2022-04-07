@@ -73,6 +73,11 @@ pnpm run format
 pnpm run lint
 ```
 
+```shell
+# To use the git hooks in the repo, which will save you waiting for CI to tell you that you forgot to lint, run this
+git config core.hookspath .githooks
+```
+
 ### Making a Pull Request
 
 When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`) do not need changesets.

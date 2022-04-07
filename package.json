@@ -19,8 +19,7 @@
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w .",
-    "version": "changeset version && pnpm install --no-frozen-lockfile",
-    "prepare": "husky install"
+    "version": "changeset version && pnpm install --no-frozen-lockfile"
   },
   "workspaces": [
     "compiled/*",
@@ -72,7 +71,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
-    "husky": "^7.0.4",
     "lint-staged": "^12.3.7",
     "prettier": "^2.6.2",
     "pretty-bytes": "^6.0.0",
