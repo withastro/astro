@@ -72,21 +72,101 @@ export interface BuildConfig {
 }
 
 /**
- * Astro.* available in all components
- * Docs: https://docs.astro.build/reference/api-reference/#astro-global
+ * Astro global available in all contexts in .astro files
+ *
+ * [Astro documentation](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
-	/** get the current canonical URL */
+	/** Canonical URL of the current page. If the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option is set, its origin will be the origin of this URL.
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
+	 */
 	canonicalURL: URL;
-	/** get page params (dynamic pages only) */
+	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+	 *
+	 * Example usage:
+	 * ```astro
+	 * ---
+	 * export async function getStaticPaths() {
+	 *    return [
+	 *     { params: { id: '1' } },
+	 *   ];
+	 * }
+	 *
+	 * const { id } = Astro.params;
+	 * ---
+	 * <h1>{id}</h1>
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#params)
+	 */
 	params: Params;
-	/** set props for this astro component (along with default values) */
+	/** List of props passed to this component
+	 *
+	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
+	 * ```typescript
+	 * const { name } = Astro.props
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
+	 */
 	props: Record<string, number | string | any>;
-	/** get information about this page */
+	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+	 *
+	 * For example, to get a URL object of the current URL, you can use:
+	 * ```typescript
+	 * const url = new URL(Astro.request.url);
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrorequest)
+	 */
 	request: Request;
-	/** see if slots are used */
+	/** Redirect to another page (**SSR Only**)
+	 *
+	 * Example usage:
+	 * ```typescript
+	 * if(!isLoggedIn) {
+	 *   return Astro.redirect('/login');
+	 * }
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 */
+	redirect(path: string): Response;
+	/** Utility functions for modifying an Astro component’s slotted children
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+	 */
 	slots: Record<string, true | undefined> & {
+		/**
+		 * Check whether content for this slot name exists
+		 *
+		 * Example usage:
+		 * ```typescript
+		 *	if (Astro.slots.has('default')) {
+		 *   // Do something...
+		 *	}
+		 * ```
+		 *
+		 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 */
 		has(slotName: string): boolean;
+		/**
+		 * Asychronously renders this slot and returns HTML
+		 *
+		 * Example usage:
+		 * ```astro
+		 * ---
+		 * let html: string = '';
+		 * if (Astro.slots.has('default')) {
+		 *   html = await Astro.slots.render('default')
+		 * }
+		 * ---
+		 * <Fragment set:html={html} />
+		 * ```
+		 *
+		 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
 }
@@ -95,12 +175,29 @@ export interface AstroGlobalPartial {
 	/**
 	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
 	 */
-	resolve: (path: string) => string;
-	/** @deprecated Use `Astro.glob()` instead. */
+	resolve(path: string): string;
+	/** @deprecated since version 0.26. Use [Astro.glob()](https://docs.astro.build/en/reference/api-reference/#astroglob) instead. */
 	fetchContent(globStr: string): Promise<any[]>;
+	/**
+	 * Fetch local files into your static site setup
+	 *
+	 * Example usage:
+	 * ```typescript
+	 * const posts = await Astro.glob('../pages/post/*.md');
+	 * ```
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 */
 	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
+	/**
+	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
+	 *
+	 * If `site` is undefined, the URL object will instead be built from `localhost`
+	 *
+	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrosite)
+	 */
 	site: URL;
 }
 
