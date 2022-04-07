@@ -1,5 +1,3 @@
-> **Note:** Our governance model is extremely new, and is not yet binding. Once merged into the `main` branch, we will go into a trial period where we will follow this governance model but may make changes based on feedback. All changes will go through our existing PR review process. After a period of 1-2 months, this note will be removed and this governance model will become binding.
-
 # Governance
 
 This document outlines the governance model for Astro. This includes detailed descriptions of the contributor levels, nomination process, code review process, pull request merge process, and the consequences of Code of Conduct violations.
