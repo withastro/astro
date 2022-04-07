@@ -20,7 +20,7 @@ export function createRequest({
 	method = 'GET',
 	body = undefined,
 	logging,
-	ssr
+	ssr,
 }: CreateRequestOptions): Request {
 	let headersObj =
 		headers instanceof Headers
@@ -52,20 +52,21 @@ export function createRequest({
 		},
 	});
 
-	if(!ssr) {
+	if (!ssr) {
 		// Warn when accessing headers in SSG mode
 		const _headers = request.headers;
 		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
 		Object.defineProperty(request, 'headers', {
 			...headersDesc,
 			get() {
-				warn(logging,
+				warn(
+					logging,
 					'ssg',
 					`Headers are not exposed in static-site generation (SSG) mode. To enable reading headers you need to set an SSR adapter in your config.`
 				);
 				return _headers;
-			}
-		})
+			},
+		});
 	}
 
 	return request;

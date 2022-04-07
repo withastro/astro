@@ -22,11 +22,10 @@ describe('Static build', () => {
 			dest: {
 				write(chunk) {
 					logs.push(chunk);
-				}
+				},
 			},
 			level: 'warn',
 		};
-
 
 		fixture = await loadFixture({
 			root: './fixtures/static build/',
@@ -158,8 +157,11 @@ describe('Static build', () => {
 
 	it('warns when accessing headers', async () => {
 		let found = false;
-		for(const log of logs) {
-			if(log.type === 'ssg' && /[hH]eaders are not exposed in static-site generation/.test(log.args[0])) {
+		for (const log of logs) {
+			if (
+				log.type === 'ssg' &&
+				/[hH]eaders are not exposed in static-site generation/.test(log.args[0])
+			) {
 				found = true;
 			}
 		}
