@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
 describe('LitElement test', function () {
 	this.timeout(30000);

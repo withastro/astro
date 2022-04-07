@@ -1,5 +1,5 @@
-import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 import { Plugin as VitePlugin } from 'vite';
+import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not

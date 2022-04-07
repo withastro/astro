@@ -1,3 +1,6 @@
+import astroRemark from '@astrojs/markdown-remark';
+import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -16,9 +19,6 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
 import { getHmrScript } from './hmr.js';
 import { injectTags } from './html.js';
-import astroRemark from '@astrojs/markdown-remark';
-import { fileURLToPath } from 'url';
-import type * as vite from 'vite';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */

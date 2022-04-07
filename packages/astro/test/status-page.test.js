@@ -1,5 +1,5 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
 
 // Asset bundling
 describe('Status Code Pages', () => {

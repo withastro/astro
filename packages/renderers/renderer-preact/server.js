@@ -1,6 +1,6 @@
-import StaticHtml from './static-html.js';
 import { h, Component as BaseComponent } from 'preact';
 import render from 'preact-render-to-string';
+import StaticHtml from './static-html.js';
 
 function check(Component, props, children) {
 	if (typeof Component !== 'function') return false;

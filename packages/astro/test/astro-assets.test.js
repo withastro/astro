@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import srcsetParse from 'srcset-parse';
+import { loadFixture } from './test-utils.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset = srcsetParse.default;

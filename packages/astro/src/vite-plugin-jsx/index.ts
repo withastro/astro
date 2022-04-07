@@ -1,7 +1,3 @@
-import type { AstroConfig, AstroRenderer } from '../@types/astro';
-import type { LogOptions } from '../core/logger/core.js';
-import { error } from '../core/logger/core.js';
-import { parseNpmName } from '../core/util.js';
 import babel from '@babel/core';
 import * as eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
@@ -9,6 +5,10 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
+import type { AstroConfig, AstroRenderer } from '../@types/astro';
+import type { LogOptions } from '../core/logger/core.js';
+import { error } from '../core/logger/core.js';
+import { parseNpmName } from '../core/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);

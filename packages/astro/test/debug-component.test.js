@@ -1,6 +1,6 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import os from 'os';
+import { loadFixture } from './test-utils.js';
 
 // TODO: fix these tests on macOS
 const isMacOS = os.platform() === 'darwin';

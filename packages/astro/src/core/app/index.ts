@@ -1,3 +1,4 @@
+import mime from 'mime';
 import type {
 	ComponentInstance,
 	EndpointHandler,
@@ -17,7 +18,6 @@ import {
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
-import mime from 'mime';
 
 export { deserializeManifest } from './common.js';
 

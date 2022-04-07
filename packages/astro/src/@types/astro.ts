@@ -1,11 +1,11 @@
-import type { AstroConfigSchema } from '../core/config';
-import type { ViteConfigWithSSR } from '../core/create-vite';
-import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ShikiConfig, Plugin } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
 import type { AddressInfo } from 'net';
 import type * as vite from 'vite';
 import { z } from 'zod';
+import type { AstroConfigSchema } from '../core/config';
+import type { ViteConfigWithSSR } from '../core/create-vite';
+import type { AstroComponentFactory, Metadata } from '../runtime/server';
 
 export type { SSRManifest } from '../core/app/types';
 

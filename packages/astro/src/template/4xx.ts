@@ -1,5 +1,5 @@
-import { baseCSS } from './css.js';
 import { encode } from 'html-entities';
+import { baseCSS } from './css.js';
 
 interface ErrorTemplateOptions {
 	/** a short description of the error */

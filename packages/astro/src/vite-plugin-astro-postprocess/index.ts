@@ -1,4 +1,3 @@
-import type { AstroConfig } from '../@types/astro';
 import { parse as babelParser } from '@babel/parser';
 import type {
 	ArrowFunctionExpressionKind,
@@ -8,6 +7,7 @@ import type {
 import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
+import type { AstroConfig } from '../@types/astro';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;

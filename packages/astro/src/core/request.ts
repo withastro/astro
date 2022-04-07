@@ -1,6 +1,6 @@
+import type { IncomingHttpHeaders } from 'http';
 import type { LogOptions } from './logger/core';
 import { warn } from './logger/core.js';
-import type { IncomingHttpHeaders } from 'http';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;

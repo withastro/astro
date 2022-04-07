@@ -1,10 +1,10 @@
+import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
+import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { invalidateCompilation, isCached } from './compile.js';
-import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
-import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;

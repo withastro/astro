@@ -1,9 +1,9 @@
-import type { SSRError } from '../@types/astro';
-import { codeFrame, createSafeError } from './util.js';
 import eol from 'eol';
 import type { BuildResult } from 'esbuild';
 import fs from 'fs';
 import type { ViteDevServer } from 'vite';
+import type { SSRError } from '../@types/astro';
+import { codeFrame, createSafeError } from './util.js';
 
 export interface ErrorWithMetadata {
 	[name: string]: any;

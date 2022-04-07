@@ -1,5 +1,5 @@
-import StaticHtml from './static-html.js';
 import { h, render } from 'preact';
+import StaticHtml from './static-html.js';
 
 export default (element) => (Component, props, children) =>
 	render(

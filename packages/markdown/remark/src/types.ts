@@ -1,5 +1,5 @@
-import type { ShikiConfig } from './remark-shiki';
 import type * as unified from 'unified';
+import type { ShikiConfig } from './remark-shiki';
 
 export { ShikiConfig };
 

@@ -1,6 +1,6 @@
+import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { AstroConfig } from '../@types/astro.js';
 import { runHookServerSetup } from '../integrations/index.js';
-import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 
 /** Connect Astro integrations into Vite, as needed. */
 export default function astroIntegrationsContainerPlugin({

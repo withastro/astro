@@ -1,7 +1,3 @@
-import { createConfig } from './config.js';
-import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
-import { logger, defaultLogLevel } from './logger.js';
-import { TEMPLATES } from './templates.js';
 import degit from 'degit';
 import fs from 'fs';
 import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
@@ -10,6 +6,10 @@ import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
 import yargs from 'yargs-parser';
+import { createConfig } from './config.js';
+import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
+import { logger, defaultLogLevel } from './logger.js';
+import { TEMPLATES } from './templates.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This

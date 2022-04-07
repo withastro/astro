@@ -1,3 +1,10 @@
+import glob from 'fast-glob';
+import fs from 'fs';
+import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
+import npath from 'path';
+import type { RollupOutput } from 'rollup';
+import { fileURLToPath } from 'url';
+import * as vite from 'vite';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
@@ -15,13 +22,6 @@ import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
 import { vitePluginSSR } from './vite-plugin-ssr.js';
-import glob from 'fast-glob';
-import fs from 'fs';
-import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import npath from 'path';
-import type { RollupOutput } from 'rollup';
-import { fileURLToPath } from 'url';
-import * as vite from 'vite';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;

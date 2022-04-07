@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import path from 'path';
+import { loadFixture } from './test-utils.js';
 
 describe('Scripts (hoisted and not)', () => {
 	let fixture;

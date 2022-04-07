@@ -1,13 +1,3 @@
-import { resolveConfigURL } from '../config.js';
-import { error, info, debug, LogOptions } from '../logger/core.js';
-import { printHelp } from '../messages.js';
-import * as msg from '../messages.js';
-import { apply as applyPolyfill } from '../polyfill.js';
-import { parseNpmName } from '../util.js';
-import { t, parse, visit, generate } from './babel.js';
-import * as CONSTS from './consts.js';
-import { ensureImport } from './imports.js';
-import { wrapDefaultExport } from './wrapper.js';
 import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
@@ -19,6 +9,16 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
+import { resolveConfigURL } from '../config.js';
+import { error, info, debug, LogOptions } from '../logger/core.js';
+import { printHelp } from '../messages.js';
+import * as msg from '../messages.js';
+import { apply as applyPolyfill } from '../polyfill.js';
+import { parseNpmName } from '../util.js';
+import { t, parse, visit, generate } from './babel.js';
+import * as CONSTS from './consts.js';
+import { ensureImport } from './imports.js';
+import { wrapDefaultExport } from './wrapper.js';
 
 export interface AddOptions {
 	logging: LogOptions;

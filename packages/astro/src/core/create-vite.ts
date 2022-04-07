@@ -1,3 +1,7 @@
+import fs from 'fs';
+import { builtinModules } from 'module';
+import { fileURLToPath } from 'url';
+import * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { runHookServerSetup } from '../integrations/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
@@ -10,10 +14,6 @@ import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import type { LogOptions } from './logger/core';
-import fs from 'fs';
-import { builtinModules } from 'module';
-import { fileURLToPath } from 'url';
-import * as vite from 'vite';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([

@@ -1,3 +1,7 @@
+import fs from 'fs';
+import * as colors from 'kleur/colors';
+import { performance } from 'perf_hooks';
+import * as vite from 'vite';
 import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
 import {
 	runHookBuildDone,
@@ -24,10 +28,6 @@ import { createSafeError, isBuildingToSSR } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
-import fs from 'fs';
-import * as colors from 'kleur/colors';
-import { performance } from 'perf_hooks';
-import * as vite from 'vite';
 
 export interface BuildOptions {
 	mode?: string;

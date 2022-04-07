@@ -1,5 +1,5 @@
-import addClasses from './add-classes.mjs';
 import { defineConfig } from 'astro/config';
+import addClasses from './add-classes.mjs';
 
 // https://astro.build/config
 export default defineConfig({

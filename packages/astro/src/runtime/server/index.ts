@@ -1,3 +1,4 @@
+import shorthash from 'shorthash';
 import type {
 	AstroComponentMetadata,
 	AstroGlobalPartial,
@@ -10,7 +11,6 @@ import type {
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
-import shorthash from 'shorthash';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';

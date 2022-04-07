@@ -1,4 +1,7 @@
 /* eslint-disable no-console */
+import * as colors from 'kleur/colors';
+import yargs from 'yargs-parser';
+import { z } from 'zod';
 import type { AstroConfig } from '../@types/astro';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
@@ -11,9 +14,6 @@ import preview from '../core/preview/index.js';
 import { createSafeError } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
-import * as colors from 'kleur/colors';
-import yargs from 'yargs-parser';
-import { z } from 'zod';
 
 type Arguments = yargs.Arguments;
 type CLICommand =

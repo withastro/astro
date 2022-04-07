@@ -1,9 +1,9 @@
-import svelte from '../utils/svelte-plugin.js';
 import del from 'del';
 import esbuild from 'esbuild';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
+import svelte from '../utils/svelte-plugin.js';
 
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {

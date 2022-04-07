@@ -1,8 +1,8 @@
-import { getRequest, setResponse } from './request-transform.js';
 import { polyfill } from '@astrojs/webapi';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'http';
+import { getRequest, setResponse } from './request-transform.js';
 
 polyfill(globalThis, {
 	exclude: 'window document',

@@ -1,9 +1,6 @@
 /**
  * Dev server messages (organized here to prevent clutter)
  */
-import type { AstroConfig } from '../@types/astro';
-import { collectErrorMetadata, cleanErrorStack } from './errors.js';
-import { emoji, getLocalAddress, padMultilineString } from './util.js';
 import {
 	bold,
 	dim,
@@ -21,6 +18,9 @@ import {
 import type { AddressInfo } from 'net';
 import os from 'os';
 import { ZodError } from 'zod';
+import type { AstroConfig } from '../@types/astro';
+import { collectErrorMetadata, cleanErrorStack } from './errors.js';
+import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
 

@@ -1,7 +1,7 @@
-import { FIXTURES_URL } from './helpers.js';
 import assert from 'assert';
 import { execa } from 'execa';
 import { existsSync } from 'fs';
+import { FIXTURES_URL } from './helpers.js';
 
 async function run(outdir, template) {
 	//--template cassidoo/shopify-react-astro

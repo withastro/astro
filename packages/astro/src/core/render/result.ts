@@ -1,3 +1,4 @@
+import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
@@ -12,7 +13,6 @@ import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
-import { bold } from 'kleur/colors';
 
 function onlyAvailableInSSR(name: string) {
 	return function () {

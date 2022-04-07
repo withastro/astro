@@ -1,3 +1,10 @@
+import ancestor from 'common-ancestor-path';
+import esbuild from 'esbuild';
+import fs from 'fs';
+import type { PluginContext } from 'rollup';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
@@ -7,13 +14,6 @@ import { cachedCompilation } from './compile.js';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
-import ancestor from 'common-ancestor-path';
-import esbuild from 'esbuild';
-import fs from 'fs';
-import type { PluginContext } from 'rollup';
-import slash from 'slash';
-import { fileURLToPath } from 'url';
-import type * as vite from 'vite';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {

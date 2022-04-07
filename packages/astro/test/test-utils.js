@@ -1,14 +1,14 @@
-import build from '../dist/core/build/index.js';
-import { resolveConfig, loadConfig } from '../dist/core/config.js';
-import dev from '../dist/core/dev/index.js';
-import { nodeLogDestination } from '../dist/core/logger/node.js';
-import preview from '../dist/core/preview/index.js';
 import { polyfill } from '@astrojs/webapi';
 import { execa } from 'execa';
 import fs from 'fs';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'url';
+import build from '../dist/core/build/index.js';
+import { resolveConfig, loadConfig } from '../dist/core/config.js';
+import dev from '../dist/core/dev/index.js';
+import { nodeLogDestination } from '../dist/core/logger/node.js';
+import preview from '../dist/core/preview/index.js';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {

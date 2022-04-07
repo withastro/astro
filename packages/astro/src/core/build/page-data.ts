@@ -1,3 +1,6 @@
+import * as colors from 'kleur/colors';
+import { fileURLToPath } from 'url';
+import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 import { info } from '../logger/core.js';
@@ -7,9 +10,6 @@ import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route
 import { generateRssFunction } from '../render/rss.js';
 import { isBuildingToSSR } from '../util.js';
 import type { AllPagesData } from './types';
-import * as colors from 'kleur/colors';
-import { fileURLToPath } from 'url';
-import type { ViteDevServer } from 'vite';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;

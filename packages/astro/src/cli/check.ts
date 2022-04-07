@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import type { AstroConfig } from '../@types/astro';
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { bold, black, bgWhite, red, cyan, yellow } from 'kleur/colors';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
+import type { AstroConfig } from '../@types/astro';
 
 async function openAllDocuments(
 	workspaceUri: URL,

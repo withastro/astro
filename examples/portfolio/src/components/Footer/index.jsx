@@ -1,5 +1,5 @@
-import Styles from './styles.module.scss';
 import { h } from 'preact';
+import Styles from './styles.module.scss';
 
 function Footer() {
 	return (

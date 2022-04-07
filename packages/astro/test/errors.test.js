@@ -1,5 +1,5 @@
-import { isWindows, loadFixture } from './test-utils.js';
 import { expect } from 'chai';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Error display', () => {
 	if (isWindows) return;

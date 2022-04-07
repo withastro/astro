@@ -1,7 +1,7 @@
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import eol from 'eol';
+import { loadFixture } from './test-utils.js';
 
 describe('PostCSS', () => {
 	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none}`;

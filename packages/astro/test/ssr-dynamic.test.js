@@ -1,7 +1,7 @@
-import testAdapter from './test-adapter.js';
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
+import testAdapter from './test-adapter.js';
+import { loadFixture } from './test-utils.js';
 
 // Asset bundling
 describe('Dynamic pages in SSR', () => {

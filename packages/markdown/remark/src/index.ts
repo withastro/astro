@@ -1,3 +1,9 @@
+import matter from 'gray-matter';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
+import markdown from 'remark-parse';
+import markdownToHtml from 'remark-rehype';
+import { unified } from 'unified';
 import { loadPlugins } from './load-plugins.js';
 import createCollectHeaders from './rehype-collect-headers.js';
 import rehypeEscape from './rehype-escape.js';
@@ -11,12 +17,6 @@ import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
 import type { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin } from './types';
-import matter from 'gray-matter';
-import rehypeRaw from 'rehype-raw';
-import rehypeStringify from 'rehype-stringify';
-import markdown from 'remark-parse';
-import markdownToHtml from 'remark-rehype';
-import { unified } from 'unified';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions, ShikiConfig, Plugin };
 

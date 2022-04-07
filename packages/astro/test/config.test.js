@@ -1,7 +1,7 @@
-import { loadFixture, cliServerLogSetup } from './test-utils.js';
 import { expect } from 'chai';
 import { isIPv4 } from 'net';
 import { fileURLToPath } from 'url';
+import { loadFixture, cliServerLogSetup } from './test-utils.js';
 
 describe('config', () => {
 	let hostFixture;

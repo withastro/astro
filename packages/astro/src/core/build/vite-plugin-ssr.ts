@@ -1,3 +1,5 @@
+import astroRemark from '@astrojs/markdown-remark';
+import type { Plugin as VitePlugin } from 'vite';
 import type { AstroAdapter } from '../../@types/astro';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
@@ -7,8 +9,6 @@ import type { BuildInternals } from './internal.js';
 import { eachPageData } from './internal.js';
 import type { StaticBuildOptions } from './types';
 import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
-import astroRemark from '@astrojs/markdown-remark';
-import type { Plugin as VitePlugin } from 'vite';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

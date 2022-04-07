@@ -1,7 +1,7 @@
-import { viteID } from '../dist/core/util.js';
-import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
+import { viteID } from '../dist/core/util.js';
+import { loadFixture } from './test-utils.js';
 
 // Asset bundling
 describe('Integration buildConfig hook', () => {

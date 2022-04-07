@@ -1,3 +1,9 @@
+import astroRemark from '@astrojs/markdown-remark';
+import fs from 'fs';
+import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import npath from 'path';
+import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
+import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	ComponentInstance,
@@ -21,12 +27,6 @@ import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import astroRemark from '@astrojs/markdown-remark';
-import fs from 'fs';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
-import npath from 'path';
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
-import { fileURLToPath } from 'url';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
