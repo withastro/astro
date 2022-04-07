@@ -1,8 +1,8 @@
 import type { AstroConfig } from '../../@types/astro';
-import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { viteID } from '../util.js';
 import { getPageDataByViteID } from './internal.js';
+import type { Plugin as VitePlugin } from 'vite';
 
 function virtualHoistedEntry(id: string) {
 	return id.endsWith('.astro/hoisted.js') || id.endsWith('.md/hoisted.js');

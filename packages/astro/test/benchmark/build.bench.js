@@ -1,12 +1,11 @@
 /** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
-
-import { fileURLToPath } from 'url';
-import { performance } from 'perf_hooks';
 import { build as astroBuild } from '#astro/build';
 import { loadConfig } from '#astro/config';
 import { Benchmark } from './benchmark.js';
 import del from 'del';
+import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
+import { fileURLToPath } from 'url';
 import { format as utilFormat } from 'util';
 
 const snowpackExampleRoot = new URL('../../../../docs/', import.meta.url);

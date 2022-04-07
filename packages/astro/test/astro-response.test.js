@@ -1,6 +1,6 @@
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from './test-utils.js';
 
 // Asset bundling
 describe('Returning responses', () => {

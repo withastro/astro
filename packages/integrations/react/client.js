@@ -1,6 +1,6 @@
+import StaticHtml from './static-html.js';
 import { createElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import StaticHtml from './static-html.js';
 
 export default (element) => (Component, props, children) =>
 	hydrateRoot(

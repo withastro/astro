@@ -1,14 +1,14 @@
 import type { AstroConfig } from '../../@types/astro';
-import type { LogOptions } from '../logger/core';
-import type { AddressInfo } from 'net';
-import http from 'http';
-import sirv from 'sirv';
-import { performance } from 'perf_hooks';
-import { fileURLToPath } from 'url';
-import * as msg from '../messages.js';
-import { error, info } from '../logger/core.js';
 import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
+import type { LogOptions } from '../logger/core';
+import { error, info } from '../logger/core.js';
+import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
+import http from 'http';
+import type { AddressInfo } from 'net';
+import { performance } from 'perf_hooks';
+import sirv from 'sirv';
+import { fileURLToPath } from 'url';
 
 interface PreviewOptions {
 	logging: LogOptions;

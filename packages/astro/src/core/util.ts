@@ -1,3 +1,5 @@
+import type { AstroConfig } from '../@types/astro';
+import { removeEndingForwardSlash } from './path.js';
 import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
@@ -5,8 +7,6 @@ import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { ErrorPayload } from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import { removeEndingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {

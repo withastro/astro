@@ -1,5 +1,6 @@
-import type * as unified from 'unified';
 import type { ShikiConfig } from './remark-shiki';
+import type * as unified from 'unified';
+
 export { ShikiConfig };
 
 export type Plugin = string | [string, any] | unified.Plugin | [unified.Plugin, any];

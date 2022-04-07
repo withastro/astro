@@ -1,5 +1,5 @@
-import lightcookie from 'lightcookie';
 import { userCartItems } from '../../models/session';
+import lightcookie from 'lightcookie';
 
 export function get(_params: any, request: Request) {
 	let cookie = request.headers.get('cookie');

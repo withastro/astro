@@ -1,6 +1,6 @@
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import os from 'os';
-import { loadFixture } from './test-utils.js';
 
 // note: many Sass tests live in 0-css.test.js to test within context of a framework.
 // these tests are independent of framework.

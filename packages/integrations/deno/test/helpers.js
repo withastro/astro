@@ -1,4 +1,5 @@
 import { fromFileUrl } from './deps.js';
+
 const dir = new URL('./', import.meta.url);
 
 export async function runBuild(fixturePath) {

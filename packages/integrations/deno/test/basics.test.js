@@ -1,5 +1,5 @@
-import { runBuildAndStartApp } from './helpers.js';
 import { assertEquals, assert } from './deps.js';
+import { runBuildAndStartApp } from './helpers.js';
 
 Deno.test({
 	name: 'Basics',

@@ -1,5 +1,5 @@
-import { h, createSSRApp } from 'vue';
 import StaticHtml from './static-html.js';
+import { h, createSSRApp } from 'vue';
 
 export default (element) => (Component, props, children) => {
 	delete props['class'];

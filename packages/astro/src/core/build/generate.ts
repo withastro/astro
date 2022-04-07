@@ -1,9 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
-import fs from 'fs';
-import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
-import npath from 'path';
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
-import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
 	ComponentInstance,
@@ -11,22 +5,28 @@ import type {
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { debug, info } from '../logger/core.js';
 import { prependForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
+import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
 import {
 	createLinkStylesheetElementSet,
 	createModuleScriptElementWithSrcSet,
 } from '../render/ssr-element.js';
+import { createRequest } from '../request.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { createRequest } from '../request.js';
+import astroRemark from '@astrojs/markdown-remark';
+import fs from 'fs';
+import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
+import npath from 'path';
+import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
+import { fileURLToPath } from 'url';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf

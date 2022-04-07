@@ -1,6 +1,6 @@
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 
 // TODO(fks): This seemed to test a custom renderer, but it seemed to be a copy
 // fixture of lit. Should this be moved into a publicly published integration now,

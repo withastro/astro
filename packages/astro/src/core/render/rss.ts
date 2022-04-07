@@ -1,8 +1,7 @@
 import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
-
-import { XMLValidator } from 'fast-xml-parser';
 import { PRETTY_FEED_V3 } from './pretty-feed.js';
 import { createCanonicalURL, isValidURL } from './util.js';
+import { XMLValidator } from 'fast-xml-parser';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {

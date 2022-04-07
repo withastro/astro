@@ -1,6 +1,6 @@
 import type { AstroConfig, RouteType } from '../../@types/astro';
-import npath from 'path';
 import { appendForwardSlash } from '../../core/path.js';
+import npath from 'path';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 

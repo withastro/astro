@@ -1,7 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import esbuild from 'esbuild';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
-import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 
 const writeJson = (path: PathLike, data: any) =>

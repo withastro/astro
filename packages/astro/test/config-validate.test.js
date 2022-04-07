@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { z } from 'zod';
-import stripAnsi from 'strip-ansi';
-import { formatConfigErrorMessage } from '../dist/core/messages.js';
 import { validateConfig } from '../dist/core/config.js';
+import { formatConfigErrorMessage } from '../dist/core/messages.js';
+import { expect } from 'chai';
+import stripAnsi from 'strip-ansi';
+import { z } from 'zod';
 
 describe('Config Validation', () => {
 	it('empty user config is valid', async () => {

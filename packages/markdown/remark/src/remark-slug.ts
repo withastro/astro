@@ -2,10 +2,9 @@
  * @typedef {import('mdast').Root} Root
  * @typedef {import('hast').Properties} Properties
  */
-
+import BananaSlug from 'github-slugger';
 import { toString } from 'mdast-util-to-string';
 import { visit } from 'unist-util-visit';
-import BananaSlug from 'github-slugger';
 
 const slugs = new BananaSlug();
 

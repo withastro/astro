@@ -3,10 +3,9 @@
  * Run this test first! This uses quite a bit of memory, so prefixing with `0-` helps it start and finish early,
  * rather than trying to start up when all other threads are busy and having to fight for resources
  */
-
+import { loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
 
 let fixture;
 

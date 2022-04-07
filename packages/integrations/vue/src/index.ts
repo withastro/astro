@@ -1,5 +1,5 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
 import vue from '@vitejs/plugin-vue';
+import type { AstroIntegration, AstroRenderer } from 'astro';
 
 function getRenderer(): AstroRenderer {
 	return {

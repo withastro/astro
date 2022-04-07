@@ -1,8 +1,7 @@
-import type * as vite from 'vite';
-
-import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
+import path from 'path';
+import type * as vite from 'vite';
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {

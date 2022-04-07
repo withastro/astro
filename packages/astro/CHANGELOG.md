@@ -161,8 +161,8 @@
   This change adds a Netlify adapter that uses Netlify Functions. You can use it like so:
 
   ```js
-  import { defineConfig } from 'astro/config';
   import netlify from '@astrojs/netlify/functions';
+  import { defineConfig } from 'astro/config';
 
   export default defineConfig({
     adapter: netlify(),
@@ -192,8 +192,8 @@
   After performing a build there will be a `dist/server/entry.mjs` module that works like a middleware function. You can use with any framework that supports the Node `request` and `response` objects. For example, with Express you can do:
 
   ```js
-  import express from 'express';
   import { handler as ssrHandler } from '@astrojs/node';
+  import express from 'express';
 
   const app = express();
   app.use(handler);
@@ -252,8 +252,8 @@
   After performing a build there will be a `dist/server/entry.mjs` module that works like a middleware function. You can use with any framework that supports the Node `request` and `response` objects. For example, with Express you can do:
 
   ```js
-  import express from 'express';
   import { handler as ssrHandler } from '@astrojs/node';
+  import express from 'express';
 
   const app = express();
   app.use(handler);

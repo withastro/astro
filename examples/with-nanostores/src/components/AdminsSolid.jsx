@@ -1,8 +1,7 @@
-import { createSignal } from 'solid-js';
-import { useStore } from 'solid-nanostores';
-
 import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
+import { createSignal } from 'solid-js';
+import { useStore } from 'solid-nanostores';
 
 const AdminsSolid = () => {
 	const list = useStore(admins);

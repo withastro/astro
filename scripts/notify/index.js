@@ -1,6 +1,6 @@
 import { globby as glob } from 'globby';
-import { fileURLToPath } from 'node:url';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 

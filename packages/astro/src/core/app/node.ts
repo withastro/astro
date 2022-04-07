@@ -1,8 +1,7 @@
-import type { SSRManifest, SerializedSSRManifest } from './types';
-
-import * as fs from 'fs';
-import { App } from './index.js';
 import { deserializeManifest } from './common.js';
+import { App } from './index.js';
+import type { SSRManifest, SerializedSSRManifest } from './types';
+import * as fs from 'fs';
 import { IncomingMessage } from 'http';
 
 function createRequestFromNodeRequest(req: IncomingMessage): Request {

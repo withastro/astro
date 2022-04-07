@@ -1,9 +1,9 @@
-import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types';
-import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
+import { addRollupInput } from './add-rollup-input.js';
+import type { BuildInternals } from './internal.js';
+import { eachPageData } from './internal.js';
+import type { StaticBuildOptions } from './types';
+import type { Plugin as VitePlugin } from 'vite';
 
 export const virtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedVirtualModuleId = '\0' + virtualModuleId;

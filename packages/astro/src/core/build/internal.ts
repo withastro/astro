@@ -1,8 +1,7 @@
 import type { RouteData } from '../../@types/astro';
-import type { RenderedChunk } from 'rollup';
-import type { PageBuildData, ViteID } from './types';
-
 import { viteID } from '../util.js';
+import type { PageBuildData, ViteID } from './types';
+import type { RenderedChunk } from 'rollup';
 
 export interface BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.

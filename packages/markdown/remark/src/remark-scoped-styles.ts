@@ -1,4 +1,5 @@
 import { visit } from 'unist-util-visit';
+
 const noVisit = new Set(['root', 'html', 'text']);
 
 /**  */

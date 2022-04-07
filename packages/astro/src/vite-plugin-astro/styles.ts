@@ -1,6 +1,5 @@
-import type * as vite from 'vite';
-
 import { STYLE_EXTENSIONS } from '../core/render/util.js';
+import type * as vite from 'vite';
 
 export type TransformHook = (
 	code: string,

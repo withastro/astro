@@ -1,6 +1,6 @@
+import { isStylesheetLink } from './extract-assets.js';
 import { getAttribute, hasAttribute, getTagName } from '@web/parse5-utils';
 import parse5 from 'parse5';
-import { isStylesheetLink } from './extract-assets.js';
 
 const tagsWithSrcSet = new Set(['img', 'source']);
 

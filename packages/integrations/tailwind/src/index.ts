@@ -1,11 +1,11 @@
+import load from '@proload/core';
 import type { AstroIntegration } from 'astro';
-import { fileURLToPath } from 'url';
+import autoprefixerPlugin from 'autoprefixer';
 import path from 'path';
 import tailwindPlugin from 'tailwindcss';
-import type { TailwindConfig } from 'tailwindcss/tailwind-config';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
-import autoprefixerPlugin from 'autoprefixer';
-import load from '@proload/core';
+import type { TailwindConfig } from 'tailwindcss/tailwind-config';
+import { fileURLToPath } from 'url';
 
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return resolveConfig({

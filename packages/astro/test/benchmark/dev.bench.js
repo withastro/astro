@@ -1,9 +1,8 @@
 /** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
-
-import { performance } from 'perf_hooks';
-import { Benchmark } from './benchmark.js';
 import { runDevServer } from '../helpers.js';
+import { Benchmark } from './benchmark.js';
 import del from 'del';
+import { performance } from 'perf_hooks';
 
 const docsExampleRoot = new URL('../../../../docs/', import.meta.url);
 

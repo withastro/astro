@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import netlifyAdapter from '../dist/index.js';
+import { expect } from 'chai';
+import { load as cheerioLoad } from 'cheerio';
 import { fileURLToPath } from 'url';
 
 // Asset bundling

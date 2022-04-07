@@ -1,6 +1,6 @@
+import StaticHtml from './static-html.js';
 import { h, createSSRApp } from 'vue';
 import { renderToString } from 'vue/server-renderer';
-import StaticHtml from './static-html.js';
 
 function check(Component) {
 	return !!Component['ssrRender'];

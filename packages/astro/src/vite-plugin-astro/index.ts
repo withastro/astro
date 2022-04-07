@@ -1,20 +1,19 @@
-import type * as vite from 'vite';
-import type { PluginContext } from 'rollup';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
-
-import esbuild from 'esbuild';
-import { fileURLToPath } from 'url';
-import slash from 'slash';
-import fs from 'fs';
-import { getViteTransform, TransformHook } from './styles.js';
-import { parseAstroRequest } from './query.js';
-import { cachedCompilation } from './compile.js';
-import ancestor from 'common-ancestor-path';
-import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
-import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { resolvePages } from '../core/util.js';
+import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { cachedCompilation } from './compile.js';
+import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
+import { parseAstroRequest } from './query.js';
+import { getViteTransform, TransformHook } from './styles.js';
+import ancestor from 'common-ancestor-path';
+import esbuild from 'esbuild';
+import fs from 'fs';
+import type { PluginContext } from 'rollup';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {

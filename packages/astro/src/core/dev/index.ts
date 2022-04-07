@@ -1,6 +1,3 @@
-import type { AddressInfo } from 'net';
-import { performance } from 'perf_hooks';
-import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 import {
 	runHookConfigDone,
@@ -14,6 +11,9 @@ import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/co
 import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
+import type { AddressInfo } from 'net';
+import { performance } from 'perf_hooks';
+import * as vite from 'vite';
 
 export interface DevOptions {
 	logging: LogOptions;

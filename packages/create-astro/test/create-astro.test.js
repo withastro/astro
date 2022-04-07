@@ -1,11 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-import http from 'http';
-import { green, red } from 'kleur/colors';
-import { execa } from 'execa';
-import glob from 'tiny-glob';
 import { TEMPLATES } from '../dist/templates.js';
 import { GITHUB_SHA, FIXTURES_DIR } from './helpers.js';
+import { execa } from 'execa';
+import fs from 'fs';
+import http from 'http';
+import { green, red } from 'kleur/colors';
+import path from 'path';
+import glob from 'tiny-glob';
 
 // helpers
 async function fetch(url) {

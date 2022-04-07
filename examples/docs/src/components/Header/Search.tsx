@@ -1,8 +1,8 @@
 /* jsxImportSource: react */
+import * as CONFIG from '../../config';
+import * as docSearchReact from '@docsearch/react';
 import { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import * as docSearchReact from '@docsearch/react';
-import * as CONFIG from '../../config';
 import '@docsearch/css/dist/style.css';
 import './Search.css';
 

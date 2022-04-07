@@ -1,18 +1,3 @@
-import {
-	createElement,
-	createScript,
-	getAttribute,
-	hasAttribute,
-	insertBefore,
-	remove,
-	setAttribute,
-} from '@web/parse5-utils';
-import { promises as fs } from 'fs';
-import parse5 from 'parse5';
-import * as npath from 'path';
-import type { OutputChunk, PluginContext, PreRenderedChunk } from 'rollup';
-import srcsetParse from 'srcset-parse';
-import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { BuildInternals } from '../core/build/internal';
 import type { AllPagesData } from '../core/build/types';
@@ -20,6 +5,7 @@ import type { LogOptions } from '../core/logger/core.js';
 import { prependDotSlash } from '../core/path.js';
 import { render as ssrRender } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
+import { createRequest } from '../core/request.js';
 import { getOutputFilename } from '../core/util.js';
 import { getAstroPageStyleId, getAstroStyleId } from '../vite-plugin-build-css/index.js';
 import { addRollupInput } from './add-rollup-input.js';
@@ -38,7 +24,21 @@ import {
 	isHoistedScript,
 	isInSrcDirectory,
 } from './util.js';
-import { createRequest } from '../core/request.js';
+import {
+	createElement,
+	createScript,
+	getAttribute,
+	hasAttribute,
+	insertBefore,
+	remove,
+	setAttribute,
+} from '@web/parse5-utils';
+import { promises as fs } from 'fs';
+import parse5 from 'parse5';
+import * as npath from 'path';
+import type { OutputChunk, PluginContext, PreRenderedChunk } from 'rollup';
+import srcsetParse from 'srcset-parse';
+import type { Plugin as VitePlugin, ViteDevServer } from 'vite';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;

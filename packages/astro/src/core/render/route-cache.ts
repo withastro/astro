@@ -8,12 +8,11 @@ import type {
 	RSS,
 } from '../../@types/astro';
 import { LogOptions, warn, debug } from '../logger/core.js';
-
-import { generatePaginateFunction } from './paginate.js';
 import {
 	validateGetStaticPathsModule,
 	validateGetStaticPathsResult,
 } from '../routing/validation.js';
+import { generatePaginateFunction } from './paginate.js';
 
 type RSSFn = (...args: any[]) => any;
 

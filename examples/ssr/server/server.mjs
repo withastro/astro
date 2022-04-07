@@ -1,7 +1,7 @@
-import { createServer } from 'http';
-import fs from 'fs';
-import mime from 'mime';
 import { handler as ssrHandler } from '../dist/server/entry.mjs';
+import fs from 'fs';
+import { createServer } from 'http';
+import mime from 'mime';
 
 const clientRoot = new URL('../dist/client/', import.meta.url);
 

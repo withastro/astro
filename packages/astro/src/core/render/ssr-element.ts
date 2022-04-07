@@ -1,7 +1,6 @@
 import type { SSRElement } from '../../@types/astro';
-
-import npath from 'path-browserify';
 import { appendForwardSlash } from '../../core/path.js';
+import npath from 'path-browserify';
 
 function getRootPath(site?: string): string {
 	return appendForwardSlash(new URL(site || 'http://localhost/').pathname);

@@ -1,8 +1,8 @@
+import { loadConfig } from '../../packages/astro/dist/core/config.js';
+import dev from '../../packages/astro/dist/core/dev/index.js';
+import prettyBytes from 'pretty-bytes';
 import { fileURLToPath } from 'url';
 import v8 from 'v8';
-import dev from '../../packages/astro/dist/core/dev/index.js';
-import { loadConfig } from '../../packages/astro/dist/core/config.js';
-import prettyBytes from 'pretty-bytes';
 
 if (!global.gc) {
 	console.error('ERROR: Node must be run with --expose-gc');

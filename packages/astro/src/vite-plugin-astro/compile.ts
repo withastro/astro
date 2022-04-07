@@ -1,14 +1,13 @@
 import type { AstroConfig } from '../@types/astro';
-import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
-import type { TransformHook } from './styles';
-
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { transform } from '@astrojs/compiler';
-import { transformWithVite } from './styles.js';
-import { viteID } from '../core/util.js';
 import { prependForwardSlash } from '../core/path.js';
+import { viteID } from '../core/util.js';
+import type { TransformHook } from './styles';
+import { transformWithVite } from './styles.js';
+import type { TransformResult } from '@astrojs/compiler';
+import { transform } from '@astrojs/compiler';
+import fs from 'fs';
+import type { SourceMapInput } from 'rollup';
+import { fileURLToPath } from 'url';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & { rawCSSDeps: Set<string> };

@@ -1,8 +1,7 @@
-import * as React from 'react';
-import { useStore } from '@nanostores/react';
-
 import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
+import { useStore } from '@nanostores/react';
+import * as React from 'react';
 
 const AdminsReact = () => {
 	const list = useStore(admins);

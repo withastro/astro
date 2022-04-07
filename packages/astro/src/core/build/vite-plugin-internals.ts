@@ -1,5 +1,5 @@
-import type { Plugin as VitePlugin, UserConfig } from 'vite';
 import type { BuildInternals } from './internal.js';
+import type { Plugin as VitePlugin, UserConfig } from 'vite';
 
 export function vitePluginInternals(input: Set<string>, internals: BuildInternals): VitePlugin {
 	return {

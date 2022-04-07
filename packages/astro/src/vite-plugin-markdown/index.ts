@@ -1,16 +1,16 @@
-import astroRemark from '@astrojs/markdown-remark';
+import type { AstroConfig } from '../@types/astro';
+import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
+import { appendForwardSlash } from '../core/path.js';
+import { resolvePages } from '../core/util.js';
+import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { transform } from '@astrojs/compiler';
+import astroRemark from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
-import { appendForwardSlash } from '../core/path.js';
-import { resolvePages } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;

@@ -1,7 +1,6 @@
-import * as tsr from 'tsconfig-resolver';
 import * as path from 'path';
+import * as tsr from 'tsconfig-resolver';
 import * as url from 'url';
-
 import type * as vite from 'vite';
 
 /** Result of successfully parsed tsconfig.json or jsconfig.json. */
