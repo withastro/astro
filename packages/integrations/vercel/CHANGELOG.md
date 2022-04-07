@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 0.0.3-beta.1
+
+### Patch Changes
+
+- [#3022](https://github.com/withastro/astro/pull/3022) [`8c04ff1f`](https://github.com/withastro/astro/commit/8c04ff1f0bea42d033832ce5047076e315cb38a3) Thanks [@matthewp](https://github.com/matthewp)! - Allows adapters to export default
+
 ## 0.0.3-beta.0
 
 ### Patch Changes
