@@ -1,7 +1,7 @@
 import type {
+	AstroUserConfig,
 	RouteData,
 	SerializedRouteData,
-	MarkdownRenderOptions,
 	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
@@ -22,9 +22,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
-	markdown: {
-		render: MarkdownRenderOptions;
-	};
+	markdown: AstroUserConfig['markdown'];
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;

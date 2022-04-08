@@ -8,6 +8,7 @@ import type { SSRManifest as Manifest, RouteInfo } from './types';
 import type { LogOptions } from '../logger/core.js';
 
 import mime from 'mime';
+import astroRemark from '@astrojs/markdown-remark';
 import { consoleLogDestination } from '../logger/console.js';
 export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
@@ -19,7 +20,6 @@ import {
 	createModuleScriptElementWithSrcSet,
 } from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
-import { createRequest } from '../request.js';
 
 export class App {
 	#manifest: Manifest;
@@ -82,7 +82,7 @@ export class App {
 			legacyBuild: false,
 			links,
 			logging: this.#logging,
-			markdownRender: manifest.markdown.render,
+			markdownRender: [astroRemark, this.#manifest.markdown ?? {}],
 			mod,
 			origin: url.origin,
 			pathname: url.pathname,

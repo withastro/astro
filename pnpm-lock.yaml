@@ -1090,6 +1090,12 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
+  packages/astro/test/fixtures/ssr-markdown:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/static build:
     specifiers:
       '@astrojs/preact': workspace:*
@@ -1333,7 +1339,7 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.40_svelte@3.46.6
       postcss-load-config: 3.1.4
-      svelte-preprocess: 4.10.4_4fb28cead04100f31b0e8b0196137d75
+      svelte-preprocess: 4.10.4_e13103db7bb669bacf1dcef80867f5ff
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -1495,7 +1501,7 @@ importers:
     dependencies:
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.40_svelte@3.46.6+vite@2.9.1
       svelte: 3.46.6
-      svelte-preprocess: 4.10.4_svelte@3.46.6+typescript@4.6.3
+      svelte-preprocess: 4.10.4_svelte@3.46.6
       vite: 2.9.1
 
   packages/renderers/renderer-vue:
@@ -1533,7 +1539,7 @@ importers:
       '@rollup/plugin-alias': 3.1.9_rollup@2.70.1
       '@rollup/plugin-inject': 4.0.4_rollup@2.70.1
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
-      '@rollup/plugin-typescript': 8.3.1_8fb0118e9d69f3600cbb8f144f7d456c
+      '@rollup/plugin-typescript': 8.3.1_rollup@2.70.1+tslib@2.3.1
       '@types/mocha': 9.1.0
       '@types/node': 14.18.12
       '@ungap/structured-clone': 0.3.4
@@ -3740,7 +3746,7 @@ packages:
       rollup: 2.70.1
     dev: true
 
-  /@rollup/plugin-typescript/8.3.1_8fb0118e9d69f3600cbb8f144f7d456c:
+  /@rollup/plugin-typescript/8.3.1_rollup@2.70.1+tslib@2.3.1:
     resolution: {integrity: sha512-84rExe3ICUBXzqNX48WZV2Jp3OddjTMX97O2Py6D1KJaGSwWp0mDHXj+bCGNJqWHIEKDIT2U0sDjhP4czKi6cA==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
@@ -3752,7 +3758,6 @@ packages:
       resolve: 1.22.0
       rollup: 2.70.1
       tslib: 2.3.1
-      typescript: 4.6.3
     dev: true
 
   /@rollup/pluginutils/3.1.0_rollup@2.70.1:
@@ -9734,7 +9739,7 @@ packages:
       svelte: 3.46.6
     dev: false
 
-  /svelte-preprocess/4.10.4_4fb28cead04100f31b0e8b0196137d75:
+  /svelte-preprocess/4.10.4_e13103db7bb669bacf1dcef80867f5ff:
     resolution: {integrity: sha512-fuwol0N4UoHsNQolLFbMqWivqcJ9N0vfWO9IuPAiX/5okfoGXURyJ6nECbuEIv0nU3M8Xe2I1ONNje2buk7l6A==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -9783,10 +9788,9 @@ packages:
       sorcery: 0.10.0
       strip-indent: 3.0.0
       svelte: 3.46.6
-      typescript: 4.6.3
     dev: false
 
-  /svelte-preprocess/4.10.4_svelte@3.46.6+typescript@4.6.3:
+  /svelte-preprocess/4.10.4_svelte@3.46.6:
     resolution: {integrity: sha512-fuwol0N4UoHsNQolLFbMqWivqcJ9N0vfWO9IuPAiX/5okfoGXURyJ6nECbuEIv0nU3M8Xe2I1ONNje2buk7l6A==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -9834,7 +9838,6 @@ packages:
       sorcery: 0.10.0
       strip-indent: 3.0.0
       svelte: 3.46.6
-      typescript: 4.6.3
     dev: false
 
   /svelte/3.46.6:
