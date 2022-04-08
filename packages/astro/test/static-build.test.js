@@ -138,3 +138,16 @@ describe('Static build', () => {
 		expect($('#ssr-config').text()).to.equal('testing');
 	});
 });
+
+describe('Static build SSR', () => {
+
+	it('Copies public files', async () => {
+		const fixture2 = await loadFixture({
+			root: './fixtures/static build SSR/',
+		});
+		return fixture2.build()	
+			.then(() => { expect('build fulfilled').to.be.ok; })
+			.catch((e) => { expect(`build rejected with :${e}`).to.not.be.ok })
+	});
+
+});
