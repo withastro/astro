@@ -13,7 +13,6 @@
       "cache": false
     },
     "test": {
-      "dependsOn": ["^build"],
       "outputs": []
     },
     "test:templates": {
