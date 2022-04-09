@@ -100,6 +100,7 @@ export class App {
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			astroConfig: this.#manifest.astroConfig,
 		});
 
 		if (result.type === 'response') {
@@ -132,6 +133,7 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
+			astroConfig: this.#manifest.astroConfig,
 		});
 
 		if (result.type === 'response') {

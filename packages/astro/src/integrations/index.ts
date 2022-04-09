@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
+import { AstroConfig, AstroRenderer, BuildConfig, RouteData, RouteType } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
@@ -157,4 +157,32 @@ export async function runHookBuildDone({
 			});
 		}
 	}
+}
+
+export async function runHookRenderPage({
+	config,
+	routeType,
+	pathname,
+	html,
+}: {
+	config: AstroConfig;
+	routeType: RouteType;
+	pathname: string;
+	html: string;
+}): Promise<string> {
+	for (const integration of config.integrations) {
+		if (integration.hooks['astro:render:page']) {
+			let newHtml = await integration.hooks['astro:render:page']({
+				config,
+				routeType,
+				pathname,
+				html,
+			});
+			if (newHtml) {
+				html = newHtml;
+			}
+		}
+	}
+	
+	return html;
 }

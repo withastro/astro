@@ -227,6 +227,7 @@ async function generatePath(
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
 		ssr,
+		astroConfig: astroConfig,
 	};
 
 	let body: string;

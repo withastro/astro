@@ -189,6 +189,7 @@ export async function render(
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
+		astroConfig,
 	});
 
 	if (route?.type === 'endpoint' || content.type === 'response') {

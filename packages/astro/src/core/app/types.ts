@@ -4,6 +4,7 @@ import type {
 	MarkdownRenderOptions,
 	ComponentInstance,
 	SSRLoadedRenderer,
+	AstroConfig,
 } from '../../@types/astro';
 
 export type ComponentPath = string;
@@ -28,6 +29,7 @@ export interface SSRManifest {
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
+	astroConfig: AstroConfig;
 }
 
 export type SerializedSSRManifest = Omit<SSRManifest, 'routes'> & {

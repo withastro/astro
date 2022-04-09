@@ -7,6 +7,7 @@ import type {
 	SSRLoadedRenderer,
 	RouteData,
 	SSRElement,
+	AstroConfig,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
@@ -14,6 +15,7 @@ import { renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
+import { runHookRenderPage } from '../../integrations/index.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -82,6 +84,7 @@ export interface RenderOptions {
 	site?: string;
 	ssr: boolean;
 	request: Request;
+	astroConfig: AstroConfig;
 }
 
 export async function render(
@@ -103,6 +106,7 @@ export async function render(
 		routeCache,
 		site,
 		ssr,
+		astroConfig,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -162,6 +166,14 @@ export async function render(
 	if (!/<!doctype html/i.test(html)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
+
+	// Allow integrations to process and modify the rendered page
+	html = await runHookRenderPage({
+		config: astroConfig,
+		routeType: 'page',
+		pathname,
+		html
+	});
 
 	return {
 		type: 'html',

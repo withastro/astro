@@ -116,6 +116,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
+		astroConfig,
 	};
 
 	return ssrManifest;

@@ -890,6 +890,13 @@ export interface AstroIntegration {
 			dir: URL;
 			routes: RouteData[];
 		}) => void | Promise<void>;
+		/** Allows processing and modification of all rendered page/endpoint HTML code. */
+		'astro:render:page'?: (options: {
+			config: AstroConfig;
+			routeType: RouteType;
+			pathname: string;
+			html: string;
+		}) => void | Promise<void> | string | Promise<string>;
 	};
 }
 
