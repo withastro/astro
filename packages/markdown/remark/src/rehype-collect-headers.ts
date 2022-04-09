@@ -22,6 +22,8 @@ export default function createCollectHeaders() {
 				});
 
 				let slug = node?.properties?.id || slugger.slug(text);
+				
+				slug.endsWith("-") && (slug = slug.slice(0, -1));
 
 				node.properties = node.properties || {};
 				node.properties.id = slug;
