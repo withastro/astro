@@ -17,10 +17,10 @@
     "astro": "^1.0.0-beta.5"
   },
   "dependencies": {
-    "preact": "^10.7.0",
+    "preact": "^10.7.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "svelte": "^3.46.6",
+    "svelte": "^3.47.0",
     "vue": "^3.2.31"
   }
 }

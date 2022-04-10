@@ -31,12 +31,12 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.17.3",
-    "preact-render-to-string": "^5.1.20"
+    "preact-render-to-string": "^5.1.21"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.7.0"
+    "preact": "^10.7.1"
   },
   "peerDependencies": {
     "preact": "^10.6.5"
