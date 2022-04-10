@@ -5,7 +5,11 @@ import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 
 export { Node };
-export type PluginFunction<PluginParameters extends any[] = any[], Input = Node, Output = Input> = unified.Plugin<PluginParameters, Input, Output>;
+export type PluginFunction<
+	PluginParameters extends any[] = any[],
+	Input = Node,
+	Output = Input
+> = unified.Plugin<PluginParameters, Input, Output>;
 
 const plugin = z.union([
 	z.string(),
@@ -28,9 +32,13 @@ const shikiConfig = z.object({
 export type ShikiConfig = z.infer<typeof shikiConfig>;
 
 export const astroMarkdownOptions = z.object({
+	// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
+	// TODO: This should probably be updated to something more like "md" | "astro"
 	mode: z.enum(['md', 'mdx']).default('mdx'),
 	drafts: z.boolean().default(false),
-	syntaxHighlight: z.union([z.literal('shiki'), z.literal('prism'), z.literal(false)]).default('shiki'),
+	syntaxHighlight: z
+		.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+		.default('shiki'),
 	shikiConfig: shikiConfig.default({}),
 	remarkPlugins: plugin.array().default([]),
 	rehypePlugins: plugin.array().default([]),
