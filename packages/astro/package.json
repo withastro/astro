@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.26.0",
+  "version": "1.0.0-beta.5",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -26,6 +26,7 @@
   "exports": {
     ".": "./astro.js",
     "./env": "./env.d.ts",
+    "./astro-jsx": "./astro-jsx.d.ts",
     "./config": "./config.mjs",
     "./internal": "./internal.js",
     "./app": "./dist/core/app/index.js",
@@ -60,6 +61,7 @@
     "config.d.ts",
     "config.mjs",
     "env.d.ts",
+    "astro-jsx.d.ts",
     "README.md",
     "vendor"
   ],
@@ -75,7 +77,7 @@
   "dependencies": {
     "@astrojs/compiler": "^0.14.1",
     "@astrojs/language-server": "^0.13.3",
-    "@astrojs/markdown-remark": "^0.8.0",
+    "@astrojs/markdown-remark": "^0.8.1",
     "@astrojs/prism": "0.4.1",
     "@astrojs/webapi": "^0.11.0",
     "@babel/core": "^7.17.8",

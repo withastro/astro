@@ -28,7 +28,15 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter(new URL(config.base, config.site).toString()));
+				let site = null;
+				try {
+					site = new URL(config.base, config.site);
+				} catch {
+					throw new Error(
+						'The Netlify adapter requires a deployment URL. Ensure a "site" is specified in your astro.config. If you provided a "base" in your astro.config, ensure it is a valid path.'
+					);
+				}
+				setAdapter(getAdapter(site.toString()));
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
@@ -45,6 +53,11 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 					if (route.pathname) {
 						_redirects += `
 ${route.pathname}    /.netlify/functions/${entryFile}    200`;
+					} else {
+						const pattern =
+							'/' + route.segments.map(([part]) => (part.dynamic ? '*' : part.content)).join('/');
+						_redirects += `
+${pattern}    /.netlify/functions/${entryFile}    200`;
 					}
 				}
 

@@ -4,6 +4,7 @@ import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/as
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
+import { isBuildingToSSR } from '../core/util.js';
 
 export async function runHookConfigSetup({
 	config: _config,
@@ -136,18 +137,22 @@ export async function runHookBuildSetup({
 
 export async function runHookBuildDone({
 	config,
+	buildConfig,
 	pages,
 	routes,
 }: {
 	config: AstroConfig;
+	buildConfig: BuildConfig;
 	pages: string[];
 	routes: RouteData[];
 }) {
+	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
+
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
 			await integration.hooks['astro:build:done']({
 				pages: pages.map((p) => ({ pathname: p })),
-				dir: config.outDir,
+				dir,
 				routes,
 			});
 		}
