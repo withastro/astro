@@ -6,7 +6,7 @@ export function getAdapter(): AstroAdapter {
 		name: '@astrojs/netlify',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
-		args: { },
+		args: {},
 	};
 }
 
