@@ -38,7 +38,8 @@ export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = astroMarkdownOptions.parse(opts ?? {});
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } =
+		astroMarkdownOptions.parse(opts ?? {});
 	const scopedClassName = opts?.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
