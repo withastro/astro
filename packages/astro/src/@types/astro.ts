@@ -777,6 +777,19 @@ export interface MarkdownParserResponse {
 }
 
 /**
+ * The `content` prop given to a Layout
+ * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ */
+export interface MarkdownContent {
+	[key: string]: any;
+	astro: {
+		headers: MarkdownHeader[];
+		source: string;
+		html: string;
+	};
+}
+
+/**
  * paginate() Options
  * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
  */
