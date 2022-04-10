@@ -99,7 +99,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export const url = ${JSON.stringify(fileUrl)};
 						
 						// Deferred
-						export default async function load() {
+						async function load() {
 							return (await import(${JSON.stringify(fileId + '?content')}));
 						};
 						export function Content(...args) {
@@ -108,6 +108,9 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						Content.isAstroComponentFactory = true;
 						export function getHeaders() {
 							return load().then((m) => m.metadata.headers)
+						};
+						export function getSource() {
+							return load().then((m) => m.metadata.source)
 						};`,
 					map: null,
 				};

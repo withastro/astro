@@ -709,7 +709,8 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
-	getHeaders(): Promise<{ depth: number; slug: string; text: string }[]>;
+	getHeaders(): Promise<MarkdownHeader[]>;
+	getSource(): Promise<string>;
 }
 
 export type GetHydrateCallback = () => Promise<
@@ -757,12 +758,18 @@ export type MarkdownParser = (
 	options?: Record<string, any>
 ) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
+export interface MarkdownHeader {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
 export interface MarkdownParserResponse {
 	frontmatter: {
 		[key: string]: any;
 	};
 	metadata: {
-		headers: any[];
+		headers: MarkdownHeader[];
 		source: string;
 		html: string;
 	};
