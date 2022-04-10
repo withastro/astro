@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "0.1.1-beta.0",
+  "version": "0.1.1-beta.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 20000"
   },
   "dependencies": {
     "@astrojs/webapi": "^0.11.0"

@@ -1,5 +1,32 @@
 # astro
 
+## 1.0.0-beta.5
+
+### Patch Changes
+
+- [#3026](https://github.com/withastro/astro/pull/3026) [`4b0f27d9`](https://github.com/withastro/astro/commit/4b0f27d9ffa6ec90e898de504588ba92630064c0) Thanks [@matthewp](https://github.com/matthewp)! - Fix for adding set-cookie multiple times
+
+* [#3020](https://github.com/withastro/astro/pull/3020) [`c773dcde`](https://github.com/withastro/astro/commit/c773dcde317d46e3f8e68088cda580c30bc8e1da) Thanks [@tony-sull](https://github.com/tony-sull)! - Add support for advanced CSS imports with `?raw` and `?url`
+
+  > ⚠️WARNING⚠️:
+  > Be careful when bypassing Astro's built-in CSS bundling! Styles won't be included in the built output - this is best used in combination with `set:html` to inline styles directly into the built HTML page.
+
+- [#3022](https://github.com/withastro/astro/pull/3022) [`8c04ff1f`](https://github.com/withastro/astro/commit/8c04ff1f0bea42d033832ce5047076e315cb38a3) Thanks [@matthewp](https://github.com/matthewp)! - Allows adapters to export default
+
+* [#3021](https://github.com/withastro/astro/pull/3021) [`7e9d82d7`](https://github.com/withastro/astro/commit/7e9d82d75e4b19993b4246d3546169c8476702c4) Thanks [@matthewp](https://github.com/matthewp)! - Warn when attempting to access headers in SSG mode
+
+## 1.0.0-beta.4
+
+### Patch Changes
+
+- [#3001](https://github.com/withastro/astro/pull/3001) [`25cc9218`](https://github.com/withastro/astro/commit/25cc9218f8bfe0b0d1645fb869929d7fc89042c8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix relative config handling with the `--config` flag
+
+* [#3008](https://github.com/withastro/astro/pull/3008) [`8bd49c95`](https://github.com/withastro/astro/commit/8bd49c95365f7bbce41e19b7e8658ad639c22f31) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
+
+- [#3011](https://github.com/withastro/astro/pull/3011) [`c6f8bce7`](https://github.com/withastro/astro/commit/c6f8bce7c35cc4fd450fe1b6cc8297a81e413b8e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes dynamic routes in the Netlify adapter
+
+* [#2958](https://github.com/withastro/astro/pull/2958) [`d0777ad3`](https://github.com/withastro/astro/commit/d0777ad3aff0084d7fc0e159ac32ebea062d921c) Thanks [@aFuzzyBear](https://github.com/aFuzzyBear)! - Add `astro docs` command which opens the Astro docs in your preferred browser.
+
 ## 1.0.0-beta.3
 
 ### Patch Changes

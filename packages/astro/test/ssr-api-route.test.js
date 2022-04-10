@@ -56,5 +56,13 @@ describe('API routes in SSR', () => {
 			const text = await response.text();
 			expect(text).to.equal(`ok`);
 		});
+
+		it('Can set multiple headers of the same type', async () => {
+			const response = await fixture.fetch('/login', {
+				method: 'POST',
+			});
+			const setCookie = response.headers.get('set-cookie');
+			expect(setCookie).to.equal('foo=foo; HttpOnly, bar=bar; HttpOnly');
+		});
 	});
 });

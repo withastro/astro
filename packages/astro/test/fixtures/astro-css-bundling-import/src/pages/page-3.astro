@@ -1,0 +1,12 @@
+---
+import PageLayout from "../layouts/InlineLayout.astro"
+import styles from "../styles/page-three.css?raw"
+import stylesUrl from "../styles/page-one.css?url"
+---
+
+<PageLayout title="Page 3">
+  <style set:html={styles}></style>
+
+  <h1>Page 3</h1>
+  <p>This text should be purple, because we want the inlined <code>page-3.css</code> to override <code>site.css</code></p>
+</PageLayout>
