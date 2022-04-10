@@ -7,20 +7,24 @@ polyfill(globalThis, {
 	exclude: 'window document',
 });
 
-interface Args {
-	site?: string;
-}
+interface Args {}
 
 export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
-	const site = new URL(args.site ?? `https://netlify.com`);
 
 	const handler: Handler = async (event) => {
-		const headers = new Headers(event.headers as any);
-		const request = new Request(new URL(event.path, site).toString(), {
-			method: event.httpMethod,
-			headers,
-		});
+		const { httpMethod, headers, rawUrl, body: requestBody, isBase64Encoded } = event;
+		const init: RequestInit = {
+			method: httpMethod,
+			headers: new Headers(headers as any),
+		};
+		// Attach the event body the the request, with proper encoding.
+		if (httpMethod !== 'GET' && httpMethod !== 'HEAD') {
+			const encoding = isBase64Encoded ? 'base64' : 'utf-8';
+			init.body =
+				typeof requestBody === 'string' ? Buffer.from(requestBody, encoding) : requestBody;
+		}
+		const request = new Request(rawUrl, init);
 
 		if (!app.match(request)) {
 			return {
@@ -30,12 +34,12 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		}
 
 		const response = await app.render(request);
-		const body = await response.text();
+		const responseBody = await response.text();
 
 		return {
 			statusCode: 200,
 			headers: Object.fromEntries(response.headers.entries()),
-			body,
+			body: responseBody,
 		};
 	};
 

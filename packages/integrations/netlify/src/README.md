@@ -10,10 +10,6 @@ import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
 	adapter: netlify(),
-  // Where your Netlify app will be deployed.
-  // Feel free to use a local URL (i.e. http://localhost:8080)
-  // to test local builds via the netlify CLI
-  site: 'https://my-production-url.netlify.app',
 });
 ```
 
