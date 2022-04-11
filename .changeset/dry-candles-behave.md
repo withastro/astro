@@ -1,5 +1,5 @@
 ---
-"@astrojs/netlify": patch
+"@astrojs/netlify": minor
 ---
 
 Improve the Netlify adapter: 

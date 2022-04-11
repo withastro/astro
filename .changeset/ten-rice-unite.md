@@ -1,5 +1,5 @@
 ---
-"@astrojs/solid-js": patch
+"@astrojs/solid-js": minor
 "@astrojs/renderer-solid": patch
 ---
 
