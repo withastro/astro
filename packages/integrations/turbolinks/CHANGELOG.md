@@ -1,5 +1,11 @@
 # @astrojs/turbolinks
 
+## 0.1.0
+
+### Minor Changes
+
+- [#2979](https://github.com/withastro/astro/pull/2979) [`9d7a4b59`](https://github.com/withastro/astro/commit/9d7a4b59b53f8cb274266f5036d1cef841750252) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Welcome to the Astro v1.0.0 Beta! Read the [official announcement](https://astro.build/blog/astro-1-beta-release/) for more details.
+
 ## 0.0.2
 
 ### Patch Changes

@@ -9,8 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^0.0.2",
-    "astro": "^1.0.0-beta.5"
+    "@astrojs/svelte": "^0.1.0",
+    "astro": "^1.0.0-beta.6"
   },
   "dependencies": {
     "svelte": "^3.47.0"
