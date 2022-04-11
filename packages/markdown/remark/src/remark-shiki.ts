@@ -1,34 +1,7 @@
 import type * as shiki from 'shiki';
 import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
-
-export interface ShikiConfig {
-	/**
-	 * The languages loaded to Shiki.
-	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
-	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
-	 *
-	 * @default []
-	 */
-	langs?: shiki.ILanguageRegistration[];
-	/**
-	 * The styling theme.
-	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
-	 * Instructions for loading a custom theme: https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme
-	 *
-	 * @default "github-dark"
-	 */
-	theme?: shiki.IThemeRegistration;
-	/**
-	 * Enable word wrapping.
-	 *  - true: enabled.
-	 *  - false: enabled.
-	 *  - null: All overflow styling removed. Code will overflow the element by default.
-	 *
-	 * @default false
-	 */
-	wrap?: boolean | null;
-}
+import type { ShikiConfig } from './types.js';
 
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
@@ -38,7 +11,7 @@ export interface ShikiConfig {
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
 const remarkShiki = async (
-	{ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig,
+	{ langs, theme, wrap }: ShikiConfig,
 	scopedClassName?: string | null
 ) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;

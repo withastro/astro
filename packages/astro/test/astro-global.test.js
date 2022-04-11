@@ -33,10 +33,7 @@ describe('Astro.*', () => {
 		});
 	});
 
-
 	describe('build', () => {
-
-
 		before(async () => {
 			await fixture.build();
 		});
