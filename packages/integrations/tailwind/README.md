@@ -54,46 +54,70 @@ Tailwind's utility classes should be ready-to-use with zero config, including [p
 
 ## Configuration
 
-Have a [custom theme](https://tailwindcss.com/docs/configuration)? Try adding a `tailwind.config.(js|cjs|mjs)` file to the base of your project. You can also specify a custom config file using this integration's `config.path` option:
+### Custom Tailwind Config File
 
-__astro.config.mjs__
+Add your own `tailwind.config.(js|cjs|mjs)` file to the base of your project, and this integration will respect it. This can be useful for setting a [custom theme](https://tailwindcss.com/docs/configuration) or providing other configuration?
+
+### config.path
+
+You can give a different config file location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root. 
+
+Changing `config.path` is well supported in Astro, but not recommended overall since it can cause problems with other Tailwind integrations, like the official Tailwind VSCode extension.
 
 ```js
+// astro.config.mjs
 import tailwind from '@astrojs/tailwind';
 
 export default {
-  // ...
   integrations: [tailwind({
+    // Example: Provide a custom path to a Tailwind config file
     config: { path: './custom-config.js' },
   })],
 }
 ```
 
-We will provide a `content` property to your config to enable Tailwind across all Astro files and [UI framework components](https://docs.astro.build/en/core-concepts/framework-components/). To remove this default, opt-out via the `config.applyAstroPreset` integration option:
+### config.applyAstroPreset
 
-__astro.config.mjs__
+By default, when a custom `tailwind.config.js` file is used this integration will still append some configuration as a `preset` in the final configuration. This default configuration provides the correct `content` property so that Tailwind knows what files to scan in Astro projects (`src/**/*.{astro,html,js,jsx,svelte,ts,tsx,vue}`).
+
+You can disable this by setting `config.applyAstroPreset` to false. enable Tailwind across all Astro files and [UI framework components](https://docs.astro.build/en/core-concepts/framework-components/). To remove this default, opt-out via the `config.applyAstroPreset` integration option:
 
 ```js
+// astro.config.mjs
 export default {
-  // ...
   integrations: [tailwind({
+    // Example: Disable adding Astro configuration as a preset.
+    // Only useful if a custom tailwind.config.js file is used.
     config: { applyAstroPreset: false },
   })],
 }
 ```
 
-We will include `@tailwind` directives for each of Tailwind's layers to enable Tailwind styles by default. If you need to customize this behavior, with Tailwind's [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer) for example, opt-out via the `config.applyBaseStyles` integration option:
+### config.applyBaseStyles
 
-__astro.config.mjs__
+By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
+
+```css
+/* The integration's default injected base.css file */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+To disable this default behavior, set `config.applyBaseStyles` to `false`. This can be useful if you need to define your own `base.css` file (to include a [`@layer` directive](https://tailwindcss.com/docs/functions-and-directives#layer), for example). This can also be useful if you do not want `base.css` to be imported on every page of your project.
 
 ```js
+// astro.config.mjs
 export default {
-  // ...
   integrations: [tailwind({
+    // Example: Disable injecting a basic `base.css` import on every page.
+    // Useful if you need to define and/or import your own custom `base.css`.
     config: { applyBaseStyles: false },
   })],
 }
 ```
+
+## Read more
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
