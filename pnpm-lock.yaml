@@ -117,7 +117,10 @@ importers:
 
   examples/framework-alpine:
     specifiers:
+      alpinejs: ^3.9.6
       astro: ^1.0.0-beta.7
+    dependencies:
+      alpinejs: 3.9.6
     devDependencies:
       astro: link:../../packages/astro
 
@@ -4316,6 +4319,12 @@ packages:
       estree-walker: 2.0.2
       magic-string: 0.25.9
 
+  /@vue/reactivity/3.1.5:
+    resolution: {integrity: sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==}
+    dependencies:
+      '@vue/shared': 3.1.5
+    dev: false
+
   /@vue/reactivity/3.2.31:
     resolution: {integrity: sha512-HVr0l211gbhpEKYr2hYe7hRsV91uIVGFYNHj73njbARVGHQvIojkImKMaZNDdoDZOIkMsBc9a1sMqR+WZwfSCw==}
     dependencies:
@@ -4342,6 +4351,10 @@ packages:
       '@vue/compiler-ssr': 3.2.31
       '@vue/shared': 3.2.31
       vue: 3.2.31
+
+  /@vue/shared/3.1.5:
+    resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
+    dev: false
 
   /@vue/shared/3.2.31:
     resolution: {integrity: sha512-ymN2pj6zEjiKJZbrf98UM2pfDd6F2H7ksKw7NDt/ZZ1fh5Ei39X5tABugtT03ZRlWd9imccoK0hE8hpjpU7irQ==}
@@ -4461,6 +4474,12 @@ packages:
       '@algolia/requester-common': 4.13.0
       '@algolia/requester-node-http': 4.13.0
       '@algolia/transporter': 4.13.0
+    dev: false
+
+  /alpinejs/3.9.6:
+    resolution: {integrity: sha512-NRkBWiKLA/juIVh4sJxU1vkKrhEbsKZAvsOTPh1NmLH+CDktg1W5yR5DHlM5LXq5fjntGtzEWTjjPkjT06opeA==}
+    dependencies:
+      '@vue/reactivity': 3.1.5
     dev: false
 
   /ansi-align/3.0.1:

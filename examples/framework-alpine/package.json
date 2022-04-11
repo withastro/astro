@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "astro": "^1.0.0-beta.7"
+  },
+  "dependencies": {
+    "alpinejs": "^3.9.6"
   }
 }
