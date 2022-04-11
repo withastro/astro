@@ -25,7 +25,6 @@
   "workspaces": [
     "compiled/*",
     "packages/markdown/*",
-    "packages/renderers/*",
     "packages/integrations/*",
     "packages/*",
     "examples/*",
