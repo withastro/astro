@@ -257,10 +257,11 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 		files.map(async (filename) => {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
-			const lastFolder = new URL('./', to)
-			return fs.promises.mkdir(lastFolder, {recursive: true})
-							.then(()=>fs.promises.copyFile(from, to) )
-			})
+			const lastFolder = new URL('./', to);
+			return fs.promises
+				.mkdir(lastFolder, { recursive: true })
+				.then(() => fs.promises.copyFile(from, to));
+		})
 	);
 }
 
