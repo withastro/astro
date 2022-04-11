@@ -10,11 +10,11 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^0.8.1",
-    "@astrojs/preact": "^0.1.0",
+    "@astrojs/preact": "^0.0.2",
     "@astrojs/react": "^0.1.0",
-    "@astrojs/svelte": "^0.1.0",
-    "@astrojs/vue": "^0.1.0",
-    "astro": "^1.0.0-beta.6"
+    "@astrojs/svelte": "^0.0.2",
+    "@astrojs/vue": "^0.0.2",
+    "astro": "^1.0.0-beta.5"
   },
   "dependencies": {
     "preact": "^10.7.1",

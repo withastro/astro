@@ -1,11 +1,5 @@
 # @astrojs/tailwind
 
-## 0.1.1
-
-### Patch Changes
-
-- [`c05a544a`](https://github.com/withastro/astro/commit/c05a544acd5c9dd4f57b53ce21e82141212a3c2c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update README
-
 ## 0.1.0
 
 ### Minor Changes
