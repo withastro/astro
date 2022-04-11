@@ -1,214 +1,185 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	polyfill(globalThis)
+describe('Basic', () => {
+	before(() => polyfill(globalThis))
 
-	return [
-		{
-			name: 'Globals exist',
-			test() {
-				const webAPIs = [
-					'AbortController',
-					'AbortSignal',
-					'Blob',
-					'ByteLengthQueuingStrategy',
-					'CSSStyleSheet',
-					'CountQueuingStrategy',
-					'CustomElementRegistry',
-					'CustomEvent',
-					'DOMException',
-					'Document',
-					'DocumentFragment',
-					'Element',
-					'Event',
-					'EventTarget',
-					'File',
-					'FormData',
-					'HTMLDocument',
-					'HTMLElement',
-					'HTMLDivElement',
-					'HTMLHeadElement',
-					'HTMLHtmlElement',
-					'HTMLImageElement',
-					'HTMLStyleElement',
-					'HTMLTemplateElement',
-					'HTMLUnknownElement',
-					'Headers',
-					'IntersectionObserver',
-					'Image',
-					'MediaQueryList',
-					'MutationObserver',
-					'Node',
-					'ReadableByteStreamController',
-					'ReadableStream',
-					'ReadableStreamBYOBReader',
-					'ReadableStreamBYOBRequest',
-					'ReadableStreamDefaultController',
-					'ReadableStreamDefaultReader',
-					'Request',
-					'Response',
-					'ShadowRoot',
-					'StyleSheet',
-					'TransformStream',
-					'WritableStream',
-					'WritableStreamDefaultController',
-					'WritableStreamDefaultWriter',
-					'Window',
-					'cancelAnimationFrame',
-					'cancelIdleCallback',
-					'clearTimeout',
-					'fetch',
-					'requestAnimationFrame',
-					'requestIdleCallback',
-					'setTimeout',
-				]
+	it('Globals exist', () => {
+		const webAPIs = [
+			'AbortController',
+			'AbortSignal',
+			'Blob',
+			'ByteLengthQueuingStrategy',
+			'CSSStyleSheet',
+			'CountQueuingStrategy',
+			'CustomElementRegistry',
+			'CustomEvent',
+			'DOMException',
+			'Document',
+			'DocumentFragment',
+			'Element',
+			'Event',
+			'EventTarget',
+			'File',
+			'FormData',
+			'HTMLDocument',
+			'HTMLElement',
+			'HTMLDivElement',
+			'HTMLHeadElement',
+			'HTMLHtmlElement',
+			'HTMLImageElement',
+			'HTMLStyleElement',
+			'HTMLTemplateElement',
+			'HTMLUnknownElement',
+			'Headers',
+			'IntersectionObserver',
+			'Image',
+			'MediaQueryList',
+			'MutationObserver',
+			'Node',
+			'ReadableByteStreamController',
+			'ReadableStream',
+			'ReadableStreamBYOBReader',
+			'ReadableStreamBYOBRequest',
+			'ReadableStreamDefaultController',
+			'ReadableStreamDefaultReader',
+			'Request',
+			'Response',
+			'ShadowRoot',
+			'StyleSheet',
+			'TransformStream',
+			'WritableStream',
+			'WritableStreamDefaultController',
+			'WritableStreamDefaultWriter',
+			'Window',
+			'cancelAnimationFrame',
+			'cancelIdleCallback',
+			'clearTimeout',
+			'fetch',
+			'requestAnimationFrame',
+			'requestIdleCallback',
+			'setTimeout',
+		]
 
-				for (const name of webAPIs) {
-					assert.equal(typeof globalThis[name], 'function')
-				}
-			},
-		},
-		{
-			name: 'Constructs an Event',
-			test() {
-				const e = new Event('test')
+		for (const name of webAPIs) {
+			expect(globalThis[name]).to.be.a('function')
+		}
+	})
 
-				assert.equal(e.type, 'test')
-			},
-		},
-		{
-			name: 'Constructs an EventTarget',
-			test() {
-				const t = new EventTarget()
-			},
-		},
-		{
-			name: 'Dispatches an Event on an EventTarget',
-			test() {
-				const t = new EventTarget()
+	it('Constructs an Event', () => {
+		const e = new Event('test')
 
-				let pass = false
+		expect(e.type).to.equal('test')
+	})
 
-				t.addEventListener('test', (event) => {
-					pass = true
-				})
+	it('Constructs an EventTarget', () => {
+		const _t = new EventTarget()
+	})
 
-				const e = new Event('test')
+	it('Dispatches an Event on an EventTarget', () => {
+		const t = new EventTarget()
 
-				t.dispatchEvent(e)
+		let pass = false
 
-				assert.equal(pass, true)
-			},
-		},
-		{
-			name: 'Classes extend as expected',
-			test() {
-				assert.equal(HTMLElement.prototype instanceof Element, true)
-				assert.equal(Element.prototype instanceof Node, true)
-				assert.equal(Node.prototype instanceof EventTarget, true)
-			},
-		},
-		{
-			name: 'DOM Methods have no effect',
-			test() {
-				const element = document.createElement('div')
+		t.addEventListener('test', (event) => {
+			pass = true
+		})
 
-				assert.equal(element.innerHTML, '')
-				element.innerHTML = 'frozen'
-				assert.equal(element.innerHTML, '')
+		const e = new Event('test')
 
-				assert.equal(element.textContent, '')
-				element.textContent = 'frozen'
-				assert.equal(element.textContent, '')
-			},
-		},
-		{
-			name: 'globalThis.window === globalThis',
-			test() {
-				assert.equal(globalThis.window, globalThis)
-			},
-		},
-		{
-			name: 'Relative Indexing Method (String#at)',
-			test() {
-				assert.equal(typeof String.prototype.at, 'function')
-				assert.equal(String.prototype.at.length, 1)
+		t.dispatchEvent(e)
 
-				const example = 'The quick brown fox jumps over the lazy dog.'
+		expect(pass).to.equal(true)
+	})
 
-				assert.equal(example.at(2), 'e')
-				assert.equal(example.at(-2), 'g')
-			},
-		},
-		{
-			name: 'Relative Indexing Method (Array#at)',
-			test() {
-				assert.equal(typeof Array.prototype.at, 'function')
-				assert.equal(Array.prototype.at.length, 1)
+	it('Classes extend as expected', () => {
+		expect(HTMLElement.prototype).to.be.an.instanceof(Element)
+		expect(Element.prototype).to.be.an.instanceof(Node)
+		expect(Node.prototype).to.be.an.instanceof(EventTarget)
+	})
 
-				const example = [1, 3, 5, 7, 9]
+	it('DOM Methods have no effect', () => {
+		const element = document.createElement('div')
 
-				assert.equal(example.at(1), 3)
-				assert.equal(example.at(-1), 9)
-			},
-		},
-		{
-			name: 'Relative Indexing Method (TypedArray#at)',
-			test() {
-				assert.equal(typeof Int8Array.prototype.at, 'function')
-				assert.equal(Int8Array.prototype.at.length, 1)
+		expect(element.innerHTML).to.be.empty
+		element.innerHTML = 'frozen'
+		expect(element.innerHTML).to.be.empty
 
-				const example = new Int8Array([1, 3, 5, 7, 9])
+		expect(element.textContent).to.be.empty
+		element.textContent = 'frozen'
+		expect(element.textContent).to.be.empty
+	})
 
-				assert.equal(example.at(1), 3)
-				assert.equal(example.at(-1), 9)
-			},
-		},
-		{
-			name: 'Object.hasOwn',
-			test() {
-				assert.equal(typeof Object.hasOwn, 'function')
-				assert.equal(Object.hasOwn.length, 2)
+	it('globalThis.window === globalThis', () => {
+		expect(globalThis.window).to.equal(globalThis)
+	})
 
-				const example = {}
+	it('Relative Indexing Method (String#at)', () => {
+		expect(String.prototype.at).to.be.a('function')
+		expect(String.prototype.at.length).to.equal(1)
 
-				assert.equal(Object.hasOwn(example, 'prop'), false)
+		const example = 'The quick brown fox jumps over the lazy dog.'
 
-				example.prop = 'exists'
+		expect(example.at(2)).to.equal('e')
+		expect(example.at(-2)).to.equal('g')
+	})
 
-				assert.equal(Object.hasOwn(example, 'prop'), true)
-			},
-		},
-		{
-			name: 'Promise.any',
-			test() {
-				assert.equal(typeof Promise.any, 'function')
-				assert.equal(Promise.any.length, 1)
+	it('Relative Indexing Method (Array#at)', () => {
+		expect(Array.prototype.at).to.be.a('function')
+		expect(Array.prototype.at.length).to.equal(1)
 
-				Promise.any([
-					Promise.resolve(42),
-					Promise.reject(-1),
-					Promise.reject(Infinity),
-				]).then((result) => {
-					assert.equal(result, 42)
-				})
-			},
-		},
-		{
-			name: 'String#replaceAll',
-			test() {
-				assert.equal(typeof String.prototype.replaceAll, 'function')
-				assert.equal(String.prototype.replaceAll.length, 2)
+		const example = [1, 3, 5, 7, 9]
 
-				const t1 =
-					'Of all the sorcerers in Harry Potter, Halo is my favorite sorcerer.'
-				const t2 = t1.replaceAll('sorcerer', 'philosopher')
-				const t3 =
-					'Of all the philosophers in Harry Potter, Halo is my favorite philosopher.'
+		expect(example.at(1)).to.equal(3)
+		expect(example.at(-1)).to.equal(9)
+	})
 
-				assert.equal(t2, t3)
-			},
-		},
-	]
+	it('Relative Indexing Method (TypedArray#at)', () => {
+		expect(Int8Array.prototype.at).to.be.a('function')
+		expect(Int8Array.prototype.at.length).to.equal(1)
+
+		const example = new Int8Array([1, 3, 5, 7, 9])
+
+		expect(example.at(1)).to.equal(3)
+		expect(example.at(-1)).to.equal(9)
+	})
+
+	it('Object.hasOwn', () => {
+		expect(Object.hasOwn).to.be.a('function')
+		expect(Object.hasOwn.length).to.equal(2)
+
+		const example = {}
+
+		expect(Object.hasOwn(example, 'prop')).to.equal(false)
+
+		example.prop = 'exists'
+
+		expect(Object.hasOwn(example, 'prop')).to.equal(true)
+	})
+
+	it('Promise.any', () => {
+		expect(Promise.any).to.be.a('function')
+		expect(Promise.any.length).to.equal(1)
+
+		Promise.any([
+			Promise.resolve(42),
+			Promise.reject(-1),
+			Promise.reject(Infinity),
+		]).then((result) => {
+			expect(result).to.equal(42)
+		})
+	})
+
+	it('String#replaceAll', () => {
+		expect(String.prototype.replaceAll).to.be.a('function')
+		expect(String.prototype.replaceAll.length).to.equal(2)
+
+		const t1 =
+			'Of all the sorcerers in Harry Potter, Halo is my favorite sorcerer.'
+		const t2 = t1.replaceAll('sorcerer', 'philosopher')
+		const t3 =
+			'Of all the philosophers in Harry Potter, Halo is my favorite philosopher.'
+
+		expect(t2).to.equal(t3)
+	})
 })
