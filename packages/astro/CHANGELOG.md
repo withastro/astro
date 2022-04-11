@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- [`815d62f1`](https://github.com/withastro/astro/commit/815d62f151a36fef7d09590d4962ca71bda61b32) Thanks [@FredKSchott](https://github.com/FredKSchott)! - no changes.
+
 ## 1.0.0-beta.6
 
 ### Patch Changes
