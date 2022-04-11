@@ -8,6 +8,7 @@ import Child from '../components/Child.astro';
 </head>
 <body>
   <div id="pathname">{new URL(Astro.request.url).pathname}</div>
+  <div id="searchparams">{JSON.stringify(new URL(Astro.request.url).searchParams)}</div>
   <a id="site" href={Astro.site}>Home</a>
 
   <Child />
