@@ -17,12 +17,11 @@ describe('CSS', function () {
 
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
-		this.timeout(45000); // test needs a little more time in CI
-
 		let $;
 		let bundledCSS;
 
 		before(async () => {
+			this.timeout(45000); // test needs a little more time in CI
 			await fixture.build();
 
 			// get bundled CSS (will be hashed, hence DOM query)
