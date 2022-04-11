@@ -20,9 +20,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.40",
-    "svelte": "^3.46.6",
-    "svelte-preprocess": "^4.10.4",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.41",
+    "svelte": "^3.47.0",
+    "svelte-preprocess": "^4.10.5",
     "vite": "^2.9.1"
   },
   "engines": {

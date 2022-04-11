@@ -11,9 +11,9 @@
   "devDependencies": {
     "@astrojs/preact": "^0.0.2",
     "astro": "^1.0.0-beta.5",
-    "sass": "^1.49.11"
+    "sass": "^1.50.0"
   },
   "dependencies": {
-    "preact": "^10.7.0"
+    "preact": "^10.7.1"
   }
 }
