@@ -18,19 +18,8 @@ import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
-import matter from 'gray-matter';
 
 export * from './types.js';
-
-/** Internal utility for rendering a full markdown file and extracting Frontmatter data */
-export async function renderMarkdownWithFrontmatter(
-	contents: string,
-	opts: MarkdownRenderingOptions
-) {
-	const { data: frontmatter, content } = matter(contents);
-	const value = await renderMarkdown(content, opts);
-	return { ...value, frontmatter };
-}
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 
@@ -108,5 +97,3 @@ export async function renderMarkdown(content: string, opts: MarkdownRenderingOpt
 		code: result.toString(),
 	};
 }
-
-export default renderMarkdownWithFrontmatter;

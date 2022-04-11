@@ -26,7 +26,6 @@
     "@astrojs/prism": "^0.4.1",
     "assert": "^2.0.0",
     "github-slugger": "^1.4.0",
-    "gray-matter": "^4.0.3",
     "mdast-util-mdx-expression": "^1.2.0",
     "mdast-util-mdx-jsx": "^1.2.0",
     "mdast-util-to-string": "^3.1.0",
