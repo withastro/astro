@@ -20,8 +20,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@lit-labs/ssr": "^2.0.4",
+    "@lit-labs/ssr": "^2.1.0",
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.1"
+    "lit": "^2.2.2"
   }
 }
