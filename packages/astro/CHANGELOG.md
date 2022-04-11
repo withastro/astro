@@ -7,6 +7,7 @@
 - [#3004](https://github.com/withastro/astro/pull/3004) [`9724d844`](https://github.com/withastro/astro/commit/9724d844b32fb30c91ec3d060421bbb0cc36428a) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix bug causing `astro preview` server to close immediately
 
 * [#3028](https://github.com/withastro/astro/pull/3028) [`982f64f6`](https://github.com/withastro/astro/commit/982f64f69a82d3c5f99b326a2ddcd368435d9b4a) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated esbuild
+
 ## 1.0.0-beta.5
 
 ### Patch Changes
