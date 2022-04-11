@@ -1,4 +1,4 @@
-import type { MarkdownRenderingOptions } from './types.js';
+import type { MarkdownRenderingOptions } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';

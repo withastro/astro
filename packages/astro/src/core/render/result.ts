@@ -7,7 +7,7 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import { renderMarkdown, MarkdownRenderingOptions } from '@astrojs/markdown-remark';
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
@@ -181,8 +181,18 @@ ${extra}`
 				// TODO: remove 1. markdown parser logic 2. update MarkdownRenderOptions to take a function only
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
 				value: async function (content: string, opts: MarkdownRenderingOptions) {
-					const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
-					return code;
+					// @ts-ignore
+					if (typeof Deno !== 'undefined') {
+						throw new Error('Markdown is not supported in Deno SSR');
+					} else {
+						// The package is saved in this variable
+						// because Vite is too smart and will try to
+						// inline it in buildtime
+						let remark = '@astrojs/markdown-remark';
+						const { renderMarkdown } = await import(remark);
+						const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
+						return code;
+					}
 				},
 			});
 
