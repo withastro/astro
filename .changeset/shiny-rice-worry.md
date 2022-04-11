@@ -3,7 +3,7 @@
 '@astrojs/lit': minor
 '@astrojs/node': minor
 '@astrojs/preact': minor
-'@astrojs/solid': minor
+'@astrojs/solid-js': minor
 '@astrojs/svelte': minor
 '@astrojs/turbolinks': minor
 '@astrojs/vercel': minor
