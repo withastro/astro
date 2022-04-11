@@ -33,15 +33,12 @@ describe('Astro.*', () => {
 		});
 	});
 
-
 	describe('build', () => {
-
-
 		before(async () => {
 			await fixture.build();
 		});
 
-		// BUG: Doesn't seem like `base` config is being respected in build, 
+		// BUG: Doesn't seem like `base` config is being respected in build,
 		// most values are incorrect actual, does not match expected.
 		it.skip('Astro.request.url', async () => {
 			const html = await fixture.readFile('/index.html');
