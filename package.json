@@ -20,7 +20,7 @@
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w .",
-    "version": "changeset version && pnpm install --no-frozen-lockfile"
+    "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
     "compiled/*",
