@@ -168,3 +168,15 @@ describe('Static build', () => {
 		expect(found).to.equal(true, 'Found the log message');
 	});
 });
+
+describe('Static build SSR', () => {
+
+	it('Copies public files', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/static build SSR/',
+		});
+		await fixture.build()
+			const asset = await fixture.readFile('/client/nested/asset2.txt');
+	});
+
+});

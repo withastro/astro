@@ -253,15 +253,14 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 		cwd: fileURLToPath(fromFolder),
 	});
 
-	// Make the directory
-	await fs.promises.mkdir(toFolder, { recursive: true });
-
 	await Promise.all(
 		files.map(async (filename) => {
 			const from = new URL(filename, fromFolder);
 			const to = new URL(filename, toFolder);
-			return fs.promises.copyFile(from, to);
-		})
+			const lastFolder = new URL('./', to)
+			return fs.promises.mkdir(lastFolder, {recursive: true})
+							.then(()=>fs.promises.copyFile(from, to) )
+			})
 	);
 }
 

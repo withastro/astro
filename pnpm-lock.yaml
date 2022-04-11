@@ -1102,6 +1102,16 @@ importers:
       '@test/static-build-pkg': link:pkg
       astro: link:../../..
 
+  packages/astro/test/fixtures/static build SSR:
+    specifiers:
+      '@astrojs/node': workspace:*
+      '@test/static-build-pkg': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../../../integrations/node
+      '@test/static-build-pkg': link:../static build/pkg
+      astro: link:../../..
+
   packages/astro/test/fixtures/static build/pkg:
     specifiers: {}
 
