@@ -1,31 +1,20 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes MediaQueryList functionality',
-			test() {
-				const target = {}
+describe('Media', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'MediaQueryList'), true)
-				assert.equal(Reflect.has(target, 'matchMedia'), true)
-			},
-		},
-		{
-			name: 'Supports matchMedia creation',
-			test() {
-				const target = {}
+	it('Includes MediaQueryList functionality', () => {
+		expect(target).to.have.property('MediaQueryList')
+		expect(target).to.have.property('matchMedia')
+	})
 
-				polyfill(target)
+	it('Supports matchMedia creation', () => {
+		const mql = target.matchMedia('(min-width: 640px)')
 
-				const mql = target.matchMedia('(min-width: 640px)')
-
-				assert.equal(mql.matches, false)
-				assert.equal(mql.media, '(min-width: 640px)')
-			},
-		},
-	]
+		expect(mql.matches).to.equal(false)
+		expect(mql.media).to.equal('(min-width: 640px)')
+	})
 })

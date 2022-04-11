@@ -1,31 +1,19 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes URLPattern',
-			test() {
-				const target = {}
+describe('URLPattern', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'URLPattern'), true)
-				assert.equal(typeof target.URLPattern, 'function')
-			},
-		},
-		{
-			name: 'Supports URLPattern usage',
-			test() {
-				const target = {}
+	it('Includes URLPattern', () => {
+		expect(target).to.have.property('URLPattern').that.is.a('function')
+	})
 
-				polyfill(target)
+	it('Supports URLPattern usage', () => {
+		const pattern = new target.URLPattern({ pathname: '/hello/:name' })
+		const match = pattern.exec('https://example.com/hello/Deno')
 
-				const pattern = new target.URLPattern({ pathname: '/hello/:name' })
-				const match = pattern.exec('https://example.com/hello/Deno')
-
-				assert.deepEqual(match.pathname.groups, { name: 'Deno' })
-			},
-		},
-	]
+		expect(match.pathname.groups).to.deep.equal({ name: 'Deno' })
+	})
 })
