@@ -618,13 +618,13 @@ export interface AstroUserConfig {
 
 	experimental?: {
 		/**
-		 * Enable experimental support for 3rd-party integrations.
+		 * Enable support for 3rd-party integrations.
 		 * Default: false
 		 */
 		integrations?: boolean;
 
 		/**
-		 * Enable a build for SSR support.
+		 * Enable support for 3rd-party SSR adapters.
 		 * Default: false
 		 */
 		ssr?: boolean;
