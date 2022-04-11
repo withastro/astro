@@ -1,6 +1,7 @@
 # @astrojs/vercel
 
 ## 0.1.0
+
 ### Patch Changes
 
 - [#3028](https://github.com/withastro/astro/pull/3028) [`982f64f6`](https://github.com/withastro/astro/commit/982f64f69a82d3c5f99b326a2ddcd368435d9b4a) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated esbuild
