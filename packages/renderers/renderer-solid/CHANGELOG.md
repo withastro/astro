@@ -1,5 +1,11 @@
 # @astrojs/renderer-solid
 
+## 0.4.2
+
+### Patch Changes
+
+- [`815d62f1`](https://github.com/withastro/astro/commit/815d62f151a36fef7d09590d4962ca71bda61b32) Thanks [@FredKSchott](https://github.com/FredKSchott)! - no changes.
+
 ## 0.4.1
 
 ### Patch Changes
