@@ -28,7 +28,7 @@ describe('Static build', () => {
 		};
 
 		fixture = await loadFixture({
-			root: './fixtures/static build/',
+			root: './fixtures/static-build/',
 		});
 		await fixture.build({ logging });
 	});
@@ -172,7 +172,7 @@ describe('Static build', () => {
 describe('Static build SSR', () => {
 	it('Copies public files', async () => {
 		const fixture = await loadFixture({
-			root: './fixtures/static build SSR/',
+			root: './fixtures/static-build-ssr/',
 		});
 		await fixture.build();
 		const asset = await fixture.readFile('/client/nested/asset2.txt');

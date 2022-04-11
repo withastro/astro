@@ -1092,7 +1092,7 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
-  packages/astro/test/fixtures/static build:
+  packages/astro/test/fixtures/static-build:
     specifiers:
       '@astrojs/preact': workspace:*
       '@test/static-build-pkg': workspace:*
@@ -1101,19 +1101,6 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       '@test/static-build-pkg': link:pkg
       astro: link:../../..
-
-  packages/astro/test/fixtures/static build SSR:
-    specifiers:
-      '@astrojs/node': workspace:*
-      '@test/static-build-pkg': workspace:*
-      astro: workspace:*
-    dependencies:
-      '@astrojs/node': link:../../../../integrations/node
-      '@test/static-build-pkg': link:../static build/pkg
-      astro: link:../../..
-
-  packages/astro/test/fixtures/static build/pkg:
-    specifiers: {}
 
   packages/astro/test/fixtures/static-build-code-component:
     specifiers:
@@ -1136,6 +1123,19 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-ssr:
+    specifiers:
+      '@astrojs/node': workspace:*
+      '@test/static-build-pkg': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../../../integrations/node
+      '@test/static-build-pkg': link:../static-build/pkg
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build/pkg:
+    specifiers: {}
 
   packages/astro/test/fixtures/svelte-component:
     specifiers:
@@ -10675,7 +10675,7 @@ packages:
       stylus:
         optional: true
     dependencies:
-      esbuild: 0.14.34
+      esbuild: 0.14.30
       postcss: 8.4.12
       resolve: 1.22.0
       rollup: 2.70.1
