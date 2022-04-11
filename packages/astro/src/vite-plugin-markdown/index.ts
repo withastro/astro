@@ -109,8 +109,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export function getHeaders() {
 							return load().then((m) => m.metadata.headers)
 						};
-						export function getSource() {
-							return load().then((m) => m.metadata.source)
+						export function getResult() {
+							return load().then((m) => ({md: m.metadata.source, html: m.metadata.html}))
 						};`,
 					map: null,
 				};

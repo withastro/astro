@@ -710,7 +710,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	url: string | undefined;
 	Content: AstroComponentFactory;
 	getHeaders(): Promise<MarkdownHeader[]>;
-	getSource(): Promise<string>;
+	getResult(): Promise<{ md: string; html: string }>;
 }
 
 export type GetHydrateCallback = () => Promise<

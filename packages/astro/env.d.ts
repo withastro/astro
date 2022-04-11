@@ -19,6 +19,6 @@ declare module '*.md' {
 	export const file: MD['file'];
 	export const url: MD['url'];
 	export const getHeaders: MD['getHeaders'];
-	export const getSource: MD['getSource'];
+	export const getResult: MD['getResult'];
 	export const Content: MD['Content'];
 }
