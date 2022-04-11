@@ -1,84 +1,54 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Supports ImageData',
-			test() {
-				const target = {}
+describe('ImageData', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal('ImageData' in target, true)
-				assert.equal(typeof target['ImageData'], 'function')
-			},
-		},
-		{
-			name: 'Supports new (data: Uint8ClampedArray, width: number, height: number): ImageData',
-			test() {
-				const target = {}
+	it('Supports ImageData', () => {
+		expect(target).to.have.property('ImageData').that.is.a('function')
+	})
 
-				polyfill(target)
+	it('Supports new (data: Uint8ClampedArray, width: number, height: number): ImageData', () => {
+		const w = 640
+		const h = 480
+		const d = new Uint8ClampedArray(w * h * 4)
 
-				const w = 640
-				const h = 480
-				const d = new Uint8ClampedArray(w * h * 4)
+		const id = new target.ImageData(d, w, h)
 
-				const id = new target.ImageData(d, w, h)
+		expect(id.data).to.equal(d)
+		expect(id.width).to.equal(w)
+		expect(id.height).to.equal(h)
+	})
 
-				assert.equal(id.data, d)
-				assert.equal(id.width, w)
-				assert.equal(id.height, h)
-			},
-		},
-		{
-			name: 'Supports new (data: Uint8ClampedArray, width: number): ImageData',
-			test() {
-				const target = {}
+	it('Supports new (data: Uint8ClampedArray, width: number): ImageData', () => {
+		const w = 640
+		const h = 480
+		const d = new Uint8ClampedArray(w * h * 4)
 
-				polyfill(target)
+		const id = new target.ImageData(d, w)
 
-				const w = 640
-				const h = 480
-				const d = new Uint8ClampedArray(w * h * 4)
+		expect(id.data).to.equal(d)
+		expect(id.width).to.equal(w)
+		expect(id.height).to.equal(h)
+	})
 
-				const id = new target.ImageData(d, w)
+	it('Supports new (width: number, height: number): ImageData', () => {
+		const w = 640
+		const h = 480
 
-				assert.equal(id.data, d)
-				assert.equal(id.width, w)
-				assert.equal(id.height, h)
-			},
-		},
-		{
-			name: 'Supports new (width: number, height: number): ImageData',
-			test() {
-				const target = {}
+		const id = new target.ImageData(w, h)
 
-				polyfill(target)
+		expect(id.data).to.have.lengthOf(w * h * 4)
+		expect(id.width).to.equal(w)
+		expect(id.height).to.equal(h)
+	})
 
-				const w = 640
-				const h = 480
+	it('Supports Object.keys(new ImageData(640, 480))', () => {
+		const keys = Object.keys(new target.ImageData(640, 480))
 
-				const id = new target.ImageData(w, h)
-
-				assert.equal(id.data.length, w * h * 4)
-				assert.equal(id.width, w)
-				assert.equal(id.height, h)
-			},
-		},
-		{
-			name: 'Supports Object.keys(new ImageData(640, 480))',
-			test() {
-				const target = {}
-
-				polyfill(target)
-
-				const keys = Object.keys(new target.ImageData(640, 480))
-
-				assert.equal(keys.length, 1)
-				assert.equal(keys[0], 'data')
-			},
-		},
-	]
+		expect(keys).to.have.lengthOf(1)
+		expect(keys[0]).to.equal('data')
+	})
 })

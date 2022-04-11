@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.0.3-beta.1",
+  "version": "0.1.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^0.11.0",
-    "esbuild": "0.14.25"
+    "esbuild": "^0.14.34"
   },
   "devDependencies": {
     "astro": "workspace:*",

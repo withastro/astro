@@ -12,14 +12,14 @@
     "@algolia/client-search": "^4.13.0",
     "@docsearch/css": "^3.0.0",
     "@docsearch/react": "^3.0.0",
-    "@types/react": "^17.0.43",
-    "preact": "^10.7.0",
+    "@types/react": "^17.0.44",
+    "preact": "^10.7.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@astrojs/preact": "^0.0.2",
+    "@astrojs/preact": "^0.1.1",
     "@astrojs/react": "^0.1.0",
-    "astro": "^1.0.0-beta.5"
+    "astro": "^1.0.0-beta.7"
   }
 }

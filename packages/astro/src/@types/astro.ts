@@ -74,12 +74,12 @@ export interface BuildConfig {
 /**
  * Astro global available in all contexts in .astro files
  *
- * [Astro documentation](https://docs.astro.build/reference/api-reference/#astro-global)
+ * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
 	/** Canonical URL of the current page. If the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option is set, its origin will be the origin of this URL.
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
 	 */
 	canonicalURL: URL;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
@@ -98,7 +98,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * <h1>{id}</h1>
 	 * ```
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#params)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
 	 */
 	params: Params;
 	/** List of props passed to this component
@@ -108,7 +108,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * const { name } = Astro.props
 	 * ```
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
+	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
 	props: Record<string, number | string | any>;
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
@@ -118,7 +118,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * const url = new URL(Astro.request.url);
 	 * ```
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrorequest)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
 	 */
 	request: Request;
 	/** Redirect to another page (**SSR Only**)
@@ -130,12 +130,18 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * }
 	 * ```
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
 	 */
 	redirect(path: string): Response;
+	/**
+	 * The <Astro.self /> element allows a component to reference itself recursively.
+	 *
+	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroself)
+	 */
+	self: AstroComponentFactory;
 	/** Utility functions for modifying an Astro component’s slotted children
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
 	 */
 	slots: Record<string, true | undefined> & {
 		/**
@@ -148,7 +154,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 *	}
 		 * ```
 		 *
-		 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
 		 */
 		has(slotName: string): boolean;
 		/**
@@ -165,7 +171,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 * <Fragment set:html={html} />
 		 * ```
 		 *
-		 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroslots)
+		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
 		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
@@ -186,7 +192,7 @@ export interface AstroGlobalPartial {
 	 * const posts = await Astro.glob('../pages/post/*.md');
 	 * ```
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astroglob)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
 	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
@@ -196,7 +202,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * If `site` is undefined, the URL object will instead be built from `localhost`
 	 *
-	 * [Astro documentation](https://docs.astro.build/en/reference/api-reference/#astrosite)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
 	site: URL;
 }
