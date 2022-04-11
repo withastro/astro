@@ -98,6 +98,8 @@ class Slots {
 	}
 }
 
+let renderMarkdown: any = null;
+
 export function createResult(args: CreateResultArgs): SSRResult {
 	const { legacyBuild, markdown, params, pathname, renderers, request, resolve, site } = args;
 
@@ -178,21 +180,23 @@ ${extra}`
 				// Ensure this API is not exposed to users
 				enumerable: false,
 				writable: false,
-				// TODO: remove 1. markdown parser logic 2. update MarkdownRenderOptions to take a function only
-				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
+				// TODO: Remove this hole "Deno" logic once our plugin gets Deno support
 				value: async function (content: string, opts: MarkdownRenderingOptions) {
 					// @ts-ignore
 					if (typeof Deno !== 'undefined') {
 						throw new Error('Markdown is not supported in Deno SSR');
-					} else {
-						// The package is saved in this variable
-						// because Vite is too smart and will try to
-						// inline it in buildtime
-						let remark = '@astrojs/markdown-remark';
-						const { renderMarkdown } = await import(remark);
-						const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
-						return code;
 					}
+
+					if (!renderMarkdown) {
+						// The package is saved in this variable because Vite is too smart
+						// and will try to inline it in buildtime
+						let astroRemark = '@astrojs/markdown-remark';
+
+						renderMarkdown = (await import(astroRemark)).renderMarkdown;
+					}
+
+					const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
+					return code;
 				},
 			});
 
