@@ -1,5 +1,42 @@
 # astro
 
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix bug causing `astro preview` server to close immediately
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Updated esbuild
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix for adding set-cookie multiple times
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix relative config handling with the `--config` flag
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for advanced CSS imports with `?raw` and `?url`
+
+  > ⚠️WARNING⚠️:
+  > Be careful when bypassing Astro's built-in CSS bundling! Styles won't be included in the built output - this is best used in combination with `set:html` to inline styles directly into the built HTML page.
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Allows adapters to export default
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix SSR static build public files copying
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes dynamic routes in the Netlify adapter
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Warn when attempting to access headers in SSG mode
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update JSDoc comments that get shown to users through editor integration
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix markdown issue with parsing components in setup
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add `astro docs` command which opens the Astro docs in your preferred browser.
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add missing entry to "files" field in package.json
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes dynamic API routes in SSR
+
 ## 1.0.0-beta.5
 
 ### Patch Changes
