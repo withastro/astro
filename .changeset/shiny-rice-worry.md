@@ -1,5 +1,4 @@
 ---
-'@astrojs/deno': minor
 '@astrojs/lit': minor
 '@astrojs/node': minor
 '@astrojs/preact': minor
