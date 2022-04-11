@@ -36,8 +36,8 @@
     "@babel/plugin-transform-react-jsx": "^7.17.3"
   },
   "devDependencies": {
-    "@types/react": "^17.0.43",
-    "@types/react-dom": "^17.0.14",
+    "@types/react": "^17.0.44",
+    "@types/react-dom": "^17.0.15",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "react": "^18.0.0",

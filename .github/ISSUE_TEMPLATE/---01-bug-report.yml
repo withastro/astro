@@ -20,6 +20,12 @@ body:
       required: true
   - type: input
     attributes:
+      label: Are you using an SSR adapter? If so, which one?
+      placeholder: None, or Netlify, Vercel, Cloudflare, etc.
+    validations:
+      required: true
+  - type: input
+    attributes:
       label: What package manager are you using?
       placeholder: npm, yarn, pnpm
     validations:
