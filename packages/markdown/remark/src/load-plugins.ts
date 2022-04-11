@@ -10,7 +10,7 @@ async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin>
 }
 
 export function loadPlugins(
-	items: (string | [string, any] | unified.Plugin | [unified.Plugin, any])[]
+	items: (string | [string, any] | unified.Plugin<any[], any> | [unified.Plugin<any[], any>, any])[]
 ): Promise<[unified.Plugin, any?]>[] {
 	return items.map((p) => {
 		return new Promise((resolve, reject) => {

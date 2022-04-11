@@ -2,7 +2,7 @@ import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
 import { z } from 'zod';
-import type { ShikiConfig, RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
+import type { ShikiConfig, RemarkPlugins, RehypePlugins } from '@astrojs/markdown-remark';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
@@ -525,7 +525,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
-		 * @type {RemarkPlugin[]}
+		 * @type {RemarkPlugins}
 		 * @description
 		 * Pass a custom [Remark](https://github.com/remarkjs/remark) plugin to customize how your Markdown is built.
 		 *
@@ -540,11 +540,11 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 */
-		remarkPlugins?: RemarkPlugin[];
+		remarkPlugins?: RemarkPlugins;
 		/**
 		 * @docs
 		 * @name markdown.rehypePlugins
-		 * @type {RehypePlugin[]}
+		 * @type {RehypePlugins}
 		 * @description
 		 * Pass a custom [Rehype](https://github.com/remarkjs/remark-rehype) plugin to customize how your Markdown is built.
 		 *
@@ -559,7 +559,7 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 */
-		rehypePlugins?: RehypePlugin[];
+		rehypePlugins?: RehypePlugins;
 	};
 
 	/**

@@ -1,20 +1,23 @@
 import type * as unified from 'unified';
 import type * as mdast from 'mdast';
 import type * as hast from 'hast';
-import type { Node } from 'unist';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 
-export { Node };
+export type { Node } from 'unist';
 
 export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
-	Node<mdast.Root>
+	mdast.Root
 >;
+
+export type RemarkPlugins = (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
 
 export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
 	PluginParameters,
-	Node<hast.Root>
+	hast.Root
 >;
+
+export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export interface ShikiConfig {
 	langs: ILanguageRegistration[];
@@ -27,8 +30,8 @@ export interface AstroMarkdownOptions {
 	drafts: boolean;
 	syntaxHighlight: 'shiki' | 'prism' | false;
 	shikiConfig: ShikiConfig;
-	remarkPlugins: (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
-	rehypePlugins: (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
+	remarkPlugins: RemarkPlugins;
+	rehypePlugins: RehypePlugins;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
