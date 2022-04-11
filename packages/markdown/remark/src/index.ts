@@ -1,4 +1,4 @@
-import { MarkdownRenderingOptions, astroMarkdownOptions } from './types.js';
+import type { MarkdownRenderingOptions } from './types.js';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
@@ -25,7 +25,7 @@ export * from './types.js';
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(
 	contents: string,
-	opts?: MarkdownRenderingOptions | null
+	opts: MarkdownRenderingOptions
 ) {
 	const { data: frontmatter, content } = matter(contents);
 	const value = await renderMarkdown(content, opts);
@@ -37,10 +37,9 @@ export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
-export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } =
-		astroMarkdownOptions.parse(opts ?? {});
-	const scopedClassName = opts?.$?.scopedClassName;
+export async function renderMarkdown(content: string, opts: MarkdownRenderingOptions) {
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
+	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 

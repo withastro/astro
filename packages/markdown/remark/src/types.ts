@@ -1,52 +1,37 @@
 import type * as unified from 'unified';
+import type * as mdast from 'mdast';
+import type * as hast from 'hast';
 import type { Node } from 'unist';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import { BUNDLED_THEMES } from 'shiki';
-import { z } from 'zod';
 
 export { Node };
-export type PluginFunction<
-	PluginParameters extends any[] = any[],
-	Input = Node,
-	Output = Input
-> = unified.Plugin<PluginParameters, Input, Output>;
 
-const plugin = z.union([
-	z.string(),
-	z.tuple([z.string(), z.any()]),
-	z.custom<PluginFunction>((data) => typeof data === 'function'),
-	z.tuple([z.custom<PluginFunction>((data) => typeof data === 'function'), z.any()]),
-]);
+export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
+	PluginParameters,
+	Node<mdast.Root>
+>;
 
-export type Plugin = z.infer<typeof plugin>;
+export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
+	PluginParameters,
+	Node<hast.Root>
+>;
 
-const shikiConfig = z.object({
-	langs: z.custom<ILanguageRegistration>().array().default([]),
-	theme: z
-		.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
-		.or(z.custom<IThemeRegistration>())
-		.default('github-dark'),
-	wrap: z.boolean().or(z.null()).default(false),
-});
+export interface ShikiConfig {
+	langs: ILanguageRegistration[];
+	theme: Theme | IThemeRegistration;
+	wrap: boolean | null;
+}
 
-export type ShikiConfig = z.infer<typeof shikiConfig>;
+export interface AstroMarkdownOptions {
+	mode: 'md' | 'mdx';
+	drafts: boolean;
+	syntaxHighlight: 'shiki' | 'prism' | false;
+	shikiConfig: ShikiConfig;
+	remarkPlugins: (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
+	rehypePlugins: (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
+}
 
-export const astroMarkdownOptions = z.object({
-	// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-	// TODO: This should probably be updated to something more like "md" | "astro"
-	mode: z.enum(['md', 'mdx']).default('mdx'),
-	drafts: z.boolean().default(false),
-	syntaxHighlight: z
-		.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
-		.default('shiki'),
-	shikiConfig: shikiConfig.default({}),
-	remarkPlugins: plugin.array().default([]),
-	rehypePlugins: plugin.array().default([]),
-});
-
-export type AstroMarkdownOptions = z.infer<typeof astroMarkdownOptions>;
-
-export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> {
+export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
 	$?: {
 		scopedClassName: string | null;

@@ -1,24 +1,20 @@
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
 import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
+import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type { RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
 
-import { astroMarkdownOptions } from '@astrojs/markdown-remark';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
+import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import load, { ProloadError } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
 import { appendForwardSlash, trimSlashes } from './path.js';
-
-// These two imports make astroMarkdownOptions work
-// If you remove them, TypeScript throws an error similar to this:
-// `The inferred type of 'AstroConfigSchema' cannot be named without a reference to '../../../markdown/remark/node_modules/@types/unist'. This is likely not portable. A type annotation is necessary`
-import type {} from 'shiki';
-import type {} from 'unist';
 
 load.use([loadTypeScript]);
 
@@ -147,7 +143,45 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	markdown: astroMarkdownOptions.default({}),
+	markdown: z
+		.object({
+			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
+			// TODO: This should probably be updated to something more like "md" | "astro"
+			mode: z.enum(['md', 'mdx']).default('mdx'),
+			drafts: z.boolean().default(false),
+			syntaxHighlight: z
+				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
+				.default('shiki'),
+			shikiConfig: z
+				.object({
+					langs: z.custom<ILanguageRegistration>().array().default([]),
+					theme: z
+						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
+						.or(z.custom<IThemeRegistration>())
+						.default('github-dark'),
+					wrap: z.boolean().or(z.null()).default(false),
+				})
+				.default({}),
+			remarkPlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RemarkPlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.default([]),
+			rehypePlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RehypePlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.default([]),
+		})
+		.default({}),
 	vite: z.any().optional().default({}),
 	experimental: z
 		.object({
