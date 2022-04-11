@@ -1,5 +1,11 @@
 # @astrojs/renderer-solid
 
+## 0.4.1
+
+### Patch Changes
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve nested hydration with Solid
+
 ## 0.4.1-beta.0
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @astrojs/netlify
 
+## 0.2.0
+
+### Minor Changes
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve the Netlify adapter:
+
+  1. Remove `site` config requirement
+  2. Fix an issue where query params were being stripped
+  3. Pass the event body to the request object
+
+### Patch Changes
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add human-readable error when a site is not provided in your astro.config
+
+* [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fixes dynamic routes in the Netlify adapter
+
 ## 0.1.1-beta.1
 
 ### Patch Changes

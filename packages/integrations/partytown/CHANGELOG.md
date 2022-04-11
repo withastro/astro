@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 0.1.1
+
+### Patch Changes
+
+- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
+
 ## 0.1.1-beta.0
 
 ### Patch Changes
