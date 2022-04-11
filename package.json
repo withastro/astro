@@ -7,6 +7,7 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "release": "pnpm run build && changeset publish",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
@@ -55,8 +56,8 @@
     "@astrojs/webapi": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.4.4",
-    "@changesets/cli": "^2.22.0",
+    "@changesets/changelog-github": "0.4.4",
+    "@changesets/cli": "2.22.0",
     "@octokit/action": "^3.18.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
@@ -66,6 +67,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
+    "patch-package": "^6.4.7",
     "prettier": "^2.6.2",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
