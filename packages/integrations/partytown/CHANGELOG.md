@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
+- [#3008](https://github.com/withastro/astro/pull/3008) [`8bd49c95`](https://github.com/withastro/astro/commit/8bd49c95365f7bbce41e19b7e8658ad639c22f31) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated integrations' `astro:build:done` hook: now it matches the client dist when using SSR
 
 ## 0.1.1-beta.0
 

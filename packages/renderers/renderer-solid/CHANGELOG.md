@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve nested hydration with Solid
+- [#3003](https://github.com/withastro/astro/pull/3003) [`13b782f4`](https://github.com/withastro/astro/commit/13b782f421871af36978f29154c715c66739d475) Thanks [@ryansolid](https://github.com/ryansolid)! - Improve nested hydration with Solid
 
 ## 0.4.1-beta.0
 

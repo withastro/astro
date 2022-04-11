@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [`2bb6a06e`](https://github.com/withastro/astro/commit/2bb6a06ebb449aa3fec6414754c8a248ca4721ef) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update README
+- [`c05a544a`](https://github.com/withastro/astro/commit/c05a544acd5c9dd4f57b53ce21e82141212a3c2c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update README
 
 ## 0.1.0
 
