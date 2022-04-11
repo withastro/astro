@@ -1,4 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import type {
@@ -164,7 +163,7 @@ export async function render(
 		legacyBuild: isLegacyBuild,
 		links,
 		logging,
-		markdownRender: [astroRemark, astroConfig.markdown],
+		markdown: astroConfig.markdown,
 		mod,
 		origin,
 		pathname,

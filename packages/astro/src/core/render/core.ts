@@ -1,13 +1,12 @@
 import type {
 	ComponentInstance,
-	EndpointHandler,
-	MarkdownRenderOptions,
 	Params,
 	Props,
 	SSRLoadedRenderer,
 	RouteData,
 	SSRElement,
 } from '../../@types/astro';
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type { LogOptions } from '../logger/core.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
@@ -70,7 +69,7 @@ export interface RenderOptions {
 	legacyBuild: boolean;
 	logging: LogOptions;
 	links: Set<SSRElement>;
-	markdownRender: MarkdownRenderOptions;
+	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
 	origin: string;
 	pathname: string;
@@ -92,7 +91,7 @@ export async function render(
 		links,
 		logging,
 		origin,
-		markdownRender,
+		markdown,
 		mod,
 		pathname,
 		scripts,
@@ -132,7 +131,7 @@ export async function render(
 		legacyBuild,
 		links,
 		logging,
-		markdownRender,
+		markdown,
 		origin,
 		params,
 		pathname,
