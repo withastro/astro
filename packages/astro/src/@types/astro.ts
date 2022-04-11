@@ -2,7 +2,7 @@ import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
 import { z } from 'zod';
-import type { ShikiConfig, Plugin } from '@astrojs/markdown-remark';
+import type { ShikiConfig, RemarkPlugins, RehypePlugins } from '@astrojs/markdown-remark';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
@@ -483,12 +483,22 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name markdown.mode
+		 * @type {'md' | 'mdx'}
+		 * @default `mdx`
+		 * @description
+		 * Control wheater to allow components inside markdown files ('mdx') or not ('md').
+		 */
+		mode?: 'md' | 'mdx';
+
+		/**
+		 * @docs
 		 * @name markdown.shikiConfig
-		 * @type {ShikiConfig}
+		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
 		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
-		shikiConfig?: ShikiConfig;
+		shikiConfig?: Partial<ShikiConfig>;
 
 		/**
 		 * @docs
@@ -515,7 +525,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name markdown.remarkPlugins
-		 * @type {Plugin[]}
+		 * @type {RemarkPlugins}
 		 * @description
 		 * Pass a custom [Remark](https://github.com/remarkjs/remark) plugin to customize how your Markdown is built.
 		 *
@@ -530,11 +540,11 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 */
-		remarkPlugins?: Plugin[];
+		remarkPlugins?: RemarkPlugins;
 		/**
 		 * @docs
 		 * @name markdown.rehypePlugins
-		 * @type {Plugin[]}
+		 * @type {RehypePlugins}
 		 * @description
 		 * Pass a custom [Rehype](https://github.com/remarkjs/remark-rehype) plugin to customize how your Markdown is built.
 		 *
@@ -549,7 +559,7 @@ export interface AstroUserConfig {
 		 * };
 		 * ```
 		 */
-		rehypePlugins?: Plugin[];
+		rehypePlugins?: RehypePlugins;
 	};
 
 	/**
@@ -756,12 +766,6 @@ export type JSXTransformFn = (options: {
 export interface ManifestData {
 	routes: RouteData[];
 }
-
-export type MarkdownRenderOptions = [string | MarkdownParser, Record<string, any>];
-export type MarkdownParser = (
-	contents: string,
-	options?: Record<string, any>
-) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {
 	frontmatter: {

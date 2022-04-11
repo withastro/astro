@@ -1,4 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
@@ -110,9 +109,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
 		site: astroConfig.site,
-		markdown: {
-			render: [astroRemark, astroConfig.markdown],
-		},
+		markdown: astroConfig.markdown,
 		pageMap: null as any,
 		renderers: [],
 		entryModules,

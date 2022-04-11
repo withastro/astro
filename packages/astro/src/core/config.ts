@@ -1,11 +1,14 @@
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
 import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
+import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type { RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
 
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
+import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
 import load, { ProloadError } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
@@ -142,24 +145,42 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			drafts: z.boolean().optional().default(false),
-			mode: z
-				.union([z.literal('md'), z.literal('mdx')])
-				.optional()
-				// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-				// TODO: This should probably be updated to something more like "md" | "astro"
-				.default('mdx'),
+			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
+			// TODO: This should probably be updated to something more like "md" | "astro"
+			mode: z.enum(['md', 'mdx']).default('mdx'),
+			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
-				.optional()
 				.default('shiki'),
-			// TODO: add better type checking
-			shikiConfig: z.any().optional().default({}),
-			remarkPlugins: z.array(z.any()).optional().default([]),
-			rehypePlugins: z.array(z.any()).optional().default([]),
+			shikiConfig: z
+				.object({
+					langs: z.custom<ILanguageRegistration>().array().default([]),
+					theme: z
+						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
+						.or(z.custom<IThemeRegistration>())
+						.default('github-dark'),
+					wrap: z.boolean().or(z.null()).default(false),
+				})
+				.default({}),
+			remarkPlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RemarkPlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.default([]),
+			rehypePlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<RehypePlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.default([]),
 		})
-		.passthrough()
-		.optional()
 		.default({}),
 	vite: z.any().optional().default({}),
 	experimental: z
