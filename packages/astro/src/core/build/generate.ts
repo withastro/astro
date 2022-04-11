@@ -192,7 +192,7 @@ async function generatePath(
 	}
 
 	const ssr = isBuildingToSSR(opts.astroConfig);
-	const url = new URL(origin + pathname);
+	const url = new URL(opts.astroConfig.base + pathname.substring(1), origin);
 	const options: RenderOptions = {
 		legacyBuild: false,
 		links,
