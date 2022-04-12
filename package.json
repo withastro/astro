@@ -17,6 +17,7 @@
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "turbo run test --filter=create-astro --concurrency=1",
     "test:smoke": "node scripts/smoke/index.js",
+    "test:vite-ci": "turbo run test --no-deps --scope=astro --concurrency=1",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w .",

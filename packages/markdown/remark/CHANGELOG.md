@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.8.2
+
+### Patch Changes
+
+- [#2970](https://github.com/withastro/astro/pull/2970) [`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b) Thanks [@JuanM04](https://github.com/JuanM04)! - Improved type checking
+
 ## 0.8.1
 
 ### Patch Changes

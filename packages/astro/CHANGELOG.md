@@ -1,5 +1,16 @@
 # astro
 
+## 1.0.0-beta.8
+
+### Patch Changes
+
+- [#3066](https://github.com/withastro/astro/pull/3066) [`5b3464a8`](https://github.com/withastro/astro/commit/5b3464a803ba2aa00a4e248dc3ebceb5924cc073) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix bug with inconsistent url search params
+
+* [#2970](https://github.com/withastro/astro/pull/2970) [`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b) Thanks [@JuanM04](https://github.com/JuanM04)! - Improved markdown config type checking
+
+* Updated dependencies [[`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b)]:
+  - @astrojs/markdown-remark@0.8.2
+
 ## 1.0.0-beta.7
 
 ### Patch Changes
