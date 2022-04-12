@@ -2,10 +2,6 @@ import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-// TODO(fks): This seemed to test a custom renderer, but it seemed to be a copy
-// fixture of lit. Should this be moved into a publicly published integration now,
-// and then tested as an example? Or, should we just remove. Skipping now
-// to tackle later, since our lit tests cover similar code paths.
 describe('Custom Elements', () => {
 	let fixture;
 
