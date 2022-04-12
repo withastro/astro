@@ -11,6 +11,7 @@
 </script>
 
 <div class="counter">
+	<h2>{window.location.href}</h2>
 	<button on:click={subtract}>-</button>
 	<pre>{count}</pre>
 	<button on:click={add}>+</button>
