@@ -28,20 +28,18 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 
 		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 
-		const { script: scriptBoundaries, markdown: markdownBoundaries } = this.getTagBoundaries(lang, filePath);
+		const { script: scriptBoundaries } = this.getTagBoundaries(lang, filePath);
 
 		const syntaxDiagnostics = lang.getSyntacticDiagnostics(filePath);
 		const suggestionDiagnostics = lang.getSuggestionDiagnostics(filePath);
 		const semanticDiagnostics = lang.getSemanticDiagnostics(filePath).filter((d) => {
-			return isNoWithinScript(scriptBoundaries, d);
+			return isNoWithinBoundary(scriptBoundaries, d);
 		});
 
 		const diagnostics: ts.Diagnostic[] = [...syntaxDiagnostics, ...suggestionDiagnostics, ...semanticDiagnostics];
 
 		const fragment = await tsDoc.createFragment();
-		const sourceFile = lang.getProgram()?.getSourceFile(filePath);
 
-		const isNoFalsePositiveInst = isNoFalsePositive();
 		return diagnostics
 			.map<Diagnostic>((diagnostic) => ({
 				range: convertRange(tsDoc, diagnostic),
@@ -55,15 +53,13 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 			.filter((diag) => {
 				return (
 					hasNoNegativeLines(diag) &&
-					isNoFalsePositiveInst(diag) &&
 					isNoJSXImplicitRuntimeWarning(diag) &&
 					isNoJSXMustHaveOneParent(diag) &&
-					isNoCantUseJSX(diag) &&
 					isNoCantEndWithTS(diag) &&
 					isNoSpreadExpected(diag) &&
 					isNoCantResolveJSONModule(diag) &&
 					isNoCantReturnOutsideFunction(diag) &&
-					isNoMarkdownBlockQuoteWithinMarkdown(sourceFile, markdownBoundaries, diag)
+					isNoJsxCannotHaveMultipleAttrsError(diag)
 				);
 			})
 			.map(enhanceIfNecessary);
@@ -82,7 +78,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 			return boundaries;
 		}
 
-		function findScript(parent: ts.Node) {
+		function findTags(parent: ts.Node) {
 			ts.forEachChild(parent, (node) => {
 				if (ts.isJsxElement(node)) {
 					let tagName = node.openingElement.tagName.getText();
@@ -99,11 +95,11 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 						}
 					}
 				}
-				findScript(node);
+				findTags(node);
 			});
 		}
 
-		findScript(sourceFile);
+		findTags(sourceFile);
 		return boundaries;
 	}
 }
@@ -141,32 +137,19 @@ function hasNoNegativeLines(diagnostic: Diagnostic): boolean {
 	return diagnostic.range.start.line >= 0 && diagnostic.range.end.line >= 0;
 }
 
-function isNoFalsePositive() {
-	return (diagnostic: Diagnostic) => {
-		return isNoJsxCannotHaveMultipleAttrsError(diagnostic);
-	};
-}
-
 /**
- * Jsx cannot have multiple attributes with same name,
- * but that's allowed for svelte
+ * Astro allows multiple attributes to have the same name
  */
 function isNoJsxCannotHaveMultipleAttrsError(diagnostic: Diagnostic) {
 	return diagnostic.code !== 17001;
 }
 
-function isNoJSXImplicitRuntimeWarning(diagnostic: Diagnostic) {
-	return diagnostic.code !== 7016 && diagnostic.code !== 2792;
-}
-
+/** Astro allows component with multiple root elements */
 function isNoJSXMustHaveOneParent(diagnostic: Diagnostic) {
 	return diagnostic.code !== 2657;
 }
 
-function isNoCantUseJSX(diagnostic: Diagnostic) {
-	return diagnostic.code !== 17004 && diagnostic.code !== 6142;
-}
-
+/** Astro allows `.ts` ending for imports, unlike TypeScript */
 function isNoCantEndWithTS(diagnostic: Diagnostic) {
 	return diagnostic.code !== 2691;
 }
@@ -175,10 +158,40 @@ function isNoSpreadExpected(diagnostic: Diagnostic) {
 	return diagnostic.code !== 1005;
 }
 
-// This is technically a valid diagnostic, but due to how we format our TSX, the frontmatter is at top-level so we have
-// to ignore this. It wasn't a problem before because users didn't need to return things but they can now with SSR
+function isNoJSXImplicitRuntimeWarning(diagnostic: Diagnostic) {
+	return diagnostic.code !== 7016 && diagnostic.code !== 2792;
+}
+
+/**
+ * Ignore "Can't return outside of function body"
+ * This is technically a valid diagnostic, but due to how we format our TSX, the frontmatter is at top-level so we have
+ * to ignore this. It wasn't a problem before because users didn't need to return things but they can now with SSR
+ */
 function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
 	return diagnostic.code !== 1108;
+}
+
+/**
+ * Astro allows users to import JSON modules
+ */
+function isNoCantResolveJSONModule(diagnostic: Diagnostic) {
+	return diagnostic.code !== 2732;
+}
+
+/**
+ * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
+ */
+function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
+	if (diagnostic.code === 2322) {
+		// For the rare case where an user might try to put a client directive on something that is not a component
+		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
+			return {
+				...diagnostic,
+				message: 'Client directives are only available on framework components',
+			};
+		}
+	}
+	return diagnostic;
 }
 
 function isWithinBoundaries(boundaries: BoundaryTuple[], start: number): boolean {
@@ -207,47 +220,6 @@ function diagnosticIsWithinBoundaries(
 	return isWithinBoundaries(boundaries, pos);
 }
 
-function isNoWithinScript(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
+function isNoWithinBoundary(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
 	return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic);
-}
-
-/**
- * This allows us to have JSON module imports.
- */
-function isNoCantResolveJSONModule(diagnostic: Diagnostic) {
-	return diagnostic.code !== 2732;
-}
-
-/**
- * This is for using > within a markdown component like:
- * <Markdown>
- *   > Blockquote here.
- * </Markdown>
- */
-function isNoMarkdownBlockQuoteWithinMarkdown(
-	sourceFile: ts.SourceFile | undefined,
-	boundaries: BoundaryTuple[],
-	diagnostic: Diagnostic | ts.Diagnostic
-) {
-	if (diagnostic.code !== 1382) {
-		return true;
-	}
-
-	return !diagnosticIsWithinBoundaries(sourceFile, boundaries, diagnostic);
-}
-
-/**
- * Some diagnostics have JSX-specific nomenclature. Enhance them for more clarity.
- */
-function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
-	if (diagnostic.code === 2322) {
-		// For the rare case where an user might try to put a client directive on something that is not a component
-		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
-			return {
-				...diagnostic,
-				message: 'Client directives are only available on framework components',
-			};
-		}
-	}
-	return diagnostic;
 }

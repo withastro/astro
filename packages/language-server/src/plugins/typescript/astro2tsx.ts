@@ -47,9 +47,13 @@ export default function (content: string): Astro2TSXResult {
 		.replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => {
 			return `{/*${whole}*/}`;
 		})
-		// Turn styles into internal strings
+		// Turn styles tags into internal strings
 		.replace(/<\s*style([^>]*)>(.*?)<\s*\/\s*style>/gs, (_whole, attrs, children) => {
 			return `<style${attrs}>{\`${escapeTemplateLiteralContent(children)}\`}</style>`;
+		})
+		// Turn Markdown tags into internal strings
+		.replace(/<\s*Markdown([^>]*)>(.*?)<\s*\/\s*Markdown>/gs, (_whole, attrs, children) => {
+			return `<Markdown${attrs}>{\`${escapeTemplateLiteralContent(children)}\`}</Markdown>`;
 		})
 		// Turn scripts into function calls
 		.replace(/<\s*script([^\/>]*)>(.*?)<\s*\/\s*script>/gs, (_whole, attrs, children, offset) => {

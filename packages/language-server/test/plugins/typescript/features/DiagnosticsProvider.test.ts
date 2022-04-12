@@ -78,5 +78,12 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 			const diagnostics = await provider.getDiagnostics(document);
 			expect(diagnostics).to.be.empty;
 		});
+
+		it('transform markdown into a template literal', async () => {
+			const { provider, document } = setup('noMarkdown.astro');
+
+			const diagnostics = await provider.getDiagnostics(document);
+			expect(diagnostics).to.be.empty;
+		});
 	});
 });
