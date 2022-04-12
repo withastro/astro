@@ -1,4 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
 import fs from 'fs';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
@@ -197,7 +196,7 @@ async function generatePath(
 		legacyBuild: false,
 		links,
 		logging,
-		markdownRender: [astroRemark, astroConfig.markdown],
+		markdown: astroConfig.markdown,
 		mod,
 		origin,
 		pathname,
