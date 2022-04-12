@@ -33,14 +33,37 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			};
 		}
 
-		const response = await app.render(request);
+		const response: Response = await app.render(request);
 		const responseBody = await response.text();
 
-		return {
-			statusCode: 200,
-			headers: Object.fromEntries(response.headers.entries()),
+		const responseHeaders = Object.fromEntries(response.headers.entries());
+		const fnResponse: any = {
+			statusCode: response.status,
+			headers: responseHeaders,
 			body: responseBody,
 		};
+
+		// Special-case set-cookie which has to be set an different way :/
+		// The fetch API does not have a way to get multiples of a single header, but instead concatenates
+		// them. There are non-standard ways to do it, and node-fetch gives us headers.raw()
+		// See https://github.com/whatwg/fetch/issues/973 for discussion
+		if (response.headers.has('set-cookie') && 'raw' in response.headers) {
+			// Node fetch allows you to get the raw headers, which includes multiples of the same type.
+			// This is needed because Set-Cookie *must* be called for each cookie, and can't be
+			// concatenated together.
+			type HeadersWithRaw = Headers & {
+				raw: () => Record<string, string[]>;
+			};
+
+			const rawPacked = (response.headers as HeadersWithRaw).raw();
+			if('set-cookie' in rawPacked) {
+				fnResponse.multiValueHeaders = {
+					'set-cookie': rawPacked['set-cookie']
+				}
+			}
+		}
+
+		return fnResponse;
 	};
 
 	return { handler };
