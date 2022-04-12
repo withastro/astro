@@ -19,22 +19,22 @@ markdown:
 - packages/markdown/**
 
 renderer:
-- packages/renderers/**
+- packages/integrations/**
 
 framework-lit:
-- packages/renderers/renderer-lit/**
+- packages/integrations/lit/**
 
 framework-preact:
-- packages/renderers/renderer-preact/**
+- packages/integrations/preact/**
 
 framework-react:
-- packages/renderers/renderer-react/**
+- packages/integrations/react/**
 
 framework-solid:
-- packages/renderers/renderer-solid/**
+- packages/integrations/solid/**
 
 framework-svelte:
-- packages/renderers/renderer-svelte/**
+- packages/integrations/svelte/**
 
 framework-vue:
-- packages/renderers/renderer-vue/**
+- packages/integrations/vue/**

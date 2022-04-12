@@ -170,7 +170,10 @@ async function handleRequest(
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	if (!buildingToSSR) {
 		// Prevent user from depending on search params when not doing SSR.
-		for (const [key] of url.searchParams) {
+		// NOTE: Create an array copy here because deleting-while-iterating
+		// creates bugs where not all search params are removed.
+		const allSearchParams = Array.from(url.searchParams);
+		for (const [key] of allSearchParams) {
 			url.searchParams.delete(key);
 		}
 	}

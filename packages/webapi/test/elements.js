@@ -1,96 +1,70 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes Custom Element functionality',
-			test() {
-				const target = {}
+describe('Custom Elements', () => {
+	const target = {}
 
-				polyfill(target)
+	beforeEach(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'CustomElementRegistry'), true)
-				assert.equal(Reflect.has(target, 'customElements'), true)
-				assert.equal(Reflect.has(target, 'HTMLElement'), true)
-			},
-		},
-		{
-			name: 'Supports Custom Element creation',
-			test() {
-				const target = {}
+	it('Includes Custom Element functionality', () => {
+		expect(target).to.have.property('CustomElementRegistry')
+		expect(target).to.have.property('customElements')
+		expect(target).to.have.property('HTMLElement')
+	})
 
-				polyfill(target)
+	it('Supports Custom Element creation', () => {
+		const CustomElement = class HTMLCustomElement extends target.HTMLElement {}
 
-				const CustomElement = class HTMLCustomElement extends target.HTMLElement {}
+		target.customElements.define('custom-element', CustomElement)
 
-				target.customElements.define('custom-element', CustomElement)
+		expect(target.customElements.get('custom-element')).to.equal(CustomElement)
+		expect(target.customElements.getName(CustomElement)).to.equal(
+			'custom-element'
+		)
+	})
 
-				assert.equal(target.customElements.get('custom-element'), CustomElement)
-				assert.equal(
-					target.customElements.getName(CustomElement),
-					'custom-element'
-				)
-			},
-		},
-		{
-			name: 'Supports Custom Elements created from Document',
-			test() {
-				const target = {}
+	it('Supports Custom Elements created from Document', () => {
+		expect(target.document.body.localName).to.equal('body')
+		expect(target.document.body.tagName).to.equal('BODY')
 
-				polyfill(target)
+		expect(
+			target.document.createElement('custom-element').constructor.name
+		).to.equal('HTMLUnknownElement')
 
-				assert.equal(target.document.body.localName, 'body')
-				assert.equal(target.document.body.tagName, 'BODY')
+		const CustomElement = class HTMLCustomElement extends target.HTMLElement {}
 
-				assert.equal(
-					target.document.createElement('custom-element').constructor.name,
-					'HTMLUnknownElement'
-				)
+		target.customElements.define('custom-element', CustomElement)
 
-				const CustomElement = class HTMLCustomElement extends target.HTMLElement {}
+		expect(
+			target.document.createElement('custom-element').constructor.name
+		).to.equal('HTMLCustomElement')
+	})
 
-				target.customElements.define('custom-element', CustomElement)
+	it('Supports Custom Elements with properties', () => {
+		const testSymbol = Symbol.for('webapi.test')
 
-				assert.equal(
-					target.document.createElement('custom-element').constructor.name,
-					'HTMLCustomElement'
-				)
-			},
-		},
-		{
-			name: 'Supports Custom Elements with properties',
-			test() {
-				const target = {}
+		const CustomElement = class HTMLCustomElement extends target.HTMLElement {
+			otherMethod = () => testSymbol
 
-				polyfill(target)
+			method() {
+				return this.otherMethod()
+			}
 
-				const testSymbol = Symbol.for('webapi.test')
+			static method() {
+				return this.otherMethod()
+			}
 
-				const CustomElement = class HTMLCustomElement extends target.HTMLElement {
-					otherMethod = () => testSymbol
+			static otherMethod() {
+				return testSymbol
+			}
+		}
 
-					method() {
-						return this.otherMethod()
-					}
+		target.customElements.define('custom-element', CustomElement)
 
-					static method() {
-						return this.otherMethod()
-					}
+		expect(CustomElement.method()).to.equal(testSymbol)
 
-					static otherMethod() {
-						return testSymbol
-					}
-				}
+		const customElement = new CustomElement()
 
-				target.customElements.define('custom-element', CustomElement)
-
-				assert.equal(CustomElement.method(), testSymbol)
-
-				const customElement = new CustomElement()
-
-				assert.equal(customElement.method(), testSymbol)
-			},
-		},
-	]
+		expect(customElement.method()).to.equal(testSymbol)
+	})
 })

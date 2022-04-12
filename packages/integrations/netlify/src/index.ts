@@ -1,12 +1,12 @@
 import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
 import fs from 'fs';
 
-export function getAdapter(site: string | undefined): AstroAdapter {
+export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/netlify',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
-		args: { site },
+		args: {},
 	};
 }
 
@@ -28,15 +28,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				let site = null;
-				try {
-					site = new URL(config.base, config.site);
-				} catch {
-					throw new Error(
-						'The Netlify adapter requires a deployment URL. Ensure a "site" is specified in your astro.config. If you provided a "base" in your astro.config, ensure it is a valid path.'
-					);
-				}
-				setAdapter(getAdapter(site.toString()));
+				setAdapter(getAdapter());
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
@@ -61,11 +53,10 @@ ${pattern}    /.netlify/functions/${entryFile}    200`;
 					}
 				}
 
-				if (fs.existsSync(_redirects)) {
-					await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
-				} else {
-					await fs.promises.writeFile(_redirectsURL, _redirects, 'utf-8');
-				}
+				// Always use appendFile() because the redirects file could already exist,
+				// e.g. due to a `/public/_redirects` file that got copied to the output dir.
+				// If the file does not exist yet, appendFile() automatically creates it.
+				await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
 			},
 		},
 	};

@@ -1,34 +1,26 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes polyfill.internals functionality',
-			test() {
-				const target = {}
+it('Includes polyfill.internals functionality', () => {
+	const target = {}
 
-				polyfill(target, { exclude: 'window document' })
+	polyfill(target, { exclude: 'window document' })
 
-				const pseudo = { ...target }
+	const pseudo = { ...target }
 
-				assert.equal(Reflect.has(pseudo, 'document'), false)
+	expect(pseudo).to.not.have.property('document')
 
-				const CustomElement = class extends pseudo.HTMLElement {}
+	const CustomElement = class extends pseudo.HTMLElement {}
 
-				pseudo.customElements.define('custom-element', CustomElement)
+	pseudo.customElements.define('custom-element', CustomElement)
 
-				polyfill.internals(pseudo, 'Document')
+	polyfill.internals(pseudo, 'Document')
 
-				assert.equal(Reflect.has(pseudo, 'document'), true)
+	expect(pseudo).to.have.property('document')
 
-				assert.equal(
-					CustomElement.prototype.isPrototypeOf(
-						pseudo.document.createElement('custom-element')
-					),
-					true
-				)
-			},
-		},
-	]
+	expect(
+		CustomElement.prototype.isPrototypeOf(
+			pseudo.document.createElement('custom-element')
+		)
+	).to.equal(true)
 })

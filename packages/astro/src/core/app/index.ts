@@ -82,7 +82,7 @@ export class App {
 			legacyBuild: false,
 			links,
 			logging: this.#logging,
-			markdownRender: manifest.markdown.render,
+			markdown: manifest.markdown,
 			mod,
 			origin: url.origin,
 			pathname: url.pathname,

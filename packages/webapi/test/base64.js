@@ -1,48 +1,29 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Supports Base64 Methods',
-			test() {
-				const target = {}
+describe('Base64', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal('atob' in target, true)
-				assert.equal('btoa' in target, true)
-				assert.equal(typeof target['atob'], 'function')
-				assert.equal(typeof target['btoa'], 'function')
-			},
-		},
-		{
-			name: 'Supports atob(data)',
-			test() {
-				const target = {}
+	it('Supports Base64 Methods', () => {
+		expect(target).to.have.property('atob').that.is.a('function')
+		expect(target).to.have.property('btoa').that.is.a('function')
+	})
 
-				polyfill(target)
+	it('Supports atob(data)', () => {
+		const a = 'SGVsbG8sIHdvcmxk'
+		const b = target.atob(a)
 
-				const a = 'SGVsbG8sIHdvcmxk'
-				const b = target.atob(a)
+		expect(a).to.equal('SGVsbG8sIHdvcmxk')
+		expect(b).to.equal('Hello, world')
+	})
 
-				assert.equal(a, 'SGVsbG8sIHdvcmxk')
-				assert.equal(b, 'Hello, world')
-			},
-		},
-		{
-			name: 'Supports btoa(data)',
-			test() {
-				const target = {}
+	it('Supports btoa(data)', () => {
+		const b = 'Hello, world'
+		const a = target.btoa(b)
 
-				polyfill(target)
-
-				const b = 'Hello, world'
-				const a = target.btoa(b)
-
-				assert.equal(a, 'SGVsbG8sIHdvcmxk')
-				assert.equal(b, 'Hello, world')
-			},
-		},
-	]
+		expect(a).to.equal('SGVsbG8sIHdvcmxk')
+		expect(b).to.equal('Hello, world')
+	})
 })
