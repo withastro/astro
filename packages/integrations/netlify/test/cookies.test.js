@@ -41,6 +41,8 @@ describe('Cookies', () => {
 			body: '{}',
 			isBase64Encoded: false
 		});
+		expect(resp.statusCode).to.equal(301);
+		expect(resp.headers.location).to.equal('/');
 		expect(resp.multiValueHeaders).to.be.deep.equal({
 			'set-cookie': [ 'foo=foo; HttpOnly', 'bar=bar; HttpOnly' ]
 		});

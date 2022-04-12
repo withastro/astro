@@ -38,7 +38,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 		const fnResponse: any = {
-			statusCode: 200,
+			statusCode: response.status,
 			headers: responseHeaders,
 			body: responseBody,
 		};
