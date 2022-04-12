@@ -53,7 +53,7 @@ describe('Astro.*', () => {
 			const canonicalURLs = {
 				'/index.html': 'https://mysite.dev/blog/',
 				'/post/post/index.html': 'https://mysite.dev/blog/post/post/',
-				'/posts/1/index.html': 'https://mysite.dev/blog/posts/',
+				'/posts/1/index.html': 'https://mysite.dev/blog/posts/1/',
 				'/posts/2/index.html': 'https://mysite.dev/blog/posts/2/',
 			};
 
