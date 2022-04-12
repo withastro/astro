@@ -1,57 +1,39 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Supports OffscreenCanvas',
-			test() {
-				const target = {}
+describe('OffscreenCanvas', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal('OffscreenCanvas' in target, true)
-				assert.equal(typeof target['OffscreenCanvas'], 'function')
-			},
-		},
-		{
-			name: 'Supports new (width: number, height: number): OffscreenCanvas',
-			test() {
-				const target = {}
+	it('Supports OffscreenCanvas', () => {
+		expect(target).to.have.property('OffscreenCanvas').that.is.a('function')
+	})
 
-				polyfill(target)
+	it('Supports new (width: number, height: number): OffscreenCanvas', () => {
+		const w = 640
+		const h = 480
 
-				const w = 640
-				const h = 480
+		const canvas = new target.OffscreenCanvas(w, h)
 
-				const canvas = new target.OffscreenCanvas(w, h)
+		expect(canvas.width).to.equal(w)
+		expect(canvas.height).to.equal(h)
+	})
 
-				assert.equal(canvas.width, w)
-				assert.equal(canvas.height, h)
-			},
-		},
-		{
-			name: 'Supports OffscreenCanvas#getContext',
-			test() {
-				const target = {}
+	it('Supports OffscreenCanvas#getContext', () => {
+		const w = 640
+		const h = 480
 
-				polyfill(target)
+		const canvas = new target.OffscreenCanvas(w, h)
 
-				const w = 640
-				const h = 480
+		const context = canvas.getContext('2d')
 
-				const canvas = new target.OffscreenCanvas(w, h)
+		expect(context.canvas).to.equal(canvas)
 
-				const context = canvas.getContext('2d')
+		const imageData = context.createImageData(w, h)
 
-				assert.equal(context.canvas, canvas)
-
-				const imageData = context.createImageData(w, h)
-
-				assert.equal(imageData.width, w)
-				assert.equal(imageData.height, h)
-				assert.equal(imageData.data.length, w * h * 4)
-			},
-		},
-	]
+		expect(imageData.width).to.equal(w)
+		expect(imageData.height).to.equal(h)
+		expect(imageData.data).to.have.lengthOf(w * h * 4)
+	})
 })

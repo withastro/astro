@@ -1,18 +1,40 @@
 import type * as unified from 'unified';
-import type { ShikiConfig } from './remark-shiki';
-export { ShikiConfig };
+import type * as mdast from 'mdast';
+import type * as hast from 'hast';
+import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 
-export type Plugin = string | [string, any] | unified.Plugin | [unified.Plugin, any];
+export type { Node } from 'unist';
 
-export interface AstroMarkdownOptions {
-	mode?: 'md' | 'mdx';
-	syntaxHighlight?: 'shiki' | 'prism' | false;
-	shikiConfig?: ShikiConfig;
-	remarkPlugins?: Plugin[];
-	rehypePlugins?: Plugin[];
+export type RemarkPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
+	PluginParameters,
+	mdast.Root
+>;
+
+export type RemarkPlugins = (string | [string, any] | RemarkPlugin | [RemarkPlugin, any])[];
+
+export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
+	PluginParameters,
+	hast.Root
+>;
+
+export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
+
+export interface ShikiConfig {
+	langs: ILanguageRegistration[];
+	theme: Theme | IThemeRegistration;
+	wrap: boolean | null;
 }
 
-export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> {
+export interface AstroMarkdownOptions {
+	mode: 'md' | 'mdx';
+	drafts: boolean;
+	syntaxHighlight: 'shiki' | 'prism' | false;
+	shikiConfig: ShikiConfig;
+	remarkPlugins: RemarkPlugins;
+	rehypePlugins: RehypePlugins;
+}
+
+export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
 	$?: {
 		scopedClassName: string | null;

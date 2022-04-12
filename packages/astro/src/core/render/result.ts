@@ -2,13 +2,12 @@ import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
-	MarkdownParser,
-	MarkdownRenderOptions,
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
@@ -26,7 +25,7 @@ export interface CreateResultArgs {
 	legacyBuild: boolean;
 	logging: LogOptions;
 	origin: string;
-	markdownRender: MarkdownRenderOptions;
+	markdown: MarkdownRenderingOptions;
 	params: Params;
 	pathname: string;
 	renderers: SSRLoadedRenderer[];
@@ -99,8 +98,10 @@ class Slots {
 	}
 }
 
+let renderMarkdown: any = null;
+
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, markdownRender, params, pathname, renderers, request, resolve, site } = args;
+	const { legacyBuild, markdown, params, pathname, renderers, request, resolve, site } = args;
 
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
@@ -179,31 +180,22 @@ ${extra}`
 				// Ensure this API is not exposed to users
 				enumerable: false,
 				writable: false,
-				// TODO: remove 1. markdown parser logic 2. update MarkdownRenderOptions to take a function only
-				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
-				value: async function (content: string, opts: any) {
-					let [mdRender, renderOpts] = markdownRender;
-					let parser: MarkdownParser | null = null;
-					//let renderOpts = {};
-					if (Array.isArray(mdRender)) {
-						renderOpts = mdRender[1];
-						mdRender = mdRender[0];
+				// TODO: Remove this hole "Deno" logic once our plugin gets Deno support
+				value: async function (content: string, opts: MarkdownRenderingOptions) {
+					// @ts-ignore
+					if (typeof Deno !== 'undefined') {
+						throw new Error('Markdown is not supported in Deno SSR');
 					}
-					// ['rehype-toc', opts]
-					if (typeof mdRender === 'string') {
-						const mod: { default: MarkdownParser } = await import(mdRender);
-						parser = mod.default;
+
+					if (!renderMarkdown) {
+						// The package is saved in this variable because Vite is too smart
+						// and will try to inline it in buildtime
+						let astroRemark = '@astrojs/markdown-remark';
+
+						renderMarkdown = (await import(astroRemark)).renderMarkdown;
 					}
-					// [import('rehype-toc'), opts]
-					else if (mdRender instanceof Promise) {
-						const mod: { default: MarkdownParser } = await mdRender;
-						parser = mod.default;
-					} else if (typeof mdRender === 'function') {
-						parser = mdRender;
-					} else {
-						throw new Error('No Markdown parser found.');
-					}
-					const { code } = await parser(content, { ...renderOpts, ...(opts ?? {}) });
+
+					const { code } = await renderMarkdown(content, { ...markdown, ...(opts ?? {}) });
 					return code;
 				},
 			});
