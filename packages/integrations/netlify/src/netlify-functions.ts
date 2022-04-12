@@ -33,14 +33,34 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			};
 		}
 
-		const response = await app.render(request);
+		const response: Response = await app.render(request);
 		const responseBody = await response.text();
 
-		return {
+		const responseHeaders = Object.fromEntries(response.headers.entries());
+		const fnResponse: any = {
 			statusCode: 200,
-			headers: Object.fromEntries(response.headers.entries()),
+			headers: responseHeaders,
 			body: responseBody,
 		};
+
+		// Special-case set-cookie which has to be set an different way :/
+		if (response.headers.has('set-cookie') && 'raw' in response.headers) {
+			// Node fetch allows you to get the raw headers, which includes multiples of the same type.
+			// This is needed because Set-Cookie *must* be called for each cookie, and can't be
+			// concatenated together.
+			type HeadersWithRaw = Headers & {
+				raw: () => Record<string, string[]>;
+			};
+
+			const rawPacked = (response.headers as HeadersWithRaw).raw();
+			if('set-cookie' in rawPacked) {
+				fnResponse.multiValueHeaders = {
+					'set-cookie': rawPacked['set-cookie']
+				}
+			}
+		}
+
+		return fnResponse;
 	};
 
 	return { handler };
