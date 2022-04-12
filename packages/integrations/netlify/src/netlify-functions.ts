@@ -56,10 +56,10 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			};
 
 			const rawPacked = (response.headers as HeadersWithRaw).raw();
-			if('set-cookie' in rawPacked) {
+			if ('set-cookie' in rawPacked) {
 				fnResponse.multiValueHeaders = {
-					'set-cookie': rawPacked['set-cookie']
-				}
+					'set-cookie': rawPacked['set-cookie'],
+				};
 			}
 		}
 

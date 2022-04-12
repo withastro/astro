@@ -39,12 +39,12 @@ describe('Cookies', () => {
 			headers: {},
 			rawUrl: 'http://example.com/login',
 			body: '{}',
-			isBase64Encoded: false
+			isBase64Encoded: false,
 		});
 		expect(resp.statusCode).to.equal(301);
 		expect(resp.headers.location).to.equal('/');
 		expect(resp.multiValueHeaders).to.be.deep.equal({
-			'set-cookie': [ 'foo=foo; HttpOnly', 'bar=bar; HttpOnly' ]
+			'set-cookie': ['foo=foo; HttpOnly', 'bar=bar; HttpOnly'],
 		});
 	});
 });
