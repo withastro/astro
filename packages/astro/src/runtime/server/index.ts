@@ -290,7 +290,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			await render`<${Component}${spreadAttributes(props)}${markHTMLString(
 				(children == null || children == '') && voidElementNames.test(Component)
 					? `/>`
-					: `>${children}</${Component}>`
+					: `>${children == null ? '' : children}</${Component}>`
 			)}`
 		);
 	}

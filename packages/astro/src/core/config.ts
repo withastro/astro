@@ -329,9 +329,9 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
+		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
 		experimentalIntegrations:
-			typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
+			typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }

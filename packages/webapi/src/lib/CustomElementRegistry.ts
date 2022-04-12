@@ -26,6 +26,11 @@ export class CustomElementRegistry {
 		if (!/-/.test(name))
 			throw new SyntaxError('Custom element name must contain a hyphen')
 
+		_.INTERNALS.set(constructor, {
+			attributes: {},
+			localName: name,
+		} as any)
+
 		internals.constructorByName.set(name, constructor)
 		internals.nameByConstructor.set(constructor, name)
 
