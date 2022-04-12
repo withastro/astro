@@ -48,6 +48,32 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		}
 		return false;
 	}
+	// localcache to avoid reading IO for every file
+	var _localcache = {};
+	// load folder-level _config.json
+  function getFolderConfig(id: string) {
+    console.log('findFolderLayout', id);
+    // try _config.js file in same folder
+    let segments = id.split('/');
+    segments.pop(); // discard filename
+    let foldername = segments.join('/');
+    let fconfname = foldername + '/_config.json';
+    if (!_localcache[foldername]) {
+      _localcache[foldername] = { layout: '', components: '', setup: '' };
+    } else {
+      return _localcache[foldername];
+    }
+    if (!fs.existsSync(fconfname)) {
+      return _localcache[foldername];
+    }
+    let folderconf = JSON.parse(fs.readFileSync(fconfname, "utf8"));
+    console.log('findFolderLayout.layout', folderconf.layout);
+		folderconf.layout = folderconf.layout || '';
+		folderconf.components = folderconf.components || '';
+		folderconf.setup = folderconf.setup || '';
+    _localcache[foldername] = folderconf;
+    return folderconf;
+  }
 
 	return {
 		name: 'astro:markdown',
@@ -131,16 +157,22 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
+
+				let folderConfig = getFolderConfig(id);
+				let _layout = layout || folderConfig.layout;
+				let _components = components || folderConfig.components;
+				let _setup = setup || folderConfig.setup;
+
 				const prelude = `---
-${layout ? `import Layout from '${layout}';` : ''}
-${components ? `import * from '${components}';` : ''}
+${_layout ? `import Layout from '${_layout}';` : ''}
+${_components ? `import * from '${_components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
-${setup}
+${_setup}
 
 const $$content = ${JSON.stringify(content)}
 ---`;
-				const imports = `${layout ? `import Layout from '${layout}';` : ''}
-${setup}`.trim();
+				const imports = `${_layout ? `import Layout from '${_layout}';` : ''}
+${_setup}`.trim();
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
 					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
