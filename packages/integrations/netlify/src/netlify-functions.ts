@@ -44,6 +44,9 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		};
 
 		// Special-case set-cookie which has to be set an different way :/
+		// The fetch API does not have a way to get multiples of a single header, but instead concatenates
+		// them. There are non-standard ways to do it, and node-fetch gives us headers.raw()
+		// See https://github.com/whatwg/fetch/issues/973 for discussion
 		if (response.headers.has('set-cookie') && 'raw' in response.headers) {
 			// Node fetch allows you to get the raw headers, which includes multiples of the same type.
 			// This is needed because Set-Cookie *must* be called for each cookie, and can't be
