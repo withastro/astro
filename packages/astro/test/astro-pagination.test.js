@@ -50,4 +50,16 @@ describe('Pagination', () => {
 			})
 		);
 	});
+
+	it('canonical URLs', async () => {
+		for (const [file, canonicalURL] of [
+			['/posts/red/1/index.html', 'https://mysite.dev/blog/posts/red/1/'],
+			['/posts/blue/1/index.html', 'https://mysite.dev/blog/posts/blue/1/'],
+			['/posts/blue/2/index.html', 'https://mysite.dev/blog/posts/blue/2/'],
+		]) {
+			const html = await fixture.readFile(file);
+			const $ = cheerio.load(html);
+			expect($('link[rel="canonical"]').attr('href')).to.equal(canonicalURL);
+		}
+	});
 });
