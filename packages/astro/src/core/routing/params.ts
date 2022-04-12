@@ -1,3 +1,4 @@
+import { validateGetStaticPathsParameter } from './validation.js';
 import type { Params } from '../../@types/astro';
 
 /**
@@ -19,4 +20,26 @@ export function getParams(array: string[]) {
 	};
 
 	return fn;
+}
+
+/**
+ * given a route's Params object, validate parameter
+ * values and create a stringified key for the route
+ * that can be used to match request routes
+ */
+export function stringifyParams(params: Params) {
+	// validate parameter values then stringify each value
+	const validatedParams = Object.entries(params)
+		.reduce((acc, next) => {
+			validateGetStaticPathsParameter(next);
+			const [key, value] = next;
+			acc[key] = `${value}`;
+			return acc;
+		}, {} as Params);
+
+	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
+	return JSON.stringify(
+		validatedParams,
+		Object.keys(params).sort()
+	);
 }

@@ -6,6 +6,15 @@ interface ValidationOptions {
 	ssr: boolean;
 }
 
+/** Throws error for invalid parameter in getStaticPaths() response */
+export function validateGetStaticPathsParameter([key, value]: [string, any]) {
+	if (typeof value !== 'string' && typeof value !== 'number') {
+		throw new Error(
+			`[getStaticPaths] invalid route parameter for "${key}". Expected a string or number, received \`${value}\` ("${typeof value}")`
+		);
+	}
+}
+
 /** Throw error for deprecated/malformed APIs */
 export function validateGetStaticPathsModule(mod: ComponentInstance, { ssr }: ValidationOptions) {
 	if ((mod as any).createCollection) {
