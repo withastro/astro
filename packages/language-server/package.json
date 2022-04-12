@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "0.13.4",
+  "version": "0.14.0",
   "author": "withastro",
   "license": "MIT",
   "type": "commonjs",

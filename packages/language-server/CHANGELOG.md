@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 0.14.0
+
+### Minor Changes
+
+- 9118c46: Add support for loading type definitions from Astro itself
+
+### Patch Changes
+
+- 9ea5b97: Make TypeScript ignore content of Markdown tags
+- dbf624a: Fix error when returning a response from the frontmatter
+
 ## 0.13.4
 
 ### Patch Changes
