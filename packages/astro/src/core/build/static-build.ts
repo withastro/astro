@@ -69,6 +69,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 					.map((renderer) => renderer.clientEntrypoint!),
 			]);
 
+			console.log({ topLevelImports });
+
 			// Add hoisted scripts
 			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
 			if (hoistedScripts.size) {

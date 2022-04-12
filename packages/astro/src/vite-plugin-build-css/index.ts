@@ -68,6 +68,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 		const info = ctx.getModuleInfo(id);
 		if (info) {
+			// console.log({ info: info });
 			for (const importedId of info.importedIds) {
 				if (!seen.has(importedId)) {
 					yield* walkStyles(ctx, importedId, seen);
@@ -84,30 +85,30 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	 */
 	async function addStyles(this: PluginContext) {
 		for (const id of this.getModuleIds()) {
-			if (hasPageDataByViteID(internals, id)) {
-				let pageStyles = '';
-				for (const [_styleId, styles] of walkStyles(this, id)) {
-					pageStyles += styles;
-				}
-
-				// Pages with no styles, nothing more to do
-				if (!pageStyles) continue;
-
-				const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
-					loader: 'css',
-					minify: true,
-				});
-				const referenceId = this.emitFile({
-					name: 'entry' + '.css',
-					type: 'asset',
-					source: minifiedCSS,
-				});
-				const fileName = this.getFileName(referenceId);
-
-				// Add CSS file to the page's pageData, so that it will be rendered with
-				// the correct links.
-				getPageDataByViteID(internals, id)?.css.add(fileName);
+			// if (hasPageDataByViteID(internals, id)) {
+			let pageStyles = '';
+			for (const [_styleId, styles] of walkStyles(this, id)) {
+				pageStyles += styles;
 			}
+
+			// Pages with no styles, nothing more to do
+			if (!pageStyles) continue;
+
+			const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
+				loader: 'css',
+				minify: true,
+			});
+			const referenceId = this.emitFile({
+				name: 'entry' + '.css',
+				type: 'asset',
+				source: minifiedCSS,
+			});
+			const fileName = this.getFileName(referenceId);
+
+			// Add CSS file to the page's pageData, so that it will be rendered with
+			// the correct links.
+			getPageDataByViteID(internals, id)?.css.add(fileName);
+			// }
 		}
 	}
 
@@ -158,10 +159,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		async transform(value, id) {
+			console.log({ id, meta: this.getModuleInfo(id)?.meta });
 			if (isStyleVirtualModule(id)) {
 				styleSourceMap.set(id, value);
 			}
 			if (isCSSRequest(id)) {
+				// for (const [key, val] of Object.entries(this.getModuleInfo(id) ?? {})) {
+				// 	console.log({ [key]: val });
+				// }
 				styleSourceMap.set(id, value);
 			}
 			return null;

@@ -149,6 +149,7 @@ export async function renderComponent(
 	_props: Record<string | number, any>,
 	slots: any = {}
 ) {
+	console.log({ result });
 	Component = await Component;
 	if (Component === Fragment) {
 		const children = await renderSlot(result, slots?.default);

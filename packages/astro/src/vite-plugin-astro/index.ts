@@ -160,16 +160,21 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
 					ssr: Boolean(opts?.ssr),
 				});
+				// fs.writeFileSync('./test.js', transformResult.code);
+
+				const test = fs.readFileSync('./test.js').toString();
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
-				const { code, map } = await esbuild.transform(transformResult.code, {
+				const { code, map } = await esbuild.transform(test, {
 					loader: 'ts',
 					sourcemap: 'external',
 					sourcefile: id,
 					// Pass relevant Vite options, if needed:
 					define: config.vite?.define,
+					treeShaking: false,
 				});
+				console.log({ code });
 
 				let SUFFIX = '';
 				// Add HMR handling in dev mode.
@@ -183,6 +188,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
+					meta: { test: 'hey there!' },
 				};
 			} catch (err: any) {
 				// Verify frontmatter: a common reason that this plugin fails is that
