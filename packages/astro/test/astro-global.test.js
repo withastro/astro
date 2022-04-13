@@ -38,9 +38,7 @@ describe('Astro.*', () => {
 			await fixture.build();
 		});
 
-		// BUG: Doesn't seem like `base` config is being respected in build,
-		// most values are incorrect actual, does not match expected.
-		it.skip('Astro.request.url', async () => {
+		it('Astro.request.url', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 
