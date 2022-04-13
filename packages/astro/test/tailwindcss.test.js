@@ -47,7 +47,7 @@ describe('Tailwind', () => {
 				/\.text-midnight{/
 			);
 			expect(bundledCSS, 'includes custom theme colors').to.match(
-				/\.bg-dusk{/
+				/\.bg-dawn{/
 			);
 		});
 
@@ -108,11 +108,11 @@ describe('Tailwind', () => {
 			expect(text, 'supports arbitrary value classes').to.match(/.font-\\[900\\]/);
 
 			// custom theme colors were included
-			expect(bundledCSS, 'includes custom theme colors').to.match(
+			expect(text, 'includes custom theme colors').to.match(
 				/\.text-midnight/
 			);
-			expect(bundledCSS, 'includes custom theme colors').to.match(
-				/\.bg-dusk/
+			expect(text, 'includes custom theme colors').to.match(
+				/\.bg-dawn/
 			);
 		});
 
