@@ -14,6 +14,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 		},
 		plugins: [],
 		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
+		presets: undefined // enable Tailwind's default preset
 	});
 }
 
@@ -38,12 +39,6 @@ type TailwindOptions =
 				 */
 				path?: string;
 				/**
-				 * Apply Astro's default Tailwind config as a preset
-				 * This is recommended to enable Tailwind across all components and Astro files
-				 * @default true
-				 */
-				applyAstroPreset?: boolean;
-				/**
 				 * Apply Tailwind's base styles
 				 * Disabling this is useful when further customization of Tailwind styles
 				 * and directives is required. See {@link https://tailwindcss.com/docs/functions-and-directives#tailwind Tailwind's docs}
@@ -56,7 +51,6 @@ type TailwindOptions =
 	| undefined;
 
 export default function tailwindIntegration(options: TailwindOptions): AstroIntegration {
-	const applyAstroConfigPreset = options?.config?.applyAstroPreset ?? true;
 	const applyBaseStyles = options?.config?.applyBaseStyles ?? true;
 	const customConfigPath = options?.config?.path;
 	return {
@@ -76,14 +70,6 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 
 				const tailwindConfig: TailwindConfig =
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-				if (applyAstroConfigPreset && userConfig?.value) {
-					// apply Astro config as a preset to user config
-					// this avoids merging or applying nested spread operators ourselves
-					tailwindConfig.presets = [
-						getDefaultTailwindConfig(config.srcDir),
-						...(tailwindConfig.presets || []),
-					];
-				}
 
 				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));
 				config.style.postcss.plugins.push(autoprefixerPlugin);
