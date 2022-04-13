@@ -25,7 +25,7 @@
     "test": "mocha --exit --timeout 20000"
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.11.0"
+    "@astrojs/webapi": "^0.11.1"
   },
   "devDependencies": {
     "@netlify/functions": "^1.0.0",

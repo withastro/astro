@@ -2,9 +2,9 @@ import * as _ from './utils'
 
 export class Element extends Node {
 	constructor() {
-		super();
-		
-		if(_.INTERNALS.has(new.target)) {
+		super()
+
+		if (_.INTERNALS.has(new.target)) {
 			const internals = _.internalsOf(new.target, 'Element', 'localName')
 			_.INTERNALS.set(this, {
 				attributes: {},

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/webapi",
   "description": "Use Web APIs in Node",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "type": "module",
   "exports": {
     ".": {
