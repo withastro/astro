@@ -441,17 +441,32 @@ export function defineScriptVars(vars: Record<any, any>) {
 	return markHTMLString(output);
 }
 
-// Renders an endpoint request to completion, returning the body.
-export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
-	const chosenMethod = request.method?.toLowerCase() ?? 'get';
-	const handler = mod[chosenMethod];
+function getHandlerFromModule(mod: EndpointHandler, method: string) {
+	// If there was an exact match on `method`, return that function.
+	if (mod[method]) {
+		return mod[method];
+	}
+	// Handle `del` instead of `delete`, since `delete` is a reserved word in JS.
+	if (method === 'delete' && mod['del']) {
+		return mod['del'];
+	}
+	// If a single `all` handler was used, return that function.
+	if (mod['all']) {
+		return mod['all'];
+	}
+	// Otherwise, no handler found.
+	return undefined;
+}
 
+/** Renders an endpoint request to completion, returning the body. */
+export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
+	const chosenMethod = request.method?.toLowerCase();
+	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!handler || typeof handler !== 'function') {
 		throw new Error(
 			`Endpoint handler not found! Expected an exported function for "${chosenMethod}"`
 		);
 	}
-
 	return await handler.call(mod, params, request);
 }
 
