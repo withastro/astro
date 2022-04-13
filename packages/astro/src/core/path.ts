@@ -46,4 +46,3 @@ export function prependDotSlash(path: string) {
 
 	return './' + path;
 }
-
