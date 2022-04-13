@@ -76,23 +76,6 @@ export default {
 }
 ```
 
-### config.applyAstroPreset
-
-By default, when a custom `tailwind.config.js` file is used this integration will still append some configuration as a `preset` in the final configuration. This default configuration provides the correct `content` property so that Tailwind knows what files to scan in Astro projects (`src/**/*.{astro,html,js,jsx,svelte,ts,tsx,vue}`).
-
-You can disable this by setting `config.applyAstroPreset` to false. enable Tailwind across all Astro files and [UI framework components](https://docs.astro.build/en/core-concepts/framework-components/). To remove this default, opt-out via the `config.applyAstroPreset` integration option:
-
-```js
-// astro.config.mjs
-export default {
-  integrations: [tailwind({
-    // Example: Disable adding Astro configuration as a preset.
-    // Only useful if a custom tailwind.config.js file is used.
-    config: { applyAstroPreset: false },
-  })],
-}
-```
-
 ### config.applyBaseStyles
 
 By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:

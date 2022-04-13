@@ -41,6 +41,14 @@ describe('Tailwind', () => {
 			expect(bundledCSS, 'supports arbitrary value classes').to.match(
 				/\.font-\\\[900\\\]{font-weight:900}/
 			);
+
+			// custom theme colors were included
+			expect(bundledCSS, 'includes custom theme colors').to.match(
+				/\.text-midnight{/
+			);
+			expect(bundledCSS, 'includes custom theme colors').to.match(
+				/\.bg-dawn{/
+			);
 		});
 
 		it('maintains classes in HTML', async () => {
@@ -98,6 +106,14 @@ describe('Tailwind', () => {
 
 			// tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
 			expect(text, 'supports arbitrary value classes').to.match(/.font-\\[900\\]/);
+
+			// custom theme colors were included
+			expect(text, 'includes custom theme colors').to.match(
+				/\.text-midnight/
+			);
+			expect(text, 'includes custom theme colors').to.match(
+				/\.bg-dawn/
+			);
 		});
 
 		it('maintains classes in HTML', async () => {
