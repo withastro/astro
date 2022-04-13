@@ -1,5 +1,22 @@
 # astro
 
+## 1.0.0-beta.9
+
+### Minor Changes
+
+- [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Support the "del" API method, because "delete" is a reserved word.
+
+* [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for an "all" API method, to handle all requests
+
+### Patch Changes
+
+- [#3094](https://github.com/withastro/astro/pull/3094) [`564caf24`](https://github.com/withastro/astro/commit/564caf24c23a40c0fa7dc75ff3374492761d88fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose "metadata" to component integrations renderToStaticMarkup function
+
+* [#3068](https://github.com/withastro/astro/pull/3068) [`81e210e0`](https://github.com/withastro/astro/commit/81e210e03c7d88c7b80b0b11a532c5b8e03cef93) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue around build not respecting your base config
+
+* Updated dependencies [[`53162534`](https://github.com/withastro/astro/commit/53162534450e160f65b95e7ef1523a106347ca28)]:
+  - @astrojs/markdown-remark@0.9.0
+
 ## 1.0.0-beta.8
 
 ### Patch Changes
