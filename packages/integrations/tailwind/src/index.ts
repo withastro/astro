@@ -14,7 +14,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 		},
 		plugins: [],
 		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
-		presets: undefined // enable Tailwind's default preset
+		presets: undefined, // enable Tailwind's default preset
 	});
 }
 
