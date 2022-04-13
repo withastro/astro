@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3081](https://github.com/withastro/astro/pull/3081) [`f665d1a2`](https://github.com/withastro/astro/commit/f665d1a250ef34a9d1cbced9e4441c7e2dc246b8) Thanks [@JuanM04](https://github.com/JuanM04)! - Support dynamic paths
+
 ## 0.1.1
 
 ### Patch Changes

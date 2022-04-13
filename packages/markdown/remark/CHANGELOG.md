@@ -1,5 +1,13 @@
 # @astrojs/markdown-remark
 
+## 0.9.0
+
+### Minor Changes
+
+- [`53162534`](https://github.com/withastro/astro/commit/53162534450e160f65b95e7ef1523a106347ca28) Thanks [@FredKSchott](https://github.com/FredKSchott)! - - Removed `renderMarkdownWithFrontmatter` because it wasn't being used
+  - All options of `renderMarkdown` are now required — see the exported interface `AstroMarkdownOptions`
+  - New types: RemarkPlugin, RehypePlugin and ShikiConfig
+
 ## 0.8.2
 
 ### Patch Changes
