@@ -684,9 +684,11 @@ importers:
 
   packages/astro/test/fixtures/astro-client-only:
     specifiers:
+      '@astrojs/react': workspace:*
       '@astrojs/svelte': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/react': link:../../../../integrations/react
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 

@@ -1,9 +1,11 @@
 ---
 import PersistentCounter from '../components/PersistentCounter.svelte';
+import ReactComponent from '../components/JSXComponent.jsx';
 ---
 <html>
 <head><title>Client only pages</title></head>
 <body>
   <PersistentCounter client:only />
+	<ReactComponent client:only="react" />
 </body>
 </html>
