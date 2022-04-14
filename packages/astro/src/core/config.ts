@@ -196,7 +196,7 @@ export const AstroConfigSchema = z.object({
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string,
+	cmd: string
 ): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
@@ -433,7 +433,7 @@ export async function resolveConfig(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
-	cmd: string,
+	cmd: string
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
 	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
