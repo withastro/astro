@@ -152,7 +152,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			rollupPluginAstroBuildCSS({
 				internals,
 				legacy: false,
-				target: 'server'
+				target: 'server',
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -223,7 +223,7 @@ async function clientBuild(
 			rollupPluginAstroBuildCSS({
 				internals,
 				legacy: false,
-				target: 'client'
+				target: 'client',
 			}),
 			...(viteConfig.plugins || []),
 		],

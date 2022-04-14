@@ -29,5 +29,5 @@ describe('Client only components', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		expect($('link[rel=stylesheet]')).to.have.lengthOf(2);
-	})
+	});
 });

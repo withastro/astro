@@ -102,12 +102,12 @@ export function trackClientOnlyPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
 	clientOnlys: string[],
-	astroConfig: AstroConfig,
+	astroConfig: AstroConfig
 ) {
-	for(const clientOnlyComponent of clientOnlys) {
+	for (const clientOnlyComponent of clientOnlys) {
 		const coPath = viteID(new URL('.' + clientOnlyComponent, astroConfig.root));
 		let pageDataSet: Set<PageBuildData>;
-		if(internals.pagesByClientOnly.has(coPath)) {
+		if (internals.pagesByClientOnly.has(coPath)) {
 			pageDataSet = internals.pagesByClientOnly.get(coPath)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
@@ -116,8 +116,6 @@ export function trackClientOnlyPageDatas(
 		pageDataSet.add(pageData);
 	}
 }
-
-
 
 export function* getPageDatasByChunk(
 	internals: BuildInternals,
@@ -136,10 +134,10 @@ export function* getPageDatasByClientOnlyChunk(
 	chunk: RenderedChunk
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
-	if(pagesByClientOnly.size) {
+	if (pagesByClientOnly.size) {
 		for (const [modulePath] of Object.entries(chunk.modules)) {
 			if (pagesByClientOnly.has(modulePath)) {
-				for(const pageData of pagesByClientOnly.get(modulePath)!) {
+				for (const pageData of pagesByClientOnly.get(modulePath)!) {
 					yield pageData;
 				}
 			}
