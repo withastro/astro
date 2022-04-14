@@ -23,6 +23,6 @@ There's nothing special about `src/components/`, but that's where we like to put
 
 Any static assets, like images, can be placed in the `public/` directory.
 
-
 ## 👀 Want to learn more?
+
 Check out the [Astro Documentation](https://github.com/withastro/astro) site or jump into our [Discord server](https://astro.build/chat).
