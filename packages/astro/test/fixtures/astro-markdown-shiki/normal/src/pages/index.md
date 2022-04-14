@@ -22,3 +22,8 @@ spec:
       ports:
         - containerPort: 88
 ```
+
+```diff
++ Add
+- Remove
+```

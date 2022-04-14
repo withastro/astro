@@ -18,7 +18,7 @@ describe('Astro Markdown Shiki', () => {
 			// There should be no HTML from Prism
 			expect($('.token')).to.have.lengthOf(0);
 
-			expect($('pre')).to.have.lengthOf(1);
+			expect($('pre')).to.have.lengthOf(2);
 			expect($('pre').hasClass('astro-code')).to.equal(true);
 			expect($('pre').attr().style).to.equal('background-color: #0d1117; overflow-x: auto;');
 		});
@@ -36,6 +36,15 @@ describe('Astro Markdown Shiki', () => {
 			expect($('span.line').get(0).children).to.have.lengthOf(1);
 			expect($('span.line').get(1).children).to.have.lengthOf(5);
 		});
+
+		it('Can render diff syntax with "user-select: none"', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const diffBlockHtml = $('pre').last().html();
+			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">+</span>`);
+			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">-</span>`);
+		});
+
 	});
 
 	describe('Themes', () => {
