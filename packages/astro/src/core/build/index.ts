@@ -105,8 +105,7 @@ class AstroBuilder {
 			client: new URL('./client/', this.config.outDir),
 			server: new URL('./server/', this.config.outDir),
 			serverEntry: 'entry.mjs',
-			staticMode: undefined,
-			runtimeMarkdown: false,
+			staticMode: undefined
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 

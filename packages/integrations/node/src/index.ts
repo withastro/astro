@@ -14,10 +14,7 @@ export default function createIntegration(): AstroIntegration {
 		hooks: {
 			'astro:config:done': ({ setAdapter }) => {
 				setAdapter(getAdapter());
-			},
-			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.runtimeMarkdown = true;
-			},
+			}
 		},
 	};
 }

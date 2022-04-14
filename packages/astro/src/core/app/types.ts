@@ -1,11 +1,10 @@
 import type {
-	AstroUserConfig,
 	RouteData,
 	SerializedRouteData,
 	ComponentInstance,
-	MarkdownParser,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 
 export type ComponentPath = string;
 
@@ -23,8 +22,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
-	markdown: AstroUserConfig['markdown'];
-	markdownParser?: MarkdownParser;
+	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;

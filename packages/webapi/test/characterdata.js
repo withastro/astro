@@ -1,65 +1,42 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes CharacterData functionality',
-			test() {
-				const target = {}
+describe('CharacterData', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'CharacterData'), true)
-				assert.equal(Reflect.has(target, 'Text'), true)
-				assert.equal(Reflect.has(target, 'Comment'), true)
-			},
-		},
-		{
-			name: 'Throws new CharacterData',
-			test() {
-				const target = {}
+	it('Includes CharacterData functionality', () => {
+		expect(target).to.have.property('CharacterData')
+		expect(target).to.have.property('Text')
+		expect(target).to.have.property('Comment')
+	})
 
-				polyfill(target)
-			},
-		},
-		{
-			name: 'Supports new Comment',
-			test() {
-				const target = polyfill({})
+	it('Supports new Comment', () => {
+		expect(() => {
+			new target.Comment()
+		}).not.to.throw()
 
-				assert.doesNotThrow(() => {
-					new target.Comment()
-				})
+		expect(new target.Comment().constructor.name).to.equal('Comment')
+		expect(Object.prototype.toString.call(new target.Comment())).to.equal(
+			'[object Comment]'
+		)
 
-				assert.equal(new target.Comment().constructor.name, 'Comment')
-				assert.equal(
-					Object.prototype.toString.call(new target.Comment()),
-					'[object Comment]'
-				)
+		expect(new target.Comment('hello').data).to.equal('hello')
+		expect(new target.Comment('hello').textContent).to.equal('hello')
+	})
 
-				assert.equal(new target.Comment('hello').data, 'hello')
-				assert.equal(new target.Comment('hello').textContent, 'hello')
-			},
-		},
-		{
-			name: 'Supports new Text',
-			test() {
-				const target = polyfill({})
+	it('Supports new Text', () => {
+		expect(() => {
+			new target.Text()
+		}).not.to.throw()
 
-				assert.doesNotThrow(() => {
-					new target.Text()
-				})
+		expect(new target.Text().constructor.name).to.equal('Text')
+		expect(Object.prototype.toString.call(new target.Text())).to.equals(
+			'[object Text]'
+		)
 
-				assert.equal(new target.Text().constructor.name, 'Text')
-				assert.equal(
-					Object.prototype.toString.call(new target.Text()),
-					'[object Text]'
-				)
-
-				assert.equal(new target.Text('hello').data, 'hello')
-				assert.equal(new target.Text('hello').textContent, 'hello')
-			},
-		},
-	]
+		expect(new target.Text('hello').data).to.equal('hello')
+		expect(new target.Text('hello').textContent).to.equal('hello')
+	})
 })

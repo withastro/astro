@@ -36,11 +36,9 @@ export function vitePluginSSR(
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
-${buildOpts.buildConfig.runtimeMarkdown ? `import astroRemark from '@astrojs/markdown-remark';` : ''}
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
 	pageMap: _main.pageMap,
-	renderers: _main.renderers,
-	markdownParser: typeof astroRemark !== 'undefined' ? astroRemark : undefined
+	renderers: _main.renderers
 });
 const _args = ${adapter.args ? JSON.stringify(adapter.args) : 'undefined'};
 

@@ -1,6 +1,6 @@
 # Astro Starter Kit: Docs Site
 
-```
+```bash
 npm init astro -- --template docs
 ```
 
@@ -22,7 +22,7 @@ npm init astro -- --template docs
 All commands are run from the root of the project, from a terminal:
 
 | Command           | Action                                       |
-|:----------------  |:-------------------------------------------- |
+| :---------------- | :------------------------------------------- |
 | `npm install`     | Installs dependencies                        |
 | `npm run dev`     | Starts local dev server at `localhost:3000`  |
 | `npm run build`   | Build your production site to `./dist/`      |
@@ -34,12 +34,12 @@ To deploy your site to production, check out our [Deploy an Astro Website](https
 
 Welcome! Check out [our documentation](https://github.com/withastro/astro) or jump into our [Discord server](https://astro.build/chat).
 
-
 ## Customize This Theme
 
 ### Site metadata
 
 `src/config.ts` contains several data objects that describe metadata about your site like title, description, default language, and Open Graph details. You can customize these to match your project.
+
 ### CSS styling
 
 The theme's look and feel is controlled by a few key variables that you can customize yourself. You'll find them in the `public/theme.css` CSS file.
@@ -72,7 +72,6 @@ layout: ../../layouts/MainLayout.astro
 
 For more SEO related properties, look at `src/components/HeadSEO.astro`
 
-
 ### Sidebar navigation
 
 The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/config.ts` file. You can customize the sidebar by modifying this object. A default, starter navigation has already been created for you.
@@ -80,13 +79,13 @@ The sidebar navigation is controlled by the `SIDEBAR` variable in your `src/conf
 ```ts
 export const SIDEBAR = {
   en: [
-    { text: 'Section Header', header: true, },
-    { text: 'Introduction', link: 'en/introduction' },
-    { text: 'Page 2', link: 'en/page-2' },
-    { text: 'Page 3', link: 'en/page-3' },
+    { text: "Section Header", header: true },
+    { text: "Introduction", link: "en/introduction" },
+    { text: "Page 2", link: "en/page-2" },
+    { text: "Page 3", link: "en/page-3" },
 
-    { text: 'Another Section', header: true },
-    { text: 'Page 4', link: 'en/page-4' },
+    { text: "Another Section", header: true },
+    { text: "Page 4", link: "en/page-4" },
   ],
 };
 ```
@@ -147,7 +146,7 @@ If you plan to use Spanish as the the default language, you just need to modify 
 
 ```diff
 <script>
--	window.location.pathname = `/en/introduction`;
+- window.location.pathname = `/en/introduction`;
 + window.location.pathname = `/es/introduction`;
 </script>
 ```

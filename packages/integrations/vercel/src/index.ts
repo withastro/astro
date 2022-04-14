@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
 import esbuild from 'esbuild';
@@ -34,7 +34,6 @@ export default function vercel(): AstroIntegration {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
 				buildConfig.client = new URL('./static/', _config.outDir);
 				buildConfig.server = new URL('./server/tmp/', _config.outDir);
-				buildConfig.runtimeMarkdown = true;
 			},
 			'astro:build:done': async ({ routes }) => {
 				/*
@@ -68,15 +67,28 @@ export default function vercel(): AstroIntegration {
 
 				await fs.rm(tmpDir, { recursive: true });
 
+				let staticRoutes: RouteData[] = [];
+				let dynamicRoutes: RouteData[] = [];
+
+				for (const route of routes) {
+					if (route.params.length === 0) staticRoutes.push(route);
+					else dynamicRoutes.push(route);
+				}
+
 				// Routes Manifest
 				// https://vercel.com/docs/file-system-api#configuration/routes
 				await writeJson(new URL(`./routes-manifest.json`, _config.outDir), {
 					version: 3,
 					basePath: '/',
 					pages404: false,
-					rewrites: routes.map((route) => ({
+					rewrites: staticRoutes.map((route) => ({
 						source: route.pathname,
+						regex: route.pattern.toString(),
 						destination: `/${ENTRYFILE}`,
+					})),
+					dynamicRoutes: dynamicRoutes.map((route) => ({
+						page: `/${ENTRYFILE}`,
+						regex: route.pattern.toString(),
 					})),
 				});
 			},

@@ -1,4 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
 import fs from 'fs';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
@@ -12,7 +11,7 @@ import type {
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, info } from '../logger/core.js';
-import { prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
@@ -192,12 +191,12 @@ async function generatePath(
 	}
 
 	const ssr = isBuildingToSSR(opts.astroConfig);
-	const url = new URL(origin + pathname);
+	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
 	const options: RenderOptions = {
 		legacyBuild: false,
 		links,
 		logging,
-		markdownRender: [astroRemark, astroConfig.markdown],
+		markdown: astroConfig.markdown,
 		mod,
 		origin,
 		pathname,

@@ -81,7 +81,7 @@ export class App {
 			legacyBuild: false,
 			links,
 			logging: this.#logging,
-			markdownRender: [this.#manifest.markdownParser || '', this.#manifest.markdown ?? {}],
+			markdown: manifest.markdown,
 			mod,
 			origin: url.origin,
 			pathname: url.pathname,

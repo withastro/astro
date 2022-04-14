@@ -6,7 +6,7 @@ import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { ErrorPayload } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import { removeEndingForwardSlash } from './path.js';
+import { removeTrailingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
@@ -37,7 +37,7 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string) {
 	if (astroConfig.build.format === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
 		return path.posix.join(name, 'index.html');
 	}
-	return `${removeEndingForwardSlash(name || 'index')}.html`;
+	return `${removeTrailingForwardSlash(name || 'index')}.html`;
 }
 
 /** is a specifier an npm package? */
