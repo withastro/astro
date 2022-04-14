@@ -66,7 +66,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			if (id.endsWith('.md') && !isRootImport(importer)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				if (resolvedId) {
-					return resolvedId?.id + IMPORTED_MODULE_FLAG;
+					return resolvedId.id + IMPORTED_MODULE_FLAG;
 				}
 			}
 			// In all other cases, we do nothing and rely on normal Vite resolution.
