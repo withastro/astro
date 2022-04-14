@@ -16,7 +16,7 @@ interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
-const IMPORTED_MODULE_FLAG = '?astro:markdown:imported';
+const IMPORTED_MODULE_FLAG = '?astroMarkdownImported';
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
