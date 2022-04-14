@@ -34,6 +34,7 @@ export default function vercel(): AstroIntegration {
 				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
 				buildConfig.client = new URL('./static/', _config.outDir);
 				buildConfig.server = new URL('./server/tmp/', _config.outDir);
+				buildConfig.runtimeMarkdown = true;
 			},
 			'astro:build:done': async ({ routes }) => {
 				/*

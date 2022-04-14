@@ -3,6 +3,7 @@ import type {
 	RouteData,
 	SerializedRouteData,
 	ComponentInstance,
+	MarkdownParser,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 
@@ -23,6 +24,7 @@ export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
 	markdown: AstroUserConfig['markdown'];
+	markdownParser?: MarkdownParser;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;

@@ -69,6 +69,7 @@ export interface BuildConfig {
 	server: URL;
 	serverEntry: string;
 	staticMode: boolean | undefined;
+	runtimeMarkdown: boolean;
 }
 
 /**

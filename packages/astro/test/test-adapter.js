@@ -38,6 +38,9 @@ export default function () {
 					exports: ['manifest', 'createApp'],
 				});
 			},
+			'astro:build:start': ({ buildConfig }) => {
+				buildConfig.runtimeMarkdown = true;
+			}
 		},
 	};
 }
