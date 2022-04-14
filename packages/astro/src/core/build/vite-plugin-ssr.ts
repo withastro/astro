@@ -13,6 +13,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
 export function vitePluginSSR(
 	buildOpts: StaticBuildOptions,
@@ -64,18 +65,16 @@ if(_start in adapter) {
 			}
 			return void 0;
 		},
-
 		generateBundle(_opts, bundle) {
 			const manifest = buildManifest(buildOpts, internals);
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') continue;
 				if (chunk.modules[resolvedVirtualModuleId]) {
-					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
-					chunk.code = code.replace(exp, () => {
+					chunk.code = code.replace(replaceExp, () => {
 						return JSON.stringify(manifest);
-					});
+					})
 				}
 			}
 		},

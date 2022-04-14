@@ -14,7 +14,7 @@ export default function createIntegration(): AstroIntegration {
 		hooks: {
 			'astro:config:done': ({ setAdapter }) => {
 				setAdapter(getAdapter());
-			},
+			}
 		},
 	};
 }
