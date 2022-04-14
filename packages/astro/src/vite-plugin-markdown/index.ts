@@ -16,8 +16,7 @@ interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
-const VIRTUAL_MODULE_ID_PREFIX = 'astro:markdown';
-const VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID_PREFIX;
+const IMPORTED_MODULE_FLAG = '?astro:markdown:imported';
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
@@ -53,10 +52,6 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		name: 'astro:markdown',
 		enforce: 'pre',
 		async resolveId(id, importer, options) {
-			// Resolve virtual modules as-is.
-			if (id.startsWith(VIRTUAL_MODULE_ID)) {
-				return id;
-			}
 			// Resolve any .md files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
 			// Unclear if this is expected or if cache busting is just working around a Vite bug.
@@ -71,7 +66,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			if (id.endsWith('.md') && !isRootImport(importer)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				if (resolvedId) {
-					return VIRTUAL_MODULE_ID + resolvedId.id;
+					return resolvedId?.id + IMPORTED_MODULE_FLAG;
 				}
 			}
 			// In all other cases, we do nothing and rely on normal Vite resolution.
@@ -81,11 +76,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
-			if (id.startsWith(VIRTUAL_MODULE_ID)) {
+			if (id.endsWith(IMPORTED_MODULE_FLAG)) {
 				const sitePathname = config.site
 					? appendForwardSlash(new URL(config.base, config.site).pathname)
 					: '/';
-				const fileId = id.substring(VIRTUAL_MODULE_ID.length);
+				const fileId = id.replace(new RegExp(`\\${IMPORTED_MODULE_FLAG}$`), '');
 				const fileUrl = fileId.includes('/pages/')
 					? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
 					: undefined;
