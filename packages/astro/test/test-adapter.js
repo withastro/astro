@@ -37,9 +37,6 @@ export default function () {
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
 				});
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				buildConfig.runtimeMarkdown = true;
 			}
 		},
 	};
