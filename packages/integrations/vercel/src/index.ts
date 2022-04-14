@@ -63,6 +63,20 @@ export default function vercel(): AstroIntegration {
 					format: 'cjs',
 					platform: 'node',
 					target: 'node14',
+					plugins: [
+						{
+							name: 'make-all-packages-external',
+							setup(build) {
+								build.onResolve(
+									{
+										// Must not start with "/" or "./" or "../"
+										filter: /^[^.\/]|^\.[^.\/]|^\.\.[^\/]/,
+									},
+									(args) => ({ path: args.path, external: true })
+								);
+							},
+						},
+					],
 				});
 
 				await fs.rm(tmpDir, { recursive: true });
