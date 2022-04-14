@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- [#3113](https://github.com/withastro/astro/pull/3113) [`1687009f`](https://github.com/withastro/astro/commit/1687009f31fa23f193cbbf95fd018a51f3f3c671) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client:only CSS
+
 ## 1.0.0-beta.11
 
 ### Patch Changes
