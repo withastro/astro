@@ -105,7 +105,7 @@ export function trackClientOnlyPageDatas(
 	astroConfig: AstroConfig,
 ) {
 	for(const clientOnlyComponent of clientOnlys) {
-		const coPath = fileURLToPath(new URL('.' + clientOnlyComponent, astroConfig.root));
+		const coPath = viteID(new URL('.' + clientOnlyComponent, astroConfig.root));
 		let pageDataSet: Set<PageBuildData>;
 		if(internals.pagesByClientOnly.has(coPath)) {
 			pageDataSet = internals.pagesByClientOnly.get(coPath)!;
