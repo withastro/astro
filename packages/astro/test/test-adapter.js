@@ -37,7 +37,7 @@ export default function () {
 					serverEntrypoint: '@my-ssr',
 					exports: ['manifest', 'createApp'],
 				});
-			}
+			},
 		},
 	};
 }

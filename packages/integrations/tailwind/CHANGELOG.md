@@ -1,5 +1,13 @@
 # @astrojs/tailwind
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3099](https://github.com/withastro/astro/pull/3099) [`254a8f37`](https://github.com/withastro/astro/commit/254a8f37499863c5684fb0d5b0f59a8cee093d0b) Thanks [@tony-sull](https://github.com/tony-sull)! - Removes the `applyAstroPreset` integration option. Tailwind presets can be disabled directly from the Tailwind config file by including `presets: []`
+
+  See the [Tailwind preset docs](https://tailwindcss.com/docs/presets#disabling-the-default-configuration) for more details.
+
 ## 0.1.2
 
 ### Patch Changes

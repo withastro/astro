@@ -74,7 +74,7 @@ if(_start in adapter) {
 					const code = chunk.code;
 					chunk.code = code.replace(replaceExp, () => {
 						return JSON.stringify(manifest);
-					})
+					});
 				}
 			}
 		},
