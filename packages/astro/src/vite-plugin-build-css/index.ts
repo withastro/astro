@@ -9,6 +9,7 @@ import {
 	getPageDatasByChunk,
 	getPageDataByViteID,
 	hasPageDataByViteID,
+	getPageDatasByClientOnlyChunk,
 } from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
@@ -54,6 +55,7 @@ function isRawOrUrlModule(id: string) {
 interface PluginOptions {
 	internals: BuildInternals;
 	legacy: boolean;
+	target: 'client' | 'server';
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
@@ -172,7 +174,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		async renderChunk(_code, chunk) {
-			if (!legacy) return null;
+			if (options.target === 'server') return null;
 
 			let chunkCSS = '';
 			let isPureCSS = true;
@@ -205,6 +207,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
 				for (const pageData of getPageDatasByChunk(internals, chunk)) {
+					pageData.css.add(fileName);
+				}
+				// Adds this CSS for client:only components to the appropriate page
+				for (const pageData of getPageDatasByClientOnlyChunk(internals, chunk)) {
 					pageData.css.add(fileName);
 				}
 			}
