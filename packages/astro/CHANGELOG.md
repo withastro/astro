@@ -1,5 +1,45 @@
 # astro
 
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- [#3113](https://github.com/withastro/astro/pull/3113) [`1687009f`](https://github.com/withastro/astro/commit/1687009f31fa23f193cbbf95fd018a51f3f3c671) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client:only CSS
+
+## 1.0.0-beta.11
+
+### Patch Changes
+
+- [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Support runtime markdown parsing
+
+* [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Fixes usage of the Markdown component in SSR
+
+## 1.0.0-beta.10
+
+### Patch Changes
+
+- [#3095](https://github.com/withastro/astro/pull/3095) [`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380) Thanks [@matthewp](https://github.com/matthewp)! - Fixes rendering of "undefined" on custom element children
+
+- Updated dependencies [[`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380)]:
+  - @astrojs/webapi@0.11.1
+
+## 1.0.0-beta.9
+
+### Minor Changes
+
+- [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Support the "del" API method, because "delete" is a reserved word.
+
+* [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for an "all" API method, to handle all requests
+
+### Patch Changes
+
+- [#3094](https://github.com/withastro/astro/pull/3094) [`564caf24`](https://github.com/withastro/astro/commit/564caf24c23a40c0fa7dc75ff3374492761d88fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose "metadata" to component integrations renderToStaticMarkup function
+
+* [#3068](https://github.com/withastro/astro/pull/3068) [`81e210e0`](https://github.com/withastro/astro/commit/81e210e03c7d88c7b80b0b11a532c5b8e03cef93) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue around build not respecting your base config
+
+* Updated dependencies [[`53162534`](https://github.com/withastro/astro/commit/53162534450e160f65b95e7ef1523a106347ca28)]:
+  - @astrojs/markdown-remark@0.9.0
+
 ## 1.0.0-beta.8
 
 ### Patch Changes
