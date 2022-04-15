@@ -80,10 +80,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
-			if (
-				id.startsWith(VIRTUAL_MODULE_ID_PREFIX) ||
-				id.startsWith('/@id/' + VIRTUAL_MODULE_ID_PREFIX)
-			) {
+			if (id.startsWith(VIRTUAL_MODULE_ID_PREFIX)) {
 				const sitePathname = config.site
 					? appendForwardSlash(new URL(config.base, config.site).pathname)
 					: '/';
