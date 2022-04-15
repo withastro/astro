@@ -27,12 +27,12 @@ Deno.test({
 			const doc = new DOMParser().parseFromString(html, `text/html`);
 			const link = doc.querySelector('link');
 			const href = link.getAttribute('href');
-			
+
 			resp = await fetch(new URL(href, 'http://127.0.0.1:8085/'));
 			assertEquals(resp.status, 200);
 			const ct = resp.headers.get('content-type');
 			assertEquals(ct, 'text/css');
-			await resp.body.cancel()
+			await resp.body.cancel();
 		});
-	}
-})
+	},
+});

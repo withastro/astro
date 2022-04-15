@@ -23,7 +23,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	const clientRoot = new URL('../client/', import.meta.url);
 	const app = new App(manifest);
 	const handler = async (request: Request) => {
-		if(app.match(request)) {
+		if (app.match(request)) {
 			return await app.render(request);
 		}
 

@@ -14,7 +14,7 @@ export async function runBuildAndStartApp(fixturePath, cb) {
 	const url = new URL(fixturePath, dir);
 	const close = await runBuild(fixturePath);
 	const mod = await import(new URL('./dist/server/entry.mjs', url));
-	if(!mod.running()) {
+	if (!mod.running()) {
 		mod.start();
 	}
 	await cb();
