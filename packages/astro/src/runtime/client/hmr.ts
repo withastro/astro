@@ -2,7 +2,7 @@ if (import.meta.hot) {
 	// signal to Vite that we accept HMR
 	import.meta.hot.accept((mod) => mod);
 	const parser = new DOMParser();
-	import.meta.hot.on('astro:update', async ({ file }) => {
+	async function onUpdate(file: string) {
 		const { default: diff } = await import('micromorph');
 		// eslint-disable-next-line no-console
 		console.log(`[vite] hot updated: ${file}`);
@@ -18,5 +18,14 @@ if (import.meta.hot) {
 			}
 		}
 		diff(document, doc);
+	}
+	import.meta.hot.on('astro:update', async ({ file }) => {
+		await onUpdate(file);
+	});
+	import.meta.hot.on('vite:beforeUpdate', async ({ updates }) => {
+		const astroUpdate = Array.from(updates)
+			.find((update) => update.acceptedPath.endsWith('.astro'));
+		if (!astroUpdate) { return; }
+		await onUpdate(astroUpdate.acceptedPath);
 	});
 }
