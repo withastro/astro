@@ -16,6 +16,9 @@ interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
+// We avoid the "\0" prefix convention that Vite recommends for virtual modules:
+// https://vitejs.dev/guide/api-plugin.html#virtual-modules-convention
+// this broke crawling of sub-modules within the Vite module graph
 const VIRTUAL_MODULE_ID_PREFIX = 'astro:markdown';
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
