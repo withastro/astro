@@ -17,7 +17,6 @@ interface AstroPluginOptions {
 }
 
 const VIRTUAL_MODULE_ID_PREFIX = 'astro:markdown';
-const VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID_PREFIX;
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
