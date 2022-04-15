@@ -824,7 +824,7 @@ export interface Page<T = any> {
 
 export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
 
-export type Params = Record<string, string | undefined>;
+export type Params = Record<string, string | number | undefined>;
 
 export type Props = Record<string, unknown>;
 
