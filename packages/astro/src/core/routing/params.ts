@@ -29,17 +29,13 @@ export function getParams(array: string[]) {
  */
 export function stringifyParams(params: Params) {
 	// validate parameter values then stringify each value
-	const validatedParams = Object.entries(params)
-		.reduce((acc, next) => {
-			validateGetStaticPathsParameter(next);
-			const [key, value] = next;
-			acc[key] = `${value}`;
-			return acc;
-		}, {} as Params);
+	const validatedParams = Object.entries(params).reduce((acc, next) => {
+		validateGetStaticPathsParameter(next);
+		const [key, value] = next;
+		acc[key] = `${value}`;
+		return acc;
+	}, {} as Params);
 
 	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
-	return JSON.stringify(
-		validatedParams,
-		Object.keys(params).sort()
-	);
+	return JSON.stringify(validatedParams, Object.keys(params).sort());
 }

@@ -69,5 +69,5 @@ describe('getStaticPaths - route params type validation', () => {
 		// route provided with { params: { year: 2022, slug: "post-2" }}
 		const res = await fixture.fetch('/blog/2022/post-2');
 		expect(res.status).to.equal(200);
-	})
-})
+	});
+});
