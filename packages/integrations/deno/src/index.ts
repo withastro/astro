@@ -10,7 +10,7 @@ export function getAdapter(args?: Options): AstroAdapter {
 		name: '@astrojs/deno',
 		serverEntrypoint: '@astrojs/deno/server.js',
 		args: args ?? {},
-		exports: ['stop', 'handle'],
+		exports: ['stop', 'handle', 'start', 'running'],
 	};
 }
 
