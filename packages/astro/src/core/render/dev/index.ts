@@ -139,7 +139,7 @@ export async function render(
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
 	if (!isLegacyBuild) {
-		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+		[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				scripts.add({
 					props: { type: 'module', src: href },
@@ -211,7 +211,7 @@ export async function render(
 
 	// inject CSS
 	if (isLegacyBuild) {
-		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+		[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				tags.push({
 					tag: 'script',

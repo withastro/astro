@@ -5,11 +5,14 @@ import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
-export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
+export async function getStylesForURL(
+	filePath: URL,
+	viteServer: vite.ViteDevServer
+): Promise<Set<string>> {
 	const importedCssUrls = new Set<string>();
 
 	/** recursively crawl the module graph to get all style files imported by parent id */
-	function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
+	async function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
 		const id = unwrapId(_id);
 		const importedModules = new Set<vite.ModuleNode>();
 		const moduleEntriesForId = isFile
@@ -30,8 +33,13 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 				continue;
 			}
 			if (id === entry.id) {
+				let upToDateEntry = entry;
+				if (!entry.ssrTransformResult) {
+					await viteServer.ssrLoadModule(entry.id);
+					upToDateEntry = viteServer.moduleGraph.getModuleById(id)!;
+				}
 				scanned.add(id);
-				for (const importedModule of entry.importedModules) {
+				for (const importedModule of upToDateEntry.importedModules) {
 					importedModules.add(importedModule);
 				}
 			}
@@ -48,11 +56,11 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 				// NOTE: We use the `url` property here. `id` would break Windows.
 				importedCssUrls.add(importedModule.url);
 			}
-			crawlCSS(importedModule.id, false, scanned);
+			await crawlCSS(importedModule.id, false, scanned);
 		}
 	}
 
 	// Crawl your import graph for CSS files, populating `importedCssUrls` as a result.
-	crawlCSS(viteID(filePath), true);
+	await crawlCSS(viteID(filePath), true);
 	return importedCssUrls;
 }
