@@ -1,8 +1,8 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
-import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
+import esbuild from 'esbuild';
 
 const writeJson = (path: PathLike, data: any) =>
 	fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
@@ -19,6 +19,8 @@ export function getAdapter(): AstroAdapter {
 
 export default function vercel(): AstroIntegration {
 	let _config: AstroConfig;
+	let _serverEntry: URL;
+
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
@@ -29,43 +31,41 @@ export default function vercel(): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				_serverEntry = new URL(`./server/pages/${ENTRYFILE}.js`, config.outDir);
+			},
+			'astro:build:setup': ({ vite, target }) => {
+				if (target === 'server') {
+					vite.build!.rollupOptions = {
+						input: [],
+						output: {
+							format: 'cjs',
+							file: fileURLToPath(_serverEntry),
+							dir: undefined,
+							entryFileNames: undefined,
+							chunkFileNames: undefined,
+							assetFileNames: undefined,
+							inlineDynamicImports: true,
+						},
+					};
+				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.serverEntry = `${ENTRYFILE}.mjs`;
+				buildConfig.serverEntry = `${ENTRYFILE}.js`;
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = new URL('./server/tmp/', _config.outDir);
+				buildConfig.server = new URL('./server/pages/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
-				/*
-					Why do we need two folders? Why don't we just generate all inside `server/pages/`?
-					When the app builds, it throws some metadata inside a `chunks/` folder.
-
-					./server/
-						pages/
-							__astro_entry.mjs
-							chunks/
-								(lots of js files)
-					
-					Those chunks will count as serverless functions (which cost money), so we
-					need to bundle as much as possible in one file. Hence, the following code
-				*/
-
-				const tmpDir = new URL('./server/tmp/', _config.outDir);
-				const bundleDir = new URL('./server/pages/', _config.outDir);
-
-				await fs.mkdir(bundleDir, { recursive: true });
-
-				// Convert server entry to CommonJS
+				// Bundle dependecies
 				await esbuild.build({
-					entryPoints: [fileURLToPath(new URL(`./${ENTRYFILE}.mjs`, tmpDir))],
-					outfile: fileURLToPath(new URL(`./${ENTRYFILE}.js`, bundleDir)),
+					entryPoints: [fileURLToPath(_serverEntry)],
+					outfile: fileURLToPath(_serverEntry),
 					bundle: true,
 					format: 'cjs',
 					platform: 'node',
 					target: 'node14',
+					allowOverwrite: true,
+					minifyWhitespace: true,
 				});
-
-				await fs.rm(tmpDir, { recursive: true });
 
 				let staticRoutes: RouteData[] = [];
 				let dynamicRoutes: RouteData[] = [];
