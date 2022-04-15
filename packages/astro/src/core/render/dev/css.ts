@@ -4,6 +4,12 @@ import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
+/**
+ * List of file extensions signalling we can (and should) SSR ahead-of-time
+ * See usage below
+ */
+const fileExtensionsToSSR = new Set(['.md']);
+
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
@@ -33,13 +39,14 @@ export async function getStylesForURL(
 				continue;
 			}
 			if (id === entry.id) {
-				let upToDateEntry = entry;
-				if (!entry.ssrTransformResult) {
-					await viteServer.ssrLoadModule(entry.id);
-					upToDateEntry = viteServer.moduleGraph.getModuleById(id) ?? entry;
-				}
 				scanned.add(id);
-				for (const importedModule of upToDateEntry.importedModules) {
+				for (const importedModule of entry.importedModules) {
+					// some dynamically imported modules are *not* server rendered in time
+					// to only SSR modules that we can safely transform, we check against
+					// a list of file extensions based on our built-in vite plugins
+					if (importedModule.id && fileExtensionsToSSR.has(path.extname(importedModule.id))) {
+						await viteServer.ssrLoadModule(importedModule.id);
+					}
 					importedModules.add(importedModule);
 				}
 			}
