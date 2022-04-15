@@ -36,7 +36,7 @@ export async function getStylesForURL(
 				let upToDateEntry = entry;
 				if (!entry.ssrTransformResult) {
 					await viteServer.ssrLoadModule(entry.id);
-					upToDateEntry = viteServer.moduleGraph.getModuleById(id)!;
+					upToDateEntry = viteServer.moduleGraph.getModuleById(id) ?? entry;
 				}
 				scanned.add(id);
 				for (const importedModule of upToDateEntry.importedModules) {
