@@ -47,7 +47,7 @@ export interface HoverProvider {
 	doHover(document: TextDocument, position: Position): Resolvable<Hover | null>;
 }
 
-export interface FoldingRangeProvider {
+export interface FoldingRangesProvider {
 	getFoldingRanges(document: TextDocument): Resolvable<FoldingRange[] | null>;
 }
 
@@ -150,7 +150,7 @@ type ProviderBase = DiagnosticsProvider &
 	CompletionsProvider &
 	DefinitionsProvider &
 	FormattingProvider &
-	FoldingRangeProvider &
+	FoldingRangesProvider &
 	TagCompleteProvider &
 	DocumentColorsProvider &
 	ColorPresentationsProvider &

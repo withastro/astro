@@ -124,4 +124,13 @@ describe('TypeScript Plugin', () => {
 			expect(semanticTokens).to.be.null;
 		});
 	});
+
+	describe('provide folding ranges', async () => {
+		it('return folding ranges', async () => {
+			const { plugin, document } = setup('foldingRanges/frontmatter.astro');
+
+			const foldingRanges = await plugin.getFoldingRanges(document);
+			expect(foldingRanges).to.not.be.empty;
+		});
+	});
 });

@@ -5,6 +5,7 @@ import {
 	DefinitionLink,
 	Diagnostic,
 	FileChangeType,
+	FoldingRange,
 	Hover,
 	LocationLink,
 	Position,
@@ -36,6 +37,7 @@ import {
 } from './utils';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
+import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 
 type BetterTS = typeof ts & {
 	getTouchingPropertyName(sourceFile: SourceFile, pos: number): Node;
@@ -53,6 +55,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
+	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
 
 	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
 		this.configManager = configManager;
@@ -64,6 +67,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
 		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
+		this.foldingRangesProvider = new FoldingRangesProviderImpl(this.languageServiceManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
@@ -102,6 +106,10 @@ export class TypeScriptPlugin implements Plugin {
 		});
 
 		return edit;
+	}
+
+	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[] | null> {
+		return this.foldingRangesProvider.getFoldingRanges(document);
 	}
 
 	async getSemanticTokens(
