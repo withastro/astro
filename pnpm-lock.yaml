@@ -316,6 +316,37 @@ importers:
     devDependencies:
       astro: link:../../packages/astro
 
+  examples/stories:
+    specifiers:
+      '@astrojs/preact': ^0.1.1
+      '@astrojs/react': ^0.1.0
+      '@astrojs/solid-js': ^0.1.1
+      '@astrojs/stories': ^0.0.1
+      '@astrojs/svelte': ^0.1.1
+      '@astrojs/vue': ^0.1.1
+      astro: ^1.0.0-beta.12
+      preact: ^10.7.1
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      solid-js: ^1.3.14
+      svelte: ^3.47.0
+      vue: ^3.2.31
+    dependencies:
+      preact: 10.7.1
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      solid-js: 1.3.14
+      svelte: 3.47.0
+      vue: 3.2.31
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/solid-js': link:../../packages/integrations/solid
+      '@astrojs/stories': link:../../packages/integrations/stories
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
   examples/subpath:
     specifiers:
       '@astrojs/react': ^0.1.0
@@ -1346,6 +1377,14 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       solid-js: 1.3.14
+
+  packages/integrations/stories:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
 
   packages/integrations/svelte:
     specifiers:

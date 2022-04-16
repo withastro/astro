@@ -40,6 +40,8 @@ export interface SSROptions {
 	viteServer: vite.ViteDevServer;
 	/** Request */
 	request: Request;
+	/** Slots */
+	createSlots?: Record<string, (result: any) => any>;
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -101,6 +103,7 @@ export async function render(
 		route,
 		routeCache,
 		viteServer,
+		createSlots,
 	} = ssrOpts;
 	// TODO: clean up "legacy" flag passed through helper functions
 	const isLegacyBuild = false;
@@ -188,6 +191,7 @@ export async function render(
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
+		createSlots,
 	});
 
 	if (route?.type === 'endpoint' || content.type === 'response') {

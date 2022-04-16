@@ -1,0 +1,105 @@
+---
+import './main.css';
+const files = import.meta.glob('/src/components/**/*');
+const components = Object.keys(files).map(file => ({ href: file, path: file.replace('/src/components/', '').replace(/\..*$/, '').split('/').map(part => part.trim()) }));
+const activePath = new URL(Astro.request.url).searchParams.get('path');
+---
+
+<html>
+	<head>
+		<style>
+			:root {
+				--gray-0: #f8f9fa;
+				--gray-1: #f1f3f5;
+				--gray-2: #e9ecef;
+				--gray-3: #dee2e6;
+				--gray-4: #ced4da;
+				--gray-5: #adb5bd;
+				--gray-6: #868e96;
+				--gray-7: #495057;
+				--gray-8: #343a40;
+				--gray-9: #212529;
+				--teal-0: #e6fcf5;
+				--teal-1: #c3fae8;
+				--teal-2: #96f2d7;
+				--teal-3: #63e6be;
+				--teal-4: #38d9a9;
+				--teal-5: #20c997;
+				--teal-6: #12b886;
+				--teal-7: #0ca678;
+				--teal-8: #099268;
+				--teal-9: #087f5b;
+			}
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html {
+				background: var(--gray-1);
+			}
+			ul {
+				list-style: none;
+			}
+			main {
+				background: white;
+			}
+			aside {
+				padding: 0.67rem;
+			}
+			h1 {
+				font-size: 1.25rem;
+				margin-bottom: 1em;
+			}
+			h2 {
+				font-size: 1rem;
+				margin-bottom: 0.5em;
+			}
+			li {
+				padding: 0.25rem 0.67rem;
+				margin: 0 -0.67rem;
+			}
+			li[aria-current="page"] {
+				background: var(--teal-5);
+				color: white;
+			}
+			li > a {
+				display: flex;
+				width: 100%;
+				height: 100%;
+				color: inherit;
+				text-decoration: none;
+			}
+			main {
+				display: grid;
+				grid-template-rows: minmax(0, 3fr) minmax(0, 1fr);
+			}
+			#canvas {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+		</style>
+	</head>
+	<body>
+		<aside>
+			<h1>Stories</h1>
+			<ul>
+				<li>
+					<h2>Components</h2>
+					<ul>
+						{components.map(({ href, path }) => (
+							<li aria-current={href === activePath ? 'page' : undefined}><a href={`?path=${href}`}>{path[0]}</a></li>
+						))}
+					</ul>
+				</li>
+			</ul>
+		</aside>
+		<main>
+			<div id="canvas">
+				<slot />
+			</div>
+		</main>
+	</body>
+</html>

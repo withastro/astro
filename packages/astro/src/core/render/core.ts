@@ -81,6 +81,7 @@ export interface RenderOptions {
 	site?: string;
 	ssr: boolean;
 	request: Request;
+	createSlots?: Record<string, (result: any) => any>;
 }
 
 export async function render(
@@ -102,6 +103,7 @@ export async function render(
 		routeCache,
 		site,
 		ssr,
+		createSlots,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -142,8 +144,16 @@ export async function render(
 		scripts,
 		ssr,
 	});
+	
+	let slots = null;
+	if (typeof createSlots !== 'undefined') {
+		slots = {} as Record<string, any>;
+		for (const [name, slot] of Object.entries(createSlots))	{
+			slots[name] = slot(result);
+		}
+	}
 
-	let page = await renderPage(result, Component, pageProps, null);
+	let page = await renderPage(result, Component, pageProps, slots);
 
 	if (page.type === 'response') {
 		return page;
