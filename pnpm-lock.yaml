@@ -800,6 +800,12 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-markdown-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-markdown-drafts:
     specifiers:
       astro: workspace:*

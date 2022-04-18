@@ -74,7 +74,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 		const info = ctx.getModuleInfo(id);
 		if (info) {
-			for (const importedId of info.importedIds) {
+			for (const importedId of [...info.importedIds, ...info.dynamicallyImportedIds]) {
 				if (!seen.has(importedId) && !isRawOrUrlModule(importedId)) {
 					yield* walkStyles(ctx, importedId, seen);
 				}
