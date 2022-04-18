@@ -36,7 +36,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vue": "^3.2.31"
+    "vue": "^3.2.33"
   },
   "peerDependencies": {
     "vue": "^3.2.30"
