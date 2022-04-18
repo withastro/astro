@@ -10,7 +10,7 @@ import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
 import { appendForwardSlash } from '../core/path.js';
-import { resolvePages } from '../core/util.js';
+import { resolvePages, VALID_ID_PREFIX } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -56,7 +56,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		enforce: 'pre',
 		async resolveId(id, importer, options) {
 			// Resolve virtual modules as-is.
-			if (id.startsWith(VIRTUAL_MODULE_ID_PREFIX)) {
+			if (
+				id.startsWith(VIRTUAL_MODULE_ID_PREFIX) ||
+				id.startsWith(VALID_ID_PREFIX + VIRTUAL_MODULE_ID_PREFIX)
+			) {
 				return id;
 			}
 			// Resolve any .md files with the `?content` cache buster. This should only come from
