@@ -128,7 +128,7 @@ async function handle500Response(
 	res: http.ServerResponse,
 	err: any
 ) {
-	const pathname = decodeURI(new URL(origin + req.url).pathname);
+	const pathname = decodeURI(new URL('./index.html', origin + req.url).pathname);
 	const html = serverErrorTemplate({
 		statusCode: 500,
 		title: 'Internal Error',
@@ -137,7 +137,7 @@ async function handle500Response(
 		url: err.url || undefined,
 		stack: stripAnsi(err.stack),
 	});
-	const transformedHtml = await viteServer.transformIndexHtml(pathname, html, pathname);
+	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
