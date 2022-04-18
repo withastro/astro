@@ -1,11 +1,8 @@
 if (import.meta.hot) {
-	// signal to Vite that we accept HMR
-	import.meta.hot.accept((mod) => mod);
+	import.meta.hot.accept(mod => mod);
 	const parser = new DOMParser();
-	import.meta.hot.on('astro:update', async ({ file }) => {
+	async function updatePage() {
 		const { default: diff } = await import('micromorph');
-		// eslint-disable-next-line no-console
-		console.log(`[vite] hot updated: ${file}`);
 		const html = await fetch(`${window.location}`).then((res) => res.text());
 		const doc = parser.parseFromString(html, 'text/html');
 
@@ -17,6 +14,27 @@ if (import.meta.hot) {
 				root.innerHTML = current?.innerHTML;
 			}
 		}
-		diff(document, doc);
+		return diff(document, doc);
+	}
+	async function updateAll(files: any[]) {
+		let hasAstroUpdate = false;
+		for (const file of files) {
+			if (file.acceptedPath.endsWith('.astro')) {
+				hasAstroUpdate = true;
+				continue;
+			}
+			if (file.acceptedPath.includes('vue&type=style')) {
+				const link = document.querySelector(`link[href="${file.acceptedPath}"]`);
+				if (link) {
+					link.replaceWith(link.cloneNode(true));
+				}
+			}
+		}
+		if (hasAstroUpdate) {
+			return updatePage()
+		}
+	}
+	import.meta.hot.on('vite:beforeUpdate', async (event) => {
+		await updateAll(event.updates);
 	});
 }
