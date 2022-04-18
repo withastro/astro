@@ -10,16 +10,14 @@ import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
 import { appendForwardSlash } from '../core/path.js';
-import { resolvePages, VALID_ID_PREFIX } from '../core/util.js';
+import { resolvePages } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
-// We avoid the "\0" prefix convention that Vite recommends for virtual modules:
-// https://vitejs.dev/guide/api-plugin.html#virtual-modules-convention
-// this broke crawling of sub-modules within the Vite module graph
-const VIRTUAL_MODULE_ID_PREFIX = 'astro:markdown';
+const MARKDOWN_IMPORT_FLAG = '?mdImport';
+const MARKDOWN_CONTENT_FLAG = '?content';
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
@@ -55,19 +53,12 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		name: 'astro:markdown',
 		enforce: 'pre',
 		async resolveId(id, importer, options) {
-			// Resolve virtual modules as-is.
-			if (
-				id.startsWith(VIRTUAL_MODULE_ID_PREFIX) ||
-				id.startsWith(VALID_ID_PREFIX + VIRTUAL_MODULE_ID_PREFIX)
-			) {
-				return id;
-			}
 			// Resolve any .md files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
 			// Unclear if this is expected or if cache busting is just working around a Vite bug.
-			if (id.endsWith('.md?content')) {
+			if (id.endsWith(`.md${MARKDOWN_CONTENT_FLAG}`)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
-				return resolvedId?.id.replace('?content', '');
+				return resolvedId?.id.replace(MARKDOWN_CONTENT_FLAG, '');
 			}
 			// If the markdown file is imported from another file via ESM, resolve a JS representation
 			// that defers the markdown -> HTML rendering until it is needed. This is especially useful
@@ -76,7 +67,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			if (id.endsWith('.md') && !isRootImport(importer)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				if (resolvedId) {
-					return VIRTUAL_MODULE_ID_PREFIX + resolvedId.id;
+					return resolvedId.id + MARKDOWN_IMPORT_FLAG;
 				}
 			}
 			// In all other cases, we do nothing and rely on normal Vite resolution.
@@ -86,11 +77,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
-			if (id.startsWith(VIRTUAL_MODULE_ID_PREFIX)) {
+			if (id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`)) {
 				const sitePathname = config.site
 					? appendForwardSlash(new URL(config.base, config.site).pathname)
 					: '/';
-				const fileId = id.substring(VIRTUAL_MODULE_ID_PREFIX.length);
+				const fileId = id.replace(MARKDOWN_IMPORT_FLAG, '');
 				const fileUrl = fileId.includes('/pages/')
 					? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
 					: undefined;
@@ -105,7 +96,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						
 						// Deferred
 						export default async function load() {
-							return (await import(${JSON.stringify(fileId + '?content')}));
+							return (await import(${JSON.stringify(fileId + MARKDOWN_CONTENT_FLAG)}));
 						};
 						export function Content(...args) {
 							return load().then((m) => m.default(...args))

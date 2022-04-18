@@ -44,8 +44,12 @@ export async function getStylesForURL(
 					// some dynamically imported modules are *not* server rendered in time
 					// to only SSR modules that we can safely transform, we check against
 					// a list of file extensions based on our built-in vite plugins
-					if (importedModule.id && fileExtensionsToSSR.has(path.extname(importedModule.id))) {
-						await viteServer.ssrLoadModule(importedModule.id);
+					if (importedModule.id) {
+						// use URL to strip special query params like "?content"
+						const { pathname } = new URL(`file://${importedModule.id}`);
+						if (fileExtensionsToSSR.has(path.extname(pathname))) {
+							await viteServer.ssrLoadModule(importedModule.id);
+						}
 					}
 					importedModules.add(importedModule);
 				}
