@@ -102,18 +102,13 @@ export async function render(
 		routeCache,
 		viteServer,
 	} = ssrOpts;
-	// TODO: clean up "legacy" flag passed through helper functions
-	const isLegacyBuild = false;
-
 	// Add hoisted script tags
 	const scripts = createModuleScriptElementWithSrcSet(
-		!isLegacyBuild && mod.hasOwnProperty('$$metadata')
-			? Array.from(mod.$$metadata.hoistedScriptPaths())
-			: []
+		mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !isLegacyBuild) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -138,29 +133,25 @@ export async function render(
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	if (!isLegacyBuild) {
-		[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
-			if (mode === 'development' && svelteStylesRE.test(href)) {
-				scripts.add({
-					props: { type: 'module', src: href },
-					children: '',
-				});
-			} else {
-				links.add({
-					props: {
-						rel: 'stylesheet',
-						href,
-						'data-astro-injected': true,
-					},
-					children: '',
-				});
-			}
-		});
-	}
+	[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
+		if (mode === 'development' && svelteStylesRE.test(href)) {
+			scripts.add({
+				props: { type: 'module', src: href },
+				children: '',
+			});
+		} else {
+			links.add({
+				props: {
+					rel: 'stylesheet',
+					href,
+					'data-astro-injected': true,
+				},
+				children: '',
+			});
+		}
+	});
 
 	let content = await coreRender({
-		// TODO: Remove this flag once legacyBuild support is removed
-		legacyBuild: isLegacyBuild,
 		links,
 		logging,
 		markdown: astroConfig.markdown,
@@ -196,41 +187,6 @@ export async function render(
 
 	// inject tags
 	const tags: vite.HtmlTagDescriptor[] = [];
-
-	// dev only: inject Astro HMR client
-	if (mode === 'development' && isLegacyBuild) {
-		tags.push({
-			tag: 'script',
-			attrs: { type: 'module' },
-			// HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
-			// `import.meta.hot` is properly handled by Vite
-			children: await getHmrScript(),
-			injectTo: 'head',
-		});
-	}
-
-	// inject CSS
-	if (isLegacyBuild) {
-		[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
-			if (mode === 'development' && svelteStylesRE.test(href)) {
-				tags.push({
-					tag: 'script',
-					attrs: { type: 'module', src: href },
-					injectTo: 'head',
-				});
-			} else {
-				tags.push({
-					tag: 'link',
-					attrs: {
-						rel: 'stylesheet',
-						href,
-						'data-astro-injected': true,
-					},
-					injectTo: 'head',
-				});
-			}
-		});
-	}
 
 	// add injected tags
 	let html = injectTags(content.html, tags);

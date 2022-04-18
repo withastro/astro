@@ -78,7 +78,6 @@ export class App {
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
 		const result = await render({
-			legacyBuild: false,
 			links,
 			logging: this.#logging,
 			markdown: manifest.markdown,

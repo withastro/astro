@@ -54,12 +54,11 @@ function isRawOrUrlModule(id: string) {
 
 interface PluginOptions {
 	internals: BuildInternals;
-	legacy: boolean;
 	target: 'client' | 'server';
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-	const { internals, legacy } = options;
+	const { internals } = options;
 	const styleSourceMap = new Map<string, string>();
 
 	function* walkStyles(
@@ -236,9 +235,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			);
 
 			// Crawl the module graph to find CSS chunks to create
-			if (!legacy) {
-				await addStyles.call(this);
-			}
+			await addStyles.call(this);
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {

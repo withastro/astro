@@ -546,10 +546,8 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => {
-			// TODO: clean up legacyBuild from metadata
-			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
 			return renderElement('style', {
-				children: styleChildren,
+				children: '',
 				props: { ...style.props, 'astro-style': true },
 			});
 		});

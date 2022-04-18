@@ -66,7 +66,6 @@ export async function getParamsAndProps(
 }
 
 export interface RenderOptions {
-	legacyBuild: boolean;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
@@ -87,7 +86,6 @@ export async function render(
 	opts: RenderOptions
 ): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
 	const {
-		legacyBuild,
 		links,
 		logging,
 		origin,
@@ -128,7 +126,6 @@ export async function render(
 		throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({
-		legacyBuild,
 		links,
 		logging,
 		markdown,
