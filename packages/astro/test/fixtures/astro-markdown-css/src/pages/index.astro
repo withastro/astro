@@ -1,0 +1,15 @@
+---
+const markdownDocs = await Astro.glob('../markdown/*.md')
+const article2 = await import('../markdown/article2.md')
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro</title>
+	</head>
+	<body>
+		{markdownDocs.map(markdownDoc => <><h2>{markdownDoc.url}</h2><markdownDoc.Content /></>)}
+		<article2.Content />
+	</body>
+</html>
