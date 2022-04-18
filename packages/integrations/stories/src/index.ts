@@ -2,12 +2,38 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { ssr, preload } from 'astro/core/render/dev';
 import { renderComponent } from 'astro/internal/index.js';
 import { fileURLToPath } from 'url';
+import { createProject } from '@ts-morph/bootstrap'
+
+async function getViteConfiguration() {
+	const project = await createProject();
+	return {
+		plugins: [{
+			name: '@astrojs/stories',
+			enforce: 'pre',
+			transform(code, id, opts) {
+				if (opts?.ssr !== true) return;
+				if (/\.[cm]?js(\?.*)?$/.test(id)) return null;
+				if (/\.css(\?.*)?$/.test(id)) return null;
+				if (/^plugin-vue/.test(id)) return null;
+				if (/stories\.astro/.test(id)) return null;
+
+				// TODO: get Props and attach to `test`
+				return { meta: { ['@astrojs/stories']: { test: true } } };
+			}
+		}]
+	};
+}
 
 export default function createPlugin(): AstroIntegration {
 	let config: AstroConfig;
 	return {
 		name: '@astrojs/stories',
 		hooks: {
+			'astro:config:setup': async ({ updateConfig }) => {
+				return updateConfig({
+					vite: await getViteConfiguration(),
+				});
+			},
 			'astro:config:done': ({ config: _config }) => {
 				config = _config;
 			},
@@ -21,9 +47,11 @@ export default function createPlugin(): AstroIntegration {
 					let componentProps = url.searchParams.has('props') ? JSON.parse(url.searchParams.get('props')) : {};
 					const componentPath = rootRelativeComponentPath ? new URL(`.${rootRelativeComponentPath}`, config.root) : undefined;
 					const pagePath = new URL('../stories.astro', import.meta.url);
-					const mod = componentPath ? (await server.ssrLoadModule(fileURLToPath(componentPath))) : undefined;
+					const mod = componentPath ? (await server.ssrLoadModule(fileURLToPath(componentPath), true)) : undefined;
 					let component;
 					if (mod) {
+						const { info: { meta: { ['@astrojs/stories']: metadata } } } = await server.moduleGraph.getModuleByUrl(fileURLToPath(componentPath));
+						console.log({ metadata });
 						if (exportName && !(exportName in mod)) {
 							console.log(`Unable to resolve export "${exportName}" from "${fileURLToPath(componentPath)}"`);
 						}

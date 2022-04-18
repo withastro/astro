@@ -29,5 +29,9 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
+  },
+  "dependencies": {
+    "@ts-morph/bootstrap": "^0.13.0",
+    "ts-morph": "^14.0.0"
   }
 }

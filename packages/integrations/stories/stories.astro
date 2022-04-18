@@ -98,7 +98,7 @@ const activePath = new URL(Astro.request.url).searchParams.get('path');
 		</aside>
 		<main>
 			<div id="canvas">
-				<slot />
+				{activePath ? <slot /> : <h2>Select a component to get started!</h2>}
 			</div>
 		</main>
 	</body>

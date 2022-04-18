@@ -1,4 +1,8 @@
 ---
+export interface Props {
+	message?: string;
+}
+
 const { message = "Hello Astro (A)" } = Astro.props;
 ---
 <div class="children">
