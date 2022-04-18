@@ -167,9 +167,7 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 					let styles = 0;
 					for (const node of findInlineStyles(document)) {
 						if (hasAttribute(node, 'astro-style')) {
-							const style = getTextContent(node) || ' '; // If an empty node, add whitespace
 							const thisStyleId = `${styleId}/${++styles}.css`;
-							internals.astroStyleMap.set(thisStyleId, style);
 							assetImports.push(thisStyleId);
 						}
 					}
@@ -211,8 +209,6 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 
 					if (assetImports.length) {
 						const pageStyleId = getAstroPageStyleId(pathname);
-						const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
-						internals.astroPageStyleMap.set(pageStyleId, jsSource);
 						assetInput.add(pageStyleId);
 
 						// preserve asset order in the order we encounter them
@@ -332,15 +328,6 @@ export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 				// “unknown” (-1) CSS ordering first, followed by “known” ordering at
 				// the end so it takes priority
 				chunkModules.sort((a, b) => sortedChunkNames.indexOf(a) - sortedChunkNames.indexOf(b));
-
-				const referenceIDs: string[] = [];
-				for (const chunkID of chunkModules) {
-					const referenceID = internals.chunkToReferenceIdMap.get(chunkID);
-					if (referenceID) referenceIDs.push(referenceID);
-				}
-				for (const id of Object.keys(chunk.modules)) {
-					cssChunkMap.set(id, referenceIDs);
-				}
 			}
 
 			// Keep track of links added so we don't do so twice.

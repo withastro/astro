@@ -152,16 +152,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return undefined;
 		},
 
-		async load(id) {
-			if (isPageStyleVirtualModule(id)) {
-				return internals.astroPageStyleMap.get(id) || null;
-			}
-			if (isStyleVirtualModule(id)) {
-				return internals.astroStyleMap.get(id) || null;
-			}
-			return null;
-		},
-
 		async transform(value, id) {
 			if (isStyleVirtualModule(id)) {
 				styleSourceMap.set(id, value);
@@ -202,7 +192,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				source: minifiedCSS,
 			});
 
-			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
 				for (const pageData of getPageDatasByChunk(internals, chunk)) {
@@ -239,20 +228,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {
-					// This find shared chunks of CSS and adds them to the main CSS chunks,
-					// so that shared CSS is added to the page.
-					for (const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
-						for (const imp of chunk.imports) {
-							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
-								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
-								const fileName = this.getFileName(referenceId);
-								if (!cssSet.has(fileName)) {
-									cssSet.add(fileName);
-								}
-							}
-						}
-					}
-
 					// Removes imports for pure CSS chunks.
 					if (hasPureCSSChunks) {
 						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {
