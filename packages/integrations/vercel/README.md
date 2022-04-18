@@ -13,7 +13,7 @@ export default defineConfig({
 });
 ```
 
-After you build your site the `.output/` folder will contain your server-side rendered app. Since this feature is still in beta, you'll **need to add this Enviroment Variable to your Vercel project**: `ENABLE_FILE_SYSTEM_API=1`
+After you build your site the `.output/` folder will contain your server-side rendered app. Since this feature is still in beta, you'll **need to add this Enviroment Variable to your Vercel project**: `ENABLE_FILE_SYSTEM_API=1`. [Learn how to set enviroment variables](https://vercel.com/docs/concepts/projects/environment-variables).
 
 Now you can deploy!
 
