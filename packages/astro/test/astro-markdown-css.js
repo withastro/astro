@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
-const IMPORTED_ASTRO_COMPONENT_ID = 'imported-astro-component'
+const IMPORTED_ASTRO_COMPONENT_ID = 'imported-astro-component';
 
 describe('Imported markdown CSS', function () {
 	before(async () => {
@@ -25,11 +25,11 @@ describe('Imported markdown CSS', function () {
 		});
 
 		it('Compiles styles for Astro components within imported markdown', () => {
-			const importedAstroComponent = $(`#${IMPORTED_ASTRO_COMPONENT_ID}`)?.[0]
-			expect(importedAstroComponent?.name).to.equal('h2')
-			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0]
+			const importedAstroComponent = $(`#${IMPORTED_ASTRO_COMPONENT_ID}`)?.[0];
+			expect(importedAstroComponent?.name).to.equal('h2');
+			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
 
-			expect(bundledCSS).to.match(new RegExp(`h2.${cssClass}{color:#00f}`))
+			expect(bundledCSS).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
 		});
 	});
 	describe('dev', () => {
@@ -41,17 +41,19 @@ describe('Imported markdown CSS', function () {
 			const html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 		});
-		
+
 		after(async () => {
 			await devServer.stop();
 		});
-		
-		it('Compiles styles for Astro components within imported markdown', async () => {
-			const importedAstroComponent = $(`#${IMPORTED_ASTRO_COMPONENT_ID}`)?.[0]
-			expect(importedAstroComponent?.name).to.equal('h2')
-			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0]
 
-			const astroCSSHREF = $('link[rel=stylesheet][href^=/src/components/Visual.astro]').attr('href');
+		it('Compiles styles for Astro components within imported markdown', async () => {
+			const importedAstroComponent = $(`#${IMPORTED_ASTRO_COMPONENT_ID}`)?.[0];
+			expect(importedAstroComponent?.name).to.equal('h2');
+			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
+
+			const astroCSSHREF = $('link[rel=stylesheet][href^=/src/components/Visual.astro]').attr(
+				'href'
+			);
 			const css = await fixture.fetch(astroCSSHREF.replace(/^\/?/, '/')).then((res) => res.text());
 			expect(css).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
 		});
