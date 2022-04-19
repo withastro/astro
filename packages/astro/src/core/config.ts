@@ -233,16 +233,16 @@ export async function validateConfig(
 		process.exit(1);
 	}
 
-	let oldConfig = false;
+	let legacyConfigKey: string | undefined;
 	for (const key of Object.keys(userConfig)) {
 		if (LEGACY_ASTRO_CONFIG_KEYS.has(key)) {
-			oldConfig = true;
+			legacyConfigKey = key;
 			break;
 		}
 	}
-	if (oldConfig) {
+	if (legacyConfigKey) {
 		throw new Error(
-			`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`
+			`Legacy configuration detected: "${legacyConfigKey}".\nPlease update your configuration to the new format!\nSee https://astro.build/config for more information.`
 		);
 	}
 	/* eslint-enable no-console */
