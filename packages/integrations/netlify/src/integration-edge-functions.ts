@@ -53,7 +53,7 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 		version: 1,
 	};
 
-	const baseDir = new URL('./.netlify/edge-functions/', dir)
+	const baseDir = new URL('./.netlify/edge-functions/', dir);
 	await fs.promises.mkdir(baseDir, { recursive: true });
 
 	const manifestURL = new URL('./manifest.json', baseDir);
