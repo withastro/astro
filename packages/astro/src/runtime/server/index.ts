@@ -559,7 +559,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	if (needsHydrationStyles) {
 		styles.push(
 			renderElement('style', {
-				props: { 'astro-style': true },
+				props: {},
 				children: 'astro-root, astro-fragment { display: contents; }',
 			})
 		);
