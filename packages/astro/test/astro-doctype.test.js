@@ -25,10 +25,15 @@ describe('Doctype', () => {
 	});
 
 	it('Preserves user provided doctype', async () => {
-	  const html = await fixture.readFile('/preserve/index.html');
+		const html = await fixture.readFile('/preserve/index.html');
 
-	  // test that Doctype included was preserved
-	  expect(html).to.match(new RegExp('^<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">', 'i'));
+		// test that Doctype included was preserved
+		expect(html).to.match(
+			new RegExp(
+				'^<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
+				'i'
+			)
+		);
 	});
 
 	it('User provided doctype is case insensitive', async () => {
