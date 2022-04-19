@@ -43,7 +43,7 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 		} else {
 			functions.push({
 				function: entryFile,
-				pattern: route.pattern.source,
+				pattern: route.pattern.toString(),
 			});
 		}
 	}
@@ -53,7 +53,10 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 		version: 1,
 	};
 
-	const manifestURL = new URL('./manifest.json', dir);
+	const baseDir = new URL('./.netlify/edge-functions/', dir)
+	await fs.promises.mkdir(baseDir, { recursive: true });
+
+	const manifestURL = new URL('./manifest.json', baseDir);
 	const _manifest = JSON.stringify(manifest, null, '  ');
 	await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
 }
@@ -79,6 +82,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.outDir;
 				buildConfig.server = new URL('./edge-functions/', _config.outDir);
+				buildConfig.serverEntry = 'entry.js';
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -88,7 +92,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				await createEdgeManifest(routes, entryFile, new URL('./edge-functions/', dir));
+				await createEdgeManifest(routes, entryFile, _config.root);
 			},
 		},
 	};
