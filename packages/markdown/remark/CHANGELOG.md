@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.9.1
+
+### Patch Changes
+
+- [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
 ## 0.9.0
 
 ### Minor Changes
