@@ -1,5 +1,17 @@
 # @astrojs/netlify
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3150](https://github.com/withastro/astro/pull/3150) [`05cf1a50`](https://github.com/withastro/astro/commit/05cf1a506702f06ed48cd26cbe5ca108839ff0e6) Thanks [@matthewp](https://github.com/matthewp)! - Outputs manifest.json in correct folder for Netlify Edge Functions
+
+## 0.3.0
+
+### Minor Changes
+
+- [#3148](https://github.com/withastro/astro/pull/3148) [`4cf54c60`](https://github.com/withastro/astro/commit/4cf54c60aa63bd614b242da0602790015005673d) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for Netlify Edge Functions
+
 ## 0.2.3
 
 ### Patch Changes
