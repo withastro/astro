@@ -21,13 +21,17 @@ export default function createCollectHeaders() {
 					text += child.value;
 				});
 
-				let slug = node?.properties?.id || slugger.slug(text);
-				
-				slug.endsWith("-") && (slug = slug.slice(0, -1));
+				if (!node.properties) node.properties = {};
 
-				node.properties = node.properties || {};
-				node.properties.id = slug;
-				headers.push({ depth, slug, text });
+				if (!node.properties.id) {
+					let slug = slugger.slug(text);
+					
+					if (slug.endsWith('-')) slug = slug.slice(0, -1);
+					
+					node.properties.id = slug;
+				}
+
+				headers.push({ depth, slug: node.properties.id, text });
 			});
 		};
 	}
