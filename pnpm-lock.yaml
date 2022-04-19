@@ -506,7 +506,6 @@ importers:
       mime: ^3.0.0
       mocha: ^9.2.2
       ora: ^6.1.0
-      parse5: ^6.0.1
       path-browserify: ^1.0.1
       path-to-regexp: ^6.2.0
       postcss: ^8.4.12
@@ -537,9 +536,9 @@ importers:
     dependencies:
       '@astrojs/compiler': 0.14.1
       '@astrojs/language-server': 0.13.4
-      '@astrojs/markdown-remark': link:../markdown/remark
-      '@astrojs/prism': link:../astro-prism
-      '@astrojs/webapi': link:../webapi
+      '@astrojs/markdown-remark': 0.9.0
+      '@astrojs/prism': 0.4.1
+      '@astrojs/webapi': 0.11.1
       '@babel/core': 7.17.9
       '@babel/generator': 7.17.9
       '@babel/parser': 7.17.9
@@ -569,7 +568,6 @@ importers:
       micromorph: 0.1.2
       mime: 3.0.0
       ora: 6.1.0
-      parse5: 6.0.1
       path-browserify: 1.0.1
       path-to-regexp: 6.2.0
       postcss: 8.4.12
@@ -1722,6 +1720,38 @@ packages:
       vscode-uri: 3.0.3
     dev: false
 
+  /@astrojs/markdown-remark/0.9.0:
+    resolution: {integrity: sha512-yagb3udzk+xCoGSfyzA7LBS7Q4P8swGQzA8XURFPaK1HfY9BKYasUvtaTYGA7G0r8KeDKAOVmwzYP74gxXGslg==}
+    dependencies:
+      '@astrojs/prism': 0.4.1
+      assert: 2.0.0
+      github-slugger: 1.4.0
+      mdast-util-mdx-expression: 1.2.0
+      mdast-util-mdx-jsx: 1.2.0
+      mdast-util-to-string: 3.1.0
+      micromark-extension-mdx-expression: 1.0.3
+      micromark-extension-mdx-jsx: 1.0.3
+      prismjs: 1.27.0
+      rehype-raw: 6.1.1
+      rehype-slug: 5.0.1
+      rehype-stringify: 9.0.3
+      remark-gfm: 3.0.1
+      remark-parse: 10.0.1
+      remark-rehype: 10.1.0
+      remark-smartypants: 2.0.0
+      shiki: 0.10.1
+      unified: 10.1.2
+      unist-util-map: 3.0.1
+      unist-util-visit: 4.1.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@astrojs/prism/0.4.1:
+    resolution: {integrity: sha512-JxkrXFiFhfunOFBI2Xxwru9t4IzrLw+nfA7RkNnV8qP65BLidrwWS+NfZhOSVGTrbf+cQfF8QNe6O4gAX8wQHw==}
+    engines: {node: ^14.15.0 || >=16.0.0}
+    dev: false
+
   /@astrojs/svelte-language-integration/0.1.2_typescript@4.6.3:
     resolution: {integrity: sha512-O6LYL9igYSzxCxDHYWUqEquuuUlMG0UL1SliZ7rF/vx9GwU71TCpsRe4iHZ0bcemM5ju9ihoTzGCmLXzYrNw0g==}
     dependencies:
@@ -1729,6 +1759,10 @@ packages:
       svelte2tsx: 0.5.6_svelte@3.47.0+typescript@4.6.3
     transitivePeerDependencies:
       - typescript
+    dev: false
+
+  /@astrojs/webapi/0.11.1:
+    resolution: {integrity: sha512-pZXhYWz1C4dOAznnO1Qst58O+iZfkzn5QypiH4xHVl5GU9gkbq/mAJ/wZ34127GayF4AnCZO37DMlTOLR4fBAQ==}
     dev: false
 
   /@babel/code-frame/7.16.7:

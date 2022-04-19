@@ -109,7 +109,6 @@
     "micromorph": "^0.1.2",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
-    "parse5": "^6.0.1",
     "path-browserify": "^1.0.1",
     "path-to-regexp": "^6.2.0",
     "postcss": "^8.4.12",
