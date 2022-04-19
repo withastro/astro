@@ -46,3 +46,11 @@ export function prependDotSlash(path: string) {
 
 	return './' + path;
 }
+
+function isString(value: string | undefined): value is string {
+	return typeof value === 'string';
+}
+
+export function joinPaths(...paths: Array<string | undefined>) {
+	return paths.filter(isString).map(trimSlashes).join('/');
+}

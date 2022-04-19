@@ -1,6 +1,5 @@
 <template>
   <pre>{{ value }}</pre>
-  <my-button>Click Me</my-button>
 </template>
 
 <script>
