@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
