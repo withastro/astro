@@ -1,5 +1,22 @@
 # astro
 
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- [#3130](https://github.com/withastro/astro/pull/3130) [`394ab905`](https://github.com/withastro/astro/commit/394ab9054714586c1b5bb163f02fe17412527ebc) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates `<Code />` component to cache and reuse Shiki highlighters
+
+* [#3087](https://github.com/withastro/astro/pull/3087) [`e0f838ca`](https://github.com/withastro/astro/commit/e0f838ca393c974e80f23a07b04c3a85f8829221) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds support for numeric route parameters in getStaticPaths()
+
+- [#3116](https://github.com/withastro/astro/pull/3116) [`44bacd20`](https://github.com/withastro/astro/commit/44bacd20116e69459c6cc4a8c104122a2d5adb67) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Astro components used in dynamically imported markdown (ex. Astro.glob('\*.md') will now retain their CSS styles in dev and production builds
+
+* [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
+- [#3137](https://github.com/withastro/astro/pull/3137) [`facf8016`](https://github.com/withastro/astro/commit/facf8016e249058d6e5cce7a0e7ef6c42fc854ad) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: show correct stacktrace on dev server errors, instead of cryptic "package.json" error
+
+- Updated dependencies [[`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265)]:
+  - @astrojs/markdown-remark@0.9.1
+
 ## 1.0.0-beta.12
 
 ### Patch Changes

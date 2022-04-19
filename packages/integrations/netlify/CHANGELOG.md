@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.3.0
+
+### Minor Changes
+
+- [#3148](https://github.com/withastro/astro/pull/3148) [`4cf54c60`](https://github.com/withastro/astro/commit/4cf54c60aa63bd614b242da0602790015005673d) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for Netlify Edge Functions
+
 ## 0.2.3
 
 ### Patch Changes
