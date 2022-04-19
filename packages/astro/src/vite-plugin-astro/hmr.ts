@@ -82,15 +82,17 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 		invalidateCompilation(config, file);
 	}
 
-	const mod = ctx.modules.find((m) => m.file === ctx.file);
+	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
+	// These will cause full reloads, so filter them out here
+	const mods = ctx.modules.filter(m => !m.url.endsWith('='));
+	const isSelfAccepting = mods.every(m => m.isSelfAccepting || m.url.endsWith('.svelte'));
 
 	const file = ctx.file.replace(config.root.pathname, '/');
-	if (mod?.isSelfAccepting) {
+	if (isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {
 		info(logging, 'astro', msg.reload({ file }));
 	}
 
-	// TODO: filter down `.astro` updates to ignore style updates
-	// because they are not self-accepting
+	return mods
 }
