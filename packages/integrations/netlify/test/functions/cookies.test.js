@@ -18,7 +18,7 @@ describe('Cookies', () => {
 				dist: new URL('./fixtures/cookies/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
-			integrations: [ testIntegration() ]
+			integrations: [testIntegration()],
 		});
 		await fixture.build();
 	});
