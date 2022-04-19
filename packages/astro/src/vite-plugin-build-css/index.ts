@@ -19,27 +19,6 @@ const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
 
-export function getAstroPageStyleId(pathname: string) {
-	let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	styleId += '.js';
-	return styleId;
-}
-
-export function getAstroStyleId(pathname: string) {
-	let styleId = ASTRO_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	return styleId;
-}
-
-export function getAstroStylePathFromId(id: string) {
-	return id.substr(ASTRO_STYLE_PREFIX.length + 1);
-}
-
 function isStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_STYLE_PREFIX);
 }
