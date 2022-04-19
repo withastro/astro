@@ -100,6 +100,23 @@ function parseAttributes(rawAttrs: Record<string, string | null> | undefined): R
 	}
 }
 
+export function getLineAtPosition(position: Position, text: string) {
+	return text.substring(
+		offsetAt({ line: position.line, character: 0 }, text),
+		offsetAt({ line: position.line, character: Number.MAX_VALUE }, text)
+	);
+}
+
+/**
+ * Returns the node if offset is inside a HTML start tag
+ */
+export function getNodeIfIsInHTMLStartTag(html: HTMLDocument, offset: number): Node | undefined {
+	const node = html.findNodeAt(offset);
+	if (!!node.tag && node.tag[0] === node.tag[0].toLowerCase() && (!node.startTagEnd || offset < node.startTagEnd)) {
+		return node;
+	}
+}
+
 /**
  * Return if a Node is a Component
  */

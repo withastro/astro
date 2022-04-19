@@ -38,6 +38,17 @@ export function getLastPartOfPath(path: string): string {
 }
 
 /**
+ * Transform a string into PascalCase
+ */
+export function toPascalCase(string: string) {
+	return `${string}`
+		.replace(new RegExp(/[-_]+/, 'g'), ' ')
+		.replace(new RegExp(/[^\w\s]/, 'g'), '')
+		.replace(new RegExp(/\s+(.)(\w*)/, 'g'), ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`)
+		.replace(new RegExp(/\w/), (s) => s.toUpperCase());
+}
+
+/**
  * Return true if a specific node could be a component.
  * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */
@@ -68,6 +79,18 @@ export function isBeforeOrEqualToPosition(position: Position, positionToTest: Po
 		positionToTest.line < position.line ||
 		(positionToTest.line === position.line && positionToTest.character <= position.character)
 	);
+}
+
+/**
+ * Get all matches of a regexp.
+ */
+export function getRegExpMatches(regex: RegExp, str: string) {
+	const matches: RegExpExecArray[] = [];
+	let match: RegExpExecArray | null;
+	while ((match = regex.exec(str))) {
+		matches.push(match);
+	}
+	return matches;
 }
 
 /**

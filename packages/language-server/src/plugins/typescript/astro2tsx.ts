@@ -1,14 +1,14 @@
 import { EOL } from 'os';
 import { parseAstro } from '../../core/documents/parseAstro';
 
-function addProps(content: string): string {
+function addProps(content: string, className: string): string {
 	let defaultExportType = 'Record<string, any>';
 
 	if (/(interface|type) Props/.test(content)) {
 		defaultExportType = 'Props';
 	}
 
-	return EOL + `export default function (_props: ${defaultExportType}) { return <div></div>; }`;
+	return EOL + `export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {}`;
 }
 
 function escapeTemplateLiteralContent(content: string) {
@@ -19,7 +19,7 @@ interface Astro2TSXResult {
 	code: string;
 }
 
-export default function (content: string): Astro2TSXResult {
+export default function (content: string, className: string): Astro2TSXResult {
 	let result: Astro2TSXResult = {
 		code: '',
 	};
@@ -32,8 +32,9 @@ export default function (content: string): Astro2TSXResult {
 		frontMatterRaw = content
 			.substring(astroDocument.frontmatter.startOffset ?? 0, (astroDocument.frontmatter.endOffset ?? 0) + 3)
 			// Handle case where semicolons is not used in the frontmatter section
+			// We need to add something before the semi-colon or TypeScript won't be able to do completions
 			.replace(/((?!^)(?<!;)\n)(---)/g, (_whole, start, _dashes) => {
-				return start + ';' + '//';
+				return start + '"";';
 			})
 			// Replace frontmatter marks with comments
 			.replace(/---/g, '///');
@@ -93,7 +94,7 @@ export default function (content: string): Astro2TSXResult {
 		htmlRaw +
 		EOL +
 		// Add TypeScript definitions
-		addProps(frontMatterRaw);
+		addProps(frontMatterRaw, className);
 
 	return result;
 }

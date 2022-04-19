@@ -1,5 +1,12 @@
 import type { SnapshotFragment, DocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
+import { Position } from 'vscode-languageserver';
+import { getLineAtPosition } from '../../../core/documents';
+
+export function isPartOfImportStatement(text: string, position: Position): boolean {
+	const line = getLineAtPosition(position, text);
+	return /\s*from\s+["'][^"']*/.test(line.slice(0, position.character));
+}
 
 export class SnapshotFragmentMap {
 	private map = new Map<string, { fragment: SnapshotFragment; snapshot: DocumentSnapshot }>();

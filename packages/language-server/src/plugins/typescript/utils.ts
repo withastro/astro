@@ -11,7 +11,7 @@ import {
 	SemanticTokenTypes,
 	SemanticTokensLegend,
 } from 'vscode-languageserver';
-import { mapRangeToOriginal } from '../../core/documents';
+import { AstroDocument, mapRangeToOriginal } from '../../core/documents';
 import { SnapshotFragment } from './snapshots/DocumentSnapshot';
 
 export const enum TokenType {
@@ -287,6 +287,24 @@ export function convertToLocationRange(defDoc: SnapshotFragment, textSpan: ts.Te
 	return range;
 }
 
+// Some code actions will insert code at the start of the file instead of inside our frontmatter
+// We'll redirect those to the proper starting place
+export function ensureFrontmatterInsert(resultRange: Range, document: AstroDocument) {
+	if (document.astroMeta.frontmatter.state === 'closed') {
+		const position = document.positionAt(document.astroMeta.frontmatter.startOffset!);
+		position.line += 1;
+		position.character = resultRange.start.character;
+
+		return Range.create(position, position);
+	}
+
+	return resultRange;
+}
+
+export function removeAstroComponentSuffix(name: string) {
+	return name.replace(/(\w+)__AstroComponent_/, '$1');
+}
+
 export type FrameworkExt = 'astro' | 'vue' | 'jsx' | 'tsx' | 'svelte';
 type FrameworkVirtualExt = 'ts' | 'tsx';
 
@@ -294,14 +312,6 @@ const VirtualExtension: Record<FrameworkVirtualExt, FrameworkVirtualExt> = {
 	ts: 'ts',
 	tsx: 'tsx',
 };
-
-type VirtualFrameworkSettings = Record<
-	FrameworkExt,
-	{
-		ext: FrameworkExt;
-		virtualExt: FrameworkVirtualExt;
-	}
->;
 
 export function getFrameworkFromFilePath(filePath: string): FrameworkExt {
 	filePath = ensureRealFilePath(filePath);

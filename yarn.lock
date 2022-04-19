@@ -17,6 +17,24 @@
     tsm "^2.2.1"
     uvu "^0.5.3"
 
+"@astrojs/language-server@^0.13.3":
+  version "0.13.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.13.4.tgz#77a3f591aa2c91200e2df25b8f969862717bbbe2"
+  integrity sha512-xWtzZMEVsEZkRLlHMKiOoQIXyQwdMkBPHsRcO1IbzpCmaMQGfKKYNANJ1FKZSHsybbXG/BBaB+LqgVPFNFufew==
+  dependencies:
+    "@astrojs/svelte-language-integration" "^0.1.2"
+    "@vscode/emmet-helper" "^2.8.4"
+    lodash "^4.17.21"
+    source-map "^0.7.3"
+    typescript "~4.6.2"
+    vscode-css-languageservice "^5.1.13"
+    vscode-html-languageservice "^4.2.2"
+    vscode-languageserver "7.0.0"
+    vscode-languageserver-protocol "^3.16.0"
+    vscode-languageserver-textdocument "^1.0.1"
+    vscode-languageserver-types "^3.16.0"
+    vscode-uri "^3.0.2"
+
 "@astrojs/markdown-remark@^0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@astrojs/markdown-remark/-/markdown-remark-0.8.1.tgz#10e875521d8eae7cc43933f1ec8b15ec3cdf1a64"

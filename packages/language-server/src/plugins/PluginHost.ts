@@ -24,6 +24,8 @@ import {
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
 import { DocumentManager } from '../core/documents/DocumentManager';
+import { isNotNullOrUndefined } from '../utils';
+import { getNodeIfIsInHTMLStartTag, isInComponentStartTag } from '../core/documents';
 
 enum ExecuteMode {
 	None,
@@ -56,17 +58,50 @@ export class PluginHost {
 	async getCompletions(
 		textDocument: TextDocumentIdentifier,
 		position: Position,
-		completionContext?: CompletionContext
+		completionContext?: CompletionContext,
+		cancellationToken?: CancellationToken
 	): Promise<CompletionList> {
 		const document = this.getDocument(textDocument.uri);
 
-		const completions = (
-			await this.execute<CompletionList>('getCompletions', [document, position, completionContext], ExecuteMode.Collect)
-		).filter((completion) => completion != null);
+		const completions = await Promise.all(
+			this.plugins.map(async (plugin) => {
+				const result = await this.tryExecutePlugin(
+					plugin,
+					'getCompletions',
+					[document, position, completionContext, cancellationToken],
+					null
+				);
+				if (result) {
+					return { result: result as CompletionList, plugin: plugin.__name };
+				}
+			})
+		).then((fullCompletions) => fullCompletions.filter(isNotNullOrUndefined));
 
-		let flattenedCompletions = flatten(completions.map((completion) => completion.items));
+		const html = completions.find((completion) => completion.plugin === 'html');
+		const ts = completions.find((completion) => completion.plugin === 'typescript');
+		const astro = completions.find((completion) => completion.plugin === 'astro');
+
+		if (html && ts) {
+			if (getNodeIfIsInHTMLStartTag(document.html, document.offsetAt(position))) {
+				ts.result.items = [];
+			}
+
+			// If the Astro plugin has completions for us, don't show TypeScript's as they're most likely duplicates
+			if (astro && astro.result.items.length > 0 && isInComponentStartTag(document.html, document.offsetAt(position))) {
+				ts.result.items = [];
+			}
+
+			ts.result.items = ts.result.items.map((item) => {
+				if (item.sortText != '-1') {
+					item.sortText = 'Z' + (item.sortText || '');
+				}
+				return item;
+			});
+		}
+
+		let flattenedCompletions = flatten(completions.map((completion) => completion.result.items));
 		const isIncomplete = completions.reduce(
-			(incomplete, completion) => incomplete || completion.isIncomplete,
+			(incomplete, completion) => incomplete || completion.result.isIncomplete,
 			false as boolean
 		);
 

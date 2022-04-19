@@ -1,0 +1,125 @@
+import { createEnvironment } from '../../../utils';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionsProvider';
+import { CompletionItemKind, Position, Range } from 'vscode-languageserver-types';
+import { CompletionTriggerKind } from 'vscode-languageserver-protocol';
+import { expect } from 'chai';
+import ts from 'typescript';
+
+const newLine = ts.sys.newLine;
+
+describe('TypeScript Plugin#CompletionsProvider', () => {
+	function setup(filePath: string) {
+		const env = createEnvironment(filePath, 'typescript', 'completions');
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
+		const provider = new CompletionsProviderImpl(languageServiceManager);
+
+		return {
+			...env,
+			provider,
+		};
+	}
+
+	it('provide completions', async () => {
+		const { provider, document } = setup('basic.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(1, 8));
+
+		expect(completions.items).to.not.be.empty;
+	});
+
+	it('provide completions inside JSX expressions', async () => {
+		const { provider, document } = setup('jsxExpressions.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(4, 7), {
+			triggerKind: CompletionTriggerKind.TriggerCharacter,
+			triggerCharacter: '.',
+		});
+
+		expect(completions.items).to.not.be.empty;
+	});
+
+	it('does not provide completions at root', async () => {
+		const { provider, document } = setup('root.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(0, 0));
+
+		expect(completions).to.be.null;
+	});
+
+	it('provide auto import completion with insert action for component - no front matter', async () => {
+		const { provider, document } = setup('autoImportNoFrontmatter.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(1, 9));
+		const item = completions?.items.find((completion) => completion.label === 'Component');
+		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
+
+		expect(detail).to.equal('./imports/component.astro');
+		expect(additionalTextEdits[0].newText).to.equal(
+			`---${newLine}import Component from './imports/component.astro'${newLine}---${newLine}${newLine}`
+		);
+	});
+
+	it('provide auto import completion with insert action for component - has front matter', async () => {
+		const { provider, document } = setup('autoImportFrontmatter.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(4, 9));
+		const item = completions?.items.find((completion) => completion.label === 'Component');
+
+		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
+
+		expect(detail).to.equal('./imports/component.astro');
+		expect(additionalTextEdits[0].newText).to.equal(
+			`${newLine}import Component from './imports/component.astro';${newLine}`
+		);
+	});
+
+	it('resolve completion without auto import if component import already exists', async () => {
+		const { provider, document } = setup('autoImportComponentAlreadyExists.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(4, 9));
+
+		const item = completions?.items.find((completion) => completion.label === 'Component');
+
+		const { additionalTextEdits } = await provider.resolveCompletion(document, item!);
+
+		expect(additionalTextEdits).to.be.undefined;
+	});
+
+	it('provide import completions for supported files', async () => {
+		const { provider, document } = setup('importSupportedFormats.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(1, 35));
+		const foundFiles = completions.items.map((completion) => completion.label);
+
+		expect(foundFiles).to.deep.equal(['Astro.astro', 'JSX', 'Svelte.svelte', 'Vue.vue', 'js', 'json.json', 'ts']);
+	});
+
+	it('provide completion inside import statement', async () => {
+		const { provider, document } = setup('importStatement.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(1, 11), {
+			triggerKind: CompletionTriggerKind.Invoked,
+		});
+
+		const item = completions?.items.find((completion) => completion.label === 'MySuperFunction');
+		delete item.data;
+
+		expect(item).to.deep.equal({
+			commitCharacters: ['.', ',', '('],
+			insertText: "import { MySuperFunction$1 } from './imports/definitions';",
+			insertTextFormat: 2,
+			kind: CompletionItemKind.Function,
+			label: 'MySuperFunction',
+			labelDetails: {
+				description: './imports/definitions',
+			},
+			preselect: undefined,
+			sortText: '11',
+			textEdit: {
+				newText: "import { MySuperFunction$1 } from './imports/definitions';",
+				range: Range.create(1, 1, 1, 10),
+			},
+		});
+	});
+});

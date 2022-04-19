@@ -70,8 +70,8 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 				}
 			}
 
-			// Remove the default function detected in our TSX output
-			if (symbol.kind === SymbolKind.Function && symbol.name == 'default') {
+			// Remove the exported function in our TSX output from the symbols
+			if (document.offsetAt(symbol.location.range.start) >= document.getTextLength()) {
 				continue;
 			}
 

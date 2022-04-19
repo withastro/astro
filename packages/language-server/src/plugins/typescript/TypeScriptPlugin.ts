@@ -22,7 +22,7 @@ import { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import { AstroDocument, DocumentManager } from '../../core/documents';
 import { isNotNullOrUndefined, pathToUrl } from '../../utils';
 import { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
-import { CompletionEntryWithIdentifer, CompletionsProviderImpl } from './features/CompletionsProvider';
+import { CompletionItemData, CompletionsProviderImpl } from './features/CompletionsProvider';
 import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
@@ -137,22 +137,29 @@ export class TypeScriptPlugin implements Plugin {
 	async getCompletions(
 		document: AstroDocument,
 		position: Position,
-		completionContext?: CompletionContext
-	): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
+		completionContext?: CompletionContext,
+		cancellationToken?: CancellationToken
+	): Promise<AppCompletionList<CompletionItemData> | null> {
 		if (!this.featureEnabled('completions')) {
 			return null;
 		}
 
-		const completions = await this.completionProvider.getCompletions(document, position, completionContext);
+		const completions = await this.completionProvider.getCompletions(
+			document,
+			position,
+			completionContext,
+			cancellationToken
+		);
 
 		return completions;
 	}
 
 	async resolveCompletion(
 		document: AstroDocument,
-		completionItem: AppCompletionItem<CompletionEntryWithIdentifer>
-	): Promise<AppCompletionItem<CompletionEntryWithIdentifer>> {
-		return this.completionProvider.resolveCompletion(document, completionItem);
+		completionItem: AppCompletionItem<CompletionItemData>,
+		cancellationToken?: CancellationToken
+	): Promise<AppCompletionItem<CompletionItemData>> {
+		return this.completionProvider.resolveCompletion(document, completionItem, cancellationToken);
 	}
 
 	async getDefinitions(document: AstroDocument, position: Position): Promise<DefinitionLink[]> {
