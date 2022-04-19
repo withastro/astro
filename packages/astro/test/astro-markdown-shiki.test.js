@@ -44,7 +44,6 @@ describe('Astro Markdown Shiki', () => {
 			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">+</span>`);
 			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">-</span>`);
 		});
-
 	});
 
 	describe('Themes', () => {
