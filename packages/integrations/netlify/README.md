@@ -21,6 +21,20 @@ Now you can deploy!
 netlify deploy
 ```
 
+## Edge Functions
+
+Netlify has two serverless platforms, Netlify Functions and Netlify Edge Functions. With Edge Functions your code is distributed closer to your users, lowering latency. You can use Edge Functions by changing the import in your astro configuration file:
+
+```diff
+import { defineConfig } from 'astro/config';
+- import netlify from '@astrojs/netlify/functions';
++ import netlify from '@astrojs/netlify/edge-functions';
+
+export default defineConfig({
+	adapter: netlify(),
+});
+```
+
 ## Configuration
 
 ### dist
