@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3143](https://github.com/withastro/astro/pull/3143) [`44e294c9`](https://github.com/withastro/astro/commit/44e294c9cbaf8f6bbccce8b956c7c53d37c15c70) Thanks [@tony-sull](https://github.com/tony-sull)! - `@astrojs/vue` integration supports custom vue compiler options
+
 ## 0.1.1
 
 ### Patch Changes
