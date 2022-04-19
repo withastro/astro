@@ -584,7 +584,6 @@ importers:
       sirv: 2.0.2
       slash: 4.0.0
       sourcemap-codec: 1.4.8
-      srcset-parse: 1.1.0
       string-width: 5.1.2
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
@@ -619,6 +618,7 @@ importers:
       cheerio: 1.0.0-rc.10
       mocha: 9.2.2
       sass: 1.50.0
+      srcset-parse: 1.1.0
 
   packages/astro-prism:
     specifiers:
@@ -9477,7 +9477,7 @@ packages:
 
   /srcset-parse/1.1.0:
     resolution: {integrity: sha512-JWp4cG2eybkvKA1QUHGoNK6JDEYcOnSuhzNGjZuYUPqXreDl/VkkvP2sZW7Rmh+icuCttrR9ccb2WPIazyM/Cw==}
-    dev: false
+    dev: true
 
   /statuses/2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
