@@ -2,8 +2,19 @@ import type { ComponentInstance, GetStaticPathsResult } from '../../@types/astro
 import type { LogOptions } from '../logger/core';
 import { warn } from '../logger/core.js';
 
+const VALID_PARAM_TYPES = ['string', 'number', 'undefined'];
+
 interface ValidationOptions {
 	ssr: boolean;
+}
+
+/** Throws error for invalid parameter in getStaticPaths() response */
+export function validateGetStaticPathsParameter([key, value]: [string, any]) {
+	if (!VALID_PARAM_TYPES.includes(typeof value)) {
+		throw new Error(
+			`[getStaticPaths] invalid route parameter for "${key}". Expected a string or number, received \`${value}\` ("${typeof value}")`
+		);
+	}
 }
 
 /** Throw error for deprecated/malformed APIs */

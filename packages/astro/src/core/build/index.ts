@@ -213,7 +213,6 @@ class AstroBuilder {
 		pageCount: number;
 		buildMode: 'static' | 'ssr';
 	}) {
-		const buildTime = performance.now() - timeStart;
 		const total = getTimeStat(timeStart, performance.now());
 
 		let messages: string[] = [];

@@ -1,10 +1,8 @@
 ---
-// Style Imports
+import {Content as TourContent} from '../content/Tour.md';
+import Logo from '../components/Logo.astro';
 import '../styles/global.css';
 import '../styles/home.css';
-// Component Imports
-import Tour from '../components/Tour.astro';
-// You can import components from any supported Framework here!
 /* ASTRO:COMPONENT_IMPORTS */
 
 // Component Script:
@@ -31,25 +29,51 @@ let title = 'My Astro Site';
 			gap: 1em;
 			max-width: min(100%, 68ch);
 		}
+		article {
+			padding-top: 2em;
+			line-height: 1.5;
+			display: flex;
+			flex-direction: column;
+			gap: 1em;
+			max-width: 70ch;
+		}
+		.banner {
+			text-align: center;
+			font-size: 1.2rem;
+			background: var(--color-light);
+			padding: 1em 1.5em;
+			padding-left: 0.75em;
+			border-radius: 4px;
+		}
+	</style>
+	<style is:global>
+		pre {
+			padding: 1rem;
+		}
 	</style>
 </head>
 <body>
 	<main>
 		<header>
 			<div>
-				<img width="60" height="80" src="/assets/logo.svg" alt="Astro logo">
+				<Logo width={60} height={80} />
 				<h1>Welcome to <a href="https://astro.build/">Astro</a></h1>
 			</div>
 		</header>
 
-		<Tour />
+		<article>
+			<div class="banner">
+				<p><strong>🧑‍🚀 Seasoned astronaut?</strong> Delete this template and have fun!</p>
+			</div>
+			<TourContent />
+		</article>
 
 		<!--
 
 		You can also use imported framework components directly in your markup!
 		
 		Note: by default, these components are NOT interactive on the client.
-		The `:visible` directive tells Astro to make it interactive.
+		The `client:visible` directive tells Astro to make it interactive.
 		
 		See https://docs.astro.build/core-concepts/component-hydration/ 
 

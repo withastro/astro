@@ -1,5 +1,4 @@
 import * as unified from 'unified';
-import type { Plugin } from './types';
 
 async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin> {
 	if (typeof p === 'string') {
@@ -10,7 +9,9 @@ async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin>
 	return p;
 }
 
-export function loadPlugins(items: Plugin[]): Promise<[unified.Plugin, any?]>[] {
+export function loadPlugins(
+	items: (string | [string, any] | unified.Plugin<any[], any> | [unified.Plugin<any[], any>, any])[]
+): Promise<[unified.Plugin, any?]>[] {
 	return items.map((p) => {
 		return new Promise((resolve, reject) => {
 			if (Array.isArray(p)) {

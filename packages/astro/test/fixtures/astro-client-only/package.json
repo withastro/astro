@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/svelte": "workspace:*",
+    "@astrojs/react": "workspace:*",
     "astro": "workspace:*"
   }
 }

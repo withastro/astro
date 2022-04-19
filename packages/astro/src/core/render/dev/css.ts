@@ -4,12 +4,21 @@ import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
+/**
+ * List of file extensions signalling we can (and should) SSR ahead-of-time
+ * See usage below
+ */
+const fileExtensionsToSSR = new Set(['.md']);
+
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
-export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
+export async function getStylesForURL(
+	filePath: URL,
+	viteServer: vite.ViteDevServer
+): Promise<Set<string>> {
 	const importedCssUrls = new Set<string>();
 
 	/** recursively crawl the module graph to get all style files imported by parent id */
-	function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
+	async function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
 		const id = unwrapId(_id);
 		const importedModules = new Set<vite.ModuleNode>();
 		const moduleEntriesForId = isFile
@@ -32,6 +41,16 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 			if (id === entry.id) {
 				scanned.add(id);
 				for (const importedModule of entry.importedModules) {
+					// some dynamically imported modules are *not* server rendered in time
+					// to only SSR modules that we can safely transform, we check against
+					// a list of file extensions based on our built-in vite plugins
+					if (importedModule.id) {
+						// use URL to strip special query params like "?content"
+						const { pathname } = new URL(`file://${importedModule.id}`);
+						if (fileExtensionsToSSR.has(path.extname(pathname))) {
+							await viteServer.ssrLoadModule(importedModule.id);
+						}
+					}
 					importedModules.add(importedModule);
 				}
 			}
@@ -48,11 +67,11 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 				// NOTE: We use the `url` property here. `id` would break Windows.
 				importedCssUrls.add(importedModule.url);
 			}
-			crawlCSS(importedModule.id, false, scanned);
+			await crawlCSS(importedModule.id, false, scanned);
 		}
 	}
 
 	// Crawl your import graph for CSS files, populating `importedCssUrls` as a result.
-	crawlCSS(viteID(filePath), true);
+	await crawlCSS(viteID(filePath), true);
 	return importedCssUrls;
 }

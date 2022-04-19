@@ -128,7 +128,7 @@ async function handle500Response(
 	res: http.ServerResponse,
 	err: any
 ) {
-	const pathname = decodeURI(new URL(origin + req.url).pathname);
+	const pathname = decodeURI(new URL('./index.html', origin + req.url).pathname);
 	const html = serverErrorTemplate({
 		statusCode: 500,
 		title: 'Internal Error',
@@ -137,7 +137,7 @@ async function handle500Response(
 		url: err.url || undefined,
 		stack: stripAnsi(err.stack),
 	});
-	const transformedHtml = await viteServer.transformIndexHtml(pathname, html, pathname);
+	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
@@ -170,7 +170,10 @@ async function handleRequest(
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	if (!buildingToSSR) {
 		// Prevent user from depending on search params when not doing SSR.
-		for (const [key] of url.searchParams) {
+		// NOTE: Create an array copy here because deleting-while-iterating
+		// creates bugs where not all search params are removed.
+		const allSearchParams = Array.from(url.searchParams);
+		for (const [key] of allSearchParams) {
 			url.searchParams.delete(key);
 		}
 	}

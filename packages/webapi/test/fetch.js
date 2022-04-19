@@ -1,142 +1,100 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Fetch functionality',
-			test() {
-				const target = {}
+describe('Fetch', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'fetch'), true)
-				assert.equal(typeof target.fetch, 'function')
-			},
-		},
-		{
-			name: 'Fetch with https',
-			async test() {
-				const target = {}
+	it('Fetch functionality', () => {
+		expect(target).to.have.property('fetch').that.is.a('function')
+	})
 
-				polyfill(target)
+	it('Fetch with https', async () => {
+		const { fetch } = target
 
-				const { fetch } = target
+		const response = await fetch('https://api.openbrewerydb.org/breweries')
 
-				const response = await fetch('https://api.openbrewerydb.org/breweries')
+		expect(response.constructor).to.equal(target.Response)
 
-				assert.equal(response.constructor, target.Response)
+		const json = await response.json()
 
-				const json = await response.json()
+		expect(json).to.be.an('array')
+	})
 
-				assert.equal(Array.isArray(json), true)
-			},
-		},
-		{
-			name: 'Fetch with file',
-			async test() {
-				const target = {}
+	it('Fetch with file', async () => {
+		const { fetch } = target
 
-				polyfill(target)
+		const url = new URL('../package.json', import.meta.url)
 
-				const { fetch } = target
+		const response = await fetch(url)
 
-				const url = new URL('../package.json', import.meta.url)
+		expect(response.constructor).to.equal(target.Response)
 
-				const response = await fetch(url)
+		expect(response.status).to.equal(200)
+		expect(response.statusText).to.be.empty
+		expect(response.headers.has('date')).to.equal(true)
+		expect(response.headers.has('content-length')).to.equal(true)
+		expect(response.headers.has('last-modified')).to.equal(true)
 
-				assert.equal(response.constructor, target.Response)
+		const json = await response.json()
 
-				assert.equal(response.status, 200)
-				assert.equal(response.statusText, '')
-				assert.equal(response.headers.has('date'), true)
-				assert.equal(response.headers.has('content-length'), true)
-				assert.equal(response.headers.has('last-modified'), true)
+		expect(json.name).to.equal('@astrojs/webapi')
+	})
 
-				const json = await response.json()
+	it('Fetch with missing file', async () => {
+		const { fetch } = target
 
-				assert.equal(json.name, '@astrojs/webapi')
-			},
-		},
-		{
-			name: 'Fetch with missing file',
-			async test() {
-				const target = {}
+		const url = new URL('../missing.json', import.meta.url)
 
-				polyfill(target)
+		const response = await fetch(url)
 
-				const { fetch } = target
+		expect(response.constructor).to.equal(target.Response)
 
-				const url = new URL('../missing.json', import.meta.url)
+		expect(response.status).to.equal(404)
+		expect(response.statusText).to.be.empty
+		expect(response.headers.has('date')).to.equal(true)
+		expect(response.headers.has('content-length')).to.equal(false)
+		expect(response.headers.has('last-modified')).to.equal(false)
+	})
 
-				const response = await fetch(url)
+	it('Fetch with (file) Request', async () => {
+		const { Request, fetch } = target
 
-				assert.equal(response.constructor, target.Response)
+		const request = new Request(new URL('../package.json', import.meta.url))
 
-				assert.equal(response.status, 404)
-				assert.equal(response.statusText, '')
-				assert.equal(response.headers.has('date'), true)
-				assert.equal(response.headers.has('content-length'), false)
-				assert.equal(response.headers.has('last-modified'), false)
-			},
-		},
-		{
-			name: 'Fetch with (file) Request',
-			async test() {
-				const target = {}
+		const response = await fetch(request)
 
-				polyfill(target)
+		expect(response.constructor).to.equal(target.Response)
 
-				const { Request, fetch } = target
+		const json = await response.json()
 
-				const request = new Request(new URL('../package.json', import.meta.url))
+		expect(json.name).to.equal('@astrojs/webapi')
+	})
 
-				const response = await fetch(request)
+	it('Fetch with relative file', async () => {
+		const { fetch } = target
 
-				assert.equal(response.constructor, target.Response)
+		const response = await fetch('package.json')
 
-				const json = await response.json()
+		const json = await response.json()
 
-				assert.equal(json.name, '@astrojs/webapi')
-			},
-		},
-		{
-			name: 'Fetch with relative file',
-			async test() {
-				const target = {}
+		expect(json.name).to.equal('@astrojs/webapi')
+	})
 
-				polyfill(target)
+	it('Fetch with data', async () => {
+		const { fetch } = target
 
-				const { fetch } = target
+		const jsonURI = `data:application/json,${encodeURIComponent(
+			JSON.stringify({
+				name: '@astrojs/webapi',
+			})
+		)}`
 
-				const response = await fetch('package.json')
+		const response = await fetch(jsonURI)
 
-				const json = await response.json()
+		const json = await response.json()
 
-				assert.equal(json.name, '@astrojs/webapi')
-			},
-		},
-		{
-			name: 'Fetch with data',
-			async test() {
-				const target = {}
-
-				polyfill(target)
-
-				const { fetch } = target
-
-				const jsonURI = `data:application/json,${encodeURIComponent(
-					JSON.stringify({
-						name: '@astrojs/webapi',
-					})
-				)}`
-
-				const response = await fetch(jsonURI)
-
-				const json = await response.json()
-
-				assert.equal(json.name, '@astrojs/webapi')
-			},
-		},
-	]
+		expect(json.name).to.equal('@astrojs/webapi')
+	})
 })

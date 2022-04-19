@@ -1,5 +1,87 @@
 # astro
 
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- [#3130](https://github.com/withastro/astro/pull/3130) [`394ab905`](https://github.com/withastro/astro/commit/394ab9054714586c1b5bb163f02fe17412527ebc) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates `<Code />` component to cache and reuse Shiki highlighters
+
+* [#3087](https://github.com/withastro/astro/pull/3087) [`e0f838ca`](https://github.com/withastro/astro/commit/e0f838ca393c974e80f23a07b04c3a85f8829221) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds support for numeric route parameters in getStaticPaths()
+
+- [#3116](https://github.com/withastro/astro/pull/3116) [`44bacd20`](https://github.com/withastro/astro/commit/44bacd20116e69459c6cc4a8c104122a2d5adb67) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Astro components used in dynamically imported markdown (ex. Astro.glob('\*.md') will now retain their CSS styles in dev and production builds
+
+* [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
+- [#3137](https://github.com/withastro/astro/pull/3137) [`facf8016`](https://github.com/withastro/astro/commit/facf8016e249058d6e5cce7a0e7ef6c42fc854ad) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: show correct stacktrace on dev server errors, instead of cryptic "package.json" error
+
+- Updated dependencies [[`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265)]:
+  - @astrojs/markdown-remark@0.9.1
+
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- [#3113](https://github.com/withastro/astro/pull/3113) [`1687009f`](https://github.com/withastro/astro/commit/1687009f31fa23f193cbbf95fd018a51f3f3c671) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client:only CSS
+
+## 1.0.0-beta.11
+
+### Patch Changes
+
+- [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Support runtime markdown parsing
+
+* [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Fixes usage of the Markdown component in SSR
+
+## 1.0.0-beta.10
+
+### Patch Changes
+
+- [#3095](https://github.com/withastro/astro/pull/3095) [`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380) Thanks [@matthewp](https://github.com/matthewp)! - Fixes rendering of "undefined" on custom element children
+
+- Updated dependencies [[`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380)]:
+  - @astrojs/webapi@0.11.1
+
+## 1.0.0-beta.9
+
+### Minor Changes
+
+- [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Support the "del" API method, because "delete" is a reserved word.
+
+* [#3078](https://github.com/withastro/astro/pull/3078) [`d33e1778`](https://github.com/withastro/astro/commit/d33e17781775545f8e6a40ee7a2b36f06e9b5c4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for an "all" API method, to handle all requests
+
+### Patch Changes
+
+- [#3094](https://github.com/withastro/astro/pull/3094) [`564caf24`](https://github.com/withastro/astro/commit/564caf24c23a40c0fa7dc75ff3374492761d88fb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Expose "metadata" to component integrations renderToStaticMarkup function
+
+* [#3068](https://github.com/withastro/astro/pull/3068) [`81e210e0`](https://github.com/withastro/astro/commit/81e210e03c7d88c7b80b0b11a532c5b8e03cef93) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue around build not respecting your base config
+
+* Updated dependencies [[`53162534`](https://github.com/withastro/astro/commit/53162534450e160f65b95e7ef1523a106347ca28)]:
+  - @astrojs/markdown-remark@0.9.0
+
+## 1.0.0-beta.8
+
+### Patch Changes
+
+- [#3066](https://github.com/withastro/astro/pull/3066) [`5b3464a8`](https://github.com/withastro/astro/commit/5b3464a803ba2aa00a4e248dc3ebceb5924cc073) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix bug with inconsistent url search params
+
+* [#2970](https://github.com/withastro/astro/pull/2970) [`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b) Thanks [@JuanM04](https://github.com/JuanM04)! - Improved markdown config type checking
+
+* Updated dependencies [[`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b)]:
+  - @astrojs/markdown-remark@0.8.2
+
+## 1.0.0-beta.7
+
+### Patch Changes
+
+- [`815d62f1`](https://github.com/withastro/astro/commit/815d62f151a36fef7d09590d4962ca71bda61b32) Thanks [@FredKSchott](https://github.com/FredKSchott)! - no changes.
+
+## 1.0.0-beta.6
+
+### Patch Changes
+
+- [#3004](https://github.com/withastro/astro/pull/3004) [`9724d844`](https://github.com/withastro/astro/commit/9724d844b32fb30c91ec3d060421bbb0cc36428a) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix bug causing `astro preview` server to close immediately
+
+* [#3028](https://github.com/withastro/astro/pull/3028) [`982f64f6`](https://github.com/withastro/astro/commit/982f64f69a82d3c5f99b326a2ddcd368435d9b4a) Thanks [@JuanM04](https://github.com/JuanM04)! - Updated esbuild
+
 ## 1.0.0-beta.5
 
 ### Patch Changes

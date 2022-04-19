@@ -17,12 +17,11 @@ describe('CSS', function () {
 
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
-		this.timeout(45000); // test needs a little more time in CI
-
 		let $;
 		let bundledCSS;
 
 		before(async () => {
+			this.timeout(45000); // test needs a little more time in CI
 			await fixture.build();
 
 			// get bundled CSS (will be hashed, hence DOM query)
@@ -292,8 +291,11 @@ describe('CSS', function () {
 		});
 
 		it('resolves Astro styles', async () => {
-			const style = $('style[astro-style]');
-			expect(style.length).to.not.equal(0);
+			const astroPageCss = $('link[rel=stylesheet][href^=/src/pages/index.astro?astro&type=style]');
+			expect(astroPageCss.length).to.equal(
+				4,
+				'The index.astro page should generate 4 stylesheets, 1 for each <style> tag on the page.'
+			);
 		});
 
 		it('resolves Styles from React', async () => {

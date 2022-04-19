@@ -22,8 +22,12 @@ import Counter from '../components/Counter.astro';
 			}
 		</style>
 
-		<!-- Be sure to include AlpineJS -->
-		<script src="//unpkg.com/alpinejs" defer is:inline></script>
+		<!-- Load AlpineJS on the page -->
+		<script>
+			import Alpine from 'alpinejs';
+			window.Alpine = Alpine;
+			Alpine.start();
+		</script>
 	</head>
 	<body>
 		<main>

@@ -1,4 +1,3 @@
-import astroRemark from '@astrojs/markdown-remark';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
@@ -14,6 +13,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
 export function vitePluginSSR(
 	buildOpts: StaticBuildOptions,
@@ -65,16 +65,14 @@ if(_start in adapter) {
 			}
 			return void 0;
 		},
-
 		generateBundle(_opts, bundle) {
 			const manifest = buildManifest(buildOpts, internals);
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') continue;
 				if (chunk.modules[resolvedVirtualModuleId]) {
-					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
-					chunk.code = code.replace(exp, () => {
+					chunk.code = code.replace(replaceExp, () => {
 						return JSON.stringify(manifest);
 					});
 				}
@@ -110,9 +108,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
 		site: astroConfig.site,
-		markdown: {
-			render: [astroRemark, astroConfig.markdown],
-		},
+		markdown: astroConfig.markdown,
 		pageMap: null as any,
 		renderers: [],
 		entryModules,

@@ -1,5 +1,25 @@
 # @astrojs/markdown-remark
 
+## 0.9.1
+
+### Patch Changes
+
+- [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
+## 0.9.0
+
+### Minor Changes
+
+- [`53162534`](https://github.com/withastro/astro/commit/53162534450e160f65b95e7ef1523a106347ca28) Thanks [@FredKSchott](https://github.com/FredKSchott)! - - Removed `renderMarkdownWithFrontmatter` because it wasn't being used
+  - All options of `renderMarkdown` are now required — see the exported interface `AstroMarkdownOptions`
+  - New types: RemarkPlugin, RehypePlugin and ShikiConfig
+
+## 0.8.2
+
+### Patch Changes
+
+- [#2970](https://github.com/withastro/astro/pull/2970) [`b835e285`](https://github.com/withastro/astro/commit/b835e285defb4f31fc5ac1039c7f607c07f3c00b) Thanks [@JuanM04](https://github.com/JuanM04)! - Improved type checking
+
 ## 0.8.1
 
 ### Patch Changes
