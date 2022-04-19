@@ -16,7 +16,7 @@ describe('Dynamic pages', () => {
 				dist: new URL('./fixtures/dynamic-route/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
-			integrations: [ testIntegration() ]
+			integrations: [testIntegration()],
 		});
 		await fixture.build();
 	});

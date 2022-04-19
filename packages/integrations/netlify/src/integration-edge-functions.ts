@@ -23,7 +23,9 @@ interface NetlifyEdgeFunctionManifestFunctionPattern {
 	pattern: string;
 }
 
-type NetlifyEdgeFunctionManifestFunction = NetlifyEdgeFunctionManifestFunctionPath | NetlifyEdgeFunctionManifestFunctionPattern;
+type NetlifyEdgeFunctionManifestFunction =
+	| NetlifyEdgeFunctionManifestFunctionPath
+	| NetlifyEdgeFunctionManifestFunctionPattern;
 
 interface NetlifyEdgeFunctionManifest {
 	functions: NetlifyEdgeFunctionManifestFunction[];
@@ -32,28 +34,28 @@ interface NetlifyEdgeFunctionManifest {
 
 async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: URL) {
 	const functions: NetlifyEdgeFunctionManifestFunction[] = [];
-				for(const route of routes) {
-					if(route.pathname) {
-						functions.push({
-							function: entryFile,
-							path: route.pathname
-						});
-					} else {
-						functions.push({
-							function: entryFile,
-							pattern: route.pattern.source
-						});
-					}
-				}
+	for (const route of routes) {
+		if (route.pathname) {
+			functions.push({
+				function: entryFile,
+				path: route.pathname,
+			});
+		} else {
+			functions.push({
+				function: entryFile,
+				pattern: route.pattern.source,
+			});
+		}
+	}
 
-				const manifest: NetlifyEdgeFunctionManifest = {
-					functions,
-					version: 1
-				};
+	const manifest: NetlifyEdgeFunctionManifest = {
+		functions,
+		version: 1,
+	};
 
-				const manifestURL = new URL('./manifest.json', dir);
-				const _manifest = JSON.stringify(manifest, null, '  ');
-				await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
+	const manifestURL = new URL('./manifest.json', dir);
+	const _manifest = JSON.stringify(manifest, null, '  ');
+	await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
 }
 
 export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {}): AstroIntegration {
@@ -86,13 +88,10 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				
 				await createEdgeManifest(routes, entryFile, new URL('./edge-functions/', dir));
 			},
 		},
 	};
 }
 
-export {
-	netlifyEdgeFunctions as default
-}
+export { netlifyEdgeFunctions as default };
