@@ -24,14 +24,12 @@ describe('Doctype', () => {
 		expect(html).to.match(/^<!DOCTYPE html>/i);
 	});
 
-	// Note: parse5 converts this to <!DOCTYPE html> (HTML5). Uncomment if we want to support legacy doctypes.
-	//
-	// it('Preserves user provided doctype', async () => {
-	//   const html = await fixture.readFile('/preserve/index.html');
+	it('Preserves user provided doctype', async () => {
+	  const html = await fixture.readFile('/preserve/index.html');
 
-	//   // test that Doctype included was preserved
-	//   expect(html).to.match(new RegExp('^<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">', 'i'));
-	// });
+	  // test that Doctype included was preserved
+	  expect(html).to.match(new RegExp('^<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">', 'i'));
+	});
 
 	it('User provided doctype is case insensitive', async () => {
 		const html = await fixture.readFile('/capital/index.html');
