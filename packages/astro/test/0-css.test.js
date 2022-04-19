@@ -291,8 +291,8 @@ describe('CSS', function () {
 		});
 
 		it('resolves Astro styles', async () => {
-			const style = $('style[astro-style]');
-			expect(style.length).to.not.equal(0);
+			const astroPageCss = $('link[rel=stylesheet][href^=/src/pages/index.astro?astro&type=style]');
+			expect(astroPageCss.length).to.equal(4, 'The index.astro page should generate 4 stylesheets, 1 for each <style> tag on the page.')
 		});
 
 		it('resolves Styles from React', async () => {

@@ -479,7 +479,6 @@ importers:
       '@types/send': ^0.17.1
       '@types/unist': ^2.0.6
       '@types/yargs-parser': ^21.0.0
-      '@web/parse5-utils': ^1.3.0
       ast-types: ^0.14.2
       astro-scripts: workspace:*
       boxen: ^6.2.1
@@ -506,7 +505,6 @@ importers:
       mime: ^3.0.0
       mocha: ^9.2.2
       ora: ^6.1.0
-      parse5: ^6.0.1
       path-browserify: ^1.0.1
       path-to-regexp: ^6.2.0
       postcss: ^8.4.12
@@ -546,7 +544,6 @@ importers:
       '@babel/traverse': 7.17.9
       '@proload/core': 0.2.2
       '@proload/plugin-tsm': 0.1.1_@proload+core@0.2.2
-      '@web/parse5-utils': 1.3.0
       ast-types: 0.14.2
       boxen: 6.2.1
       ci-info: 3.3.0
@@ -569,7 +566,6 @@ importers:
       micromorph: 0.1.2
       mime: 3.0.0
       ora: 6.1.0
-      parse5: 6.0.1
       path-browserify: 1.0.1
       path-to-regexp: 6.2.0
       postcss: 8.4.12
@@ -588,7 +584,6 @@ importers:
       sirv: 2.0.2
       slash: 4.0.0
       sourcemap-codec: 1.4.8
-      srcset-parse: 1.1.0
       string-width: 5.1.2
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
@@ -623,6 +618,7 @@ importers:
       cheerio: 1.0.0-rc.10
       mocha: 9.2.2
       sass: 1.50.0
+      srcset-parse: 1.1.0
 
   packages/astro-prism:
     specifiers:
@@ -4487,14 +4483,6 @@ packages:
 
   /@vue/shared/3.2.31:
     resolution: {integrity: sha512-ymN2pj6zEjiKJZbrf98UM2pfDd6F2H7ksKw7NDt/ZZ1fh5Ei39X5tABugtT03ZRlWd9imccoK0hE8hpjpU7irQ==}
-
-  /@web/parse5-utils/1.3.0:
-    resolution: {integrity: sha512-Pgkx3ECc8EgXSlS5EyrgzSOoUbM6P8OKS471HLAyvOBcP1NCBn0to4RN/OaKASGq8qa3j+lPX9H14uA5AHEnQg==}
-    engines: {node: '>=10.0.0'}
-    dependencies:
-      '@types/parse5': 6.0.3
-      parse5: 6.0.1
-    dev: false
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
@@ -9497,7 +9485,7 @@ packages:
 
   /srcset-parse/1.1.0:
     resolution: {integrity: sha512-JWp4cG2eybkvKA1QUHGoNK6JDEYcOnSuhzNGjZuYUPqXreDl/VkkvP2sZW7Rmh+icuCttrR9ccb2WPIazyM/Cw==}
-    dev: false
+    dev: true
 
   /statuses/2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}

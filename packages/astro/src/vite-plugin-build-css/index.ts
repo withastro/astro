@@ -19,27 +19,6 @@ const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
 
-export function getAstroPageStyleId(pathname: string) {
-	let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	styleId += '.js';
-	return styleId;
-}
-
-export function getAstroStyleId(pathname: string) {
-	let styleId = ASTRO_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	return styleId;
-}
-
-export function getAstroStylePathFromId(id: string) {
-	return id.substr(ASTRO_STYLE_PREFIX.length + 1);
-}
-
 function isStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_STYLE_PREFIX);
 }
@@ -54,12 +33,11 @@ function isRawOrUrlModule(id: string) {
 
 interface PluginOptions {
 	internals: BuildInternals;
-	legacy: boolean;
 	target: 'client' | 'server';
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-	const { internals, legacy } = options;
+	const { internals } = options;
 	const styleSourceMap = new Map<string, string>();
 
 	function* walkStyles(
@@ -153,16 +131,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return undefined;
 		},
 
-		async load(id) {
-			if (isPageStyleVirtualModule(id)) {
-				return internals.astroPageStyleMap.get(id) || null;
-			}
-			if (isStyleVirtualModule(id)) {
-				return internals.astroStyleMap.get(id) || null;
-			}
-			return null;
-		},
-
 		async transform(value, id) {
 			if (isStyleVirtualModule(id)) {
 				styleSourceMap.set(id, value);
@@ -203,7 +171,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				source: minifiedCSS,
 			});
 
-			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
 				for (const pageData of getPageDatasByChunk(internals, chunk)) {
@@ -236,26 +203,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			);
 
 			// Crawl the module graph to find CSS chunks to create
-			if (!legacy) {
-				await addStyles.call(this);
-			}
+			await addStyles.call(this);
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {
-					// This find shared chunks of CSS and adds them to the main CSS chunks,
-					// so that shared CSS is added to the page.
-					for (const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
-						for (const imp of chunk.imports) {
-							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
-								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
-								const fileName = this.getFileName(referenceId);
-								if (!cssSet.has(fileName)) {
-									cssSet.add(fileName);
-								}
-							}
-						}
-					}
-
 					// Removes imports for pure CSS chunks.
 					if (hasPureCSSChunks) {
 						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {

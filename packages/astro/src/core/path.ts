@@ -38,11 +38,3 @@ export function startsWithDotSlash(path: string) {
 export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
-
-export function prependDotSlash(path: string) {
-	if (isRelativePath(path)) {
-		return path;
-	}
-
-	return './' + path;
-}

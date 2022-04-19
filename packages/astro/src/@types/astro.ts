@@ -983,7 +983,6 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
-	legacyBuild: boolean;
 }
 
 export interface SSRResult {

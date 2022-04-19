@@ -30,24 +30,6 @@ export interface BuildInternals {
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
-
-	/**
-	 * chunkToReferenceIdMap maps them to a hash id used to find the final file.
-	 * @deprecated This Map is only used for the legacy build.
-	 */
-	chunkToReferenceIdMap: Map<string, string>;
-
-	/**
-	 * This is a mapping of pathname to the string source of all collected inline <style> for a page.
-	 * @deprecated This Map is only used for the legacy build.
-	 */
-	astroStyleMap: Map<string, string>;
-
-	/**
-	 * This is a virtual JS module that imports all dependent styles for a page.
-	 * @deprecated This Map is only used for the legacy build.
-	 */
-	astroPageStyleMap: Map<string, string>;
 }
 
 /**
@@ -71,9 +53,6 @@ export function createBuildInternals(): BuildInternals {
 
 	return {
 		pureCSSChunks,
-		chunkToReferenceIdMap,
-		astroStyleMap,
-		astroPageStyleMap,
 		hoistedScriptIdToHoistedMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 
