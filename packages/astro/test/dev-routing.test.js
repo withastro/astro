@@ -104,9 +104,10 @@ describe('Development Routing', () => {
 			await devServer.stop();
 		});
 
-		it('404 when loading /', async () => {
+		it('redirected when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(404);
+			expect(response.status).to.equal(200);
+			expect(response.redirected).to.be.true;
 		});
 
 		it('200 when loading subpath root', async () => {
@@ -154,9 +155,10 @@ describe('Development Routing', () => {
 			await devServer.stop();
 		});
 
-		it('404 when loading /', async () => {
+		it('redirected when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(404);
+			expect(response.status).to.equal(200);
+			expect(response.redirected).to.be.true;
 		});
 
 		it('200 when loading subpath root with trailing slash', async () => {

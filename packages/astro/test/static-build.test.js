@@ -6,6 +6,10 @@ function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
+function removeSubpath(path) {
+	return path.replace('/subpath', '');
+}
+
 /**
  * @typedef {import('../src/core/logger/core').LogMessage} LogMessage
  */
@@ -90,7 +94,7 @@ describe('Static build', () => {
 			const links = $('link[rel=stylesheet]');
 			for (const link of links) {
 				const href = $(link).attr('href');
-				const data = await fixture.readFile(addLeadingSlash(href));
+				const data = await fixture.readFile(removeSubpath(addLeadingSlash(href)));
 				if (expected.test(data)) {
 					return true;
 				}
