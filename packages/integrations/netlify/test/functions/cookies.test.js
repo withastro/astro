@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
-import { loadFixture } from '../../../astro/test/test-utils.js';
-import netlifyAdapter from '../dist/index.js';
+import { loadFixture, testIntegration } from './test-utils.js';
+import netlifyAdapter from '../../dist/index.js';
 import { fileURLToPath } from 'url';
 
 describe('Cookies', () => {
@@ -18,15 +18,7 @@ describe('Cookies', () => {
 				dist: new URL('./fixtures/cookies/dist/', import.meta.url),
 			}),
 			site: `http://example.com`,
-			vite: {
-				resolve: {
-					alias: {
-						'@astrojs/netlify/netlify-functions.js': fileURLToPath(
-							new URL('../dist/netlify-functions.js', import.meta.url)
-						),
-					},
-				},
-			},
+			integrations: [ testIntegration() ]
 		});
 		await fixture.build();
 	});

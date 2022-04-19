@@ -1271,6 +1271,14 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/netlify/test/edge-functions/fixtures/edge-basic:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
+      astro: link:../../../../../../astro
+
   packages/integrations/node:
     specifiers:
       '@astrojs/webapi': ^0.11.1
