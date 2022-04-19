@@ -1,7 +1,5 @@
 ---
 "astro": patch
-"@test/astro-markdown-skiki-normal": patch
-"@test/astro-markdown": patch
 "@astrojs/markdown-remark": patch
 ---
 
