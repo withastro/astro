@@ -11,7 +11,7 @@
     "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
     "arg": "^5.0.1",
-    "esbuild": "^0.14.34",
+    "esbuild": "^0.14.36",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
     "svelte": "^3.47.0",

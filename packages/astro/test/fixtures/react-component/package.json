@@ -8,6 +8,6 @@
     "astro": "workspace:*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "vue": "^3.2.31"
+    "vue": "^3.2.33"
   }
 }
