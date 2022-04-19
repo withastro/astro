@@ -1444,7 +1444,6 @@ importers:
       mdast-util-mdx-expression: ^1.2.0
       mdast-util-mdx-jsx: ^1.2.0
       mdast-util-to-string: ^3.1.0
-      micromark-extension-mdx-expression: ^1.0.3
       micromark-extension-mdx-jsx: ^1.0.3
       prismjs: ^1.27.0
       rehype-raw: ^6.1.1
@@ -1465,7 +1464,6 @@ importers:
       mdast-util-mdx-expression: 1.2.0
       mdast-util-mdx-jsx: 1.2.0
       mdast-util-to-string: 3.1.0
-      micromark-extension-mdx-expression: 1.0.3
       micromark-extension-mdx-jsx: 1.0.3
       prismjs: 1.27.0
       rehype-raw: 6.1.1
@@ -7687,18 +7685,6 @@ packages:
       micromark-extension-gfm-task-list-item: 1.0.3
       micromark-util-combine-extensions: 1.0.0
       micromark-util-types: 1.0.2
-    dev: false
-
-  /micromark-extension-mdx-expression/1.0.3:
-    resolution: {integrity: sha512-TjYtjEMszWze51NJCZmhv7MEBcgYRgb3tJeMAJ+HQCAaZHHRBaDCccqQzGizR/H4ODefP44wRTgOn2vE5I6nZA==}
-    dependencies:
-      micromark-factory-mdx-expression: 1.0.6
-      micromark-factory-space: 1.0.0
-      micromark-util-character: 1.1.0
-      micromark-util-events-to-acorn: 1.0.4
-      micromark-util-symbol: 1.0.1
-      micromark-util-types: 1.0.2
-      uvu: 0.5.3
     dev: false
 
   /micromark-extension-mdx-jsx/1.0.3:
