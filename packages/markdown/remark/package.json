@@ -29,7 +29,6 @@
     "mdast-util-mdx-expression": "^1.2.0",
     "mdast-util-mdx-jsx": "^1.2.0",
     "mdast-util-to-string": "^3.1.0",
-    "micromark-extension-mdx-expression": "^1.0.3",
     "micromark-extension-mdx-jsx": "^1.0.3",
     "prismjs": "^1.27.0",
     "rehype-raw": "^6.1.1",
