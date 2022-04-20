@@ -1,5 +1,22 @@
 # @astrojs/language-server
 
+## 0.15.0
+
+### Minor Changes
+
+- 6bb45cb: Overhaul TypeScript completions
+
+  - Add support for completions inside expressions
+  - Add support for auto imports on completion
+  - Fix misc issues in completions (missing description, deprecated stuff not showing as deprecated)
+
+### Patch Changes
+
+- 7978de1: Add support for folding JavaScript
+- 3ac74bc: Improve props completions on components
+- Updated dependencies [6bb45cb]
+  - @astrojs/svelte-language-integration@0.1.3
+
 ## 0.14.0
 
 ### Minor Changes
