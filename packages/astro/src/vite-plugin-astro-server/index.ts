@@ -115,9 +115,11 @@ async function handle404Response(
 		const redirectTo = 
 			req.method === 'GET'
 			&& config.base && config.base !== './'
-			&& pathname.replace(config.base, '');
+			&& pathname.startsWith(config.base)
+			&& pathname.replace(config.base, '/');
 
 		if (redirectTo && redirectTo !== '/') {
+			console.log('redirecting', pathname, redirectTo);
 			const response = new Response(null, {
 				status: 302,
 				headers: {
