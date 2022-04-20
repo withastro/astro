@@ -15,7 +15,7 @@ import {
 } from 'vscode-languageserver';
 import ts from 'typescript';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
-import { isInComponentStartTag, isInsideFrontmatter } from '../../../core/documents/utils';
+import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../../core/documents/utils';
 import { isPossibleComponent } from '../../../utils';
 import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
 import { getLanguageService, Node } from 'vscode-html-languageservice';
@@ -53,13 +53,14 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 
 		const html = document.html;
 		const offset = document.offsetAt(position);
-		if (isInComponentStartTag(html, offset)) {
+		const node = html.findNodeAt(offset);
+
+		if (isInComponentStartTag(html, offset) && !isInsideExpression(document.getText(), node.start, offset)) {
 			const props = await this.getPropCompletions(document, position, completionContext);
 			if (props.length) {
 				items.push(...props);
 			}
 
-			const node = html.findNodeAt(offset);
 			const isAstro = await this.isAstroComponent(document, node);
 			if (!isAstro) {
 				const directives = removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items);
@@ -169,7 +170,8 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		const properties = componentType.getProperties().filter((property) => property.name !== 'children') || [];
 
 		properties.forEach((property) => {
-			let completionItem = this.getCompletionItemForProperty(property, typeChecker);
+			const type = typeChecker.getTypeOfSymbolAtLocation(property, imp);
+			let completionItem = this.getCompletionItemForProperty(property, typeChecker, type);
 			completionItems.push(completionItem);
 		});
 
@@ -232,10 +234,27 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		return null;
 	}
 
-	private getCompletionItemForProperty(mem: ts.Symbol, typeChecker: ts.TypeChecker) {
+	private getCompletionItemForProperty(mem: ts.Symbol, typeChecker: ts.TypeChecker, type: ts.Type) {
+		const typeString = typeChecker.typeToString(type);
+
+		let insertText = mem.name;
+		switch (typeString) {
+			case 'string':
+				insertText = `${mem.name}="$1"`;
+				break;
+			case 'boolean':
+				insertText = mem.name;
+				break;
+			default:
+				insertText = `${mem.name}={$1}`;
+				break;
+		}
+
 		let item: CompletionItem = {
 			label: mem.name,
-			insertText: mem.name,
+			detail: typeString,
+			insertText: insertText,
+			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 		};
 

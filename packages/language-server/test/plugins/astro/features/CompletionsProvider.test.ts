@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { createEnvironment } from '../../../utils';
 import { CompletionsProviderImpl } from '../../../../src/plugins/astro/features/CompletionsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { Position, Range } from 'vscode-languageserver-types';
+import { InsertTextFormat, Position, Range } from 'vscode-languageserver-types';
 import { CompletionContext, CompletionTriggerKind } from 'vscode-languageserver-protocol';
 
 describe('Astro Plugin#CompletionsProvider', () => {
@@ -51,7 +51,9 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		expect(completions.items).to.deep.equal([
 			{
 				label: 'name',
-				insertText: 'name',
+				detail: 'string',
+				insertText: 'name="$1"',
+				insertTextFormat: InsertTextFormat.Snippet,
 				commitCharacters: [],
 				sortText: '_',
 			},
@@ -65,7 +67,9 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
-			insertText: 'name',
+			detail: 'any',
+			insertText: 'name={$1}',
+			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 			sortText: '_',
 		});
@@ -78,7 +82,9 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
-			insertText: 'name',
+			detail: 'any',
+			insertText: 'name={$1}',
+			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 			sortText: '_',
 		});
@@ -91,7 +97,9 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
-			insertText: 'name',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 			sortText: '_',
 		});
