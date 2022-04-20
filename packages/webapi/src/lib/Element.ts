@@ -8,7 +8,7 @@ export class Element extends Node {
 			const internals = _.internalsOf(new.target, 'Element', 'localName')
 			_.INTERNALS.set(this, {
 				attributes: {},
-				localName: internals.localName,
+				localName: (internals as unknown as Element).localName,
 				ownerDocument: this.ownerDocument,
 				shadowInit: null as unknown as ShadowRootInit,
 				shadowRoot: null as unknown as ShadowRoot,
