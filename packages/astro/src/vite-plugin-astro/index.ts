@@ -174,7 +174,20 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				let SUFFIX = '';
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
-					SUFFIX += `\nif (import.meta.hot) import.meta.hot.accept((mod) => mod);`;
+					// HACK: extract dependencies from metadata until compiler static extraction handles them
+					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0]
+					const pattern = /specifier:\s*'([^']*)'/g;
+					const deps = new Set();
+					let match;
+					while (match = pattern.exec(metadata)?.[1]) {
+						deps.add(match);
+					}
+					// // import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);
+					// We need to be self-accepting, AND
+					// we need an explicity array of deps to track changes for SSR-only components
+					SUFFIX += `\nif (import.meta.hot) {
+						import.meta.hot.accept(mod => mod);
+					}`;
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
@@ -242,7 +255,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 				}
 
-				throw err;
+			throw err;
 			}
 		},
 		async handleHotUpdate(context) {
