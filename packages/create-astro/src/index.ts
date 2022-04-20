@@ -48,22 +48,21 @@ export async function main() {
 	spinner.succeed();
 
 	const cwd = (args['_'][2] as string) || '.';
-	if (fs.existsSync(cwd)) {
-		if (fs.readdirSync(cwd).length > 0) {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'forceOverwrite',
-				message: 'Directory not empty. Continue [force overwrite]?',
-				initial: false,
-			});
-			if (!response.forceOverwrite) {
-				process.exit(1);
+	const dirResponse = await prompts({
+		type: 'text',
+		name: 'directory',
+		message: 'Where would you like to create your app?',
+		initial: './my-astro-site',
+		validate(value) {
+			if (fs.readdirSync(value).length > 0) {
+				console.log('ah!');
+				return '🚨 The current directory must be empty to create a new project. Please clear the contents of the directory or choose a different path.';
 			}
-			mkdirp(cwd);
-		}
-	} else {
-		mkdirp(cwd);
-	}
+			return true;
+		},
+	});
+
+	console.log(dirResponse);
 
 	const options = await prompts([
 		{
