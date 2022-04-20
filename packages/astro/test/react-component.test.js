@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
+import cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
 let fixture;
@@ -18,7 +18,7 @@ describe('React Components', () => {
 
 		it('Can load React', async () => {
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerioLoad(html);
+			const $ = cheerio.load(html);
 
 			// test 1: basic component renders
 			expect($('#react-static').text()).to.equal('Hello static!');
@@ -51,13 +51,13 @@ describe('React Components', () => {
 
 		it('Can load Vue', async () => {
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerioLoad(html);
+			const $ = cheerio.load(html);
 			expect($('#vue-h2').text()).to.equal('Hasta la vista, baby');
 		});
 
 		it('Can use a pragma comment', async () => {
 			const html = await fixture.readFile('/pragma-comment/index.html');
-			const $ = cheerioLoad(html);
+			const $ = cheerio.load(html);
 
 			// test 1: rendered the PragmaComment component
 			expect($('.pragma-comment')).to.have.lengthOf(2);
@@ -66,7 +66,7 @@ describe('React Components', () => {
 		// TODO: is this still a relevant test?
 		it.skip('Includes reactroot on hydrating components', async () => {
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerioLoad(html);
+			const $ = cheerio.load(html);
 
 			const div = $('#research');
 
@@ -75,13 +75,6 @@ describe('React Components', () => {
 
 			// test 2: renders correctly
 			expect(div.html()).to.equal('foo bar <!-- -->1');
-		});
-
-		it('Can load Suspense-using components', async () => {
-			const html = await fixture.readFile('/suspense/index.html');
-			const $ = cheerioLoad(html);
-			expect($('#client #lazy')).to.have.lengthOf(1);
-			expect($('#server #lazy')).to.have.lengthOf(1);
 		});
 	});
 
@@ -100,7 +93,7 @@ describe('React Components', () => {
 
 		it('scripts proxy correctly', async () => {
 			const html = await fixture.fetch('/').then((res) => res.text());
-			const $ = cheerioLoad(html);
+			const $ = cheerio.load(html);
 
 			for (const script of $('script').toArray()) {
 				const { src } = script.attribs;

@@ -1238,11 +1238,9 @@ importers:
   packages/integrations/deno/test/fixtures/basics:
     specifiers:
       '@astrojs/deno': workspace:*
-      '@astrojs/react': workspace:*
       astro: workspace:*
     dependencies:
       '@astrojs/deno': link:../../..
-      '@astrojs/react': link:../../../../react
       astro: link:../../../../../astro
 
   packages/integrations/lit:
@@ -1272,11 +1270,9 @@ importers:
   packages/integrations/netlify/test/edge-functions/fixtures/edge-basic:
     specifiers:
       '@astrojs/netlify': workspace:*
-      '@astrojs/react': workspace:*
       astro: workspace:*
     dependencies:
       '@astrojs/netlify': link:../../../..
-      '@astrojs/react': link:../../../../../react
       astro: link:../../../../../../astro
 
   packages/integrations/node:

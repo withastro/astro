@@ -13,9 +13,6 @@ Deno.test({
 			assertEquals(resp.status, 200);
 			const html = await resp.text();
 			assert(html);
-			const doc = new DOMParser().parseFromString(html, `text/html`);
-			const div = doc.querySelector("#react");
-			assert(div, 'div exists');
 		});
 	},
 });

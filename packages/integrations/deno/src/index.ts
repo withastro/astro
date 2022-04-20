@@ -23,9 +23,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					vite.resolve = vite.resolve || {};
-					vite.resolve.alias = vite.resolve.alias || {};
-					vite.resolve.alias['react-dom/server'] = 'react-dom/server.browser'
 					vite.ssr = {
 						noExternal: true,
 					};
