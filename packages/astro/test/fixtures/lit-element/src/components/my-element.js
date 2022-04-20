@@ -24,11 +24,13 @@ export class MyElement extends LitElement {
     this.reflectedStr = 'default reflected string';
   }
   render() {
+		let typeofwindow = typeof window.Window;
     return html`
       <div>Testing...</div>
       <div id="bool">${this.bool ? 'A' : 'B'}</div>
       <div id="str">${this.str}</div>
       <div id="data">data: ${this.obj.data}</div>
+			<div id="win">${typeofwindow}</div>
     `;
   }
 }
