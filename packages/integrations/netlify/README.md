@@ -18,7 +18,7 @@ After you build your site the `netlify/` folder will contain [Netlify Functions]
 Now you can deploy!
 
 ```shell
-netlify deploy
+netlify deploy --build
 ```
 
 ## Edge Functions
