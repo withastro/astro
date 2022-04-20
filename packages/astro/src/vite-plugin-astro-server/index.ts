@@ -112,20 +112,14 @@ async function handle404Response(
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
 		// HACK: redirect without the base path for assets in publicDir
-		// Only redirect if:
-		// (1) astroConfig.base was provided
-		// (2) pathname begins with the base path
-		// (3) pathname isn't `{basepath}` or `{basepath}/`
-		const baseRegex = new RegExp(`${config.base}\/\d*$`);
-		const shouldRedirect = config.base && config.base !== './'
-			&& pathname.match(baseRegex);
+		const redirectTo = config.base && config.base !== './'
+			&& pathname.replace(config.base, '');
 
-		if (shouldRedirect) {
+		if (redirectTo && redirectTo !== '/') {
 			const response = new Response(null, {
 				status: 301,
 				headers: {
-					// substring at 1 to maintain the leading /
-					Location: pathname.replace(config.base.substring(1), ''),
+					Location: redirectTo,
 				},
 			});
 			await writeWebResponse(res, response);
