@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
+    "@astrojs/react": "workspace:*",
     "@astrojs/netlify": "workspace:*"
   }
 }
