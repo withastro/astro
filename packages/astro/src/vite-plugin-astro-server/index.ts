@@ -112,23 +112,16 @@ async function handle404Response(
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
 		// HACK: redirect without the base path for assets in publicDir
-		const redirectTo =
-			req.method === 'GET' &&
-			config.base !== '/' &&
-			pathname.startsWith(config.base) &&
-			pathname.replace(config.base, '/');
-
-		if (redirectTo && redirectTo !== '/') {
+		if (config.base && !pathname.startsWith(config.base)) {
 			const response = new Response(null, {
-				status: 302,
+				status: 301,
 				headers: {
-					Location: redirectTo,
+					Location: pathname.replace(config.base, ''),
 				},
 			});
 			await writeWebResponse(res, response);
 			return;
 		}
-
 		html = notFoundTemplate({
 			statusCode: 404,
 			title: 'Not found',
