@@ -7,6 +7,7 @@ function addLeadingSlash(path) {
 }
 
 function removeBasePath(path) {
+	// `/subpath` is defined in the test fixture's Astro config
 	return path.replace('/subpath', '')
 }
 
@@ -94,6 +95,14 @@ describe('Static build', () => {
 			const links = $('link[rel=stylesheet]');
 			for (const link of links) {
 				const href = $(link).attr('href');
+
+				/**
+				 * The link should be built with the config's `base` included
+				 * as a subpath.
+				 *
+				 * The test needs to verify that the file will be found once the `/dist`
+				 * output is deployed to a subpath in production by ignoring the subpath here.
+				 */
 				const data = await fixture.readFile(removeBasePath(addLeadingSlash(href)));
 				if (expected.test(data)) {
 					return true;
