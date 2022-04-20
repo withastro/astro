@@ -30,7 +30,7 @@
     "mdast-util-mdx-jsx": "^1.2.0",
     "mdast-util-to-string": "^3.1.0",
     "micromark-extension-mdx-jsx": "^1.0.3",
-    "prismjs": "^1.27.0",
+    "prismjs": "^1.28.0",
     "rehype-raw": "^6.1.1",
     "rehype-slug": "^5.0.1",
     "rehype-stringify": "^9.0.3",

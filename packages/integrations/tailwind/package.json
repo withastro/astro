@@ -30,7 +30,7 @@
     "@proload/core": "^0.2.2",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "tailwindcss": "^3.0.24"
   },
   "devDependencies": {
     "@types/tailwindcss": "^3.0.10",
