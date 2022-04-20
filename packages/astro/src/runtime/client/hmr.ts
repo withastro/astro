@@ -1,5 +1,5 @@
 if (import.meta.hot) {
-	import.meta.hot.accept(mod => mod);
+	import.meta.hot.accept((mod) => mod);
 	const parser = new DOMParser();
 	async function updatePage() {
 		const { default: diff } = await import('micromorph');
@@ -31,7 +31,7 @@ if (import.meta.hot) {
 			}
 		}
 		if (hasAstroUpdate) {
-			return updatePage()
+			return updatePage();
 		}
 	}
 	import.meta.hot.on('vite:beforeUpdate', async (event) => {

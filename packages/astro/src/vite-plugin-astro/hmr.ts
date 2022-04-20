@@ -84,8 +84,8 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
-	const mods = ctx.modules.filter(m => !m.url.endsWith('='));
-	const isSelfAccepting = mods.every(m => m.isSelfAccepting || m.url.endsWith('.svelte'));
+	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 
 	const file = ctx.file.replace(config.root.pathname, '/');
 	if (isSelfAccepting) {
@@ -94,5 +94,5 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 		info(logging, 'astro', msg.reload({ file }));
 	}
 
-	return mods
+	return mods;
 }

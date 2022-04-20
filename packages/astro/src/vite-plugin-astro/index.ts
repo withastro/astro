@@ -175,11 +175,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
 					// HACK: extract dependencies from metadata until compiler static extraction handles them
-					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0]
+					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0];
 					const pattern = /specifier:\s*'([^']*)'/g;
 					const deps = new Set();
 					let match;
-					while (match = pattern.exec(metadata)?.[1]) {
+					while ((match = pattern.exec(metadata)?.[1])) {
 						deps.add(match);
 					}
 					// // import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);
@@ -255,7 +255,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 				}
 
-			throw err;
+				throw err;
 			}
 		},
 		async handleHotUpdate(context) {
