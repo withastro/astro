@@ -112,7 +112,8 @@ async function handle404Response(
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
 		// HACK: redirect without the base path for assets in publicDir
-		if (config.base && !pathname.startsWith(config.base)) {
+		if (config.base && config.base !== './' && !pathname.startsWith(config.base)) {
+			console.log('REDIRECT::', pathname, config.base, pathname.replace(config.base, ''));
 			const response = new Response(null, {
 				status: 301,
 				headers: {
