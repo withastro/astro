@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3140](https://github.com/withastro/astro/pull/3140) [`5e28b790`](https://github.com/withastro/astro/commit/5e28b790950bd29f4f7067082ad13b759594509f) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix location of SolidJS pre-hydration code
+
 ## 0.1.1
 
 ### Patch Changes

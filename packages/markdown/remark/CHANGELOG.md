@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.9.2
+
+### Patch Changes
+
+- [#3152](https://github.com/withastro/astro/pull/3152) [`9ba1f4f8`](https://github.com/withastro/astro/commit/9ba1f4f8251155b69398a8af22d6ab8587b96120) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix JSX expression inconsistencies within markdown files
+
 ## 0.9.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 0.1.3
+
+### Patch Changes
+
+- [`0c6bbee4`](https://github.com/withastro/astro/commit/0c6bbee4c95b50e5bd43675296511fbb5b985014) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Republishing. No changes from v0.1.2.
+
 ## 0.1.2
 
 ### Patch Changes
