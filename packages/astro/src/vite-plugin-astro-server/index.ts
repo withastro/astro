@@ -112,17 +112,26 @@ async function handle404Response(
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
 		// HACK: redirect without the base path for assets in publicDir
-		if (config.base && config.base !== './' && !pathname.startsWith(config.base)) {
-			console.log('REDIRECT::', pathname, config.base, pathname.replace(config.base, ''));
+		// Only redirect if:
+		// (1) astroConfig.base was provided
+		// (2) pathname begins with the base path
+		// (3) pathname isn't `{basepath}` or `{basepath}/`
+		const baseRegex = new RegExp(`${config.base}\/\d*$`);
+		const shouldRedirect = config.base && config.base !== './'
+			&& pathname.match(baseRegex);
+
+		if (shouldRedirect) {
 			const response = new Response(null, {
 				status: 301,
 				headers: {
-					Location: pathname.replace(config.base, ''),
+					// substring at 1 to maintain the leading /
+					Location: pathname.replace(config.base.substring(1), ''),
 				},
 			});
 			await writeWebResponse(res, response);
 			return;
 		}
+
 		html = notFoundTemplate({
 			statusCode: 404,
 			title: 'Not found',
