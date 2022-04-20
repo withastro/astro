@@ -176,7 +176,9 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const site = joinPaths(astroConfig.site, astroConfig.base);
+	const site = !astroConfig.base || astroConfig.base === './'
+		? astroConfig.site
+		: joinPaths(astroConfig.site, astroConfig.base);
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
