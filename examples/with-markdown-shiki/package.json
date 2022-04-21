@@ -10,6 +10,6 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^0.9.2",
-    "astro": "^1.0.0-beta.14"
+    "astro": "^1.0.0-beta.15"
   }
 }

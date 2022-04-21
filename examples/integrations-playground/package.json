@@ -9,13 +9,13 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/lit": "^0.1.1",
+    "@astrojs/lit": "^0.1.2",
     "@astrojs/partytown": "^0.1.2",
     "@astrojs/react": "^0.1.0",
     "@astrojs/sitemap": "^0.1.0",
     "@astrojs/tailwind": "^0.2.0",
     "@astrojs/turbolinks": "^0.1.1",
-    "astro": "^1.0.0-beta.14"
+    "astro": "^1.0.0-beta.15"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
