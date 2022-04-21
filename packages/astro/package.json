@@ -75,7 +75,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.14.1",
+    "@astrojs/compiler": "^0.14.2",
     "@astrojs/language-server": "^0.13.4",
     "@astrojs/markdown-remark": "^0.9.2",
     "@astrojs/prism": "0.4.1",
