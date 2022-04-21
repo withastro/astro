@@ -28,6 +28,10 @@ export function mkdirp(dir: string) {
 	}
 }
 
+function isEmpty(dirPath: string) {
+	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
+}
+
 const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
 );
@@ -49,15 +53,30 @@ export async function main() {
 
 	let cwd = args['_'][2] as string;
 
-	if (!cwd) {
+	if (cwd && isEmpty(cwd)) {
+		let acknowledgeProjectDir = ora({
+			color: 'green',
+			text: `Using ${bold(cwd)} as project directory.`,
+		});
+		acknowledgeProjectDir.succeed();
+	}
+
+	if (!cwd || !isEmpty(cwd)) {
+		const notEmptyMsg = (dirPath: string) =>
+			`"${bold(dirPath)}" is not empty. Please clear contents or choose a different path.`;
+
+		if (!isEmpty(cwd)) {
+			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });
+			rejectProjectDir.fail();
+		}
 		const dirResponse = await prompts({
 			type: 'text',
 			name: 'directory',
 			message: 'Where would you like to create your app?',
 			initial: './my-astro-site',
 			validate(value) {
-				if (fs.existsSync(value) && fs.readdirSync(value).length > 0) {
-					return '🚨 The current directory must be empty to create a new project. Please clear the contents of the directory or choose a different path.';
+				if (!isEmpty(value)) {
+					return notEmptyMsg(value);
 				}
 				return true;
 			},
