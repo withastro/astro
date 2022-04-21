@@ -88,7 +88,8 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				if (target === 'server') {
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
-					vite.resolve.alias['react-dom/server'] = 'react-dom/server.browser'
+					const alias = vite.resolve.alias as Record<string, string>;
+					alias['react-dom/server'] = 'react-dom/server.browser'
 					vite.ssr = {
 						noExternal: true,
 					};
