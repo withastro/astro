@@ -13,7 +13,7 @@
     "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "test": "turbo run test --filter=!create-astro --concurrency=1",
+    "test": "turbo run test --concurrency=1",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "turbo run test --filter=create-astro --concurrency=1",
     "test:smoke": "node scripts/smoke/index.js",
