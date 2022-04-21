@@ -43,7 +43,7 @@ export default function (): AstroIntegration {
 				addRenderer(getRenderer());
 				updateConfig({
 					vite: getViteConfiguration(),
-				})
+				});
 			},
 		},
 	};
