@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 0.1.1
+
+### Patch Changes
+
+- [#3160](https://github.com/withastro/astro/pull/3160) [`ae9ac5cb`](https://github.com/withastro/astro/commit/ae9ac5cbdceba0687d83d56d9d5f80479ab88710) Thanks [@matthewp](https://github.com/matthewp)! - Allows using React.lazy, Suspense in SSR and with hydration
+
 ## 0.1.0
 
 ### Minor Changes

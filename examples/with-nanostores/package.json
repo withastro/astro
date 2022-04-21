@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@astrojs/preact": "^0.1.1",
-    "@astrojs/react": "^0.1.0",
+    "@astrojs/react": "^0.1.1",
     "@astrojs/solid-js": "^0.1.2",
     "@astrojs/svelte": "^0.1.1",
     "@astrojs/vue": "^0.1.3",
