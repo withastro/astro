@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.16
+
+### Patch Changes
+
+- [#3156](https://github.com/withastro/astro/pull/3156) [`637919c8`](https://github.com/withastro/astro/commit/637919c8b63df1608e88d153742db098722265d8) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds subpath to assets/scripts when statically generating
+
 ## 1.0.0-beta.15
 
 ### Patch Changes
