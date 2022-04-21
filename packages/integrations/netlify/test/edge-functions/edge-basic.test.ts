@@ -8,9 +8,7 @@ Deno.test({
 	name: 'Edge Basics',
 	async fn() {
 		let close = await runBuild('./fixtures/edge-basic/');
-		const { default: handler } = await import(
-			'./fixtures/edge-basic/dist/edge-functions/entry.js'
-		);
+		const { default: handler } = await import('./fixtures/edge-basic/dist/edge-functions/entry.js');
 		const response = await handler(new Request('http://example.com/'));
 		assertEquals(response.status, 200);
 		const html = await response.text();

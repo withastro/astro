@@ -65,18 +65,17 @@ async function renderToStaticMarkup(Component, props, children, metadata) {
 	let html;
 	if (metadata && metadata.hydrate) {
 		html = ReactDOM.renderToString(vnode);
-		if('renderToReadableStream' in ReactDOM) {
+		if ('renderToReadableStream' in ReactDOM) {
 			html = await renderToReadableStreamAsync(vnode);
 		} else {
 			html = await renderToPipeableStreamAsync(vnode);
 		}
 	} else {
-		if('renderToReadableStream' in ReactDOM) {
+		if ('renderToReadableStream' in ReactDOM) {
 			html = await renderToReadableStreamAsync(vnode);
 		} else {
 			html = await renderToStaticNodeStreamAsync(vnode);
 		}
-		
 	}
 	return { html };
 }
@@ -92,16 +91,18 @@ async function renderToPipeableStreamAsync(vnode) {
 				reject(error);
 			},
 			onAllReady() {
-				stream.pipe(new Writable({
-					write(chunk, _encoding, callback) {
-						html += chunk.toString('utf-8');
-						callback();
-					},
-					destroy() {
-						resolve(html);
-					}
-				}));
-			}
+				stream.pipe(
+					new Writable({
+						write(chunk, _encoding, callback) {
+							html += chunk.toString('utf-8');
+							callback();
+						},
+						destroy() {
+							resolve(html);
+						},
+					})
+				);
+			},
 		});
 	});
 }
@@ -111,15 +112,17 @@ async function renderToStaticNodeStreamAsync(vnode) {
 	let html = '';
 	return new Promise((resolve) => {
 		let stream = ReactDOM.renderToStaticNodeStream(vnode);
-		stream.pipe(new Writable({
-			write(chunk, _encoding, callback) {
-				html += chunk.toString('utf-8');
-				callback();
-			},
-			destroy() {
-				resolve(html);
-			}
-		}));
+		stream.pipe(
+			new Writable({
+				write(chunk, _encoding, callback) {
+					html += chunk.toString('utf-8');
+					callback();
+				},
+				destroy() {
+					resolve(html);
+				},
+			})
+		);
 	});
 }
 
@@ -127,7 +130,7 @@ async function renderToReadableStreamAsync(vnode) {
 	const decoder = new TextDecoder();
 	const stream = await ReactDOM.renderToReadableStream(vnode);
 	let html = '';
-	for await(const chunk of stream) {
+	for await (const chunk of stream) {
 		html += decoder.decode(chunk);
 	}
 	return html;

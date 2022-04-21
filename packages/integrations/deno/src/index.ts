@@ -26,7 +26,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
 					const alias = vite.resolve.alias as Record<string, string>;
-					alias['react-dom/server'] = 'react-dom/server.browser'
+					alias['react-dom/server'] = 'react-dom/server.browser';
 					vite.ssr = {
 						noExternal: true,
 					};
