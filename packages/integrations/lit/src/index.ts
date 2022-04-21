@@ -47,14 +47,14 @@ export default function (): AstroIntegration {
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					if(!vite.ssr) {
+					if (!vite.ssr) {
 						vite.ssr = {};
 					}
-					if(!vite.ssr.noExternal) {
+					if (!vite.ssr.noExternal) {
 						vite.ssr.noExternal = [];
 					}
-					if(Array.isArray(vite.ssr.noExternal)) {
-						vite.ssr.noExternal.push('lit')
+					if (Array.isArray(vite.ssr.noExternal)) {
+						vite.ssr.noExternal.push('lit');
 					}
 				}
 			},
