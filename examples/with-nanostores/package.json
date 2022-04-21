@@ -20,11 +20,11 @@
     "vue": "^3.2.33"
   },
   "devDependencies": {
-    "@astrojs/preact": "^0.1.1",
+    "@astrojs/preact": "^0.1.2",
     "@astrojs/react": "^0.1.1",
     "@astrojs/solid-js": "^0.1.2",
     "@astrojs/svelte": "^0.1.1",
     "@astrojs/vue": "^0.1.3",
-    "astro": "^1.0.0-beta.16"
+    "astro": "^1.0.0-beta.17"
   }
 }

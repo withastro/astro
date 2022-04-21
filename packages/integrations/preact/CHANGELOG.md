@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3166](https://github.com/withastro/astro/pull/3166) [`70263cf7`](https://github.com/withastro/astro/commit/70263cf7481b11e42152c422acc6cfe90fe10ad2) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix integration to use updateConfig rather than returning a partial config object
+
 ## 0.1.1
 
 ### Patch Changes

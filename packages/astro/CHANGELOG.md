@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.17
+
+### Patch Changes
+
+- [#3171](https://github.com/withastro/astro/pull/3171) [`908fffb5`](https://github.com/withastro/astro/commit/908fffb5ec2de4efb55d03a69381e3aa376e4c42) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix various edge cases in the compiler, upgrading to `@astrojs/compiler@0.14.2`. Read the [full changelog](https://github.com/withastro/compiler/blob/main/packages/compiler/CHANGELOG.md#0142).
+
 ## 1.0.0-beta.16
 
 ### Patch Changes
