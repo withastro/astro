@@ -1,17 +1,19 @@
-import { execa} from 'execa';
+import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
-import {promises, existsSync} from 'fs'
+import { promises, existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const createAstroError = new Error('Timed out waiting for create-astro to respond with expected output.')
+const createAstroError = new Error(
+	'Timed out waiting for create-astro to respond with expected output.'
+);
 const timeout = 5000;
 
 const instructions = {
 	directory: 'Where would you like to create your app?',
-	template: 'Which app template would you like to use?', 
+	template: 'Which app template would you like to use?',
 };
 const inputs = {
 	nonEmptyDir: './fixtures/select-directory/nonempty-dir',
@@ -29,74 +31,74 @@ function promiseWithTimeout(testFn) {
 			resolve();
 		}
 		testFn(resolver);
-	})
+	});
 }
 
 function setup(args = []) {
-	const {stdout, stdin} = execa('../create-astro.mjs', args, { cwd: __dirname })
+	const { stdout, stdin } = execa('../create-astro.mjs', args, { cwd: __dirname });
 	return {
 		stdin,
 		stdout,
-	}
+	};
 }
 
-describe('[create-astro] select directory', function() {
+describe('[create-astro] select directory', function () {
 	this.timeout(timeout);
-	it ('should prompt for directory when none is provided', function () {
-		return promiseWithTimeout(resolve => {
-			const {stdout} = setup()
-			stdout.on('data', chunk => {
+	it('should prompt for directory when none is provided', function () {
+		return promiseWithTimeout((resolve) => {
+			const { stdout } = setup();
+			stdout.on('data', (chunk) => {
 				if (chunk.includes(instructions.directory)) {
-					resolve()
+					resolve();
 				}
-			})
-		})
-	})
-	it ('should NOT proceed on a non-empty directory', function () {
-		return promiseWithTimeout(resolve => {
-			const {stdout} = setup([inputs.nonEmptyDir])
-			stdout.on('data', chunk => {
+			});
+		});
+	});
+	it('should NOT proceed on a non-empty directory', function () {
+		return promiseWithTimeout((resolve) => {
+			const { stdout } = setup([inputs.nonEmptyDir]);
+			stdout.on('data', (chunk) => {
 				if (chunk.includes(instructions.directory)) {
-					resolve()
+					resolve();
 				}
-			})
-		})
-	})
-	it ('should proceed on an empty directory', async function () {
-		const resolvedEmptyDirPath = resolve(__dirname, inputs.emptyDir)
+			});
+		});
+	});
+	it('should proceed on an empty directory', async function () {
+		const resolvedEmptyDirPath = resolve(__dirname, inputs.emptyDir);
 		if (!existsSync(resolvedEmptyDirPath)) {
-			await promises.mkdir(resolvedEmptyDirPath)
+			await promises.mkdir(resolvedEmptyDirPath);
 		}
-		return promiseWithTimeout(resolve => {
-			const {stdout} = setup([inputs.emptyDir])
-			stdout.on('data', chunk => {
+		return promiseWithTimeout((resolve) => {
+			const { stdout } = setup([inputs.emptyDir]);
+			stdout.on('data', (chunk) => {
 				if (chunk.includes(instructions.template)) {
-					resolve()
+					resolve();
 				}
-			})
-		})
-	})
-	it ('should proceed when directory does not exist', function () {
-		return promiseWithTimeout(resolve => {
-			const {stdout} = setup([inputs.nonexistentDir])
-			stdout.on('data', chunk => {
+			});
+		});
+	});
+	it('should proceed when directory does not exist', function () {
+		return promiseWithTimeout((resolve) => {
+			const { stdout } = setup([inputs.nonexistentDir]);
+			stdout.on('data', (chunk) => {
 				if (chunk.includes(instructions.template)) {
-					resolve()
+					resolve();
 				}
-			})
-		})
-	})
-	it ('should error on bad directory selection in prompt', function () {
-		return promiseWithTimeout(resolve => {
-			const {stdout, stdin} = setup()
-			stdout.on('data', chunk => {
+			});
+		});
+	});
+	it('should error on bad directory selection in prompt', function () {
+		return promiseWithTimeout((resolve) => {
+			const { stdout, stdin } = setup();
+			stdout.on('data', (chunk) => {
 				if (chunk.includes('Please clear contents or choose a different path.')) {
-					resolve()
+					resolve();
 				}
 				if (chunk.includes(instructions.directory)) {
-					stdin.write(`${inputs.nonEmptyDir}\x0D`)
+					stdin.write(`${inputs.nonEmptyDir}\x0D`);
 				}
-			})
-		})
-	})
-})
+			});
+		});
+	});
+});
