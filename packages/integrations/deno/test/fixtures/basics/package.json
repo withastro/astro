@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/deno": "workspace:*"
+    "@astrojs/deno": "workspace:*",
+    "@astrojs/react": "workspace:*"
   }
 }
