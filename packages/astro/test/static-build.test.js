@@ -8,7 +8,7 @@ function addLeadingSlash(path) {
 
 function removeBasePath(path) {
 	// `/subpath` is defined in the test fixture's Astro config
-	return path.replace('/subpath', '')
+	return path.replace('/subpath', '');
 }
 
 /**
