@@ -39,11 +39,11 @@ export default function (): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
-				return {
+				updateConfig({
 					vite: getViteConfiguration(),
-				};
+				})
 			},
 		},
 	};
