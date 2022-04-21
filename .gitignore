@@ -18,3 +18,4 @@ package-lock.json
 *.env
 
 !packages/astro/vendor/vite/dist
+packages/integrations/**/.netlify/
