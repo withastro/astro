@@ -13,14 +13,32 @@ export default defineConfig({
 });
 ```
 
-After you build your site the `.output/` folder will contain your server-side rendered app. Since this feature is still in beta, you'll **need to add this Enviroment Variable to your Vercel project**: `ENABLE_FILE_SYSTEM_API=1`. [Learn how to set enviroment variables](https://vercel.com/docs/concepts/projects/environment-variables).
+When you build your project, Astro will know to use the `.output` folder format that Vercel expects.
 
-Now you can deploy!
-
-```shell
-vercel
 ```
+astro build
+```
+
+That's it! You can deploy by CLI (`vercel deploy`) or by connecting your new repo in the [Vercel Dashboard](https://vercel.com/).
+
+## Requirements
+
+**Vercel's [File System API](https://vercel.com/docs/file-system-api/v2) must be enabled.** You must enable it yourself by setting the environment variable: `ENABLE_FILE_SYSTEM_API=1`. 
+
+```js
+// vercel.json
+{
+  "build": {
+    "env": {
+      "ENABLE_FILE_SYSTEM_API": "1"
+    }
+  }
+}
+```
+
+[Learn more about setting enviroment variables in Vercel](https://vercel.com/docs/concepts/projects/environment-variables).
+
 
 ## Limitations
 
-By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`. There is no action needed on your part to enable this, but be aware that some complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.
+**A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.
