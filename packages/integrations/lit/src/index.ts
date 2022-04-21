@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import type { AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 
 function getViteConfiguration() {
 	return {
@@ -44,6 +44,19 @@ export default function (): AstroIntegration {
 				updateConfig({
 					vite: getViteConfiguration(),
 				});
+			},
+			'astro:build:setup': ({ vite, target }) => {
+				if (target === 'server') {
+					if(!vite.ssr) {
+						vite.ssr = {};
+					}
+					if(!vite.ssr.noExternal) {
+						vite.ssr.noExternal = [];
+					}
+					if(Array.isArray(vite.ssr.noExternal)) {
+						vite.ssr.noExternal.push('lit')
+					}
+				}
 			},
 		},
 	};
