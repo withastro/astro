@@ -40,7 +40,9 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let rendererItems = '';
 				for (const renderer of opts.astroConfig._ctx.renderers) {
 					const variable = `_renderer${i}`;
-					imports.push(`import ${variable} from '${renderer.serverEntrypoint}';`);
+					// Use unshift so that renderers are imported before user code, in case they set globals
+					// that user code depends on.
+					imports.unshift(`import ${variable} from '${renderer.serverEntrypoint}';`);
 					rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
 					i++;
 				}
