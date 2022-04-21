@@ -47,22 +47,27 @@ export async function main() {
 
 	spinner.succeed();
 
-	const cwd = (args['_'][2] as string) || '.';
-	const dirResponse = await prompts({
-		type: 'text',
-		name: 'directory',
-		message: 'Where would you like to create your app?',
-		initial: './my-astro-site',
-		validate(value) {
-			if (fs.readdirSync(value).length > 0) {
-				console.log('ah!');
-				return '🚨 The current directory must be empty to create a new project. Please clear the contents of the directory or choose a different path.';
-			}
-			return true;
-		},
-	});
+	let cwd = args['_'][2] as string;
 
-	console.log(dirResponse);
+	if (!cwd) {
+		const dirResponse = await prompts({
+			type: 'text',
+			name: 'directory',
+			message: 'Where would you like to create your app?',
+			initial: './my-astro-site',
+			validate(value) {
+				if (fs.existsSync(value) && fs.readdirSync(value).length > 0) {
+					return '🚨 The current directory must be empty to create a new project. Please clear the contents of the directory or choose a different path.';
+				}
+				return true;
+			},
+		});
+		cwd = dirResponse.directory;
+	}
+
+	if (!cwd) {
+		process.exit(1);
+	}
 
 	const options = await prompts([
 		{
