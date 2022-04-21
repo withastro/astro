@@ -21,7 +21,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "rm -rf test/fixtures && mkdir test/fixtures && node --unhandled-rejections=strict test/create-astro.test.js"
+    "test": "mocha --exit --timeout 20000"
   },
   "files": [
     "dist",
@@ -38,8 +38,12 @@
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.0",
     "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.2",
     "uvu": "^0.5.3"
   },
   "engines": {

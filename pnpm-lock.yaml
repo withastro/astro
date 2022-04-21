@@ -1202,12 +1202,16 @@ importers:
 
   packages/create-astro:
     specifiers:
+      '@types/chai': ^4.3.1
       '@types/degit': ^2.8.3
+      '@types/mocha': ^9.1.0
       '@types/prompts': ^2.0.14
       '@types/yargs-parser': ^21.0.0
       astro-scripts: workspace:*
+      chai: ^4.3.6
       degit: ^2.8.4
       kleur: ^4.1.4
+      mocha: ^9.2.2
       node-fetch: ^3.2.3
       ora: ^6.1.0
       prompts: ^2.4.2
@@ -1223,8 +1227,12 @@ importers:
       prompts: 2.4.2
       yargs-parser: 21.0.1
     devDependencies:
+      '@types/chai': 4.3.1
+      '@types/mocha': 9.1.0
       '@types/yargs-parser': 21.0.0
       astro-scripts: link:../../scripts
+      chai: 4.3.6
+      mocha: 9.2.2
       uvu: 0.5.3
 
   packages/integrations/deno:
