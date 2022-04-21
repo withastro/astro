@@ -20,3 +20,7 @@ Now you can deploy!
 ```shell
 vercel
 ```
+
+## Limitations
+
+By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`. There is no action needed on your part to enable this, but be aware that some complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.
