@@ -10,7 +10,7 @@ import { pathToFileURL, fileURLToPath } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { BUNDLED_THEMES } from 'shiki';
 import { z } from 'zod';
-import load, { ProloadError } from '@proload/core';
+import load, { resolve, ProloadError } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
@@ -385,11 +385,15 @@ export async function resolveConfigURL(
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
 	}
-	// Automatically load config file using Proload
+	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
-	if (config) {
-		return pathToFileURL(config.filePath);
+	const configPath = await resolve('astro', {
+		mustExist: false,
+		cwd: root,
+		filePath: userConfigPath,
+	});
+	if (configPath) {
+		return pathToFileURL(configPath);
 	}
 }
 

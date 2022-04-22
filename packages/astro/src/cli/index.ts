@@ -104,15 +104,6 @@ export async function cli(args: string[]) {
 		logging.level = 'silent';
 	}
 
-	let config: AstroConfig;
-	try {
-		// Note: ideally, `loadConfig` would return the config AND its filePath
-		// For now, `add` has to resolve the config again internally
-		config = await loadConfig({ cwd: root, flags, cmd });
-	} catch (err) {
-		return throwAndExit(err);
-	}
-
 	switch (cmd) {
 		case 'add': {
 			try {
@@ -124,6 +115,7 @@ export async function cli(args: string[]) {
 		}
 		case 'dev': {
 			try {
+				const config = await loadConfig({ cwd: root, flags, cmd });
 				await devServer(config, { logging });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
@@ -133,6 +125,7 @@ export async function cli(args: string[]) {
 
 		case 'build': {
 			try {
+				const config = await loadConfig({ cwd: root, flags, cmd });
 				return await build(config, { logging });
 			} catch (err) {
 				return throwAndExit(err);
@@ -140,12 +133,14 @@ export async function cli(args: string[]) {
 		}
 
 		case 'check': {
+			const config = await loadConfig({ cwd: root, flags, cmd });
 			const ret = await check(config);
 			return process.exit(ret);
 		}
 
 		case 'preview': {
 			try {
+				const config = await loadConfig({ cwd: root, flags, cmd });
 				const server = await preview(config, { logging });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
