@@ -8,7 +8,7 @@ const inputs = {
 	nonexistentDir: './fixtures/select-directory/banana-dir',
 };
 
-describe.skip('[create-astro] select directory', function () {
+describe('[create-astro] select directory', function () {
 	this.timeout(timeout);
 	it('should prompt for directory when none is provided', function () {
 		return promiseWithTimeout((resolve) => {
