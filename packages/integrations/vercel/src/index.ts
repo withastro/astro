@@ -87,11 +87,49 @@ export default function vercel(): AstroIntegration {
 					version: 3,
 					basePath: '/',
 					pages404: false,
-					rewrites: staticRoutes.map((route) => ({
-						source: route.pathname,
-						regex: route.pattern.toString(),
-						destination: `/${ENTRYFILE}`,
-					})),
+					redirects:
+						// Extracted from Next.js v12.1.5
+						_config.trailingSlash === 'always'
+							? [
+									{
+										source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
+										destination: '/:file',
+										internal: true,
+										statusCode: 308,
+										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$',
+									},
+									{
+										source: '/:notfile((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+)',
+										destination: '/:notfile/',
+										internal: true,
+										statusCode: 308,
+										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$',
+									},
+							  ]
+							: _config.trailingSlash === 'never'
+							? [
+									{
+										source: '/:path+/',
+										destination: '/:path+',
+										internal: true,
+										statusCode: 308,
+										regex: '^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$',
+									},
+							  ]
+							: undefined,
+					rewrites: staticRoutes.map((route) => {
+						let source = route.pathname as string;
+
+						if (_config.trailingSlash === 'always' && !source.endsWith('/')) {
+							source += '/';
+						}
+
+						return {
+							source,
+							regex: route.pattern.toString(),
+							destination: `/${ENTRYFILE}`,
+						};
+					}),
 					dynamicRoutes: dynamicRoutes.map((route) => ({
 						page: `/${ENTRYFILE}`,
 						regex: route.pattern.toString(),
