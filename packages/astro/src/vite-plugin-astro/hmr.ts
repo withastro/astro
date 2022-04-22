@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
-import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
+import type { LoadResult, PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
@@ -49,6 +49,31 @@ export async function trackCSSDependencies(
 	}
 }
 
+const scriptCache = new Map<string, string|null>();
+
+function unwrapLoadResult(result: LoadResult): string|null {
+	if (!result) {
+		return null;
+	} else if (typeof result === 'object') {
+		return result.code;
+	} else if (typeof result === 'string') {
+		return result;
+	}
+	return null;
+}
+
+async function hasBeenUpdated(ctx: HmrContext, mod: ModuleNode) {
+	const result = await ctx.server.pluginContainer.load(mod.url, { ssr: false });
+	const code = unwrapLoadResult(result);
+	// TODO: when we don't have anything cached (the first hmr update), this will always cause a reload
+	let updated = true;
+	if (scriptCache.has(mod.url)) {
+		updated = scriptCache.get(mod.url) !== code;
+	}
+	scriptCache.set(mod.url, code);
+	return updated;
+}
+
 export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
 	// Invalidate the compilation cache so it recompiles
 	invalidateCompilation(config, ctx.file);
@@ -57,6 +82,11 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 	// that needs to be rerun.
 	const filtered = new Set<ModuleNode>(ctx.modules);
 	const files = new Set<string>();
+	
+	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
+	// These will cause full reloads, so filter them out here
+	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+
 	for (const mod of ctx.modules) {
 		// This is always the HMR script, we skip it to avoid spamming
 		// the browser console with HMR updates about this file
@@ -74,6 +104,15 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 				files.add(imp.file);
 			}
 		}
+		if (mod.url.endsWith('.astro')) {
+			for (const dep of mod.acceptedHmrDeps) {
+				if (!dep.url.includes('astro&type=script')) continue;
+				const updated = await hasBeenUpdated(ctx, dep);
+				if (updated) {
+					mods.push(dep);
+				}
+			}
+		}
 	}
 
 	// Invalidate happens as a separate step because a single .astro file
@@ -82,11 +121,7 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 		invalidateCompilation(config, file);
 	}
 
-	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
-	// These will cause full reloads, so filter them out here
-	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
-
 	const file = ctx.file.replace(config.root.pathname, '/');
 	if (isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));

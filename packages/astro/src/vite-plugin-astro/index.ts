@@ -182,11 +182,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					while ((match = pattern.exec(metadata)?.[1])) {
 						deps.add(match);
 					}
-					// // import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);
+					for (let i = 0; i < transformResult.scripts.length; i++) {
+						const scriptUrl = `/${fileUrl.pathname.replace(config.root.pathname, '')}?astro&type=script&index=${i}`;
+						deps.add(scriptUrl);
+					}
+					deps.add(id);
 					// We need to be self-accepting, AND
 					// we need an explicity array of deps to track changes for SSR-only components
 					SUFFIX += `\nif (import.meta.hot) {
 						import.meta.hot.accept(mod => mod);
+						import.meta.hot.accept(${JSON.stringify(Array.from(deps))}, (...mods) => mods);
 					}`;
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
