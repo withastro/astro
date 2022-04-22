@@ -1,15 +1,6 @@
-import { execa } from 'execa';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { resolve } from 'path';
 import { promises, existsSync } from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const createAstroError = new Error(
-	'Timed out waiting for create-astro to respond with expected output.'
-);
-const timeout = 5000;
+import { testDir, setup, promiseWithTimeout, timeout } from './utils.js'
 
 const instructions = {
 	directory: 'Where would you like to create your app?',
@@ -20,27 +11,6 @@ const inputs = {
 	emptyDir: './fixtures/select-directory/empty-dir',
 	nonexistentDir: './fixtures/select-directory/banana-dir',
 };
-
-function promiseWithTimeout(testFn) {
-	return new Promise((resolve, reject) => {
-		const timeoutEvent = setTimeout(() => {
-			reject(createAstroError);
-		}, timeout);
-		function resolver() {
-			clearTimeout(timeoutEvent);
-			resolve();
-		}
-		testFn(resolver);
-	});
-}
-
-function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', args, { cwd: __dirname });
-	return {
-		stdin,
-		stdout,
-	};
-}
 
 describe('[create-astro] select directory', function () {
 	this.timeout(timeout);
@@ -65,7 +35,7 @@ describe('[create-astro] select directory', function () {
 		});
 	});
 	it('should proceed on an empty directory', async function () {
-		const resolvedEmptyDirPath = resolve(__dirname, inputs.emptyDir);
+		const resolvedEmptyDirPath = resolve(testDir, inputs.emptyDir);
 		if (!existsSync(resolvedEmptyDirPath)) {
 			await promises.mkdir(resolvedEmptyDirPath);
 		}
