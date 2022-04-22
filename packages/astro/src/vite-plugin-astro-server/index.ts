@@ -104,7 +104,7 @@ async function handle404Response(
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ) {
-	const site = config.site ? new URL(config.base, config.site) : undefined;
+	const site = config.site ? new URL(config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	let html = '';
@@ -161,7 +161,7 @@ async function handleRequest(
 	res: http.ServerResponse
 ) {
 	const reqStart = performance.now();
-	const site = config.site ? new URL(config.base, config.site) : undefined;
+	const site = config.site ? new URL(config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
