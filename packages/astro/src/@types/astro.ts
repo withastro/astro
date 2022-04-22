@@ -799,11 +799,7 @@ export interface MarkdownParserResponse {
  */
 export interface MarkdownContent {
 	[key: string]: any;
-	astro: {
-		headers: MarkdownHeader[];
-		source: string;
-		html: string;
-	};
+	astro: MarkdownMetadata;
 }
 
 /**
