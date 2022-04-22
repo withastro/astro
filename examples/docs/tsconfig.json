@@ -4,6 +4,6 @@
     "module": "esnext",
     "jsx": "preserve",
     "moduleResolution": "node",
-    "types": ["astro/env"]
+    "types": ["vite/client"]
   },
 }
