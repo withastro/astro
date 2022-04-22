@@ -10,6 +10,7 @@ import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
+import { exec } from 'child_process';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -40,6 +41,8 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json']; // some files 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
+	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
+
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
 	console.log(
@@ -272,6 +275,32 @@ export async function main() {
 	spinner.succeed();
 	console.log(bold(green('✔') + ' Done!'));
 
+	const installResponse = await prompts({
+		type: 'confirm',
+		name: 'install',
+		message: `Would you like us to run "${pkgManager} install?"`,
+		initial: true,
+	});
+
+	if (!installResponse) {
+		process.exit(0);
+	}
+
+	if (installResponse.install) {
+		const installExec = exec(`cd ${cwd} && ${pkgManager} install`);
+		spinner = ora({ color: 'green', text: 'Installing packages...' }).start();
+		await new Promise<void>((resolve, reject) => {
+			installExec.stdout?.on('data', function (data) {
+				// remove newlines from data stream for nicer formatting
+				const oneLiner = data.replace('\n', '');
+				spinner.text = `Installing packages...\n${bold(`[${pkgManager}]`)} ${oneLiner}`;
+			});
+			installExec.on('error', (error) => reject(error));
+			installExec.on('close', () => resolve());
+		});
+		spinner.succeed();
+	}
+
 	console.log('\nNext steps:');
 	let i = 1;
 	const relative = path.relative(process.cwd(), cwd);
@@ -289,4 +318,15 @@ export async function main() {
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
+}
+
+/**
+ * Politely stolen from ViteJS
+ * @see https://github.com/vitejs/vite/blob/fc89057b406fc85e01a1d4fd08f128e9b6bcba5a/packages/create-vite/index.js#L339
+ */
+function pkgManagerFromUserAgent(userAgent?: string) {
+	if (!userAgent) return 'npm';
+	const pkgSpec = userAgent.split(' ')[0];
+	const pkgSpecArr = pkgSpec.split('/');
+	return pkgSpecArr[0];
 }
