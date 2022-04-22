@@ -10,7 +10,7 @@ export function createExports(manifest: SSRManifest) {
 
 		// If this matches a static asset, just return and Netlify will forward it
 		// to its static asset handler.
-		if(manifest.assets.has(url.pathname)) {
+		if (manifest.assets.has(url.pathname)) {
 			return;
 		}
 		if (app.match(request)) {
