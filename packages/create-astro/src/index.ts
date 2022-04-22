@@ -288,12 +288,13 @@ export async function main() {
 
 	if (installResponse.install) {
 		const installExec = exec(`cd ${cwd} && ${pkgManager} install`);
-		spinner = ora({ color: 'green', text: 'Installing packages...' }).start();
+		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
+		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
 		await new Promise<void>((resolve, reject) => {
 			installExec.stdout?.on('data', function (data) {
 				// remove newlines from data stream for nicer formatting
 				const oneLiner = data.replace('\n', '');
-				spinner.text = `Installing packages...\n${bold(`[${pkgManager}]`)} ${oneLiner}`;
+				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${oneLiner}`;
 			});
 			installExec.on('error', (error) => reject(error));
 			installExec.on('close', () => resolve());
@@ -318,6 +319,10 @@ export async function main() {
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
+}
+
+function emojiWithFallback(char: string, fallback: string) {
+	return process.platform !== 'win32' ? char : fallback;
 }
 
 /**
