@@ -23,6 +23,14 @@ export function promiseWithTimeout(testFn) {
 	});
 }
 
+export const PROMPT_MESSAGES = {
+	directory: 'Where would you like to create your app?',
+	template: 'Which app template would you like to use?',
+	// TODO: remove when framework selector is removed
+	frameworks: 'Which frameworks would you like to use?',
+	install: (pkgManager) => `Would you like us to run "${pkgManager} install?"`,
+};
+
 export function setup(args = []) {
 	const { stdout, stdin } = execa('../create-astro.mjs', args, { cwd: testDir });
 	return {
