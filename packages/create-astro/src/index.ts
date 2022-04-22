@@ -309,13 +309,16 @@ export async function main() {
 		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);
 	}
 
-	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
+	if (!installResponse.install) {
+		console.log(`  ${i++}: ${bold(cyan(`${pkgManager} install`))}`);
+	}
 	console.log(
 		`  ${i++}: ${bold(
 			cyan('git init && git add -A && git commit -m "Initial commit"')
 		)} (optional step)`
 	);
-	console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
+	const runCommand = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
+	console.log(`  ${i++}: ${bold(cyan(runCommand))}`);
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
