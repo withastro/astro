@@ -51,9 +51,7 @@ function getViteConfiguration(isDev: boolean, options?: Options | OptionsCallbac
 			include: ['@astrojs/svelte/client.js', 'svelte', 'svelte/internal'],
 			exclude: ['@astrojs/svelte/server.js'],
 		},
-		plugins: [
-			svelte(resolvedOptions),
-		],
+		plugins: [svelte(resolvedOptions)],
 	};
 }
 
