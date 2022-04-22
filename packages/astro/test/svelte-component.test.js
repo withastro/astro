@@ -22,6 +22,13 @@ describe('Svelte component', () => {
 
 			expect($('#svelte-ts').text()).to.equal('Hello, TypeScript');
 		});
+
+		it('Works with custom Svelte config', async () => {
+			const html = await fixture.readFile('/typescript/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#svelte-custom-ext').text()).to.equal('Hello, Custom Extensions');
+		});
 	});
 
 	if (isWindows) return;
