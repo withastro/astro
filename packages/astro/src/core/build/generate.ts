@@ -11,7 +11,7 @@ import type {
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, info } from '../logger/core.js';
-import { joinPaths, prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
+import { prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
@@ -176,12 +176,7 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	// If a base path was provided, append it to the site URL. This ensures that
-	// all injected scripts and links are referenced relative to the site and subpath.
-	const site =
-		astroConfig.base !== '/'
-			? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
-			: astroConfig.site;
+	const site = astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
