@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.0",
+    "@types/mocha": "^9.1.1",
     "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",

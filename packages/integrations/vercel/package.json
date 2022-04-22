@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^0.11.1",
-    "esbuild": "^0.14.36"
+    "esbuild": "^0.14.38"
   },
   "devDependencies": {
     "astro": "workspace:*",
