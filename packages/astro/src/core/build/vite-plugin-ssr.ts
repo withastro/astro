@@ -74,12 +74,10 @@ if(_start in adapter) {
 
 			const manifest = buildManifest(buildOpts, internals, staticFiles);
 
-
-
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
-				};
+				}
 				if (chunk.modules[resolvedVirtualModuleId]) {
 					const code = chunk.code;
 					chunk.code = code.replace(replaceExp, () => {
@@ -91,7 +89,11 @@ if(_start in adapter) {
 	};
 }
 
-function buildManifest(opts: StaticBuildOptions, internals: BuildInternals, staticFiles: string[]): SerializedSSRManifest {
+function buildManifest(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	staticFiles: string[]
+): SerializedSSRManifest {
 	const { astroConfig } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
@@ -122,7 +124,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals, stat
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
-		assets: staticFiles.map(s => '/' + s)
+		assets: staticFiles.map((s) => '/' + s),
 	};
 
 	return ssrManifest;
