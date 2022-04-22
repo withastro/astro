@@ -1267,12 +1267,14 @@ importers:
   packages/integrations/netlify:
     specifiers:
       '@astrojs/webapi': ^0.11.1
+      '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
       astro: workspace:*
       astro-scripts: workspace:*
     dependencies:
       '@astrojs/webapi': link:../../webapi
     devDependencies:
+      '@netlify/edge-handler-types': 0.34.1
       '@netlify/functions': 1.0.0
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -1285,6 +1287,14 @@ importers:
     dependencies:
       '@astrojs/netlify': link:../../../..
       '@astrojs/react': link:../../../../../react
+      astro: link:../../../../../../astro
+
+  packages/integrations/netlify/test/edge-functions/fixtures/root-dynamic:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
       astro: link:../../../../../../astro
 
   packages/integrations/node:
@@ -3484,6 +3494,12 @@ packages:
       nanostores: 0.5.12
       vue: 3.2.33
     dev: false
+
+  /@netlify/edge-handler-types/0.34.1:
+    resolution: {integrity: sha512-YTwn8cw89M4lRTmoUhl9s8ljSGMDt7FOIsxsrx7YrRz/RZlbh4Yuh4RU13DDafDRBEVuRbjGo93cnN621ZfBjA==}
+    dependencies:
+      web-streams-polyfill: 3.2.1
+    dev: true
 
   /@netlify/functions/1.0.0:
     resolution: {integrity: sha512-7fnJv3vr8uyyyOYPChwoec6MjzsCw1CoRUO2DhQ1BD6bOyJRlD4DUaOOGlMILB2LCT8P24p5LexEGx8AJb7xdA==}

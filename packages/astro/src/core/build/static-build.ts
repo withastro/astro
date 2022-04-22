@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { info } from '../logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';

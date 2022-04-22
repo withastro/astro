@@ -13,8 +13,11 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 		route.routeData = deserializeRouteData(serializedRoute.routeData);
 	}
 
+	const assets = new Set<string>(serializedManifest.assets);
+
 	return {
 		...serializedManifest,
+		assets,
 		routes,
 	};
 }

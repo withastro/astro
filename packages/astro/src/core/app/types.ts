@@ -26,10 +26,12 @@ export interface SSRManifest {
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
+	assets: Set<string>;
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes'> & {
+export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets'> & {
 	routes: SerializedRouteInfo[];
+	assets: string[];
 };
 
 export type AdapterCreateExports<T = any> = (
