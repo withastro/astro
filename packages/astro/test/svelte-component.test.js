@@ -27,7 +27,7 @@ describe('Svelte component', () => {
 			const html = await fixture.readFile('/typescript/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('#svelte-custom-ext').text()).to.equal('Hello, Custom Extension');
+			expect($('#svelte-custom-ext').text()).to.equal('Hello, Custom Extensions');
 		});
 	});
 
