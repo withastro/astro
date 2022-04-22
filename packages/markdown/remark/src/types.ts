@@ -32,6 +32,7 @@ export interface AstroMarkdownOptions {
 	shikiConfig: ShikiConfig;
 	remarkPlugins: RemarkPlugins;
 	rehypePlugins: RehypePlugins;
+  remarkRehype: any;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {

@@ -27,7 +27,7 @@ export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts: MarkdownRenderingOptions) {
-	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins, remarkRehype } = opts;
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
@@ -67,6 +67,7 @@ export async function renderMarkdown(content: string, opts: MarkdownRenderingOpt
 			{
 				allowDangerousHtml: true,
 				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
+        ...remarkRehype
 			},
 		],
 	]);

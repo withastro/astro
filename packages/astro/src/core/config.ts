@@ -180,6 +180,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.array()
 				.default([]),
+      remarkRehype: z.any().optional().default({}),
 		})
 		.default({}),
 	vite: z.any().optional().default({}),
