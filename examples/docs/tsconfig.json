@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "esnext",
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "types": ["astro/env"]
   },
-  "moduleResolution": "node"
 }
