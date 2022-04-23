@@ -233,16 +233,16 @@ export async function validateConfig(
 		process.exit(1);
 	}
 
-	let oldConfig = false;
+	let legacyConfigKey: string | undefined;
 	for (const key of Object.keys(userConfig)) {
 		if (LEGACY_ASTRO_CONFIG_KEYS.has(key)) {
-			oldConfig = true;
+			legacyConfigKey = key;
 			break;
 		}
 	}
-	if (oldConfig) {
+	if (legacyConfigKey) {
 		throw new Error(
-			`Legacy configuration detected. Please update your configuration to the new format!\nSee https://astro.build/config for more information.`
+			`Legacy configuration detected: "${legacyConfigKey}".\nPlease update your configuration to the new format!\nSee https://astro.build/config for more information.`
 		);
 	}
 	/* eslint-enable no-console */
@@ -329,9 +329,11 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
+		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
 		experimentalIntegrations:
-			typeof flags.experimentalIntegrations === 'boolean' ? flags.experimentalIntegrations : false,
+			typeof flags.experimentalIntegrations === 'boolean'
+				? flags.experimentalIntegrations
+				: undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }

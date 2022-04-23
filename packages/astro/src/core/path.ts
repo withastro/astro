@@ -39,10 +39,10 @@ export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
 
-export function prependDotSlash(path: string) {
-	if (isRelativePath(path)) {
-		return path;
-	}
+function isString(path: unknown): path is string {
+	return typeof path === 'string' || path instanceof String;
+}
 
-	return './' + path;
+export function joinPaths(...paths: (string | undefined)[]) {
+	return paths.filter(isString).map(trimSlashes).join('/');
 }

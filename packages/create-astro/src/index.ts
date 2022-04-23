@@ -28,10 +28,15 @@ export function mkdirp(dir: string) {
 	}
 }
 
+function isEmpty(dirPath: string) {
+	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
+}
+
 const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
 );
 
+const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
@@ -47,22 +52,41 @@ export async function main() {
 
 	spinner.succeed();
 
-	const cwd = (args['_'][2] as string) || '.';
-	if (fs.existsSync(cwd)) {
-		if (fs.readdirSync(cwd).length > 0) {
-			const response = await prompts({
-				type: 'confirm',
-				name: 'forceOverwrite',
-				message: 'Directory not empty. Continue [force overwrite]?',
-				initial: false,
-			});
-			if (!response.forceOverwrite) {
-				process.exit(1);
-			}
-			mkdirp(cwd);
+	let cwd = args['_'][2] as string;
+
+	if (cwd && isEmpty(cwd)) {
+		let acknowledgeProjectDir = ora({
+			color: 'green',
+			text: `Using ${bold(cwd)} as project directory.`,
+		});
+		acknowledgeProjectDir.succeed();
+	}
+
+	if (!cwd || !isEmpty(cwd)) {
+		const notEmptyMsg = (dirPath: string) =>
+			`"${bold(dirPath)}" is not empty. Please clear contents or choose a different path.`;
+
+		if (!isEmpty(cwd)) {
+			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });
+			rejectProjectDir.fail();
 		}
-	} else {
-		mkdirp(cwd);
+		const dirResponse = await prompts({
+			type: 'text',
+			name: 'directory',
+			message: 'Where would you like to create your app?',
+			initial: './my-astro-site',
+			validate(value) {
+				if (!isEmpty(value)) {
+					return notEmptyMsg(value);
+				}
+				return true;
+			},
+		});
+		cwd = dirResponse.directory;
+	}
+
+	if (!cwd) {
+		process.exit(1);
 	}
 
 	const options = await prompts([
@@ -156,8 +180,12 @@ export async function main() {
 	}
 
 	// Post-process in parallel
-	await Promise.all(
-		POSTPROCESS_FILES.map(async (file) => {
+	await Promise.all([
+		...FILES_TO_REMOVE.map(async (file) => {
+			const fileLoc = path.resolve(path.join(cwd, file));
+			return fs.promises.rm(fileLoc);
+		}),
+		...POSTPROCESS_FILES.map(async (file) => {
 			const fileLoc = path.resolve(path.join(cwd, file));
 
 			switch (file) {
@@ -209,8 +237,8 @@ export async function main() {
 					break;
 				}
 			}
-		})
-	);
+		}),
+	]);
 
 	// Inject framework components into starter template
 	if (selectedTemplate?.value === 'starter') {

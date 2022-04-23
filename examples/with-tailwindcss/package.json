@@ -9,11 +9,11 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/tailwind": "^0.1.2",
-    "astro": "^1.0.0-beta.9",
+    "@astrojs/tailwind": "^0.2.0",
+    "astro": "^1.0.0-beta.17",
     "autoprefixer": "^10.4.4",
     "canvas-confetti": "^1.5.1",
     "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "tailwindcss": "^3.0.24"
   }
 }

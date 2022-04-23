@@ -22,7 +22,6 @@ function onlyAvailableInSSR(name: string) {
 
 export interface CreateResultArgs {
 	ssr: boolean;
-	legacyBuild: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
@@ -101,7 +100,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, markdown, params, pathname, renderers, request, resolve, site } = args;
+	const { markdown, params, pathname, renderers, request, resolve, site } = args;
 
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
@@ -138,16 +137,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					  }
 					: onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
-					if (!legacyBuild) {
-						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
-						if (isCSSRequest(path)) {
-							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
+					let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
+					if (isCSSRequest(path)) {
+						extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
 ---
 import "${path}";
 ---
 `;
-						} else if (isScriptRequest(path)) {
-							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
+					} else if (isScriptRequest(path)) {
+						extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
 
 <script type="module" src={(await import("${path}?url")).default}></script>
 
@@ -157,21 +155,18 @@ or consider make it a module like so:
 	import MyModule from "${path}";
 </script>
 `;
-						}
-
-						warn(
-							args.logging,
-							`deprecation`,
-							`${bold(
-								'Astro.resolve()'
-							)} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`
-						);
-						// Intentionally return an empty string so that it is not relied upon.
-						return '';
 					}
 
-					return astroGlobal.resolve(path);
+					warn(
+						args.logging,
+						`deprecation`,
+						`${bold(
+							'Astro.resolve()'
+						)} is deprecated. We see that you are trying to resolve ${path}.
+${extra}`
+					);
+					// Intentionally return an empty string so that it is not relied upon.
+					return '';
 				},
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
@@ -206,7 +201,6 @@ ${extra}`
 		_metadata: {
 			renderers,
 			pathname,
-			legacyBuild,
 		},
 	};
 

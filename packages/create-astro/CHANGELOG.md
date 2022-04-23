@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.9.0
+
+### Minor Changes
+
+- [#3168](https://github.com/withastro/astro/pull/3168) [`7c49194c`](https://github.com/withastro/astro/commit/7c49194ca2161a09cc304ba8327533f8176ae0da) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add prompt to choose a directory, now defaulting to a separate "./my-astro-site" instead of "." (current directory)
+
 ## 0.8.0
 
 ### Minor Changes

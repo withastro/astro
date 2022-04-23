@@ -48,6 +48,13 @@ const remarkShiki = async (
 				/style="(background-)?color: var\(--shiki-/g,
 				'style="$1color: var(--astro-code-'
 			);
+			// Add "user-select: none;" for "+"/"-" diff symbols
+			if (node.lang === 'diff') {
+				html = html.replace(
+					/<span class="line"><span style="(.*?)">([\+|\-])/g,
+					'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
+				);
+			}
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {

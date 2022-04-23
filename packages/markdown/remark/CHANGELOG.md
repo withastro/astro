@@ -1,5 +1,17 @@
 # @astrojs/markdown-remark
 
+## 0.9.2
+
+### Patch Changes
+
+- [#3152](https://github.com/withastro/astro/pull/3152) [`9ba1f4f8`](https://github.com/withastro/astro/commit/9ba1f4f8251155b69398a8af22d6ab8587b96120) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix JSX expression inconsistencies within markdown files
+
+## 0.9.1
+
+### Patch Changes
+
+- [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
 ## 0.9.0
 
 ### Minor Changes

@@ -7,12 +7,15 @@ import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
 import { serializeRouteData } from '../routing/index.js';
 import { eachPageData } from './internal.js';
 import { addRollupInput } from './add-rollup-input.js';
+import { fileURLToPath } from 'url';
+import glob from 'fast-glob';
 import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
+const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
 export function vitePluginSSR(
 	buildOpts: StaticBuildOptions,
@@ -64,16 +67,20 @@ if(_start in adapter) {
 			}
 			return void 0;
 		},
+		async generateBundle(_opts, bundle) {
+			const staticFiles = await glob('**/*', {
+				cwd: fileURLToPath(buildOpts.buildConfig.client),
+			});
 
-		generateBundle(_opts, bundle) {
-			const manifest = buildManifest(buildOpts, internals);
+			const manifest = buildManifest(buildOpts, internals, staticFiles);
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') continue;
+				if (chunk.type === 'asset') {
+					continue;
+				}
 				if (chunk.modules[resolvedVirtualModuleId]) {
-					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
-					chunk.code = code.replace(exp, () => {
+					chunk.code = code.replace(replaceExp, () => {
 						return JSON.stringify(manifest);
 					});
 				}
@@ -82,7 +89,11 @@ if(_start in adapter) {
 	};
 }
 
-function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): SerializedSSRManifest {
+function buildManifest(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	staticFiles: string[]
+): SerializedSSRManifest {
 	const { astroConfig } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
@@ -113,6 +124,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
+		assets: staticFiles.map((s) => '/' + s),
 	};
 
 	return ssrManifest;

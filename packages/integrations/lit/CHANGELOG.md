@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3164](https://github.com/withastro/astro/pull/3164) [`e85b16e2`](https://github.com/withastro/astro/commit/e85b16e2b3d846333f542139c82640de19bfd2f5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes lit when running in SSR
+
 ## 0.1.1
 
 ### Patch Changes

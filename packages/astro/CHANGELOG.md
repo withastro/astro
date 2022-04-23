@@ -1,5 +1,76 @@
 # astro
 
+## 1.0.0-beta.17
+
+### Patch Changes
+
+- [#3171](https://github.com/withastro/astro/pull/3171) [`908fffb5`](https://github.com/withastro/astro/commit/908fffb5ec2de4efb55d03a69381e3aa376e4c42) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix various edge cases in the compiler, upgrading to `@astrojs/compiler@0.14.2`. Read the [full changelog](https://github.com/withastro/compiler/blob/main/packages/compiler/CHANGELOG.md#0142).
+
+## 1.0.0-beta.16
+
+### Patch Changes
+
+- [#3156](https://github.com/withastro/astro/pull/3156) [`637919c8`](https://github.com/withastro/astro/commit/637919c8b63df1608e88d153742db098722265d8) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds subpath to assets/scripts when statically generating
+
+## 1.0.0-beta.15
+
+### Patch Changes
+
+- [#3138](https://github.com/withastro/astro/pull/3138) [`37a7a834`](https://github.com/withastro/astro/commit/37a7a8347ce49cb773ed907260ffe169bd3aa15f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - General HMR Improvements, including new HMR support for framework components that are only server-side rendered (do not have a `client:*` directive)
+
+* [#3164](https://github.com/withastro/astro/pull/3164) [`e85b16e2`](https://github.com/withastro/astro/commit/e85b16e2b3d846333f542139c82640de19bfd2f5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes lit when running in SSR
+
+## 1.0.0-beta.14
+
+### Patch Changes
+
+- [#3152](https://github.com/withastro/astro/pull/3152) [`9ba1f4f8`](https://github.com/withastro/astro/commit/9ba1f4f8251155b69398a8af22d6ab8587b96120) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix JSX expression inconsistencies within markdown files
+
+* [#3141](https://github.com/withastro/astro/pull/3141) [`0247b542`](https://github.com/withastro/astro/commit/0247b54270e2befab91b9e65029ba929ac26381d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Astro internals: remove all legacy build logic from the codebase, now that the legacy build flag has been removed
+
+* Updated dependencies [[`9ba1f4f8`](https://github.com/withastro/astro/commit/9ba1f4f8251155b69398a8af22d6ab8587b96120)]:
+  - @astrojs/markdown-remark@0.9.2
+
+## 1.0.0-beta.13
+
+### Patch Changes
+
+- [#3130](https://github.com/withastro/astro/pull/3130) [`394ab905`](https://github.com/withastro/astro/commit/394ab9054714586c1b5bb163f02fe17412527ebc) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates `<Code />` component to cache and reuse Shiki highlighters
+
+* [#3087](https://github.com/withastro/astro/pull/3087) [`e0f838ca`](https://github.com/withastro/astro/commit/e0f838ca393c974e80f23a07b04c3a85f8829221) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds support for numeric route parameters in getStaticPaths()
+
+- [#3116](https://github.com/withastro/astro/pull/3116) [`44bacd20`](https://github.com/withastro/astro/commit/44bacd20116e69459c6cc4a8c104122a2d5adb67) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Astro components used in dynamically imported markdown (ex. Astro.glob('\*.md') will now retain their CSS styles in dev and production builds
+
+* [#3108](https://github.com/withastro/astro/pull/3108) [`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265) Thanks [@FredKSchott](https://github.com/FredKSchott)! - shiki: Add `diff` symbol handling to disable `user-select` on `+`/`-` symbols.
+
+- [#3137](https://github.com/withastro/astro/pull/3137) [`facf8016`](https://github.com/withastro/astro/commit/facf8016e249058d6e5cce7a0e7ef6c42fc854ad) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: show correct stacktrace on dev server errors, instead of cryptic "package.json" error
+
+- Updated dependencies [[`ef198ff8`](https://github.com/withastro/astro/commit/ef198ff8351ac8fbc868e209f9cd410dc8b6f265)]:
+  - @astrojs/markdown-remark@0.9.1
+
+## 1.0.0-beta.12
+
+### Patch Changes
+
+- [#3113](https://github.com/withastro/astro/pull/3113) [`1687009f`](https://github.com/withastro/astro/commit/1687009f31fa23f193cbbf95fd018a51f3f3c671) Thanks [@matthewp](https://github.com/matthewp)! - Fixes client:only CSS
+
+## 1.0.0-beta.11
+
+### Patch Changes
+
+- [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Support runtime markdown parsing
+
+* [#3036](https://github.com/withastro/astro/pull/3036) [`4ac0d5d4`](https://github.com/withastro/astro/commit/4ac0d5d4e73aa41cb2269f1428c4eed5e69b5947) Thanks [@matthewp](https://github.com/matthewp)! - Fixes usage of the Markdown component in SSR
+
+## 1.0.0-beta.10
+
+### Patch Changes
+
+- [#3095](https://github.com/withastro/astro/pull/3095) [`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380) Thanks [@matthewp](https://github.com/matthewp)! - Fixes rendering of "undefined" on custom element children
+
+- Updated dependencies [[`5acf77dd`](https://github.com/withastro/astro/commit/5acf77dd22be95e33ff838383a2c1790f484e380)]:
+  - @astrojs/webapi@0.11.1
+
 ## 1.0.0-beta.9
 
 ### Minor Changes

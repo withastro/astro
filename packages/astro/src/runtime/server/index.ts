@@ -290,7 +290,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			await render`<${Component}${spreadAttributes(props)}${markHTMLString(
 				(children == null || children == '') && voidElementNames.test(Component)
 					? `/>`
-					: `>${children}</${Component}>`
+					: `>${children == null ? '' : children}</${Component}>`
 			)}`
 		);
 	}
@@ -543,16 +543,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
 export async function renderHead(result: SSRResult): Promise<string> {
-	const styles = Array.from(result.styles)
-		.filter(uniqueElements)
-		.map((style) => {
-			// TODO: clean up legacyBuild from metadata
-			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
-			return renderElement('style', {
-				children: styleChildren,
-				props: { ...style.props, 'astro-style': true },
-			});
-		});
+	const styles = [];
 	let needsHydrationStyles = false;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
@@ -568,7 +559,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	if (needsHydrationStyles) {
 		styles.push(
 			renderElement('style', {
-				props: { 'astro-style': true },
+				props: {},
 				children: 'astro-root, astro-fragment { display: contents; }',
 			})
 		);

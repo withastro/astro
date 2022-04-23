@@ -111,6 +111,25 @@ async function handle404Response(
 	if (pathname === '/' && !pathname.startsWith(devRoot)) {
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
+		// HACK: redirect without the base path for assets in publicDir
+		const redirectTo =
+			req.method === 'GET' &&
+			config.base &&
+			config.base !== './' &&
+			pathname.startsWith(config.base) &&
+			pathname.replace(config.base, '/');
+
+		if (redirectTo && redirectTo !== '/') {
+			const response = new Response(null, {
+				status: 302,
+				headers: {
+					Location: redirectTo,
+				},
+			});
+			await writeWebResponse(res, response);
+			return;
+		}
+
 		html = notFoundTemplate({
 			statusCode: 404,
 			title: 'Not found',
@@ -128,7 +147,7 @@ async function handle500Response(
 	res: http.ServerResponse,
 	err: any
 ) {
-	const pathname = decodeURI(new URL(origin + req.url).pathname);
+	const pathname = decodeURI(new URL('./index.html', origin + req.url).pathname);
 	const html = serverErrorTemplate({
 		statusCode: 500,
 		title: 'Internal Error',
@@ -137,7 +156,7 @@ async function handle500Response(
 		url: err.url || undefined,
 		stack: stripAnsi(err.stack),
 	});
-	const transformedHtml = await viteServer.transformIndexHtml(pathname, html, pathname);
+	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 

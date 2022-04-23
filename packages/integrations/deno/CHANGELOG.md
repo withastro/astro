@@ -1,5 +1,17 @@
 # @astrojs/node
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3160](https://github.com/withastro/astro/pull/3160) [`ae9ac5cb`](https://github.com/withastro/astro/commit/ae9ac5cbdceba0687d83d56d9d5f80479ab88710) Thanks [@matthewp](https://github.com/matthewp)! - Allows using React.lazy, Suspense in SSR and with hydration
+
+## 0.1.1
+
+### Patch Changes
+
+- [#3121](https://github.com/withastro/astro/pull/3121) [`e5383cd3`](https://github.com/withastro/astro/commit/e5383cd3576f858bf65f6d460de397c4f2dae208) Thanks [@matthewp](https://github.com/matthewp)! - Handles file serving in the main export
+
 ## 0.1.0
 
 ### Minor Changes

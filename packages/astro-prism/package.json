@@ -20,7 +20,7 @@
   "types": "./internal.d.ts",
   "keywords": [],
   "devDependencies": {
-    "prismjs": "^1.27.0"
+    "prismjs": "^1.28.0"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

@@ -20,7 +20,7 @@ function renderToStaticMarkup(Component, props, children) {
 		})
 	);
 	return {
-		html: html + `<script>window._$HY||(_$HY={events:[],completed:new WeakSet,r:{}})</script>`,
+		html: html,
 	};
 }
 

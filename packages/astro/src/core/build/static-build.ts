@@ -1,5 +1,5 @@
 import type { RollupOutput } from 'rollup';
-import type { BuildInternals } from '../../core/build/internal.js';
+import { BuildInternals, trackClientOnlyPageDatas } from '../../core/build/internal.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import glob from 'fast-glob';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { info } from '../logger/core.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
@@ -54,13 +54,17 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const [renderers, mod] = pageData.preload;
 			const metadata = mod.$$metadata;
 
+			// Track client:only usage so we can map their CSS back to the Page they are used in.
+			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
+			trackClientOnlyPageDatas(internals, pageData, clientOnlys, astroConfig);
+
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				// 'components/Counter.jsx'
 				// { 'components/Counter.jsx': 'counter.hash.js' }
 				...metadata.hydratedComponentPaths(),
 				// Client-only components
-				...metadata.clientOnlyComponentPaths(),
+				...clientOnlys,
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
@@ -147,7 +151,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false,
+				target: 'server',
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -217,7 +221,7 @@ async function clientBuild(
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false,
+				target: 'client',
 			}),
 			...(viteConfig.plugins || []),
 		],
