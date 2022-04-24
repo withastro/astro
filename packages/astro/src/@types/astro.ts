@@ -725,7 +725,13 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
-	getHeaders(): Promise<{ depth: number; slug: string; text: string }[]>;
+	getHeaders(): Promise<MarkdownHeader[]>;
+	default: () => Promise<{
+		metadata: MarkdownMetadata;
+		frontmatter: MarkdownContent;
+		$$metadata: Metadata;
+		default: AstroComponentFactory;
+	}>;
 }
 
 export type GetHydrateCallback = () => Promise<
@@ -767,16 +773,33 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+export interface MarkdownHeader {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+export interface MarkdownMetadata {
+	headers: MarkdownHeader[];
+	source: string;
+	html: string;
+}
+
 export interface MarkdownParserResponse {
 	frontmatter: {
 		[key: string]: any;
 	};
-	metadata: {
-		headers: any[];
-		source: string;
-		html: string;
-	};
+	metadata: MarkdownMetadata;
 	code: string;
+}
+
+/**
+ * The `content` prop given to a Layout
+ * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ */
+export interface MarkdownContent {
+	[key: string]: any;
+	astro: MarkdownMetadata;
 }
 
 /**
