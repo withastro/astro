@@ -33,9 +33,8 @@ function* render(tagName, attrs, children) {
 		// check if this is a reactive property
 		if (name in Ctr.prototype) {
 			instance.setProperty(name, value);
-		} else {
-			instance.setAttribute(name, value);
 		}
+		instance.setAttribute(name, value);
 	}
 
 	instance.connectedCallback();
