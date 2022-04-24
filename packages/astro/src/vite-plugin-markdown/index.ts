@@ -83,7 +83,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 					: '/';
 				const fileId = id.replace(MARKDOWN_IMPORT_FLAG, '');
 				const fileUrl = fileId.includes('/pages/')
-					? fileId.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
+					? fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') +
+					  (config.trailingSlash === 'always' ? '/' : '')
 					: undefined;
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
