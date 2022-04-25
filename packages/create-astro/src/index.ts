@@ -10,7 +10,7 @@ import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
-import { exec } from 'child_process';
+import { execa } from 'execa';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -287,14 +287,13 @@ export async function main() {
 	}
 
 	if (installResponse.install) {
-		const installExec = exec(`cd ${cwd} && ${pkgManager} install`);
+		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
 		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
 		await new Promise<void>((resolve, reject) => {
 			installExec.stdout?.on('data', function (data) {
 				// remove newlines from data stream for nicer formatting
-				const oneLiner = data.replace('\n', '');
-				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${oneLiner}`;
+				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
 			});
 			installExec.on('error', (error) => reject(error));
 			installExec.on('close', () => resolve());
