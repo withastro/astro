@@ -139,10 +139,17 @@ export class Metadata {
 
 	private findComponentMetadata(Component: any): ComponentMetadata | null {
 		const isCustomElement = typeof Component === 'string';
+		const ComponentConstructor = isCustomElement ? customElements.get(Component) : null;
 		for (const { module, specifier } of this.modules) {
 			const id = this.resolvePath(specifier);
 			for (const [key, value] of Object.entries(module)) {
 				if (isCustomElement) {
+					if (ComponentConstructor === value) {
+						return {
+							componentExport: key,
+							componentUrl: id
+						}
+					}
 					if (key === 'tagName' && Component === value) {
 						return {
 							componentExport: key,
