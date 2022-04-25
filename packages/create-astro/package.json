@@ -31,6 +31,7 @@
     "@types/degit": "^2.8.3",
     "@types/prompts": "^2.0.14",
     "degit": "^2.8.4",
+    "execa": "^6.1.0",
     "kleur": "^4.1.4",
     "node-fetch": "^3.2.3",
     "ora": "^6.1.0",
