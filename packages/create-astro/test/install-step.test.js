@@ -21,11 +21,13 @@ describe('[create-astro] install', function () {
 	})
 
 	it('should respect package manager in prompt', function() {
+		console.log({tempDir})
 		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
 			stdout.on('data', (chunk) => {
+				console.log({ chunk: chunk.toString() });
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
 					stdin.write('\x0D');
@@ -44,6 +46,7 @@ describe('[create-astro] install', function () {
 	});
 
 	it('should respect package manager in next steps', function() {
+		console.log({tempDir})
 		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
