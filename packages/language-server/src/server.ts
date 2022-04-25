@@ -68,8 +68,14 @@ export function startLanguageServer(connection: vscode.Connection) {
 		}
 
 		// Update language-server config with what the user supplied to us at launch
-		configManager.updateConfig(params.initializationOptions.configuration.astro);
-		configManager.updateEmmetConfig(params.initializationOptions.configuration.emmet);
+		let astroConfiguration = params.initializationOptions?.configuration?.astro;
+		if (astroConfiguration) {
+			configManager.updateConfig(astroConfiguration);
+		}
+		let emmetConfiguration = params.initializationOptions?.configuration?.emmet;
+		if (emmetConfiguration) {
+			configManager.updateEmmetConfig(emmetConfiguration);
+		}
 
 		return {
 			capabilities: {
