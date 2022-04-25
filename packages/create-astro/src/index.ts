@@ -292,7 +292,6 @@ export async function main() {
 		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
 		await new Promise<void>((resolve, reject) => {
 			installExec.stdout?.on('data', function (data) {
-				// remove newlines from data stream for nicer formatting
 				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
 			});
 			installExec.on('error', (error) => reject(error));
