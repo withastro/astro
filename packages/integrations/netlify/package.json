@@ -33,6 +33,7 @@
     "@astrojs/webapi": "^0.11.1"
   },
   "devDependencies": {
+    "@netlify/edge-handler-types": "^0.34.1",
     "@netlify/functions": "^1.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"

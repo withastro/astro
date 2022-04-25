@@ -63,3 +63,31 @@ Also check our [Astro Integration Documentation][astro-integration] for more on 
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
+
+## Options
+
+This integration is powered by `@sveltejs/vite-plugin-svelte`. To customize the Svelte compiler, options can be provided to the integration. See the `@sveltejs/vite-plugin-svelte` [docs](https://github.com/sveltejs/vite-plugin-svelte/blob/HEAD/docs/config.md) for more details.
+
+### Default options
+
+A few of the default options passed to the Svelte compiler are required to build properly for Astro and cannot be overridden.
+
+```js
+const defaultOptions = {
+  emitCss: true,
+  compilerOptions: { dev: isDev, hydratable: true },
+  preprocess: [
+    preprocess({
+      less: true,
+      sass: { renderSync: true },
+      scss: { renderSync: true },
+      stylus: true,
+      typescript: true,
+    }),
+  ],
+};
+```
+
+The `emitCss`, `compilerOptions.dev`, and `compilerOptions.hydratable` cannot be overridden.
+
+Providing your own `preprocess` options **will** override the defaults - make sure to enable the preprocessor flags needed for your project.

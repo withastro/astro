@@ -19,6 +19,7 @@ import { parseNpmName } from '../util.js';
 import { wrapDefaultExport } from './wrapper.js';
 import { ensureImport } from './imports.js';
 import { t, parse, visit, generate } from './babel.js';
+import { appendForwardSlash } from '../path.js';
 
 export interface AddOptions {
 	logging: LogOptions;
@@ -91,7 +92,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', root);
+		configURL = new URL('./astro.config.mjs', appendForwardSlash(root.href));
 		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
