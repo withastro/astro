@@ -4,6 +4,7 @@ import fs from 'fs';
 import os from 'os';
 
 const FAKE_PACKAGE_MANAGER = 'banana';
+let initialEnvValue = null;
 
 describe('[create-astro] install', function () {
 	this.timeout(timeout);
@@ -11,7 +12,14 @@ describe('[create-astro] install', function () {
 	beforeEach(async () => {
 		tempDir = await fs.promises.mkdtemp(`${os.tmpdir()}${sep}`);
 	});
-	process.env.npm_config_user_agent = FAKE_PACKAGE_MANAGER;
+	this.beforeAll(() => {
+		initialEnvValue = process.env.npm_config_user_agent;
+		process.env.npm_config_user_agent = FAKE_PACKAGE_MANAGER;
+	})
+	this.afterAll(() => {
+		process.env.npm_config_user_agent = initialEnvValue;
+	})
+
 	it('should respect package manager in prompt', function() {
 		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
