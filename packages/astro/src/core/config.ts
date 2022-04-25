@@ -94,8 +94,8 @@ export const AstroConfigSchema = z.object({
 	base: z
 		.string()
 		.optional()
-		.default('./')
-		.transform((val) => (val ? appendForwardSlash(trimSlashes(val)) : val)),
+		.default('/')
+		.transform((val) => appendForwardSlash(trimSlashes(val))),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
