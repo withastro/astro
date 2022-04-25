@@ -326,10 +326,6 @@ function emojiWithFallback(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-/**
- * Politely stolen from ViteJS
- * @see https://github.com/vitejs/vite/blob/fc89057b406fc85e01a1d4fd08f128e9b6bcba5a/packages/create-vite/index.js#L339
- */
 function pkgManagerFromUserAgent(userAgent?: string) {
 	if (!userAgent) return 'npm';
 	const pkgSpec = userAgent.split(' ')[0];
