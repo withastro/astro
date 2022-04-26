@@ -114,8 +114,7 @@ async function handle404Response(
 		// HACK: redirect without the base path for assets in publicDir
 		const redirectTo =
 			req.method === 'GET' &&
-			config.base &&
-			config.base !== './' &&
+			config.base !== '/' &&
 			pathname.startsWith(config.base) &&
 			pathname.replace(config.base, '/');
 
