@@ -1,0 +1,122 @@
+---
+import Layout from '../components/Layout.astro';
+---
+
+<Layout title="Welcome to Astro.">
+	<main>
+		<h1>Welcome to <span class="astro-text">Astro.</span></h1>
+		<p class="getting-started-instructions"><strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check the <code>src/pages</code> directory!</p>
+		<div class="link-card-grid">
+		<a class="link-card" href="https://astro.build/integrations/">
+			<h2>Integrations &rarr;</h2>
+			<p>Add component frameworks, Tailwind, Partytown, and more!</p>
+		</a>
+		<a class="link-card" href="https://astro.build/themes/">
+			<h2>Themes &rarr;</h2>
+			<p>Explore a galaxy of community-built starters.</p>
+		</a>
+		<a class="link-card" href="https://docs.astro.build/">
+			<h2>Docs &rarr;</h2>
+			<p>Learn our complete feature set and explore the API.</p>
+		</a>
+		<a class="link-card" href="https://astro.build/chat/">
+			<h2>Chat &rarr;</h2>
+			<p>Ask, contribute, and have fun on our community discord &#9825;</p>
+		</a>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	:root {
+		--color-border: hsl(17, 24%, 90%);
+		--astro-gradient: linear-gradient(0deg,#4F39FA, #DA62C4);
+		--link-gradient: linear-gradient(45deg, #4F39FA, #DA62C4 30%, var(--color-border) 60%);
+		--night-sky-gradient: linear-gradient(0deg, #392362 -33%, #431f69 10%, #30216b 50%, #1f1638 100%);
+	}
+
+	h2 {
+		margin: 0;
+	}
+
+	code {
+		border: 2px solid var(--color-border);
+		border-radius: 5px;
+		padding: 0.2em 0.5em;
+	}
+
+	main {
+		margin: auto;
+    padding: 1em;
+		max-width: 60ch;
+	}
+
+	.astro-text {
+		color: white;
+		background: var(--astro-gradient);
+		background-size: 100% 200%;
+		background-position-y: 100%;
+		padding: 0 0.2em;
+		border-radius: 0.4rem;
+		animation: pulse 4s ease-in-out infinite;
+	}
+
+	@keyframes pulse {
+		0%, 100% {
+			background-position-y: 20%;
+		}
+		50% {
+			background-position-y: 100%;
+		}
+	}
+
+	.getting-started-instructions {
+		line-height: 1.8;
+		margin-bottom: 2rem;
+		background-image: var(--night-sky-gradient);
+		padding: 1.5rem;
+		border-radius: 0.4rem;
+		color: var(--color-bg);
+	}
+
+	.link-card-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	@media(min-width: 60ch) {
+		.link-card-grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.link-card {
+		line-height: 1.4;
+		text-decoration: none;
+		color: var(--text-color);
+		background-image: var(--link-gradient);
+		background-size: 400%;
+		padding: 1em 1.3em;
+		border-radius: 0.5rem;
+		background-position: 100%;
+		transition: background-position 0.5s;
+	}
+
+	.link-card, .link-card * {
+		position: relative;
+	}
+
+	.link-card:hover {
+		background-position: 0;
+	}
+
+	.link-card::before {
+		content: '';
+		position: absolute;
+		inset: 0.15rem;
+		border-radius: 0.35rem;
+		background-color: white;
+		opacity: 0.8;
+	}
+</style>
