@@ -1,5 +1,27 @@
 # astro
 
+## 1.0.0-beta.18
+
+### Patch Changes
+
+- [#3207](https://github.com/withastro/astro/pull/3207) [`22cb4b7b`](https://github.com/withastro/astro/commit/22cb4b7b320428378633a3044f07a548dbbc8dc2) Thanks [@matthewp](https://github.com/matthewp)! - Disables file watching during the build
+
+* [#3191](https://github.com/withastro/astro/pull/3191) [`205d1f07`](https://github.com/withastro/astro/commit/205d1f07f13ae60f21954648d530895d479e42cf) Thanks [@JuanM04](https://github.com/JuanM04)! - Added better types to importing Markdown
+
+- [#3183](https://github.com/withastro/astro/pull/3183) [`7a61977d`](https://github.com/withastro/astro/commit/7a61977db11c4472f9210b8de22ec281870e5dc3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support "astro add" before installing project dependencies
+
+* [#3209](https://github.com/withastro/astro/pull/3209) [`fdd607c5`](https://github.com/withastro/astro/commit/fdd607c5755034edf262e7b275732519328a33b2) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `is:raw` to AstroBuiltinAttributes
+
+- [#3198](https://github.com/withastro/astro/pull/3198) [`1a86e77c`](https://github.com/withastro/astro/commit/1a86e77c37109f6a6006d6acb00eb52b4a54683c) Thanks [@JuanM04](https://github.com/JuanM04)! - Markdown file.url now respects `trailingSlash` and `base`
+
+* [#3187](https://github.com/withastro/astro/pull/3187) [`75dab3ca`](https://github.com/withastro/astro/commit/75dab3ca3de33da825c2a9695c2ad46cc104b7b1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove online editor configs (stackblitz and code sandbox) from create-astro output
+
+- [#3205](https://github.com/withastro/astro/pull/3205) [`e4bb2767`](https://github.com/withastro/astro/commit/e4bb2767d5f44b0a97bdbd1349b9f329b324b78a) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added Astro attributes to SVG elements in JSX definition
+
+* [#3170](https://github.com/withastro/astro/pull/3170) [`19667c45`](https://github.com/withastro/astro/commit/19667c45f318ec13cdc2b51016f3fa3487b2a32d) Thanks [@matthewp](https://github.com/matthewp)! - Netlify Edge: Forward requests for static assets
+
+- [#3186](https://github.com/withastro/astro/pull/3186) [`2b702d6a`](https://github.com/withastro/astro/commit/2b702d6abaa296c0eb77d3fd1a8231a186341b1f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: astro add generating "astro.config.mjs" outside project root
+
 ## 1.0.0-beta.17
 
 ### Patch Changes

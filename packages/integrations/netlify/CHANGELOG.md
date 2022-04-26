@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.3.3
+
+### Patch Changes
+
+- [#3170](https://github.com/withastro/astro/pull/3170) [`19667c45`](https://github.com/withastro/astro/commit/19667c45f318ec13cdc2b51016f3fa3487b2a32d) Thanks [@matthewp](https://github.com/matthewp)! - Netlify Edge: Forward requests for static assets
+
 ## 0.3.2
 
 ### Patch Changes
