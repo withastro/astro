@@ -457,7 +457,7 @@ importers:
       '@babel/parser': ^7.17.9
       '@babel/traverse': ^7.17.9
       '@babel/types': ^7.17.0
-      '@proload/core': ^0.3.2-next.2
+      '@proload/core': ^0.3.2-next.3
       '@proload/plugin-tsm': ^0.2.1-next.0
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
@@ -542,8 +542,8 @@ importers:
       '@babel/generator': 7.17.9
       '@babel/parser': 7.17.9
       '@babel/traverse': 7.17.9
-      '@proload/core': 0.3.2-next.2
-      '@proload/plugin-tsm': 0.2.1-next.0_@proload+core@0.3.2-next.2
+      '@proload/core': 0.3.2-next.3
+      '@proload/plugin-tsm': 0.2.1-next.0_@proload+core@0.3.2-next.3
       ast-types: 0.14.2
       boxen: 6.2.1
       ci-info: 3.3.0
@@ -3630,19 +3630,19 @@ packages:
       resolve-pkg: 2.0.0
     dev: false
 
-  /@proload/core/0.3.2-next.2:
-    resolution: {integrity: sha512-r8glvSE2EYXGlbEqu5BcS/xCLXnX/zQ07k0xJagwydKCzCXcRKuH3RG8EEYPM7H8VUlF5N7Lh+uFPTzG10iF5g==}
+  /@proload/core/0.3.2-next.3:
+    resolution: {integrity: sha512-TU+3s0rJE66wErD9Zat+Cr/5vdR47UvWf14CMPScFnruW9WllGh/vLTOEJH7l0IbSP+lsZnmWUcQ3aS2oZNYyA==}
     dependencies:
       deepmerge: 4.2.2
       escalade: 3.1.1
     dev: false
 
-  /@proload/plugin-tsm/0.2.1-next.0_@proload+core@0.3.2-next.2:
+  /@proload/plugin-tsm/0.2.1-next.0_@proload+core@0.3.2-next.3:
     resolution: {integrity: sha512-76NvJmWD1MBip1oifMLohTJfdi4DQihTUnwWacscsLxUaT/5/FNNolD5CIoH/+qhsU6HyVpz8JfEzVpkMuxKfA==}
     peerDependencies:
       '@proload/core': ^0.3.2-next.0
     dependencies:
-      '@proload/core': 0.3.2-next.2
+      '@proload/core': 0.3.2-next.3
       tsm: 2.2.1
     dev: false
 
