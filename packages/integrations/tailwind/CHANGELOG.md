@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3183](https://github.com/withastro/astro/pull/3183) [`7a61977d`](https://github.com/withastro/astro/commit/7a61977db11c4472f9210b8de22ec281870e5dc3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support "astro add" before installing project dependencies
+
 ## 0.2.0
 
 ### Minor Changes
