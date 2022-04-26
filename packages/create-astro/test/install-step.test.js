@@ -29,7 +29,6 @@ describe('[create-astro] install', function () {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					fs.promises.rmdir('~/.degit/github')
 					seen.add(PROMPT_MESSAGES.template);
-					console.log('temp')
 					stdin.write('\x0D');
 				}
 				if (!seen.has(PROMPT_MESSAGES.frameworks) && chunk.includes(PROMPT_MESSAGES.frameworks)) {
@@ -46,7 +45,6 @@ describe('[create-astro] install', function () {
 	});
 
 	it('should respect package manager in next steps', function() {
-		console.log({tempDir})
 		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
