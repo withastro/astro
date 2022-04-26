@@ -33,10 +33,6 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 				config.outDir = new URL('./.vercel/output/', config.root);
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				if (edge) {
-					throw new Error('The `edge` option is not yet supported.');
-				}
-
 				setAdapter(getAdapter({ edge }));
 				_config = config;
 			},
