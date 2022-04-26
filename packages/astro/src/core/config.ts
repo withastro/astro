@@ -3,6 +3,7 @@ import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 
 import * as colors from 'kleur/colors';
 import path from 'path';
@@ -180,7 +181,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.array()
 				.default([]),
-      remarkRehype: z.any().optional().default({}),
+      remarkRehype: z.custom<RemarkRehypeOptions>().optional().default({}),
 		})
 		.default({}),
 	vite: z.any().optional().default({}),
