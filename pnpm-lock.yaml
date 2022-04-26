@@ -2,6 +2,1465 @@ lockfileVersion: 5.3
 
 importers:
 
+<<<<<<< HEAD
+=======
+  .:
+    specifiers:
+      '@astrojs/webapi': workspace:*
+      '@changesets/changelog-github': 0.4.4
+      '@changesets/cli': 2.22.0
+      '@octokit/action': ^3.18.0
+      '@typescript-eslint/eslint-plugin': ^5.20.0
+      '@typescript-eslint/parser': ^5.20.0
+      del: ^6.0.0
+      esbuild: ^0.14.38
+      eslint: ^8.13.0
+      eslint-config-prettier: ^8.5.0
+      eslint-plugin-prettier: ^4.0.0
+      execa: ^6.1.0
+      patch-package: ^6.4.7
+      prettier: ^2.6.2
+      pretty-bytes: ^6.0.0
+      tiny-glob: ^0.2.9
+      turbo: ^1.2.5
+      typescript: ~4.6.3
+    dependencies:
+      '@astrojs/webapi': link:packages/webapi
+    devDependencies:
+      '@changesets/changelog-github': 0.4.4
+      '@changesets/cli': 2.22.0
+      '@octokit/action': 3.18.0
+      '@typescript-eslint/eslint-plugin': 5.20.0_b9ac9b5656ce5dffade639fcf5e491bf
+      '@typescript-eslint/parser': 5.20.0_eslint@8.13.0+typescript@4.6.3
+      del: 6.0.0
+      esbuild: 0.14.38
+      eslint: 8.13.0
+      eslint-config-prettier: 8.5.0_eslint@8.13.0
+      eslint-plugin-prettier: 4.0.0_1815ac95b7fb26c13c7d48a8eef62d0f
+      execa: 6.1.0
+      patch-package: 6.4.7
+      prettier: 2.6.2
+      pretty-bytes: 6.0.0
+      tiny-glob: 0.2.9
+      turbo: 1.2.5
+      typescript: 4.6.3
+
+  examples/blog:
+    specifiers:
+      '@astrojs/preact': ^0.1.2
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+    dependencies:
+      preact: 10.7.1
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      astro: link:../../packages/astro
+
+  examples/blog-multiple-authors:
+    specifiers:
+      '@astrojs/preact': ^0.1.2
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+      sass: ^1.50.1
+    dependencies:
+      preact: 10.7.1
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      astro: link:../../packages/astro
+      sass: 1.50.1
+
+  examples/component:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/component/demo:
+    specifiers:
+      '@example/my-component': workspace:*
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      '@example/my-component': link:../packages/my-component
+      astro: link:../../../packages/astro
+
+  examples/component/packages/my-component:
+    specifiers: {}
+
+  examples/docs:
+    specifiers:
+      '@algolia/client-search': ^4.13.0
+      '@astrojs/preact': ^0.1.2
+      '@astrojs/react': ^0.1.1
+      '@docsearch/css': ^3.0.0
+      '@docsearch/react': ^3.0.0
+      '@types/react': ^17.0.44
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+      react: ^17.0.2
+      react-dom: ^17.0.2
+    dependencies:
+      '@algolia/client-search': 4.13.0
+      '@docsearch/css': 3.0.0
+      '@docsearch/react': 3.0.0_5377e26b52c02809078cfcbfa66845b0
+      '@types/react': 17.0.44
+      preact: 10.7.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      astro: link:../../packages/astro
+
+  examples/env-vars:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/framework-alpine:
+    specifiers:
+      alpinejs: ^3.10.2
+      astro: ^1.0.0-beta.17
+    dependencies:
+      alpinejs: 3.10.2
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/framework-lit:
+    specifiers:
+      '@astrojs/lit': ^0.1.2
+      '@webcomponents/template-shadowroot': ^0.1.0
+      astro: ^1.0.0-beta.17
+      lit: ^2.2.2
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.2
+    devDependencies:
+      '@astrojs/lit': link:../../packages/integrations/lit
+      astro: link:../../packages/astro
+
+  examples/framework-multiple:
+    specifiers:
+      '@astrojs/lit': ^0.1.2
+      '@astrojs/preact': ^0.1.2
+      '@astrojs/react': ^0.1.1
+      '@astrojs/solid-js': ^0.1.2
+      '@astrojs/svelte': ^0.1.1
+      '@astrojs/vue': ^0.1.3
+      '@webcomponents/template-shadowroot': ^0.1.0
+      astro: ^1.0.0-beta.17
+      lit: ^2.2.2
+      preact: ^10.7.1
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      solid-js: ^1.3.16
+      svelte: ^3.47.0
+      vue: ^3.2.33
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.2
+      preact: 10.7.1
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      solid-js: 1.3.16
+      svelte: 3.47.0
+      vue: 3.2.33
+    devDependencies:
+      '@astrojs/lit': link:../../packages/integrations/lit
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/solid-js': link:../../packages/integrations/solid
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
+  examples/framework-preact:
+    specifiers:
+      '@astrojs/preact': ^0.1.2
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+    dependencies:
+      preact: 10.7.1
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      astro: link:../../packages/astro
+
+  examples/framework-react:
+    specifiers:
+      '@astrojs/react': ^0.1.1
+      astro: ^1.0.0-beta.17
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+    devDependencies:
+      '@astrojs/react': link:../../packages/integrations/react
+      astro: link:../../packages/astro
+
+  examples/framework-solid:
+    specifiers:
+      '@astrojs/solid-js': ^0.1.2
+      astro: ^1.0.0-beta.17
+      solid-js: ^1.3.16
+    dependencies:
+      solid-js: 1.3.16
+    devDependencies:
+      '@astrojs/solid-js': link:../../packages/integrations/solid
+      astro: link:../../packages/astro
+
+  examples/framework-svelte:
+    specifiers:
+      '@astrojs/svelte': ^0.1.1
+      astro: ^1.0.0-beta.17
+      svelte: ^3.47.0
+    dependencies:
+      svelte: 3.47.0
+    devDependencies:
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      astro: link:../../packages/astro
+
+  examples/framework-vue:
+    specifiers:
+      '@astrojs/vue': ^0.1.3
+      astro: ^1.0.0-beta.17
+      vue: ^3.2.33
+    dependencies:
+      vue: 3.2.33
+    devDependencies:
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
+  examples/integrations-playground:
+    specifiers:
+      '@astrojs/lit': ^0.1.2
+      '@astrojs/partytown': ^0.1.2
+      '@astrojs/react': ^0.1.1
+      '@astrojs/sitemap': ^0.1.0
+      '@astrojs/tailwind': ^0.2.0
+      '@astrojs/turbolinks': ^0.1.1
+      '@webcomponents/template-shadowroot': ^0.1.0
+      astro: ^1.0.0-beta.17
+      lit: ^2.2.2
+      preact: ^10.7.1
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      solid-js: ^1.3.16
+      svelte: ^3.47.0
+      vue: ^3.2.33
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.2
+      preact: 10.7.1
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      solid-js: 1.3.16
+      svelte: 3.47.0
+      vue: 3.2.33
+    devDependencies:
+      '@astrojs/lit': link:../../packages/integrations/lit
+      '@astrojs/partytown': link:../../packages/integrations/partytown
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/sitemap': link:../../packages/integrations/sitemap
+      '@astrojs/tailwind': link:../../packages/integrations/tailwind
+      '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
+      astro: link:../../packages/astro
+
+  examples/minimal:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/non-html-pages:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/portfolio:
+    specifiers:
+      '@astrojs/preact': ^0.1.2
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+      sass: ^1.50.1
+    dependencies:
+      preact: 10.7.1
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      astro: link:../../packages/astro
+      sass: 1.50.1
+
+  examples/ssr:
+    specifiers:
+      '@astrojs/node': ^0.1.1
+      '@astrojs/svelte': ^0.1.1
+      astro: ^1.0.0-beta.17
+      concurrently: ^7.1.0
+      lightcookie: ^1.0.25
+      svelte: ^3.47.0
+      unocss: ^0.15.6
+      vite-imagetools: ^4.0.3
+    dependencies:
+      svelte: 3.47.0
+    devDependencies:
+      '@astrojs/node': link:../../packages/integrations/node
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      astro: link:../../packages/astro
+      concurrently: 7.1.0
+      lightcookie: 1.0.25
+      unocss: 0.15.6
+      vite-imagetools: 4.0.3
+
+  examples/starter:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/subpath:
+    specifiers:
+      '@astrojs/react': ^0.1.1
+      astro: ^1.0.0-beta.17
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      sass: ^1.50.1
+    dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+    devDependencies:
+      '@astrojs/react': link:../../packages/integrations/react
+      astro: link:../../packages/astro
+      sass: 1.50.1
+
+  examples/with-markdown:
+    specifiers:
+      '@astrojs/markdown-remark': ^0.9.2
+      '@astrojs/preact': ^0.1.2
+      '@astrojs/react': ^0.1.1
+      '@astrojs/svelte': ^0.1.1
+      '@astrojs/vue': ^0.1.3
+      astro: ^1.0.0-beta.17
+      preact: ^10.7.1
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      svelte: ^3.47.0
+      vue: ^3.2.33
+    dependencies:
+      preact: 10.7.1
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      svelte: 3.47.0
+      vue: 3.2.33
+    devDependencies:
+      '@astrojs/markdown-remark': link:../../packages/markdown/remark
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
+  examples/with-markdown-plugins:
+    specifiers:
+      '@astrojs/markdown-remark': ^0.9.2
+      astro: ^1.0.0-beta.17
+      hast-util-select: 5.0.1
+      rehype-autolink-headings: ^6.1.1
+      rehype-slug: ^5.0.1
+      rehype-toc: ^3.0.2
+      remark-code-titles: ^0.1.2
+    devDependencies:
+      '@astrojs/markdown-remark': link:../../packages/markdown/remark
+      astro: link:../../packages/astro
+      hast-util-select: 5.0.1
+      rehype-autolink-headings: 6.1.1
+      rehype-slug: 5.0.1
+      rehype-toc: 3.0.2
+      remark-code-titles: 0.1.2
+
+  examples/with-markdown-shiki:
+    specifiers:
+      '@astrojs/markdown-remark': ^0.9.2
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      '@astrojs/markdown-remark': link:../../packages/markdown/remark
+      astro: link:../../packages/astro
+
+  examples/with-nanostores:
+    specifiers:
+      '@astrojs/preact': ^0.1.2
+      '@astrojs/react': ^0.1.1
+      '@astrojs/solid-js': ^0.1.2
+      '@astrojs/svelte': ^0.1.1
+      '@astrojs/vue': ^0.1.3
+      '@nanostores/preact': ^0.1.3
+      '@nanostores/react': ^0.1.5
+      '@nanostores/vue': ^0.4.1
+      astro: ^1.0.0-beta.17
+      nanostores: ^0.5.12
+      preact: ^10.7.1
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      solid-nanostores: 0.0.6
+      vue: ^3.2.33
+    dependencies:
+      '@nanostores/preact': 0.1.3_nanostores@0.5.12+preact@10.7.1
+      '@nanostores/react': 0.1.5_33de46f26c75888291546388c72611d1
+      '@nanostores/vue': 0.4.1_nanostores@0.5.12+vue@3.2.33
+      nanostores: 0.5.12
+      preact: 10.7.1
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      solid-nanostores: 0.0.6
+      vue: 3.2.33
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/solid-js': link:../../packages/integrations/solid
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
+  examples/with-tailwindcss:
+    specifiers:
+      '@astrojs/tailwind': ^0.2.0
+      astro: ^1.0.0-beta.17
+      autoprefixer: ^10.4.4
+      canvas-confetti: ^1.5.1
+      postcss: ^8.4.12
+      tailwindcss: ^3.0.24
+    devDependencies:
+      '@astrojs/tailwind': link:../../packages/integrations/tailwind
+      astro: link:../../packages/astro
+      autoprefixer: 10.4.4_postcss@8.4.12
+      canvas-confetti: 1.5.1
+      postcss: 8.4.12
+      tailwindcss: 3.0.24
+
+  examples/with-vite-plugin-pwa:
+    specifiers:
+      astro: ^1.0.0-beta.17
+      vite-plugin-pwa: 0.11.11
+      workbox-window: ^6.5.3
+    devDependencies:
+      astro: link:../../packages/astro
+      vite-plugin-pwa: 0.11.11
+      workbox-window: 6.5.3
+
+  packages/astro:
+    specifiers:
+      '@astrojs/compiler': ^0.14.2
+      '@astrojs/language-server': ^0.13.4
+      '@astrojs/markdown-remark': ^0.9.2
+      '@astrojs/prism': 0.4.1
+      '@astrojs/webapi': ^0.11.1
+      '@babel/core': ^7.17.9
+      '@babel/generator': ^7.17.9
+      '@babel/parser': ^7.17.9
+      '@babel/traverse': ^7.17.9
+      '@babel/types': ^7.17.0
+      '@proload/core': ^0.2.2
+      '@proload/plugin-tsm': ^0.1.1
+      '@types/babel__core': ^7.1.19
+      '@types/babel__generator': ^7.6.4
+      '@types/babel__traverse': ^7.17.0
+      '@types/chai': ^4.3.1
+      '@types/common-ancestor-path': ^1.0.0
+      '@types/connect': ^3.4.35
+      '@types/debug': ^4.1.7
+      '@types/diff': ^5.0.2
+      '@types/estree': ^0.0.51
+      '@types/html-escaper': ^3.0.0
+      '@types/mime': ^2.0.3
+      '@types/mocha': ^9.1.1
+      '@types/parse5': ^6.0.3
+      '@types/path-browserify': ^1.0.0
+      '@types/prettier': ^2.6.0
+      '@types/resolve': ^1.20.2
+      '@types/rimraf': ^3.0.2
+      '@types/send': ^0.17.1
+      '@types/unist': ^2.0.6
+      '@types/yargs-parser': ^21.0.0
+      ast-types: ^0.14.2
+      astro-scripts: workspace:*
+      boxen: ^6.2.1
+      chai: ^4.3.6
+      cheerio: ^1.0.0-rc.10
+      ci-info: ^3.3.0
+      common-ancestor-path: ^1.0.1
+      debug: ^4.3.4
+      diff: ^5.0.0
+      eol: ^0.9.1
+      es-module-lexer: ^0.10.5
+      esbuild: ^0.14.38
+      estree-walker: ^3.0.1
+      execa: ^6.1.0
+      fast-glob: ^3.2.11
+      fast-xml-parser: ^4.0.7
+      gray-matter: ^4.0.3
+      html-entities: ^2.3.3
+      html-escaper: ^3.0.3
+      htmlparser2: ^7.2.0
+      kleur: ^4.1.4
+      magic-string: ^0.25.9
+      micromorph: ^0.1.2
+      mime: ^3.0.0
+      mocha: ^9.2.2
+      ora: ^6.1.0
+      path-browserify: ^1.0.1
+      path-to-regexp: ^6.2.0
+      postcss: ^8.4.12
+      postcss-load-config: ^3.1.4
+      preferred-pm: ^3.0.3
+      prismjs: ^1.28.0
+      prompts: ^2.4.2
+      recast: ^0.20.5
+      rehype-slug: ^5.0.1
+      resolve: ^1.22.0
+      rollup: ^2.70.2
+      sass: ^1.50.1
+      semver: ^7.3.7
+      serialize-javascript: ^6.0.0
+      shiki: ^0.10.1
+      shorthash: ^0.0.2
+      sirv: ^2.0.2
+      slash: ^4.0.0
+      sourcemap-codec: ^1.4.8
+      srcset-parse: ^1.1.0
+      string-width: ^5.1.2
+      strip-ansi: ^7.0.1
+      supports-esm: ^1.0.0
+      tsconfig-resolver: ^3.0.1
+      vite: ^2.9.5
+      yargs-parser: ^21.0.1
+      zod: ^3.14.4
+    dependencies:
+      '@astrojs/compiler': 0.14.2
+      '@astrojs/language-server': 0.13.4
+      '@astrojs/markdown-remark': link:../markdown/remark
+      '@astrojs/prism': link:../astro-prism
+      '@astrojs/webapi': link:../webapi
+      '@babel/core': 7.17.9
+      '@babel/generator': 7.17.9
+      '@babel/parser': 7.17.9
+      '@babel/traverse': 7.17.9
+      '@proload/core': 0.2.2
+      '@proload/plugin-tsm': 0.1.1_@proload+core@0.2.2
+      ast-types: 0.14.2
+      boxen: 6.2.1
+      ci-info: 3.3.0
+      common-ancestor-path: 1.0.1
+      debug: 4.3.4
+      diff: 5.0.0
+      eol: 0.9.1
+      es-module-lexer: 0.10.5
+      esbuild: 0.14.38
+      estree-walker: 3.0.1
+      execa: 6.1.0
+      fast-glob: 3.2.11
+      fast-xml-parser: 4.0.7
+      gray-matter: 4.0.3
+      html-entities: 2.3.3
+      html-escaper: 3.0.3
+      htmlparser2: 7.2.0
+      kleur: 4.1.4
+      magic-string: 0.25.9
+      micromorph: 0.1.2
+      mime: 3.0.0
+      ora: 6.1.0
+      path-browserify: 1.0.1
+      path-to-regexp: 6.2.0
+      postcss: 8.4.12
+      postcss-load-config: 3.1.4_postcss@8.4.12
+      preferred-pm: 3.0.3
+      prismjs: 1.28.0
+      prompts: 2.4.2
+      recast: 0.20.5
+      rehype-slug: 5.0.1
+      resolve: 1.22.0
+      rollup: 2.70.2
+      semver: 7.3.7
+      serialize-javascript: 6.0.0
+      shiki: 0.10.1
+      shorthash: 0.0.2
+      sirv: 2.0.2
+      slash: 4.0.0
+      sourcemap-codec: 1.4.8
+      string-width: 5.1.2
+      strip-ansi: 7.0.1
+      supports-esm: 1.0.0
+      tsconfig-resolver: 3.0.1
+      vite: 2.9.5_sass@1.50.1
+      yargs-parser: 21.0.1
+      zod: 3.14.4
+    devDependencies:
+      '@babel/types': 7.17.0
+      '@types/babel__core': 7.1.19
+      '@types/babel__generator': 7.6.4
+      '@types/babel__traverse': 7.17.0
+      '@types/chai': 4.3.1
+      '@types/common-ancestor-path': 1.0.0
+      '@types/connect': 3.4.35
+      '@types/debug': 4.1.7
+      '@types/diff': 5.0.2
+      '@types/estree': 0.0.51
+      '@types/html-escaper': 3.0.0
+      '@types/mime': 2.0.3
+      '@types/mocha': 9.1.1
+      '@types/parse5': 6.0.3
+      '@types/path-browserify': 1.0.0
+      '@types/prettier': 2.6.0
+      '@types/resolve': 1.20.2
+      '@types/rimraf': 3.0.2
+      '@types/send': 0.17.1
+      '@types/unist': 2.0.6
+      '@types/yargs-parser': 21.0.0
+      astro-scripts: link:../../scripts
+      chai: 4.3.6
+      cheerio: 1.0.0-rc.10
+      mocha: 9.2.2
+      sass: 1.50.1
+      srcset-parse: 1.1.0
+
+  packages/astro-prism:
+    specifiers:
+      prismjs: ^1.28.0
+    devDependencies:
+      prismjs: 1.28.0
+
+  packages/astro/test/fixtures/0-css:
+    specifiers:
+      '@astrojs/react': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-assets:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-attrs:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-basic:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-children:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-class-list:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-client-only:
+    specifiers:
+      '@astrojs/react': workspace:*
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-component-code:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-components:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling-import:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling-nested-layouts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-directives:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-doctype:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-dynamic:
+    specifiers:
+      '@astrojs/react': workspace:*
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-envs:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-expr:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-external-files:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-fallback:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-get-static-paths:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-global:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-jsx:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown-drafts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown-plugins:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      hast-util-select: ^5.0.1
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+      hast-util-select: 5.0.1
+
+  packages/astro/test/fixtures/astro-markdown-shiki/langs:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/normal:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/themes-custom:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/themes-integrated:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/wrap-false:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/wrap-null:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-shiki/wrap-true:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
+  packages/astro/test/fixtures/astro-markdown-url:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-page-directory-url:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-pages:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-pagination:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-partial-html:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-public:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-scripts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-sitemap-rss:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-slots:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/config-host:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/config-path:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/custom-elements:
+    specifiers:
+      '@test/custom-element-renderer': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@test/custom-element-renderer': link:my-component-lib
+      astro: link:../../..
+
+  packages/astro/test/fixtures/custom-elements/my-component-lib:
+    specifiers: {}
+
+  packages/astro/test/fixtures/debug-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/errors:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/fetch:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/legacy-build:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      preact: ~10.6.6
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+      preact: 10.6.6
+
+  packages/astro/test/fixtures/lit-element:
+    specifiers:
+      '@astrojs/lit': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/lit': link:../../../../integrations/lit
+      astro: link:../../..
+
+  packages/astro/test/fixtures/markdown:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/postcss:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      autoprefixer: ^10.4.4
+      postcss: ^8.4.12
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+      autoprefixer: 10.4.4_postcss@8.4.12
+      postcss: 8.4.12
+
+  packages/astro/test/fixtures/preact-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/react-component:
+    specifiers:
+      '@astrojs/react': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      react: ^18.0.0
+      react-dom: ^18.0.0
+      vue: ^3.2.33
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+      vue: 3.2.33
+
+  packages/astro/test/fixtures/remote-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/route-manifest:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/sass:
+    specifiers:
+      astro: workspace:*
+      sass: ^1.50.1
+    dependencies:
+      astro: link:../../..
+      sass: 1.50.1
+
+  packages/astro/test/fixtures/slots-preact:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-react:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-solid:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-svelte:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-vue:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/solid-component:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-markdown:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@test/static-build-pkg': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@test/static-build-pkg': link:pkg
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-code-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-frameworks:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-page-url-format:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-ssr:
+    specifiers:
+      '@astrojs/node': workspace:*
+      '@test/static-build-pkg': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/node': link:../../../../integrations/node
+      '@test/static-build-pkg': link:../static-build/pkg
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build/pkg:
+    specifiers: {}
+
+  packages/astro/test/fixtures/svelte-component:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
+  packages/astro/test/fixtures/tailwindcss:
+    specifiers:
+      '@astrojs/tailwind': workspace:*
+      astro: workspace:*
+      autoprefixer: ^10.4.4
+      postcss: ^8.4.12
+      tailwindcss: ^3.0.24
+    dependencies:
+      '@astrojs/tailwind': link:../../../../integrations/tailwind
+      astro: link:../../..
+      autoprefixer: 10.4.4_postcss@8.4.12
+      postcss: 8.4.12
+      tailwindcss: 3.0.24
+
+  packages/astro/test/fixtures/vue-component:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/with-endpoint-routes:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/with-subpath-no-trailing-slash:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/without-site-config:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/create-astro:
+    specifiers:
+      '@types/chai': ^4.3.1
+      '@types/degit': ^2.8.3
+      '@types/mocha': ^9.1.1
+      '@types/prompts': ^2.0.14
+      '@types/yargs-parser': ^21.0.0
+      astro-scripts: workspace:*
+      chai: ^4.3.6
+      degit: ^2.8.4
+      kleur: ^4.1.4
+      mocha: ^9.2.2
+      node-fetch: ^3.2.3
+      ora: ^6.1.0
+      prompts: ^2.4.2
+      uvu: ^0.5.3
+      yargs-parser: ^21.0.1
+    dependencies:
+      '@types/degit': 2.8.3
+      '@types/prompts': 2.0.14
+      degit: 2.8.4
+      kleur: 4.1.4
+      node-fetch: 3.2.3
+      ora: 6.1.0
+      prompts: 2.4.2
+      yargs-parser: 21.0.1
+    devDependencies:
+      '@types/chai': 4.3.1
+      '@types/mocha': 9.1.1
+      '@types/yargs-parser': 21.0.0
+      astro-scripts: link:../../scripts
+      chai: 4.3.6
+      mocha: 9.2.2
+      uvu: 0.5.3
+
+  packages/integrations/deno:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/deno/test/fixtures/basics:
+    specifiers:
+      '@astrojs/deno': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/deno': link:../../..
+      '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
+  packages/integrations/lit:
+    specifiers:
+      '@lit-labs/ssr': ^2.1.0
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@lit-labs/ssr': 2.1.0
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/netlify:
+    specifiers:
+      '@astrojs/webapi': ^0.11.1
+      '@netlify/edge-handler-types': ^0.34.1
+      '@netlify/functions': ^1.0.0
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
+    devDependencies:
+      '@netlify/edge-handler-types': 0.34.1
+      '@netlify/functions': 1.0.0
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/netlify/test/edge-functions/fixtures/edge-basic:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
+      '@astrojs/react': link:../../../../../react
+      astro: link:../../../../../../astro
+
+  packages/integrations/netlify/test/edge-functions/fixtures/root-dynamic:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/integrations/node:
+    specifiers:
+      '@astrojs/webapi': ^0.11.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/partytown:
+    specifiers:
+      '@builder.io/partytown': ^0.4.5
+      astro: workspace:*
+      astro-scripts: workspace:*
+      mrmime: ^1.0.0
+    dependencies:
+      '@builder.io/partytown': 0.4.5
+      mrmime: 1.0.0
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/preact:
+    specifiers:
+      '@babel/plugin-transform-react-jsx': ^7.17.3
+      astro: workspace:*
+      astro-scripts: workspace:*
+      preact: ^10.7.1
+      preact-render-to-string: ^5.1.21
+    dependencies:
+      '@babel/plugin-transform-react-jsx': 7.17.3
+      preact-render-to-string: 5.1.21_preact@10.7.1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      preact: 10.7.1
+
+  packages/integrations/react:
+    specifiers:
+      '@babel/plugin-transform-react-jsx': ^7.17.3
+      '@types/react': ^17.0.44
+      '@types/react-dom': ^17.0.15
+      astro: workspace:*
+      astro-scripts: workspace:*
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    dependencies:
+      '@babel/plugin-transform-react-jsx': 7.17.3
+    devDependencies:
+      '@types/react': 17.0.44
+      '@types/react-dom': 17.0.15
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
+
+  packages/integrations/sitemap:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      sitemap: ^7.1.1
+    dependencies:
+      sitemap: 7.1.1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/solid:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      babel-preset-solid: ^1.3.16
+      solid-js: ^1.3.16
+    dependencies:
+      babel-preset-solid: 1.3.16
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      solid-js: 1.3.16
+
+  packages/integrations/svelte:
+    specifiers:
+      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.41
+      astro: workspace:*
+      astro-scripts: workspace:*
+      postcss-load-config: ^3.1.4
+      svelte: ^3.47.0
+      svelte-preprocess: ^4.10.6
+    dependencies:
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.41_svelte@3.47.0
+      postcss-load-config: 3.1.4
+      svelte-preprocess: 4.10.6_1402eb22fee660bb6c891bb9c1bca0d1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      svelte: 3.47.0
+
+  packages/integrations/tailwind:
+    specifiers:
+      '@proload/core': ^0.2.2
+      '@types/tailwindcss': ^3.0.10
+      astro: workspace:*
+      astro-scripts: workspace:*
+      autoprefixer: ^10.4.4
+      postcss: ^8.4.12
+      tailwindcss: ^3.0.24
+    dependencies:
+      '@proload/core': 0.2.2
+      autoprefixer: 10.4.4_postcss@8.4.12
+      postcss: 8.4.12
+      tailwindcss: 3.0.24
+    devDependencies:
+      '@types/tailwindcss': 3.0.10
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/turbolinks:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      turbolinks: ^5.2.0
+    dependencies:
+      turbolinks: 5.2.0
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/vercel:
+    specifiers:
+      '@astrojs/webapi': ^0.11.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      esbuild: ^0.14.38
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
+      esbuild: 0.14.38
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/vue:
+    specifiers:
+      '@vitejs/plugin-vue': ^2.3.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      vue: ^3.2.33
+    dependencies:
+      '@vitejs/plugin-vue': 2.3.1_vue@3.2.33
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      vue: 3.2.33
+
+>>>>>>> 1a86e77c37109f6a6006d6acb00eb52b4a54683c
   packages/markdown/remark:
     specifiers:
       '@astrojs/prism': ^0.4.1
