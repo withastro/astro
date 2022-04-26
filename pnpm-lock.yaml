@@ -264,6 +264,12 @@ importers:
       '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
       astro: link:../../packages/astro
 
+  examples/just-the-basics:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
   examples/minimal:
     specifiers:
       astro: ^1.0.0-beta.18
