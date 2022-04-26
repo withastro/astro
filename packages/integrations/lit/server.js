@@ -34,7 +34,7 @@ function* render(tagName, attrs, children) {
 		if (name in Ctr.prototype) {
 			instance.setProperty(name, value);
 		}
-		instance.setAttribute(name, '' + value);
+		instance.setAttribute(name, JSON.stringify(value));
 	}
 
 	instance.connectedCallback();
