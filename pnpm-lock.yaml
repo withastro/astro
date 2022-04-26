@@ -457,8 +457,8 @@ importers:
       '@babel/parser': ^7.17.9
       '@babel/traverse': ^7.17.9
       '@babel/types': ^7.17.0
-      '@proload/core': ^0.3.2-next.4
-      '@proload/plugin-tsm': ^0.2.1-next.0
+      '@proload/core': ^0.3.2
+      '@proload/plugin-tsm': ^0.2.1
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.0
@@ -1406,7 +1406,7 @@ importers:
 
   packages/integrations/tailwind:
     specifiers:
-      '@proload/core': ^0.3.1
+      '@proload/core': ^0.3.2
       '@types/tailwindcss': ^3.0.10
       astro: workspace:*
       astro-scripts: workspace:*
