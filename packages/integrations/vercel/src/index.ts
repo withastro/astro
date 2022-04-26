@@ -68,7 +68,7 @@ export default function vercel(): AstroIntegration {
 					bundle: true,
 					format: 'cjs',
 					platform: 'node',
-					target: 'node14',
+					target: 'node14.15',
 					allowOverwrite: true,
 					minifyWhitespace: true,
 				});

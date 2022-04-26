@@ -49,7 +49,9 @@ let randomBytes = (size: number, cb?: (...args: any) => any) => {
 };
 
 try {
-    randomBytes = (await import("crypto")).randomBytes as unknown as typeof randomBytes;
+    let importStr = "crypto";
+    let cryptoImport = import(importStr);
+    randomBytes = (await cryptoImport).randomBytes as unknown as typeof randomBytes;
 } catch (e) { }
 
 export { randomBytes };

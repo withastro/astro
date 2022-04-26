@@ -21,7 +21,7 @@ const ALWAYS_EXTERNAL = new Set([
 	...builtinModules.map((name) => `node:${name}`),
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
-	'serialize-javascript',
+	'crypto',
 	'node-fetch',
 	'prismjs',
 	'shiki',
