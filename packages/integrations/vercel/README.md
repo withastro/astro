@@ -13,24 +13,27 @@ export default defineConfig({
 });
 ```
 
-When you build your project, Astro will know to use the `.output` folder format that Vercel expects.
+When you build your project, Astro will know to use the `.vercel/output` folder format that Vercel expects.
 
-```
-astro build
-```
+## Deploying
 
-That's it! You can deploy by CLI (`vercel deploy`) or by connecting your new repo in the [Vercel Dashboard](https://vercel.com/).
+You can deploy by CLI (`vercel deploy`) or by connecting your new repo in the [Vercel Dashboard](https://vercel.com/). Alternatively, you can create a production build locally:
+
+```sh
+ENABLE_VC_BUILD=1 astro build
+vercel deploy --prebuilt
+```
 
 ## Requirements
 
-**Vercel's [File System API](https://vercel.com/docs/file-system-api/v2) must be enabled.** You must enable it yourself by setting the environment variable: `ENABLE_FILE_SYSTEM_API=1`. 
+**Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) must be enabled.** You must enable it yourself by setting the environment variable: `ENABLE_VC_BUILD=1`. 
 
 ```js
 // vercel.json
 {
   "build": {
     "env": {
-      "ENABLE_FILE_SYSTEM_API": "1"
+      "ENABLE_VC_BUILD": "1"
     }
   }
 }
