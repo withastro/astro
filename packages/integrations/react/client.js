@@ -1,13 +1,15 @@
 import { createElement } from 'react';
-import { hydrate } from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
 export default (element) => (Component, props, children) =>
-	hydrate(
+	hydrateRoot(
+		element,
 		createElement(
 			Component,
 			{ ...props, suppressHydrationWarning: true },
-			children != null ? createElement(StaticHtml, { value: children, suppressHydrationWarning: true }) : children
-		),
-		element
+			children != null
+				? createElement(StaticHtml, { value: children, suppressHydrationWarning: true })
+				: children
+		)
 	);

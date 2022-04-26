@@ -9,9 +9,9 @@ describe('API routes in SSR', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/ssr-api-route/',
-			buildOptions: {
-				experimentalSsr: true,
+			root: './fixtures/ssr-api-route/',
+			experimental: {
+				ssr: true,
 			},
 			adapter: testAdapter(),
 		});
@@ -37,7 +37,7 @@ describe('API routes in SSR', () => {
 		expect(body.length).to.equal(3);
 	});
 
-	describe('Dev', () => {
+	describe('API Routes - Dev', () => {
 		let devServer;
 		before(async () => {
 			devServer = await fixture.startDevServer();
@@ -55,6 +55,14 @@ describe('API routes in SSR', () => {
 			expect(response.status).to.equal(200);
 			const text = await response.text();
 			expect(text).to.equal(`ok`);
+		});
+
+		it('Can set multiple headers of the same type', async () => {
+			const response = await fixture.fetch('/login', {
+				method: 'POST',
+			});
+			const setCookie = response.headers.get('set-cookie');
+			expect(setCookie).to.equal('foo=foo; HttpOnly, bar=bar; HttpOnly');
 		});
 	});
 });

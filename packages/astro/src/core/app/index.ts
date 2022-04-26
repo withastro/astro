@@ -1,16 +1,24 @@
-import type { ComponentInstance, EndpointHandler, ManifestData, RouteData } from '../../@types/astro';
+import type {
+	ComponentInstance,
+	EndpointHandler,
+	ManifestData,
+	RouteData,
+} from '../../@types/astro';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
+import type { LogOptions } from '../logger/core.js';
 
 import mime from 'mime';
-import { defaultLogOptions } from '../logger.js';
+import { consoleLogDestination } from '../logger/console.js';
 export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
 import { render } from '../render/core.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { RouteCache } from '../render/route-cache.js';
-import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import {
+	createLinkStylesheetElementSet,
+	createModuleScriptElementWithSrcSet,
+} from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
-import { createRequest } from '../request.js';
 
 export class App {
 	#manifest: Manifest;
@@ -18,7 +26,10 @@ export class App {
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#routeCache: RouteCache;
 	#encoder = new TextEncoder();
-	#logging = defaultLogOptions;
+	#logging: LogOptions = {
+		dest: consoleLogDestination,
+		level: 'info',
+	};
 
 	constructor(manifest: Manifest) {
 		this.#manifest = manifest;
@@ -26,7 +37,7 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.#routeCache = new RouteCache(defaultLogOptions);
+		this.#routeCache = new RouteCache(this.#logging);
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -54,7 +65,11 @@ export class App {
 		}
 	}
 
-	async #renderPage(request: Request, routeData: RouteData, mod: ComponentInstance): Promise<Response> {
+	async #renderPage(
+		request: Request,
+		routeData: RouteData,
+		mod: ComponentInstance
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
 		const renderers = manifest.renderers;
@@ -63,10 +78,9 @@ export class App {
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
 		const result = await render({
-			legacyBuild: false,
 			links,
 			logging: this.#logging,
-			markdownRender: manifest.markdown.render,
+			markdown: manifest.markdown,
 			mod,
 			origin: url.origin,
 			pathname: url.pathname,
@@ -101,14 +115,19 @@ export class App {
 		});
 	}
 
-	async #callEndpoint(request: Request, _routeData: RouteData, mod: ComponentInstance): Promise<Response> {
+	async #callEndpoint(
+		request: Request,
+		routeData: RouteData,
+		mod: ComponentInstance
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {
-			logging: defaultLogOptions,
+			logging: this.#logging,
 			origin: url.origin,
 			pathname: url.pathname,
 			request,
+			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
 		});

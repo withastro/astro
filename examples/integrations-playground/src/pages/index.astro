@@ -38,7 +38,7 @@ import '../components/Counter.js';
       console.log('end partytown blocking script')
     </script>
 
-    <script>
+    <script is:inline>
       setInterval(() => {
         const randomColor = Math.floor(Math.random()*16777215).toString(16);
         document.querySelector('.partytown-status').style.color = "#" + randomColor;

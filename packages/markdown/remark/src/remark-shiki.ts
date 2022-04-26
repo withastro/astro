@@ -1,34 +1,7 @@
 import type * as shiki from 'shiki';
 import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
-
-export interface ShikiConfig {
-	/**
-	 * The languages loaded to Shiki.
-	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
-	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
-	 *
-	 * @default []
-	 */
-	langs?: shiki.ILanguageRegistration[];
-	/**
-	 * The styling theme.
-	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
-	 * Instructions for loading a custom theme: https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme
-	 *
-	 * @default "github-dark"
-	 */
-	theme?: shiki.IThemeRegistration;
-	/**
-	 * Enable word wrapping.
-	 *  - true: enabled.
-	 *  - false: enabled.
-	 *  - null: All overflow styling removed. Code will overflow the element by default.
-	 *
-	 * @default false
-	 */
-	wrap?: boolean | null;
-}
+import type { ShikiConfig } from './types.js';
 
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
@@ -37,7 +10,10 @@ export interface ShikiConfig {
  */
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
-const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig, scopedClassName?: string | null) => {
+const remarkShiki = async (
+	{ langs, theme, wrap }: ShikiConfig,
+	scopedClassName?: string | null
+) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighterAsync = highlighterCacheAsync.get(cacheID);
 	if (!highlighterAsync) {
@@ -63,15 +39,31 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 			// &lt;span class=&quot;line&quot;
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`);
+			html = html.replace(
+				'<pre class="shiki"',
+				`<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`
+			);
 			// Replace "shiki" css variable naming with "astro".
-			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
+			html = html.replace(
+				/style="(background-)?color: var\(--shiki-/g,
+				'style="$1color: var(--astro-code-'
+			);
+			// Add "user-select: none;" for "+"/"-" diff symbols
+			if (node.lang === 'diff') {
+				html = html.replace(
+					/<span class="line"><span style="(.*?)">([\+|\-])/g,
+					'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
+				);
+			}
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
 			} else if (wrap === true) {
-				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+				html = html.replace(
+					/style="(.*?)"/,
+					'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
+				);
 			}
 
 			// Apply scopedClassName to all nested lines

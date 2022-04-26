@@ -6,7 +6,7 @@ describe('Slots: Vue', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/slots-vue/' });
+		fixture = await loadFixture({ root: './fixtures/slots-vue/' });
 		await fixture.build();
 	});
 

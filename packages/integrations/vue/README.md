@@ -63,3 +63,26 @@ Also check our [Astro Integration Documentation][astro-integration] for more on 
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
+
+## Options
+
+This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://github.com/vitejs/vite/tree/main/packages/plugin-vue) for more details.
+
+__astro.config.mjs__
+
+```js
+import vue from '@astrojs/vue';
+
+export default {
+  // ...
+  integrations: [vue({
+    template: {
+      compilerOptions: {
+        // treat any tag that starts with ion- as custom elements
+        isCustomElement: tag => tag.startsWith('ion-')
+      }
+    }
+    // ...
+  })],
+}
+```

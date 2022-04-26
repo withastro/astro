@@ -26,7 +26,12 @@ const handleLoad = async (args, generate, { isDev }) => {
 		let { js, warnings } = compile(source, { ...compileOptions, filename });
 		let contents = js.code + `\n//# sourceMappingURL=` + js.map.toUrl();
 
-		return { loader: 'js', contents, resolveDir: dirname(path), warnings: warnings.map((w) => convertMessage(w)) };
+		return {
+			loader: 'js',
+			contents,
+			resolveDir: dirname(path),
+			warnings: warnings.map((w) => convertMessage(w)),
+		};
 	} catch (e) {
 		return { errors: [convertMessage(e)] };
 	}
@@ -54,8 +59,12 @@ export default function sveltePlugin({ isDev = false }) {
 					};
 				}
 			});
-			build.onLoad({ filter: /.*/, namespace: 'svelte:client' }, (args) => handleLoad(args, 'dom', { isDev }));
-			build.onLoad({ filter: /.*/, namespace: 'svelte:server' }, (args) => handleLoad(args, 'ssr', { isDev }));
+			build.onLoad({ filter: /.*/, namespace: 'svelte:client' }, (args) =>
+				handleLoad(args, 'dom', { isDev })
+			);
+			build.onLoad({ filter: /.*/, namespace: 'svelte:server' }, (args) =>
+				handleLoad(args, 'ssr', { isDev })
+			);
 		},
 	};
 }

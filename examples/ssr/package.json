@@ -3,21 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev --experimental-ssr",
+    "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build --experimental-ssr",
+    "build": "astro build",
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^0.0.2",
-    "@astrojs/node": "^0.0.2",
-    "astro": "^0.25.4",
-    "concurrently": "^7.0.0",
+    "@astrojs/node": "^0.1.1",
+    "@astrojs/svelte": "^0.1.2",
+    "astro": "^1.0.0-beta.18",
+    "concurrently": "^7.1.0",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
     "vite-imagetools": "^4.0.3"
   },
   "dependencies": {
-    "svelte": "^3.46.4"
+    "svelte": "^3.47.0"
   }
 }

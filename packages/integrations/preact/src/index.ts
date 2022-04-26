@@ -21,7 +21,12 @@ function getRenderer() {
 function getViteConfiguration() {
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime', 'preact-render-to-string'],
+			include: [
+				'@astrojs/preact/client.js',
+				'preact',
+				'preact/jsx-runtime',
+				'preact-render-to-string',
+			],
 			exclude: ['@astrojs/preact/server.js'],
 		},
 		ssr: {
@@ -34,11 +39,11 @@ export default function (): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
-				return {
+				updateConfig({
 					vite: getViteConfiguration(),
-				};
+				});
 			},
 		},
 	};

@@ -7,7 +7,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/normal/' });
+			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/normal/' });
 			await fixture.build();
 		});
 
@@ -18,7 +18,7 @@ describe('Astro Markdown Shiki', () => {
 			// There should be no HTML from Prism
 			expect($('.token')).to.have.lengthOf(0);
 
-			expect($('pre')).to.have.lengthOf(1);
+			expect($('pre')).to.have.lengthOf(2);
 			expect($('pre').hasClass('astro-code')).to.equal(true);
 			expect($('pre').attr().style).to.equal('background-color: #0d1117; overflow-x: auto;');
 		});
@@ -36,6 +36,14 @@ describe('Astro Markdown Shiki', () => {
 			expect($('span.line').get(0).children).to.have.lengthOf(1);
 			expect($('span.line').get(1).children).to.have.lengthOf(5);
 		});
+
+		it('Can render diff syntax with "user-select: none"', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			const diffBlockHtml = $('pre').last().html();
+			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">+</span>`);
+			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">-</span>`);
+		});
 	});
 
 	describe('Themes', () => {
@@ -43,7 +51,7 @@ describe('Astro Markdown Shiki', () => {
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/themes-integrated/' });
+				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-integrated/' });
 				await fixture.build();
 			});
 
@@ -70,7 +78,7 @@ describe('Astro Markdown Shiki', () => {
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/themes-custom/' });
+				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/themes-custom/' });
 				await fixture.build();
 			});
 
@@ -98,7 +106,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/langs/' });
+			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/langs/' });
 			await fixture.build();
 		});
 
@@ -126,11 +134,12 @@ describe('Astro Markdown Shiki', () => {
 
 	describe('Wrap', () => {
 		describe('wrap = true', () => {
-			const style = 'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
+			const style =
+				'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;';
 			let fixture;
 
 			before(async () => {
-				fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/wrap-true/' });
+				fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-true/' });
 				await fixture.build();
 			});
 
@@ -157,7 +166,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/wrap-false/' });
+			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-false/' });
 			await fixture.build();
 		});
 
@@ -183,7 +192,7 @@ describe('Astro Markdown Shiki', () => {
 		let fixture;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/wrap-null/' });
+			fixture = await loadFixture({ root: './fixtures/astro-markdown-shiki/wrap-null/' });
 			await fixture.build();
 		});
 

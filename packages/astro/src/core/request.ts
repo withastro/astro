@@ -1,6 +1,6 @@
 import type { IncomingHttpHeaders } from 'http';
-import type { LogOptions } from './logger';
-import { warn } from './logger.js';
+import type { LogOptions } from './logger/core';
+import { warn } from './logger/core.js';
 
 type HeaderType = Headers | Record<string, any> | IncomingHttpHeaders;
 type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormData;
@@ -11,10 +11,21 @@ export interface CreateRequestOptions {
 	method?: string;
 	body?: RequestBody | undefined;
 	logging: LogOptions;
+	ssr: boolean;
 }
 
-export function createRequest({ url, headers, method = 'GET', body = undefined, logging }: CreateRequestOptions): Request {
-	let headersObj = headers instanceof Headers ? headers : new Headers(Object.entries(headers as Record<string, any>));
+export function createRequest({
+	url,
+	headers,
+	method = 'GET',
+	body = undefined,
+	logging,
+	ssr,
+}: CreateRequestOptions): Request {
+	let headersObj =
+		headers instanceof Headers
+			? headers
+			: new Headers(Object.entries(headers as Record<string, any>));
 
 	const request = new Request(url.toString(), {
 		method: method,
@@ -25,7 +36,11 @@ export function createRequest({ url, headers, method = 'GET', body = undefined, 
 	Object.defineProperties(request, {
 		canonicalURL: {
 			get() {
-				warn(logging, 'deprecation', `Astro.request.canonicalURL has been moved to Astro.canonicalURL`);
+				warn(
+					logging,
+					'deprecation',
+					`Astro.request.canonicalURL has been moved to Astro.canonicalURL`
+				);
 				return undefined;
 			},
 		},
@@ -36,6 +51,23 @@ export function createRequest({ url, headers, method = 'GET', body = undefined, 
 			},
 		},
 	});
+
+	if (!ssr) {
+		// Warn when accessing headers in SSG mode
+		const _headers = request.headers;
+		const headersDesc = Object.getOwnPropertyDescriptor(request, 'headers') || {};
+		Object.defineProperty(request, 'headers', {
+			...headersDesc,
+			get() {
+				warn(
+					logging,
+					'ssg',
+					`Headers are not exposed in static-site generation (SSG) mode. To enable reading headers you need to set an SSR adapter in your config.`
+				);
+				return _headers;
+			},
+		});
+	}
 
 	return request;
 }

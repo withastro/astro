@@ -1,23 +1,33 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import { enableVerboseLogging, LogOptions } from '../core/logger.js';
+import { LogOptions } from '../core/logger/core.js';
 
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { defaultLogDestination } from '../core/logger.js';
+import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
 import build from '../core/build/index.js';
 import add from '../core/add/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
+import { openInBrowser } from './open.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand =
+	| 'help'
+	| 'version'
+	| 'add'
+	| 'docs'
+	| 'dev'
+	| 'build'
+	| 'preview'
+	| 'reload'
+	| 'check';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -26,6 +36,7 @@ function printAstroHelp() {
 		headline: 'Futuristic web development tool.',
 		commands: [
 			['add', 'Add an integration to your configuration.'],
+			['docs', "Launch Astro's Doc site directly from the terminal. "],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -36,10 +47,7 @@ function printAstroHelp() {
 		flags: [
 			['--host [optional IP]', 'Expose server on network'],
 			['--config <path>', 'Specify the path to the Astro config file.'],
-			['--project-root <path>', 'Specify the path to the project root folder.'],
-			['--no-sitemap', 'Disable sitemap generation (build only).'],
-			['--legacy-build', 'Use the build strategy prior to 0.24.0'],
-			['--experimental-ssr', 'Enable SSR compilation.'],
+			['--root <path>', 'Specify the path to the project root folder.'],
 			['--drafts', 'Include markdown draft pages in the build.'],
 			['--verbose', 'Enable verbose logging'],
 			['--silent', 'Disable logging'],
@@ -59,11 +67,10 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
-
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
 
-	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	const supportedCommands = new Set(['dev', 'build', 'preview', 'check', 'docs']);
 	if (supportedCommands.has(cmd)) {
 		return cmd as CLICommand;
 	}
@@ -74,7 +81,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const cmd = resolveCommand(flags);
-	const projectRoot = flags.projectRoot;
+	const root = flags.root;
 
 	switch (cmd) {
 		case 'help':
@@ -87,7 +94,7 @@ export async function cli(args: string[]) {
 
 	// logLevel
 	let logging: LogOptions = {
-		dest: defaultLogDestination,
+		dest: nodeLogDestination,
 		level: 'info',
 	};
 	if (flags.verbose) {
@@ -97,26 +104,18 @@ export async function cli(args: string[]) {
 		logging.level = 'silent';
 	}
 
-	let config: AstroConfig;
-	try {
-		// Note: ideally, `loadConfig` would return the config AND its filePath
-		// For now, `add` has to resolve the config again internally
-		config = await loadConfig({ cwd: projectRoot, flags });
-	} catch (err) {
-		return throwAndExit(err);
-	}
-
 	switch (cmd) {
 		case 'add': {
 			try {
 				const packages = flags._.slice(3) as string[];
-				return await add(packages, { cwd: projectRoot, flags, logging });
+				return await add(packages, { cwd: root, flags, logging });
 			} catch (err) {
 				return throwAndExit(err);
 			}
 		}
 		case 'dev': {
 			try {
+				const config = await loadConfig({ cwd: root, flags, cmd });
 				await devServer(config, { logging });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
@@ -126,6 +125,7 @@ export async function cli(args: string[]) {
 
 		case 'build': {
 			try {
+				const config = await loadConfig({ cwd: root, flags, cmd });
 				return await build(config, { logging });
 			} catch (err) {
 				return throwAndExit(err);
@@ -133,13 +133,24 @@ export async function cli(args: string[]) {
 		}
 
 		case 'check': {
+			const config = await loadConfig({ cwd: root, flags, cmd });
 			const ret = await check(config);
 			return process.exit(ret);
 		}
 
 		case 'preview': {
 			try {
-				return await preview(config, { logging }); // this will keep running
+				const config = await loadConfig({ cwd: root, flags, cmd });
+				const server = await preview(config, { logging });
+				return await server.closed(); // keep alive until the server is closed
+			} catch (err) {
+				return throwAndExit(err);
+			}
+		}
+
+		case 'docs': {
+			try {
+				return await openInBrowser('https://docs.astro.build/');
 			} catch (err) {
 				return throwAndExit(err);
 			}

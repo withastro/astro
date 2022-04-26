@@ -9,7 +9,7 @@ describe('Sass', () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/sass/' });
+		fixture = await loadFixture({ root: './fixtures/sass/' });
 		devServer = await fixture.startDevServer();
 	});
 

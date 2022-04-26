@@ -6,8 +6,16 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
-export function removeEndingForwardSlash(path: string) {
+export function removeTrailingForwardSlash(path: string) {
 	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
+}
+
+export function removeLeadingForwardSlash(path: string) {
+	return path.startsWith('/') ? path.substring(1) : path;
+}
+
+export function trimSlashes(path: string) {
+	return path.replace(/^\/|\/$/g, '');
 }
 
 export function startsWithForwardSlash(path: string) {
@@ -31,14 +39,10 @@ export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
 
-export function prependDotSlash(path: string) {
-	if (isRelativePath(path)) {
-		return path;
-	}
-
-	return './' + path;
+function isString(path: unknown): path is string {
+	return typeof path === 'string' || path instanceof String;
 }
 
-export function trimSlashes(path: string) {
-	return path.replace(/^\/|\/$/g, '');
+export function joinPaths(...paths: (string | undefined)[]) {
+	return paths.filter(isString).map(trimSlashes).join('/');
 }

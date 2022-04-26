@@ -1,6 +1,6 @@
 import type { SSRElement } from '../../@types/astro';
 
-import npath from 'path';
+import npath from 'path-browserify';
 import { appendForwardSlash } from '../../core/path.js';
 
 function getRootPath(site?: string): string {
@@ -35,6 +35,9 @@ export function createModuleScriptElementWithSrc(src: string, site?: string): SS
 	};
 }
 
-export function createModuleScriptElementWithSrcSet(srces: string[], site?: string): Set<SSRElement> {
+export function createModuleScriptElementWithSrcSet(
+	srces: string[],
+	site?: string
+): Set<SSRElement> {
 	return new Set<SSRElement>(srces.map((src) => createModuleScriptElementWithSrc(src, site)));
 }

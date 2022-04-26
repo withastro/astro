@@ -6,14 +6,36 @@ function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
+function removeBasePath(path) {
+	// `/subpath` is defined in the test fixture's Astro config
+	return path.replace('/subpath', '');
+}
+
+/**
+ * @typedef {import('../src/core/logger/core').LogMessage} LogMessage
+ */
+
 describe('Static build', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
+	/** @type {LogMessage[]} */
+	let logs = [];
 
 	before(async () => {
+		/** @type {import('../src/core/logger/core').LogOptions} */
+		const logging = {
+			dest: {
+				write(chunk) {
+					logs.push(chunk);
+				},
+			},
+			level: 'warn',
+		};
+
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static build/',
+			root: './fixtures/static-build/',
 		});
-		await fixture.build();
+		await fixture.build({ logging });
 	});
 
 	it('Builds out .astro pages', async () => {
@@ -72,8 +94,16 @@ describe('Static build', () => {
 			const $ = cheerioLoad(html);
 			const links = $('link[rel=stylesheet]');
 			for (const link of links) {
-				const href = $(link).attr('href').slice('/subpath'.length);
-				const data = await fixture.readFile(addLeadingSlash(href));
+				const href = $(link).attr('href');
+
+				/**
+				 * The link should be built with the config's `base` included
+				 * as a subpath.
+				 *
+				 * The test needs to verify that the file will be found once the `/dist`
+				 * output is deployed to a subpath in production by ignoring the subpath here.
+				 */
+				const data = await fixture.readFile(removeBasePath(addLeadingSlash(href)));
 				if (expected.test(data)) {
 					return true;
 				}
@@ -136,5 +166,28 @@ describe('Static build', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 		expect($('#ssr-config').text()).to.equal('testing');
+	});
+
+	it('warns when accessing headers', async () => {
+		let found = false;
+		for (const log of logs) {
+			if (
+				log.type === 'ssg' &&
+				/[hH]eaders are not exposed in static-site generation/.test(log.args[0])
+			) {
+				found = true;
+			}
+		}
+		expect(found).to.equal(true, 'Found the log message');
+	});
+});
+
+describe('Static build SSR', () => {
+	it('Copies public files', async () => {
+		const fixture = await loadFixture({
+			root: './fixtures/static-build-ssr/',
+		});
+		await fixture.build();
+		const asset = await fixture.readFile('/client/nested/asset2.txt');
 	});
 });

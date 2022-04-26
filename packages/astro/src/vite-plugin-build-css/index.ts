@@ -4,9 +4,13 @@ import type { ModuleInfo, PluginContext } from 'rollup';
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/dev/css.js';
-import { getPageDatasByChunk, getPageDataByViteID, hasPageDataByViteID } from '../core/build/internal.js';
-import { resolvedVirtualModuleId as virtualPagesModuleId } from '../core/build/vite-plugin-pages.js';
+import { isCSSRequest } from '../core/render/util.js';
+import {
+	getPageDatasByChunk,
+	getPageDataByViteID,
+	hasPageDataByViteID,
+	getPageDatasByClientOnlyChunk,
+} from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -14,27 +18,6 @@ const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
-
-export function getAstroPageStyleId(pathname: string) {
-	let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	styleId += '.js';
-	return styleId;
-}
-
-export function getAstroStyleId(pathname: string) {
-	let styleId = ASTRO_STYLE_PREFIX + pathname;
-	if (styleId.endsWith('/')) {
-		styleId += 'index';
-	}
-	return styleId;
-}
-
-export function getAstroStylePathFromId(id: string) {
-	return id.substr(ASTRO_STYLE_PREFIX.length + 1);
-}
 
 function isStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_STYLE_PREFIX);
@@ -44,16 +27,24 @@ function isPageStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_PAGE_STYLE_PREFIX);
 }
 
+function isRawOrUrlModule(id: string) {
+	return id.match(/(\?|\&)([^=]+)(raw|url)/gm);
+}
+
 interface PluginOptions {
 	internals: BuildInternals;
-	legacy: boolean;
+	target: 'client' | 'server';
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-	const { internals, legacy } = options;
+	const { internals } = options;
 	const styleSourceMap = new Map<string, string>();
 
-	function* walkStyles(ctx: PluginContext, id: string, seen = new Set<string>()): Generator<[string, string], void, unknown> {
+	function* walkStyles(
+		ctx: PluginContext,
+		id: string,
+		seen = new Set<string>()
+	): Generator<[string, string], void, unknown> {
 		seen.add(id);
 		if (styleSourceMap.has(id)) {
 			yield [id, styleSourceMap.get(id)!];
@@ -61,8 +52,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 		const info = ctx.getModuleInfo(id);
 		if (info) {
-			for (const importedId of info.importedIds) {
-				if (!seen.has(importedId)) {
+			for (const importedId of [...info.importedIds, ...info.dynamicallyImportedIds]) {
+				if (!seen.has(importedId) && !isRawOrUrlModule(importedId)) {
 					yield* walkStyles(ctx, importedId, seen);
 				}
 			}
@@ -140,16 +131,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return undefined;
 		},
 
-		async load(id) {
-			if (isPageStyleVirtualModule(id)) {
-				return internals.astroPageStyleMap.get(id) || null;
-			}
-			if (isStyleVirtualModule(id)) {
-				return internals.astroStyleMap.get(id) || null;
-			}
-			return null;
-		},
-
 		async transform(value, id) {
 			if (isStyleVirtualModule(id)) {
 				styleSourceMap.set(id, value);
@@ -161,7 +142,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		},
 
 		async renderChunk(_code, chunk) {
-			if (!legacy) return null;
+			if (options.target === 'server') return null;
 
 			let chunkCSS = '';
 			let isPureCSS = true;
@@ -190,10 +171,13 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				source: minifiedCSS,
 			});
 
-			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
 				for (const pageData of getPageDatasByChunk(internals, chunk)) {
+					pageData.css.add(fileName);
+				}
+				// Adds this CSS for client:only components to the appropriate page
+				for (const pageData of getPageDatasByClientOnlyChunk(internals, chunk)) {
 					pageData.css.add(fileName);
 				}
 			}
@@ -204,34 +188,25 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		// Delete CSS chunks so JS is not produced for them.
 		async generateBundle(opts, bundle) {
 			const hasPureCSSChunks = internals.pureCSSChunks.size;
-			const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
+			const pureChunkFilenames = new Set(
+				[...internals.pureCSSChunks].map((chunk) => chunk.fileName)
+			);
 			const emptyChunkFiles = [...pureChunkFilenames]
 				.map((file) => path.basename(file))
 				.join('|')
 				.replace(/\./g, '\\.');
-			const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
+			const emptyChunkRE = new RegExp(
+				opts.format === 'es'
+					? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
+					: `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
+				'g'
+			);
 
 			// Crawl the module graph to find CSS chunks to create
-			if (!legacy) {
-				await addStyles.call(this);
-			}
+			await addStyles.call(this);
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {
-					// This find shared chunks of CSS and adds them to the main CSS chunks,
-					// so that shared CSS is added to the page.
-					for (const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
-						for (const imp of chunk.imports) {
-							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
-								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
-								const fileName = this.getFileName(referenceId);
-								if (!cssSet.has(fileName)) {
-									cssSet.add(fileName);
-								}
-							}
-						}
-					}
-
 					// Removes imports for pure CSS chunks.
 					if (hasPureCSSChunks) {
 						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {

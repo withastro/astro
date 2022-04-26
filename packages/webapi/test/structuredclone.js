@@ -1,40 +1,28 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Includes structuredClone',
-			test() {
-				const target = {}
+describe('structuredClone', () => {
+	const target = {}
 
-				polyfill(target)
+	before(() => polyfill(target))
 
-				assert.equal(Reflect.has(target, 'structuredClone'), true)
-				assert.equal(typeof target.structuredClone, 'function')
+	it('Includes structuredClone', () => {
+		expect(target).to.have.property('structuredClone').that.is.a('function')
+	})
+
+	it('Supports structuredClone usage', () => {
+		const obj = {
+			foo: 'bar',
+			baz: {
+				qux: 'quux',
 			},
-		},
-		{
-			name: 'Supports structuredClone usage',
-			test() {
-				const target = {}
+		}
 
-				polyfill(target)
+		const clone = target.structuredClone(obj)
 
-				const obj = {
-					foo: 'bar',
-					baz: {
-						qux: 'quux',
-					},
-				}
+		expect(obj).to.not.equal(clone)
+		expect(obj.baz).to.not.equal(clone.baz)
 
-				const clone = target.structuredClone(obj)
-
-				assert.notEqual(obj, clone)
-				assert.notEqual(obj.baz, clone.baz)
-
-				assert.equal(obj.baz.qux, clone.baz.qux)
-			},
-		},
-	]
+		expect(obj.baz.qux).to.equal(clone.baz.qux)
+	})
 })

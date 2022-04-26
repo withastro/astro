@@ -1,4 +1,4 @@
-import type { AstroMarkdownOptions, MarkdownRenderingOptions } from './types';
+import type { MarkdownRenderingOptions } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
@@ -18,28 +18,17 @@ import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
-import matter from 'gray-matter';
 
-export { AstroMarkdownOptions, MarkdownRenderingOptions };
-
-/** Internal utility for rendering a full markdown file and extracting Frontmatter data */
-export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
-	const { data: frontmatter, content } = matter(contents);
-	const value = await renderMarkdown(content, opts);
-	return { ...value, frontmatter };
-}
+export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 
 export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
-export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
-	const scopedClassName = opts?.$?.scopedClassName;
-	const mode = opts?.mode ?? 'mdx';
-	const syntaxHighlight = opts?.syntaxHighlight ?? 'shiki';
-	const shikiConfig = opts?.shikiConfig ?? {};
+export async function renderMarkdown(content: string, opts: MarkdownRenderingOptions) {
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
+	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
@@ -47,8 +36,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkJsx] : [])
-		.use(isMDX ? [remarkExpressions] : [])
+		.use(isMDX ? [remarkJsx, remarkExpressions] : [])
 		.use([remarkUnwrap]);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
@@ -73,22 +61,31 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 		parser.use([remarkPrism(scopedClassName)]);
 	}
 
-	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
+	parser.use([
+		[
+			markdownToHtml as any,
+			{
+				allowDangerousHtml: true,
+				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
+			},
+		],
+	]);
 
 	loadedRehypePlugins.forEach(([plugin, opts]) => {
 		parser.use([[plugin, opts]]);
 	});
 
 	parser
-		.use(isMDX ? [rehypeJsx] : [])
-		.use(isMDX ? [rehypeExpressions] : [])
-		.use(isMDX ? [] : [rehypeRaw])
-		.use(isMDX ? [rehypeEscape] : [])
+		.use(isMDX ? [rehypeJsx, rehypeExpressions] : [rehypeRaw])
+		.use(rehypeEscape)
 		.use(rehypeIslands);
 
 	let result: string;
 	try {
-		const vfile = await parser.use([rehypeCollectHeaders]).use(rehypeStringify, { allowDangerousHtml: true }).process(content);
+		const vfile = await parser
+			.use([rehypeCollectHeaders])
+			.use(rehypeStringify, { allowDangerousHtml: true })
+			.process(content);
 		result = vfile.toString();
 	} catch (err) {
 		console.error(err);
@@ -100,5 +97,3 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 		code: result.toString(),
 	};
 }
-
-export default renderMarkdownWithFrontmatter;

@@ -12,7 +12,11 @@
     count -= 1;
   }
 </script>
-
+<style>
+	button {
+		background: yellowgreen;
+	}
+</style>
 <div class="counter">
   <button on:click={subtract}>-</button>
   <pre>{ count }</pre>

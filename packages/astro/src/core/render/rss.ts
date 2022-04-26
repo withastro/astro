@@ -1,15 +1,18 @@
 import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
 
 import { XMLValidator } from 'fast-xml-parser';
-import { canonicalURL, isValidURL, PRETTY_FEED_V3 } from '../util.js';
+import { PRETTY_FEED_V3 } from './pretty-feed.js';
+import { createCanonicalURL, isValidURL } from './util.js';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {
 	const { rssData, srcFile } = args;
 	if (!rssData.title) throw new Error(`[${srcFile}] rss.title required`);
 	if (!rssData.description) throw new Error(`[${srcFile}] rss.description required`);
-	if ((rssData as any).item) throw new Error(`[${srcFile}] \`item: Function\` should be \`items: Item[]\``);
-	if (!Array.isArray(rssData.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
+	if ((rssData as any).item)
+		throw new Error(`[${srcFile}] \`item: Function\` should be \`items: Item[]\``);
+	if (!Array.isArray(rssData.items))
+		throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
 type GenerateRSSArgs = { site: string; rssData: RSS; srcFile: string };
@@ -18,7 +21,10 @@ type GenerateRSSArgs = { site: string; rssData: RSS; srcFile: string };
 export function generateRSS(args: GenerateRSSArgs): string {
 	validateRSS(args);
 	const { srcFile, rssData, site } = args;
-	if ((rssData as any).item) throw new Error(`[${srcFile}] rss() \`item()\` function was deprecated, and is now \`items: object[]\`.`);
+	if ((rssData as any).item)
+		throw new Error(
+			`[${srcFile}] rss() \`item()\` function was deprecated, and is now \`items: object[]\`.`
+		);
 
 	let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
 	if (typeof rssData.stylesheet === 'string') {
@@ -38,18 +44,33 @@ export function generateRSS(args: GenerateRSSArgs): string {
 	// title, description, customData
 	xml += `<title><![CDATA[${rssData.title}]]></title>`;
 	xml += `<description><![CDATA[${rssData.description}]]></description>`;
-	xml += `<link>${canonicalURL(site).href}</link>`;
+	xml += `<link>${createCanonicalURL(site).href}</link>`;
 	if (typeof rssData.customData === 'string') xml += rssData.customData;
 	// items
 	for (const result of rssData.items) {
 		xml += `<item>`;
 		// validate
-		if (typeof result !== 'object') throw new Error(`[${srcFile}] rss.items expected an object. got: "${JSON.stringify(result)}"`);
-		if (!result.title) throw new Error(`[${srcFile}] rss.items required "title" property is missing. got: "${JSON.stringify(result)}"`);
-		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
+		if (typeof result !== 'object')
+			throw new Error(
+				`[${srcFile}] rss.items expected an object. got: "${JSON.stringify(result)}"`
+			);
+		if (!result.title)
+			throw new Error(
+				`[${srcFile}] rss.items required "title" property is missing. got: "${JSON.stringify(
+					result
+				)}"`
+			);
+		if (!result.link)
+			throw new Error(
+				`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(
+					result
+				)}"`
+			);
 		xml += `<title><![CDATA[${result.title}]]></title>`;
 		// If the item's link is already a valid URL, don't mess with it.
-		const itemLink = isValidURL(result.link) ? result.link : canonicalURL(result.link, site).href;
+		const itemLink = isValidURL(result.link)
+			? result.link
+			: createCanonicalURL(result.link, site).href;
 		xml += `<link>${itemLink}</link>`;
 		xml += `<guid>${itemLink}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
@@ -86,7 +107,9 @@ export function generateRSSStylesheet() {
 export function generateRssFunction(site: string | undefined, route: RouteData): RSSFunction {
 	return function rssUtility(args: RSS): RSSResult {
 		if (!site) {
-			throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+			throw new Error(
+				`[${route.component}] rss() tried to generate RSS but "site" missing in astro.config.mjs`
+			);
 		}
 		let result: RSSResult = {} as any;
 		const { dest, ...rssData } = args;

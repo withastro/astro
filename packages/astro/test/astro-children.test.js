@@ -6,7 +6,7 @@ describe('Component children', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-children/' });
+		fixture = await loadFixture({ root: './fixtures/astro-children/' });
 		await fixture.build();
 	});
 
@@ -75,8 +75,14 @@ describe('Component children', () => {
 		expect($('#ssr-only').children()).to.have.lengthOf(0);
 
 		// test 2: If client, and no children are rendered, a template is.
-		expect($('#client').parent().children()).to.have.lengthOf(2, 'rendered the client component and a template');
-		expect($('#client').parent().find('template[data-astro-template]')).to.have.lengthOf(1, 'Found 1 template');
+		expect($('#client').parent().children()).to.have.lengthOf(
+			2,
+			'rendered the client component and a template'
+		);
+		expect($('#client').parent().find('template[data-astro-template]')).to.have.lengthOf(
+			1,
+			'Found 1 template'
+		);
 
 		// test 3: If client, and children are rendered, no template is.
 		expect($('#client-render').parent().children()).to.have.lengthOf(1);

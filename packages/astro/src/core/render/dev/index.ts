@@ -1,7 +1,15 @@
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
-import type { AstroConfig, AstroRenderer, ComponentInstance, RouteData, RuntimeMode, SSRElement, SSRLoadedRenderer } from '../../../@types/astro';
-import { LogOptions } from '../../logger.js';
+import type {
+	AstroConfig,
+	AstroRenderer,
+	ComponentInstance,
+	RouteData,
+	RuntimeMode,
+	SSRElement,
+	SSRLoadedRenderer,
+} from '../../../@types/astro';
+import { LogOptions } from '../../logger/core.js';
 import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { RouteCache } from '../route-cache.js';
@@ -9,6 +17,8 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
 import { getHmrScript } from './hmr.js';
 import { injectTags } from './html.js';
+import { isBuildingToSSR } from '../../util.js';
+
 export interface SSROptions {
 	/** an instance of the AstroConfig */
 	astroConfig: AstroConfig;
@@ -18,7 +28,7 @@ export interface SSROptions {
 	logging: LogOptions;
 	/** "development" or "production" */
 	mode: RuntimeMode;
-	/** production website, needed for some RSS & Sitemap functions */
+	/** production website, needed for some RSS functions */
 	origin: string;
 	/** the web request (needed for dynamic routes) */
 	pathname: string;
@@ -34,24 +44,38 @@ export interface SSROptions {
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 
-export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
+export type RenderResponse =
+	| { type: 'html'; html: string }
+	| { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
-async function loadRenderer(viteServer: vite.ViteDevServer, renderer: AstroRenderer): Promise<SSRLoadedRenderer> {
+async function loadRenderer(
+	viteServer: vite.ViteDevServer,
+	renderer: AstroRenderer
+): Promise<SSRLoadedRenderer> {
 	// Vite modules can be out-of-date when using an un-resolved url
 	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
 	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
-	const id = viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ?? renderer.serverEntrypoint;
+	const id =
+		viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ??
+		renderer.serverEntrypoint;
 	const mod = (await viteServer.ssrLoadModule(id)) as { default: SSRLoadedRenderer['ssr'] };
 	return { ...renderer, ssr: mod.default };
 }
 
-export async function loadRenderers(viteServer: vite.ViteDevServer, astroConfig: AstroConfig): Promise<SSRLoadedRenderer[]> {
+export async function loadRenderers(
+	viteServer: vite.ViteDevServer,
+	astroConfig: AstroConfig
+): Promise<SSRLoadedRenderer[]> {
 	return Promise.all(astroConfig._ctx.renderers.map((r) => loadRenderer(viteServer, r)));
 }
 
-export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROptions, 'astroConfig' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
+export async function preload({
+	astroConfig,
+	filePath,
+	viteServer,
+}: Pick<SSROptions, 'astroConfig' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
 	const renderers = await loadRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
@@ -61,21 +85,39 @@ export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROpt
 }
 
 /** use Vite to SSR */
-export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
-	const { astroConfig, filePath, logging, mode, origin, pathname, request, route, routeCache, viteServer } = ssrOpts;
-	const legacy = astroConfig.buildOptions.legacyBuild;
-
+export async function render(
+	renderers: SSRLoadedRenderer[],
+	mod: ComponentInstance,
+	ssrOpts: SSROptions
+): Promise<RenderResponse> {
+	const {
+		astroConfig,
+		filePath,
+		logging,
+		mode,
+		origin,
+		pathname,
+		request,
+		route,
+		routeCache,
+		viteServer,
+	} = ssrOpts;
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
+	const scripts = createModuleScriptElementWithSrcSet(
+		mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
+	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !legacy) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
 		});
 		scripts.add({
-			props: { type: 'module', src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname },
+			props: {
+				type: 'module',
+				src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname,
+			},
 			children: '',
 		});
 	}
@@ -91,31 +133,28 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	if (!legacy) {
-		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
-			if (mode === 'development' && svelteStylesRE.test(href)) {
-				scripts.add({
-					props: { type: 'module', src: href },
-					children: '',
-				});
-			} else {
-				links.add({
-					props: {
-						rel: 'stylesheet',
-						href,
-						'data-astro-injected': true,
-					},
-					children: '',
-				});
-			}
-		});
-	}
+	[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
+		if (mode === 'development' && svelteStylesRE.test(href)) {
+			scripts.add({
+				props: { type: 'module', src: href },
+				children: '',
+			});
+		} else {
+			links.add({
+				props: {
+					rel: 'stylesheet',
+					href,
+					'data-astro-injected': true,
+				},
+				children: '',
+			});
+		}
+	});
 
 	let content = await coreRender({
-		legacyBuild: astroConfig.buildOptions.legacyBuild,
 		links,
 		logging,
-		markdownRender: astroConfig.markdownOptions.render,
+		markdown: astroConfig.markdown,
 		mod,
 		origin,
 		pathname,
@@ -124,29 +163,22 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 		// TODO: Can we pass the hydration code more directly through Vite, so that we
 		// don't need to copy-paste and maintain Vite's import resolution here?
 		async resolve(s: string) {
-			// The legacy build needs these to remain unresolved so that vite HTML
-			// Can do the resolution. Without this condition the build output will be
-			// broken in the legacy build. This can be removed once the legacy build is removed.
-			if (!astroConfig.buildOptions.legacyBuild) {
-				const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-				if (resolvedPath.includes('node_modules/.vite')) {
-					return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
-				}
-				// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
-				if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
-					return '/@id' + prependForwardSlash(resolvedUrl);
-				}
-				return '/@fs' + prependForwardSlash(resolvedPath);
-			} else {
-				return s;
+			const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+			if (resolvedPath.includes('node_modules/.vite')) {
+				return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
 			}
+			// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
+			if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
+				return '/@id' + prependForwardSlash(resolvedUrl);
+			}
+			return '/@fs' + prependForwardSlash(resolvedPath);
 		},
 		renderers,
 		request,
 		route,
 		routeCache,
-		site: astroConfig.buildOptions.site,
-		ssr: astroConfig.buildOptions.experimentalSsr,
+		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
+		ssr: isBuildingToSSR(astroConfig),
 	});
 
 	if (route?.type === 'endpoint' || content.type === 'response') {
@@ -156,49 +188,8 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	// inject tags
 	const tags: vite.HtmlTagDescriptor[] = [];
 
-	// dev only: inject Astro HMR client
-	if (mode === 'development' && legacy) {
-		tags.push({
-			tag: 'script',
-			attrs: { type: 'module' },
-			// HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
-			// `import.meta.hot` is properly handled by Vite
-			children: await getHmrScript(),
-			injectTo: 'head',
-		});
-	}
-
-	// inject CSS
-	if (legacy) {
-		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
-			if (mode === 'development' && svelteStylesRE.test(href)) {
-				tags.push({
-					tag: 'script',
-					attrs: { type: 'module', src: href },
-					injectTo: 'head',
-				});
-			} else {
-				tags.push({
-					tag: 'link',
-					attrs: {
-						rel: 'stylesheet',
-						href,
-						'data-astro-injected': true,
-					},
-					injectTo: 'head',
-				});
-			}
-		});
-	}
-
 	// add injected tags
 	let html = injectTags(content.html, tags);
-
-	// run transformIndexHtml() in dev to run Vite dev transformations
-	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
-		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-		html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
-	}
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!/<!doctype html/i.test(html)) {
@@ -211,7 +202,10 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 	};
 }
 
-export async function ssr(preloadedComponent: ComponentPreload, ssrOpts: SSROptions): Promise<RenderResponse> {
+export async function ssr(
+	preloadedComponent: ComponentPreload,
+	ssrOpts: SSROptions
+): Promise<RenderResponse> {
 	const [renderers, mod] = preloadedComponent;
 	return await render(renderers, mod, ssrOpts); // NOTE: without "await", errors won’t get caught below
 }

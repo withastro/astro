@@ -18,8 +18,6 @@ let config = await loadConfig({
 	cwd: fileURLToPath(projDir),
 });
 
-config.buildOptions.legacyBuild = false;
-
 const server = await dev(config, { logging: { level: 'error' } });
 
 // Prime the server so initial memory is created
@@ -37,7 +35,9 @@ const startSize = v8.getHeapStatistics().used_heap_size;
 
 // HUMAN mode: Runs forever. Optimized for accurate results on each snapshot Slower than CI.
 if (!isCI) {
-	console.log(`Greetings, human. This test will run forever. Run with the "--ci" flag to finish with a result.`);
+	console.log(
+		`Greetings, human. This test will run forever. Run with the "--ci" flag to finish with a result.`
+	);
 	let i = 1;
 	while (i++) {
 		await run();
@@ -64,7 +64,9 @@ const TEST_THRESHOLD = 1.5;
 const isPass = percentage < TEST_THRESHOLD;
 console.log(``);
 console.log(`Result: ${isPass ? 'PASS' : 'FAIL'} (${percentage * 100}%)`);
-console.log(`Memory usage began at ${prettyBytes(startSize)} and finished at ${prettyBytes(endSize)}.`);
+console.log(
+	`Memory usage began at ${prettyBytes(startSize)} and finished at ${prettyBytes(endSize)}.`
+);
 console.log(`The threshold for a probable memory leak is ${TEST_THRESHOLD * 100}%`);
 console.log(``);
 console.log(`Exiting...`);

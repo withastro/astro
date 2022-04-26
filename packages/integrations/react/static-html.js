@@ -9,7 +9,10 @@ import { createElement as h } from 'react';
  */
 const StaticHtml = ({ value }) => {
 	if (!value) return null;
-	return h('astro-fragment', { suppressHydrationWarning: true, dangerouslySetInnerHTML: { __html: value } });
+	return h('astro-fragment', {
+		suppressHydrationWarning: true,
+		dangerouslySetInnerHTML: { __html: value },
+	});
 };
 
 /**

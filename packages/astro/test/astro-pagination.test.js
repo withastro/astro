@@ -7,23 +7,29 @@ describe('Pagination', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-pagination/',
-			buildOptions: {
-				site: 'https://mysite.dev/blog/',
-				sitemap: false,
-			},
+			root: './fixtures/astro-pagination/',
+			site: 'https://mysite.dev/',
+			base: '/blog',
 		});
 		await fixture.build();
 	});
 
 	it('optional root page', async () => {
-		for (const file of ['/posts/optional-root-page/index.html', '/posts/optional-root-page/2/index.html', '/posts/optional-root-page/3/index.html']) {
+		for (const file of [
+			'/posts/optional-root-page/index.html',
+			'/posts/optional-root-page/2/index.html',
+			'/posts/optional-root-page/3/index.html',
+		]) {
 			expect(await fixture.readFile(file)).to.be.ok;
 		}
 	});
 
 	it('named root page', async () => {
-		for (const file of ['/posts/named-root-page/1/index.html', '/posts/named-root-page/2/index.html', '/posts/named-root-page/3/index.html']) {
+		for (const file of [
+			'/posts/named-root-page/1/index.html',
+			'/posts/named-root-page/2/index.html',
+			'/posts/named-root-page/3/index.html',
+		]) {
 			expect(await fixture.readFile(file)).to.be.ok;
 		}
 	});

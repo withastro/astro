@@ -14,7 +14,10 @@ export declare interface Alias {
 const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep);
 
 /** Returns the results of a config file if it exists, otherwise null. */
-const getExistingConfig = (searchName: string, cwd: string | undefined): tsr.TsConfigResultSuccess | null => {
+const getExistingConfig = (
+	searchName: string,
+	cwd: string | undefined
+): tsr.TsConfigResultSuccess | null => {
 	const config = tsr.tsconfigResolverSync({ cwd, searchName });
 
 	return config.exists ? config : null;
@@ -35,24 +38,37 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 	if (!compilerOptions.baseUrl) return null;
 
 	// resolve the base url from the configuration file directory
-	const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path).replace(/^\/?/, '/')), normalize(compilerOptions.baseUrl));
+	const baseUrl = path.posix.resolve(
+		path.posix.dirname(normalize(config.path).replace(/^\/?/, '/')),
+		normalize(compilerOptions.baseUrl)
+	);
 
 	/** List of compiled alias expressions. */
 	const aliases: Alias[] = [];
 
 	// compile any alias expressions and push them to the list
-	for (let [alias, values] of Object.entries(Object(compilerOptions.paths) as { [key: string]: string[] })) {
+	for (let [alias, values] of Object.entries(
+		Object(compilerOptions.paths) as { [key: string]: string[] }
+	)) {
 		values = [].concat(values as never);
 
 		/** Regular Expression used to match a given path. */
-		const find = new RegExp(`^${[...alias].map((segment) => (segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&'))).join('')}$`);
+		const find = new RegExp(
+			`^${[...alias]
+				.map((segment) =>
+					segment === '*' ? '(.+)' : segment.replace(/[\\^$*+?.()|[\]{}]/, '\\$&')
+				)
+				.join('')}$`
+		);
 
 		/** Internal index used to calculate the matching id in a replacement. */
 		let matchId = 0;
 
 		for (let value of values) {
 			/** String used to replace a matched path. */
-			const replacement = [...path.posix.resolve(baseUrl, value)].map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment)).join('');
+			const replacement = [...path.posix.resolve(baseUrl, value)]
+				.map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment))
+				.join('');
 
 			aliases.push({ find, replacement });
 		}
@@ -70,9 +86,12 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 };
 
 /** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
-export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; [key: string]: unknown }): vite.PluginOption {
+export default function configAliasVitePlugin(astroConfig: {
+	root?: URL;
+	[key: string]: unknown;
+}): vite.PluginOption {
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
-	const configAlias = getConfigAlias(astroConfig.projectRoot && url.fileURLToPath(astroConfig.projectRoot));
+	const configAlias = getConfigAlias(astroConfig.root && url.fileURLToPath(astroConfig.root));
 
 	// if no config alias was found, bypass this plugin
 	if (!configAlias) return {} as vite.PluginOption;
@@ -94,7 +113,10 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
 					const aliasedSourceId = sourceId.replace(alias.find, alias.replacement);
 
 					/** Resolved ID conditionally handled by any other resolver. (this also gives priority to all other resolvers) */
-					const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, { skipSelf: true, ...options });
+					const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, {
+						skipSelf: true,
+						...options,
+					});
 
 					// if the existing resolvers find the file, return that resolution
 					if (resolvedAliasedId) return resolvedAliasedId;

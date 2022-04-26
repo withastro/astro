@@ -1,9 +1,9 @@
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import type { LogOptions } from '../core/logger/core.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
-import { info } from '../core/logger.js';
+import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 
 interface TrackCSSDependenciesOptions {
@@ -13,7 +13,10 @@ interface TrackCSSDependenciesOptions {
 	deps: Set<string>;
 }
 
-export async function trackCSSDependencies(this: RollupPluginContext, opts: TrackCSSDependenciesOptions): Promise<void> {
+export async function trackCSSDependencies(
+	this: RollupPluginContext,
+	opts: TrackCSSDependenciesOptions
+): Promise<void> {
 	const { viteDevServer, filename, deps, id } = opts;
 	// Dev, register CSS dependencies for HMR.
 	if (viteDevServer) {
@@ -79,15 +82,17 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 		invalidateCompilation(config, file);
 	}
 
-	const mod = ctx.modules.find((m) => m.file === ctx.file);
-	const file = ctx.file.replace(config.projectRoot.pathname, '/');
-	if (ctx.file.endsWith('.astro')) {
-		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
-	}
-	if (mod?.isSelfAccepting) {
+	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
+	// These will cause full reloads, so filter them out here
+	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
+
+	const file = ctx.file.replace(config.root.pathname, '/');
+	if (isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {
 		info(logging, 'astro', msg.reload({ file }));
 	}
-	return Array.from(filtered);
+
+	return mods;
 }

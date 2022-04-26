@@ -7,7 +7,7 @@ describe('Vue component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/vue-component/',
+			root: './fixtures/vue-component/',
 		});
 	});
 
@@ -32,6 +32,9 @@ describe('Vue component', () => {
 
 			// test 3: all <astro-root>s have uid attributes
 			expect($('astro-root[uid]')).to.have.lengthOf(6);
+
+			// test 4: treats <my-button> as a custom element
+			expect($('my-button')).to.have.lengthOf(7);
 
 			// test 5: components with identical render output and props have been deduplicated
 			const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));

@@ -1,5 +1,41 @@
 # @astrojs/tailwind
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3183](https://github.com/withastro/astro/pull/3183) [`7a61977d`](https://github.com/withastro/astro/commit/7a61977db11c4472f9210b8de22ec281870e5dc3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support "astro add" before installing project dependencies
+
+## 0.2.0
+
+### Minor Changes
+
+- [#3099](https://github.com/withastro/astro/pull/3099) [`254a8f37`](https://github.com/withastro/astro/commit/254a8f37499863c5684fb0d5b0f59a8cee093d0b) Thanks [@tony-sull](https://github.com/tony-sull)! - Removes the `applyAstroPreset` integration option. Tailwind presets can be disabled directly from the Tailwind config file by including `presets: []`
+
+  See the [Tailwind preset docs](https://tailwindcss.com/docs/presets#disabling-the-default-configuration) for more details.
+
+## 0.1.2
+
+### Patch Changes
+
+- [`815d62f1`](https://github.com/withastro/astro/commit/815d62f151a36fef7d09590d4962ca71bda61b32) Thanks [@FredKSchott](https://github.com/FredKSchott)! - no changes.
+
+## 0.1.1
+
+### Patch Changes
+
+- [`c05a544a`](https://github.com/withastro/astro/commit/c05a544acd5c9dd4f57b53ce21e82141212a3c2c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update README
+
+## 0.1.0
+
+### Minor Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update config options to resepect [RFC0019](https://github.com/withastro/rfcs/blob/main/proposals/0019-config-finalization.md)
+
+### Patch Changes
+
+- [`e425f896`](https://github.com/withastro/astro/commit/e425f896b668d98033ad3b998b50c1f28bc7f6ee) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Adds an option to opt-out of the default base styles for the Tailwind integration
+
 ## 0.0.2
 
 ### Patch Changes

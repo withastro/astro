@@ -1,5 +1,5 @@
 import type { RollupOutput } from 'rollup';
-import type { BuildInternals } from '../../core/build/internal.js';
+import { BuildInternals, trackClientOnlyPageDatas } from '../../core/build/internal.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import glob from 'fast-glob';
@@ -9,8 +9,8 @@ import npath from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
-import { info } from '../../core/logger.js';
-import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import { info } from '../logger/core.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
@@ -20,6 +20,7 @@ import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
+import { runHookBuildSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -43,7 +44,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.buildStart = performance.now();
 
 	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
+		const astroModuleURL = new URL('./' + component, astroConfig.root);
 		const astroModuleId = prependForwardSlash(component);
 
 		// Track the page data in internals
@@ -53,17 +54,23 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const [renderers, mod] = pageData.preload;
 			const metadata = mod.$$metadata;
 
+			// Track client:only usage so we can map their CSS back to the Page they are used in.
+			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
+			trackClientOnlyPageDatas(internals, pageData, clientOnlys, astroConfig);
+
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				// 'components/Counter.jsx'
 				// { 'components/Counter.jsx': 'counter.hash.js' }
 				...metadata.hydratedComponentPaths(),
 				// Client-only components
-				...metadata.clientOnlyComponentPaths(),
+				...clientOnlys,
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
-				...renderers.filter((renderer) => !!renderer.clientEntrypoint).map((renderer) => renderer.clientEntrypoint!),
+				...renderers
+					.filter((renderer) => !!renderer.clientEntrypoint)
+					.map((renderer) => renderer.clientEntrypoint!),
 			]);
 
 			// Add hoisted scripts
@@ -86,7 +93,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(astroConfig.dist, new Set('.git'));
+	emptyDir(astroConfig.outDir, new Set('.git'));
 
 	timer.clientBuild = performance.now();
 	// Run client build first, so the assets can be fed into the SSR rendered version.
@@ -110,10 +117,10 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
-	const ssr = astroConfig.buildOptions.experimentalSsr;
-	const out = ssr ? opts.buildConfig.server : astroConfig.dist;
-	// TODO: use vite.mergeConfig() here?
-	return await vite.build({
+	const ssr = isBuildingToSSR(astroConfig);
+	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
+
+	const viteBuildConfig = {
 		logLevel: 'error',
 		mode: 'production',
 		css: viteConfig.css,
@@ -122,7 +129,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			emptyOutDir: false,
 			manifest: false,
 			outDir: fileURLToPath(out),
-			ssr: true,
 			rollupOptions: {
 				input: [],
 				output: {
@@ -132,6 +138,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/asset.[hash][extname]',
 				},
 			},
+			ssr: true,
 			// must match an esbuild target
 			target: 'esnext',
 			// improve build performance
@@ -144,36 +151,52 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false,
+				target: 'server',
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) && vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+			isBuildingToSSR(opts.astroConfig) &&
+				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.site ? new URL(astroConfig.site).pathname : '/',
 		ssr: viteConfig.ssr,
-	} as ViteConfigWithSSR);
+		resolve: viteConfig.resolve,
+	} as ViteConfigWithSSR;
+
+	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'server' });
+
+	// TODO: use vite.mergeConfig() here?
+	return await vite.build(viteBuildConfig);
 }
 
-async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
+async function clientBuild(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	input: Set<string>
+) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
+	const ssr = isBuildingToSSR(astroConfig);
+	const out = ssr ? opts.buildConfig.client : astroConfig.outDir;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
+		// If SSR, copy public over
+		if (ssr) {
+			await copyFiles(astroConfig.publicDir, out);
+		}
+
 		return null;
 	}
 
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
-	const out = isBuildingToSSR(astroConfig) ? opts.buildConfig.client : astroConfig.dist;
-
-	const buildResult = await vite.build({
+	const viteBuildConfig = {
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
@@ -198,7 +221,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
-				legacy: false,
+				target: 'client',
 			}),
 			...(viteConfig.plugins || []),
 		],
@@ -206,8 +229,12 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
-	});
+		base: astroConfig.base,
+	} as ViteConfigWithSSR;
+
+	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });
+
+	const buildResult = await vite.build(viteBuildConfig);
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 	return buildResult;
 }
@@ -215,19 +242,38 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: fileURLToPath(opts.astroConfig.dist),
+		cwd: fileURLToPath(opts.astroConfig.outDir),
 	});
 	await Promise.all(
 		files.map(async (filename) => {
-			const url = new URL(filename, opts.astroConfig.dist);
+			const url = new URL(filename, opts.astroConfig.outDir);
 			await fs.promises.rm(url);
+		})
+	);
+}
+
+async function copyFiles(fromFolder: URL, toFolder: URL) {
+	const files = await glob('**/*', {
+		cwd: fileURLToPath(fromFolder),
+	});
+
+	await Promise.all(
+		files.map(async (filename) => {
+			const from = new URL(filename, fromFolder);
+			const to = new URL(filename, toFolder);
+			const lastFolder = new URL('./', to);
+			return fs.promises
+				.mkdir(lastFolder, { recursive: true })
+				.then(() => fs.promises.copyFile(from, to));
 		})
 	);
 }
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const serverRoot = opts.buildConfig.staticMode ? opts.buildConfig.client : opts.buildConfig.server;
+	const serverRoot = opts.buildConfig.staticMode
+		? opts.buildConfig.client
+		: opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);
 	const clientAssets = new URL('./assets/', clientRoot);

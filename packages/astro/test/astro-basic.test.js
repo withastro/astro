@@ -8,7 +8,7 @@ describe('Astro basics', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-basic/',
+			root: './fixtures/astro-basic/',
 		});
 		await fixture.build();
 		previewServer = await fixture.preview();
@@ -104,7 +104,9 @@ describe('Astro basics', () => {
 		expect($('body > :nth-child(3)').prop('outerHTML')).to.equal('<input type="text">');
 
 		// <Input type="select"><option>option</option></Input>
-		expect($('body > :nth-child(4)').prop('outerHTML')).to.equal('<select><option>option</option></select>');
+		expect($('body > :nth-child(4)').prop('outerHTML')).to.equal(
+			'<select><option>option</option></select>'
+		);
 
 		// <Input type="textarea">textarea</Input>
 		expect($('body > :nth-child(5)').prop('outerHTML')).to.equal('<textarea>textarea</textarea>');

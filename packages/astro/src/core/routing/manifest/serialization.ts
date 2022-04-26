@@ -1,6 +1,13 @@
-import type { RouteData, SerializedRouteData } from '../../../@types/astro';
+import type { RouteData, SerializedRouteData, RoutePart } from '../../../@types/astro';
 
-function createRouteData(pattern: RegExp, params: string[], component: string, pathname: string | undefined, type: 'page' | 'endpoint'): RouteData {
+function createRouteData(
+	pattern: RegExp,
+	params: string[],
+	component: string,
+	pathname: string | undefined,
+	type: 'page' | 'endpoint',
+	segments: RoutePart[][]
+): RouteData {
 	return {
 		type,
 		pattern,
@@ -9,6 +16,7 @@ function createRouteData(pattern: RegExp, params: string[], component: string, p
 		// TODO bring back
 		generate: () => '',
 		pathname: pathname || undefined,
+		segments,
 	};
 }
 
@@ -20,7 +28,7 @@ export function serializeRouteData(routeData: RouteData): SerializedRouteData {
 }
 
 export function deserializeRouteData(rawRouteData: SerializedRouteData) {
-	const { component, params, pathname, type } = rawRouteData;
+	const { component, params, pathname, type, segments } = rawRouteData;
 	const pattern = new RegExp(rawRouteData.pattern);
-	return createRouteData(pattern, params, component, pathname, type);
+	return createRouteData(pattern, params, component, pathname, type, segments);
 }

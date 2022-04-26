@@ -10,7 +10,7 @@ import preferredPM from 'preferred-pm';
 import ora from 'ora';
 import { resolveConfigURL } from '../config.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-import { error, info, debug, LogOptions } from '../logger.js';
+import { error, info, debug, LogOptions } from '../logger/core.js';
 import { printHelp } from '../messages.js';
 import * as msg from '../messages.js';
 import * as CONSTS from './consts.js';
@@ -19,6 +19,7 @@ import { parseNpmName } from '../util.js';
 import { wrapDefaultExport } from './wrapper.js';
 import { ensureImport } from './imports.js';
 import { t, parse, visit, generate } from './babel.js';
+import { appendForwardSlash } from '../path.js';
 
 export interface AddOptions {
 	logging: LogOptions;
@@ -50,7 +51,9 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 	configURL = await resolveConfigURL({ cwd, flags });
 
 	if (configURL?.pathname.endsWith('package.json')) {
-		throw new Error(`Unable to use astro add with package.json#astro configuration! Try migrating to \`astro.config.mjs\` and try again.`);
+		throw new Error(
+			`Unable to use astro add with package.json#astro configuration! Try migrating to \`astro.config.mjs\` and try again.`
+		);
 	}
 	applyPolyfill();
 
@@ -89,7 +92,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', root);
+		configURL = new URL('./astro.config.mjs', appendForwardSlash(root.href));
 		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
@@ -102,7 +105,13 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		debug('add', 'Parsed astro config');
 
 		const defineConfig = t.identifier('defineConfig');
-		ensureImport(ast, t.importDeclaration([t.importSpecifier(defineConfig, defineConfig)], t.stringLiteral('astro/config')));
+		ensureImport(
+			ast,
+			t.importDeclaration(
+				[t.importSpecifier(defineConfig, defineConfig)],
+				t.stringLiteral('astro/config')
+			)
+		);
 		wrapDefaultExport(ast, defineConfig);
 
 		debug('add', 'Astro config ensured `defineConfig`');
@@ -136,9 +145,13 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		case UpdateResult.none: {
 			const pkgURL = new URL('./package.json', configURL);
 			if (existsSync(fileURLToPath(pkgURL))) {
-				const { dependencies = {}, devDependencies = {} } = await fs.readFile(fileURLToPath(pkgURL)).then((res) => JSON.parse(res.toString()));
+				const { dependencies = {}, devDependencies = {} } = await fs
+					.readFile(fileURLToPath(pkgURL))
+					.then((res) => JSON.parse(res.toString()));
 				const deps = Object.keys(Object.assign(dependencies, devDependencies));
-				const missingDeps = integrations.filter((integration) => !deps.includes(integration.packageName));
+				const missingDeps = integrations.filter(
+					(integration) => !deps.includes(integration.packageName)
+				);
 				if (missingDeps.length === 0) {
 					info(logging, null, msg.success(`Configuration up-to-date.`));
 					return;
@@ -156,7 +169,11 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		case UpdateResult.updated: {
 			const len = integrations.length;
 			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const possibleConfigFiles = ['./tailwind.config.cjs', './tailwind.config.mjs', './tailwind.config.js'].map((p) => fileURLToPath(new URL(p, configURL)));
+				const possibleConfigFiles = [
+					'./tailwind.config.cjs',
+					'./tailwind.config.mjs',
+					'./tailwind.config.js',
+				].map((p) => fileURLToPath(new URL(p, configURL)));
 				let alreadyConfigured = false;
 				for (const possibleConfigPath of possibleConfigFiles) {
 					if (existsSync(possibleConfigPath)) {
@@ -165,9 +182,19 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 					}
 				}
 				if (!alreadyConfigured) {
-					info(logging, null, `\n  ${magenta(`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`)}\n`);
+					info(
+						logging,
+						null,
+						`\n  ${magenta(
+							`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`
+						)}\n`
+					);
 					if (await askToContinue({ flags })) {
-						await fs.writeFile(fileURLToPath(new URL('./tailwind.config.cjs', configURL)), CONSTS.TAILWIND_CONFIG_STUB, { encoding: 'utf-8' });
+						await fs.writeFile(
+							fileURLToPath(new URL('./tailwind.config.cjs', configURL)),
+							CONSTS.TAILWIND_CONFIG_STUB,
+							{ encoding: 'utf-8' }
+						);
 						debug('add', `Generated default ./tailwind.config.cjs file`);
 					}
 				} else {
@@ -175,11 +202,24 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 				}
 			}
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
-			info(logging, null, msg.success(`Added the following integration${len === 1 ? '' : 's'} to your project:\n${list}`));
+			info(
+				logging,
+				null,
+				msg.success(
+					`Added the following integration${len === 1 ? '' : 's'} to your project:\n${list}`
+				)
+			);
 			return;
 		}
 		case UpdateResult.cancelled: {
-			info(logging, null, msg.cancelled(`Dependencies ${bold('NOT')} installed.`, `Be sure to install them manually before continuing!`));
+			info(
+				logging,
+				null,
+				msg.cancelled(
+					`Dependencies ${bold('NOT')} installed.`,
+					`Be sure to install them manually before continuing!`
+				)
+			);
 			return;
 		}
 		case UpdateResult.failure: {
@@ -193,7 +233,8 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	const result = parse(source);
 
 	if (!result) throw new Error('Unknown error parsing astro config');
-	if (result.errors.length > 0) throw new Error('Error parsing astro config: ' + JSON.stringify(result.errors));
+	if (result.errors.length > 0)
+		throw new Error('Error parsing astro config: ' + JSON.stringify(result.errors));
 
 	return result;
 }
@@ -217,7 +258,13 @@ Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	const integrationId = t.identifier(toIdent(integration.id));
 
-	ensureImport(ast, t.importDeclaration([t.importDefaultSpecifier(integrationId)], t.stringLiteral(integration.packageName)));
+	ensureImport(
+		ast,
+		t.importDeclaration(
+			[t.importDefaultSpecifier(integrationId)],
+			t.stringLiteral(integration.packageName)
+		)
+	);
 
 	visit(ast, {
 		// eslint-disable-next-line @typescript-eslint/no-shadow
@@ -241,14 +288,20 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 			const integrationCall = t.callExpression(integrationId, []);
 
 			if (!integrationsProp) {
-				configObject.properties.push(t.objectProperty(t.identifier('integrations'), t.arrayExpression([integrationCall])));
+				configObject.properties.push(
+					t.objectProperty(t.identifier('integrations'), t.arrayExpression([integrationCall]))
+				);
 				return;
 			}
 
-			if (integrationsProp.value.type !== 'ArrayExpression') throw new Error('Unable to parse integrations');
+			if (integrationsProp.value.type !== 'ArrayExpression')
+				throw new Error('Unable to parse integrations');
 
 			const existingIntegrationCall = integrationsProp.value.elements.find(
-				(expr) => t.isCallExpression(expr) && t.isIdentifier(expr.callee) && expr.callee.name === integrationId.name
+				(expr) =>
+					t.isCallExpression(expr) &&
+					t.isIdentifier(expr.callee) &&
+					expr.callee.name === integrationId.name
 			);
 
 			if (existingIntegrationCall) return;
@@ -265,7 +318,17 @@ const enum UpdateResult {
 	failure,
 }
 
-async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL: URL; ast: t.File; flags: yargs.Arguments; logging: LogOptions }): Promise<UpdateResult> {
+async function updateAstroConfig({
+	configURL,
+	ast,
+	flags,
+	logging,
+}: {
+	configURL: URL;
+	ast: t.File;
+	flags: yargs.Arguments;
+	logging: LogOptions;
+}): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	let output = await generate(ast);
 	const comment = '// https://astro.build/config';
@@ -299,9 +362,18 @@ async function updateAstroConfig({ configURL, ast, flags, logging }: { configURL
 		diffed = diffed.replace(newContent, coloredOutput);
 	}
 
-	const message = `\n${boxen(diffed, { margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() })}\n`;
+	const message = `\n${boxen(diffed, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+		title: configURL.pathname.split('/').pop(),
+	})}\n`;
 
-	info(logging, null, `\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`);
+	info(
+		logging,
+		null,
+		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
+	);
 
 	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
@@ -318,7 +390,13 @@ interface InstallCommand {
 	flags: string[];
 	dependencies: string[];
 }
-async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd() }: { integrations: IntegrationInfo[]; cwd?: string }): Promise<InstallCommand | null> {
+async function getInstallIntegrationsCommand({
+	integrations,
+	cwd = process.cwd(),
+}: {
+	integrations: IntegrationInfo[];
+	cwd?: string;
+}): Promise<InstallCommand | null> {
 	const pm = await preferredPM(cwd);
 	debug('add', `package manager: ${JSON.stringify(pm)}`);
 	if (!pm) return null;
@@ -359,14 +437,30 @@ async function tryToInstallIntegrations({
 		info(logging, null);
 		return UpdateResult.none;
 	} else {
-		const coloredOutput = `${bold(installCommand.pm)} ${installCommand.command} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
-		const message = `\n${boxen(coloredOutput, { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
-		info(logging, null, `\n  ${magenta('Astro will run the following command:')}\n  ${dim('If you skip this step, you can always run it yourself later')}\n${message}`);
+		const coloredOutput = `${bold(installCommand.pm)} ${
+			installCommand.command
+		} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
+		const message = `\n${boxen(coloredOutput, {
+			margin: 0.5,
+			padding: 0.5,
+			borderStyle: 'round',
+		})}\n`;
+		info(
+			logging,
+			null,
+			`\n  ${magenta('Astro will run the following command:')}\n  ${dim(
+				'If you skip this step, you can always run it yourself later'
+			)}\n${message}`
+		);
 
 		if (await askToContinue({ flags })) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
-				await execa(installCommand.pm, [installCommand.command, ...installCommand.flags, ...installCommand.dependencies], { cwd });
+				await execa(
+					installCommand.pm,
+					[installCommand.command, ...installCommand.flags, ...installCommand.dependencies],
+					{ cwd }
+				);
 				spinner.succeed();
 				return UpdateResult.updated;
 			} catch (err) {
@@ -405,7 +499,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				return res.json();
 			});
 
-			let dependencies: IntegrationInfo['dependencies'] = [[result['name'], `^${result['version']}`]];
+			let dependencies: IntegrationInfo['dependencies'] = [
+				[result['name'], `^${result['version']}`],
+			];
 
 			if (result['peerDependencies']) {
 				for (const peer in result['peerDependencies']) {

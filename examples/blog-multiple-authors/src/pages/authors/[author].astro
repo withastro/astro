@@ -11,19 +11,18 @@ export async function getStaticPaths() {
 }
 
 const { allPosts } = Astro.props;
-const { params, canonicalURL } = Astro.request;
 const title = 'Don’s Blog';
 const description = 'An example blog on Astro';
 
 /** filter posts by author, sort by date */
-const posts = allPosts.filter((post) => post.frontmatter.author === params.author).sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+const posts = allPosts.filter((post) => post.frontmatter.author === Astro.params.author).sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 const author = authorData[posts[0].frontmatter.author];
 ---
 
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<MainHead {title} {description} image={posts[0].frontmatter.image} canonicalURL={canonicalURL.toString()} />
+		<MainHead {title} {description} image={posts[0].frontmatter.image} canonicalURL={Astro.canonicalURL.toString()} />
 
 		<style lang="scss">
 			.title {

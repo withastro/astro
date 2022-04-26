@@ -7,12 +7,7 @@ describe('Astro Markdown with draft posts disabled', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-markdown-drafts/',
-			buildOptions: {
-				// drafts is false by default but added here for clarity
-				drafts: false,
-				sitemap: false,
-			},
+			root: './fixtures/astro-markdown-drafts/',
 		});
 		await fixture.build();
 	});
@@ -30,10 +25,9 @@ describe('Astro Markdown with draft posts enabled', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-markdown-drafts/',
-			buildOptions: {
+			root: './fixtures/astro-markdown-drafts/',
+			markdown: {
 				drafts: true,
-				sitemap: false,
 			},
 		});
 		await fixture.build();

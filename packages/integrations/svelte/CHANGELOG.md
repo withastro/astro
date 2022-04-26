@@ -1,5 +1,23 @@
 # @astrojs/svelte
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3181](https://github.com/withastro/astro/pull/3181) [`ce9a61e9`](https://github.com/withastro/astro/commit/ce9a61e9fc6fdbf9b8469197df6d728f395656ec) Thanks [@tony-sull](https://github.com/tony-sull)! - `@astrojs/svelte` integration supports custom svelte compiler options
+
+## 0.1.1
+
+### Patch Changes
+
+- [`815d62f1`](https://github.com/withastro/astro/commit/815d62f151a36fef7d09590d4962ca71bda61b32) Thanks [@FredKSchott](https://github.com/FredKSchott)! - no changes.
+
+## 0.1.0
+
+### Minor Changes
+
+- [#2979](https://github.com/withastro/astro/pull/2979) [`9d7a4b59`](https://github.com/withastro/astro/commit/9d7a4b59b53f8cb274266f5036d1cef841750252) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Welcome to the Astro v1.0.0 Beta! Read the [official announcement](https://astro.build/blog/astro-1-beta-release/) for more details.
+
 ## 0.0.2
 
 ### Patch Changes

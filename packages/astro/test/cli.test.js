@@ -7,7 +7,7 @@ import { isIPv4 } from 'net';
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		return cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), ...flags], cmd);
+		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd);
 	};
 
 	it('astro', async () => {
@@ -27,7 +27,7 @@ describe('astro cli', () => {
 
 	it('astro build', async () => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL));
+		const proc = await cli('build', '--root', fileURLToPath(projectRootURL));
 		expect(proc.stdout).to.include('Complete');
 	});
 
@@ -36,7 +36,7 @@ describe('astro cli', () => {
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
 
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL));
+		const proc = cli('dev', '--root', fileURLToPath(projectRootURL));
 		const { messages } = await parseCliDevStart(proc);
 
 		expect(messages[0]).to.contain('astro');
@@ -45,10 +45,13 @@ describe('astro cli', () => {
 	});
 
 	['dev', 'preview'].forEach((cmd) => {
-		const networkLogFlags = [['--host'], ['--host', '0.0.0.0'], ['--hostname', '0.0.0.0']];
+		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
 		networkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture(flagValue ? [flag, flagValue] : [flag], cmd);
+				const { local, network } = await cliServerLogSetupWithFixture(
+					flagValue ? [flag, flagValue] : [flag],
+					cmd
+				);
 
 				expect(local).to.not.be.undefined;
 				expect(network).to.not.be.undefined;
@@ -56,18 +59,27 @@ describe('astro cli', () => {
 				const localURL = new URL(local);
 				const networkURL = new URL(network);
 
-				expect(localURL.hostname).to.be.equal(flagValue ?? 'localhost', `Expected local URL to be on localhost`);
+				expect(localURL.hostname).to.be.equal(
+					flagValue ?? 'localhost',
+					`Expected local URL to be on localhost`
+				);
 				// Note: our tests run in parallel so this could be 3000+!
-				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
-				expect(networkURL.port).to.be.equal(localURL.port, `Expected local and network ports to be equal`);
-				expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
+				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(
+					3000,
+					`Expected Port to be >= 3000`
+				);
+				expect(networkURL.port).to.be.equal(
+					localURL.port,
+					`Expected local and network ports to be equal`
+				);
+				expect(isIPv4(networkURL.hostname)).to.be.equal(
+					true,
+					`Expected network URL to respect --host flag`
+				);
 			});
 		});
 
-		const hostToExposeFlags = [
-			['', ''],
-			['--hostname', 'localhost'],
-		];
+		const hostToExposeFlags = [['', '']];
 		hostToExposeFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue} - host to expose`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture([flag, flagValue], cmd);
@@ -84,7 +96,6 @@ describe('astro cli', () => {
 		const noNetworkLogFlags = [
 			['--host', 'localhost'],
 			['--host', '127.0.0.1'],
-			['--hostname', '127.0.0.1'],
 		];
 		noNetworkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue} - no network log`, async () => {

@@ -1,53 +1,44 @@
-import { assert, test } from '../run/test.setup.js'
+import { expect } from 'chai'
 import { polyfill } from '../mod.js'
 
-test(() => {
-	return [
-		{
-			name: 'Can exclude HTMLElement+',
-			test() {
-				const target = {}
+describe('Options', () => {
+	it('Can exclude HTMLElement+', () => {
+		const target = {}
 
-				polyfill(target, {
-					exclude: 'HTMLElement+',
-				})
+		polyfill(target, {
+			exclude: 'HTMLElement+',
+		})
 
-				assert.equal(Reflect.has(target, 'Event'), true)
-				assert.equal(Reflect.has(target, 'EventTarget'), true)
-				assert.equal(Reflect.has(target, 'Element'), true)
-				assert.equal(Reflect.has(target, 'HTMLElement'), false)
-				assert.equal(Reflect.has(target, 'HTMLDivElement'), false)
-			},
-		},
-		{
-			name: 'Can exclude Event+',
-			test() {
-				const target = {}
+		expect(target).to.have.property('Event')
+		expect(target).to.have.property('EventTarget')
+		expect(target).to.have.property('Element')
+		expect(target).to.not.have.property('HTMLElement')
+		expect(target).to.not.have.property('HTMLDivElement')
+	})
 
-				polyfill(target, {
-					exclude: 'Event+',
-				})
+	it('Can exclude Event+', () => {
+		const target = {}
 
-				assert.equal(Reflect.has(target, 'Event'), false)
-				assert.equal(Reflect.has(target, 'EventTarget'), false)
-				assert.equal(Reflect.has(target, 'Element'), false)
-				assert.equal(Reflect.has(target, 'HTMLElement'), false)
-				assert.equal(Reflect.has(target, 'HTMLDivElement'), false)
-			},
-		},
-		{
-			name: 'Can exclude document',
-			test() {
-				const target = {}
+		polyfill(target, {
+			exclude: 'Event+',
+		})
 
-				polyfill(target, {
-					exclude: 'document',
-				})
+		expect(target).to.not.have.property('Event')
+		expect(target).to.not.have.property('EventTarget')
+		expect(target).to.not.have.property('Element')
+		expect(target).to.not.have.property('HTMLElement')
+		expect(target).to.not.have.property('HTMLDivElement')
+	})
 
-				assert.equal(Reflect.has(target, 'Document'), true)
-				assert.equal(Reflect.has(target, 'HTMLDocument'), true)
-				assert.equal(Reflect.has(target, 'document'), false)
-			},
-		},
-	]
+	it('Can exclude document', () => {
+		const target = {}
+
+		polyfill(target, {
+			exclude: 'document',
+		})
+
+		expect(target).to.have.property('Document')
+		expect(target).to.have.property('HTMLDocument')
+		expect(target).to.not.have.property('document')
+	})
 })

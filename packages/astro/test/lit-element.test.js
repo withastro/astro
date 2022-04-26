@@ -16,7 +16,7 @@ describe('LitElement test', function () {
 			return;
 		}
 		fixture = await loadFixture({
-			projectRoot: './fixtures/lit-element/',
+			root: './fixtures/lit-element/',
 		});
 		await fixture.build();
 	});
@@ -36,7 +36,9 @@ describe('LitElement test', function () {
 		expect($('my-element').html()).to.include(`<div>Testing...</div>`);
 
 		// test 3: string reactive property set
-		expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="str">initialized</div>`);
+		expect(stripExpressionMarkers($('my-element').html())).to.include(
+			`<div id="str">initialized</div>`
+		);
 
 		// test 4: boolean reactive property correctly set
 		// <my-element bool="false"> Lit will equate to true because it uses
@@ -45,7 +47,9 @@ describe('LitElement test', function () {
 
 		// test 5: object reactive property set
 		// by default objects will be stringifed to [object Object]
-		expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="data">data: 1</div>`);
+		expect(stripExpressionMarkers($('my-element').html())).to.include(
+			`<div id="data">data: 1</div>`
+		);
 
 		// test 6: reactive properties are not rendered as attributes
 		expect($('my-element').attr('obj')).to.equal(undefined);
