@@ -928,6 +928,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/css-assets:
+    specifiers:
+      astro: workspace:*
+      font-awesome: ^4.7.0
+    dependencies:
+      astro: link:../../..
+      font-awesome: 4.7.0
+
   packages/astro/test/fixtures/custom-elements:
     specifiers:
       '@test/custom-element-renderer': workspace:*
@@ -6181,6 +6189,11 @@ packages:
   /flatted/3.2.5:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: true
+
+  /font-awesome/4.7.0:
+    resolution: {integrity: sha1-j6jPBBGhoxr9B7BtKQK7n8gVoTM=}
+    engines: {node: '>=0.10.3'}
+    dev: false
 
   /foreach/2.0.5:
     resolution: {integrity: sha1-C+4AUBiusmDQo6865ljdATbsG5k=}

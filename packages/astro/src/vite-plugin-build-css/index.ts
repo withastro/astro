@@ -1,5 +1,5 @@
 import { BuildInternals } from '../core/build/internal';
-import type { ModuleInfo, PluginContext } from 'rollup';
+import type { ModuleInfo, OutputAsset, OutputChunk, PluginContext } from 'rollup';
 
 import * as path from 'path';
 import esbuild from 'esbuild';
@@ -34,6 +34,17 @@ function isRawOrUrlModule(id: string) {
 interface PluginOptions {
 	internals: BuildInternals;
 	target: 'client' | 'server';
+}
+
+type ViteChunk = OutputChunk & {
+	viteMetadata: {
+		importedAssets: Set<string>;
+		importedCss: Set<string>;
+	}
+}
+
+function isViteChunk(output: OutputChunk | OutputAsset): output is ViteChunk {
+	return output.type === 'chunk' && 'viteMetadata' in output;
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
@@ -109,8 +120,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				const viteCSSPost = plugins[viteCSSPostIndex];
 				// Prevent this plugin's bundling behavior from running since we need to
 				// do that ourselves in order to handle updating the HTML.
-				delete viteCSSPost.renderChunk;
+				//delete viteCSSPost.renderChunk;
 				delete viteCSSPost.generateBundle;
+				
 
 				// Move our plugin to be right before this one.
 				const ourIndex = plugins.findIndex((p) => p.name === PLUGIN_NAME);
@@ -141,6 +153,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return null;
 		},
 
+		/*
 		async renderChunk(_code, chunk) {
 			if (options.target === 'server') return null;
 
@@ -184,47 +197,69 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 			return null;
 		},
+		*/
 
 		// Delete CSS chunks so JS is not produced for them.
 		async generateBundle(opts, bundle) {
-			const hasPureCSSChunks = internals.pureCSSChunks.size;
-			const pureChunkFilenames = new Set(
-				[...internals.pureCSSChunks].map((chunk) => chunk.fileName)
-			);
-			const emptyChunkFiles = [...pureChunkFilenames]
-				.map((file) => path.basename(file))
-				.join('|')
-				.replace(/\./g, '\\.');
-			const emptyChunkRE = new RegExp(
-				opts.format === 'es'
-					? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
-					: `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
-				'g'
-			);
-
-			// Crawl the module graph to find CSS chunks to create
-			await addStyles.call(this);
-
-			for (const [chunkId, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk') {
-					// Removes imports for pure CSS chunks.
-					if (hasPureCSSChunks) {
-						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {
-							// Delete pure CSS chunks, these are JavaScript chunks that only import
-							// other CSS files, so are empty at the end of bundling.
-							delete bundle[chunkId];
-						} else {
-							// Remove any pure css chunk imports from JavaScript.
-							// Note that this code comes from Vite's CSS build plugin.
-							chunk.code = chunk.code.replace(
-								emptyChunkRE,
-								// remove css import while preserving source map location
-								(m) => `/* empty css ${''.padEnd(m.length - 15)}*/`
-							);
+			for(const [,output] of Object.entries(bundle)) {
+				if(isViteChunk(output)) {
+					for(const id of Object.keys(output.modules)) {
+						if (hasPageDataByViteID(internals, id)) {
+							for(const cssAssetId of output.viteMetadata.importedCss) {
+								getPageDataByViteID(internals, id)?.css.add(cssAssetId);
+							}
 						}
 					}
+
+
+					
 				}
 			}
+
+			//await addStyles.call(this);
+
+
+
+
+
+			// const hasPureCSSChunks = internals.pureCSSChunks.size;
+			// const pureChunkFilenames = new Set(
+			// 	[...internals.pureCSSChunks].map((chunk) => chunk.fileName)
+			// );
+			// const emptyChunkFiles = [...pureChunkFilenames]
+			// 	.map((file) => path.basename(file))
+			// 	.join('|')
+			// 	.replace(/\./g, '\\.');
+			// const emptyChunkRE = new RegExp(
+			// 	opts.format === 'es'
+			// 		? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
+			// 		: `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
+			// 	'g'
+			// );
+
+			// // Crawl the module graph to find CSS chunks to create
+			// await addStyles.call(this);
+
+			// for (const [chunkId, chunk] of Object.entries(bundle)) {
+			// 	if (chunk.type === 'chunk') {
+			// 		// Removes imports for pure CSS chunks.
+			// 		if (hasPureCSSChunks) {
+			// 			if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {
+			// 				// Delete pure CSS chunks, these are JavaScript chunks that only import
+			// 				// other CSS files, so are empty at the end of bundling.
+			// 				delete bundle[chunkId];
+			// 			} else {
+			// 				// Remove any pure css chunk imports from JavaScript.
+			// 				// Note that this code comes from Vite's CSS build plugin.
+			// 				chunk.code = chunk.code.replace(
+			// 					emptyChunkRE,
+			// 					// remove css import while preserving source map location
+			// 					(m) => `/* empty css ${''.padEnd(m.length - 15)}*/`
+			// 				);
+			// 			}
+			// 		}
+			// 	}
+			// }
 		},
 	};
 }

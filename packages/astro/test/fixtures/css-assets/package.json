@@ -1,0 +1,9 @@
+{
+  "name": "@test/css-assets",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "font-awesome": "^4.7.0",
+    "astro": "workspace:*"
+  }
+}

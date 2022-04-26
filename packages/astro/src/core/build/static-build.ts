@@ -108,7 +108,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
-		await cleanSsrOutput(opts);
+		//await cleanSsrOutput(opts);
 	} else {
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);

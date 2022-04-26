@@ -31,7 +31,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let i = 0;
 				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
-					imports.push(`import * as ${variable} from '${pageData.moduleSpecifier}';`);
+					imports.push(`const ${variable} = await import('${pageData.moduleSpecifier}');`);
 					importMap += `['${pageData.component}', ${variable}],`;
 					i++;
 				}
