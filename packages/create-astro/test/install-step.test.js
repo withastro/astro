@@ -21,15 +21,15 @@ describe('[create-astro] install', function () {
 	})
 
 	it('should respect package manager in prompt', function() {
-		console.log({tempDir})
-		const { stdout, stdin } = setup([tempDir]);
+		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
 			stdout.on('data', (chunk) => {
-				console.log({ chunk: chunk.toString() });
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
+					fs.promises.rmdir('~/.degit/github')
 					seen.add(PROMPT_MESSAGES.template);
+					console.log('temp')
 					stdin.write('\x0D');
 				}
 				if (!seen.has(PROMPT_MESSAGES.frameworks) && chunk.includes(PROMPT_MESSAGES.frameworks)) {
@@ -47,7 +47,7 @@ describe('[create-astro] install', function () {
 
 	it('should respect package manager in next steps', function() {
 		console.log({tempDir})
-		const { stdout, stdin } = setup([tempDir]);
+		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
