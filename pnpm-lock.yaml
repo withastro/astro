@@ -1216,6 +1216,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       degit: ^2.8.4
+      execa: ^6.1.0
       kleur: ^4.1.4
       mocha: ^9.2.2
       node-fetch: ^3.2.3
@@ -1227,6 +1228,7 @@ importers:
       '@types/degit': 2.8.3
       '@types/prompts': 2.0.14
       degit: 2.8.4
+      execa: 6.1.0
       kleur: 4.1.4
       node-fetch: 3.2.3
       ora: 6.1.0
@@ -1240,6 +1242,12 @@ importers:
       chai: 4.3.6
       mocha: 9.2.2
       uvu: 0.5.3
+
+  packages/create-astro/test/fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../astro
 
   packages/integrations/deno:
     specifiers:
