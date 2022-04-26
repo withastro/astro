@@ -60,7 +60,7 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 				buildConfig.server = _serverOut = new URL('./functions/render.func/', _config.outDir);
 
 				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
-					console.warn(
+					throw new Error(
 						`The enviroment variable "ENABLE_VC_BUILD" was not found. Make sure you have it set to "1" in your Vercel project.\nLearn how to set enviroment variables here: https://vercel.com/docs/concepts/projects/environment-variables`
 					);
 				}
