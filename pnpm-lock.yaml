@@ -1243,12 +1243,6 @@ importers:
       mocha: 9.2.2
       uvu: 0.5.3
 
-  packages/create-astro/test/fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir./fixtures/select-directory/nonempty-dir:
-    specifiers:
-      astro: ^1.0.0-beta.17
-    devDependencies:
-      astro: link:../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../../astro
-
   packages/integrations/deno:
     specifiers:
       astro: workspace:*
