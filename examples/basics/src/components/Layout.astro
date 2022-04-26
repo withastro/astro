@@ -1,5 +1,9 @@
 ---
-const { title } = Astro.props;
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props as Props;
 ---
 
 <!DOCTYPE html>
