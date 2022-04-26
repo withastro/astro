@@ -116,7 +116,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			documentation: {
 				kind: 'markdown',
 				value:
-					'Start importing the component JS at page load. Hydrate the component when import completes.\n\n[Astro documentation](https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components)',
+					'Start importing the component JS at page load. Hydrate the component when import completes.\n\n[Astro reference](https://docs.astro.build/en/reference/directives-reference/#clientload)',
 			},
 			textEdit: { range: Range.create(8, 26, 8, 26), newText: 'client:load' },
 			insertTextFormat: 2,

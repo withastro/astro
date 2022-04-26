@@ -6,6 +6,12 @@ export const classListAttribute = newHTMLDataProvider('class-list', {
 		{
 			name: 'class:list',
 			description: 'Utility to provide a list of class',
+			references: [
+				{
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#classlist',
+				},
+			],
 		},
 	],
 });
@@ -18,8 +24,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 			description: 'Inject unescaped HTML into this tag',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/migrate/#deprecated-unescaped-html',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#sethtml',
 				},
 			],
 		},
@@ -28,8 +34,18 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 			description: 'Inject escaped text into this tag',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/migrate/#deprecated-unescaped-html',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#settext',
+				},
+			],
+		},
+		{
+			name: 'is:raw',
+			description: 'Instructs the Astro compiler to treat any children of this element as text',
+			references: [
+				{
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#israw',
 				},
 			],
 		},
@@ -50,8 +66,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					description: 'Passes serializable server-side variables into a client-side script element',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/guides/styling/#variables-in-scripts--styles',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#definevars',
 						},
 					],
 				},
@@ -62,7 +78,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					valueSet: 'v',
 					references: [
 						{
-							name: 'Astro documentation',
+							name: 'Astro reference',
 							url: 'https://docs.astro.build/en/core-concepts/astro-components/#using-hoisted-scripts',
 						},
 					],
@@ -73,8 +89,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					valueSet: 'v',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/migrate/#new-default-script-behavior',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#isinline',
 						},
 					],
 				},
@@ -88,8 +104,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					description: 'Passes serializable server-side variables into a client-side style element',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/guides/styling/#variables-in-scripts--styles',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#definevars',
 						},
 					],
 				},
@@ -100,8 +116,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					valueSet: 'v',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/guides/styling/#global-styles',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#isglobal',
 						},
 					],
 				},
@@ -111,8 +127,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					valueSet: 'v',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/guides/styling/#global-styles',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#isglobal',
 						},
 					],
 				},
@@ -122,8 +138,8 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 					valueSet: 'v',
 					references: [
 						{
-							name: 'Astro documentation',
-							url: 'https://docs.astro.build/en/migrate/#new-default-script-behavior',
+							name: 'Astro reference',
+							url: 'https://docs.astro.build/en/reference/directives-reference/#isinline',
 						},
 					],
 				},
@@ -141,8 +157,8 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			valueSet: 'v',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#clientload',
 				},
 			],
 		},
@@ -153,8 +169,8 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			valueSet: 'v',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#clientidle',
 				},
 			],
 		},
@@ -165,8 +181,8 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			valueSet: 'v',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#clientvisible',
 				},
 			],
 		},
@@ -176,8 +192,8 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 				'Start importing the component JS as soon as the browser matches the given media query (uses matchMedia). Hydrate the component when import completes. Useful for sidebar toggles, or other elements that should only display on mobile or desktop devices.',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#clientmedia',
 				},
 			],
 		},
@@ -188,8 +204,8 @@ export const astroDirectives = newHTMLDataProvider('astro-directives', {
 			valueSet: 'v',
 			references: [
 				{
-					name: 'Astro documentation',
-					url: 'https://docs.astro.build/en/core-concepts/component-hydration/#hydrate-interactive-components',
+					name: 'Astro reference',
+					url: 'https://docs.astro.build/en/reference/directives-reference/#clientonly',
 				},
 			],
 		},
