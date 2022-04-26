@@ -41,6 +41,25 @@ vercel deploy --prebuilt
 
 [Learn more about setting enviroment variables in Vercel](https://vercel.com/docs/concepts/projects/environment-variables).
 
+## Options
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel';
+
+export default defineConfig({
+	adapter: vercel({
+    /**
+	   * - `static`: generates a static website following Vercel's output formats, redirects, etc.
+	   * - `serverless` (default): SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
+	   * - `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
+	   *
+	   */
+    mode: 'serverless'
+  })
+});
+```
+
 
 ## Limitations
 
