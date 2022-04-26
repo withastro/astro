@@ -86,7 +86,7 @@ export async function createVite(
 			watch: {
 				// Prevent watching during the build to speed it up
 				ignored: mode === 'build' ? ['**'] : undefined,
-			}
+			},
 		},
 		css: {
 			postcss: astroConfig.style.postcss || {},

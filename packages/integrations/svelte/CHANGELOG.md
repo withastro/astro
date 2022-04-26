@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3181](https://github.com/withastro/astro/pull/3181) [`ce9a61e9`](https://github.com/withastro/astro/commit/ce9a61e9fc6fdbf9b8469197df6d728f395656ec) Thanks [@tony-sull](https://github.com/tony-sull)! - `@astrojs/svelte` integration supports custom svelte compiler options
+
 ## 0.1.1
 
 ### Patch Changes
