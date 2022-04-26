@@ -88,39 +88,47 @@ export default function vercel(): AstroIntegration {
 					basePath: '/',
 					pages404: false,
 					redirects:
-						// Extracted from Next.js v12.1.5
-						_config.trailingSlash === 'always'
-							? [
-									{
-										source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
-										destination: '/:file',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$',
-									},
-									{
-										source: '/:notfile((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+)',
-										destination: '/:notfile/',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$',
-									},
-							  ]
-							: _config.trailingSlash === 'never'
-							? [
-									{
-										source: '/:path+/',
-										destination: '/:path+',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$',
-									},
-							  ]
+						_config.trailingSlash !== 'ignore'
+							? routes
+									.filter((route) => route.type === 'page' && !route.pathname?.endsWith('/'))
+									.map((route) => {
+										const path =
+											'/' +
+											route.segments
+												.map((segments) =>
+													segments
+														.map((part) =>
+															part.spread
+																? `:${part.content}*`
+																: part.dynamic
+																? `:${part.content}`
+																: part.content
+														)
+														.join('')
+												)
+												.join('/');
+
+										let source, destination;
+
+										if (_config.trailingSlash === 'always') {
+											source = path;
+											destination = path + '/';
+										} else {
+											source = path + '/';
+											destination = path;
+										}
+
+										return { source, destination, statusCode: 308 };
+									})
 							: undefined,
 					rewrites: staticRoutes.map((route) => {
 						let source = route.pathname as string;
 
-						if (_config.trailingSlash === 'always' && !source.endsWith('/')) {
+						if (
+							route.type === 'page' &&
+							_config.trailingSlash === 'always' &&
+							!source.endsWith('/')
+						) {
 							source += '/';
 						}
 
