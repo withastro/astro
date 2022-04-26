@@ -45,11 +45,6 @@ export async function main() {
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-	console.log(
-		`If you encounter a problem, visit ${cyan(
-			'https://github.com/withastro/astro/issues'
-		)} to search or file a new issue.\n`
-	);
 
 	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
 
