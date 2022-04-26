@@ -27,7 +27,6 @@ describe('[create-astro] install', function () {
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
-					fs.promises.rmdir('~/.degit/github')
 					seen.add(PROMPT_MESSAGES.template);
 					stdin.write('\x0D');
 				}
