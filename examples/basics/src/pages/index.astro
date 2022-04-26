@@ -81,14 +81,8 @@ import Layout from '../components/Layout.astro';
 
 	.link-card-grid {
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(20ch, 1fr));
 		gap: 1rem;
-	}
-
-	@media(min-width: 60ch) {
-		.link-card-grid {
-			grid-template-columns: 1fr 1fr;
-		}
 	}
 
 	.link-card {
