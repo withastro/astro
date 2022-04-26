@@ -457,8 +457,8 @@ importers:
       '@babel/parser': ^7.17.9
       '@babel/traverse': ^7.17.9
       '@babel/types': ^7.17.0
-      '@proload/core': ^0.2.2
-      '@proload/plugin-tsm': ^0.1.1
+      '@proload/core': ^0.3.2-next.4
+      '@proload/plugin-tsm': ^0.2.1-next.0
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.0
@@ -542,8 +542,8 @@ importers:
       '@babel/generator': 7.17.9
       '@babel/parser': 7.17.9
       '@babel/traverse': 7.17.9
-      '@proload/core': 0.2.2
-      '@proload/plugin-tsm': 0.1.1_@proload+core@0.2.2
+      '@proload/core': 0.3.2-next.4
+      '@proload/plugin-tsm': 0.2.1-next.0_@proload+core@0.3.2-next.4
       ast-types: 0.14.2
       boxen: 6.2.1
       ci-info: 3.3.0
@@ -1412,7 +1412,7 @@ importers:
 
   packages/integrations/tailwind:
     specifiers:
-      '@proload/core': ^0.2.2
+      '@proload/core': ^0.3.1
       '@types/tailwindcss': ^3.0.10
       astro: workspace:*
       astro-scripts: workspace:*
@@ -1420,7 +1420,7 @@ importers:
       postcss: ^8.4.12
       tailwindcss: ^3.0.24
     dependencies:
-      '@proload/core': 0.2.2
+      '@proload/core': 0.3.1
       autoprefixer: 10.4.4_postcss@8.4.12
       postcss: 8.4.12
       tailwindcss: 3.0.24
@@ -3652,19 +3652,27 @@ packages:
   /@polka/url/1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
 
-  /@proload/core/0.2.2:
-    resolution: {integrity: sha512-HYQEblYXIpW77kvGyW4penEl9D9e9MouPhTqVaDz9+QVFliYjsq18inTfnfTa81s3oraPVtTk60tqCWOf2fKGQ==}
+  /@proload/core/0.3.1:
+    resolution: {integrity: sha512-u902sdjipQ6WjpV6rxcF0CnQP6Z6Gd54MBPuMbZ5amCcdb/meWY6UtCQSLIJmG+zbXtf8Hwzf6ePBey158QAQQ==}
+    dependencies:
+      deepmerge: 4.2.2
+      escalade: 3.1.1
+      resolve-pkg: 2.0.0
+    dev: false
+
+  /@proload/core/0.3.2-next.4:
+    resolution: {integrity: sha512-58nw3h4+qBDizhlTbt/Q4iGWiiSWcYqdRgIAy3KMla1nqNFO8stG5vzDjPGMPyX6DsAhEj3PCqb4G0d82b2kqQ==}
     dependencies:
       deepmerge: 4.2.2
       escalade: 3.1.1
     dev: false
 
-  /@proload/plugin-tsm/0.1.1_@proload+core@0.2.2:
-    resolution: {integrity: sha512-qfGegg6I3YBCZDjYR9xb41MTc2EfL0sQQmw49Z/yi9OstIpUa/67MBy4AuNhoyG9FuOXia9gPoeBk5pGnBOGtA==}
+  /@proload/plugin-tsm/0.2.1-next.0_@proload+core@0.3.2-next.4:
+    resolution: {integrity: sha512-76NvJmWD1MBip1oifMLohTJfdi4DQihTUnwWacscsLxUaT/5/FNNolD5CIoH/+qhsU6HyVpz8JfEzVpkMuxKfA==}
     peerDependencies:
-      '@proload/core': ^0.2.1
+      '@proload/core': ^0.3.2-next.0
     dependencies:
-      '@proload/core': 0.2.2
+      '@proload/core': 0.3.2-next.4
       tsm: 2.2.1
     dev: false
 
@@ -8963,7 +8971,13 @@ packages:
   /resolve-from/5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
-    dev: true
+
+  /resolve-pkg/2.0.0:
+    resolution: {integrity: sha512-+1lzwXehGCXSeryaISr6WujZzowloigEofRB+dj75y9RRa/obVcYgbHJd53tdYw8pvZj8GojXaaENws8Ktw/hQ==}
+    engines: {node: '>=8'}
+    dependencies:
+      resolve-from: 5.0.0
+    dev: false
 
   /resolve/1.22.0:
     resolution: {integrity: sha512-Hhtrw0nLeSrFQ7phPp4OOcVjLPIeMnRlr5mcnVuMe7M/7eBn98A3hmFRLoFo3DLZkivSYwhRUJTyPyWAk56WLw==}
