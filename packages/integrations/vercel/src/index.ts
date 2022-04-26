@@ -1,139 +1,166 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import type { PathLike } from 'fs';
 import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
+import { getTransformedRoutes, Redirect, Rewrite } from '@vercel/routing-utils';
 
 const writeJson = (path: PathLike, data: any) =>
 	fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
 
-const ENTRYFILE = '__astro_entry';
-
-export function getAdapter(): AstroAdapter {
+export function getAdapter({ edge }: { edge: boolean }): AstroAdapter {
 	return {
 		name: '@astrojs/vercel',
-		serverEntrypoint: '@astrojs/vercel/server-entrypoint',
+		serverEntrypoint: `@astrojs/vercel/${edge ? 'edge' : 'serverless'}`,
 		exports: ['default'],
 	};
 }
 
-export default function vercel(): AstroIntegration {
+export interface Options {
+	edge?: boolean;
+}
+
+export default function vercel({ edge = false }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
-	let _serverEntry: URL;
+	let _serverOut: URL;
+	let _serverEntry: string;
 
 	return {
 		name: '@astrojs/vercel',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
-				config.outDir = new URL('./.output/', config.root);
-				config.build.format = 'directory';
+				config.outDir = new URL('./.vercel/output/', config.root);
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
-				setAdapter(getAdapter());
+				if (edge) {
+					throw new Error('The `edge` option is not yet supported.');
+				}
+
+				setAdapter(getAdapter({ edge }));
 				_config = config;
-				_serverEntry = new URL(`./server/pages/${ENTRYFILE}.js`, config.outDir);
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
-					vite.build!.rollupOptions = {
-						input: [],
-						output: {
-							format: 'cjs',
-							file: fileURLToPath(_serverEntry),
-							dir: undefined,
-							entryFileNames: undefined,
-							chunkFileNames: undefined,
-							assetFileNames: undefined,
-							inlineDynamicImports: true,
+					vite.build = {
+						...(vite.build || {}),
+						rollupOptions: {
+							...(vite.build?.rollupOptions || {}),
+							output: {
+								...(vite.build?.rollupOptions || {}),
+								format: 'cjs',
+							},
 						},
 					};
 				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.serverEntry = `${ENTRYFILE}.js`;
+				buildConfig.serverEntry = _serverEntry = 'entry.js';
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = new URL('./server/pages/', _config.outDir);
+				buildConfig.server = _serverOut = new URL('./functions/render.func/', _config.outDir);
 
-				if (String(process.env.ENABLE_FILE_SYSTEM_API) !== '1') {
+				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
 					console.warn(
-						`The enviroment variable "ENABLE_FILE_SYSTEM_API" was not found. Make sure you have it set to "1" in your Vercel project.\nLearn how to set enviroment variables here: https://vercel.com/docs/concepts/projects/environment-variables`
+						`The enviroment variable "ENABLE_VC_BUILD" was not found. Make sure you have it set to "1" in your Vercel project.\nLearn how to set enviroment variables here: https://vercel.com/docs/concepts/projects/environment-variables`
 					);
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
-				// Bundle dependecies
-				await esbuild.build({
-					entryPoints: [fileURLToPath(_serverEntry)],
-					outfile: fileURLToPath(_serverEntry),
-					bundle: true,
-					format: 'cjs',
-					platform: 'node',
-					target: 'node14',
-					allowOverwrite: true,
-					minifyWhitespace: true,
-				});
-
-				let staticRoutes: RouteData[] = [];
-				let dynamicRoutes: RouteData[] = [];
-
-				for (const route of routes) {
-					if (route.params.length === 0) staticRoutes.push(route);
-					else dynamicRoutes.push(route);
+				if (edge) {
+					// Edge function config
+					// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
+					await writeJson(new URL(`./.vc-config.json`, _serverOut), {
+						runtime: 'edge',
+						entrypoint: _serverEntry,
+					});
+				} else {
+					// Serverless function config
+					// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
+					await writeJson(new URL(`./.vc-config.json`, _serverOut), {
+						runtime: 'nodejs14.x',
+						handler: _serverEntry,
+						launcherType: 'Nodejs',
+					});
 				}
 
-				// Routes Manifest
-				// https://vercel.com/docs/file-system-api#configuration/routes
-				await writeJson(new URL(`./routes-manifest.json`, _config.outDir), {
+				let rewrites: Rewrite[] = [];
+				let redirects: Redirect[] = [];
+
+				for (const route of routes) {
+					const path =
+						_config.base +
+						route.segments
+							.map((segments) =>
+								segments
+									.map((part) =>
+										part.spread
+											? `:${part.content}*`
+											: part.dynamic
+											? `:${part.content}`
+											: part.content
+									)
+									.join('')
+							)
+							.join('/');
+
+					rewrites.push({
+						source: path,
+						destination: '/render',
+					});
+
+					if (_config.trailingSlash === 'always') {
+						redirects.push({
+							source: path,
+							destination: path + '/',
+						});
+					} else if (_config.trailingSlash === 'never') {
+						redirects.push({
+							source: path + '/',
+							destination: path,
+						});
+					}
+				}
+
+				// Output configuration
+				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
+				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
-					basePath: '/',
-					pages404: false,
-					redirects:
-						// Extracted from Next.js v12.1.5
-						_config.trailingSlash === 'always'
-							? [
-									{
-										source: '/:file((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+)/',
-										destination: '/:file',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$',
-									},
-									{
-										source: '/:notfile((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+)',
-										destination: '/:notfile/',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$',
-									},
-							  ]
-							: _config.trailingSlash === 'never'
-							? [
-									{
-										source: '/:path+/',
-										destination: '/:path+',
-										internal: true,
-										statusCode: 308,
-										regex: '^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$',
-									},
-							  ]
-							: undefined,
-					rewrites: staticRoutes.map((route) => {
-						let source = route.pathname as string;
+					routes: getTransformedRoutes({
+						nowConfig: {
+							rewrites: [],
+							redirects:
+								_config.trailingSlash !== 'ignore'
+									? routes
+											.filter((route) => route.type === 'page' && !route.pathname?.endsWith('/'))
+											.map((route) => {
+												const path =
+													'/' +
+													route.segments
+														.map((segments) =>
+															segments
+																.map((part) =>
+																	part.spread
+																		? `:${part.content}*`
+																		: part.dynamic
+																		? `:${part.content}`
+																		: part.content
+																)
+																.join('')
+														)
+														.join('/');
 
-						if (_config.trailingSlash === 'always' && !source.endsWith('/')) {
-							source += '/';
-						}
+												let source, destination;
 
-						return {
-							source,
-							regex: route.pattern.toString(),
-							destination: `/${ENTRYFILE}`,
-						};
+												if (_config.trailingSlash === 'always') {
+													source = path;
+													destination = path + '/';
+												} else {
+													source = path + '/';
+													destination = path;
+												}
+
+												return { source, destination, statusCode: 308 };
+											})
+									: [],
+						},
 					}),
-					dynamicRoutes: dynamicRoutes.map((route) => ({
-						page: `/${ENTRYFILE}`,
-						regex: route.pattern.toString(),
-					})),
 				});
 			},
 		},
