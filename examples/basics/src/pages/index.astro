@@ -6,24 +6,32 @@ import Layout from '../components/Layout.astro';
 	<main>
 		<h1>Welcome to <span class="text-gradient">Astro.</span></h1>
 		<p class="instructions"><strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check the <code>src/pages</code> directory!</p>
-		<div class="link-card-grid">
-		<a class="link-card" href="https://astro.build/integrations/">
-			<h2>Integrations &rarr;</h2>
-			<p>Add component frameworks, Tailwind, Partytown, and more!</p>
-		</a>
-		<a class="link-card" href="https://astro.build/themes/">
-			<h2>Themes &rarr;</h2>
-			<p>Explore a galaxy of community-built starters.</p>
-		</a>
-		<a class="link-card" href="https://docs.astro.build/">
-			<h2>Docs &rarr;</h2>
-			<p>Learn our complete feature set and explore the API.</p>
-		</a>
-		<a class="link-card" href="https://astro.build/chat/">
-			<h2>Chat &rarr;</h2>
-			<p>Ask, contribute, and have fun on our community discord &#9825;</p>
-		</a>
-		</div>
+		<ul role="list" class="link-card-grid">
+			<li class="link-card">
+				<a href="https://astro.build/integrations/">
+					<h2>Integrations &rarr;</h2>
+					<p>Add component frameworks, Tailwind, Partytown, and more!</p>
+				</a>
+			</li>
+			<li class="link-card">
+				<a href="https://astro.build/themes/">
+					<h2>Themes &rarr;</h2>
+					<p>Explore a galaxy of community-built starters.</p>
+				</a>
+			</li>
+			<li class="link-card">
+				<a href="https://docs.astro.build/">
+					<h2>Docs &rarr;</h2>
+					<p>Learn our complete feature set and explore the API.</p>
+				</a>
+			</li>
+			<li class="link-card">
+				<a href="https://astro.build/chat/">
+					<h2>Chat &rarr;</h2>
+					<p>Ask, contribute, and have fun on our community discord &#9825;</p>
+				</a>
+			</li>
+		</ul>
 	</main>
 </Layout>
 
@@ -83,34 +91,32 @@ import Layout from '../components/Layout.astro';
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(20ch, 1fr));
 		gap: 1rem;
+		padding: 0;
 	}
 
 	.link-card {
-		line-height: 1.4;
-		text-decoration: none;
-		color: var(--text-color);
+		list-style: none;
+		display: flex;
+		padding: 0.15rem;
 		background-image: var(--link-gradient);
 		background-size: 400%;
-		padding: 1em 1.3em;
 		border-radius: 0.5rem;
 		background-position: 100%;
 		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
-	.link-card, .link-card * {
-		position: relative;
+	.link-card > a {
+		width: 100%;
+		text-decoration: none;
+		line-height: 1.4;
+		padding: 1em 1.3em;
+		border-radius: 0.35rem;
+		color: var(--text-color);
+		background-color: white;
+		opacity: 0.8;
 	}
 
 	.link-card:hover {
 		background-position: 0;
-	}
-
-	.link-card::before {
-		content: '';
-		position: absolute;
-		inset: 0.15rem;
-		border-radius: 0.35rem;
-		background-color: white;
-		opacity: 0.8;
 	}
 </style>
