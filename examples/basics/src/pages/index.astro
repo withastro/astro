@@ -52,21 +52,21 @@ import Layout from '../components/Layout.astro';
 	}
 
 	.text-gradient {
-		color: white;
-		background: var(--astro-gradient);
+		background-image: var(--astro-gradient);
+		-webkit-background-clip: text;
+  	-webkit-text-fill-color: transparent;
 		background-size: 100% 200%;
 		background-position-y: 100%;
-		padding: 0 0.2em;
 		border-radius: 0.4rem;
 		animation: pulse 4s ease-in-out infinite;
 	}
 
 	@keyframes pulse {
 		0%, 100% {
-			background-position-y: 20%;
+			background-position-y: 0%;
 		}
 		50% {
-			background-position-y: 100%;
+			background-position-y: 80%;
 		}
 	}
 
