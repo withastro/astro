@@ -181,7 +181,7 @@ export const AstroConfigSchema = z.object({
 				])
 				.array()
 				.default([]),
-      remarkRehype: z.custom<RemarkRehypeOptions>().optional().default({}),
+			remarkRehype: z.custom<RemarkRehypeOptions>().optional().default({}),
 		})
 		.default({}),
 	vite: z.any().optional().default({}),

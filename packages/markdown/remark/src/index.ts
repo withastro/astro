@@ -67,7 +67,7 @@ export async function renderMarkdown(content: string, opts: MarkdownRenderingOpt
 			{
 				allowDangerousHtml: true,
 				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
-        ...remarkRehype
+				...remarkRehype,
 			},
 		],
 	]);

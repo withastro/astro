@@ -2,7 +2,7 @@ import type * as unified from 'unified';
 import type * as mdast from 'mdast';
 import type * as hast from 'hast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import type { Options as RemarkRehypeOptions } from 'remark-rehype'
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
 
 export type { Node } from 'unist';
 
@@ -33,7 +33,7 @@ export interface AstroMarkdownOptions {
 	shikiConfig: ShikiConfig;
 	remarkPlugins: RemarkPlugins;
 	rehypePlugins: RehypePlugins;
-  remarkRehype?: RemarkRehypeOptions ;
+	remarkRehype?: RemarkRehypeOptions;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
