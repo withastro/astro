@@ -1,6 +1,9 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import type { PathLike } from 'fs';
+
 import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
+import esbuild from 'esbuild';
 import { getTransformedRoutes, Redirect, Rewrite } from '@vercel/routing-utils';
 
 const writeJson = (path: PathLike, data: any) =>
@@ -38,13 +41,13 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 				_config = config;
 			},
 			'astro:build:setup': ({ vite, target }) => {
-				if (target === 'server') {
+				if (!edge && target === 'server') {
 					vite.build = {
 						...(vite.build || {}),
 						rollupOptions: {
 							...(vite.build?.rollupOptions || {}),
 							output: {
-								...(vite.build?.rollupOptions || {}),
+								...(vite.build?.rollupOptions?.output || {}),
 								format: 'cjs',
 							},
 						},
@@ -63,6 +66,18 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
+				const entryPath = fileURLToPath(new URL(_serverEntry, _serverOut));
+
+				// Bundle dependencies
+				await esbuild.build({
+					entryPoints: [entryPath],
+					outfile: entryPath,
+					bundle: true,
+					target: 'node14',
+					allowOverwrite: true,
+					...(edge ? { format: 'esm', platform: 'browser' } : { format: 'cjs', platform: 'node' }),
+				});
+
 				if (edge) {
 					// Edge function config
 					// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
@@ -118,49 +133,55 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 					}
 				}
 
+				const transformedRoutes = getTransformedRoutes({
+					nowConfig: {
+						rewrites: [],
+						redirects:
+							_config.trailingSlash !== 'ignore'
+								? routes
+										.filter((route) => route.type === 'page' && !route.pathname?.endsWith('/'))
+										.map((route) => {
+											const path =
+												'/' +
+												route.segments
+													.map((segments) =>
+														segments
+															.map((part) =>
+																part.spread
+																	? `:${part.content}*`
+																	: part.dynamic
+																	? `:${part.content}`
+																	: part.content
+															)
+															.join('')
+													)
+													.join('/');
+
+											let source, destination;
+
+											if (_config.trailingSlash === 'always') {
+												source = path;
+												destination = path + '/';
+											} else {
+												source = path + '/';
+												destination = path;
+											}
+
+											return { source, destination, statusCode: 308 };
+										})
+								: [],
+					},
+				});
+
+				if (transformedRoutes.error) {
+					throw new Error(JSON.stringify(transformedRoutes.error, null, 2));
+				}
+
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _config.outDir), {
 					version: 3,
-					routes: getTransformedRoutes({
-						nowConfig: {
-							rewrites: [],
-							redirects:
-								_config.trailingSlash !== 'ignore'
-									? routes
-											.filter((route) => route.type === 'page' && !route.pathname?.endsWith('/'))
-											.map((route) => {
-												const path =
-													'/' +
-													route.segments
-														.map((segments) =>
-															segments
-																.map((part) =>
-																	part.spread
-																		? `:${part.content}*`
-																		: part.dynamic
-																		? `:${part.content}`
-																		: part.content
-																)
-																.join('')
-														)
-														.join('/');
-
-												let source, destination;
-
-												if (_config.trailingSlash === 'always') {
-													source = path;
-													destination = path + '/';
-												} else {
-													source = path + '/';
-													destination = path;
-												}
-
-												return { source, destination, statusCode: 308 };
-											})
-									: [],
-						},
-					}),
+					routes: transformedRoutes.routes,
 				});
 			},
 		},

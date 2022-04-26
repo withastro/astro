@@ -1440,9 +1440,11 @@ importers:
       '@vercel/routing-utils': ^1.13.1
       astro: workspace:*
       astro-scripts: workspace:*
+      esbuild: ^0.14.38
     dependencies:
       '@astrojs/webapi': link:../../webapi
       '@vercel/routing-utils': 1.13.1
+      esbuild: 0.14.38
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
