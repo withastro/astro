@@ -457,8 +457,8 @@ importers:
       '@babel/parser': ^7.17.9
       '@babel/traverse': ^7.17.9
       '@babel/types': ^7.17.0
-      '@proload/core': ^0.3.1
-      '@proload/plugin-tsm': ^0.1.1
+      '@proload/core': ^0.3.2-next.0
+      '@proload/plugin-tsm': ^0.2.1-next.0
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.17.0
@@ -542,8 +542,8 @@ importers:
       '@babel/generator': 7.17.9
       '@babel/parser': 7.17.9
       '@babel/traverse': 7.17.9
-      '@proload/core': 0.3.1
-      '@proload/plugin-tsm': 0.1.1_@proload+core@0.3.1
+      '@proload/core': 0.3.2-next.0
+      '@proload/plugin-tsm': 0.2.1-next.0_@proload+core@0.3.2-next.0
       ast-types: 0.14.2
       boxen: 6.2.1
       ci-info: 3.3.0
@@ -3630,12 +3630,19 @@ packages:
       resolve-pkg: 2.0.0
     dev: false
 
-  /@proload/plugin-tsm/0.1.1_@proload+core@0.3.1:
-    resolution: {integrity: sha512-qfGegg6I3YBCZDjYR9xb41MTc2EfL0sQQmw49Z/yi9OstIpUa/67MBy4AuNhoyG9FuOXia9gPoeBk5pGnBOGtA==}
-    peerDependencies:
-      '@proload/core': ^0.2.1
+  /@proload/core/0.3.2-next.0:
+    resolution: {integrity: sha512-Q9e4ALpKs7wxYsqpxP0LpwCmZ+Garxj0X8EV0TNSYzYsdc41+gXk5zWwVro7cPjn2lHgNCQnaIKBEpqvU/qqEw==}
     dependencies:
-      '@proload/core': 0.3.1
+      deepmerge: 4.2.2
+      escalade: 3.1.1
+    dev: false
+
+  /@proload/plugin-tsm/0.2.1-next.0_@proload+core@0.3.2-next.0:
+    resolution: {integrity: sha512-76NvJmWD1MBip1oifMLohTJfdi4DQihTUnwWacscsLxUaT/5/FNNolD5CIoH/+qhsU6HyVpz8JfEzVpkMuxKfA==}
+    peerDependencies:
+      '@proload/core': ^0.3.2-next.0
+    dependencies:
+      '@proload/core': 0.3.2-next.0
       tsm: 2.2.1
     dev: false
 
