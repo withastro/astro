@@ -134,43 +134,7 @@ export default function vercel({ edge = false }: Options = {}): AstroIntegration
 				}
 
 				const transformedRoutes = getTransformedRoutes({
-					nowConfig: {
-						rewrites: [],
-						redirects:
-							_config.trailingSlash !== 'ignore'
-								? routes
-										.filter((route) => route.type === 'page' && !route.pathname?.endsWith('/'))
-										.map((route) => {
-											const path =
-												'/' +
-												route.segments
-													.map((segments) =>
-														segments
-															.map((part) =>
-																part.spread
-																	? `:${part.content}*`
-																	: part.dynamic
-																	? `:${part.content}`
-																	: part.content
-															)
-															.join('')
-													)
-													.join('/');
-
-											let source, destination;
-
-											if (_config.trailingSlash === 'always') {
-												source = path;
-												destination = path + '/';
-											} else {
-												source = path + '/';
-												destination = path;
-											}
-
-											return { source, destination, statusCode: 308 };
-										})
-								: [],
-					},
+					nowConfig: { rewrites, redirects },
 				});
 
 				if (transformedRoutes.error) {
