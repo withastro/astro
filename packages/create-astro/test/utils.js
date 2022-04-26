@@ -1,4 +1,4 @@
-import { execa } from 'execa'
+import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 

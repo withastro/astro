@@ -15,12 +15,12 @@ describe('[create-astro] install', function () {
 	this.beforeAll(() => {
 		initialEnvValue = process.env.npm_config_user_agent;
 		process.env.npm_config_user_agent = FAKE_PACKAGE_MANAGER;
-	})
+	});
 	this.afterAll(() => {
 		process.env.npm_config_user_agent = initialEnvValue;
-	})
+	});
 
-	it('should respect package manager in prompt', function() {
+	it('should respect package manager in prompt', function () {
 		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
@@ -34,7 +34,7 @@ describe('[create-astro] install', function () {
 					seen.add(PROMPT_MESSAGES.frameworks);
 					stdin.write('\x0D');
 				}
-				
+
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
 					resolve();
@@ -43,7 +43,7 @@ describe('[create-astro] install', function () {
 		});
 	});
 
-	it('should respect package manager in next steps', function() {
+	it('should respect package manager in next steps', function () {
 		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
@@ -57,9 +57,9 @@ describe('[create-astro] install', function () {
 					seen.add(PROMPT_MESSAGES.frameworks);
 					stdin.write('\x0D');
 				}
-				
+
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
-					seen.add(installPrompt)
+					seen.add(installPrompt);
 					stdin.write('n\x0D');
 				}
 				if (chunk.includes('banana dev')) {
@@ -68,4 +68,4 @@ describe('[create-astro] install', function () {
 			});
 		});
 	});
-})
+});
