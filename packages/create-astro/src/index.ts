@@ -66,8 +66,7 @@ export async function main() {
 	}
 
 	if (!cwd || !isEmpty(cwd)) {
-		const notEmptyMsg = (dirPath: string) =>
-			`"${bold(dirPath)}" is not empty. Please clear contents or choose a different path.`;
+		const notEmptyMsg = (dirPath: string) => `"${bold(dirPath)}" is not empty!`;
 
 		if (!isEmpty(cwd)) {
 			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });
