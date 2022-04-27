@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.19
+
+### Patch Changes
+
+- [#3224](https://github.com/withastro/astro/pull/3224) [`3d6e382b`](https://github.com/withastro/astro/commit/3d6e382b583646f047836b703a867c3b29ac91b2) Thanks [@JuanM04](https://github.com/JuanM04)! - Replaced deprecated String.substr with String.slice
+
+* [#3221](https://github.com/withastro/astro/pull/3221) [`f23d6c52`](https://github.com/withastro/astro/commit/f23d6c528ed5fbb37614789a5abd480ee731cd0f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: bump Astro core to update available starter templates. Find new "Just the Basics" option in create-astro!
+
 ## 1.0.0-beta.18
 
 ### Patch Changes
