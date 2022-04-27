@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 0.16.0
+
+### Patch Changes
+
+- 1bcae45: Remove support for Node 12 (VS Code versions under 1.56)
+- Updated dependencies [b485acd]
+- Updated dependencies [1cff04c]
+- Updated dependencies [1bcae45]
+- Updated dependencies [9abff62]
+- Updated dependencies [c8d81a1]
+  - @astrojs/language-server@0.16.0
+
 ## 0.15.0
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/svelte-language-integration
 
+## 0.1.4
+
+### Patch Changes
+
+- 1bcae45: Remove support for Node 12 (VS Code versions under 1.56)
+
 ## 0.1.3
 
 ### Patch Changes

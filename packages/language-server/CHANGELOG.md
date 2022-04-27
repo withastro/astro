@@ -1,5 +1,20 @@
 # @astrojs/language-server
 
+## 0.16.0
+
+### Minor Changes
+
+- 9abff62: Add support for code actions
+
+### Patch Changes
+
+- b485acd: Fixed bug where nonexistent server settings would result in a crash
+- 1cff04c: Fix Emmet settings not being loaded, add support for Emmet in CSS
+- 1bcae45: Remove support for Node 12 (VS Code versions under 1.56)
+- c8d81a1: Update directives tooltips, add missing `is:raw`
+- Updated dependencies [1bcae45]
+  - @astrojs/svelte-language-integration@0.1.4
+
 ## 0.15.0
 
 ### Minor Changes

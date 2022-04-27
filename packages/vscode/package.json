@@ -8,7 +8,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.15.0",
+  "version": "0.16.0",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -26,7 +26,7 @@
     "workspaceContains:astro.config.*"
   ],
   "dependencies": {
-    "@astrojs/language-server": "0.15.0",
+    "@astrojs/language-server": "0.16.0",
     "@astrojs/ts-plugin": "0.2.1",
     "vscode-languageclient": "~7.0.0"
   },
