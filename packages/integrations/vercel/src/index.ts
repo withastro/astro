@@ -1,13 +1,9 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-import type { PathLike } from 'fs';
 
-import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
-import { getTransformedRoutes, Redirect, Rewrite } from '@vercel/routing-utils';
 
-const writeJson = (path: PathLike, data: any) =>
-	fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
+import { getPattern, writeJson } from './utils.js';
 
 export interface Options {
 	/**
@@ -19,6 +15,16 @@ export interface Options {
 	 * @default {'serverless'}
 	 */
 	mode?: 'static' | 'serverless' | 'edge';
+}
+
+// https://vercel.com/docs/project-configuration#legacy/routes
+interface VercelRoute {
+	src: string;
+	methods?: string[];
+	dest?: string;
+	headers?: Record<string, string>;
+	status?: number;
+	continue?: boolean;
 }
 
 function getAdapter({ mode }: { mode: NonNullable<Options['mode']> }): AstroAdapter {
@@ -127,62 +133,42 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 					}
 				}
 
-				let rewrites: Rewrite[] = [];
-				let redirects: Redirect[] = [];
+				let redirects: VercelRoute[] = [];
 
-				for (const route of routes) {
-					const path =
-						_config.base +
-						route.segments
-							.map((segments) =>
-								segments
-									.map((part) =>
-										part.spread
-											? `:${part.content}*`
-											: part.dynamic
-											? `:${part.content}`
-											: part.content
-									)
-									.join('')
-							)
-							.join('/');
+				if (_config.trailingSlash === 'always') {
+					for (const route of routes) {
+						if (route.type !== 'page' || route.segments.length === 0) continue;
 
-					if (mode !== 'static') {
-						rewrites.push({
-							source: path,
-							destination: '/render',
+						const path = _config.base + getPattern(route);
+						redirects.push({
+							src: path,
+							headers: { Location: path + '/' },
+							status: 308,
 						});
 					}
+				} else if (_config.trailingSlash === 'never') {
+					for (const route of routes) {
+						if (route.type !== 'page' || route.segments.length === 0) continue;
 
-					// trailingSlash for pages
-					if (route.type === 'page' && route.segments.length > 0) {
-						if (_config.trailingSlash === 'always') {
-							redirects.push({
-								source: path,
-								destination: path + '/',
-							});
-						} else if (_config.trailingSlash === 'never') {
-							redirects.push({
-								source: path + '/',
-								destination: path,
-							});
-						}
+						const path = _config.base + getPattern(route);
+						redirects.push({
+							src: path + '/',
+							headers: { Location: path },
+							status: 308,
+						});
 					}
-				}
-
-				const transformedRoutes = getTransformedRoutes({
-					nowConfig: { rewrites, redirects },
-				});
-
-				if (transformedRoutes.error) {
-					throw new Error(JSON.stringify(transformedRoutes.error, null, 2));
 				}
 
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
 				await writeJson(new URL(`./config.json`, _vercelOut), {
 					version: 3,
-					routes: transformedRoutes.routes,
+					routes: [
+						...redirects,
+						{ handle: 'filesystem' },
+						...(mode === 'edge' ? [{ src: '/.*', middlewarePath: 'render' }] : []),
+						...(mode === 'serverless' ? [{ src: '/.*', dest: 'render' }] : []),
+					],
 				});
 			},
 		},
