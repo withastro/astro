@@ -227,6 +227,21 @@ export async function main() {
 		);
 	}
 
+	const gitResponse = await prompts({
+		type: 'confirm',
+		name: 'git',
+		message: 'Initialize an empty git repository?',
+		initial: true,
+	});
+
+	if (!gitResponse) {
+		process.exit(0);
+	}
+
+	if (gitResponse.git && !args.dryrun) {
+		await execaCommand('git init', { cwd });
+	}
+
 	console.log('\nNext steps:');
 	let i = 1;
 	const relative = path.relative(process.cwd(), cwd);
