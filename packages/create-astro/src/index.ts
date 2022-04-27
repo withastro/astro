@@ -232,7 +232,12 @@ export async function main() {
 	}
 
 	if (astroAddResponse.astroAdd && !args.dryrun) {
-		await execaCommand(astroAddCommand, { cwd, stdio: 'inherit' });
+		await execaCommand(
+			astroAddCommand,
+			astroAddCommand === 'astro add'
+				? { cwd, stdio: 'inherit', localDir: cwd, preferLocal: true }
+				: { cwd, stdio: 'inherit' }
+		);
 	}
 
 	console.log('\nNext steps:');
