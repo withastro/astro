@@ -43,6 +43,12 @@ importers:
       turbo: 1.2.5
       typescript: 4.6.3
 
+  examples/basics:
+    specifiers:
+      astro: ^1.0.0-beta.17
+    devDependencies:
+      astro: link:../../packages/astro
+
   examples/blog:
     specifiers:
       '@astrojs/preact': ^0.1.2
