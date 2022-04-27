@@ -20,6 +20,8 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
+export type RemarkRehype = RemarkRehypeOptions;
+
 export interface ShikiConfig {
 	langs: ILanguageRegistration[];
 	theme: Theme | IThemeRegistration;

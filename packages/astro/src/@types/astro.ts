@@ -2,7 +2,7 @@ import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
 import { z } from 'zod';
-import type { ShikiConfig, RemarkPlugins, RehypePlugins } from '@astrojs/markdown-remark';
+import type { ShikiConfig, RemarkPlugins, RehypePlugins, RemarkRehype } from '@astrojs/markdown-remark';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
@@ -560,6 +560,23 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
+		/**
+		 * @docs
+		 * @name markdown.remarkRehype
+		 * @type {RemarkRehype}
+		 * @description
+		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api) .
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: Translate the footnotes text to another language, here are the default English values
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to content"},
+		 *   },
+		 * };
+		 * ```
+		 */
+    remarkRehype?: RemarkRehype;
 	};
 
 	/**
