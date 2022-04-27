@@ -25,6 +25,7 @@ export interface AstroBuiltinAttributes {
 		| string;
 	'set:html'?: any;
 	'set:text'?: any;
+	'is:raw'?: boolean;
 }
 
 export interface AstroDefineVarsAttribute {
