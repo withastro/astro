@@ -15,4 +15,8 @@ export const TEMPLATES = [
 		title: 'Portfolio',
 		value: 'portfolio',
 	},
+	{
+		title: 'Completely empty',
+		value: 'minimal',
+	},
 ];
