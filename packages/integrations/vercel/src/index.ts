@@ -85,7 +85,6 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 				}
 
 				if (mode === 'static') {
-					buildConfig.serverEntry = _serverEntry = 'entry.mjs';
 					buildConfig.staticMode = true;
 
 					// Ensure to have `.vercel/output` empty.
