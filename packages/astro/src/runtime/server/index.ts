@@ -367,7 +367,7 @@ export function createAstro(
 			// When inside of project root, remove the leading path so you are
 			// left with only `/src/images/tower.png`
 			if (resolved.startsWith(projectRoot.pathname)) {
-				resolved = '/' + resolved.substr(projectRoot.pathname.length);
+				resolved = '/' + resolved.slice(projectRoot.pathname.length);
 			}
 			return resolved;
 		},
