@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    // Solid specific settings
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     // Enable top-level await, and other modern ESM features.
     "module": "ES2022",
     // Enable node-style module resolution, for things like npm package imports.
@@ -9,6 +12,6 @@
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
     // Add Astro-specific type definitions.
-    "types": ["astro/env"]
+    "types": ["vite/client"]
   }
 }

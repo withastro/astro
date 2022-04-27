@@ -38,6 +38,6 @@ export default async function onIdle(
 	if ('requestIdleCallback' in window) {
 		(window as any).requestIdleCallback(cb);
 	} else {
-		(window as any).addEventListener('load', cb);
+		setTimeout(cb, 200);
 	}
 }
