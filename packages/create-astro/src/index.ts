@@ -45,11 +45,6 @@ export async function main() {
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-	console.log(
-		`If you encounter a problem, visit ${cyan(
-			'https://github.com/withastro/astro/issues'
-		)} to search or file a new issue.\n`
-	);
 
 	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
 
@@ -66,8 +61,7 @@ export async function main() {
 	}
 
 	if (!cwd || !isEmpty(cwd)) {
-		const notEmptyMsg = (dirPath: string) =>
-			`"${bold(dirPath)}" is not empty. Please clear contents or choose a different path.`;
+		const notEmptyMsg = (dirPath: string) => `"${bold(dirPath)}" is not empty!`;
 
 		if (!isEmpty(cwd)) {
 			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });

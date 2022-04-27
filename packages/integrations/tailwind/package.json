@@ -27,7 +27,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@proload/core": "^0.3.1",
+    "@proload/core": "^0.3.2",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",
     "tailwindcss": "^3.0.24"

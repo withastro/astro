@@ -58,7 +58,7 @@ describe('[create-astro] select directory', function () {
 		return promiseWithTimeout((resolve) => {
 			const { stdout, stdin } = setup();
 			stdout.on('data', (chunk) => {
-				if (chunk.includes('Please clear contents or choose a different path.')) {
+				if (chunk.includes('is not empty!')) {
 					resolve();
 				}
 				if (chunk.includes(PROMPT_MESSAGES.directory)) {
