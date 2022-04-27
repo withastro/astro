@@ -41,7 +41,7 @@ describe('CSS Bundling', function () {
 				const link = $(`link[rel="stylesheet"][href^="${href}"]`);
 				expect(link.length).to.be.greaterThanOrEqual(1);
 				const outHref = link.attr('href');
-				builtCSS.add(outHref.startsWith('../') ? outHref.substr(2) : outHref);
+				builtCSS.add(outHref.startsWith('../') ? outHref.slice(2) : outHref);
 			}
 
 			// test 2: assert old CSS was removed
