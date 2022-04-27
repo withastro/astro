@@ -101,7 +101,11 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 						target: 'node14',
 						allowOverwrite: true,
 						...(edge
-							? { format: 'esm', platform: 'browser' }
+							? {
+									format: 'esm',
+									platform: 'browser',
+									inject: [fileURLToPath(new URL('./edge/shim.js', import.meta.url))],
+							  }
 							: { format: 'cjs', platform: 'node' }),
 					});
 
