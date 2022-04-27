@@ -198,8 +198,8 @@ export async function main() {
 	}
 
 	const astroAddCommand = installResponse.install
-		? 'astro add'
-		: `${pkgManagerExecCommand(pkgManager)} astro@latest add`;
+		? 'astro add --yes'
+		: `${pkgManagerExecCommand(pkgManager)} astro@latest add --yes`;
 
 	const astroAddResponse = await prompts({
 		type: 'confirm',
@@ -221,7 +221,7 @@ export async function main() {
 	if (astroAddResponse.astroAdd && !args.dryrun) {
 		await execaCommand(
 			astroAddCommand,
-			astroAddCommand === 'astro add'
+			astroAddCommand === 'astro add --yes'
 				? { cwd, stdio: 'inherit', localDir: cwd, preferLocal: true }
 				: { cwd, stdio: 'inherit' }
 		);

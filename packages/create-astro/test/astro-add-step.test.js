@@ -36,7 +36,7 @@ describe('[create-astro] astro add', function () {
 					seen.add(installPrompt);
 					stdin.write('\x0D');
 				}
-				if (chunk.includes(PROMPT_MESSAGES.astroAdd('astro add'))) {
+				if (chunk.includes(PROMPT_MESSAGES.astroAdd('astro add --yes'))) {
 					resolve();
 				}
 			});
@@ -57,7 +57,7 @@ describe('[create-astro] astro add', function () {
 					seen.add(installPrompt);
 					stdin.write('n\x0D');
 				}
-				if (chunk.includes(PROMPT_MESSAGES.astroAdd('npx astro@latest add'))) {
+				if (chunk.includes(PROMPT_MESSAGES.astroAdd('npx astro@latest add --yes'))) {
 					resolve();
 				}
 			});
