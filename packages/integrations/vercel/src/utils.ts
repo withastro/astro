@@ -1,4 +1,4 @@
-import type { RouteData } from 'astro';
+import type { RoutePart } from 'astro';
 import type { PathLike } from 'fs';
 
 import fs from 'fs/promises';
@@ -14,7 +14,7 @@ export async function emptyDir(dir: PathLike): Promise<void> {
 
 // Copied from /home/juanm04/dev/misc/astro/packages/astro/src/core/routing/manifest/create.ts
 // 2022-04-26
-export function getPattern({ segments }: RouteData) {
+export function getMatchPattern(segments: RoutePart[][]) {
 	return segments
 		.map((segment) => {
 			return segment[0].spread
@@ -36,4 +36,22 @@ export function getPattern({ segments }: RouteData) {
 							.join('');
 		})
 		.join('');
+}
+
+export function getReplacePattern(segments: RoutePart[][]) {
+	let n = 0;
+	let result = '';
+
+	for (const segment of segments) {
+		for (const part of segment) {
+			if (part.dynamic) result += '$' + ++n;
+			else result += part.content;
+		}
+		result += '/';
+	}
+
+	// Remove trailing slash
+	result = result.slice(0, -1);
+
+	return result;
 }

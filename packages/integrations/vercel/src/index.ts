@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 
-import { getPattern, emptyDir, writeJson } from './utils.js';
+import { getMatchPattern, getReplacePattern, emptyDir, writeJson } from './utils.js';
 
 export interface Options {
 	/**
@@ -144,10 +144,9 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 					for (const route of routes) {
 						if (route.type !== 'page' || route.segments.length === 0) continue;
 
-						const path = _config.base + getPattern(route);
 						redirects.push({
-							src: path,
-							headers: { Location: path + '/' },
+							src: _config.base + getMatchPattern(route.segments),
+							headers: { Location: _config.base + getReplacePattern(route.segments) + '/' },
 							status: 308,
 						});
 					}
@@ -155,10 +154,9 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 					for (const route of routes) {
 						if (route.type !== 'page' || route.segments.length === 0) continue;
 
-						const path = _config.base + getPattern(route);
 						redirects.push({
-							src: path + '/',
-							headers: { Location: path },
+							src: _config.base + getMatchPattern(route.segments) + '/',
+							headers: { Location: _config.base + getReplacePattern(route.segments) },
 							status: 308,
 						});
 					}
