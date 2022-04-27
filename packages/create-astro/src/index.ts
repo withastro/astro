@@ -7,7 +7,7 @@ import yargs from 'yargs-parser';
 import ora from 'ora';
 import { TEMPLATES } from './templates.js';
 import { logger, defaultLogLevel } from './logger.js';
-import { execa } from 'execa';
+import { execa, execaCommand } from 'execa';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -210,6 +210,31 @@ export async function main() {
 		spinner.succeed();
 	}
 
+	const astroAddCommand = installResponse.install
+		? 'astro add'
+		: `${pkgManagerExecCommand(pkgManager)} astro@latest add`;
+
+	const astroAddResponse = await prompts({
+		type: 'confirm',
+		name: 'astroAdd',
+		message: `Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
+		initial: true,
+	});
+
+	if (!astroAddResponse) {
+		process.exit(0);
+	}
+
+	if (!astroAddResponse.astroAdd) {
+		ora().info(
+			`No problem. You can always run "${pkgManagerExecCommand(pkgManager)} astro add" later!`
+		);
+	}
+
+	if (astroAddResponse.astroAdd && !args.dryrun) {
+		await execaCommand(astroAddCommand, { cwd, stdio: 'inherit' });
+	}
+
 	console.log('\nNext steps:');
 	let i = 1;
 	const relative = path.relative(process.cwd(), cwd);
@@ -241,4 +266,13 @@ function pkgManagerFromUserAgent(userAgent?: string) {
 	const pkgSpec = userAgent.split(' ')[0];
 	const pkgSpecArr = pkgSpec.split('/');
 	return pkgSpecArr[0];
+}
+
+function pkgManagerExecCommand(pkgManager: string) {
+	if (pkgManager === 'pnpm') {
+		return 'pnpx';
+	} else {
+		// note: yarn does not have an "npx" equivalent
+		return 'npx';
+	}
 }
