@@ -3,11 +3,23 @@ import { sep } from 'path';
 import fs from 'fs';
 import os from 'os';
 
+// reset package manager in process.env
+// prevents test issues when running with pnpm
+const FAKE_PACKAGE_MANAGER = 'npm';
+let initialEnvValue = null;
+
 describe('[create-astro] astro add', function () {
 	this.timeout(timeout);
 	let tempDir = '';
 	beforeEach(async () => {
 		tempDir = await fs.promises.mkdtemp(`${os.tmpdir()}${sep}`);
+	});
+	this.beforeAll(() => {
+		initialEnvValue = process.env.npm_config_user_agent;
+		process.env.npm_config_user_agent = FAKE_PACKAGE_MANAGER;
+	});
+	this.afterAll(() => {
+		process.env.npm_config_user_agent = initialEnvValue;
 	});
 
 	it('should use "astro add" when user has installed dependencies', function () {
