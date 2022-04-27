@@ -29,6 +29,7 @@ export const PROMPT_MESSAGES = {
 	install: (pkgManager) => `Would you like us to run "${pkgManager} install?"`,
 	astroAdd: (astroAddCommand = 'npx astro@latest add --yes') =>
 		`Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
+	git: 'Initialize an empty git repository?',
 };
 
 export function setup(args = []) {

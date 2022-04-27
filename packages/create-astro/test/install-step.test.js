@@ -55,6 +55,10 @@ describe('[create-astro] install', function () {
 				}
 				if (!seen.has(astroAddPrompt) && chunk.includes(astroAddPrompt)) {
 					seen.add(astroAddPrompt);
+					stdin.write('n\x0D');
+				}
+				if (!seen.has(PROMPT_MESSAGES.git) && chunk.includes(PROMPT_MESSAGES.git)) {
+					seen.add(PROMPT_MESSAGES.git);
 					stdin.write('\x0D');
 				}
 				if (chunk.includes('banana dev')) {
