@@ -63,6 +63,25 @@ describe('CSS Plugin', () => {
 			expect(globalCompletion, 'Expected completions to contain :global modifier').to.not.be.null;
 		});
 
+		it('Emmet completions', () => {
+			const { plugin, document } = setup('<style>h1 {p2}</style>');
+
+			const completions = plugin.getCompletions(document, Position.create(0, 13));
+			const emmetCompletion = completions?.items.find((item) => item.detail === 'Emmet Abbreviation');
+
+			expect(emmetCompletion).to.deep.equal({
+				label: 'padding: 2px;',
+				textEdit: {
+					newText: 'padding: 2px;',
+					range: Range.create(0, 11, 0, 13),
+				},
+				documentation: 'padding: 2px;',
+				insertTextFormat: 2,
+				detail: 'Emmet Abbreviation',
+				filterText: 'p2',
+			});
+		});
+
 		it('should not provide completions for unclosed style tags', () => {
 			const { plugin, document } = setup('<style>');
 

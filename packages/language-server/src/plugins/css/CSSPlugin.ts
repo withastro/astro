@@ -158,10 +158,37 @@ export class CSSPlugin implements Plugin {
 		const cssLang = extractLanguage(cssDocument);
 		const langService = getLanguageService(cssLang);
 
-		const emmetResults: CompletionList = {
-			isIncomplete: true,
+		let emmetResults: CompletionList = {
+			isIncomplete: false,
 			items: [],
 		};
+
+		langService.setCompletionParticipants([
+			{
+				onCssProperty: (context) => {
+					if (context?.propertyName) {
+						emmetResults =
+							getEmmetCompletions(
+								cssDocument,
+								cssDocument.getGeneratedPosition(position),
+								getLanguage(cssLang),
+								this.configManager.getEmmetConfig()
+							) || emmetResults;
+					}
+				},
+				onCssPropertyValue: (context) => {
+					if (context?.propertyValue) {
+						emmetResults =
+							getEmmetCompletions(
+								cssDocument,
+								cssDocument.getGeneratedPosition(position),
+								getLanguage(cssLang),
+								this.configManager.getEmmetConfig()
+							) || emmetResults;
+					}
+				},
+			},
+		]);
 
 		const results = langService.doComplete(
 			cssDocument,

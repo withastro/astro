@@ -29,7 +29,7 @@ export async function activate(context: ExtensionContext) {
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
-			configurationSection: ['astro', 'javascript', 'typescript', 'prettier'],
+			configurationSection: ['astro', 'javascript', 'typescript', 'prettier', 'emmet'],
 			fileEvents: workspace.createFileSystemWatcher('{**/*.js,**/*.ts}', false, false, false),
 		},
 		initializationOptions: {
