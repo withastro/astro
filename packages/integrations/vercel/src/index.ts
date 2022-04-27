@@ -3,7 +3,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 
-import { getPattern, writeJson } from './utils.js';
+import { getPattern, emptyDir, writeJson } from './utils.js';
 
 export interface Options {
 	/**
@@ -87,6 +87,11 @@ export default function vercel({ mode = 'serverless' }: Options = {}): AstroInte
 				if (mode === 'static') {
 					buildConfig.serverEntry = _serverEntry = 'entry.mjs';
 					buildConfig.staticMode = true;
+
+					// Ensure to have `.vercel/output` empty.
+					// This is because, when building to static, outDir = .vercel/output/static/,
+					// so .vercel/output itself won't get cleaned.
+					await emptyDir(_vercelOut);
 				} else {
 					buildConfig.serverEntry = _serverEntry = 'entry.js';
 					buildConfig.client = new URL('./static/', _vercelOut);
