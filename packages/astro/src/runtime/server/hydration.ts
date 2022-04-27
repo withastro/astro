@@ -5,8 +5,8 @@ import serializeJavaScript from '../utils/serialize-javascript.js';
 
 // Serializes props passed into a component so that they can be reused during hydration.
 // The value is any
-export function serializeProps(value: any) {
-	return serializeJavaScript(value);
+export async function serializeProps(value: any) {
+	return await serializeJavaScript(value);
 }
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
@@ -118,7 +118,7 @@ export async function generateHydrateScript(
 		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
 				componentUrl
 		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
-  return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
+  return (el, children) => hydrate(el)(Component, ${await serializeProps(props)}, children);
 `
 		: `await import("${await result.resolve(componentUrl)}");
   return () => {};

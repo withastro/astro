@@ -301,7 +301,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
 	const astroId = shorthash.unique(
-		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
+		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${await serializeProps(
 			props
 		)}`
 	);

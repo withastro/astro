@@ -10,23 +10,24 @@ See the accompanying LICENSE file for terms.
 import { randomBytes } from './random-bytes.js';
 
 // Generate an internal UID to make the regexp pattern harder to guess.
-const UID_LENGTH = 16;
-const UID = generateUID();
-const PLACE_HOLDER_REGEXP = new RegExp(
-    '(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-' + UID + '-(\\d+)__@"',
+export const UID_LENGTH = 16;
+export const UID = generateUID();
+export const PLACE_HOLDER_REGEXP = async () => 
+new RegExp(
+    '(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-' + await UID + '-(\\d+)__@"',
     'g'
 );
 
-const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
-const IS_PURE_FUNCTION = /function.*?\(/;
-const IS_ARROW_FUNCTION = /.*?=>.*?/;
-const UNSAFE_CHARS_REGEXP = /[<>\/\u2028\u2029]/g;
+export const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
+export const IS_PURE_FUNCTION = /function.*?\(/;
+export const IS_ARROW_FUNCTION = /.*?=>.*?/;
+export const UNSAFE_CHARS_REGEXP = /[<>\/\u2028\u2029]/g;
 
-const RESERVED_SYMBOLS = ['*', 'async'];
+export const RESERVED_SYMBOLS = ['*', 'async'];
 
 // Mapping of unsafe HTML and invalid JavaScript line terminator chars to their
 // Unicode char counterparts which are safe to use in JavaScript strings.
-const ESCAPED_CHARS = {
+export const ESCAPED_CHARS = {
     '<': '\\u003C',
     '>': '\\u003E',
     '/': '\\u002F',
@@ -34,14 +35,14 @@ const ESCAPED_CHARS = {
     '\u2029': '\\u2029',
 };
 
-function escapeUnsafeChars(
+export function escapeUnsafeChars(
     unsafeChar: keyof typeof ESCAPED_CHARS
 ): typeof ESCAPED_CHARS[keyof typeof ESCAPED_CHARS] {
     return ESCAPED_CHARS[unsafeChar];
 }
 
-function generateUID() {
-    let bytes = randomBytes(UID_LENGTH) as Uint32Array;
+export async function generateUID() {
+    let bytes = await randomBytes(UID_LENGTH) as Uint32Array;
     let result = '';
     for (let i = 0; i < UID_LENGTH; ++i) {
         result += bytes[i].toString(16);
@@ -49,7 +50,7 @@ function generateUID() {
     return result;
 }
 
-function deleteFunctions(obj: Record<any, any>) {
+export function deleteFunctions(obj: Record<any, any>) {
     let functionKeys = [];
     for (let key in obj) {
         if (typeof obj[key] === 'function') {
@@ -62,10 +63,10 @@ function deleteFunctions(obj: Record<any, any>) {
 }
 
 export type TypeGenericFunction = (...args: any[]) => any;
-export function serialize(
+export async function serialize(
     obj: Record<any, any> | any,
     options?: number | string | Record<any, any>
-): string | any {
+): Promise<string | any> {
     options || (options = {});
 
     // Backwards-compatibility for `space` as the second argument.
@@ -251,7 +252,7 @@ export function serialize(
     // JSON string with their string representations. If the original value can
     // not be found, then `undefined` is used.
     // @ts-ignore
-    return str.replace(PLACE_HOLDER_REGEXP, function (match, backSlash, type, valueIndex) {
+    return str.replace(await PLACE_HOLDER_REGEXP(), function (match, backSlash, type, valueIndex) {
         // The placeholder may not be preceded by a backslash. This is to prevent
         // replacing things like `"a\"@__R-<UID>-0__@"` and thus outputting
         // invalid JS.

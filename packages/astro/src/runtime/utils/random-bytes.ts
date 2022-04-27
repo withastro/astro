@@ -10,19 +10,23 @@ const MAX_BYTES = 65536;
 const MAX_UINT32 = 4294967295;
 
 const GlobalCrypto = globalThis.crypto as Crypto;
-
-let randomBytes = (size: number, cb?: (...args: any) => any) => {
+export const randomBytes = async (size: number, cb?: (...args: any[]) => void) => {
     if (!(GlobalCrypto && GlobalCrypto.getRandomValues)) {
-        throw new Error(
-            'Secure random number generation is not supported by this browser.\nUse Chrome, Firefox or Internet Explorer 11'
-        );
+        // Fallback to node fetch if global crypto isn't available
+        try {
+            let cryptoImport = await import("crypto");
+            return cryptoImport.randomBytes(size, cb as (err: Error | null, buf: Buffer) => void);
+        } catch (e) {
+            throw new Error(
+                'Secure random number generation is not supported by this browser.\nUse Chrome, Firefox or Internet Explorer 11'
+            );
+        }
     }
 
     // phantomjs needs to throw
     if (size > MAX_UINT32) throw new RangeError('requested too many random bytes');
 
     let bytes = new Uint32Array(size);
-
     if (size > 0) {
         // getRandomValues fails on IE if size == 0
         if (size > MAX_BYTES) {
@@ -40,19 +44,13 @@ let randomBytes = (size: number, cb?: (...args: any) => any) => {
 
     if (typeof cb === 'function') {
         Promise.resolve().then(() => {
-            return cb(null, bytes);
+            cb(null, bytes);
         });
+
         return;
     }
 
     return bytes;
 };
 
-try {
-    let importStr = "crypto";
-    let cryptoImport = import(importStr);
-    randomBytes = (await cryptoImport).randomBytes as unknown as typeof randomBytes;
-} catch (e) { }
-
-export { randomBytes };
 export default randomBytes;
