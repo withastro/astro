@@ -29,6 +29,7 @@ export const PROMPT_MESSAGES = {
 	// TODO: remove when framework selector is removed
 	frameworks: 'Which frameworks would you like to use?',
 	install: (pkgManager) => `Would you like us to run "${pkgManager} install?"`,
+	astroAdd: (astroAddCommand) => `Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
 };
 
 export function setup(args = []) {
