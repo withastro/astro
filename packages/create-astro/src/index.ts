@@ -1,14 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
-import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
 import ora from 'ora';
-import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
-import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
 import { execa } from 'execa';
 
@@ -101,9 +98,7 @@ export async function main() {
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
-	const templateTarget = options.template.includes('/')
-		? options.template
-		: `withastro/astro/examples/${options.template}#latest`;
+	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
 
 	const emitter = degit(`${templateTarget}${hash}`, {
 		cache: false,
@@ -116,21 +111,6 @@ export async function main() {
 		force: true,
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
-
-	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
-	let integrations: Integration[] = [];
-
-	if (selectedTemplate?.integrations === true) {
-		const result = await prompts([
-			{
-				type: 'multiselect',
-				name: 'integrations',
-				message: 'Which frameworks would you like to use?',
-				choices: FRAMEWORKS,
-			},
-		]);
-		integrations = result.integrations;
-	}
 
 	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
 
@@ -181,7 +161,9 @@ export async function main() {
 		await Promise.all([
 			...FILES_TO_REMOVE.map(async (file) => {
 				const fileLoc = path.resolve(path.join(cwd, file));
-				return fs.promises.rm(fileLoc);
+				if (fs.existsSync(fileLoc)) {
+					return fs.promises.rm(fileLoc, {});
+				}
 			}),
 			...POSTPROCESS_FILES.map(async (file) => {
 				const fileLoc = path.resolve(path.join(cwd, file));
@@ -193,79 +175,9 @@ export async function main() {
 						}
 						break;
 					}
-					case 'astro.config.mjs': {
-						if (selectedTemplate?.integrations !== true) {
-							break;
-						}
-						await fs.promises.writeFile(fileLoc, createConfig({ integrations }));
-						break;
-					}
-					case 'package.json': {
-						const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
-						delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
-						// Fetch latest versions of selected integrations
-						const integrationEntries = (
-							await Promise.all(
-								integrations.map((integration) =>
-									fetch(`https://registry.npmjs.org/${integration.packageName}/latest`)
-										.then((res) => res.json())
-										.then((res: any) => {
-											let dependencies: [string, string][] = [[res['name'], `^${res['version']}`]];
-
-											if (res['peerDependencies']) {
-												for (const peer in res['peerDependencies']) {
-													dependencies.push([peer, res['peerDependencies'][peer]]);
-												}
-											}
-
-											return dependencies;
-										})
-								)
-							)
-						).flat(1);
-						// merge and sort dependencies
-						packageJSON.devDependencies = {
-							...(packageJSON.devDependencies ?? {}),
-							...Object.fromEntries(integrationEntries),
-						};
-						packageJSON.devDependencies = Object.fromEntries(
-							Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0]))
-						);
-						await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
-						break;
-					}
 				}
 			}),
 		]);
-
-		// Inject framework components into starter template
-		if (selectedTemplate?.value === 'starter') {
-			let importStatements: string[] = [];
-			let components: string[] = [];
-			await Promise.all(
-				integrations.map(async (integration) => {
-					const component = COUNTER_COMPONENTS[integration.id as keyof typeof COUNTER_COMPONENTS];
-					const componentName = path.basename(component.filename, path.extname(component.filename));
-					const absFileLoc = path.resolve(cwd, component.filename);
-					importStatements.push(
-						`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`
-					);
-					components.push(`<${componentName} client:visible />`);
-					await fs.promises.writeFile(absFileLoc, component.content);
-				})
-			);
-
-			const pageFileLoc = path.resolve(path.join(cwd, 'src', 'pages', 'index.astro'));
-			const content = (await fs.promises.readFile(pageFileLoc)).toString();
-			const newContent = content
-				.replace(/^(\s*)\/\* ASTRO\:COMPONENT_IMPORTS \*\//gm, (_, indent) => {
-					return indent + importStatements.join('\n');
-				})
-				.replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
-					return components.map((ln) => indent + ln).join('\n');
-				});
-			await fs.promises.writeFile(pageFileLoc, newContent);
-		}
 	}
 
 	spinner.succeed();
