@@ -1,8 +1,7 @@
 export const TEMPLATES = [
 	{
-		title: 'Starter Kit (Generic)',
-		value: 'starter',
-		integrations: true,
+		title: 'Just the basics',
+		value: 'basics',
 	},
 	{
 		title: 'Blog',
@@ -15,9 +14,5 @@ export const TEMPLATES = [
 	{
 		title: 'Portfolio',
 		value: 'portfolio',
-	},
-	{
-		title: 'Minimal',
-		value: 'minimal',
 	},
 ];
