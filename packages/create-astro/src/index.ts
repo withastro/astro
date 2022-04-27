@@ -34,8 +34,7 @@ const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
 );
 
-const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
-const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
+const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
 export async function main() {
 	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
@@ -158,26 +157,14 @@ export async function main() {
 		}
 
 		// Post-process in parallel
-		await Promise.all([
-			...FILES_TO_REMOVE.map(async (file) => {
+		await Promise.all(
+			FILES_TO_REMOVE.map(async (file) => {
 				const fileLoc = path.resolve(path.join(cwd, file));
 				if (fs.existsSync(fileLoc)) {
 					return fs.promises.rm(fileLoc, {});
 				}
-			}),
-			...POSTPROCESS_FILES.map(async (file) => {
-				const fileLoc = path.resolve(path.join(cwd, file));
-
-				switch (file) {
-					case 'CHANGELOG.md': {
-						if (fs.existsSync(fileLoc)) {
-							await fs.promises.unlink(fileLoc);
-						}
-						break;
-					}
-				}
-			}),
-		]);
+			})
+		);
 	}
 
 	spinner.succeed();
