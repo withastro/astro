@@ -107,6 +107,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
 						ssr: Boolean(opts?.ssr),
+						mode: resolvedConfig.mode,
 					});
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
@@ -129,6 +130,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
 						ssr: Boolean(opts?.ssr),
+						mode: resolvedConfig.mode,
 					});
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
@@ -159,6 +161,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			try {
 				const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
 					ssr: Boolean(opts?.ssr),
+					mode: resolvedConfig.mode,
 				});
 
 				// Compile all TypeScript to JavaScript.

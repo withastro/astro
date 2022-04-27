@@ -39,7 +39,7 @@ async function compile(
 	filename: string,
 	source: string,
 	viteTransform: TransformHook,
-	opts: { ssr: boolean }
+	opts: { ssr: boolean, mode: string }
 ): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
@@ -60,6 +60,7 @@ async function compile(
 		internalURL: `/@fs${prependForwardSlash(
 			viteID(new URL('../runtime/server/index.js', import.meta.url))
 		)}`,
+		annotateSourceFile: opts.mode !== 'production',
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
@@ -136,7 +137,7 @@ export async function cachedCompilation(
 	filename: string,
 	source: string,
 	viteTransform: TransformHook,
-	opts: { ssr: boolean }
+	opts: { ssr: boolean, mode: string }
 ): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
