@@ -471,6 +471,7 @@ importers:
       '@types/html-escaper': ^3.0.0
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.1
+      '@types/node': ^14.18.13
       '@types/parse5': ^6.0.3
       '@types/path-browserify': ^1.0.0
       '@types/prettier': ^2.6.0
@@ -518,7 +519,6 @@ importers:
       rollup: ^2.70.2
       sass: ^1.50.1
       semver: ^7.3.7
-      serialize-javascript: ^6.0.0
       shiki: ^0.10.1
       shorthash: ^0.0.2
       sirv: ^2.0.2
@@ -542,8 +542,8 @@ importers:
       '@babel/generator': 7.17.9
       '@babel/parser': 7.17.9
       '@babel/traverse': 7.17.9
-      '@proload/core': 0.3.2-next.4
-      '@proload/plugin-tsm': 0.2.1-next.0_@proload+core@0.3.2-next.4
+      '@proload/core': 0.3.2
+      '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.2
       ast-types: 0.14.2
       boxen: 6.2.1
       ci-info: 3.3.0
@@ -578,7 +578,6 @@ importers:
       resolve: 1.22.0
       rollup: 2.70.2
       semver: 7.3.7
-      serialize-javascript: 6.0.0
       shiki: 0.10.1
       shorthash: 0.0.2
       sirv: 2.0.2
@@ -605,6 +604,7 @@ importers:
       '@types/html-escaper': 3.0.0
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.1
+      '@types/node': 14.18.13
       '@types/parse5': 6.0.3
       '@types/path-browserify': 1.0.0
       '@types/prettier': 2.6.0
@@ -1414,7 +1414,7 @@ importers:
       postcss: ^8.4.12
       tailwindcss: ^3.0.24
     dependencies:
-      '@proload/core': 0.3.1
+      '@proload/core': 0.3.2
       autoprefixer: 10.4.4_postcss@8.4.12
       postcss: 8.4.12
       tailwindcss: 3.0.24
@@ -3646,27 +3646,19 @@ packages:
   /@polka/url/1.0.0-next.21:
     resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
 
-  /@proload/core/0.3.1:
-    resolution: {integrity: sha512-u902sdjipQ6WjpV6rxcF0CnQP6Z6Gd54MBPuMbZ5amCcdb/meWY6UtCQSLIJmG+zbXtf8Hwzf6ePBey158QAQQ==}
-    dependencies:
-      deepmerge: 4.2.2
-      escalade: 3.1.1
-      resolve-pkg: 2.0.0
-    dev: false
-
-  /@proload/core/0.3.2-next.4:
-    resolution: {integrity: sha512-58nw3h4+qBDizhlTbt/Q4iGWiiSWcYqdRgIAy3KMla1nqNFO8stG5vzDjPGMPyX6DsAhEj3PCqb4G0d82b2kqQ==}
+  /@proload/core/0.3.2:
+    resolution: {integrity: sha512-4ga4HpS0ieVYWVMS+F62W++6SNACBu0lkw8snw3tEdH6AeqZu8i8262n3I81jWAWXVcg3sMfhb+kBexrfGrTUQ==}
     dependencies:
       deepmerge: 4.2.2
       escalade: 3.1.1
     dev: false
 
-  /@proload/plugin-tsm/0.2.1-next.0_@proload+core@0.3.2-next.4:
-    resolution: {integrity: sha512-76NvJmWD1MBip1oifMLohTJfdi4DQihTUnwWacscsLxUaT/5/FNNolD5CIoH/+qhsU6HyVpz8JfEzVpkMuxKfA==}
+  /@proload/plugin-tsm/0.2.1_@proload+core@0.3.2:
+    resolution: {integrity: sha512-Ex1sL2BxU+g8MHdAdq9SZKz+pU34o8Zcl9PHWo2WaG9hrnlZme607PU6gnpoAYsDBpHX327+eu60wWUk+d/b+A==}
     peerDependencies:
-      '@proload/core': ^0.3.2-next.0
+      '@proload/core': ^0.3.2
     dependencies:
-      '@proload/core': 0.3.2-next.4
+      '@proload/core': 0.3.2
       tsm: 2.2.1
     dev: false
 
@@ -8657,6 +8649,7 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
+    dev: true
 
   /raw-body/2.5.1:
     resolution: {integrity: sha512-qqJBtEyVgS0ZmPGdCFPWJ3FreoqvG4MVQln/kCgF7Olq95IbOp0/BWyMwbdtn4VTvkM8Y7khCQ2Xgk/tcrCXig==}
@@ -8965,13 +8958,7 @@ packages:
   /resolve-from/5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
-
-  /resolve-pkg/2.0.0:
-    resolution: {integrity: sha512-+1lzwXehGCXSeryaISr6WujZzowloigEofRB+dj75y9RRa/obVcYgbHJd53tdYw8pvZj8GojXaaENws8Ktw/hQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      resolve-from: 5.0.0
-    dev: false
+    dev: true
 
   /resolve/1.22.0:
     resolution: {integrity: sha512-Hhtrw0nLeSrFQ7phPp4OOcVjLPIeMnRlr5mcnVuMe7M/7eBn98A3hmFRLoFo3DLZkivSYwhRUJTyPyWAk56WLw==}
@@ -9161,6 +9148,7 @@ packages:
     resolution: {integrity: sha512-Qr3TosvguFt8ePWqsvRfrKyQXIiW+nGbYpy8XK24NQHE83caxWt+mIymTT19DGFbNWNLfEwsrkSmN64lVWB9ag==}
     dependencies:
       randombytes: 2.1.0
+    dev: true
 
   /set-blocking/2.0.0:
     resolution: {integrity: sha1-BF+XgtARrppoA93TgrJDkrPYkPc=}

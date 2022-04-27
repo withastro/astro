@@ -10,13 +10,16 @@ See the accompanying LICENSE file for terms.
 import { randomBytes } from './random-bytes.js';
 
 // Generate an internal UID to make the regexp pattern harder to guess.
+let uid: string;
 export const UID_LENGTH = 16;
 export const UID = generateUID();
-export const PLACE_HOLDER_REGEXP = async () => 
-new RegExp(
-    '(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-' + await UID + '-(\\d+)__@"',
-    'g'
-);
+export const PLACE_HOLDER_REGEXP = async () => {
+    uid = uid ?? await UID;
+    return new RegExp(
+        '(\\\\)?"@__(F|R|D|M|S|A|U|I|B|L)-' + uid + '-(\\d+)__@"',
+        'g'
+    );
+}
 
 export const IS_NATIVE_CODE_REGEXP = /\{\s*\[native code\]\s*\}/g;
 export const IS_PURE_FUNCTION = /function.*?\(/;
@@ -85,6 +88,8 @@ export async function serialize(
     let bigInts: BigInt[] = [];
     let urls: URL[] = [];
 
+    uid = uid ?? await UID;
+
     // Returns placeholders for functions and regexps (identified by index)
     // which are later replaced by their string representation.
     function replacer(key: any, value: any) {
@@ -106,19 +111,19 @@ export async function serialize(
 
         if (type === 'object') {
             if (origValue instanceof RegExp) {
-                return '@__R-' + UID + '-' + (regexps.push(origValue) - 1) + '__@';
+                return '@__R-' + uid + '-' + (regexps.push(origValue) - 1) + '__@';
             }
 
             if (origValue instanceof Date) {
-                return '@__D-' + UID + '-' + (dates.push(origValue) - 1) + '__@';
+                return '@__D-' + uid + '-' + (dates.push(origValue) - 1) + '__@';
             }
 
             if (origValue instanceof Map) {
-                return '@__M-' + UID + '-' + (maps.push(origValue) - 1) + '__@';
+                return '@__M-' + uid + '-' + (maps.push(origValue) - 1) + '__@';
             }
 
             if (origValue instanceof Set) {
-                return '@__S-' + UID + '-' + (sets.push(origValue) - 1) + '__@';
+                return '@__S-' + uid + '-' + (sets.push(origValue) - 1) + '__@';
             }
 
             if (origValue instanceof Array) {
@@ -127,29 +132,29 @@ export async function serialize(
                         return true;
                     }).length !== origValue.length;
                 if (isSparse) {
-                    return '@__A-' + UID + '-' + (arrays.push(origValue) - 1) + '__@';
+                    return '@__A-' + uid + '-' + (arrays.push(origValue) - 1) + '__@';
                 }
             }
 
             if (origValue instanceof URL) {
-                return '@__L-' + UID + '-' + (urls.push(origValue) - 1) + '__@';
+                return '@__L-' + uid + '-' + (urls.push(origValue) - 1) + '__@';
             }
         }
 
         if (type === 'function') {
-            return '@__F-' + UID + '-' + (functions.push(origValue) - 1) + '__@';
+            return '@__F-' + uid + '-' + (functions.push(origValue) - 1) + '__@';
         }
 
         if (type === 'undefined') {
-            return '@__U-' + UID + '-' + (undefs.push(origValue) - 1) + '__@';
+            return '@__U-' + uid + '-' + (undefs.push(origValue) - 1) + '__@';
         }
 
         if (type === 'number' && !isNaN(origValue) && !isFinite(origValue)) {
-            return '@__I-' + UID + '-' + (infinities.push(origValue) - 1) + '__@';
+            return '@__I-' + uid + '-' + (infinities.push(origValue) - 1) + '__@';
         }
 
         if (type === 'bigint') {
-            return '@__B-' + UID + '-' + (bigInts.push(origValue) - 1) + '__@';
+            return '@__B-' + uid + '-' + (bigInts.push(origValue) - 1) + '__@';
         }
 
         return value;

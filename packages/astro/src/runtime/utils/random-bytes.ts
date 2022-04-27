@@ -14,7 +14,8 @@ export const randomBytes = async (size: number, cb?: (...args: any[]) => void) =
     if (!(GlobalCrypto && GlobalCrypto.getRandomValues)) {
         // Fallback to node fetch if global crypto isn't available
         try {
-            let cryptoImport = await import("crypto");
+            let importStr = "crypto";
+            let cryptoImport = await import(importStr);
             return cryptoImport.randomBytes(size, cb as (err: Error | null, buf: Buffer) => void);
         } catch (e) {
             throw new Error(
