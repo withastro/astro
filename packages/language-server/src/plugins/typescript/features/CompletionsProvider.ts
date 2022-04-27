@@ -31,7 +31,7 @@ import { flatten } from 'lodash';
 import { getMarkdownDocumentation } from '../previewer';
 import { isPartOfImportStatement } from './utils';
 
-const completionOptions: ts.GetCompletionsAtPositionOptions = {
+export const completionOptions: ts.GetCompletionsAtPositionOptions = {
 	importModuleSpecifierPreference: 'relative',
 	importModuleSpecifierEnding: 'auto',
 	quotePreference: 'single',
@@ -208,7 +208,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 				for (const change of action.changes) {
 					edit.push(
 						...change.textChanges.map((textChange) =>
-							this.codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, textChange)
+							codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, textChange)
 						)
 					);
 				}
@@ -297,28 +297,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		}
 
 		return true;
-	}
-
-	codeActionChangeToTextEdit(document: AstroDocument, fragment: AstroSnapshotFragment, change: ts.TextChange) {
-		change.newText = removeAstroComponentSuffix(change.newText);
-
-		// If we don't have a frontmatter already, create one with the import
-		const frontmatterState = document.astroMeta.frontmatter.state;
-		if (frontmatterState === null) {
-			return TextEdit.replace(
-				Range.create(Position.create(0, 0), Position.create(0, 0)),
-				`---${ts.sys.newLine}${change.newText}---${ts.sys.newLine}${ts.sys.newLine}`
-			);
-		}
-
-		const { span } = change;
-		let range: Range;
-		const virtualRange = convertRange(fragment, span);
-
-		range = mapRangeToOriginal(fragment, virtualRange);
-		range = ensureFrontmatterInsert(range, document);
-
-		return TextEdit.replace(range, change.newText);
 	}
 
 	private getCompletionDocument(compDetail: ts.CompletionEntryDetails) {
@@ -414,4 +392,38 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 	private isAstroComponentImport(className: string) {
 		return className.endsWith('__AstroComponent_');
 	}
+}
+
+export function codeActionChangeToTextEdit(
+	document: AstroDocument,
+	fragment: AstroSnapshotFragment,
+	change: ts.TextChange
+) {
+	change.newText = removeAstroComponentSuffix(change.newText);
+
+	// If we don't have a frontmatter already, create one with the import
+	const frontmatterState = document.astroMeta.frontmatter.state;
+	if (frontmatterState === null) {
+		return TextEdit.replace(
+			Range.create(Position.create(0, 0), Position.create(0, 0)),
+			`---${ts.sys.newLine}${change.newText}---${ts.sys.newLine}${ts.sys.newLine}`
+		);
+	}
+
+	const { span } = change;
+	let range: Range;
+	const virtualRange = convertRange(fragment, span);
+
+	range = mapRangeToOriginal(fragment, virtualRange);
+
+	if (!isInsideFrontmatter(document.getText(), document.offsetAt(range.start))) {
+		range = ensureFrontmatterInsert(range, document);
+	}
+
+	// First import in a file will wrongly have a newline before it due to how the frontmatter is replaced by a comment
+	if (range.start.line === 1 && (change.newText.startsWith('\n') || change.newText.startsWith('\r\n'))) {
+		change.newText = change.newText.trimStart();
+	}
+
+	return TextEdit.replace(range, change.newText);
 }

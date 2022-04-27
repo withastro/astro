@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createEnvironment } from '../../utils';
 import { TypeScriptPlugin } from '../../../src/plugins';
-import { Position, Range } from 'vscode-languageserver-types';
+import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
 
 // This file only contain basic tests to ensure that the TypeScript plugin does in fact calls the proper methods
 // and returns something. For validity tests, please check the providers themselves in the 'features' folder
@@ -90,6 +90,53 @@ describe('TypeScript Plugin', () => {
 
 			const diagnostics = await plugin.getDiagnostics(document);
 			expect(diagnostics).to.be.empty;
+		});
+	});
+
+	describe('provide code actions', async () => {
+		it('return code actions', async () => {
+			const { plugin, document } = setup('codeActions/basic.astro');
+
+			const codeActions = await plugin.getCodeActions(document, Range.create(2, 23, 2, 33), {
+				diagnostics: [
+					{
+						code: 2551,
+						message: '',
+						range: Range.create(2, 23, 2, 33),
+						source: 'ts',
+					},
+				],
+				only: [CodeActionKind.QuickFix],
+			});
+
+			expect(codeActions).to.not.be.empty;
+		});
+
+		it('should not provide code actions if feature is disabled', async () => {
+			const { plugin, document, configManager } = setup('codeActions/basic.astro');
+
+			configManager.updateConfig(<any>{
+				typescript: {
+					codeActions: {
+						enabled: false,
+					},
+				},
+			});
+
+			const codeActions = await plugin.getCodeActions(document, Range.create(2, 23, 2, 33), {
+				diagnostics: [
+					{
+						code: 2551,
+						message: '',
+						range: Range.create(2, 23, 2, 33),
+						source: 'ts',
+					},
+				],
+				only: [CodeActionKind.QuickFix],
+			});
+
+			expect(configManager.enabled(`typescript.codeActions.enabled`)).to.be.false;
+			expect(codeActions).to.be.empty;
 		});
 	});
 

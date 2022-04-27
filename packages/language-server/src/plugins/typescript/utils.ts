@@ -301,6 +301,19 @@ export function ensureFrontmatterInsert(resultRange: Range, document: AstroDocum
 	return resultRange;
 }
 
+// Some code actions ill insert code at the end of the generated TSX file, so we'll manually
+// redirect it to the end of the frontmatter instead
+export function checkEndOfFileCodeInsert(resultRange: Range, document: AstroDocument) {
+	if (resultRange.start.line > document.lineCount) {
+		if (document.astroMeta.frontmatter.state === 'closed') {
+			const position = document.positionAt(document.astroMeta.frontmatter.endOffset!);
+			return Range.create(position, position);
+		}
+	}
+
+	return resultRange;
+}
+
 export function removeAstroComponentSuffix(name: string) {
 	return name.replace(/(\w+)__AstroComponent_/, '$1');
 }

@@ -49,6 +49,22 @@ export function toPascalCase(string: string) {
 }
 
 /**
+ * Function to modify each line of a text, preserving the line break style (`\n` or `\r\n`)
+ */
+export function modifyLines(text: string, replacementFn: (line: string, lineIdx: number) => string): string {
+	let idx = 0;
+	return text
+		.split('\r\n')
+		.map((l1) =>
+			l1
+				.split('\n')
+				.map((line) => replacementFn(line, idx++))
+				.join('\n')
+		)
+		.join('\r\n');
+}
+
+/**
  * Return true if a specific node could be a component.
  * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */

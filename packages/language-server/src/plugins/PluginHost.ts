@@ -20,6 +20,8 @@ import {
 	WorkspaceEdit,
 	SymbolInformation,
 	SemanticTokens,
+	CodeActionContext,
+	CodeAction,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -135,6 +137,23 @@ export class PluginHost {
 		return this.execute<Hover>('doHover', [document, position], ExecuteMode.FirstNonNull);
 	}
 
+	async getCodeActions(
+		textDocument: TextDocumentIdentifier,
+		range: Range,
+		context: CodeActionContext,
+		cancellationToken: CancellationToken
+	): Promise<CodeAction[]> {
+		const document = this.getDocument(textDocument.uri);
+
+		return flatten(
+			await this.execute<CodeAction[]>(
+				'getCodeActions',
+				[document, range, context, cancellationToken],
+				ExecuteMode.Collect
+			)
+		);
+	}
+
 	async doTagComplete(textDocument: TextDocumentIdentifier, position: Position): Promise<string | null> {
 		const document = this.getDocument(textDocument.uri);
 
@@ -146,7 +165,7 @@ export class PluginHost {
 
 		const foldingRanges = flatten(
 			await this.execute<FoldingRange[]>('getFoldingRanges', [document], ExecuteMode.Collect)
-		).filter((completion) => completion != null);
+		);
 
 		return foldingRanges;
 	}

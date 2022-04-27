@@ -1,6 +1,8 @@
 import ts, { ImportDeclaration, SourceFile, SyntaxKind, Node } from 'typescript';
 import {
 	CancellationToken,
+	CodeAction,
+	CodeActionContext,
 	CompletionContext,
 	DefinitionLink,
 	Diagnostic,
@@ -38,6 +40,7 @@ import {
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
+import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 
 type BetterTS = typeof ts & {
 	getTouchingPropertyName(sourceFile: SourceFile, pos: number): Node;
@@ -49,6 +52,7 @@ export class TypeScriptPlugin implements Plugin {
 	private configManager: ConfigManager;
 	private readonly languageServiceManager: LanguageServiceManager;
 
+	private readonly codeActionsProvider: CodeActionsProviderImpl;
 	private readonly completionProvider: CompletionsProviderImpl;
 	private readonly hoverProvider: HoverProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
@@ -61,6 +65,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.configManager = configManager;
 		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
 
+		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager);
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
@@ -132,6 +137,19 @@ export class TypeScriptPlugin implements Plugin {
 		const symbols = await this.documentSymbolsProvider.getDocumentSymbols(document);
 
 		return symbols;
+	}
+
+	async getCodeActions(
+		document: AstroDocument,
+		range: Range,
+		context: CodeActionContext,
+		cancellationToken?: CancellationToken
+	): Promise<CodeAction[]> {
+		if (!this.featureEnabled('codeActions')) {
+			return [];
+		}
+
+		return this.codeActionsProvider.getCodeActions(document, range, context, cancellationToken);
 	}
 
 	async getCompletions(

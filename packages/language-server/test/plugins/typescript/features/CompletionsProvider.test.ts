@@ -69,9 +69,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
 
 		expect(detail).to.equal('./imports/component.astro');
-		expect(additionalTextEdits[0].newText).to.equal(
-			`${newLine}import Component from './imports/component.astro';${newLine}`
-		);
+		expect(additionalTextEdits[0].newText).to.equal(`import Component from './imports/component.astro';${newLine}`);
 	});
 
 	it('resolve completion without auto import if component import already exists', async () => {

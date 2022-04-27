@@ -2,6 +2,7 @@ import type { SnapshotFragment, DocumentSnapshot } from '../snapshots/DocumentSn
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { Position } from 'vscode-languageserver';
 import { getLineAtPosition } from '../../../core/documents';
+import ts from 'typescript';
 
 export function isPartOfImportStatement(text: string, position: Position): boolean {
 	const line = getLineAtPosition(position, text);
@@ -37,5 +38,29 @@ export class SnapshotFragmentMap {
 
 	async retrieveFragment(fileName: string) {
 		return (await this.retrieve(fileName)).fragment;
+	}
+}
+
+export function findContainingNode<T extends ts.Node>(
+	node: ts.Node,
+	textSpan: ts.TextSpan,
+	predicate: (node: ts.Node) => node is T
+): T | undefined {
+	const children = node.getChildren();
+	const end = textSpan.start + textSpan.length;
+
+	for (const child of children) {
+		if (!(child.getStart() <= textSpan.start && child.getEnd() >= end)) {
+			continue;
+		}
+
+		if (predicate(child)) {
+			return child;
+		}
+
+		const foundInChildren = findContainingNode(child, textSpan, predicate);
+		if (foundInChildren) {
+			return foundInChildren;
+		}
 	}
 }
