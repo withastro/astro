@@ -30,11 +30,6 @@ describe('[create-astro] install', function () {
 					seen.add(PROMPT_MESSAGES.template);
 					stdin.write('\x0D');
 				}
-				if (!seen.has(PROMPT_MESSAGES.frameworks) && chunk.includes(PROMPT_MESSAGES.frameworks)) {
-					seen.add(PROMPT_MESSAGES.frameworks);
-					stdin.write('\x0D');
-				}
-
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
 					resolve();
