@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-beta.17",
+  "version": "1.0.0-beta.19",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -84,8 +84,8 @@
     "@babel/generator": "^7.17.9",
     "@babel/parser": "^7.17.9",
     "@babel/traverse": "^7.17.9",
-    "@proload/core": "^0.2.2",
-    "@proload/plugin-tsm": "^0.1.1",
+    "@proload/core": "^0.3.2",
+    "@proload/plugin-tsm": "^0.2.1",
     "ast-types": "^0.14.2",
     "boxen": "^6.2.1",
     "ci-info": "^3.3.0",

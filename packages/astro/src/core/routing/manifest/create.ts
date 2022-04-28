@@ -92,7 +92,7 @@ function getGenerator(segments: RoutePart[][], addTrailingSlash: AstroConfig['tr
 	const template = segments
 		.map((segment) => {
 			return segment[0].spread
-				? `/:${segment[0].content.substr(3)}(.*)?`
+				? `/:${segment[0].content.slice(3)}(.*)?`
 				: '/' +
 						segment
 							.map((part) => {

@@ -1,5 +1,17 @@
 # create-astro
 
+## 0.10.1
+
+### Patch Changes
+
+- [#3212](https://github.com/withastro/astro/pull/3212) [`00fc1326`](https://github.com/withastro/astro/commit/00fc1326ed526974cc4aca9faec410df91b4bcbd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Simplify logging during welcome message and directory selection
+
+## 0.10.0
+
+### Minor Changes
+
+- [#3190](https://github.com/withastro/astro/pull/3190) [`38e5e9e9`](https://github.com/withastro/astro/commit/38e5e9e9825876cd0ae14a648b51bdf397e81169) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Feat: add option to install dependencies during setup. This respects the package manager used to run create-astro (ex. "yarn create astro" vs "pnpm create astro@latest").
+
 ## 0.9.0
 
 ### Minor Changes
