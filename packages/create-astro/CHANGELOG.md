@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.10.1
+
+### Patch Changes
+
+- [#3212](https://github.com/withastro/astro/pull/3212) [`00fc1326`](https://github.com/withastro/astro/commit/00fc1326ed526974cc4aca9faec410df91b4bcbd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Simplify logging during welcome message and directory selection
+
 ## 0.10.0
 
 ### Minor Changes

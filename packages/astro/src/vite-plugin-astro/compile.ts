@@ -43,7 +43,7 @@ async function compile(
 ): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const pathname = filenameURL.pathname.substr(config.root.pathname.length - 1);
+	const pathname = filenameURL.pathname.slice(config.root.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;

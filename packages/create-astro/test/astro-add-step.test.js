@@ -3,10 +3,12 @@ import { sep } from 'path';
 import fs from 'fs';
 import os from 'os';
 
-const FAKE_PACKAGE_MANAGER = 'banana';
+// reset package manager in process.env
+// prevents test issues when running with pnpm
+const FAKE_PACKAGE_MANAGER = 'npm';
 let initialEnvValue = null;
 
-describe('[create-astro] install', function () {
+describe('[create-astro] astro add', function () {
 	this.timeout(timeout);
 	let tempDir = '';
 	beforeEach(async () => {
@@ -20,11 +22,11 @@ describe('[create-astro] install', function () {
 		process.env.npm_config_user_agent = initialEnvValue;
 	});
 
-	it('should respect package manager in prompt', function () {
+	it('should use "astro add" when user has installed dependencies', function () {
 		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
-			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
+			const installPrompt = PROMPT_MESSAGES.install('npm');
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
@@ -32,18 +34,20 @@ describe('[create-astro] install', function () {
 				}
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
+					stdin.write('\x0D');
+				}
+				if (chunk.includes(PROMPT_MESSAGES.astroAdd('astro add --yes'))) {
 					resolve();
 				}
 			});
 		});
 	});
 
-	it('should respect package manager in next steps', function () {
+	it('should use "npx astro@latest add" when use has NOT installed dependencies', function () {
 		const { stdout, stdin } = setup([tempDir, '--dryrun']);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
-			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
-			const astroAddPrompt = PROMPT_MESSAGES.astroAdd();
+			const installPrompt = PROMPT_MESSAGES.install('npm');
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
@@ -53,11 +57,7 @@ describe('[create-astro] install', function () {
 					seen.add(installPrompt);
 					stdin.write('n\x0D');
 				}
-				if (!seen.has(astroAddPrompt) && chunk.includes(astroAddPrompt)) {
-					seen.add(astroAddPrompt);
-					stdin.write('\x0D');
-				}
-				if (chunk.includes('banana dev')) {
+				if (chunk.includes(PROMPT_MESSAGES.astroAdd('npx astro@latest add --yes'))) {
 					resolve();
 				}
 			});
