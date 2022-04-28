@@ -7,6 +7,7 @@ import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
 import { AstroTelemetry } from '@astrojs/telemetry';
+import * as event from '@astrojs/telemetry/events';
 
 import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
 import build from '../core/build/index.js';
@@ -126,6 +127,7 @@ export async function cli(args: string[]) {
 		case 'add': {
 			try {
 				const packages = flags._.slice(3) as string[];
+				telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'add' }))
 				return await add(packages, { cwd: root, flags, logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
@@ -134,6 +136,7 @@ export async function cli(args: string[]) {
 		case 'dev': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
+				telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'dev' }, config))
 				await devServer(config, { logging, telemetry });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
@@ -144,6 +147,7 @@ export async function cli(args: string[]) {
 		case 'build': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
+				telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'build' }, config))
 				return await build(config, { logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
@@ -152,6 +156,7 @@ export async function cli(args: string[]) {
 
 		case 'check': {
 			const config = await loadConfig({ cwd: root, flags, cmd });
+			telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'check' }, config))
 			const ret = await check(config);
 			return process.exit(ret);
 		}
@@ -159,6 +164,7 @@ export async function cli(args: string[]) {
 		case 'preview': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
+				telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'preview' }, config))
 				const server = await preview(config, { logging, telemetry });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
@@ -168,6 +174,7 @@ export async function cli(args: string[]) {
 
 		case 'docs': {
 			try {
+				await telemetry.record(event.eventCliSession({ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'docs' }))
 				return await openInBrowser('https://docs.astro.build/');
 			} catch (err) {
 				return throwAndExit(err);
