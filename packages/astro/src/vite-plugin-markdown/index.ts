@@ -151,7 +151,7 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname: fileUrl.pathname.substr(config.root.pathname.length - 1),
+					pathname: fileUrl.pathname.slice(config.root.pathname.length - 1),
 					projectRoot: config.root.toString(),
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,

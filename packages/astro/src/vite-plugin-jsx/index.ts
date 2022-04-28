@@ -25,7 +25,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
 function getEsbuildLoader(fileExt: string): string {
-	return fileExt.substr(1);
+	return fileExt.slice(1);
 }
 
 function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
