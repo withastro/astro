@@ -44,6 +44,9 @@ export class AstroTelemetry {
 	private get ASTRO_TELEMETRY_DISABLED() {
 		return process.env.ASTRO_TELEMETRY_DISABLED;
 	}
+	private get TELEMETRY_DISABLED() {
+		return process.env.TELEMETRY_DISABLED;
+	}
 
 	constructor(private opts: AstroTelemetryOptions) {
 		// When the process exits, flush any queued promises
@@ -90,7 +93,7 @@ export class AstroTelemetry {
   }
 	
 	private get isDisabled(): boolean {
-    if (!!this.ASTRO_TELEMETRY_DISABLED) {
+    if (Boolean(this.ASTRO_TELEMETRY_DISABLED || this.TELEMETRY_DISABLED)) {
       return true
     }
     return this.enabled === false;
