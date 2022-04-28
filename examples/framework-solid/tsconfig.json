@@ -4,6 +4,7 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     // Enable top-level await, and other modern ESM features.
+    "target": "ES2022",
     "module": "ES2022",
     // Enable node-style module resolution, for things like npm package imports.
     "moduleResolution": "node",
@@ -11,7 +12,7 @@
     "resolveJsonModule": true,
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
-    // Add Astro-specific type definitions.
+    // Add type definitions for our Vite runtime.
     "types": ["vite/client"]
   }
 }
