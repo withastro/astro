@@ -2,6 +2,7 @@ import type { BinaryLike } from 'node:crypto';
 import { createHash, randomBytes } from 'node:crypto';
 
 import { isCI } from 'ci-info';
+import debug from 'debug';
 
 import * as KEY from './keys.js';
 import { post } from './post.js';
@@ -35,6 +36,7 @@ export class AstroTelemetry {
 			])
 		}
 	});
+	private debug = debug('astro:telemetry');
 
 	private get astroVersion() {
 		return this.opts.version;
@@ -42,11 +44,11 @@ export class AstroTelemetry {
 	private get ASTRO_TELEMETRY_DISABLED() {
 		return process.env.ASTRO_TELEMETRY_DISABLED;
 	}
-	private get ASTRO_TELEMETRY_DEBUG() {
-		return process.env.ASTRO_TELEMETRY_DEBUG;
-	}
 
-	constructor(private opts: AstroTelemetryOptions) {}
+	constructor(private opts: AstroTelemetryOptions) {
+		// When the process exits, flush any queued promises
+		process.on('SIGINT', () => this.flush());
+	}
 
 	// Util to get value from config or set it if missing
 	private getWithFallback<T>(key: string, value: T): T {
@@ -102,6 +104,13 @@ export class AstroTelemetry {
 		return this.config.clear();
 	}
 
+	private queue: Promise<any>[] = [];
+
+	// Wait for any in-flight promises to resolve
+	private async flush() {
+		await Promise.all(this.queue);
+	}
+
 	async notify(callback: () => Promise<boolean>) {
     if (this.isDisabled || isCI) {
       return
@@ -123,12 +132,10 @@ export class AstroTelemetry {
       return Promise.resolve()
     }
 
-		if (this.ASTRO_TELEMETRY_DEBUG) {
+		if (this.debug.enabled) {
       // Print to standard error to simplify selecting the output
       events.forEach(({ eventName, payload }) =>
-        console.error(
-          `[telemetry] ` + JSON.stringify({ eventName, payload }, null, 2)
-        )
+        this.debug(JSON.stringify({ eventName, payload }, null, 2))
       )
       // Do not send the telemetry data if debugging. Users may use this feature
       // to preview what data would be sent.
@@ -140,19 +147,21 @@ export class AstroTelemetry {
       return Promise.resolve()
     }
 
-		const context = {};
-		// const context: EventContext = {
-    //   anonymousId: this.anonymousId,
-    //   projectId: this.projectId,
-    //   sessionId: this.sessionId,
-    // }
-		const meta = getAnonymousMeta();
-		meta.astroVersion = this.astroVersion;
+		const context: EventContext = {
+      anonymousId: this.anonymousId,
+      projectId: this.projectId,
+      sessionId: this.sessionId,
+    }
+		const meta = getAnonymousMeta(this.astroVersion);
 
-		return post({
+		const req = post({
 			context,
       meta,
       events
+		}).then(() => {
+			this.queue = this.queue.filter(r => r !== req);
 		});
+		this.queue.push(req);
+		return req;
 	}
 }

@@ -20,7 +20,7 @@ type AnonymousMeta = {
 
 let meta: AnonymousMeta | undefined
 
-export function getAnonymousMeta(): AnonymousMeta {
+export function getAnonymousMeta(astroVersion: string): AnonymousMeta {
   if (meta) {
     return meta
   }
@@ -41,8 +41,7 @@ export function getAnonymousMeta(): AnonymousMeta {
     isWSL,
     isCI,
     ciName,
-		// Intentionally empty, will be injected later
-		astroVersion: ''
+		astroVersion
   }
 
   return meta!;
