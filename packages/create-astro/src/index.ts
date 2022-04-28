@@ -1,16 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
-import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
 import ora from 'ora';
-import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
-import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
-import { execa } from 'execa';
+import { execa, execaCommand } from 'execa';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -37,8 +34,7 @@ const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
 );
 
-const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
-const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
+const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
 export async function main() {
 	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
@@ -101,9 +97,7 @@ export async function main() {
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
-	const templateTarget = options.template.includes('/')
-		? options.template
-		: `withastro/astro/examples/${options.template}#latest`;
+	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
 
 	const emitter = degit(`${templateTarget}${hash}`, {
 		cache: false,
@@ -116,21 +110,6 @@ export async function main() {
 		force: true,
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
-
-	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
-	let integrations: Integration[] = [];
-
-	if (selectedTemplate?.integrations === true) {
-		const result = await prompts([
-			{
-				type: 'multiselect',
-				name: 'integrations',
-				message: 'Which frameworks would you like to use?',
-				choices: FRAMEWORKS,
-			},
-		]);
-		integrations = result.integrations;
-	}
 
 	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
 
@@ -178,94 +157,14 @@ export async function main() {
 		}
 
 		// Post-process in parallel
-		await Promise.all([
-			...FILES_TO_REMOVE.map(async (file) => {
+		await Promise.all(
+			FILES_TO_REMOVE.map(async (file) => {
 				const fileLoc = path.resolve(path.join(cwd, file));
-				return fs.promises.rm(fileLoc);
-			}),
-			...POSTPROCESS_FILES.map(async (file) => {
-				const fileLoc = path.resolve(path.join(cwd, file));
-
-				switch (file) {
-					case 'CHANGELOG.md': {
-						if (fs.existsSync(fileLoc)) {
-							await fs.promises.unlink(fileLoc);
-						}
-						break;
-					}
-					case 'astro.config.mjs': {
-						if (selectedTemplate?.integrations !== true) {
-							break;
-						}
-						await fs.promises.writeFile(fileLoc, createConfig({ integrations }));
-						break;
-					}
-					case 'package.json': {
-						const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
-						delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
-						// Fetch latest versions of selected integrations
-						const integrationEntries = (
-							await Promise.all(
-								integrations.map((integration) =>
-									fetch(`https://registry.npmjs.org/${integration.packageName}/latest`)
-										.then((res) => res.json())
-										.then((res: any) => {
-											let dependencies: [string, string][] = [[res['name'], `^${res['version']}`]];
-
-											if (res['peerDependencies']) {
-												for (const peer in res['peerDependencies']) {
-													dependencies.push([peer, res['peerDependencies'][peer]]);
-												}
-											}
-
-											return dependencies;
-										})
-								)
-							)
-						).flat(1);
-						// merge and sort dependencies
-						packageJSON.devDependencies = {
-							...(packageJSON.devDependencies ?? {}),
-							...Object.fromEntries(integrationEntries),
-						};
-						packageJSON.devDependencies = Object.fromEntries(
-							Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0]))
-						);
-						await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
-						break;
-					}
+				if (fs.existsSync(fileLoc)) {
+					return fs.promises.rm(fileLoc, {});
 				}
-			}),
-		]);
-
-		// Inject framework components into starter template
-		if (selectedTemplate?.value === 'starter') {
-			let importStatements: string[] = [];
-			let components: string[] = [];
-			await Promise.all(
-				integrations.map(async (integration) => {
-					const component = COUNTER_COMPONENTS[integration.id as keyof typeof COUNTER_COMPONENTS];
-					const componentName = path.basename(component.filename, path.extname(component.filename));
-					const absFileLoc = path.resolve(cwd, component.filename);
-					importStatements.push(
-						`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`
-					);
-					components.push(`<${componentName} client:visible />`);
-					await fs.promises.writeFile(absFileLoc, component.content);
-				})
-			);
-
-			const pageFileLoc = path.resolve(path.join(cwd, 'src', 'pages', 'index.astro'));
-			const content = (await fs.promises.readFile(pageFileLoc)).toString();
-			const newContent = content
-				.replace(/^(\s*)\/\* ASTRO\:COMPONENT_IMPORTS \*\//gm, (_, indent) => {
-					return indent + importStatements.join('\n');
-				})
-				.replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
-					return components.map((ln) => indent + ln).join('\n');
-				});
-			await fs.promises.writeFile(pageFileLoc, newContent);
-		}
+			})
+		);
 	}
 
 	spinner.succeed();
@@ -296,6 +195,36 @@ export async function main() {
 			});
 		}
 		spinner.succeed();
+	}
+
+	const astroAddCommand = installResponse.install
+		? 'astro add --yes'
+		: `${pkgManagerExecCommand(pkgManager)} astro@latest add --yes`;
+
+	const astroAddResponse = await prompts({
+		type: 'confirm',
+		name: 'astroAdd',
+		message: `Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
+		initial: true,
+	});
+
+	if (!astroAddResponse) {
+		process.exit(0);
+	}
+
+	if (!astroAddResponse.astroAdd) {
+		ora().info(
+			`No problem. You can always run "${pkgManagerExecCommand(pkgManager)} astro add" later!`
+		);
+	}
+
+	if (astroAddResponse.astroAdd && !args.dryrun) {
+		await execaCommand(
+			astroAddCommand,
+			astroAddCommand === 'astro add --yes'
+				? { cwd, stdio: 'inherit', localDir: cwd, preferLocal: true }
+				: { cwd, stdio: 'inherit' }
+		);
 	}
 
 	console.log('\nNext steps:');
@@ -329,4 +258,13 @@ function pkgManagerFromUserAgent(userAgent?: string) {
 	const pkgSpec = userAgent.split(' ')[0];
 	const pkgSpecArr = pkgSpec.split('/');
 	return pkgSpecArr[0];
+}
+
+function pkgManagerExecCommand(pkgManager: string) {
+	if (pkgManager === 'pnpm') {
+		return 'pnpx';
+	} else {
+		// note: yarn does not have an "npx" equivalent
+		return 'npx';
+	}
 }
