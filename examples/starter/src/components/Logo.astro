@@ -4,6 +4,6 @@ export interface Props {
     height?: number,
     width?: number,
 }
-const {height = 80, width = 60 } = Astro.props;
+const {height = 80, width = 60 } = Astro.props as Props;
 ---
 <img height={height} width={width} src="/logo.svg" alt="Astro logo">
