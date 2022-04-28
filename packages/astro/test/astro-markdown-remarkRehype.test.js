@@ -12,10 +12,10 @@ describe('Astro Markdown without remark-rehype config', () => {
 		await fixture.build();
 	});
 	it('Renders footnotes with default English labels', async () => {
-    const html = await fixture.readFile('/index.html');
-    const $ = cheerio.load(html);
-    expect($('#footnote-label').text()).to.equal('Footnotes');
-    expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Back to content');
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('#footnote-label').text()).to.equal('Footnotes');
+		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Back to content');
 	});
 });
 
@@ -27,9 +27,9 @@ describe('Astro Markdown with remark-rehype config', () => {
 			root: './fixtures/astro-markdown-remarkRehype/',
 			markdown: {
 				remarkRehype: {
-          footnoteLabel : "Catatan kaki",
-          footnoteBackLabel : "Kembali ke konten"
-        },
+					footnoteLabel: 'Catatan kaki',
+					footnoteBackLabel: 'Kembali ke konten',
+				},
 			},
 		});
 		await fixture.build();
@@ -37,7 +37,7 @@ describe('Astro Markdown with remark-rehype config', () => {
 	it('Renders footnotes with values from the configuration', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-    expect($('#footnote-label').text()).to.equal('Catatan kaki');
-    expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Kembali ke konten');
+		expect($('#footnote-label').text()).to.equal('Catatan kaki');
+		expect($('.data-footnote-backref').first().attr('aria-label')).to.equal('Kembali ke konten');
 	});
 });
