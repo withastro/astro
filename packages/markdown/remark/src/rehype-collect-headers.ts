@@ -7,7 +7,7 @@ export default function createCollectHeaders() {
 	const headers: MarkdownHeader[] = [];
 	const slugger = new Slugger();
 
-	const rehypeCollectHeaders: RehypePlugin<[]> = () => {
+	function rehypeCollectHeaders(): ReturnType<RehypePlugin> {
 		return function (tree) {
 			visit(tree, (node) => {
 				if (node.type !== 'element') return;
@@ -31,7 +31,7 @@ export default function createCollectHeaders() {
 				headers.push({ depth, slug: node.properties.id, text });
 			});
 		};
-	};
+	}
 
 	return {
 		headers,
