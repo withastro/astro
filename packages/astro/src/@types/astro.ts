@@ -2,7 +2,14 @@ import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
 import { z } from 'zod';
-import type { ShikiConfig, RemarkPlugins, RehypePlugins } from '@astrojs/markdown-remark';
+import type {
+	ShikiConfig,
+	RemarkPlugins,
+	RehypePlugins,
+	MarkdownHeader,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+} from '@astrojs/markdown-remark';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
@@ -774,24 +781,10 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
-export interface MarkdownHeader {
-	depth: number;
-	slug: string;
-	text: string;
-}
-
-export interface MarkdownMetadata {
-	headers: MarkdownHeader[];
-	source: string;
-	html: string;
-}
-
-export interface MarkdownParserResponse {
+export interface MarkdownParserResponse extends MarkdownRenderingResult {
 	frontmatter: {
 		[key: string]: any;
 	};
-	metadata: MarkdownMetadata;
-	code: string;
 }
 
 /**

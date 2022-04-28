@@ -1,4 +1,4 @@
-import type { MarkdownRenderingOptions } from './types';
+import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
@@ -26,7 +26,10 @@ export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
-export async function renderMarkdown(content: string, opts: MarkdownRenderingOptions) {
+export async function renderMarkdown(
+	content: string,
+	opts: MarkdownRenderingOptions
+): Promise<MarkdownRenderingResult> {
 	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
