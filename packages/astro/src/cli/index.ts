@@ -6,6 +6,8 @@ import { LogOptions } from '../core/logger/core.js';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import { AstroTelemetry } from '@astrojs/telemetry';
+
 import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
 import build from '../core/build/index.js';
 import add from '../core/add/index.js';
@@ -13,6 +15,7 @@ import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
+import * as telemetryHandler from './telemetry.js';
 import { loadConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
@@ -27,7 +30,8 @@ type CLICommand =
 	| 'build'
 	| 'preview'
 	| 'reload'
-	| 'check';
+	| 'check'
+	| 'telemetry';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -41,6 +45,7 @@ function printAstroHelp() {
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
 			['check', 'Check your project for errors.'],
+			['telemetry', 'Enable/disable anonymous data collection.'],
 			['--version', 'Show the version number and exit.'],
 			['--help', 'Show this help message.'],
 		],
@@ -67,6 +72,7 @@ async function printVersion() {
 function resolveCommand(flags: Arguments): CLICommand {
 	const cmd = flags._[2] as string;
 	if (cmd === 'add') return 'add';
+	if (cmd === 'telemetry') return 'telemetry';
 	if (flags.version) return 'version';
 	else if (flags.help) return 'help';
 
@@ -103,12 +109,24 @@ export async function cli(args: string[]) {
 	} else if (flags.silent) {
 		logging.level = 'silent';
 	}
+	const telemetry = new AstroTelemetry({ version: process.env.PACKAGE_VERSION ?? '' });
+	
+	if (cmd === 'telemetry') {
+		try {
+			const subcommand = flags._[3]?.toString();
+			return await telemetryHandler.update(subcommand, { flags, telemetry });
+		} catch (err) {
+			return throwAndExit(err);
+		}
+	} else {
+		await telemetryHandler.notify({ flags, telemetry });
+	}
 
 	switch (cmd) {
 		case 'add': {
 			try {
 				const packages = flags._.slice(3) as string[];
-				return await add(packages, { cwd: root, flags, logging });
+				return await add(packages, { cwd: root, flags, logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
 			}
@@ -116,7 +134,7 @@ export async function cli(args: string[]) {
 		case 'dev': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
-				await devServer(config, { logging });
+				await devServer(config, { logging, telemetry });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
 				return throwAndExit(err);
@@ -126,7 +144,7 @@ export async function cli(args: string[]) {
 		case 'build': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
-				return await build(config, { logging });
+				return await build(config, { logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
 			}
@@ -141,7 +159,7 @@ export async function cli(args: string[]) {
 		case 'preview': {
 			try {
 				const config = await loadConfig({ cwd: root, flags, cmd });
-				const server = await preview(config, { logging });
+				const server = await preview(config, { logging, telemetry });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);
