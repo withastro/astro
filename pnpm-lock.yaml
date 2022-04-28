@@ -374,7 +374,6 @@ importers:
       astro: ^1.0.0-beta.19
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
-      rehype-slug: ^5.0.1
       rehype-toc: ^3.0.2
       remark-code-titles: ^0.1.2
     devDependencies:
@@ -382,7 +381,6 @@ importers:
       astro: link:../../packages/astro
       hast-util-select: 5.0.1
       rehype-autolink-headings: 6.1.1
-      rehype-slug: 5.0.1
       rehype-toc: 3.0.2
       remark-code-titles: 0.1.2
 
@@ -523,7 +521,6 @@ importers:
       prismjs: ^1.28.0
       prompts: ^2.4.2
       recast: ^0.20.5
-      rehype-slug: ^5.0.1
       resolve: ^1.22.0
       rollup: ^2.70.2
       sass: ^1.50.1
@@ -584,7 +581,6 @@ importers:
       prismjs: 1.28.0
       prompts: 2.4.2
       recast: 0.20.5
-      rehype-slug: 5.0.1
       resolve: 1.22.0
       rollup: 2.70.2
       semver: 7.3.7
@@ -6356,6 +6352,7 @@ packages:
 
   /github-slugger/1.4.0:
     resolution: {integrity: sha512-w0dzqw/nt51xMVmlaV1+JRzN+oCa1KfcgGEWhxUG16wbdA+Xnt/yoFO8Z8x/V82ZcZ0wy6ln9QDup5avbhiDhQ==}
+    dev: false
 
   /glob-parent/5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -6530,6 +6527,7 @@ packages:
     resolution: {integrity: sha512-w+Rw20Q/iWp2Bcnr6uTrYU6/ftZLbHKhvc8nM26VIWpDqDMlku2iXUVTeOlsdoih/UKQhY7PHQ+vZ0Aqq8bxtQ==}
     dependencies:
       '@types/hast': 2.3.4
+    dev: true
 
   /hast-util-is-element/2.1.2:
     resolution: {integrity: sha512-thjnlGAnwP8ef/GSO1Q8BfVk2gundnc2peGQqEg2kUt/IqesiGg/5mSwN2fE7nLzy61pg88NG6xV+UrGOrx9EA==}
@@ -8888,17 +8886,6 @@ packages:
       hast-util-raw: 7.2.1
       unified: 10.1.2
     dev: false
-
-  /rehype-slug/5.0.1:
-    resolution: {integrity: sha512-X5v3wV/meuOX9NFcGhJvUpEjIvQl2gDvjg3z40RVprYFt7q3th4qMmYLULiu3gXvbNX1ppx+oaa6JyY1W67pTA==}
-    dependencies:
-      '@types/hast': 2.3.4
-      github-slugger: 1.4.0
-      hast-util-has-property: 2.0.0
-      hast-util-heading-rank: 2.1.0
-      hast-util-to-string: 2.0.0
-      unified: 10.1.2
-      unist-util-visit: 4.1.0
 
   /rehype-stringify/9.0.3:
     resolution: {integrity: sha512-kWiZ1bgyWlgOxpqD5HnxShKAdXtb2IUljn3hQAhySeak6IOQPPt6DeGnsIh4ixm7yKJWzm8TXFuC/lPfcWHJqw==}

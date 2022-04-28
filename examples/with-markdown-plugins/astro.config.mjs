@@ -10,7 +10,6 @@ export default defineConfig({
 			['rehype-autolink-headings', { behavior: 'prepend' }],
 			['rehype-toc', { headings: ['h2', 'h3'] }],
 			[addClasses, { 'h1,h2,h3': 'title' }],
-			'rehype-slug',
 		],
 	},
 });

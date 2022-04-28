@@ -13,7 +13,6 @@
     "astro": "^1.0.0-beta.19",
     "hast-util-select": "5.0.1",
     "rehype-autolink-headings": "^6.1.1",
-    "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2"
   }
