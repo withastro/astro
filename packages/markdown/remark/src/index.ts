@@ -22,8 +22,7 @@ import rehypeRaw from 'rehype-raw';
 export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
-
-export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
+export const DEFAULT_REHYPE_PLUGINS = [];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
