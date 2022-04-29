@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.20
+
+### Patch Changes
+
+- [#3241](https://github.com/withastro/astro/pull/3241) [`d25dc4c4`](https://github.com/withastro/astro/commit/d25dc4c4484340a794eaac1e6d18cc5aa2071524) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix a bug in define:vars preventing variables from being included in rendered styles
+
 ## 1.0.0-beta.19
 
 ### Patch Changes

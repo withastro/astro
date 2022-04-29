@@ -26,7 +26,9 @@ describe('Directives', async () => {
 		expect($('style').toString()).to.include('--bg: white;');
 		expect($('style').toString()).to.include('--fg: black;');
 
-		const scopedClass = $('html').attr('class').split(' ')
+		const scopedClass = $('html')
+			.attr('class')
+			.split(' ')
 			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
 
 		expect($('style').toString().replace(/\s+/g, '')).to.equal(
