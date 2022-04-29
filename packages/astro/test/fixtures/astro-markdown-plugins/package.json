@@ -5,6 +5,7 @@
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "hast-util-select": "^5.0.1"
+    "hast-util-select": "^5.0.1",
+    "rehype-slug": "^5.0.1"
   }
 }
