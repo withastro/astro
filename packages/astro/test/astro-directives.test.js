@@ -18,6 +18,22 @@ describe('Directives', async () => {
 		expect($('script#inline').toString()).to.include('let foo = "bar"');
 	});
 
+	it('Passes define:vars to style elements', async () => {
+		const html = await fixture.readFile('/define-vars/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('style')).to.have.lengthOf(1);
+		expect($('style').toString()).to.include('--bg: white;');
+		expect($('style').toString()).to.include('--fg: black;');
+
+		const scopedClass = $('html').attr('class').split(' ')
+			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
+
+		expect($('style').toString().replace(/\s+/g, '')).to.equal(
+			`<style>.${scopedClass}{--bg:white;--fg:black;}body{background:var(--bg);color:var(--fg)}</style>`
+		);
+	});
+
 	it('set:html', async () => {
 		const html = await fixture.readFile('/set-html/index.html');
 		const $ = cheerio.load(html);
