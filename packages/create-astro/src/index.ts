@@ -228,7 +228,7 @@ export async function main() {
 	const gitResponse = await prompts({
 		type: 'confirm',
 		name: 'git',
-		message: 'Initialize an empty git repository?',
+		message: 'Initialize a git repository?',
 		initial: true,
 	});
 
