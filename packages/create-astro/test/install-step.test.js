@@ -28,6 +28,7 @@ describe('[create-astro] install', function () {
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
+					// respond with "enter key"
 					stdin.write('\x0D');
 				}
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
@@ -47,10 +48,12 @@ describe('[create-astro] install', function () {
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
+					// respond with "enter key"
 					stdin.write('\x0D');
 				}
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
+					// respond with "no, then enter key"
 					stdin.write('n\x0D');
 				}
 				if (!seen.has(astroAddPrompt) && chunk.includes(astroAddPrompt)) {
