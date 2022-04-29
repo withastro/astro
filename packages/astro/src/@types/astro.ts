@@ -562,7 +562,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of rehype plugins used by Astro
-		 *     rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }]],
+		 *     rehypePlugins: ['rehype-slug', ['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }]],
 		 *   },
 		 * };
 		 * ```
