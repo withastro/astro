@@ -123,13 +123,10 @@ class AstroBuilder {
 
 		// Filter pages by using conditions based on their frontmatter.
 		Object.entries(allPages).forEach(([page, data]) => {
-			if ('frontmatter' in data.preload[1]) {
-				// TODO: add better type inference to data.preload[1]
-				const frontmatter = (data.preload[1] as any).frontmatter;
-				if (Boolean(frontmatter.draft) && !this.config.markdown.drafts) {
-					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
-					delete allPages[page];
-				}
+			const [, componentData] = data.preload;
+			if (Boolean(componentData.frontmatter?.draft) && !this.config.markdown.drafts) {
+				debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
+				delete allPages[page];
 			}
 		});
 
@@ -176,7 +173,17 @@ class AstroBuilder {
 			config: this.config,
 			buildConfig,
 			pages: pageNames,
-			routes: Object.values(allPages).map((pd) => pd.route),
+			routes: Object.values(allPages).map((pageData) => {
+				const {
+					route,
+					preload: [, componentData],
+				} = pageData;
+				if (componentData.frontmatter) {
+					return { ...route, frontmatter: componentData.frontmatter };
+				} else {
+					return route;
+				}
+			}),
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

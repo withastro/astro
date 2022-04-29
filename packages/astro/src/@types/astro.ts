@@ -719,6 +719,8 @@ export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+	// supplied by .md files
+	frontmatter?: Record<string, any>;
 }
 
 export interface MarkdownInstance<T extends Record<string, any>> {

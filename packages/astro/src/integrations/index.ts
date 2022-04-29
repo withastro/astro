@@ -144,7 +144,7 @@ export async function runHookBuildDone({
 	config: AstroConfig;
 	buildConfig: BuildConfig;
 	pages: string[];
-	routes: RouteData[];
+	routes: RouteData[] & { frontmatter?: Record<string, any> };
 }) {
 	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
 
