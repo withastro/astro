@@ -1,7 +1,9 @@
 
 <p align="center">
-  <a href="https://astro.build" target="_blank" rel="noopener noreferrer">
+  <a href="https://astro.build#gh-light-mode-only" target="_blank" rel="noopener noreferrer">
     <img src="assets/brand/logo-square-black.png#gh-light-mode-only" alt="Astro logo">
+  </a>
+  <a href="https://astro.build#gh-dark-mode-only" target="_blank" rel="noopener noreferrer">
     <img src="assets/brand/logo-square-white.png#gh-dark-mode-only" alt="Astro logo">
   </a>
 </p>
