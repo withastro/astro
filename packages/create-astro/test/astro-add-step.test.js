@@ -23,13 +23,14 @@ describe('[create-astro] astro add', function () {
 	});
 
 	it('should use "astro add" when user has installed dependencies', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install('npm');
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
+					// respond with "enter key"
 					stdin.write('\x0D');
 				}
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
@@ -44,17 +45,19 @@ describe('[create-astro] astro add', function () {
 	});
 
 	it('should use "npx astro@latest add" when use has NOT installed dependencies', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install('npm');
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
+					// respond with "enter key"
 					stdin.write('\x0D');
 				}
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
+					// respond with "no, then enter key"
 					stdin.write('n\x0D');
 				}
 				if (chunk.includes(PROMPT_MESSAGES.astroAdd('npx astro@latest add --yes'))) {
