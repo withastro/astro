@@ -1,6 +1,10 @@
 
-![Light](assets/brand/logo-square-black.png#gh-light-mode-only)
-![Dark](assets/brand/logo-square-white.png#gh-dark-mode-only)
+<p align="center">
+  <a href="https://astro.build" target="_blank" rel="noopener noreferrer">
+    <img src="assets/brand/logo-square-black.png#gh-light-mode-only" alt="Astro logo">
+    <img src="assets/brand/logo-square-white.png#gh-dark-mode-only" alt="Astro logo">
+  </a>
+</p>
 
 # Astro 
 [Astro](https://astro.build) is a website build tool for the modern web &mdash; powerful developer experience meets lightweight output.
