@@ -7,9 +7,9 @@ if (import.meta.hot) {
 		const doc = parser.parseFromString(html, 'text/html');
 
 		// Match incoming islands to current state
-		for (const root of doc.querySelectorAll('astro-root')) {
+		for (const root of doc.querySelectorAll('astro-island')) {
 			const uid = root.getAttribute('uid');
-			const current = document.querySelector(`astro-root[uid="${uid}"]`);
+			const current = document.querySelector(`astro-island[uid="${uid}"]`);
 			if (current) {
 				root.innerHTML = current?.innerHTML;
 			}

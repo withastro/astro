@@ -11,6 +11,7 @@ import type {
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
+import { islandScript } from './astro-island.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
@@ -23,6 +24,8 @@ const htmlBooleanAttributes =
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+
+const hydrationedRenders = new WeakSet<SSRResult>();
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
@@ -308,20 +311,36 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-	result.scripts.add(
-		await generateHydrateScript(
-			{ renderer: renderer!, result, astroId, props },
-			metadata as Required<AstroComponentMetadata>
-		)
+	const island = await generateHydrateScript(
+		{ renderer: renderer!, result, astroId, props },
+		metadata as Required<AstroComponentMetadata>
 	);
+	result._metadata.needsHydrationStyles = true;
 
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+
+	if(needsAstroTemplate) {
+		island.props.tmpl = '';
+	}
+
+	island.children = `${
+		html ?? ''
+	}${template}`;
+
+	// Add the astro-island definition only once. Since the SSRResult object
+	// is scoped to a page renderer we can use it as a key to know if the script
+	// has been rendered or not.
+	let script = '';
+	if(!hydrationedRenders.has(result)) {
+		hydrationedRenders.add(result);
+		script = `<script>${islandScript}</script>`;
+	}
+
 	return markHTMLString(
-		`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
-			html ?? ''
-		}${template}</astro-root>`
+		script +
+		renderElement('astro-island', island, false)
 	);
 }
 
@@ -544,13 +563,10 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // styles and scripts into the head.
 export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = [];
-	let needsHydrationStyles = false;
+	let needsHydrationStyles = result._metadata.needsHydrationStyles;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
-			if ('data-astro-component-hydration' in script.props) {
-				needsHydrationStyles = true;
-			}
 			return renderElement('script', {
 				...script,
 				props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
@@ -560,7 +576,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 		styles.push(
 			renderElement('style', {
 				props: {},
-				children: 'astro-root, astro-fragment { display: contents; }',
+				children: 'astro-island, astro-fragment { display: contents; }',
 			})
 		);
 	}
