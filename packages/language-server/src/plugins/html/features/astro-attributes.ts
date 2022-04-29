@@ -42,6 +42,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 		{
 			name: 'is:raw',
 			description: 'Instructs the Astro compiler to treat any children of this element as text',
+			valueSet: 'v',
 			references: [
 				{
 					name: 'Astro reference',

@@ -12,7 +12,7 @@ import {
 	SymbolInformation,
 } from 'vscode-languageserver';
 import { ConfigManager } from '../../core/config/ConfigManager';
-import { LSCSSConfig } from '../../core/config/interfaces';
+import { LSConfig, LSCSSConfig } from '../../core/config/interfaces';
 import {
 	AstroDocument,
 	isInsideFrontmatter,
@@ -46,8 +46,8 @@ export class CSSPlugin implements Plugin {
 		this.configManager = configManager;
 	}
 
-	doHover(document: AstroDocument, position: Position): Hover | null {
-		if (!this.featureEnabled('hover')) {
+	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
+		if (!(await this.featureEnabled(document, 'hover'))) {
 			return null;
 		}
 
@@ -98,12 +98,12 @@ export class CSSPlugin implements Plugin {
 		return hoverInfo ? mapHoverToParent(cssDocument, hoverInfo) : hoverInfo;
 	}
 
-	getCompletions(
+	async getCompletions(
 		document: AstroDocument,
 		position: Position,
 		completionContext?: CompletionContext
-	): CompletionList | null {
-		if (!this.featureEnabled('completions')) {
+	): Promise<CompletionList | null> {
+		if (!(await this.featureEnabled(document, 'completions'))) {
 			return null;
 		}
 
@@ -133,7 +133,7 @@ export class CSSPlugin implements Plugin {
 
 			if (this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())) {
 				const [start, end] = attributeContext.valueRange;
-				return this.getCompletionsInternal(document, position, new StyleAttributeDocument(document, start, end));
+				return await this.getCompletionsInternal(document, position, new StyleAttributeDocument(document, start, end));
 			}
 			// If we're not in a style attribute, instead give completions for ids and classes used in the current document
 			else if ((attributeContext.name == 'id' || attributeContext.name == 'class') && attributeContext.inValue) {
@@ -145,14 +145,16 @@ export class CSSPlugin implements Plugin {
 		}
 
 		const cssDocument = this.getCSSDocumentForStyleTag(styleTag, document);
-		return this.getCompletionsInternal(document, position, cssDocument);
+		return await this.getCompletionsInternal(document, position, cssDocument);
 	}
 
-	private getCompletionsInternal(document: AstroDocument, position: Position, cssDocument: CSSDocumentBase) {
+	private async getCompletionsInternal(document: AstroDocument, position: Position, cssDocument: CSSDocumentBase) {
+		const emmetConfig = await this.configManager.getEmmetConfig(document);
+
 		if (isSASS(cssDocument)) {
 			// The CSS language service does not support SASS (not to be confused with SCSS)
 			// however we can at least still at least provide Emmet completions in SASS blocks
-			return getEmmetCompletions(document, position, 'sass', this.configManager.getEmmetConfig()) || null;
+			return getEmmetCompletions(document, position, 'sass', emmetConfig) || null;
 		}
 
 		const cssLang = extractLanguage(cssDocument);
@@ -163,32 +165,35 @@ export class CSSPlugin implements Plugin {
 			items: [],
 		};
 
-		langService.setCompletionParticipants([
-			{
-				onCssProperty: (context) => {
-					if (context?.propertyName) {
-						emmetResults =
-							getEmmetCompletions(
-								cssDocument,
-								cssDocument.getGeneratedPosition(position),
-								getLanguage(cssLang),
-								this.configManager.getEmmetConfig()
-							) || emmetResults;
-					}
+		const extensionConfig = await this.configManager.getConfig<LSConfig>('astro', document.uri);
+		if (extensionConfig.css.completions.emmet) {
+			langService.setCompletionParticipants([
+				{
+					onCssProperty: (context) => {
+						if (context?.propertyName) {
+							emmetResults =
+								getEmmetCompletions(
+									cssDocument,
+									cssDocument.getGeneratedPosition(position),
+									getLanguage(cssLang),
+									emmetConfig
+								) || emmetResults;
+						}
+					},
+					onCssPropertyValue: (context) => {
+						if (context?.propertyValue) {
+							emmetResults =
+								getEmmetCompletions(
+									cssDocument,
+									cssDocument.getGeneratedPosition(position),
+									getLanguage(cssLang),
+									emmetConfig
+								) || emmetResults;
+						}
+					},
 				},
-				onCssPropertyValue: (context) => {
-					if (context?.propertyValue) {
-						emmetResults =
-							getEmmetCompletions(
-								cssDocument,
-								cssDocument.getGeneratedPosition(position),
-								getLanguage(cssLang),
-								this.configManager.getEmmetConfig()
-							) || emmetResults;
-					}
-				},
-			},
-		]);
+			]);
+		}
 
 		const results = langService.doComplete(
 			cssDocument,
@@ -205,8 +210,8 @@ export class CSSPlugin implements Plugin {
 		);
 	}
 
-	getDocumentColors(document: AstroDocument): ColorInformation[] {
-		if (!this.featureEnabled('documentColors')) {
+	async getDocumentColors(document: AstroDocument): Promise<ColorInformation[]> {
+		if (!(await this.featureEnabled(document, 'documentColors'))) {
 			return [];
 		}
 
@@ -226,8 +231,8 @@ export class CSSPlugin implements Plugin {
 		return flatten(allColorInfo);
 	}
 
-	getColorPresentations(document: AstroDocument, range: Range, color: Color): ColorPresentation[] {
-		if (!this.featureEnabled('colorPresentations')) {
+	async getColorPresentations(document: AstroDocument, range: Range, color: Color): Promise<ColorPresentation[]> {
+		if (!(await this.featureEnabled(document, 'documentColors'))) {
 			return [];
 		}
 
@@ -261,8 +266,8 @@ export class CSSPlugin implements Plugin {
 		return flatten(allFoldingRanges);
 	}
 
-	getDocumentSymbols(document: AstroDocument): SymbolInformation[] {
-		if (!this.featureEnabled('documentSymbols')) {
+	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
+		if (!(await this.featureEnabled(document, 'documentSymbols'))) {
 			return [];
 		}
 
@@ -322,8 +327,11 @@ export class CSSPlugin implements Plugin {
 		});
 	}
 
-	private featureEnabled(feature: keyof LSCSSConfig) {
-		return this.configManager.enabled('css.enabled') && this.configManager.enabled(`css.${feature}.enabled`);
+	private async featureEnabled(document: AstroDocument, feature: keyof LSCSSConfig) {
+		return (
+			(await this.configManager.isEnabled(document, 'css')) &&
+			(await this.configManager.isEnabled(document, 'css', feature))
+		);
 	}
 }
 

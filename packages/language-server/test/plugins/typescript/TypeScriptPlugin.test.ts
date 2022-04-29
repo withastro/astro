@@ -28,7 +28,7 @@ describe('TypeScript Plugin', () => {
 		it('should not provide documentSymbols if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('documentSymbols/documentSymbols.astro');
 
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				typescript: {
 					documentSymbols: {
 						enabled: false,
@@ -37,8 +37,9 @@ describe('TypeScript Plugin', () => {
 			});
 
 			const symbols = await plugin.getDocumentSymbols(document);
+			const isEnabled = await configManager.isEnabled(document, 'typescript', 'documentSymbols');
 
-			expect(configManager.enabled(`typescript.documentSymbols.enabled`)).to.be.false;
+			expect(isEnabled).to.be.false;
 			expect(symbols).to.be.empty;
 		});
 	});
@@ -54,7 +55,7 @@ describe('TypeScript Plugin', () => {
 		it('should not provide hover info if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('hoverInfo.astro');
 
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				typescript: {
 					hover: {
 						enabled: false,
@@ -64,7 +65,9 @@ describe('TypeScript Plugin', () => {
 
 			const hoverInfo = await plugin.doHover(document, Position.create(1, 10));
 
-			expect(configManager.enabled(`typescript.hover.enabled`)).to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'typescript', 'hover');
+
+			expect(isEnabled).to.be.false;
 			expect(hoverInfo).to.be.null;
 		});
 	});
@@ -80,7 +83,7 @@ describe('TypeScript Plugin', () => {
 		it('should not provide diagnostics if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('diagnostics/basic.astro');
 
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				typescript: {
 					diagnostics: {
 						enabled: false,
@@ -115,7 +118,7 @@ describe('TypeScript Plugin', () => {
 		it('should not provide code actions if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('codeActions/basic.astro');
 
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				typescript: {
 					codeActions: {
 						enabled: false,
@@ -135,7 +138,9 @@ describe('TypeScript Plugin', () => {
 				only: [CodeActionKind.QuickFix],
 			});
 
-			expect(configManager.enabled(`typescript.codeActions.enabled`)).to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'typescript', 'codeActions');
+
+			expect(isEnabled).to.be.false;
 			expect(codeActions).to.be.empty;
 		});
 	});
@@ -158,7 +163,7 @@ describe('TypeScript Plugin', () => {
 		it('should not provide semantic tokens if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('semanticTokens/frontmatter.astro');
 
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				typescript: {
 					semanticTokens: {
 						enabled: false,
@@ -167,7 +172,9 @@ describe('TypeScript Plugin', () => {
 			});
 
 			const semanticTokens = await plugin.getSemanticTokens(document);
-			expect(configManager.enabled(`typescript.semanticTokens.enabled`)).to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'typescript', 'semanticTokens');
+
+			expect(isEnabled).to.be.false;
 			expect(semanticTokens).to.be.null;
 		});
 	});

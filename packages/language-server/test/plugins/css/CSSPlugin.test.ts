@@ -16,10 +16,10 @@ describe('CSS Plugin', () => {
 	}
 
 	describe('provide completions', () => {
-		it('in style tags', () => {
+		it('in style tags', async () => {
 			const { plugin, document } = setup('<style></style>');
 
-			const completions = plugin.getCompletions(document, Position.create(0, 7), {
+			const completions = await plugin.getCompletions(document, Position.create(0, 7), {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
@@ -27,13 +27,13 @@ describe('CSS Plugin', () => {
 			expect(completions, 'Expected completions to not be empty').to.not.be.null;
 		});
 
-		it('in multiple style tags', () => {
+		it('in multiple style tags', async () => {
 			const { plugin, document } = setup('<style></style><style></style>');
 
-			const completions1 = plugin.getCompletions(document, Position.create(0, 7), {
+			const completions1 = await plugin.getCompletions(document, Position.create(0, 7), {
 				triggerCharacter: '.',
 			} as CompletionContext);
-			const completions2 = plugin.getCompletions(document, Position.create(0, 22), {
+			const completions2 = await plugin.getCompletions(document, Position.create(0, 22), {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
@@ -43,19 +43,19 @@ describe('CSS Plugin', () => {
 			expect(completions2, 'Expected completions2 to not be empty').to.not.be.null;
 		});
 
-		it('in style attributes', () => {
+		it('in style attributes', async () => {
 			const { plugin, document } = setup('<div style=""></div>');
 
-			const completions = plugin.getCompletions(document, Position.create(0, 12));
+			const completions = await plugin.getCompletions(document, Position.create(0, 12));
 
 			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
 			expect(completions, 'Expected completions to not be empty').to.not.be.null;
 		});
 
-		it('for :global modifier', () => {
+		it('for :global modifier', async () => {
 			const { plugin, document } = setup('<style>:g</style>');
 
-			const completions = plugin.getCompletions(document, Position.create(0, 9), {
+			const completions = await plugin.getCompletions(document, Position.create(0, 9), {
 				triggerCharacter: ':',
 			} as CompletionContext);
 			const globalCompletion = completions?.items.find((item) => item.label === ':global()');
@@ -63,10 +63,10 @@ describe('CSS Plugin', () => {
 			expect(globalCompletion, 'Expected completions to contain :global modifier').to.not.be.null;
 		});
 
-		it('Emmet completions', () => {
+		it('Emmet completions', async () => {
 			const { plugin, document } = setup('<style>h1 {p2}</style>');
 
-			const completions = plugin.getCompletions(document, Position.create(0, 13));
+			const completions = await plugin.getCompletions(document, Position.create(0, 13));
 			const emmetCompletion = completions?.items.find((item) => item.detail === 'Emmet Abbreviation');
 
 			expect(emmetCompletion).to.deep.equal({
@@ -82,21 +82,21 @@ describe('CSS Plugin', () => {
 			});
 		});
 
-		it('should not provide completions for unclosed style tags', () => {
+		it('should not provide completions for unclosed style tags', async () => {
 			const { plugin, document } = setup('<style>');
 
-			const completions = plugin.getCompletions(document, Position.create(0, 7), {
+			const completions = await plugin.getCompletions(document, Position.create(0, 7), {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
 			expect(completions).to.be.null;
 		});
 
-		it('should not provide completions if feature is disabled', () => {
+		it('should not provide completions if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('<style></style>');
 
 			// Disable completions
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				css: {
 					completions: {
 						enabled: false,
@@ -104,21 +104,22 @@ describe('CSS Plugin', () => {
 				},
 			});
 
-			const completions = plugin.getCompletions(document, Position.create(0, 7), {
+			const completions = await plugin.getCompletions(document, Position.create(0, 7), {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
-			expect(configManager.enabled(`css.completions.enabled`), 'Expected completions to be disabled in configManager')
-				.to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'css', 'completions');
+
+			expect(isEnabled).to.be.false;
 			expect(completions, 'Expected completions to be null').to.be.null;
 		});
 	});
 
 	describe('provide hover info', () => {
-		it('in style tags', () => {
+		it('in style tags', async () => {
 			const { plugin, document } = setup('<style>h1 {color:blue;}</style>');
 
-			expect(plugin.doHover(document, Position.create(0, 8))).to.deep.equal(<Hover>{
+			expect(await plugin.doHover(document, Position.create(0, 8))).to.deep.equal(<Hover>{
 				contents: [
 					{ language: 'html', value: '<h1>' },
 					'[Selector Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity): (0, 0, 1)',
@@ -126,7 +127,7 @@ describe('CSS Plugin', () => {
 				range: Range.create(0, 7, 0, 9),
 			});
 
-			expect(plugin.doHover(document, Position.create(0, 12))).to.deep.equal(<Hover>{
+			expect(await plugin.doHover(document, Position.create(0, 12))).to.deep.equal(<Hover>{
 				contents: {
 					kind: 'markdown',
 					value:
@@ -136,10 +137,10 @@ describe('CSS Plugin', () => {
 			});
 		});
 
-		it('in style attributes', () => {
+		it('in style attributes', async () => {
 			const { plugin, document } = setup('<div style="color: red"></div>');
 
-			expect(plugin.doHover(document, Position.create(0, 13))).to.deep.equal(<Hover>{
+			expect(await plugin.doHover(document, Position.create(0, 13))).to.deep.equal(<Hover>{
 				contents: {
 					kind: 'markdown',
 					value:
@@ -149,19 +150,19 @@ describe('CSS Plugin', () => {
 			});
 		});
 
-		it('should not provide hover info for unclosed style tags', () => {
+		it('should not provide hover info for unclosed style tags', async () => {
 			const { plugin, document } = setup('<style>h1 {color:blue;}');
 
-			const hoverInfo = plugin.doHover(document, Position.create(0, 8));
+			const hoverInfo = await plugin.doHover(document, Position.create(0, 8));
 
 			expect(hoverInfo).to.be.null;
 		});
 
-		it('should not provide hover info if feature is disabled', () => {
+		it('should not provide hover info if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('<style>h1 {}</style>');
 
 			// Disable hover info
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				css: {
 					hover: {
 						enabled: false,
@@ -169,9 +170,11 @@ describe('CSS Plugin', () => {
 				},
 			});
 
-			const hoverInfo = plugin.doHover(document, Position.create(0, 8));
+			const hoverInfo = await plugin.doHover(document, Position.create(0, 8));
 
-			expect(configManager.enabled(`css.hover.enabled`), 'Expected hover to be disabled in configManager').to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'css', 'hover');
+
+			expect(isEnabled).to.be.false;
 			expect(hoverInfo, 'Expected hoverInfo to be null').to.be.null;
 		});
 	});
@@ -235,10 +238,10 @@ describe('CSS Plugin', () => {
 	});
 
 	describe('provides document symbols', () => {
-		it('for normal CSS', () => {
+		it('for normal CSS', async () => {
 			const { plugin, document } = setup('<style>h1 {color: red;}</style>');
 
-			const symbols = plugin.getDocumentSymbols(document);
+			const symbols = await plugin.getDocumentSymbols(document);
 
 			expect(symbols).to.deep.equal([
 				{
@@ -252,10 +255,10 @@ describe('CSS Plugin', () => {
 			]);
 		});
 
-		it('for multiple style tags', () => {
+		it('for multiple style tags', async () => {
 			const { plugin, document } = setup('<style>h1 {color: red;}</style><style>h2 {color: blue;}</style>');
 
-			const symbols = plugin.getDocumentSymbols(document);
+			const symbols = await plugin.getDocumentSymbols(document);
 
 			expect(symbols).to.deep.equal([
 				{
@@ -271,11 +274,11 @@ describe('CSS Plugin', () => {
 			]);
 		});
 
-		it('should not provide document symbols if feature is disabled', () => {
+		it('should not provide document symbols if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('<style>h1 {color: red;}</style>');
 
 			// Disable documentSymbols
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				css: {
 					documentSymbols: {
 						enabled: false,
@@ -283,21 +286,20 @@ describe('CSS Plugin', () => {
 				},
 			});
 
-			const symbols = plugin.getDocumentSymbols(document);
+			const symbols = await plugin.getDocumentSymbols(document);
 
-			expect(
-				configManager.enabled(`css.documentSymbols.enabled`),
-				'Expected documentSymbols to be disabled in configManager'
-			).to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'css', 'documentSymbols');
+
+			expect(isEnabled).to.be.false;
 			expect(symbols, 'Expected symbols to be empty').to.be.empty;
 		});
 	});
 
 	describe('provide document colors', () => {
-		it('for normal css', () => {
+		it('for normal css', async () => {
 			const { plugin, document } = setup('<style>h1 {color:blue;}</>');
 
-			const colors = plugin.getColorPresentations(document, Range.create(0, 17, 0, 21), {
+			const colors = await plugin.getColorPresentations(document, Range.create(0, 17, 0, 21), {
 				alpha: 1,
 				blue: 255,
 				green: 0,
@@ -336,11 +338,11 @@ describe('CSS Plugin', () => {
 			]);
 		});
 
-		it('should not provide document colors if feature is disabled', () => {
+		it('should not provide document colors if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('<style>h1 {color: blue;}</style>');
 
 			// Disable document colors
-			configManager.updateConfig(<any>{
+			configManager.updateGlobalConfig(<any>{
 				css: {
 					documentColors: {
 						enabled: false,
@@ -348,12 +350,11 @@ describe('CSS Plugin', () => {
 				},
 			});
 
-			const documentColors = plugin.getDocumentColors(document);
+			const documentColors = await plugin.getDocumentColors(document);
 
-			expect(
-				configManager.enabled(`css.documentColors.enabled`),
-				'Expected documentColors to be disabled in configManager'
-			).to.be.false;
+			const isEnabled = await configManager.isEnabled(document, 'css', 'documentColors');
+
+			expect(isEnabled).to.be.false;
 			expect(documentColors, 'Expected documentColors to be null').to.be.empty;
 		});
 	});

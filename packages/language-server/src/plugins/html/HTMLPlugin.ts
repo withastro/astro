@@ -14,7 +14,7 @@ import type { Plugin } from '../interfaces';
 import { ConfigManager } from '../../core/config/ConfigManager';
 import { AstroDocument } from '../../core/documents/AstroDocument';
 import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
-import { LSHTMLConfig } from '../../core/config/interfaces';
+import { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
 import { isPossibleComponent } from '../../utils';
 import { astroAttributes, astroDirectives, classListAttribute } from './features/astro-attributes';
 import { removeDataAttrCompletion } from './utils';
@@ -40,8 +40,8 @@ export class HTMLPlugin implements Plugin {
 		this.configManager = configManager;
 	}
 
-	doHover(document: AstroDocument, position: Position): Hover | null {
-		if (!this.featureEnabled('hover')) {
+	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
+		if (!(await this.featureEnabled(document, 'hover'))) {
 			return null;
 		}
 
@@ -66,8 +66,8 @@ export class HTMLPlugin implements Plugin {
 	/**
 	 * Get HTML completions
 	 */
-	getCompletions(document: AstroDocument, position: Position): CompletionList | null {
-		if (!this.featureEnabled('completions')) {
+	async getCompletions(document: AstroDocument, position: Position): Promise<CompletionList | null> {
+		if (!(await this.featureEnabled(document, 'completions'))) {
 			return null;
 		}
 
@@ -88,13 +88,16 @@ export class HTMLPlugin implements Plugin {
 			items: [],
 		};
 
-		this.lang.setCompletionParticipants([
-			{
-				onHtmlContent: () =>
-					(emmetResults =
-						getEmmetCompletions(document, position, 'html', this.configManager.getEmmetConfig()) || emmetResults),
-			},
-		]);
+		const emmetConfig = await this.configManager.getEmmetConfig(document);
+		const extensionConfig = await this.configManager.getConfig<LSConfig>('astro', document.uri);
+		if (extensionConfig.html.completions.emmet) {
+			this.lang.setCompletionParticipants([
+				{
+					onHtmlContent: () =>
+						(emmetResults = getEmmetCompletions(document, position, 'html', emmetConfig) || emmetResults),
+				},
+			]);
+		}
 
 		// If we're in a component starting tag, we do not want HTML language completions
 		// as HTML attributes are not valid for components
@@ -119,8 +122,8 @@ export class HTMLPlugin implements Plugin {
 		return this.lang.getFoldingRanges(document);
 	}
 
-	doTagComplete(document: AstroDocument, position: Position): string | null {
-		if (!this.featureEnabled('tagComplete')) {
+	async doTagComplete(document: AstroDocument, position: Position): Promise<string | null> {
+		if (!(await this.featureEnabled(document, 'tagComplete'))) {
 			return null;
 		}
 
@@ -138,8 +141,8 @@ export class HTMLPlugin implements Plugin {
 		return this.lang.doTagComplete(document, position, html);
 	}
 
-	getDocumentSymbols(document: AstroDocument): SymbolInformation[] {
-		if (!this.featureEnabled('documentSymbols')) {
+	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
+		if (!(await this.featureEnabled(document, 'documentSymbols'))) {
 			return [];
 		}
 
@@ -186,7 +189,10 @@ export class HTMLPlugin implements Plugin {
 		}
 	}
 
-	private featureEnabled(feature: keyof LSHTMLConfig) {
-		return this.configManager.enabled('html.enabled') && this.configManager.enabled(`html.${feature}.enabled`);
+	private async featureEnabled(document: AstroDocument, feature: keyof LSHTMLConfig) {
+		return (
+			(await this.configManager.isEnabled(document, 'html')) &&
+			(await this.configManager.isEnabled(document, 'html', feature))
+		);
 	}
 }

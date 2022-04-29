@@ -65,8 +65,8 @@ export class TypeScriptPlugin implements Plugin {
 		this.configManager = configManager;
 		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
 
-		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager);
-		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
+		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager, this.configManager);
+		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
@@ -76,7 +76,7 @@ export class TypeScriptPlugin implements Plugin {
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
-		if (!this.featureEnabled('hover')) {
+		if (!(await this.featureEnabled(document, 'hover'))) {
 			return null;
 		}
 
@@ -118,19 +118,19 @@ export class TypeScriptPlugin implements Plugin {
 	}
 
 	async getSemanticTokens(
-		textDocument: AstroDocument,
+		document: AstroDocument,
 		range?: Range,
 		cancellationToken?: CancellationToken
 	): Promise<SemanticTokens | null> {
-		if (!this.featureEnabled('semanticTokens')) {
+		if (!(await this.featureEnabled(document, 'semanticTokens'))) {
 			return null;
 		}
 
-		return this.semanticTokensProvider.getSemanticTokens(textDocument, range, cancellationToken);
+		return this.semanticTokensProvider.getSemanticTokens(document, range, cancellationToken);
 	}
 
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
-		if (!this.featureEnabled('documentSymbols')) {
+		if (!(await this.featureEnabled(document, 'documentSymbols'))) {
 			return [];
 		}
 
@@ -145,7 +145,7 @@ export class TypeScriptPlugin implements Plugin {
 		context: CodeActionContext,
 		cancellationToken?: CancellationToken
 	): Promise<CodeAction[]> {
-		if (!this.featureEnabled('codeActions')) {
+		if (!(await this.featureEnabled(document, 'codeActions'))) {
 			return [];
 		}
 
@@ -158,7 +158,7 @@ export class TypeScriptPlugin implements Plugin {
 		completionContext?: CompletionContext,
 		cancellationToken?: CancellationToken
 	): Promise<AppCompletionList<CompletionItemData> | null> {
-		if (!this.featureEnabled('completions')) {
+		if (!(await this.featureEnabled(document, 'completions'))) {
 			return null;
 		}
 
@@ -228,7 +228,7 @@ export class TypeScriptPlugin implements Plugin {
 	}
 
 	async getDiagnostics(document: AstroDocument, cancellationToken?: CancellationToken): Promise<Diagnostic[]> {
-		if (!this.featureEnabled('diagnostics')) {
+		if (!(await this.featureEnabled(document, 'diagnostics'))) {
 			return [];
 		}
 
@@ -315,9 +315,10 @@ export class TypeScriptPlugin implements Plugin {
 		}
 	}
 
-	private featureEnabled(feature: keyof LSTypescriptConfig) {
+	private async featureEnabled(document: AstroDocument, feature: keyof LSTypescriptConfig) {
 		return (
-			this.configManager.enabled('typescript.enabled') && this.configManager.enabled(`typescript.${feature}.enabled`)
+			(await this.configManager.isEnabled(document, 'typescript')) &&
+			(await this.configManager.isEnabled(document, 'typescript', feature))
 		);
 	}
 }

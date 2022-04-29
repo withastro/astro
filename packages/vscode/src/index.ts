@@ -11,6 +11,8 @@ import { activateTagClosing } from './html/autoClose.js';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 
+let client: LanguageClient;
+
 export async function activate(context: ExtensionContext) {
 	const serverModule = require.resolve('@astrojs/language-server/bin/nodeServer.js');
 
@@ -29,24 +31,16 @@ export async function activate(context: ExtensionContext) {
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
-			configurationSection: ['astro', 'javascript', 'typescript', 'prettier', 'emmet'],
 			fileEvents: workspace.createFileSystemWatcher('{**/*.js,**/*.ts}', false, false, false),
 		},
 		initializationOptions: {
-			configuration: {
-				astro: workspace.getConfiguration('astro'),
-				prettier: workspace.getConfiguration('prettier'),
-				emmet: workspace.getConfiguration('emmet'),
-				typescript: workspace.getConfiguration('typescript'),
-				javascript: workspace.getConfiguration('javascript'),
-			},
 			environment: 'node',
 			dontFilterIncompleteCompletions: true, // VSCode filters client side and is smarter at it than us
 			isTrusted: workspace.isTrusted,
 		},
 	};
 
-	let client = createLanguageServer(serverOptions, clientOptions);
+	client = createLanguageServer(serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
 
 	client
@@ -128,6 +122,14 @@ export async function activate(context: ExtensionContext) {
 	return {
 		getLanguageServer: getLSClient,
 	};
+}
+
+export function deactivate(): Promise<void> | undefined {
+	if (!client) {
+		return undefined;
+	}
+
+	return client.stop();
 }
 
 function createLanguageServer(serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {

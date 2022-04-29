@@ -11,20 +11,21 @@ import {
 	TextDocumentEdit,
 	TextEdit,
 } from 'vscode-languageserver-types';
+import { ConfigManager } from '../../../core/config';
 import { AstroDocument, getLineAtPosition, mapRangeToOriginal } from '../../../core/documents';
 import { modifyLines } from '../../../utils';
 import { CodeActionsProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
 import { AstroSnapshotFragment } from '../snapshots/DocumentSnapshot';
 import { checkEndOfFileCodeInsert, convertRange, removeAstroComponentSuffix, toVirtualAstroFilePath } from '../utils';
-import { codeActionChangeToTextEdit, completionOptions } from './CompletionsProvider';
+import { codeActionChangeToTextEdit } from './CompletionsProvider';
 import { findContainingNode } from './utils';
 
 // These are VS Code specific CodeActionKind so they're not in the language server protocol
 export const sortImportKind = `${CodeActionKind.Source}.sortImports`;
 
 export class CodeActionsProviderImpl implements CodeActionsProvider {
-	constructor(private languageServiceManager: LanguageServiceManager) {}
+	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {}
 
 	async getCodeActions(
 		document: AstroDocument,
@@ -39,6 +40,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 
 		const start = fragment.offsetAt(fragment.getGeneratedPosition(range.start));
 		const end = fragment.offsetAt(fragment.getGeneratedPosition(range.end));
+
+		const tsPreferences = await this.configManager.getTSPreferences(document);
+		const formatOptions = await this.configManager.getTSFormatConfig(document);
 
 		let result: CodeAction[] = [];
 
@@ -69,8 +73,11 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 				// We currently cannot support quick fix for unreachable code properly due to the way our TSX output is structured
 				.filter((code) => code !== 7027);
 
-			let codeFixes = errorCodes.includes(2304) ? this.getComponentQuickFix(start, end, lang, filePath) : undefined;
-			codeFixes = codeFixes ?? lang.getCodeFixesAtPosition(filePath, start, end, errorCodes, {}, {});
+			let codeFixes = errorCodes.includes(2304)
+				? this.getComponentQuickFix(start, end, lang, filePath, formatOptions, tsPreferences)
+				: undefined;
+			codeFixes =
+				codeFixes ?? lang.getCodeFixesAtPosition(filePath, start, end, errorCodes, formatOptions, tsPreferences);
 
 			const codeActions = codeFixes.map((fix) =>
 				codeFixToCodeAction(fix, context.diagnostics, context.only ? CodeActionKind.QuickFix : CodeActionKind.Empty)
@@ -119,7 +126,9 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 		start: number,
 		end: number,
 		lang: ts.LanguageService,
-		filePath: string
+		filePath: string,
+		formatOptions: ts.FormatCodeSettings,
+		tsPreferences: ts.UserPreferences
 	): readonly ts.CodeFixAction[] | undefined {
 		const sourceFile = lang.getProgram()?.getSourceFile(filePath);
 
@@ -144,7 +153,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 		const tagName = node.tagName;
 
 		// Unlike quick fixes, completions will be able to find the component, so let's use those to get it
-		const completion = lang.getCompletionsAtPosition(filePath, tagName.getEnd(), completionOptions);
+		const completion = lang.getCompletionsAtPosition(filePath, tagName.getEnd(), tsPreferences, formatOptions);
 
 		if (!completion) {
 			return;

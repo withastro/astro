@@ -77,77 +77,137 @@
           "default": "off",
           "description": "Traces the communication between VS Code and the language server."
         },
-        "astro.plugin.typescript.enable": {
+        "astro.typescript.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript",
-          "description": "Enable the TypeScript plugin"
+          "description": "Enable TypeScript features"
         },
-        "astro.plugin.typescript.diagnostics.enable": {
+        "astro.typescript.diagnostics.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Diagnostics",
           "description": "Enable diagnostic messages for TypeScript"
         },
-        "astro.plugin.typescript.hover.enable": {
+        "astro.typescript.hover.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Hover Info",
           "description": "Enable hover info for TypeScript"
         },
-        "astro.plugin.typescript.documentSymbols.enable": {
+        "astro.typescript.documentSymbols.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Symbols in Outline",
           "description": "Enable document symbols for TypeScript"
         },
-        "astro.plugin.typescript.completions.enable": {
+        "astro.typescript.completions.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Completions",
           "description": "Enable completions for TypeScript"
         },
-        "astro.plugin.typescript.findReferences.enable": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Find References",
-          "description": "Enable find-references for TypeScript"
-        },
-        "astro.plugin.typescript.definitions.enable": {
+        "astro.typescript.definitions.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Go to Definition",
           "description": "Enable go to definition for TypeScript"
         },
-        "astro.plugin.typescript.codeActions.enable": {
+        "astro.typescript.codeActions.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Code Actions",
           "description": "Enable code actions for TypeScript"
         },
-        "astro.plugin.typescript.selectionRange.enable": {
-          "type": "boolean",
-          "default": true,
-          "title": "TypeScript: Selection Range",
-          "description": "Enable selection range for TypeScript"
-        },
-        "astro.plugin.typescript.signatureHelp.enable": {
+        "astro.typescript.signatureHelp.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Signature Help",
           "description": "Enable signature help (parameter hints) for TypeScript"
         },
-        "astro.plugin.typescript.rename.enable": {
+        "astro.typescript.rename.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Rename",
           "description": "Enable rename functionality for JS/TS variables inside Astro files"
         },
-        "astro.plugin.typescript.semanticTokens.enable": {
+        "astro.typescript.semanticTokens.enabled": {
           "type": "boolean",
           "default": true,
           "title": "TypeScript: Semantic Tokens",
-          "description": "Enable semantic tokens (semantic highlight) for TypeScript."
+          "description": "Enable semantic tokens (used for semantic highlighting) for TypeScript."
+        },
+        "astro.html.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML",
+          "description": "Enable HTML features"
+        },
+        "astro.html.hover.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML: Hover Info",
+          "description": "Enable hover info for HTML"
+        },
+        "astro.html.completions.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML: Completions",
+          "description": "Enable completions for HTML"
+        },
+        "astro.html.completions.emmet": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML: Emmet Completions",
+          "description": "Enable Emmet completions for HTML"
+        },
+        "astro.html.tagComplete.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML: Tag Completion",
+          "description": "Enable tag completion for HTML"
+        },
+        "astro.html.documentSymbols.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "HTML: Symbols in Outline",
+          "description": "Enable document symbols for CSS"
+        },
+        "astro.css.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS",
+          "description": "Enable CSS features"
+        },
+        "astro.css.hover.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS: Hover Info",
+          "description": "Enable hover info for CSS"
+        },
+        "astro.css.completions.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS: Completions",
+          "description": "Enable completions for CSS"
+        },
+        "astro.css.completions.emmet": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS: Emmet Completions",
+          "description": "Enable Emmet completions for CSS"
+        },
+        "astro.css.documentColors.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS: Document Colors",
+          "description": "Enable color picker for CSS"
+        },
+        "astro.css.documentSymbols.enabled": {
+          "type": "boolean",
+          "default": true,
+          "title": "CSS: Symbols in Outline",
+          "description": "Enable document symbols for CSS"
         }
       }
     },

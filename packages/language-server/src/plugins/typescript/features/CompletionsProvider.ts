@@ -30,17 +30,7 @@ import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
 import { flatten } from 'lodash';
 import { getMarkdownDocumentation } from '../previewer';
 import { isPartOfImportStatement } from './utils';
-
-export const completionOptions: ts.GetCompletionsAtPositionOptions = {
-	importModuleSpecifierPreference: 'relative',
-	importModuleSpecifierEnding: 'auto',
-	quotePreference: 'single',
-	includeCompletionsForModuleExports: true,
-	includeCompletionsForImportStatements: true,
-	includeCompletionsWithInsertText: true,
-	allowIncompleteCompletions: true,
-	includeCompletionsWithSnippetText: true,
-};
+import { ConfigManager } from '../../../core/config';
 
 /**
  * The language service throws an error if the character is not a valid trigger character.
@@ -66,7 +56,7 @@ export interface CompletionItemData extends TextDocumentIdentifier {
 }
 
 export class CompletionsProviderImpl implements CompletionsProvider<CompletionItemData> {
-	constructor(private languageServiceManager: LanguageServiceManager) {}
+	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {}
 
 	private readonly validTriggerCharacters = ['.', '"', "'", '`', '/', '@', '<', '#'] as const;
 
@@ -132,13 +122,21 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			return null;
 		}
 
+		const tsPreferences = await this.configManager.getTSPreferences(document);
+		const formatOptions = await this.configManager.getTSFormatConfig(document);
+
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 
-		const completions = lang.getCompletionsAtPosition(filePath, offset, {
-			...completionOptions,
-			triggerCharacter: validTriggerCharacter,
-		});
+		const completions = lang.getCompletionsAtPosition(
+			filePath,
+			offset,
+			{
+				...tsPreferences,
+				triggerCharacter: validTriggerCharacter,
+			},
+			formatOptions
+		);
 
 		if (completions === undefined || completions.entries.length === 0) {
 			return null;
@@ -175,6 +173,8 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 	): Promise<AppCompletionItem<CompletionItemData>> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
+		const tsPreferences = await this.configManager.getTSPreferences(document);
+
 		const data: CompletionItemData | undefined = item.data as any;
 
 		if (!data || !data.filePath || cancellationToken?.isCancellationRequested) {
@@ -188,7 +188,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			data.originalItem.name, // entryName
 			{}, // formatOptions
 			data.originalItem.source, // source
-			completionOptions, // preferences
+			tsPreferences, // preferences
 			data.originalItem.data // data
 		);
 

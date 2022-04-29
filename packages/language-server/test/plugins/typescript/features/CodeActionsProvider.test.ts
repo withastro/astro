@@ -11,7 +11,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'codeActions');
 		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
-		const provider = new CodeActionsProviderImpl(languageServiceManager);
+		const provider = new CodeActionsProviderImpl(languageServiceManager, env.configManager);
 
 		return {
 			...env,

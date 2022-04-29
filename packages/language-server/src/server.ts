@@ -1,13 +1,14 @@
 import * as vscode from 'vscode-languageserver';
 import {
 	CodeActionKind,
+	DidChangeConfigurationNotification,
 	MessageType,
 	SemanticTokensRangeRequest,
 	SemanticTokensRequest,
 	ShowMessageNotification,
 	TextDocumentIdentifier,
 } from 'vscode-languageserver';
-import { ConfigManager } from './core/config/ConfigManager';
+import { ConfigManager, defaultLSConfig } from './core/config/ConfigManager';
 import { DocumentManager } from './core/documents/DocumentManager';
 import { DiagnosticsManager } from './core/DiagnosticsManager';
 import { AstroPlugin } from './plugins/astro/AstroPlugin';
@@ -20,6 +21,7 @@ import { debounceThrottle, getUserAstroVersion, urlToPath } from './utils';
 import { AstroDocument } from './core/documents';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
+import { LSConfig } from './core/config';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');
@@ -27,9 +29,11 @@ const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, str
 // Start the language server
 export function startLanguageServer(connection: vscode.Connection) {
 	// Create our managers
-	const configManager = new ConfigManager();
 	const documentManager = new DocumentManager();
 	const pluginHost = new PluginHost(documentManager);
+	const configManager = new ConfigManager(connection);
+
+	let hasConfigurationCapability = false;
 
 	connection.onInitialize((params: vscode.InitializeParams) => {
 		const workspaceUris = params.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [params.rootUri ?? ''];
@@ -54,6 +58,8 @@ export function startLanguageServer(connection: vscode.Connection) {
 			}
 		});
 
+		hasConfigurationCapability = !!(params.capabilities.workspace && !!params.capabilities.workspace.configuration);
+
 		pluginHost.initialize({
 			filterIncompleteCompletions: !params.initializationOptions?.dontFilterIncompleteCompletions,
 			definitionLinkSupport: !!params.capabilities.textDocument?.definition?.linkSupport,
@@ -67,16 +73,6 @@ export function startLanguageServer(connection: vscode.Connection) {
 		if (params.initializationOptions.environment !== 'browser') {
 			pluginHost.registerPlugin(new AstroPlugin(documentManager, configManager, workspaceUris));
 			pluginHost.registerPlugin(new TypeScriptPlugin(documentManager, configManager, workspaceUris));
-		}
-
-		// Update language-server config with what the user supplied to us at launch
-		let astroConfiguration = params.initializationOptions?.configuration?.astro;
-		if (astroConfiguration) {
-			configManager.updateConfig(astroConfiguration);
-		}
-		let emmetConfiguration = params.initializationOptions?.configuration?.emmet;
-		if (emmetConfiguration) {
-			configManager.updateEmmetConfig(emmetConfiguration);
 		}
 
 		return {
@@ -146,10 +142,18 @@ export function startLanguageServer(connection: vscode.Connection) {
 		};
 	});
 
-	// On update of the user configuration of the language-server
-	connection.onDidChangeConfiguration(({ settings }: vscode.DidChangeConfigurationParams) => {
-		configManager.updateConfig(settings.astro);
-		configManager.updateEmmetConfig(settings.emmet);
+	// The params don't matter here because in "pull mode" it's always null, it's intended that when the config is updated
+	// you should just reset "your internal cache" and get the config again for relevant documents, weird API design
+	connection.onDidChangeConfiguration(async (change) => {
+		if (hasConfigurationCapability) {
+			configManager.updateConfig();
+
+			documentManager.getAllOpenedByClient().forEach(async (document) => {
+				await configManager.getConfig('astro', document[1].uri);
+			});
+		} else {
+			configManager.updateGlobalConfig(<LSConfig>change.settings.astro || defaultLSConfig);
+		}
 	});
 
 	// Documents
@@ -244,11 +248,20 @@ export function startLanguageServer(connection: vscode.Connection) {
 		'documentChange',
 		debounceThrottle(async (document: AstroDocument) => diagnosticsManager.update(document), 1000)
 	);
-	documentManager.on('documentClose', (document: AstroDocument) => diagnosticsManager.removeDiagnostics(document));
+
+	documentManager.on('documentClose', (document: AstroDocument) => {
+		diagnosticsManager.removeDiagnostics(document);
+		configManager.removeDocument(document.uri);
+	});
 
 	// Taking off 🚀
 	connection.onInitialized(() => {
 		connection.console.log('Successfully initialized! 🚀');
+
+		// Register for all configuration changes.
+		if (hasConfigurationCapability) {
+			connection.client.register(DidChangeConfigurationNotification.type);
+		}
 	});
 
 	connection.listen();

@@ -12,7 +12,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'completions');
 		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
-		const provider = new CompletionsProviderImpl(languageServiceManager);
+		const provider = new CompletionsProviderImpl(languageServiceManager, env.configManager);
 
 		return {
 			...env,
@@ -56,7 +56,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 		expect(detail).to.equal('./imports/component.astro');
 		expect(additionalTextEdits[0].newText).to.equal(
-			`---${newLine}import Component from './imports/component.astro'${newLine}---${newLine}${newLine}`
+			`---${newLine}import Component from "./imports/component.astro"${newLine}---${newLine}${newLine}`
 		);
 	});
 
@@ -69,7 +69,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
 
 		expect(detail).to.equal('./imports/component.astro');
-		expect(additionalTextEdits[0].newText).to.equal(`import Component from './imports/component.astro';${newLine}`);
+		expect(additionalTextEdits[0].newText).to.equal(`import Component from "./imports/component.astro";${newLine}`);
 	});
 
 	it('resolve completion without auto import if component import already exists', async () => {
@@ -105,7 +105,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 		expect(item).to.deep.equal({
 			commitCharacters: ['.', ',', '('],
-			insertText: "import { MySuperFunction$1 } from './imports/definitions';",
+			insertText: 'import { MySuperFunction$1 } from "./imports/definitions";',
 			insertTextFormat: 2,
 			kind: CompletionItemKind.Function,
 			label: 'MySuperFunction',
@@ -115,7 +115,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 			preselect: undefined,
 			sortText: '11',
 			textEdit: {
-				newText: "import { MySuperFunction$1 } from './imports/definitions';",
+				newText: 'import { MySuperFunction$1 } from "./imports/definitions";',
 				range: Range.create(1, 1, 1, 10),
 			},
 		});
