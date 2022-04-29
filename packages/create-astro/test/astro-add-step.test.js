@@ -23,7 +23,7 @@ describe('[create-astro] astro add', function () {
 	});
 
 	it('should use "astro add" when user has installed dependencies', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install('npm');
@@ -45,7 +45,7 @@ describe('[create-astro] astro add', function () {
 	});
 
 	it('should use "npx astro@latest add" when use has NOT installed dependencies', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install('npm');

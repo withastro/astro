@@ -21,7 +21,7 @@ describe('[create-astro] install', function () {
 	});
 
 	it('should respect package manager in prompt', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
@@ -40,7 +40,7 @@ describe('[create-astro] install', function () {
 	});
 
 	it('should respect package manager in next steps', function () {
-		const { stdout, stdin } = setup([tempDir, '--dryrun']);
+		const { stdout, stdin } = setup([tempDir]);
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
