@@ -14,9 +14,11 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
-    ".": "./dist/index.js",
-    "./edge": "./dist/edge/entrypoint.js",
-    "./serverless": "./dist/serverless/entrypoint.js",
+    "./edge": "./dist/edge/adapter.js",
+    "./edge/entrypoint": "./dist/edge/entrypoint.js",
+    "./serverless": "./dist/serverless/adapter.js",
+    "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
+    "./static": "./dist/serverless/adapter.js",
     "./package.json": "./package.json"
   },
   "scripts": {
