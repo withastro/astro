@@ -29,10 +29,11 @@ export const PROMPT_MESSAGES = {
 	install: (pkgManager) => `Would you like us to run "${pkgManager} install?"`,
 	astroAdd: (astroAddCommand = 'npx astro@latest add --yes') =>
 		`Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
+	git: 'Initialize a git repository?',
 };
 
 export function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', args, { cwd: testDir });
+	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--dryrun'], { cwd: testDir });
 	return {
 		stdin,
 		stdout,

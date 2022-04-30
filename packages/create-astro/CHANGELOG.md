@@ -1,5 +1,17 @@
 # create-astro
 
+## 0.12.0
+
+### Minor Changes
+
+- [#3227](https://github.com/withastro/astro/pull/3227) [`c8f5fa35`](https://github.com/withastro/astro/commit/c8f5fa35c4c3cf08df45e6bd6cb78960782ae08b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add "initialize git repository" step to simplify our next steps suggestion. We now give you a one-liner to easily paste in your terminal and start the dev server!
+
+## 0.11.0
+
+### Minor Changes
+
+- [#3223](https://github.com/withastro/astro/pull/3223) [`b7cd6958`](https://github.com/withastro/astro/commit/b7cd69588453cf874346bf2f14c41accd183129e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Replace the component framework selector with a new "run astro add" option. This unlocks integrations beyond components during your create-astro setup, including TailwindCSS and Partytown. This also replaces our previous "starter" template with a simplified "Just the basics" option.
+
 ## 0.10.1
 
 ### Patch Changes

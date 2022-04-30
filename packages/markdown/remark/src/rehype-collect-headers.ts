@@ -1,12 +1,14 @@
 import { visit } from 'unist-util-visit';
-import slugger from 'github-slugger';
+import Slugger from 'github-slugger';
 
-/**  */
+import type { MarkdownHeader, RehypePlugin } from './types.js';
+
 export default function createCollectHeaders() {
-	const headers: any[] = [];
+	const headers: MarkdownHeader[] = [];
+	const slugger = new Slugger();
 
-	function rehypeCollectHeaders() {
-		return function (tree: any) {
+	function rehypeCollectHeaders(): ReturnType<RehypePlugin> {
+		return function (tree) {
 			visit(tree, (node) => {
 				if (node.type !== 'element') return;
 				const { tagName } = node;
@@ -21,11 +23,12 @@ export default function createCollectHeaders() {
 					text += child.value;
 				});
 
-				let slug = node?.properties?.id || slugger.slug(text);
-
 				node.properties = node.properties || {};
-				node.properties.id = slug;
-				headers.push({ depth, slug, text });
+				if (typeof node.properties.id !== 'string') {
+					node.properties.id = slugger.slug(text);
+				}
+
+				headers.push({ depth, slug: node.properties.id, text });
 			});
 		};
 	}
