@@ -6,7 +6,7 @@ Use this integration in your Astro configuration file:
 
 ```js
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
+import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
 	adapter: vercel()
@@ -41,23 +41,20 @@ vercel deploy --prebuilt
 
 [Learn more about setting enviroment variables in Vercel](https://vercel.com/docs/concepts/projects/environment-variables).
 
-## Options
+## Targets
+
+You can deploy to different targes:
+
+- `static`: generates a static website following Vercel's output formats, redirects, etc.
+- `serverless`: SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
+- `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
+
+You can change where to target by changing the import:
 
 ```js
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel';
-
-export default defineConfig({
-	adapter: vercel({
-    /**
-	   * - `static`: generates a static website following Vercel's output formats, redirects, etc.
-	   * - `serverless` (default): SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
-	   * - `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
-	   *
-	   */
-    mode: 'serverless'
-  })
-});
+import vercel from '@astrojs/vercel/static';
+import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel/edge';
 ```
 
 
