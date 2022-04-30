@@ -54,10 +54,10 @@ export default function vercelEdge(): AstroIntegration {
 
 				buildConfig.serverEntry = serverEntry = 'entry.js';
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = functionFolder = new URL('./functions/render.func', _config.outDir);
+				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
-				const entryPath = fileURLToPath(new URL(serverEntry, functionFolder));
+				const entryPath = fileURLToPath(new URL(`./${serverEntry}`, functionFolder));
 
 				// Bundle dependencies
 				await esbuild.build({

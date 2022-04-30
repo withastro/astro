@@ -40,7 +40,7 @@ export default function vercelStatic(): AstroIntegration {
 			'astro:build:done': async ({ routes }) => {
 				// Output configuration
 				// https://vercel.com/docs/build-output-api/v3#build-output-configuration
-				await writeJson(new URL(`./config.json`, _config.outDir), {
+				await writeJson(new URL(`./config.json`, getVercelOutput(_config.root)), {
 					version: 3,
 					routes: [...getRedirects(routes, _config), { handle: 'filesystem' }],
 				});
