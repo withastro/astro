@@ -562,7 +562,9 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
 export async function renderHead(result: SSRResult): Promise<string> {
-	const styles = [];
+	const styles = Array.from(result.styles)
+		.filter(uniqueElements)
+		.map((style) => renderElement('style', style));
 	let needsHydrationStyles = result._metadata.needsHydrationStyles;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
