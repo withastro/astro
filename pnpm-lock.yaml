@@ -523,7 +523,6 @@ importers:
       prismjs: ^1.28.0
       prompts: ^2.4.2
       recast: ^0.20.5
-      rehype-slug: ^5.0.1
       resolve: ^1.22.0
       rollup: ^2.70.2
       sass: ^1.50.1
@@ -584,7 +583,6 @@ importers:
       prismjs: 1.28.0
       prompts: 2.4.2
       recast: 0.20.5
-      rehype-slug: 5.0.1
       resolve: 1.22.0
       rollup: 2.70.2
       semver: 7.3.7
@@ -823,10 +821,12 @@ importers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
       hast-util-select: ^5.0.1
+      rehype-slug: ^5.0.1
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
       hast-util-select: 5.0.1
+      rehype-slug: 5.0.1
 
   packages/astro/test/fixtures/astro-markdown-shiki/langs:
     specifiers:
@@ -1485,7 +1485,6 @@ importers:
       micromark-extension-mdx-jsx: ^1.0.3
       prismjs: ^1.28.0
       rehype-raw: ^6.1.1
-      rehype-slug: ^5.0.1
       rehype-stringify: ^9.0.3
       remark-gfm: ^3.0.1
       remark-parse: ^10.0.1
@@ -1505,7 +1504,6 @@ importers:
       micromark-extension-mdx-jsx: 1.0.3
       prismjs: 1.28.0
       rehype-raw: 6.1.1
-      rehype-slug: 5.0.1
       rehype-stringify: 9.0.3
       remark-gfm: 3.0.1
       remark-parse: 10.0.1
