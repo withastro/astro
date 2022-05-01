@@ -1,6 +1,6 @@
 import type { AstroIntegration, AstroRenderer } from 'astro';
 
-function getRenderer(): AstroRenderer {
+function getRenderer(babelConfig): AstroRenderer {
 	return {
 		name: '@astrojs/solid-js',
 		clientEntrypoint: '@astrojs/solid-js/client.js',
@@ -14,7 +14,7 @@ function getRenderer(): AstroRenderer {
 				plugins: [],
 			};
 
-			return options;
+			return babelConfig?.(options) ?? options;
 		},
 	};
 }
@@ -44,12 +44,12 @@ function getViteConfiguration(isDev: boolean) {
 	};
 }
 
-export default function (): AstroIntegration {
+export default function ({babelConfig}): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
 			'astro:config:setup': ({ command, addRenderer, updateConfig }) => {
-				addRenderer(getRenderer());
+				addRenderer(getRenderer(babelConfig));
 				updateConfig({ vite: getViteConfiguration(command === 'dev') });
 			},
 		},
