@@ -78,12 +78,11 @@ if(_start in adapter) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
-				if (chunk.modules[resolvedVirtualModuleId]) {
-					const code = chunk.code;
-					chunk.code = code.replace(replaceExp, () => {
-						return JSON.stringify(manifest);
-					});
-				}
+
+				const code = chunk.code;
+				chunk.code = code.replace(replaceExp, () => {
+					return JSON.stringify(manifest);
+				});
 			}
 		},
 	};
