@@ -14,7 +14,7 @@ interface EventCliSession {
 interface ConfigInfo {
 	hasViteConfig: boolean;
 	hasBase: boolean;
-	configKeys: string[];
+	viteKeys: string[];
 	markdownPlugins: string[];
 	adapter: string | null;
 	integrations: string[];
@@ -45,16 +45,6 @@ function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | 
 	}, [] as string[]);
 }
 
-function keyMap(obj: Record<string, any>): string[] {
-	return Object.entries(obj).map(([key, value]) => {
-		if(typeof value === 'object' && !Array.isArray(value)) {
-			return keyMap(value).map(subkey => key + '.' + subkey);
-		} else {
-			return key;
-		}
-	}).flat(1);
-}
-
 export function eventCliSession(
 	event: EventCliSession,
 	astroConfig?: Record<string, any>
@@ -75,7 +65,7 @@ export function eventCliSession(
 							astroConfig?.markdown?.rehypePlugins ?? [],
 						].flat(1),
 					hasBase: astroConfig?.base !== '/',
-					configKeys: keyMap(astroConfig),
+					viteKeys: Object.keys(astroConfig?.vite ?? []),
 					adapter: astroConfig?.adapter?.name ?? null,
 					integrations: astroConfig?.integrations.map((i: any) => i.name) ?? [],
 					experimentalFeatures: getExperimentalFeatures(astroConfig) ?? [],
