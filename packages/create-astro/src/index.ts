@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
+import { bgCyan, black, bold, cyan, gray, green, red, yellow } from 'kleur/colors';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
@@ -181,19 +181,17 @@ export async function main() {
 		process.exit(0);
 	}
 
-	if (installResponse.install) {
+	if (installResponse.install && !args.dryrun) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
 		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
-		if (!args.dryrun) {
-			await new Promise<void>((resolve, reject) => {
-				installExec.stdout?.on('data', function (data) {
-					spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
-				});
-				installExec.on('error', (error) => reject(error));
-				installExec.on('close', () => resolve());
+		await new Promise<void>((resolve, reject) => {
+			installExec.stdout?.on('data', function (data) {
+				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
 			});
-		}
+			installExec.on('error', (error) => reject(error));
+			installExec.on('close', () => resolve());
+		});
 		spinner.succeed();
 	}
 
@@ -227,26 +225,36 @@ export async function main() {
 		);
 	}
 
-	console.log('\nNext steps:');
-	let i = 1;
-	const relative = path.relative(process.cwd(), cwd);
-	if (relative !== '') {
-		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);
+	const gitResponse = await prompts({
+		type: 'confirm',
+		name: 'git',
+		message: 'Initialize a git repository?',
+		initial: true,
+	});
+
+	if (!gitResponse) {
+		process.exit(0);
 	}
 
-	if (!installResponse.install) {
-		console.log(`  ${i++}: ${bold(cyan(`${pkgManager} install`))}`);
+	if (gitResponse.git && !args.dryrun) {
+		await execaCommand('git init', { cwd });
 	}
-	console.log(
-		`  ${i++}: ${bold(
-			cyan('git init && git add -A && git commit -m "Initial commit"')
-		)} (optional step)`
-	);
-	const runCommand = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
-	console.log(`  ${i++}: ${bold(cyan(runCommand))}`);
+
+	console.log(`\n${bgCyan(black(' Next steps '))}\n`);
+
+	const relative = path.relative(process.cwd(), cwd);
+	const startCommand = [];
+	if (relative !== '') {
+		startCommand.push(bold(cyan(`cd ${relative}`)));
+	}
+	if (!installResponse.install) {
+		startCommand.push(bold(cyan(`${pkgManager} install`)));
+	}
+	startCommand.push(bold(cyan(pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`)));
+	console.log(startCommand.join(' && '));
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
-	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
+	console.log(`Stuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
 }
 
 function emojiWithFallback(char: string, fallback: string) {

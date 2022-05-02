@@ -15,9 +15,9 @@ describe('Astro Markdown plugins', () => {
 					['rehype-autolink-headings', { behavior: 'prepend' }],
 				],
 				rehypePlugins: [
+					'rehype-slug',
 					['rehype-toc', { headings: ['h2', 'h3'] }],
 					[addClasses, { 'h1,h2,h3': 'title' }],
-					'rehype-slug',
 				],
 			},
 		});

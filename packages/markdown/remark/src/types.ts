@@ -40,3 +40,20 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 		scopedClassName: string | null;
 	};
 }
+
+export interface MarkdownHeader {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+export interface MarkdownMetadata {
+	headers: MarkdownHeader[];
+	source: string;
+	html: string;
+}
+
+export interface MarkdownRenderingResult {
+	metadata: MarkdownMetadata;
+	code: string;
+}
