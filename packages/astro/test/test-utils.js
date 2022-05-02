@@ -88,7 +88,9 @@ export async function loadFixture(inlineConfig) {
 
 	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
 	const telemetry = {
-		record(){ return Promise.resolve(); }
+		record() {
+			return Promise.resolve();
+		},
 	};
 
 	return {

@@ -38,10 +38,7 @@ export interface BuildOptions {
 }
 
 /** `astro build` */
-export default async function build(
-	config: AstroConfig,
-	options: BuildOptions
-): Promise<void> {
+export default async function build(config: AstroConfig, options: BuildOptions): Promise<void> {
 	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
 	await builder.run();

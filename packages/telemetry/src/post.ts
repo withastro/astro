@@ -7,5 +7,7 @@ export function post(body: Record<string, any>) {
 		method: 'POST',
 		body: JSON.stringify(body),
 		headers: { 'content-type': 'application/json' },
-	}).catch(noop).then(noop, noop);
+	})
+		.catch(noop)
+		.then(noop, noop);
 }

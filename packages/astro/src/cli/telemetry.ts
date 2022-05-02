@@ -20,8 +20,8 @@ export async function update(subcommand: string, { flags, telemetry }: Telemetry
 			commands: [
 				['enable', 'Enable anonymous data collection.'],
 				['disable', 'Disable anonymous data collection.'],
-				['reset', 'Reset anonymous data collection settings.']
-			]
+				['reset', 'Reset anonymous data collection settings.'],
+			],
 		});
 		return;
 	}

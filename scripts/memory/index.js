@@ -18,7 +18,11 @@ let config = await loadConfig({
 	cwd: fileURLToPath(projDir),
 });
 
-const telemetry = { record() { return Promise.resolve(); } };
+const telemetry = {
+	record() {
+		return Promise.resolve();
+	},
+};
 const server = await dev(config, { logging: { level: 'error' }, telemetry });
 
 // Prime the server so initial memory is created

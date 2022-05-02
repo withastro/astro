@@ -1,1 +1,1 @@
-export * from './dist/types/events'
+export * from './dist/types/events';

@@ -1,14 +1,14 @@
 import escalade from 'escalade/sync';
-import { createRequire } from 'node:module'
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 
-const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED'
+const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
 interface EventCliSession {
-  astroVersion: string;
-  cliCommand: string;
+	astroVersion: string;
+	cliCommand: string;
 }
 
 interface ConfigInfo {
@@ -41,28 +41,34 @@ function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | 
 			acc.push(key);
 		}
 		return acc;
-	}, [] as string[])
+	}, [] as string[]);
 }
 
 export function eventCliSession(
 	event: EventCliSession,
-  astroConfig?: Record<string, any>
+	astroConfig?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
 	const payload: EventCliSessionInternal = {
 		cliCommand: event.cliCommand,
 		// Versions
-    astroVersion: event.astroVersion,
+		astroVersion: event.astroVersion,
 		viteVersion: getViteVersion(),
-    nodeVersion: process.version.replace(/^v?/, ''),
+		nodeVersion: process.version.replace(/^v?/, ''),
 		// Config Values
-		config: astroConfig ? {
-			hasViteConfig: Object.keys(astroConfig?.vite).length > 0,
-			hasMarkdownPlugins: [astroConfig?.markdown?.remarkPlugins ?? [], astroConfig?.markdown?.rehypePlugins ?? []].flat(1).length > 0,
-			hasBase: astroConfig?.base !== '/',
-			adapter: astroConfig?.adapter?.name ?? null,
-			integrations: astroConfig?.integrations.map((i: any) => i.name) ?? [],
-			experimentalFeatures: getExperimentalFeatures(astroConfig) ?? [],
-		} : undefined
-  }
-  return [{ eventName: EVENT_SESSION, payload }]
+		config: astroConfig
+			? {
+					hasViteConfig: Object.keys(astroConfig?.vite).length > 0,
+					hasMarkdownPlugins:
+						[
+							astroConfig?.markdown?.remarkPlugins ?? [],
+							astroConfig?.markdown?.rehypePlugins ?? [],
+						].flat(1).length > 0,
+					hasBase: astroConfig?.base !== '/',
+					adapter: astroConfig?.adapter?.name ?? null,
+					integrations: astroConfig?.integrations.map((i: any) => i.name) ?? [],
+					experimentalFeatures: getExperimentalFeatures(astroConfig) ?? [],
+			  }
+			: undefined,
+	};
+	return [{ eventName: EVENT_SESSION, payload }];
 }

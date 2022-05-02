@@ -17,15 +17,18 @@ function getConfigDir(name: string) {
 	const win = () => {
 		const { APPDATA = path.join(homedir, 'AppData', 'Roaming') } = process.env;
 		return path.join(APPDATA, name, 'Config');
-	}
+	};
 	const linux = () => {
 		const { XDG_CONFIG_HOME = path.join(homedir, '.config') } = process.env;
 		return path.join(XDG_CONFIG_HOME, name);
-	}
+	};
 	switch (process.platform) {
-		case 'darwin': return macos();
-		case 'win32': return win();
-		default: return linux();
+		case 'darwin':
+			return macos();
+		case 'win32':
+			return win();
+		default:
+			return linux();
 	}
 }
 
@@ -37,7 +40,7 @@ export class Config {
 		this.dir = getConfigDir(this.project.name);
 		this.file = path.join(this.dir, 'config.json');
 	}
-	
+
 	private _store?: Record<string, any>;
 	private get store(): Record<string, any> {
 		if (this._store) return this._store;

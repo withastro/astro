@@ -27,10 +27,7 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(
-	config: AstroConfig,
-	options: DevOptions
-): Promise<DevServer> {
+export default async function dev(config: AstroConfig, options: DevOptions): Promise<DevServer> {
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
