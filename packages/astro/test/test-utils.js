@@ -86,10 +86,15 @@ export async function loadFixture(inlineConfig) {
 		level: 'error',
 	};
 
+	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
+	const telemetry = {
+		record(){ return Promise.resolve(); }
+	};
+
 	return {
 		build: (opts = {}) => build(config, { mode: 'development', logging, ...opts }),
 		startDevServer: async (opts = {}) => {
-			const devResult = await dev(config, { logging, ...opts });
+			const devResult = await dev(config, { logging, telemetry, ...opts });
 			config.server.port = devResult.address.port; // update port
 			return devResult;
 		},
