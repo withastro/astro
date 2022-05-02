@@ -367,7 +367,7 @@ export function createAstro(
 			// When inside of project root, remove the leading path so you are
 			// left with only `/src/images/tower.png`
 			if (resolved.startsWith(projectRoot.pathname)) {
-				resolved = '/' + resolved.substr(projectRoot.pathname.length);
+				resolved = '/' + resolved.slice(projectRoot.pathname.length);
 			}
 			return resolved;
 		},
@@ -543,7 +543,9 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
 export async function renderHead(result: SSRResult): Promise<string> {
-	const styles = [];
+	const styles = Array.from(result.styles)
+		.filter(uniqueElements)
+		.map((style) => renderElement('style', style));
 	let needsHydrationStyles = false;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
@@ -41,7 +41,7 @@ describe('CSS Bundling', function () {
 				const link = $(`link[rel="stylesheet"][href^="${href}"]`);
 				expect(link.length).to.be.greaterThanOrEqual(1);
 				const outHref = link.attr('href');
-				builtCSS.add(outHref.startsWith('../') ? outHref.substr(2) : outHref);
+				builtCSS.add(outHref.startsWith('../') ? outHref.slice(2) : outHref);
 			}
 
 			// test 2: assert old CSS was removed
