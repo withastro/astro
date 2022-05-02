@@ -634,6 +634,17 @@ importers:
     devDependencies:
       prismjs: 1.28.0
 
+  packages/astro-rss:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      fast-xml-parser: ^4.0.7
+    dependencies:
+      fast-xml-parser: 4.0.7
+    devDependencies:
+      astro: link:../astro
+      astro-scripts: link:../../scripts
+
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
