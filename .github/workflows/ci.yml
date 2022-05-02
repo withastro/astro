@@ -109,6 +109,8 @@ jobs:
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
+    env:
+      ASTRO_TELEMETRY_DISABLED: true
     strategy:
       matrix:
         os: [ubuntu-latest]
