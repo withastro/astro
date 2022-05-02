@@ -92,7 +92,7 @@ export async function loadFixture(inlineConfig) {
 	};
 
 	return {
-		build: (opts = {}) => build(config, { mode: 'development', logging, ...opts }),
+		build: (opts = {}) => build(config, { mode: 'development', logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
 			const devResult = await dev(config, { logging, telemetry, ...opts });
 			config.server.port = devResult.address.port; // update port
@@ -102,7 +102,7 @@ export async function loadFixture(inlineConfig) {
 		fetch: (url, init) =>
 			fetch(`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`, init),
 		preview: async (opts = {}) => {
-			const previewServer = await preview(config, { logging, ...opts });
+			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;
 		},
 		readFile: (filePath) =>
