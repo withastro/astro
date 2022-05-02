@@ -119,8 +119,6 @@ export async function cli(args: string[]) {
 		} catch (err) {
 			return throwAndExit(err);
 		}
-	} else {
-		await telemetryHandler.notify({ flags, telemetry });
 	}
 
 	switch (cmd) {

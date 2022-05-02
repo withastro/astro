@@ -13,8 +13,8 @@ interface EventCliSession {
 
 interface ConfigInfo {
 	hasViteConfig: boolean;
-	hasMarkdownPlugins: boolean;
 	hasBase: boolean;
+	markdownPlugins: string[];
 	adapter: string | null;
 	integrations: string[];
 	experimentalFeatures: string[];
@@ -58,11 +58,11 @@ export function eventCliSession(
 		config: astroConfig
 			? {
 					hasViteConfig: Object.keys(astroConfig?.vite).length > 0,
-					hasMarkdownPlugins:
+					markdownPlugins:
 						[
 							astroConfig?.markdown?.remarkPlugins ?? [],
 							astroConfig?.markdown?.rehypePlugins ?? [],
-						].flat(1).length > 0,
+						].flat(1),
 					hasBase: astroConfig?.base !== '/',
 					adapter: astroConfig?.adapter?.name ?? null,
 					integrations: astroConfig?.integrations.map((i: any) => i.name) ?? [],

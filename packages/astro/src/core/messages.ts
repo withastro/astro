@@ -128,19 +128,19 @@ export function telemetryNotice() {
 }
 
 export function telemetryEnabled() {
-	return `\n  ${green('◉')} Telemetry is ${bgGreen(
+	return `\n  ${green('◉')} Anonymous telemetry is ${bgGreen(
 		black(' enabled ')
 	)}. Thank you for improving Astro!\n`;
 }
 
 export function telemetryDisabled() {
-	return `\n  ${yellow('◯')} Telemetry is ${bgYellow(
+	return `\n  ${yellow('◯')}  Anonymous telemetry is ${bgYellow(
 		black(' disabled ')
 	)}. We won't share any usage data.\n`;
 }
 
 export function telemetryReset() {
-	return `\n  ${cyan('◆')} Telemetry has been ${bgCyan(
+	return `\n  ${cyan('◆')} Anonymous telemetry has been ${bgCyan(
 		black(' reset ')
 	)}. You may be prompted again.\n`;
 }

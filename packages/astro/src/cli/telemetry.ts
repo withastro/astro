@@ -45,29 +45,3 @@ export async function update(subcommand: string, { flags, telemetry }: Telemetry
 	}
 }
 
-export async function notify({ telemetry }: TelemetryOptions) {
-	return telemetry.notify(async () => {
-		console.clear();
-		console.log(msg.telemetryNotice());
-		console.log();
-		const response = await prompts({
-			type: 'select',
-			name: 'accepted',
-			message: `Opt-in to Astro\'s telemetry program?`,
-			instructions: false,
-			choices: [
-				{ title: 'Yes', description: 'Share anonymous usage data to improve Astro', value: true },
-				{ title: 'No', description: 'Do not share anonymous usage data', value: false },
-			],
-			initial: 0,
-		});
-		const enabled = response.accepted ?? false;
-		console.clear();
-		if (enabled) {
-			console.log(msg.telemetryEnabled());
-		} else {
-			console.log(msg.telemetryDisabled());
-		}
-		return enabled;
-	});
-}
