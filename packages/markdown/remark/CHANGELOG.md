@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.9.4
+
+### Patch Changes
+
+- [#3275](https://github.com/withastro/astro/pull/3275) [`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in passing JS args to islands
+
 ## 0.9.3
 
 ### Patch Changes
