@@ -25,7 +25,7 @@ const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
-const hydrationedRenders = new WeakSet<SSRResult>();
+const resultsWithHydrationScript = new WeakSet<SSRResult>();
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
@@ -333,8 +333,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// is scoped to a page renderer we can use it as a key to know if the script
 	// has been rendered or not.
 	let script = '';
-	if(!hydrationedRenders.has(result)) {
-		hydrationedRenders.add(result);
+	if(!resultsWithHydrationScript.has(result)) {
+		resultsWithHydrationScript.add(result);
 		script = `<script>${islandScript}</script>`;
 	}
 
