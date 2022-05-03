@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.0-beta.21
+
+### Patch Changes
+
+- [#3244](https://github.com/withastro/astro/pull/3244) [`48a35e60`](https://github.com/withastro/astro/commit/48a35e6042a6634c836ec333d18801e9d603b328) Thanks [@matthewp](https://github.com/matthewp)! - Consolidates hydration scripts into one
+
+* [#3256](https://github.com/withastro/astro/pull/3256) [`f76038ac`](https://github.com/withastro/astro/commit/f76038ac7db986a13701fd316e53142b52e011c8) Thanks [@matthewp](https://github.com/matthewp)! - Adds anonymous telemetry data to the cli
+
+- [#3234](https://github.com/withastro/astro/pull/3234) [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60) Thanks [@JuanM04](https://github.com/JuanM04)! - Moved some type from `astro` to `@astrojs/markdown-remark`
+
+- Updated dependencies [[`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60), [`f76038ac`](https://github.com/withastro/astro/commit/f76038ac7db986a13701fd316e53142b52e011c8), [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60)]:
+  - @astrojs/markdown-remark@0.9.3
+  - @astrojs/telemetry@0.1.0
+
 ## 1.0.0-beta.20
 
 ### Patch Changes
