@@ -176,7 +176,7 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 	
-	// If a base path was provided, append it to the stie URL. This ensures that
+	// If a base path was provided, append it to the site URL. This ensures that
 	// all injected scripts and links are referenced relative to the site and subpath.
 	const site = astroConfig.base !== '/'
 		? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
