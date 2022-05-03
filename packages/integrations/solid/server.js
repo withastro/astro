@@ -1,13 +1,7 @@
 import { renderToString, ssr, createComponent } from 'solid-js/web';
 
-function check(Component, props, children) {
-	if (typeof Component !== 'function') return false;
-	try {
-		const { html } = renderToStaticMarkup(Component, props, children);
-		return typeof html === 'string';
-	} catch (err) {
-		return false;
-	}
+function check(Component) {
+	return typeof Component === 'function';
 }
 
 function renderToStaticMarkup(Component, props, children) {
