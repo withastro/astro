@@ -24,7 +24,6 @@ const ALWAYS_EXTERNAL = new Set([
 	'node-fetch',
 	'prismjs',
 	'shiki',
-	'shorthash',
 	'unified',
 	'whatwg-url',
 ]);

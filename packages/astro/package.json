@@ -122,7 +122,6 @@
     "rollup": "^2.70.2",
     "semver": "^7.3.7",
     "shiki": "^0.10.1",
-    "shorthash": "^0.0.2",
     "sirv": "^2.0.2",
     "slash": "^4.0.0",
     "sourcemap-codec": "^1.4.8",

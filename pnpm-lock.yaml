@@ -530,7 +530,6 @@ importers:
       sass: ^1.50.1
       semver: ^7.3.7
       shiki: ^0.10.1
-      shorthash: ^0.0.2
       sirv: ^2.0.2
       slash: ^4.0.0
       sourcemap-codec: ^1.4.8
@@ -590,7 +589,6 @@ importers:
       rollup: 2.70.2
       semver: 7.3.7
       shiki: 0.10.1
-      shorthash: 0.0.2
       sirv: 2.0.2
       slash: 4.0.0
       sourcemap-codec: 1.4.8
@@ -9269,10 +9267,6 @@ packages:
       jsonc-parser: 3.0.0
       vscode-oniguruma: 1.6.2
       vscode-textmate: 5.2.0
-    dev: false
-
-  /shorthash/0.0.2:
-    resolution: {integrity: sha1-WbJo7sveWQOLMNogK8+93rLEpOs=}
     dev: false
 
   /side-channel/1.0.4:
