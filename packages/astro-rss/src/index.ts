@@ -9,6 +9,12 @@ type RSSOptions = {
 	title: string;
 	/** (required) Description of the RSS Feed */
 	description: string;
+	/**
+	 * List of RSS feed items to render. Accepts either:
+	 * a) list of RSSFeedItems
+	 * b) import.meta.glob result. You can only glob ".md" files within src/pages/ when using this method!
+	 */
+	items: RSSFeedItem[] | GlobResult;
 	/** Specify arbitrary metadata on opening <xml> tag */
 	xmlns?: Record<string, string>;
 	/**
@@ -18,11 +24,10 @@ type RSSOptions = {
 	/** Specify custom data in opening of file */
 	customData?: string;
 	/**
-	 * List of RSS feed items to render. Accepts either:
-	 * a) list of RSSFeedItems
-	 * b) import.meta.glob result. You can only glob ".md" files within /pages when using this method!
+	 * Specify the base URL to use for RSS feed links.
+	 * Defaults to "site" in your project's astro.config
 	 */
-	items: RSSFeedItem[] | GlobResult;
+	canonicalUrl?: string;
 };
 
 type RSSFeedItem = {
@@ -81,17 +86,19 @@ items: Object.values(import.meta.globEager("/src/posts/*.md")).map(
 }
 
 export default async function getRSS(rssOptions: RSSOptions) {
-	if (!(import.meta as any).env.SITE) {
-		throw new Error('RSS requires the `site` astro.config option!');
+	const site = rssOptions.canonicalUrl ?? (import.meta as any).env?.SITE;
+	if (!site) {
+		throw new Error(
+			`RSS requires a canonical URL. Either add a "site" to your project's astro.config, or supply the canonicalUrl argument.`
+		);
 	}
 	let { items } = rssOptions;
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
 	}
-	console.log({ items });
 	return {
 		body: await generateRSS({
-			site: (import.meta as any).env.SITE,
+			site,
 			rssOptions,
 			items,
 		}),

@@ -19,7 +19,7 @@ pnpm i @astrojs/rss
 
 The `@astrojs/rss` package provides helpers for generating RSS feeds within [Astro endpoints][astro-endpoints]. This unlocks both static builds _and_ on-demand generation when using an [SSR adapter](https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project).
 
-For instance, say you need to generate an RSS feed for all posts under `src/pages/blog/`. Create an `rss.xml.js` file under your project's `src/pages/` directory, and use [Vite's `import.meta.glob` helper](https://vitejs.dev/guide/features.html#glob-import) like so:
+For instance, say you need to generate an RSS feed for all posts under `src/pages/blog/`. Start by [adding a `site` to your project's `astro.config` for link generation](https://docs.astro.build/en/reference/configuration-reference/#site). Then, create an `rss.xml.js` file under your project's `src/pages/` directory, and use [Vite's `import.meta.glob` helper](https://vitejs.dev/guide/features.html#glob-import) like so:
 
 ```js
 // src/pages/rss.xml.js
@@ -52,6 +52,9 @@ rss({
   customData: '<language>en-us</language>',
   // (optional) add arbitrary metadata to opening <rss> tag
   xmlns: { h: 'http://www.w3.org/TR/html4/' },
+  // (optional) provide a canonical URL
+  // defaults to the "site" configured in your project's astro.config
+  canonicalUrl: 'https://stargazers.club',
 });
 ```
 
@@ -133,6 +136,12 @@ Will inject the following XML:
 ```xml
 <rss xmlns:h="http://www.w3.org/TR/html4/"...`
 ```
+
+### canonicalUrl
+
+Type: `string (optional)`
+
+The base URL to use when generating RSS item links. This defaults to the [`site` configured in your project's `astro.config`](https://docs.astro.build/en/reference/configuration-reference/#site). We recommend using `site` instead of `canonicalUrl`, though we provide this option if an override is necessary.
 
 ## getStylesheet
 
