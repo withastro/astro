@@ -50,7 +50,7 @@ describe('Custom Elements', () => {
 
 		// Hydration
 		// test 3: Component and polyfill scripts bundled separately
-		expect($('script')).to.have.lengthOf(2);
+		expect($('script[type=module]')).to.have.lengthOf(1);
 	});
 
 	it('Custom elements not claimed by renderer are rendered as regular HTML', async () => {

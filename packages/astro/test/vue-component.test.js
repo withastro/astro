@@ -27,11 +27,18 @@ describe('Vue component', () => {
 			// test 1: renders all components correctly
 			expect(allPreValues).to.deep.equal(['0', '1', '1', '1', '10', '100', '1000']);
 
-			// test 2: renders 3 <astro-islands>s
-			expect($('astro-island')).to.have.lengthOf(6);
+			// test 2: renders 3 <astro-root>s
+			expect($('astro-root')).to.have.lengthOf(6);
 
-			// test 3: treats <my-button> as a custom element
+			// test 3: all <astro-root>s have uid attributes
+			expect($('astro-root[uid]')).to.have.lengthOf(6);
+
+			// test 4: treats <my-button> as a custom element
 			expect($('my-button')).to.have.lengthOf(7);
+
+			// test 5: components with identical render output and props have been deduplicated
+			const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));
+			expect(new Set(uniqueRootUIDs).size).to.equal(5);
 		});
 	});
 
