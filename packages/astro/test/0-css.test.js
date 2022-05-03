@@ -56,7 +56,7 @@ describe('CSS', function () {
 				expect($('#passed-in').attr('class')).to.match(/outer astro-[A-Z0-9]+ astro-[A-Z0-9]+/);
 			});
 
-			it('Using hydrated components adds astro-root styles', async () => {
+			it('Using hydrated components adds astro-island styles', async () => {
 				const inline = $('style').html();
 				expect(inline).to.include('display: contents');
 			});

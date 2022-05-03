@@ -42,11 +42,7 @@ describe('React Components', () => {
 			expect($('#pure')).to.have.lengthOf(1);
 
 			// test 8: Check number of islands
-			expect($('astro-root[uid]')).to.have.lengthOf(5);
-
-			// test 9: Check island deduplication
-			const uniqueRootUIDs = new Set($('astro-root').map((i, el) => $(el).attr('uid')));
-			expect(uniqueRootUIDs.size).to.equal(4);
+			expect($('astro-island')).to.have.lengthOf(5);
 		});
 
 		it('Can load Vue', async () => {

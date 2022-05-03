@@ -1,7 +1,9 @@
 import type { AstroComponentMetadata, SSRLoadedRenderer } from '../../@types/astro';
 import type { SSRElement, SSRResult } from '../../@types/astro';
 import { hydrationSpecifier, serializeListValue } from './util.js';
+import { escapeHTML } from './escape.js';
 import serializeJavaScript from 'serialize-javascript';
+
 
 // Serializes props passed into a component so that they can be reused during hydration.
 // The value is any
@@ -110,32 +112,29 @@ export async function generateHydrateScript(
 		);
 	}
 
-	let hydrationSource = ``;
-
-	hydrationSource += renderer.clientEntrypoint
-		? `const [{ ${
-				componentExport.value
-		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
-				componentUrl
-		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
-  return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
-`
-		: `await import("${await result.resolve(componentUrl)}");
-  return () => {};
-`;
-	// TODO: If we can figure out tree-shaking in the final SSR build, we could safely
-	// use BEFORE_HYDRATION_SCRIPT_ID instead of 'astro:scripts/before-hydration.js'.
-	const hydrationScript = {
-		props: { type: 'module', 'data-astro-component-hydration': true },
-		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
-${`import '${await result.resolve('astro:scripts/before-hydration.js')}';`}
-setup("${astroId}", {name:"${metadata.displayName}",${
-			metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''
-		}}, async () => {
-  ${hydrationSource}
-});
-`,
+	const island: SSRElement = {
+		children: '',
+		props: {
+			// This is for HMR, probably can avoid it in prod
+			uid: astroId
+		}
 	};
 
-	return hydrationScript;
+	// Add component url
+	island.props['component-url'] = await result.resolve(componentUrl);
+
+	// Add renderer url
+	if(renderer.clientEntrypoint) {
+		island.props['renderer-url'] = await result.resolve(renderer.clientEntrypoint);
+		island.props['props'] = escapeHTML(serializeProps(props));
+	}
+
+	island.props['directive-url'] = await result.resolve(hydrationSpecifier(hydrate));
+	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
+	island.props['opts'] = escapeHTML(JSON.stringify({
+		name: metadata.displayName,
+		value: metadata.hydrateArgs || ''
+	}))
+
+	return island;
 }
