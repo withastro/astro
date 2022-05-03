@@ -1,5 +1,6 @@
 import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
+import type { AstroTelemetry } from '@astrojs/telemetry';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
@@ -33,13 +34,11 @@ import { fixViteErrorMessage } from '../errors.js';
 export interface BuildOptions {
 	mode?: string;
 	logging: LogOptions;
+	telemetry: AstroTelemetry;
 }
 
 /** `astro build` */
-export default async function build(
-	config: AstroConfig,
-	options: BuildOptions = { logging: nodeLogOptions }
-): Promise<void> {
+export default async function build(config: AstroConfig, options: BuildOptions): Promise<void> {
 	applyPolyfill();
 	const builder = new AstroBuilder(config, options);
 	await builder.run();

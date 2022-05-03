@@ -20,6 +20,9 @@ import {
 } from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
 
+export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
+export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+
 export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;

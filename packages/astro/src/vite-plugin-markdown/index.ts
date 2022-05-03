@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
-import { virtualModuleId as pagesVirtualModuleId } from '../core/build/vite-plugin-pages.js';
+import { pagesVirtualModuleId } from '../core/app/index.js';
 import { appendForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 

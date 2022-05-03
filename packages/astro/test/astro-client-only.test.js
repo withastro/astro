@@ -16,13 +16,13 @@ describe('Client only components', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 
-		// test 1: <astro-root> is empty
-		expect($('astro-root').html()).to.equal('');
+		// test 1: <astro-island> is empty
+		expect($('astro-island').html()).to.equal('');
 		const $script = $('script');
 		const script = $script.html();
 
-		// test 2: svelte renderer is on the page
-		expect(/import\(".\/entry.*/g.test(script)).to.be.ok;
+		// Has the renderer URL for svelte
+		expect($('astro-island').attr('renderer-url').length).to.be.greaterThan(0);
 	});
 
 	it('Adds the CSS to the page', async () => {

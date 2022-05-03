@@ -4,9 +4,7 @@ import type { StaticBuildOptions } from './types';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData } from './internal.js';
 import { isBuildingToSSR } from '../util.js';
-
-export const virtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedVirtualModuleId = '\0' + virtualModuleId;
+import { resolvedPagesVirtualModuleId, pagesVirtualModuleId } from '../app/index.js';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -14,18 +12,18 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 		options(options) {
 			if (!isBuildingToSSR(opts.astroConfig)) {
-				return addRollupInput(options, [virtualModuleId]);
+				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},
 
 		resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
+			if (id === pagesVirtualModuleId) {
+				return resolvedPagesVirtualModuleId;
 			}
 		},
 
 		load(id) {
-			if (id === resolvedVirtualModuleId) {
+			if (id === resolvedPagesVirtualModuleId) {
 				let importMap = '';
 				let imports = [];
 				let i = 0;

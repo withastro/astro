@@ -5,22 +5,17 @@ import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
  * (or after a short delay, if `requestIdleCallback`) isn't supported
  */
 export default async function onIdle(
-	astroId: string,
+	root: HTMLElement,
 	options: HydrateOptions,
 	getHydrateCallback: GetHydrateCallback
 ) {
 	const cb = async () => {
-		const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
-		if (roots.length === 0) {
-			throw new Error(`Unable to find the root for the component ${options.name}`);
-		}
-
 		let innerHTML: string | null = null;
-		let fragment = roots[0].querySelector(`astro-fragment`);
-		if (fragment == null && roots[0].hasAttribute('tmpl')) {
+		let fragment = root.querySelector(`astro-fragment`);
+		if (fragment == null && root.hasAttribute('tmpl')) {
 			// If there is no child fragment, check to see if there is a template.
 			// This happens if children were passed but the client component did not render any.
-			let template = roots[0].querySelector(`template[data-astro-template]`);
+			let template = root.querySelector(`template[data-astro-template]`);
 			if (template) {
 				innerHTML = template.innerHTML;
 				template.remove();
@@ -29,10 +24,7 @@ export default async function onIdle(
 			innerHTML = fragment.innerHTML;
 		}
 		const hydrate = await getHydrateCallback();
-
-		for (const root of roots) {
-			hydrate(root, innerHTML);
-		}
+		hydrate(root, innerHTML);
 	};
 
 	if ('requestIdleCallback' in window) {

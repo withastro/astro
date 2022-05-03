@@ -1,7 +1,6 @@
-/**
- * Dev server messages (organized here to prevent clutter)
- */
-
+import type { AddressInfo } from 'net';
+import type { AstroConfig } from '../@types/astro';
+import os from 'os';
 import {
 	bold,
 	dim,
@@ -15,10 +14,9 @@ import {
 	black,
 	bgRed,
 	bgWhite,
+	bgCyan,
 } from 'kleur/colors';
-import os from 'os';
-import type { AddressInfo } from 'net';
-import type { AstroConfig } from '../@types/astro';
+import boxen from 'boxen';
 import { collectErrorMetadata, cleanErrorStack } from './errors.js';
 import { ZodError } from 'zod';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
@@ -114,6 +112,37 @@ export function devStart({
 		'',
 	];
 	return messages.map((msg) => `  ${msg}`).join('\n');
+}
+
+export function telemetryNotice() {
+	const headline = yellow(`Astro now collects ${bold('anonymous')} usage data.`);
+	const why = `This ${bold('optional program')} will help shape our roadmap.`;
+	const more = `For more info, visit ${underline('https://astro.build/telemetry')}`;
+	const box = boxen([headline, why, '', more].join('\n'), {
+		margin: 0,
+		padding: 1,
+		borderStyle: 'round',
+		borderColor: 'yellow',
+	});
+	return box;
+}
+
+export function telemetryEnabled() {
+	return `\n  ${green('◉')} Anonymous telemetry is ${bgGreen(
+		black(' enabled ')
+	)}. Thank you for improving Astro!\n`;
+}
+
+export function telemetryDisabled() {
+	return `\n  ${yellow('◯')}  Anonymous telemetry is ${bgYellow(
+		black(' disabled ')
+	)}. We won't share any usage data.\n`;
+}
+
+export function telemetryReset() {
+	return `\n  ${cyan('◆')} Anonymous telemetry has been ${bgCyan(
+		black(' reset ')
+	)}. You may be prompted again.\n`;
 }
 
 export function prerelease({ currentVersion }: { currentVersion: string }) {
@@ -227,7 +256,7 @@ export function printHelp({
 		for (const row of rows) {
 			raw += `${opts.prefix}${bold(`${row[0]}`.padStart(opts.padding - opts.prefix.length))}`;
 			if (split) raw += '\n    ';
-			raw += dim(row[1]) + '\n';
+			raw += ' ' + dim(row[1]) + '\n';
 		}
 
 		return raw.slice(0, -1); // remove latest \n
@@ -252,7 +281,7 @@ export function printHelp({
 		message.push(
 			linebreak(),
 			title('Commands'),
-			table(commands, { padding: 28, prefix: '  astro ' })
+			table(commands, { padding: 28, prefix: `  ${commandName || 'astro'} ` })
 		);
 	}
 
