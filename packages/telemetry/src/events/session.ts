@@ -37,12 +37,32 @@ function getViteVersion() {
 
 function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | undefined {
 	if (!astroConfig) return undefined;
-	return Object.entries(astroConfig.experimental).reduce((acc, [key, value]) => {
+	return Object.entries(astroConfig.experimental || []).reduce((acc, [key, value]) => {
 		if (value) {
 			acc.push(key);
 		}
 		return acc;
 	}, [] as string[]);
+}
+
+const secondLevelViteKeys = new Set(["resolve", "css", "json", "server", "server.fs", "build", "preview", "optimizeDeps", "ssr", "worker"]);
+function viteConfigKeys(obj: Record<string, any> | undefined, parentKey: string): string[] {
+	if(!obj) {
+		return [];
+	}
+
+	return Object.entries(obj).map(([key, value]) => {
+		if(typeof value === 'object' && !Array.isArray(value)) {
+			const localKey = parentKey ? parentKey + '.' + key : key;
+			if(secondLevelViteKeys.has(localKey)) {
+				let keys = viteConfigKeys(value, localKey).map(subkey => key + '.' + subkey);
+				keys.unshift(key);
+				return keys;
+			}
+		}
+
+		return key;
+	}).flat(1);
 }
 
 export function eventCliSession(
@@ -65,9 +85,9 @@ export function eventCliSession(
 							astroConfig?.markdown?.rehypePlugins ?? [],
 						].flat(1),
 					hasBase: astroConfig?.base !== '/',
-					viteKeys: Object.keys(astroConfig?.vite ?? []),
+					viteKeys: viteConfigKeys(astroConfig?.vite, ''),
 					adapter: astroConfig?.adapter?.name ?? null,
-					integrations: astroConfig?.integrations.map((i: any) => i.name) ?? [],
+					integrations: astroConfig?.integrations?.map((i: any) => i.name) ?? [],
 					experimentalFeatures: getExperimentalFeatures(astroConfig) ?? [],
 			  }
 			: undefined,
