@@ -97,9 +97,7 @@ type RSSFeedItem = {
 
 Type: `string (optional)`
 
-An absolute path to an XSL stylesheet in your project. This could either be a path to a resource in your `public/` directory, or an API endpoint using [the `getStylesheet` helper](#getstylesheet).
-
-See [Astro's RSS styling docs](https://docs.astro.build/en/guides/rss/#adding-a-stylesheet) for usage examples.
+An absolute path to an XSL stylesheet in your project. If you don’t have an RSS stylesheet in mind, we recommend the [Pretty Feed v3 default stylesheet](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl), which you can download from GitHub and save into your project's `public/` directory.
 
 ### customData
 
@@ -142,31 +140,6 @@ Will inject the following XML:
 Type: `string (optional)`
 
 The base URL to use when generating RSS item links. This defaults to the [`site` configured in your project's `astro.config`](https://docs.astro.build/en/reference/configuration-reference/#site). We recommend using `site` instead of `canonicalUrl`, though we provide this option if an override is necessary.
-
-## getStylesheet
-
-This function returns the [Pretty Feed](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl) XSL stylesheet wrapped in a valid [Astro endpoint][astro-endpoints] response. This should be used in an endpoint with the `.xsl.js` file extension.
-
-For example, this code will generate a stylesheet at the `/rss-styles.xsl` URL:
-
-```js
-// src/pages/rss-styles.xsl.js
-import { getStylesheet } from '@astrojs/rss';
-
-export const get = getStylesheet;
-```
-
-You can use this in your RSS feed via [the `stylesheet` option](#stylesheet):
-
-```js
-// src/pages/rss.xml.js
-import rss from '@astrojs/rss';
-
-export const get = () => rss({
-    ...
-    stylesheet: '/rss-styles.xsl',
-  });
-```
 
 For more on building with Astro, [visit the Astro docs][astro-rss].
 
