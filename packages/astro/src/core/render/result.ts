@@ -201,7 +201,7 @@ ${extra}`
 		_metadata: {
 			renderers,
 			pathname,
-			needsHydrationStyles: false
+			needsHydrationStyles: false,
 		},
 	};
 

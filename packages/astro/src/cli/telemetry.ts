@@ -44,4 +44,3 @@ export async function update(subcommand: string, { flags, telemetry }: Telemetry
 		}
 	}
 }
-

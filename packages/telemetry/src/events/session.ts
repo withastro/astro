@@ -45,24 +45,37 @@ function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | 
 	}, [] as string[]);
 }
 
-const secondLevelViteKeys = new Set(["resolve", "css", "json", "server", "server.fs", "build", "preview", "optimizeDeps", "ssr", "worker"]);
+const secondLevelViteKeys = new Set([
+	'resolve',
+	'css',
+	'json',
+	'server',
+	'server.fs',
+	'build',
+	'preview',
+	'optimizeDeps',
+	'ssr',
+	'worker',
+]);
 function viteConfigKeys(obj: Record<string, any> | undefined, parentKey: string): string[] {
-	if(!obj) {
+	if (!obj) {
 		return [];
 	}
 
-	return Object.entries(obj).map(([key, value]) => {
-		if(typeof value === 'object' && !Array.isArray(value)) {
-			const localKey = parentKey ? parentKey + '.' + key : key;
-			if(secondLevelViteKeys.has(localKey)) {
-				let keys = viteConfigKeys(value, localKey).map(subkey => key + '.' + subkey);
-				keys.unshift(key);
-				return keys;
+	return Object.entries(obj)
+		.map(([key, value]) => {
+			if (typeof value === 'object' && !Array.isArray(value)) {
+				const localKey = parentKey ? parentKey + '.' + key : key;
+				if (secondLevelViteKeys.has(localKey)) {
+					let keys = viteConfigKeys(value, localKey).map((subkey) => key + '.' + subkey);
+					keys.unshift(key);
+					return keys;
+				}
 			}
-		}
 
-		return key;
-	}).flat(1);
+			return key;
+		})
+		.flat(1);
 }
 
 export function eventCliSession(
@@ -79,11 +92,10 @@ export function eventCliSession(
 		config: astroConfig
 			? {
 					hasViteConfig: Object.keys(astroConfig?.vite).length > 0,
-					markdownPlugins:
-						[
-							astroConfig?.markdown?.remarkPlugins ?? [],
-							astroConfig?.markdown?.rehypePlugins ?? [],
-						].flat(1),
+					markdownPlugins: [
+						astroConfig?.markdown?.remarkPlugins ?? [],
+						astroConfig?.markdown?.rehypePlugins ?? [],
+					].flat(1),
 					hasBase: astroConfig?.base !== '/',
 					viteKeys: viteConfigKeys(astroConfig?.vite, ''),
 					adapter: astroConfig?.adapter?.name ?? null,

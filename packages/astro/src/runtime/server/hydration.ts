@@ -4,7 +4,6 @@ import { hydrationSpecifier, serializeListValue } from './util.js';
 import { escapeHTML } from './escape.js';
 import serializeJavaScript from 'serialize-javascript';
 
-
 // Serializes props passed into a component so that they can be reused during hydration.
 // The value is any
 export function serializeProps(value: any) {
@@ -116,25 +115,27 @@ export async function generateHydrateScript(
 		children: '',
 		props: {
 			// This is for HMR, probably can avoid it in prod
-			uid: astroId
-		}
+			uid: astroId,
+		},
 	};
 
 	// Add component url
 	island.props['component-url'] = await result.resolve(componentUrl);
 
 	// Add renderer url
-	if(renderer.clientEntrypoint) {
+	if (renderer.clientEntrypoint) {
 		island.props['renderer-url'] = await result.resolve(renderer.clientEntrypoint);
 		island.props['props'] = escapeHTML(serializeProps(props));
 	}
 
 	island.props['directive-url'] = await result.resolve(hydrationSpecifier(hydrate));
 	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
-	island.props['opts'] = escapeHTML(JSON.stringify({
-		name: metadata.displayName,
-		value: metadata.hydrateArgs || ''
-	}))
+	island.props['opts'] = escapeHTML(
+		JSON.stringify({
+			name: metadata.displayName,
+			value: metadata.hydrateArgs || '',
+		})
+	);
 
 	return island;
 }
