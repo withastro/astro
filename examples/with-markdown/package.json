@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "preact": "^10.7.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "svelte": "^3.47.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "svelte": "^3.48.0",
     "vue": "^3.2.33"
   }
 }
