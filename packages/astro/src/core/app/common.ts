@@ -1,6 +1,9 @@
 import type { SSRManifest, SerializedSSRManifest, RouteInfo } from './types';
 import { deserializeRouteData } from '../routing/manifest/serialization.js';
 
+export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
+export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
+
 export function deserializeManifest(serializedManifest: SerializedSSRManifest): SSRManifest {
 	const routes: RouteInfo[] = [];
 	for (const serializedRoute of serializedManifest.routes) {
