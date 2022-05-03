@@ -9,7 +9,7 @@ customElements.define('astro-island', class extends HTMLElement {
 		const opts = JSON.parse(this.getAttribute('opts'));
 		setup(this, opts, async () => {
 			const propsStr = this.getAttribute('props');
-			const props = propsStr ? eval('(' + propsStr + ')') : {};
+			const props = propsStr ? JSON.parse(propsStr) : {};
 			const rendererUrl = this.getAttribute('renderer-url');
 			const [
 				{ default: Component },
@@ -32,4 +32,4 @@ customElements.define('astro-island', class extends HTMLElement {
  *
  * And copy/paste the result below
  */
-export const islandScript = `customElements.define("astro-island",class extends HTMLElement{async connectedCallback(){const[{default:t}]=await Promise.all([import(this.getAttribute("directive-url")),import(this.getAttribute("before-hydration-url"))]);const e=JSON.parse(this.getAttribute("opts"));t(this,e,(async()=>{const t=this.getAttribute("props");const e=t?eval('('+t+')'):{};const r=this.getAttribute("renderer-url");const[{default:s},{default:i}]=await Promise.all([import(this.getAttribute("component-url")),r?import(r):()=>()=>{}]);return(t,r)=>i(t)(s,e,r)}))}});`;
+export const islandScript = `customElements.define("astro-island",class extends HTMLElement{async connectedCallback(){const[{default:t}]=await Promise.all([import(this.getAttribute("directive-url")),import(this.getAttribute("before-hydration-url"))]);t(this,JSON.parse(this.getAttribute("opts")),(async()=>{const t=this.getAttribute("props"),e=t?JSON.parse(t):{},r=this.getAttribute("renderer-url"),[{default:i},{default:s}]=await Promise.all([import(this.getAttribute("component-url")),r?import(r):()=>()=>{}]);return(t,r)=>s(t)(i,e,r)}))}});`;
