@@ -9,7 +9,7 @@ import { eachPageData } from './internal.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
-import { pagesVirtualModuleId } from '../app/common.js';
+import { pagesVirtualModuleId } from '../app/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { runHookBuildSsr } from '../../integrations/index.js';
 
