@@ -17,32 +17,45 @@ describe('Session event', () => {
 					a: 'b',
 				},
 				publicDir: 'some/dir',
-			}
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['css', 'css.modules', 'base', 'mode', 'define', 'publicDir']);
-	})
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'css',
+			'css.modules',
+			'base',
+			'mode',
+			'define',
+			'publicDir',
+		]);
+	});
 
 	it('vite.resolve keys are captured', async () => {
 		const config = await mockConfig({
 			vite: {
 				resolve: {
 					alias: {
-						a: 'b'
+						a: 'b',
 					},
-					dedupe: ['one', 'two']
-				}
-			}
+					dedupe: ['one', 'two'],
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
 		expect(payload.config.viteKeys).is.deep.equal(['resolve', 'resolve.alias', 'resolve.dedupe']);
 	});
 
@@ -50,20 +63,29 @@ describe('Session event', () => {
 		const config = await mockConfig({
 			vite: {
 				resolve: {
-					dedupe: ['one', 'two']
+					dedupe: ['one', 'two'],
 				},
 				css: {
 					modules: [],
-					postcss: {}
-				}
-			}
+					postcss: {},
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['resolve', 'resolve.dedupe', 'css', 'css.modules', 'css.postcss']);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'resolve',
+			'resolve.dedupe',
+			'css',
+			'css.modules',
+			'css.postcss',
+		]);
 	});
 
 	it('vite.server keys are captured', async () => {
@@ -74,17 +96,27 @@ describe('Session event', () => {
 					open: true,
 					fs: {
 						strict: true,
-						allow: ['a', 'b']
-					}
-				}
-			}
+						allow: ['a', 'b'],
+					},
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['server', 'server.host', 'server.open', 'server.fs', 'server.fs.strict', 'server.fs.allow']);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'server',
+			'server.host',
+			'server.open',
+			'server.fs',
+			'server.fs.strict',
+			'server.fs.allow',
+		]);
 	});
 
 	it('vite.build keys are captured', async () => {
@@ -94,19 +126,26 @@ describe('Session event', () => {
 					target: 'one',
 					outDir: 'some/dir',
 					cssTarget: {
-						one: 'two'
-					}
-				}
-			}
+						one: 'two',
+					},
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['build', 'build.target', 'build.outDir', 'build.cssTarget']);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'build',
+			'build.target',
+			'build.outDir',
+			'build.cssTarget',
+		]);
 	});
-
 
 	it('vite.preview keys are captured', async () => {
 		const config = await mockConfig({
@@ -115,17 +154,25 @@ describe('Session event', () => {
 					host: 'example.com',
 					port: 8080,
 					another: {
-						a: 'b'
-					}
-				}
-			}
+						a: 'b',
+					},
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['preview', 'preview.host', 'preview.port', 'preview.another']);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'preview',
+			'preview.host',
+			'preview.port',
+			'preview.another',
+		]);
 	});
 
 	it('vite.optimizeDeps keys are captured', async () => {
@@ -133,16 +180,23 @@ describe('Session event', () => {
 			vite: {
 				optimizeDeps: {
 					entries: ['one', 'two'],
-					exclude: ['secret', 'name']
-				}
-			}
+					exclude: ['secret', 'name'],
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
-		expect(payload.config.viteKeys).is.deep.equal(['optimizeDeps', 'optimizeDeps.entries', 'optimizeDeps.exclude']);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
+		expect(payload.config.viteKeys).is.deep.equal([
+			'optimizeDeps',
+			'optimizeDeps.entries',
+			'optimizeDeps.exclude',
+		]);
 	});
 
 	it('vite.ssr keys are captured', async () => {
@@ -150,15 +204,18 @@ describe('Session event', () => {
 			vite: {
 				ssr: {
 					external: ['a'],
-					target: { one: 'two' }
-				}
-			}
+					target: { one: 'two' },
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
 		expect(payload.config.viteKeys).is.deep.equal(['ssr', 'ssr.external', 'ssr.target']);
 	});
 
@@ -167,15 +224,18 @@ describe('Session event', () => {
 			vite: {
 				worker: {
 					format: { a: 'b' },
-					plugins: ['a', 'b']
-				}
-			}
+					plugins: ['a', 'b'],
+				},
+			},
 		});
 
-		const [{ payload }] = events.eventCliSession({
-			cliCommand: 'dev',
-			astroVersion: '0.0.0'
-		}, config);
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+				astroVersion: '0.0.0',
+			},
+			config
+		);
 		expect(payload.config.viteKeys).is.deep.equal(['worker', 'worker.format', 'worker.plugins']);
 	});
 });

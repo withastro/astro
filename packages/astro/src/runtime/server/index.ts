@@ -321,27 +321,22 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
-	if(needsAstroTemplate) {
+	if (needsAstroTemplate) {
 		island.props.tmpl = '';
 	}
 
-	island.children = `${
-		html ?? ''
-	}${template}`;
+	island.children = `${html ?? ''}${template}`;
 
 	// Add the astro-island definition only once. Since the SSRResult object
 	// is scoped to a page renderer we can use it as a key to know if the script
 	// has been rendered or not.
 	let script = '';
-	if(!resultsWithHydrationScript.has(result)) {
+	if (!resultsWithHydrationScript.has(result)) {
 		resultsWithHydrationScript.add(result);
 		script = `<script>${islandScript}</script>`;
 	}
 
-	return markHTMLString(
-		script +
-		renderElement('astro-island', island, false)
-	);
+	return markHTMLString(script + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
