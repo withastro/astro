@@ -4,6 +4,9 @@ import { hydrationSpecifier, serializeListValue } from './util.js';
 import { escapeHTML } from './escape.js';
 
 // Serializes props passed into a component so that they can be reused during hydration.
+// This uses JSON.stringify so that we can deserialize with JSON.parse.
+// Serializing JS means we have to use a script tag per component usage, and that's why
+// we moved away from doing it that way.
 export function serializeProps(value: any) {
 	return JSON.stringify(value);
 }
