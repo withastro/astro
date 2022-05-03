@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import ts from 'typescript';
 import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
 import {
 	CodeActionsProviderImpl,
@@ -6,6 +7,8 @@ import {
 } from '../../../../src/plugins/typescript/features/CodeActionsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../utils';
+
+const newLine = ts.sys.newLine;
 
 describe('TypeScript Plugin#CodeActionsProvider', () => {
 	function setup(filePath: string) {
@@ -115,8 +118,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 						{
 							edits: [
 								{
-									newText:
-										"import Basic from './basic.astro';\n\timport QuickFixImportComponent from './quickFixImportComponent.astro';\n",
+									newText: `import Basic from './basic.astro';${newLine}\timport QuickFixImportComponent from './quickFixImportComponent.astro';${newLine}`,
 									range: Range.create(1, 1, 2, 0),
 								},
 								{
@@ -163,7 +165,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 							edits: [
 								{
 									newText:
-										'---\nimport MySuperAstroComponent from "./components/MySuperAstroComponent.astro";\n\n---\n\n',
+										`---${newLine}import MySuperAstroComponent from "./components/MySuperAstroComponent.astro";${newLine}${newLine}---${newLine}${newLine}`,
 									range: Range.create(0, 0, 0, 0),
 								},
 							],

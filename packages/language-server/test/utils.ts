@@ -30,9 +30,13 @@ function openDocument(filePath: string, baseDir: string, docManager: DocumentMan
 
 	const document = docManager.openDocument({
 		uri: pathToUrl(path),
-		text: ts.sys.readFile(path) || '',
+		text: harmonizeNewLines(ts.sys.readFile(path)) || '',
 	});
 	return document;
+}
+
+function harmonizeNewLines(input: string) {
+	return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(/~:~/g, '\n');
 }
 
 // Outside of the Astro and TypeScript plugins, we don't really need to create a real environnement with proper

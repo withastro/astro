@@ -68,7 +68,9 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		const { provider, document } = setup('ssrReturn.astro');
 
 		const diagnostics = await provider.getDiagnostics(document);
-		expect(diagnostics).to.be.empty;
+		const codes = diagnostics.map((diag) => Number(diag.code))
+
+		expect(codes).to.not.contain(1108);
 	});
 
 	describe('Astro2TSX', async () => {
