@@ -498,6 +498,7 @@ importers:
       ci-info: ^3.3.0
       common-ancestor-path: ^1.0.1
       debug: ^4.3.4
+      devalue: ^2.0.1
       diff: ^5.0.0
       eol: ^0.9.1
       es-module-lexer: ^0.10.5
@@ -528,7 +529,6 @@ importers:
       rollup: ^2.70.2
       sass: ^1.50.1
       semver: ^7.3.7
-      serialize-javascript: ^6.0.0
       shiki: ^0.10.1
       shorthash: ^0.0.2
       sirv: ^2.0.2
@@ -560,6 +560,7 @@ importers:
       ci-info: 3.3.0
       common-ancestor-path: 1.0.1
       debug: 4.3.4
+      devalue: 2.0.1
       diff: 5.0.0
       eol: 0.9.1
       es-module-lexer: 0.10.5
@@ -588,7 +589,6 @@ importers:
       resolve: 1.22.0
       rollup: 2.70.2
       semver: 7.3.7
-      serialize-javascript: 6.0.0
       shiki: 0.10.1
       shorthash: 0.0.2
       sirv: 2.0.2
@@ -5507,6 +5507,10 @@ packages:
       defined: 1.0.0
       minimist: 1.2.6
 
+  /devalue/2.0.1:
+    resolution: {integrity: sha512-I2TiqT5iWBEyB8GRfTDP0hiLZ0YeDJZ+upDxjBfOC2lebO5LezQMv7QvIUTzdb64jQyAKLf1AHADtGN+jw6v8Q==}
+    dev: false
+
   /didyoumean/1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
 
@@ -8713,6 +8717,7 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
+    dev: true
 
   /raw-body/2.5.1:
     resolution: {integrity: sha512-qqJBtEyVgS0ZmPGdCFPWJ3FreoqvG4MVQln/kCgF7Olq95IbOp0/BWyMwbdtn4VTvkM8Y7khCQ2Xgk/tcrCXig==}
@@ -9211,6 +9216,7 @@ packages:
     resolution: {integrity: sha512-Qr3TosvguFt8ePWqsvRfrKyQXIiW+nGbYpy8XK24NQHE83caxWt+mIymTT19DGFbNWNLfEwsrkSmN64lVWB9ag==}
     dependencies:
       randombytes: 2.1.0
+    dev: true
 
   /set-blocking/2.0.0:
     resolution: {integrity: sha1-BF+XgtARrppoA93TgrJDkrPYkPc=}
