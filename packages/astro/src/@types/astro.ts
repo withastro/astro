@@ -1002,7 +1002,6 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
-	needsHydrationStyles: boolean;
 }
 
 export interface SSRResult {
