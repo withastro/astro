@@ -1,5 +1,15 @@
 # astro
 
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- [#3271](https://github.com/withastro/astro/pull/3271) [`fbfb6190`](https://github.com/withastro/astro/commit/fbfb6190ab5da60a556a3d5c338c8237c376df84) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce new @astrojs/rss package for RSS feed generation! This also adds a new global env variable for your project's configured "site": import.meta.env.SITE. This is consumed by the RSS feed helper to generate the correct canonical URL.
+
+* [#3281](https://github.com/withastro/astro/pull/3281) [`e2a037be`](https://github.com/withastro/astro/commit/e2a037be944d4c00b4b909b25574ebbc245cc720) Thanks [@JuanM04](https://github.com/JuanM04)! - Internal: removed `shorthash`
+
+- [#3278](https://github.com/withastro/astro/pull/3278) [`13c1f5ff`](https://github.com/withastro/astro/commit/13c1f5ff6bc18f05be2f9fee32331d89fc58af94) Thanks [@JuanM04](https://github.com/JuanM04)! - Internal: replaces `serialize-javascript` with `devalue`
+
 ## 1.0.0-beta.22
 
 ### Patch Changes
