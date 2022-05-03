@@ -195,29 +195,8 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
-## Translations
+## Documentation
 
-Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! This can be a great way to get involved with open source development without having to code.
+Help us make [docs.astro.build](https://docs.astro.build/) as accurate and easy-to-use as possible. Contributing to documentation can be a great way to get involved with open source development without having to code.
 
-Our translation process is loosely based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
-
-### Important: Beta Status
-
-Astro is changing quickly, and so are the docs. We cannot translate too many pages until Astro is closer to a v1.0.0 release candidate. **To start, do not translate more than the "getting started" page.** Once we are closer to a v1.0.0 release candidate, we will begin translating all pages.
-
-### Tier 1: Priority Languages
-
-**Tier 1** languages are considered a top priority for Astro documentation. The docs site should be fully translated into these languages, and reasonably kept up-to-date:
-
-- Simplified Chinese (zh-CN)
-- Traditional Chinese (zh-TW)
-- French (fr)
-- Japanese (ja)
-
-We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
-
-### Tier 2 Languages
-
-All other languages are considered **Tier 2**. Tier 2 language translations are driven by the community, with support from core maintainers. If you want to see the Astro docs site translated into a new language, then we need your help to kick off the project!
-
-If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
+Head over to [the `withastro/docs` repo](https://github.com/withastro/docs) to get involved!
