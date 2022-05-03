@@ -1571,13 +1571,14 @@ importers:
       rollup: ^2.70.2
       rollup-plugin-terser: ^7.0.2
       tslib: ^2.4.0
+      typescript: '>=3.7.0'
       urlpattern-polyfill: ^1.0.0-rc5
       web-streams-polyfill: ^3.2.1
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.70.2
       '@rollup/plugin-inject': 4.0.4_rollup@2.70.2
       '@rollup/plugin-node-resolve': 13.2.1_rollup@2.70.2
-      '@rollup/plugin-typescript': 8.3.2_rollup@2.70.2+tslib@2.4.0
+      '@rollup/plugin-typescript': 8.3.2_avvluxsw4cvvgbzftiurghz7xy
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
       '@types/node': 14.18.13
@@ -1593,6 +1594,7 @@ importers:
       rollup: 2.70.2
       rollup-plugin-terser: 7.0.2_rollup@2.70.2
       tslib: 2.4.0
+      typescript: 4.6.3
       urlpattern-polyfill: 1.0.0-rc5
       web-streams-polyfill: 3.2.1
 
@@ -3777,7 +3779,7 @@ packages:
       rollup: 2.70.2
     dev: true
 
-  /@rollup/plugin-typescript/8.3.2_rollup@2.70.2+tslib@2.4.0:
+  /@rollup/plugin-typescript/8.3.2_avvluxsw4cvvgbzftiurghz7xy:
     resolution: {integrity: sha512-MtgyR5LNHZr3GyN0tM7gNO9D0CS+Y+vflS4v/PHmrX17JCkHUYKvQ5jN5o3cz1YKllM3duXUqu3yOHwMPUxhDg==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
@@ -3789,6 +3791,7 @@ packages:
       resolve: 1.22.0
       rollup: 2.70.2
       tslib: 2.4.0
+      typescript: 4.6.3
     dev: true
 
   /@rollup/pluginutils/3.1.0_rollup@2.70.2:
