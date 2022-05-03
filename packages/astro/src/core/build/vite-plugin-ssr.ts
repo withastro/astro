@@ -9,9 +9,9 @@ import { eachPageData } from './internal.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
-import { pagesVirtualModuleId } from '../app/common';
+import { pagesVirtualModuleId } from '../app/common.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { runHookBuildSsr } from '../../integrations/index';
+import { runHookBuildSsr } from '../../integrations/index.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
