@@ -59,16 +59,7 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 			const { url, frontmatter } = await getInfo();
 			if (!Boolean(url)) {
 				throw new Error(
-					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" files within /pages! Consider mapping the result to an array of RSSFeedItems. Example:
-
-...
-items: Object.values(import.meta.globEager("/src/posts/*.md")).map(
-  (post) => ({
-    link: post.frontmatter.slug,
-    title: post.frontmatter.title,
-    pubDate: post.frontmatter.pubDate,
-  })
-)`
+					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" files within /pages! Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
 			if (!Boolean(frontmatter.title) || !Boolean(frontmatter.pubDate)) {
