@@ -12,14 +12,16 @@ const phpFeedItem = {
 	link: '/php',
 	title: 'Remember PHP?',
 	pubDate: '1994-05-03',
-	description: 'PHP is a general-purpose scripting language geared toward web development. It was originally created by Danish-Canadian programmer Rasmus Lerdorf in 1994.',
+	description:
+		'PHP is a general-purpose scripting language geared toward web development. It was originally created by Danish-Canadian programmer Rasmus Lerdorf in 1994.',
 };
 
 const web1FeedItem = {
 	link: '/web1',
 	title: 'Web 1.0',
 	pubDate: '1997-05-03',
-	description: 'Web 1.0 is the term used for the earliest version of the Internet as it emerged from its origins with Defense Advanced Research Projects Agency (DARPA) and became, for the first time, a global network representing the future of digital communications.',
+	description:
+		'Web 1.0 is the term used for the earliest version of the Internet as it emerged from its origins with Defense Advanced Research Projects Agency (DARPA) and became, for the first time, a global network representing the future of digital communications.',
 };
 
 // note: I spent 30 minutes looking for a nice node-based snapshot tool
@@ -46,27 +48,33 @@ describe('rss', () => {
 		});
 
 		chai.expect(body).to.equal(validXmlResult);
-	})
+	});
 
 	describe('glob result', () => {
 		it('should generate on valid result', async () => {
 			const globResult = {
-				'./posts/php.md': () => new Promise(resolve => resolve({
-					url: phpFeedItem.link,
-					frontmatter: {
-						title: phpFeedItem.title,
-						pubDate: phpFeedItem.pubDate,
-						description: phpFeedItem.description,
-					},
-				})),
-				'./posts/nested/web1.md': () => new Promise(resolve => resolve({
-					url: web1FeedItem.link,
-					frontmatter: {
-						title: web1FeedItem.title,
-						pubDate: web1FeedItem.pubDate,
-						description: web1FeedItem.description,
-					},
-				})),
+				'./posts/php.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: phpFeedItem.link,
+							frontmatter: {
+								title: phpFeedItem.title,
+								pubDate: phpFeedItem.pubDate,
+								description: phpFeedItem.description,
+							},
+						})
+					),
+				'./posts/nested/web1.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: web1FeedItem.link,
+							frontmatter: {
+								title: web1FeedItem.title,
+								pubDate: web1FeedItem.pubDate,
+								description: web1FeedItem.description,
+							},
+						})
+					),
 			};
 
 			const { body } = await rss({
@@ -81,13 +89,16 @@ describe('rss', () => {
 
 		it('should fail on missing "title" key', () => {
 			const globResult = {
-				'./posts/php.md': () => new Promise(resolve => resolve({
-					url: phpFeedItem.link,
-					frontmatter: {
-						pubDate: phpFeedItem.pubDate,
-						description: phpFeedItem.description,
-					},
-				})),
+				'./posts/php.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: phpFeedItem.link,
+							frontmatter: {
+								pubDate: phpFeedItem.pubDate,
+								description: phpFeedItem.description,
+							},
+						})
+					),
 			};
 			return chai.expect(
 				rss({
@@ -101,13 +112,16 @@ describe('rss', () => {
 
 		it('should fail on missing "pubDate" key', () => {
 			const globResult = {
-				'./posts/php.md': () => new Promise(resolve => resolve({
-					url: phpFeedItem.link,
-					frontmatter: {
-						title: phpFeedItem.title,
-						description: phpFeedItem.description,
-					},
-				})),
+				'./posts/php.md': () =>
+					new Promise((resolve) =>
+						resolve({
+							url: phpFeedItem.link,
+							frontmatter: {
+								title: phpFeedItem.title,
+								description: phpFeedItem.description,
+							},
+						})
+					),
 			};
 			return chai.expect(
 				rss({
@@ -119,4 +133,4 @@ describe('rss', () => {
 			).to.be.rejected;
 		});
 	});
-})
+});
