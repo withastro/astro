@@ -1,4 +1,3 @@
-import shorthash from 'shorthash';
 import type {
 	AstroComponentMetadata,
 	AstroGlobalPartial,
@@ -11,6 +10,7 @@ import type {
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
+import { shorthash } from './shorthash.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
@@ -300,7 +300,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
-	const astroId = shorthash.unique(
+	const astroId = shorthash(
 		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
 			props
 		)}`
