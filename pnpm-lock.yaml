@@ -634,6 +634,29 @@ importers:
     devDependencies:
       prismjs: 1.28.0
 
+  packages/astro-rss:
+    specifiers:
+      '@types/chai': ^4.3.1
+      '@types/chai-as-promised': ^7.1.5
+      '@types/mocha': ^9.1.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      chai: ^4.3.6
+      chai-as-promised: ^7.1.1
+      fast-xml-parser: ^4.0.7
+      mocha: ^9.2.2
+    dependencies:
+      fast-xml-parser: 4.0.7
+    devDependencies:
+      '@types/chai': 4.3.1
+      '@types/chai-as-promised': 7.1.5
+      '@types/mocha': 9.1.1
+      astro: link:../astro
+      astro-scripts: link:../../scripts
+      chai: 4.3.6
+      chai-as-promised: 7.1.1_chai@4.3.6
+      mocha: 9.2.2
+
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
@@ -3883,6 +3906,12 @@ packages:
       '@babel/types': 7.17.0
     dev: true
 
+  /@types/chai-as-promised/7.1.5:
+    resolution: {integrity: sha512-jStwss93SITGBwt/niYrkf2C+/1KTeZCZl1LaeezTlqppAKeoQC7jxyqYuP72sxBGKCIbw7oHgbYssIRzT5FCQ==}
+    dependencies:
+      '@types/chai': 4.3.1
+    dev: true
+
   /@types/chai/4.3.1:
     resolution: {integrity: sha512-/zPMqDkzSZ8t3VtxOa4KPq7uzzW978M9Tvh+j7GHKuo6k6GTLxPJ4J5gE5cjfJ26pnXst0N5Hax8Sr0T2Mi9zQ==}
     dev: true
@@ -4975,6 +5004,15 @@ packages:
   /ccount/2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
     dev: false
+
+  /chai-as-promised/7.1.1_chai@4.3.6:
+    resolution: {integrity: sha512-azL6xMoi+uxu6z4rhWQ1jbdUhOMhis2PvscD/xjLqNMkv3BPPp2JyyuTHOrf9BOosGpNQ11v6BKv/g57RXbiaA==}
+    peerDependencies:
+      chai: '>= 2.1.2 < 5'
+    dependencies:
+      chai: 4.3.6
+      check-error: 1.0.2
+    dev: true
 
   /chai/4.3.6:
     resolution: {integrity: sha512-bbcp3YfHCUzMOvKqsztczerVgBKSsEijCySNlHHbX3VG1nskvqjz5Rfso1gGwD6w6oOV3eI60pKuMOV5MV7p3Q==}
