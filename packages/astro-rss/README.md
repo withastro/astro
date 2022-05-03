@@ -134,7 +134,7 @@ rss({
 Will inject the following XML:
 
 ```xml
-<rss xmlns:h="http://www.w3.org/TR/html4/"...`
+<rss xmlns:h="http://www.w3.org/TR/html4/"...
 ```
 
 ### canonicalUrl
