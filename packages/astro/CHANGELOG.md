@@ -1,5 +1,17 @@
 # astro
 
+## 1.0.0-beta.22
+
+### Patch Changes
+
+- [#3275](https://github.com/withastro/astro/pull/3275) [`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in passing JS args to islands
+
+* [#3262](https://github.com/withastro/astro/pull/3262) [`adada1ba`](https://github.com/withastro/astro/commit/adada1ba0169516495ca19107f974aa0d4cf1f49) Thanks [@thepassle](https://github.com/thepassle)! - Adds astro:build:ssr integration hook
+
+* Updated dependencies [[`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d), [`6d5ef41b`](https://github.com/withastro/astro/commit/6d5ef41b1ed77ccc67f71e91adeab63a50a494a8)]:
+  - @astrojs/markdown-remark@0.9.4
+  - @astrojs/telemetry@0.1.1
+
 ## 1.0.0-beta.21
 
 ### Patch Changes
