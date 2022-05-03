@@ -864,7 +864,7 @@ export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
 
-interface EndpointHandlerFunction {
+interface APIRoute {
 	(context: APIContext, request: Request): EndpointOutput | Response;
 
 	/**
@@ -875,7 +875,7 @@ interface EndpointHandlerFunction {
 }
 
 export interface EndpointHandler {
-	[method: string]: EndpointHandlerFunction;
+	[method: string]: APIRoute;
 }
 
 export interface AstroRenderer {
