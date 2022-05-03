@@ -74,7 +74,7 @@ if(_start in adapter) {
 			});
 
 			const manifest = buildManifest(buildOpts, internals, staticFiles);
-			await runHookBuildSsr({config: buildOpts.astroConfig, manifest});
+			await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
