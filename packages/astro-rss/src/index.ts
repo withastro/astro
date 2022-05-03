@@ -1,6 +1,5 @@
 import { XMLValidator } from 'fast-xml-parser';
 import { createCanonicalURL, isValidURL } from './util.js';
-import { PRETTY_FEED_V3 } from './pretty-feed.js';
 
 type GlobResult = Record<string, () => Promise<{ [key: string]: any }>>;
 
@@ -152,10 +151,4 @@ export async function generateRSS({ site, rssOptions, items }: GenerateRSSArgs):
 	}
 
 	return xml;
-}
-
-export function getStylesheet() {
-	return {
-		body: PRETTY_FEED_V3,
-	};
 }
