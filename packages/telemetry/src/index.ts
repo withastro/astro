@@ -49,8 +49,9 @@ export class AstroTelemetry {
 	}
 
 	constructor(private opts: AstroTelemetryOptions) {
-		// When the process exits, flush any queued promises
-		process.on('SIGINT', () => this.flush());
+		// TODO: When the process exits, flush any queued promises
+		// This line caused a "cannot exist astro" error, needs to be revisited.
+		// process.on('SIGINT', () => this.flush());
 	}
 
 	// Util to get value from config or set it if missing

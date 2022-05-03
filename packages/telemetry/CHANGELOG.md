@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.1.1
+
+### Patch Changes
+
+- [#3276](https://github.com/withastro/astro/pull/3276) [`6d5ef41b`](https://github.com/withastro/astro/commit/6d5ef41b1ed77ccc67f71e91adeab63a50a494a8) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix "cannot exit astro" bug
+
 ## 0.1.0
 
 ### Minor Changes
