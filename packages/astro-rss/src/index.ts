@@ -86,7 +86,7 @@ items: Object.values(import.meta.globEager("/src/posts/*.md")).map(
 }
 
 export default async function getRSS(rssOptions: RSSOptions) {
-	const site = rssOptions.canonicalUrl ?? (import.meta as any).env?.SITE;
+	const site = rssOptions.canonicalUrl ?? (import.meta as any).env.SITE;
 	if (!site) {
 		throw new Error(
 			`RSS requires a canonical URL. Either add a "site" to your project's astro.config, or supply the canonicalUrl argument.`
