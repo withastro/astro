@@ -232,7 +232,7 @@ async function clientBuild(
 		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
-	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'client' });
+	await runHookBuildSetup({ config: astroConfig, pages: internals.pagesByComponent, vite: viteBuildConfig, target: 'client' });
 
 	const buildResult = await vite.build(viteBuildConfig);
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
