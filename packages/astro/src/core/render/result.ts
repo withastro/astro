@@ -14,7 +14,7 @@ import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
 
 function onlyAvailableInSSR(name: string) {
-	return function () {
+	return function _onlyAvailableInSSR() {
 		// TODO add more guidance when we have docs and adapters.
 		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`);
 	};
