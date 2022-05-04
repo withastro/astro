@@ -26,10 +26,10 @@ describe('Astro.*', () => {
 		});
 
 		it('Astro.request.url', async () => {
-			expect($('#pathname').text()).to.equal('/');
+			expect($('#pathname').text()).to.equal('/blog/');
 			expect($('#searchparams').text()).to.equal('{}');
-			expect($('#child-pathname').text()).to.equal('/');
-			expect($('#nested-child-pathname').text()).to.equal('/');
+			expect($('#child-pathname').text()).to.equal('/blog/');
+			expect($('#nested-child-pathname').text()).to.equal('/blog/');
 		});
 	});
 
