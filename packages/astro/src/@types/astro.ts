@@ -865,7 +865,7 @@ export interface EndpointOutput<Output extends Body = Body> {
 }
 
 interface APIRoute {
-	(context: APIContext, request: Request): EndpointOutput | Response;
+	(context: APIContext): EndpointOutput | Response;
 
 	/**
 	 * @deprecated

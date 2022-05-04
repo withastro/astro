@@ -484,6 +484,7 @@ export async function renderEndpoint(mod: EndpointHandler, request: Request, par
 	}
 
 	if(handler.length > 1) {
+		// eslint-disable-next-line no-console
 		console.warn(`
 API routes with 2 arguments have been deprecated. Instead they take a single argument in the form of:
 
@@ -504,6 +505,7 @@ Update your code to remove this warning.`)
 			if(prop in target) {
 				return Reflect.get(target, prop);
 			} else if(prop in params) {
+				// eslint-disable-next-line no-console
 				console.warn(`
 API routes no longer pass params as the first argument. Instead an object containing a params property is provided in the form of:
 
