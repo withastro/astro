@@ -69,7 +69,6 @@ export async function createVite(
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.publicDir),
-		base: astroConfig.base,
 		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
 		define: {
