@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.25
+
+### Patch Changes
+
+- [#3272](https://github.com/withastro/astro/pull/3272) [`6643a393`](https://github.com/withastro/astro/commit/6643a3931d45e63363599bb0cf7b2b2951266cfb) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Dynamic Route API RFC
+
 ## 1.0.0-beta.24
 
 ### Patch Changes

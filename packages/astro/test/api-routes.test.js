@@ -15,19 +15,19 @@ describe('API routes', () => {
 			const one = JSON.parse(await fixture.readFile('/old-api/twoarg/one.json'));
 			expect(one).to.deep.equal({
 				param: 'one',
-				pathname: '/old-api/twoarg/one.json'
+				pathname: '/old-api/twoarg/one.json',
 			});
 			const two = JSON.parse(await fixture.readFile('/old-api/twoarg/two.json'));
 			expect(two).to.deep.equal({
 				param: 'two',
-				pathname: '/old-api/twoarg/two.json'
+				pathname: '/old-api/twoarg/two.json',
 			});
 		});
 
 		it('param first argument is supported', async () => {
 			const one = JSON.parse(await fixture.readFile('/old-api/onearg/one.json'));
 			expect(one).to.deep.equal({
-				param: 'one'
+				param: 'one',
 			});
 		});
 	});
@@ -37,7 +37,7 @@ describe('API routes', () => {
 			const one = JSON.parse(await fixture.readFile('/context/data/one.json'));
 			expect(one).to.deep.equal({
 				param: 'one',
-				pathname: '/context/data/one.json'
+				pathname: '/context/data/one.json',
 			});
 		});
 	});
