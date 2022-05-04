@@ -856,12 +856,27 @@ export interface AstroAdapter {
 	args?: any;
 }
 
+export interface APIContext {
+	params: Params;
+	request: Request;
+}
+
 export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
 
+interface APIRoute {
+	(context: APIContext): EndpointOutput | Response;
+
+	/**
+	 * @deprecated
+	 * Use { context: APIRouteContext } object instead.
+	 */
+	(params: Params, request: Request): EndpointOutput | Response;
+}
+
 export interface EndpointHandler {
-	[method: string]: (params: any, request: Request) => EndpointOutput | Response;
+	[method: string]: APIRoute;
 }
 
 export interface AstroRenderer {
