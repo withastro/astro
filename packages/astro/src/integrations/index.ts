@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
 import type { SerializedSSRManifest } from '../core/app/types';
+import type { PageBuildData } from '../core/build/types';
 import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
@@ -124,14 +125,16 @@ export async function runHookBuildSetup({
 	config,
 	vite,
 	target,
+	pages,
 }: {
 	config: AstroConfig;
 	vite: ViteConfigWithSSR;
+	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:setup']) {
-			await integration.hooks['astro:build:setup']({ vite, target });
+			await integration.hooks['astro:build:setup']({ vite, pages, target });
 		}
 	}
 }
