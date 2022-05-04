@@ -1,5 +1,19 @@
 # @astrojs/markdown-remark
 
+## 0.9.4
+
+### Patch Changes
+
+- [#3275](https://github.com/withastro/astro/pull/3275) [`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in passing JS args to islands
+
+## 0.9.3
+
+### Patch Changes
+
+- [#3234](https://github.com/withastro/astro/pull/3234) [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60) Thanks [@JuanM04](https://github.com/JuanM04)! - Removed `rehype-slug` in favor of our own implementation. The behavior of the slugging should remain the same
+
+* [#3234](https://github.com/withastro/astro/pull/3234) [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60) Thanks [@JuanM04](https://github.com/JuanM04)! - Moved some type from `astro` to `@astrojs/markdown-remark`
+
 ## 0.9.2
 
 ### Patch Changes

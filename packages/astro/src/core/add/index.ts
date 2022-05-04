@@ -1,4 +1,5 @@
 import type yargs from 'yargs-parser';
+import type { AstroTelemetry } from '@astrojs/telemetry';
 import path from 'path';
 import { existsSync, promises as fs } from 'fs';
 import { execa } from 'execa';
@@ -24,6 +25,7 @@ import { appendForwardSlash } from '../path.js';
 export interface AddOptions {
 	logging: LogOptions;
 	flags: yargs.Arguments;
+	telemetry: AstroTelemetry;
 	cwd?: string;
 }
 
@@ -33,7 +35,7 @@ export interface IntegrationInfo {
 	dependencies: [name: string, version: string][];
 }
 
-export default async function add(names: string[], { cwd, flags, logging }: AddOptions) {
+export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
 	if (flags.help) {
 		printHelp({
 			commandName: 'astro add',

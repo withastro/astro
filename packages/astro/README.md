@@ -1,106 +1,47 @@
-<a href="https://astro.build">
-  <img src="https://raw.githubusercontent.com/withastro/astro/main/assets/social/banner.svg" />
-</a>
+<br/>
+<p align="center">
+  <img src="../../assets/brand/logo-square-black.png#gh-light-mode-only" alt="Astro logo" width="120">
+  <img src="../../assets/brand/logo-square-white.png#gh-dark-mode-only" alt="Astro logo" width="120">
+  <br/><br/>
+  <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
+  <br/>
+  powerful developer experience meets lightweight output.
+  <br/><br/>
+</p>
 
-<div center>
 
-**Astro** is a new kind of static site builder for the modern web&mdash;powerful developer experience meets lightweight output.
+## Install
 
-</div>
-
-### [🚀 Read the launch post →](https://astro.build/blog/introducing-astro)
-
-### [📚 Learn Astro →](https://docs.astro.build/en/getting-started/)
-
-## Project Status
-
-⚠️ **Astro is still beta software&mdash;missing features and bugs are to be expected!** We are quickly working our way towards a stable, production-ready v1.0 release, but we are still finalizing some of Astro's APIs.
-
-That being said, there are quite a few Astro sites in production already. We're incredibly grateful to everyone who has made an early bet on Astro!
-
-## Quick Start
-
-<table>
-  <tbody>
-    <tr>
-      <td>
-        <img width="441" height="1px">
-        <strong>👾 Online</strong>
-      </td>
-      <td>
-        <img width="441" height="1px">
-        <strong>📦 Local</strong>
-      </td>
-    </tr>
-    <tr>
-<td>
-
-Try Astro in your browser!
-
-[Launch astro.new →](https://astro.new)
-
-</td>
-<td>
-
-Get started with Astro using our interactive CLI!
 
 ```bash
-npm init astro my-astro-project
+# Recommended!
+npm create astro@latest
+
+# Manual:
+npm install --save-dev astro
 ```
 
-</td>
-    </tr>
-  </tbody>
-</table>
+Looking for help? Start with our [Getting Started](https://docs.astro.build/en/getting-started/) guide.  
+
+Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
+
+## Documentation
+
+Visit our [offical documentation](https://docs.astro.build/).
+
+## Support
+
+Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
+## Contributing
+
+**New contributors welcome!** Check out our [Contributors Guide](CONTRIBUTING.md) for help getting started. 
+
+Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
 
 ## Sponsors
 
-You can sponsor Astro's development on [Open Collective](https://opencollective.com/astrodotbuild). Astro is generously supported by the following companies and individuals:
+Astro is generously supported by [Netlify](https://www.netlify.com/), [Vercel](https://vercel.com/), and several other amazing organizations [listed here.](https://astro.build/)
 
-### Platinum Sponsors
+[❤️ Sponsor Astro! ❤️](https://github.com/withastro/astro/blob/main/FUNDING.md)
 
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://www.netlify.com/#gh-light-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify.svg#gh-light-mode-only" alt="Netlify" /></a><a href="https://www.netlify.com/#gh-dark-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify-dark.svg#gh-dark-mode-only" alt="Netlify" />
-      </a></td>
-      <td align="center"><a href="https://www.vercel.com/#gh-light-mode-only" target="_blank"><img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel.svg#gh-light-mode-only" alt="Vercel" /></a><a href="https://www.vercel.com/#gh-dark-mode-only"><img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel-dark.svg#gh-dark-mode-only" alt="Vercel" />
-      </a></td>
-    </tr>
-  </tbody>
-</table>
 
-### Gold Sponsors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center">
-        <a href="https://divRIOTS.com#gh-light-mode-only" target="_blank">
-        <img width="150" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/divriots.svg#gh-light-mode-only" alt="‹div›RIOTS" />
-        </a>
-        <a href="https://divRIOTS.com#gh-dark-mode-only" target="_blank">
-        <img width="150" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/divriots-dark.svg#gh-dark-mode-only" alt="‹div›RIOTS" />
-        </a>
-      </td>
-      <td align="center">
-        <a href="https://stackupdigital.co.uk/#gh-light-mode-only" target="_blank">
-        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/stackup.svg#gh-light-mode-only" alt="StackUp Digital" />
-        </a>
-        <a href="https://stackupdigital.co.uk/#gh-dark-mode-only" target="_blank">
-        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/stackup-dark.svg#gh-dark-mode-only" alt="StackUp Digital" />
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-### Sponsors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/sentry.svg" alt="Sentry" /></a></td><td align="center"><a href="https://qoddi.com" target="_blank"><img width="147" height="40" src="https://devcenter.qoddi.com/wp-content/uploads/2021/11/blog-transparent-logo-1.png" alt="Qoddi App Platform" /></a></td>
-    </tr>
-  </tbody>
-</table>

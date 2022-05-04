@@ -13,6 +13,8 @@ import type {
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
+import type { SerializedSSRManifest } from '../core/app/types';
+import type { PageBuildData } from '../core/build/types';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -907,11 +909,13 @@ export interface AstroIntegration {
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
+		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: ViteConfigWithSSR;
+			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;

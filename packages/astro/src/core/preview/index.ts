@@ -1,6 +1,8 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 import type { AddressInfo } from 'net';
+import type { AstroTelemetry } from '@astrojs/telemetry';
+
 import http from 'http';
 import sirv from 'sirv';
 import { performance } from 'perf_hooks';
@@ -12,6 +14,7 @@ import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
 	logging: LogOptions;
+	telemetry: AstroTelemetry;
 }
 
 export interface PreviewServer {

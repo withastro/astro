@@ -1,4 +1,5 @@
 import type { AddressInfo } from 'net';
+import type { AstroTelemetry } from '@astrojs/telemetry';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
@@ -17,6 +18,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 
 export interface DevOptions {
 	logging: LogOptions;
+	telemetry: AstroTelemetry;
 }
 
 export interface DevServer {
@@ -25,12 +27,10 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(
-	config: AstroConfig,
-	options: DevOptions = { logging: nodeLogOptions }
-): Promise<DevServer> {
+export default async function dev(config: AstroConfig, options: DevOptions): Promise<DevServer> {
 	const devStart = performance.now();
 	applyPolyfill();
+	await options.telemetry.record([]);
 	config = await runHookConfigSetup({ config, command: 'dev' });
 	const { host, port } = config.server;
 	const viteConfig = await createVite(

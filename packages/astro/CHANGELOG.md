@@ -1,5 +1,51 @@
 # astro
 
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- [#3286](https://github.com/withastro/astro/pull/3286) [`e5f6de4e`](https://github.com/withastro/astro/commit/e5f6de4edbdfe2ae2f6e975511a5a571633e2fd6) Thanks [@thepassle](https://github.com/thepassle)! - Adds pages param to the astro:build:setup integration hook
+
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Introduce new @astrojs/rss package for RSS feed generation! This also adds a new global env variable for your project's configured "site": import.meta.env.SITE. This is consumed by the RSS feed helper to generate the correct canonical URL.
+
+* [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: removed `shorthash`
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: replaces `serialize-javascript` with `devalue`
+
+* [`82345fdd`](https://github.com/withastro/astro/commit/82345fdd54b7d035657c584ecfc3d98dbaecfc24) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Deprecate the markdown component in SSR.
+
+  This was not working before, so now we make it official by throwing with a clean error message. See https://docs.astro.build/en/guides/markdown-content/#markdown-component to learn more.
+
+## 1.0.0-beta.22
+
+### Patch Changes
+
+- [#3275](https://github.com/withastro/astro/pull/3275) [`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in passing JS args to islands
+
+* [#3262](https://github.com/withastro/astro/pull/3262) [`adada1ba`](https://github.com/withastro/astro/commit/adada1ba0169516495ca19107f974aa0d4cf1f49) Thanks [@thepassle](https://github.com/thepassle)! - Adds astro:build:ssr integration hook
+
+* Updated dependencies [[`8f8f05c1`](https://github.com/withastro/astro/commit/8f8f05c1b99d073a43af3020ba3922ea2d5b466d), [`6d5ef41b`](https://github.com/withastro/astro/commit/6d5ef41b1ed77ccc67f71e91adeab63a50a494a8)]:
+  - @astrojs/markdown-remark@0.9.4
+  - @astrojs/telemetry@0.1.1
+
+## 1.0.0-beta.21
+
+### Patch Changes
+
+- [#3244](https://github.com/withastro/astro/pull/3244) [`48a35e60`](https://github.com/withastro/astro/commit/48a35e6042a6634c836ec333d18801e9d603b328) Thanks [@matthewp](https://github.com/matthewp)! - Consolidates hydration scripts into one
+
+* [#3256](https://github.com/withastro/astro/pull/3256) [`f76038ac`](https://github.com/withastro/astro/commit/f76038ac7db986a13701fd316e53142b52e011c8) Thanks [@matthewp](https://github.com/matthewp)! - Adds anonymous telemetry data to the cli
+
+- [#3234](https://github.com/withastro/astro/pull/3234) [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60) Thanks [@JuanM04](https://github.com/JuanM04)! - Moved some type from `astro` to `@astrojs/markdown-remark`
+
+- Updated dependencies [[`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60), [`f76038ac`](https://github.com/withastro/astro/commit/f76038ac7db986a13701fd316e53142b52e011c8), [`de123b28`](https://github.com/withastro/astro/commit/de123b28b3ff398b800cb598f20326ca85a0fb60)]:
+  - @astrojs/markdown-remark@0.9.3
+  - @astrojs/telemetry@0.1.0
+
 ## 1.0.0-beta.20
 
 ### Patch Changes
