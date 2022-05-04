@@ -167,7 +167,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		resolve: viteConfig.resolve,
 	} as ViteConfigWithSSR;
 
-	await runHookBuildSetup({ config: astroConfig, vite: viteBuildConfig, target: 'server' });
+	await runHookBuildSetup({ config: astroConfig, pages: internals.pagesByComponent, vite: viteBuildConfig, target: 'server' });
 
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build(viteBuildConfig);
