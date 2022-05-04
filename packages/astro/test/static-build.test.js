@@ -103,8 +103,8 @@ describe('Static build', () => {
 				 * The test needs to verify that the file will be found once the `/dist`
 				 * output is deployed to a subpath in production by ignoring the subpath here.
 				 */
-				 const data = await fixture.readFile(removeBasePath(addLeadingSlash(href)));
-				 if (expected.test(data)) {
+				const data = await fixture.readFile(removeBasePath(addLeadingSlash(href)));
+				if (expected.test(data)) {
 					return true;
 				}
 			}

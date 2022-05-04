@@ -104,13 +104,9 @@ describe('Development Routing', () => {
 			await devServer.stop();
 		});
 
-		it('200 when loading /', async () => {
+		it('404 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(200);
-
-			// Vite internally redirects this to the subpath root
-			const url = new URL(response.url);
-			expect(url.pathname).to.equal('/blog/');
+			expect(response.status).to.equal(404);
 		});
 
 		it('200 when loading subpath root', async () => {
@@ -158,13 +154,9 @@ describe('Development Routing', () => {
 			await devServer.stop();
 		});
 
-		it('200 when loading /', async () => {
+		it('404 when loading /', async () => {
 			const response = await fixture.fetch('/');
-			expect(response.status).to.equal(200);
-
-			// Vite internally redirects this to the subpath root
-			const url = new URL(response.url);
-			expect(url.pathname).to.equal('/blog/');
+			expect(response.status).to.equal(404);
 		});
 
 		it('200 when loading subpath root with trailing slash', async () => {
