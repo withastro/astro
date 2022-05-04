@@ -1,0 +1,14 @@
+---
+import SetAHeader from '../components/SetAHeader.astro';
+Astro.response.headers.set('One-Two', 'three');
+Astro.response.headers.set('Four-Five', 'six');
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<h1>Testing</h1>
+		<SetAHeader />
+	</body>
+</html>
