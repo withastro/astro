@@ -167,7 +167,12 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		resolve: viteConfig.resolve,
 	} as ViteConfigWithSSR;
 
-	await runHookBuildSetup({ config: astroConfig, pages: internals.pagesByComponent, vite: viteBuildConfig, target: 'server' });
+	await runHookBuildSetup({
+		config: astroConfig,
+		pages: internals.pagesByComponent,
+		vite: viteBuildConfig,
+		target: 'server',
+	});
 
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build(viteBuildConfig);
@@ -232,7 +237,12 @@ async function clientBuild(
 		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
-	await runHookBuildSetup({ config: astroConfig, pages: internals.pagesByComponent, vite: viteBuildConfig, target: 'client' });
+	await runHookBuildSetup({
+		config: astroConfig,
+		pages: internals.pagesByComponent,
+		vite: viteBuildConfig,
+		target: 'client',
+	});
 
 	const buildResult = await vite.build(viteBuildConfig);
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
