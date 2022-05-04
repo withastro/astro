@@ -31,7 +31,7 @@ jobs:
           # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: "**Merged!** ${{ github.event.commits[0].author.name }}: [`${{ steps.setup.outputs.COMMIT_MSG }}`](<https://github.com/withastro/astro/commits/main>)"
+          args: "**Merged!** ${{ github.event.commits[0].author.name }}: [`${{ steps.setup.outputs.COMMIT_MSG }}`](<https://github.com/withastro/astro/commit/${{ github.event.commits[0].id }}>)"
 
   check_for_update:
     name: Check for Updates
