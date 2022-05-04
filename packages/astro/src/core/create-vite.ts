@@ -24,7 +24,6 @@ const ALWAYS_EXTERNAL = new Set([
 	'node-fetch',
 	'prismjs',
 	'shiki',
-	'shorthash',
 	'unified',
 	'whatwg-url',
 ]);
@@ -72,6 +71,9 @@ export async function createVite(
 		publicDir: fileURLToPath(astroConfig.publicDir),
 		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
+		define: {
+			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
+		},
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
 			hmr:

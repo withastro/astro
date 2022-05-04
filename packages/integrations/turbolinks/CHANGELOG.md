@@ -1,5 +1,11 @@
 # @astrojs/turbolinks
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3283](https://github.com/withastro/astro/pull/3283) [`9ad8aefd`](https://github.com/withastro/astro/commit/9ad8aefdd79a039062f5a0510fabb2b5e535603f) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an issue that prevented client components from rehydrating when navigating back to a page
+
 ## 0.1.1
 
 ### Patch Changes

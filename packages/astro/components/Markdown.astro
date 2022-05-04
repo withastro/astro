@@ -3,6 +3,13 @@ export interface Props {
 	content?: string;
 }
 
+// NOTE(fks): We are most likely moving this component out of Astro core
+// in a few weeks. Checking the name like this is a bit of a hack, but we
+// intentionally don't want to add an SSR flag for others to read from, just yet.
+if (Astro.redirect.name !== '_onlyAvailableInSSR') {
+	console.error(`\x1B[31mThe <Markdown> component is not available in SSR. See https://github.com/withastro/rfcs/discussions/179 for more info.\x1B[39m`);
+}
+
 const dedent = (str: string) => {
 	const _str = str.split('\n').filter(s => s.trimStart().length > 0);
 	if (_str.length === 0) {

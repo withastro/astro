@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Introduce new @astrojs/rss package for RSS feed generation! This also adds a new global env variable for your project's configured "site": import.meta.env.SITE. This is consumed by the RSS feed helper to generate the correct canonical URL.
+
+* [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: removed `shorthash`
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: replaces `serialize-javascript` with `devalue`
+
+* [`82345fdd`](https://github.com/withastro/astro/commit/82345fdd54b7d035657c584ecfc3d98dbaecfc24) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Deprecate the markdown component in SSR.
+
+  This was not working before, so now we make it official by throwing with a clean error message. See https://docs.astro.build/en/guides/markdown-content/#markdown-component to learn more.
+
 ## 1.0.0-beta.22
 
 ### Patch Changes
