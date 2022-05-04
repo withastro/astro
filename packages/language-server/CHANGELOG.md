@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.16.1
+
+### Patch Changes
+
+- ad5a5e5: Fix misc issues with Go To Definition
+- 1bd790d: Updates config management, make sure to respect TypeScript settings when doing completions and quickfixes
+
 ## 0.16.0
 
 ### Minor Changes
