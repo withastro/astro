@@ -1,81 +1,35 @@
 ---
-import Layout from '../components/Layout.astro';
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/Card.astro';
 ---
-
 <Layout title="Welcome to Astro.">
 	<main>
 		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
-		<p class="instructions"><strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check the <code>src/pages</code> directory!</p>
+		<p class="instructions">
+			Check out the <code>src/pages</code> directory to get started.<br/>
+			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
+		</p>
 		<ul role="list" class="link-card-grid">
-			<li class="link-card">
-				<a href="https://astro.build/integrations/">
-					<h2>Integrations <span>&rarr;</span></h2>
-					<p>Add component frameworks, Tailwind, Partytown, and more!</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://astro.build/themes/">
-					<h2>Themes <span>&rarr;</span></h2>
-					<p>Explore a galaxy of community-built starters.</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://docs.astro.build/">
-					<h2>Docs <span>&rarr;</span></h2>
-					<p>Learn our complete feature set and explore the API.</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://astro.build/chat/">
-					<h2>Chat <span>&rarr;</span></h2>
-					<p>
-						Ask, contribute, and have fun on our community Discord
-						<svg
-							class="heart"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 512 512"
-							width="16"
-							height="16"
-							fill="currentColor"
-						>
-							<title>heart</title>
-							<path d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.221 97.918 64 162.4 64c36.399 0 70.717 16.742 93.6 43.947C278.882 80.742 313.199 64 349.6 64 414.082 64 464 114.221 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z" />
-						</svg>
-					</p>
-				</a>
-			</li>
+			<Card href="https://docs.astro.build/" title="Documentation" body="Learn how Astro works and explore the official API docs." /> 
+			<Card href="https://astro.build/integrations/" title="Integrations" body="Supercharge your project with new frameworks and libraries." /> 
+			<Card href="https://astro.build/themes/" title="Themes" body="Explore a galaxy of community-built starter themes." /> 
+			<Card href="https://astro.build/chat/" title="Chat" body="Come say hi to our amazing Discord community. ❤️" />
 		</ul>
 	</main>
 </Layout>
 
 <style>
 	:root {
-		--color-border: hsl(17, 24%, 90%);
 		--astro-gradient: linear-gradient(0deg,#4F39FA, #DA62C4);
-		--link-gradient: linear-gradient(45deg, #4F39FA, #DA62C4 30%, var(--color-border) 60%);
-		--night-sky-gradient: linear-gradient(0deg, #392362 -33%, #431f69 10%, #30216b 50%, #1f1638 100%);
 	}
 
-	h2 {
-		margin: 0;
-		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	h2 span {
-		display: inline-block;
-		transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	code {
-		font-size: 0.875em;
-		border: 0.1em solid var(--color-border);
-		border-radius: 4px;
-		padding: 0.15em 0.25em;
+	h1 {
+		margin: 2rem 0;
 	}
 
 	main {
 		margin: auto;
-    padding: 1em;
+    	padding: 1em;
 		max-width: 60ch;
 	}
 
@@ -83,7 +37,7 @@ import Layout from '../components/Layout.astro';
 		font-weight: 900;
 		background-image: var(--astro-gradient);
 		-webkit-background-clip: text;
-  	-webkit-text-fill-color: transparent;
+		-webkit-text-fill-color: transparent;
 		background-size: 100% 200%;
 		background-position-y: 100%;
 		border-radius: 0.4rem;
@@ -91,84 +45,29 @@ import Layout from '../components/Layout.astro';
 	}
 
 	@keyframes pulse {
-		0%, 100% {
-			background-position-y: 0%;
-		}
-		50% {
-			background-position-y: 80%;
-		}
+		0%, 100% { background-position-y: 0%; }
+		50% { background-position-y: 80%; }
 	}
 
 	.instructions {
-		line-height: 1.8;
-		margin-bottom: 2rem;
-		background-image: var(--night-sky-gradient);
-		padding: 1.5rem;
+		line-height: 1.6;
+		margin: 1rem 0;
+		background: #4F39FA;
+		padding: 1.0rem;
 		border-radius: 0.4rem;
 		color: var(--color-bg);
 	}
 
+	.instructions code {
+		font-size: 0.875em;
+		border: 0.1em solid var(--color-border);
+		border-radius: 4px;
+		padding: 0.15em 0.25em;
+	}
 	.link-card-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
 		gap: 1rem;
 		padding: 0;
-	}
-
-	.link-card {
-		list-style: none;
-		display: flex;
-		padding: 0.15rem;
-		background-image: var(--link-gradient);
-		background-size: 400%;
-		border-radius: 0.5rem;
-		background-position: 100%;
-		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	.link-card > a {
-		width: 100%;
-		text-decoration: none;
-		line-height: 1.4;
-		padding: 1em 1.3em;
-		border-radius: 0.35rem;
-		color: var(--text-color);
-		background-color: white;
-		opacity: 0.8;
-	}
-
-	.link-card:is(:hover, :focus-within) {
-		background-position: 0;
-	}
-
-	.link-card:is(:hover, :focus-within) h2 {
-		color: #4F39FA;
-	}
-
-	.link-card:is(:hover, :focus-within) h2 span {
-		transform: translateX(2px);
-	}
-
-	.heart {
-		display: inline-block;
-		color: #DA62C4;
-		animation: heartbeat 3s ease-in-out infinite;
-	}
-
-	@keyframes heartbeat {
-		0%,
-		50%,
-		100% {
-			transform: scale(1);
-		}
-		5% {
-			transform: scale(1.125);
-		}
-		10% {
-			transform: scale(1.05);
-		}
-		15% {
-			transform: scale(1.25);
-		}
 	}
 </style>
