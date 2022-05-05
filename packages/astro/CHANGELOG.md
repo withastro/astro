@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- [#3289](https://github.com/withastro/astro/pull/3289) [`61e1a267`](https://github.com/withastro/astro/commit/61e1a267a8d4653287cf8bbd2cff493699ac7d7f) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Astro.response RFC
+
+* [#3304](https://github.com/withastro/astro/pull/3304) [`3d901ca5`](https://github.com/withastro/astro/commit/3d901ca59d152ba82fa1471c0e45c9e576f5f864) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression that prevented passing classes to islands
+
 ## 1.0.0-beta.25
 
 ### Patch Changes
