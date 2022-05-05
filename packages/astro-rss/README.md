@@ -28,6 +28,8 @@ import rss from '@astrojs/rss';
 export const get = () => rss({
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
+    // pull in the "site" from your project's astro.config
+    site: import.meta.env.SITE,
     items: import.meta.glob('./blog/**/*.md'),
   });
 ```
@@ -44,6 +46,8 @@ rss({
   title: 'Buzz’s Blog',
   // `<description>` field in output xml
   description: 'A humble Astronaut’s guide to the stars',
+  // provide a base URL for RSS <item> links
+  site: import.meta.env.SITE,
   // list of `<item>`s in output xml
   items: import.meta.glob('./**/*.md'),
   // (optional) absolute path to XSL stylesheet in your project
@@ -52,9 +56,6 @@ rss({
   customData: '<language>en-us</language>',
   // (optional) add arbitrary metadata to opening <rss> tag
   xmlns: { h: 'http://www.w3.org/TR/html4/' },
-  // (optional) provide a canonical URL
-  // defaults to the "site" configured in your project's astro.config
-  canonicalUrl: 'https://stargazers.club',
 });
 ```
 
@@ -69,6 +70,12 @@ The `<title>` attribute of your RSS feed's output xml.
 Type: `string (required)`
 
 The `<description>` attribute of your RSS feed's output xml.
+
+### site
+
+Type: `string (required)`
+
+The base URL to use when generating RSS item links. We recommend using `import.meta.env.SITE` to pull in the "site" from your project's astro.config. Still, feel free to use a custom base URL if necessary.
 
 ### items
 
@@ -135,11 +142,7 @@ Will inject the following XML:
 <rss xmlns:h="http://www.w3.org/TR/html4/"...
 ```
 
-### canonicalUrl
-
-Type: `string (optional)`
-
-The base URL to use when generating RSS item links. This defaults to the [`site` configured in your project's `astro.config`](https://docs.astro.build/en/reference/configuration-reference/#site). We recommend using `site` instead of `canonicalUrl`, though we provide this option if an override is necessary.
+---
 
 For more on building with Astro, [visit the Astro docs][astro-rss].
 
