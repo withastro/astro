@@ -82,7 +82,7 @@ describe('Component Libraries', () => {
 			const $ = cheerioLoad(html);
 
 			expect($('.counter').length).to.equal(1, 'Rendered the svelte counter');
-			expect($('.message').text().trim()).to.equal('Hello, Svelte!', "rendered the counter's slot");
+			expect($('.counter-message').text().trim()).to.equal('Hello, Svelte!', "rendered the counter's slot");
 
 			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
@@ -148,10 +148,8 @@ describe('Component Libraries', () => {
 			const html = await fixture.fetch('/internal-hydration/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			console.log(html)
-
 			expect($('.counter').length).to.equal(1, 'Rendered the svelte counter');
-			expect($('.message').text().trim()).to.equal('Hello, Svelte!', "rendered the counter's slot");
+			expect($('.counter-message').text().trim()).to.equal('Hello, Svelte!', "rendered the counter's slot");
 
 			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
