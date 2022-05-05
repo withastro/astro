@@ -85,11 +85,15 @@ export function trackClientOnlyPageDatas(
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
 		let pageDataSet: Set<PageBuildData>;
-		if (internals.pagesByClientOnly.has(clientOnlyComponent)) {
-			pageDataSet = internals.pagesByClientOnly.get(clientOnlyComponent)!;
+		let pathname = clientOnlyComponent;
+		if (pathname.startsWith('/@fs')) {
+			pathname = pathname.slice('/@fs'.length);
+		}
+		if (internals.pagesByClientOnly.has(pathname)) {
+			pageDataSet = internals.pagesByClientOnly.get(pathname)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
-			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
+			internals.pagesByClientOnly.set(pathname, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}
@@ -114,9 +118,8 @@ export function* getPageDatasByClientOnlyChunk(
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
 		for (const [modulePath] of Object.entries(chunk.modules)) {
-			const pathname = modulePath.replace(npath.parse(modulePath).root, "/");
-			if (pagesByClientOnly.has(pathname)) {
-				for (const pageData of pagesByClientOnly.get(pathname)!) {
+			if (pagesByClientOnly.has(modulePath)) {
+				for (const pageData of pagesByClientOnly.get(modulePath)!) {
 					yield pageData;
 				}
 			}
