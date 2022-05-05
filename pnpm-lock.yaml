@@ -962,16 +962,16 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
       '@astrojs/svelte': link:../../../../integrations/svelte
-      '@test/component-library-shared': link:component-library-shared
+      '@test/component-library-shared': link:../component-library-shared
       astro: link:../../..
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
 
-  packages/astro/test/fixtures/component-library/component-library-shared:
+  packages/astro/test/fixtures/component-library-shared:
     specifiers:
       astro: workspace:*
     devDependencies:
-      astro: link:../../../..
+      astro: link:../../..
 
   packages/astro/test/fixtures/config-host:
     specifiers:
