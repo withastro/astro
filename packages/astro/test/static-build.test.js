@@ -96,6 +96,9 @@ describe('Static build', () => {
 			for (const link of links) {
 				const href = $(link).attr('href');
 
+				// The imported .scss file should include the base subpath in the href
+				expect(href.startsWith('/subpath/')).to.be.true;
+
 				/**
 				 * The link should be built with the config's `base` included
 				 * as a subpath.

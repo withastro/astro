@@ -14,7 +14,7 @@ import load, { resolve, ProloadError } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
-import { appendForwardSlash, trimSlashes } from './path.js';
+import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 
 load.use([loadTypeScript]);
 
@@ -95,7 +95,7 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.optional()
 		.default('/')
-		.transform((val) => appendForwardSlash(trimSlashes(val))),
+		.transform((val) => prependForwardSlash(appendForwardSlash(trimSlashes(val)))),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
