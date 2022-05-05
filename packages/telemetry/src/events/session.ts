@@ -6,19 +6,28 @@ const require = createRequire(import.meta.url);
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
+// :( We can't import the type because of TurboRepo circular dep limitation
+type AstroUserConfig = Record<string, any>;
+
 interface EventCliSession {
 	astroVersion: string;
 	cliCommand: string;
 }
 
 interface ConfigInfo {
-	hasViteConfig: boolean;
-	hasBase: boolean;
-	viteKeys: string[];
+	configKeys: string[];
 	markdownPlugins: string[];
 	adapter: string | null;
 	integrations: string[];
 	experimentalFeatures: string[];
+	trailingSlash: undefined | 'always' | 'never' | 'ignore';
+	build: undefined | {
+		format: undefined | 'file' | 'directory'
+	};
+	markdown: undefined | {
+		mode: undefined | 'md' | 'mdx';
+		syntaxHighlight: undefined | 'shiki' | 'prism' | false;
+	};
 }
 
 interface EventCliSessionInternal extends EventCliSession {
@@ -45,19 +54,24 @@ function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | 
 	}, [] as string[]);
 }
 
-const secondLevelViteKeys = new Set([
-	'resolve',
-	'css',
-	'json',
-	'server',
-	'server.fs',
+const multiLevelKeys = new Set([
 	'build',
-	'preview',
-	'optimizeDeps',
-	'ssr',
-	'worker',
+	'markdown',
+	'markdown.shikiConfig',
+	'server',
+	'vite',
+	'vite.resolve',
+	'vite.css',
+	'vite.json',
+	'vite.server',
+	'vite.server.fs',
+	'vite.build',
+	'vite.preview',
+	'vite.optimizeDeps',
+	'vite.ssr',
+	'vite.worker',
 ]);
-function viteConfigKeys(obj: Record<string, any> | undefined, parentKey: string): string[] {
+function configKeys(obj: Record<string, any> | undefined, parentKey: string): string[] {
 	if (!obj) {
 		return [];
 	}
@@ -66,8 +80,8 @@ function viteConfigKeys(obj: Record<string, any> | undefined, parentKey: string)
 		.map(([key, value]) => {
 			if (typeof value === 'object' && !Array.isArray(value)) {
 				const localKey = parentKey ? parentKey + '.' + key : key;
-				if (secondLevelViteKeys.has(localKey)) {
-					let keys = viteConfigKeys(value, localKey).map((subkey) => key + '.' + subkey);
+				if (multiLevelKeys.has(localKey)) {
+					let keys = configKeys(value, localKey).map((subkey) => key + '.' + subkey);
 					keys.unshift(key);
 					return keys;
 				}
@@ -80,7 +94,7 @@ function viteConfigKeys(obj: Record<string, any> | undefined, parentKey: string)
 
 export function eventCliSession(
 	event: EventCliSession,
-	astroConfig?: Record<string, any>
+	userConfig?: AstroUserConfig
 ): { eventName: string; payload: EventCliSessionInternal }[] {
 	const payload: EventCliSessionInternal = {
 		cliCommand: event.cliCommand,
@@ -89,18 +103,24 @@ export function eventCliSession(
 		viteVersion: getViteVersion(),
 		nodeVersion: process.version.replace(/^v?/, ''),
 		// Config Values
-		config: astroConfig
+		config: userConfig
 			? {
-					hasViteConfig: Object.keys(astroConfig?.vite).length > 0,
 					markdownPlugins: [
-						astroConfig?.markdown?.remarkPlugins ?? [],
-						astroConfig?.markdown?.rehypePlugins ?? [],
+						userConfig?.markdown?.remarkPlugins ?? [],
+						userConfig?.markdown?.rehypePlugins ?? [],
 					].flat(1),
-					hasBase: astroConfig?.base !== '/',
-					viteKeys: viteConfigKeys(astroConfig?.vite, ''),
-					adapter: astroConfig?.adapter?.name ?? null,
-					integrations: astroConfig?.integrations?.map((i: any) => i.name) ?? [],
-					experimentalFeatures: getExperimentalFeatures(astroConfig) ?? [],
+					configKeys: configKeys(userConfig, ''),
+					adapter: userConfig?.adapter?.name ?? null,
+					integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
+					experimentalFeatures: getExperimentalFeatures(userConfig) ?? [],
+					trailingSlash: userConfig?.trailingSlash,
+					build: userConfig?.build ? {
+						format: userConfig?.build?.format
+					} : undefined,
+					markdown: userConfig?.markdown ? {
+						mode: userConfig?.markdown?.mode,
+						syntaxHighlight: userConfig.markdown?.syntaxHighlight
+					} : undefined,
 			  }
 			: undefined,
 	};
