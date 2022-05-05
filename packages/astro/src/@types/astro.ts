@@ -141,7 +141,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroresponse)
 	 */
 	response: ResponseInit & {
-		headers: Headers
+		readonly headers: Headers
 	};
 	/** Redirect to another page (**SSR Only**)
 	 *
