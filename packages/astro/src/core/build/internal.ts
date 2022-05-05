@@ -80,17 +80,15 @@ export function trackPageData(
 export function trackClientOnlyPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	clientOnlys: string[],
-	astroConfig: AstroConfig
+	clientOnlys: string[]
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
-		const coPath = viteID(new URL('.' + clientOnlyComponent, astroConfig.root));
 		let pageDataSet: Set<PageBuildData>;
-		if (internals.pagesByClientOnly.has(coPath)) {
-			pageDataSet = internals.pagesByClientOnly.get(coPath)!;
+		if (internals.pagesByClientOnly.has(clientOnlyComponent)) {
+			pageDataSet = internals.pagesByClientOnly.get(clientOnlyComponent)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
-			internals.pagesByClientOnly.set(coPath, pageDataSet);
+			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}
