@@ -1,7 +1,6 @@
 <br/>
 <p align="center">
-  <img src="../../assets/brand/logo-square-black.png#gh-light-mode-only" alt="Astro logo" width="120">
-  <img src="../../assets/brand/logo-square-white.png#gh-dark-mode-only" alt="Astro logo" width="120">
+  <img src="../../assets/social/banner-minimal.png" alt="Astro logo">
   <br/><br/>
   <a href="https://astro.build">Astro</a> is a website build tool for the modern web &mdash;
   <br/>

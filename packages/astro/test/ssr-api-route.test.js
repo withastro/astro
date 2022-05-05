@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-// Asset bundling
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

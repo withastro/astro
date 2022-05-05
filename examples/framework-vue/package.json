@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/vue": "^0.1.3",
-    "astro": "^1.0.0-beta.24"
+    "astro": "^1.0.0-beta.25"
   },
   "dependencies": {
     "vue": "^3.2.33"

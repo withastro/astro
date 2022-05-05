@@ -52,6 +52,7 @@ export async function callGetStaticPaths({
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
+
 	for (const sp of keyedStaticPaths) {
 		const paramsKey = stringifyParams(sp.params);
 		keyedStaticPaths.keyed.set(paramsKey, sp);

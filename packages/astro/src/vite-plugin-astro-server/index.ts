@@ -94,8 +94,13 @@ async function writeSSRResult(
 		return;
 	}
 
-	const { html } = result;
-	writeHtmlResponse(res, statusCode, html);
+	const { html, response: init } = result;
+	const headers = init.headers as Headers;
+
+	headers.set('Content-Type', 'text/html; charset=utf-8');
+	headers.set('Content-Length', Buffer.byteLength(html, 'utf-8').toString());
+
+	return writeWebResponse(res, new Response(html, init));
 }
 
 async function handle404Response(
