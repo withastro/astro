@@ -2,7 +2,8 @@ import type { AstroConfig, RouteData } from '../../@types/astro';
 import type { RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { fileURLToPath } from 'url';
+import npath from 'path';
+import { pathToFileURL } from 'url';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
@@ -113,8 +114,9 @@ export function* getPageDatasByClientOnlyChunk(
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
 		for (const [modulePath] of Object.entries(chunk.modules)) {
-			if (pagesByClientOnly.has(modulePath)) {
-				for (const pageData of pagesByClientOnly.get(modulePath)!) {
+			const pathname = modulePath.replace(npath.parse(modulePath).root, "/");
+			if (pagesByClientOnly.has(pathname)) {
+				for (const pageData of pagesByClientOnly.get(pathname)!) {
 					yield pageData;
 				}
 			}
