@@ -1,5 +1,4 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-
 import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
 
@@ -51,7 +50,7 @@ export default function vercelEdge(): AstroIntegration {
 					outfile: entryPath,
 					inject: [fileURLToPath(new URL('./shim.js', import.meta.url))],
 					bundle: true,
-					target: 'node14',
+					target: 'node14.19',
 					format: 'esm',
 					platform: 'browser',
 					allowOverwrite: true,
