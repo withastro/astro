@@ -6,7 +6,7 @@ chai.use(chaiPromises);
 
 const title = 'My RSS feed';
 const description = 'This sure is a nice RSS feed';
-const canonicalUrl = 'https://example.com';
+const site = 'https://example.com';
 
 const phpFeedItem = {
 	link: '/php',
@@ -34,7 +34,7 @@ describe('rss', () => {
 			title,
 			description,
 			items: [phpFeedItem, web1FeedItem],
-			canonicalUrl,
+			site,
 		});
 
 		chai.expect(body).to.equal(validXmlResult);
@@ -71,7 +71,7 @@ describe('rss', () => {
 				title,
 				description,
 				items: globResult,
-				canonicalUrl,
+				site,
 			});
 
 			chai.expect(body).to.equal(validXmlResult);
@@ -95,7 +95,7 @@ describe('rss', () => {
 					title,
 					description,
 					items: globResult,
-					canonicalUrl,
+					site,
 				})
 			).to.be.rejected;
 		});
@@ -118,7 +118,7 @@ describe('rss', () => {
 					title,
 					description,
 					items: globResult,
-					canonicalUrl,
+					site,
 				})
 			).to.be.rejected;
 		});

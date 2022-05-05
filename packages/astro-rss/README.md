@@ -29,7 +29,7 @@ export const get = () => rss({
     title: 'Buzz’s Blog',
     description: 'A humble Astronaut’s guide to the stars',
     // pull in the "site" from your project's astro.config
-    canonicalUrl: import.meta.env.SITE,
+    site: import.meta.env.SITE,
     items: import.meta.glob('./blog/**/*.md'),
   });
 ```
@@ -47,7 +47,7 @@ rss({
   // `<description>` field in output xml
   description: 'A humble Astronaut’s guide to the stars',
   // provide a base URL for RSS <item> links
-  canonicalUrl: import.meta.env.SITE,
+  site: import.meta.env.SITE,
   // list of `<item>`s in output xml
   items: import.meta.glob('./**/*.md'),
   // (optional) absolute path to XSL stylesheet in your project
@@ -71,7 +71,7 @@ Type: `string (required)`
 
 The `<description>` attribute of your RSS feed's output xml.
 
-### canonicalUrl
+### site
 
 Type: `string (required)`
 

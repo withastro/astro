@@ -13,7 +13,7 @@ type RSSOptions = {
 	 * We recommend "import.meta.env.SITE" to pull in the "site"
 	 * from your project's astro.config.
 	 */
-	canonicalUrl: string;
+	site: string;
 	/**
 	 * List of RSS feed items to render. Accepts either:
 	 * a) list of RSSFeedItems
@@ -90,7 +90,7 @@ export default async function getRSS(rssOptions: RSSOptions) {
 
 /** Generate RSS 2.0 feed */
 export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promise<string> {
-	const { canonicalUrl } = rssOptions;
+	const { site } = rssOptions;
 	let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
 	if (typeof rssOptions.stylesheet === 'string') {
 		xml += `<?xml-stylesheet href="${rssOptions.stylesheet}" type="text/xsl"?>`;
@@ -109,7 +109,7 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	// title, description, customData
 	xml += `<title><![CDATA[${rssOptions.title}]]></title>`;
 	xml += `<description><![CDATA[${rssOptions.description}]]></description>`;
-	xml += `<link>${createCanonicalURL(canonicalUrl).href}</link>`;
+	xml += `<link>${createCanonicalURL(site).href}</link>`;
 	if (typeof rssOptions.customData === 'string') xml += rssOptions.customData;
 	// items
 	for (const result of items) {
@@ -118,7 +118,7 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 		// If the item's link is already a valid URL, don't mess with it.
 		const itemLink = isValidURL(result.link)
 			? result.link
-			: createCanonicalURL(result.link, canonicalUrl).href;
+			: createCanonicalURL(result.link, site).href;
 		xml += `<link>${itemLink}</link>`;
 		xml += `<guid>${itemLink}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
