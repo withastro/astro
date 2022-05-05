@@ -2,6 +2,7 @@ import type * as unified from 'unified';
 import type * as mdast from 'mdast';
 import type * as hast from 'hast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type { Options as RemarkRehypeOptions } from 'mdast-util-to-hast';
 
 export type { Node } from 'unist';
 
@@ -19,6 +20,8 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
+export type RemarkRehype = RemarkRehypeOptions;
+
 export interface ShikiConfig {
 	langs: ILanguageRegistration[];
 	theme: Theme | IThemeRegistration;
@@ -32,6 +35,7 @@ export interface AstroMarkdownOptions {
 	shikiConfig: ShikiConfig;
 	remarkPlugins: RemarkPlugins;
 	rehypePlugins: RehypePlugins;
+ 	remarkRehype?: RemarkRehypeOptions;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {

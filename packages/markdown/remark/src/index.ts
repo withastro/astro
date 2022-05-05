@@ -29,7 +29,7 @@ export async function renderMarkdown(
 	content: string,
 	opts: MarkdownRenderingOptions
 ): Promise<MarkdownRenderingResult> {
-	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
+	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins, remarkRehype } = opts;
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
@@ -69,6 +69,7 @@ export async function renderMarkdown(
 			{
 				allowDangerousHtml: true,
 				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
+        ...remarkRehype,
 			},
 		],
 	]);
