@@ -104,7 +104,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
-	const response: ResponseInit =  {
+	const response: ResponseInit = {
 		status: 200,
 		statusText: 'OK',
 		headers: new Headers(),
@@ -215,7 +215,7 @@ ${extra}`
 			renderers,
 			pathname,
 		},
-		response
+		response,
 	};
 
 	return result;

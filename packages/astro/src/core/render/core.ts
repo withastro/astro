@@ -84,7 +84,9 @@ export interface RenderOptions {
 
 export async function render(
 	opts: RenderOptions
-): Promise<{ type: 'html'; html: string, response: ResponseInit; } | { type: 'response'; response: Response }> {
+): Promise<
+	{ type: 'html'; html: string; response: ResponseInit } | { type: 'response'; response: Response }
+> {
 	const {
 		links,
 		logging,
@@ -162,6 +164,6 @@ export async function render(
 	return {
 		type: 'html',
 		html,
-		response: result.response
+		response: result.response,
 	};
 }

@@ -112,7 +112,7 @@ export class App {
 		let headers = init.headers as Headers;
 		let bytes = this.#encoder.encode(html);
 		headers.set('Content-Type', 'text/html');
-		headers.set('Content-Length', bytes.byteLength.toString())
+		headers.set('Content-Length', bytes.byteLength.toString());
 		return new Response(bytes, init);
 	}
 

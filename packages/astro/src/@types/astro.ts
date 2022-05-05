@@ -132,16 +132,16 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 */
 	request: Request;
 	/** Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
-	 * 
+	 *
 	 * For example, to change the status code you can set a different status on this object:
 	 * ```typescript
 	 * Astro.response.status = 404;
 	 * ```
-	 * 
+	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroresponse)
 	 */
 	response: ResponseInit & {
-		readonly headers: Headers
+		readonly headers: Headers;
 	};
 	/** Redirect to another page (**SSR Only**)
 	 *
