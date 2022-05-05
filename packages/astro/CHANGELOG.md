@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- [#3286](https://github.com/withastro/astro/pull/3286) [`e5f6de4e`](https://github.com/withastro/astro/commit/e5f6de4edbdfe2ae2f6e975511a5a571633e2fd6) Thanks [@thepassle](https://github.com/thepassle)! - Adds pages param to the astro:build:setup integration hook
+
 ## 1.0.0-beta.23
 
 ### Patch Changes

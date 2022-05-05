@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/react": "^0.1.1",
-    "astro": "^1.0.0-beta.23",
+    "astro": "^1.0.0-beta.24",
     "sass": "^1.50.1"
   },
   "dependencies": {

@@ -14,6 +14,7 @@ import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { SerializedSSRManifest } from '../core/app/types';
+import type { PageBuildData } from '../core/build/types';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -855,12 +856,27 @@ export interface AstroAdapter {
 	args?: any;
 }
 
+export interface APIContext {
+	params: Params;
+	request: Request;
+}
+
 export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
 
+interface APIRoute {
+	(context: APIContext): EndpointOutput | Response;
+
+	/**
+	 * @deprecated
+	 * Use { context: APIRouteContext } object instead.
+	 */
+	(params: Params, request: Request): EndpointOutput | Response;
+}
+
 export interface EndpointHandler {
-	[method: string]: (params: any, request: Request) => EndpointOutput | Response;
+	[method: string]: APIRoute;
 }
 
 export interface AstroRenderer {
@@ -912,8 +928,9 @@ export interface AstroIntegration {
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: ViteConfigWithSSR;
+			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;
