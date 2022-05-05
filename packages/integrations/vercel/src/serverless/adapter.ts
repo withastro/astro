@@ -28,20 +28,6 @@ export default function vercelEdge(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 			},
-			// 'astro:build:setup': ({ vite, target }) => {
-			// 	if (target === 'server') {
-			// 		vite.build = {
-			// 			...(vite.build || {}),
-			// 			rollupOptions: {
-			// 				...(vite.build?.rollupOptions || {}),
-			// 				output: {
-			// 					...(vite.build?.rollupOptions?.output || {}),
-			// 					format: 'cjs',
-			// 				},
-			// 			},
-			// 		};
-			// 	}
-			// },
 			'astro:build:start': async ({ buildConfig }) => {
 				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
 					throw new Error(
@@ -54,30 +40,21 @@ export default function vercelEdge(): AstroIntegration {
 				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
-				// Bundle dependencies
-				// await esbuild.build({
-				// 	entryPoints: [entryPath],
-				// 	outfile: entryPath,
-				// 	bundle: true,
-				// 	target: 'node14.19',
-				// 	format: 'esm',
-				// 	platform: 'node',
-				// 	allowOverwrite: true,
-				// });
-
 				// Copy necessary files (e.g. node_modules/)
 				await copyFunctionNFT(_config.root, functionFolder, serverEntry);
 
-				// Edge function config
-				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
+				// Enable ESM
+				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
+				await writeJson(new URL(`./package.json`, functionFolder), {
+					type: 'module',
+				});
+
+				// Serverless function config
+				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 					runtime: 'nodejs14.x',
 					handler: serverEntry,
 					launcherType: 'Nodejs',
-				});
-
-				await writeJson(new URL(`./package.json`, functionFolder), {
-					type: 'module',
 				});
 
 				// Output configuration
