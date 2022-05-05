@@ -1,9 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { fileURLToPath } from 'url';
-import esbuild from 'esbuild';
-
-import { writeJson, getVercelOutput } from '../lib/fs.js';
+import { writeJson, copyFunctionNFT, getVercelOutput } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
@@ -31,20 +28,20 @@ export default function vercelEdge(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 			},
-			'astro:build:setup': ({ vite, target }) => {
-				if (target === 'server') {
-					vite.build = {
-						...(vite.build || {}),
-						rollupOptions: {
-							...(vite.build?.rollupOptions || {}),
-							output: {
-								...(vite.build?.rollupOptions?.output || {}),
-								format: 'cjs',
-							},
-						},
-					};
-				}
-			},
+			// 'astro:build:setup': ({ vite, target }) => {
+			// 	if (target === 'server') {
+			// 		vite.build = {
+			// 			...(vite.build || {}),
+			// 			rollupOptions: {
+			// 				...(vite.build?.rollupOptions || {}),
+			// 				output: {
+			// 					...(vite.build?.rollupOptions?.output || {}),
+			// 					format: 'cjs',
+			// 				},
+			// 			},
+			// 		};
+			// 	}
+			// },
 			'astro:build:start': async ({ buildConfig }) => {
 				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
 					throw new Error(
@@ -57,18 +54,19 @@ export default function vercelEdge(): AstroIntegration {
 				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
-				const entryPath = fileURLToPath(new URL(`./${serverEntry}`, functionFolder));
-
 				// Bundle dependencies
-				await esbuild.build({
-					entryPoints: [entryPath],
-					outfile: entryPath,
-					bundle: true,
-					target: 'node14',
-					format: 'cjs',
-					platform: 'node',
-					allowOverwrite: true,
-				});
+				// await esbuild.build({
+				// 	entryPoints: [entryPath],
+				// 	outfile: entryPath,
+				// 	bundle: true,
+				// 	target: 'node14.19',
+				// 	format: 'esm',
+				// 	platform: 'node',
+				// 	allowOverwrite: true,
+				// });
+
+				// Copy necessary files (e.g. node_modules/)
+				await copyFunctionNFT(_config.root, functionFolder, serverEntry);
 
 				// Edge function config
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
@@ -76,6 +74,10 @@ export default function vercelEdge(): AstroIntegration {
 					runtime: 'nodejs14.x',
 					handler: serverEntry,
 					launcherType: 'Nodejs',
+				});
+
+				await writeJson(new URL(`./package.json`, functionFolder), {
+					type: 'module',
 				});
 
 				// Output configuration
