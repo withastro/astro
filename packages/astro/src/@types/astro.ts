@@ -131,6 +131,18 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
 	 */
 	request: Request;
+	/** Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
+	 * 
+	 * For example, to change the status code you can set a different status on this object:
+	 * ```typescript
+	 * Astro.response.status = 404;
+	 * ```
+	 * 
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroresponse)
+	 */
+	response: ResponseInit & {
+		readonly headers: Headers
+	};
 	/** Redirect to another page (**SSR Only**)
 	 *
 	 * Example usage:
@@ -1031,5 +1043,6 @@ export interface SSRResult {
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
+	response: ResponseInit;
 	_metadata: SSRMetadata;
 }

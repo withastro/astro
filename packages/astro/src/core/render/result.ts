@@ -104,6 +104,18 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
+	const response: ResponseInit =  {
+		status: 200,
+		statusText: 'OK',
+		headers: new Headers(),
+	};
+
+	// Make headers be read-only
+	Object.defineProperty(response, 'headers', {
+		value: response.headers,
+		enumerable: true,
+		writable: false,
+	});
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -168,6 +180,7 @@ ${extra}`
 					// Intentionally return an empty string so that it is not relied upon.
 					return '';
 				},
+				response,
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
 
@@ -202,6 +215,7 @@ ${extra}`
 			renderers,
 			pathname,
 		},
+		response
 	};
 
 	return result;
