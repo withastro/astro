@@ -19,13 +19,17 @@ interface ConfigInfo {
 	adapter: string | null;
 	integrations: string[];
 	trailingSlash: undefined | 'always' | 'never' | 'ignore';
-	build: undefined | {
-		format: undefined | 'file' | 'directory'
-	};
-	markdown: undefined | {
-		mode: undefined | 'md' | 'mdx';
-		syntaxHighlight: undefined | 'shiki' | 'prism' | false;
-	};
+	build:
+		| undefined
+		| {
+				format: undefined | 'file' | 'directory';
+		  };
+	markdown:
+		| undefined
+		| {
+				mode: undefined | 'md' | 'mdx';
+				syntaxHighlight: undefined | 'shiki' | 'prism' | false;
+		  };
 }
 
 interface EventCliSessionInternal extends EventCliSession {
@@ -85,27 +89,33 @@ function configKeys(obj: Record<string, any> | undefined, parentKey: string): st
 export function eventCliSession(
 	event: EventCliSession,
 	userConfig?: AstroUserConfig,
-	flags?: Record<string, any>,
+	flags?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
-	const configValues = userConfig ? {
-		markdownPlugins: [
-			userConfig?.markdown?.remarkPlugins ?? [],
-			userConfig?.markdown?.rehypePlugins ?? [],
-		].flat(1),
-		adapter: userConfig?.adapter?.name ?? null,
-		integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
-		trailingSlash: userConfig?.trailingSlash,
-		build: userConfig?.build ? {
-			format: userConfig?.build?.format
-		} : undefined,
-		markdown: userConfig?.markdown ? {
-			mode: userConfig?.markdown?.mode,
-			syntaxHighlight: userConfig.markdown?.syntaxHighlight
-		} : undefined,
-	} : undefined;
+	const configValues = userConfig
+		? {
+				markdownPlugins: [
+					userConfig?.markdown?.remarkPlugins ?? [],
+					userConfig?.markdown?.rehypePlugins ?? [],
+				].flat(1),
+				adapter: userConfig?.adapter?.name ?? null,
+				integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
+				trailingSlash: userConfig?.trailingSlash,
+				build: userConfig?.build
+					? {
+							format: userConfig?.build?.format,
+					  }
+					: undefined,
+				markdown: userConfig?.markdown
+					? {
+							mode: userConfig?.markdown?.mode,
+							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
+					  }
+					: undefined,
+		  }
+		: undefined;
 
 	// Filter out yargs default `_` flag which is the cli command
-	const cliFlags = flags ? Object.keys(flags).filter(name => name != '_'): undefined;
+	const cliFlags = flags ? Object.keys(flags).filter((name) => name != '_') : undefined;
 
 	const payload: EventCliSessionInternal = {
 		cliCommand: event.cliCommand,

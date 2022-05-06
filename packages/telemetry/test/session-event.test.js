@@ -32,12 +32,12 @@ describe('Session event', () => {
 				srcDir: 1,
 				build: {
 					format: 'file',
-				}
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -49,12 +49,12 @@ describe('Session event', () => {
 				srcDir: 1,
 				build: {
 					format: 'file',
-				}
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -68,13 +68,13 @@ describe('Session event', () => {
 				srcDir: 1,
 				server: {
 					host: 'example.com',
-					port: 8033
-				}
+					port: 8033,
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -92,36 +92,45 @@ describe('Session event', () => {
 					shikiConfig: {
 						lang: 1,
 						theme: 2,
-						wrap: 3
+						wrap: 3,
 					},
 					syntaxHighlight: 'shiki',
 					remarkPlugins: [],
 					rehypePlugins: [],
-				}
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
-			expect(payload.configKeys).to.deep.equal(['publicDir', 'markdown',
-				'markdown.drafts', 'markdown.mode', 'markdown.shikiConfig',
-				'markdown.shikiConfig.lang', 'markdown.shikiConfig.theme', 'markdown.shikiConfig.wrap',
-				'markdown.syntaxHighlight', 'markdown.remarkPlugins', 'markdown.rehypePlugins']);
+			expect(payload.configKeys).to.deep.equal([
+				'publicDir',
+				'markdown',
+				'markdown.drafts',
+				'markdown.mode',
+				'markdown.shikiConfig',
+				'markdown.shikiConfig.lang',
+				'markdown.shikiConfig.theme',
+				'markdown.shikiConfig.wrap',
+				'markdown.syntaxHighlight',
+				'markdown.remarkPlugins',
+				'markdown.rehypePlugins',
+			]);
 		});
 
 		it('mode', () => {
 			const config = {
 				markdown: {
 					mode: 'mdx',
-				}
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -132,12 +141,12 @@ describe('Session event', () => {
 			const config = {
 				markdown: {
 					syntaxHighlight: 'shiki',
-				}
+				},
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0'
+					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -159,7 +168,7 @@ describe('Session event', () => {
 					publicDir: 'some/dir',
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -178,7 +187,7 @@ describe('Session event', () => {
 				'vite.publicDir',
 			]);
 		});
-	
+
 		it('vite.resolve keys are captured', async () => {
 			const config = {
 				vite: {
@@ -190,7 +199,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -198,9 +207,14 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.configKeys).is.deep.equal(['vite', 'vite.resolve', 'vite.resolve.alias', 'vite.resolve.dedupe']);
+			expect(payload.configKeys).is.deep.equal([
+				'vite',
+				'vite.resolve',
+				'vite.resolve.alias',
+				'vite.resolve.dedupe',
+			]);
 		});
-	
+
 		it('vite.css keys are captured', async () => {
 			const config = {
 				vite: {
@@ -213,7 +227,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -230,7 +244,7 @@ describe('Session event', () => {
 				'vite.css.postcss',
 			]);
 		});
-	
+
 		it('vite.server keys are captured', async () => {
 			const config = {
 				vite: {
@@ -244,7 +258,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -262,7 +276,7 @@ describe('Session event', () => {
 				'vite.server.fs.allow',
 			]);
 		});
-	
+
 		it('vite.build keys are captured', async () => {
 			const config = {
 				vite: {
@@ -275,7 +289,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -291,7 +305,7 @@ describe('Session event', () => {
 				'vite.build.cssTarget',
 			]);
 		});
-	
+
 		it('vite.preview keys are captured', async () => {
 			const config = {
 				vite: {
@@ -304,7 +318,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -320,7 +334,7 @@ describe('Session event', () => {
 				'vite.preview.another',
 			]);
 		});
-	
+
 		it('vite.optimizeDeps keys are captured', async () => {
 			const config = {
 				vite: {
@@ -330,7 +344,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -345,7 +359,7 @@ describe('Session event', () => {
 				'vite.optimizeDeps.exclude',
 			]);
 		});
-	
+
 		it('vite.ssr keys are captured', async () => {
 			const config = {
 				vite: {
@@ -355,7 +369,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -363,9 +377,14 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.configKeys).is.deep.equal(['vite', 'vite.ssr', 'vite.ssr.external', 'vite.ssr.target']);
+			expect(payload.configKeys).is.deep.equal([
+				'vite',
+				'vite.ssr',
+				'vite.ssr.external',
+				'vite.ssr.target',
+			]);
 		});
-	
+
 		it('vite.worker keys are captured', async () => {
 			const config = {
 				vite: {
@@ -375,7 +394,7 @@ describe('Session event', () => {
 					},
 				},
 			};
-	
+
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -383,7 +402,12 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.configKeys).is.deep.equal(['vite', 'vite.worker', 'vite.worker.format', 'vite.worker.plugins']);
+			expect(payload.configKeys).is.deep.equal([
+				'vite',
+				'vite.worker',
+				'vite.worker.format',
+				'vite.worker.plugins',
+			]);
 		});
 	});
 
@@ -399,7 +423,7 @@ describe('Session event', () => {
 				experimentalSsr: true,
 				experimentalIntegrations: true,
 				drafts: true,
-			}
+			};
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
@@ -416,8 +440,8 @@ describe('Session event', () => {
 				'config',
 				'experimentalSsr',
 				'experimentalIntegrations',
-				'drafts'
+				'drafts',
 			]);
-		})
-	})
+		});
+	});
 });

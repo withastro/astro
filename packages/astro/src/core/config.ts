@@ -442,7 +442,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		astroConfig,
 		userConfig,
 		flags,
-		root
+		root,
 	};
 }
 
