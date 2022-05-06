@@ -1,5 +1,5 @@
-import shorthash from 'shorthash';
 import type {
+	APIContext,
 	AstroComponentMetadata,
 	AstroGlobalPartial,
 	EndpointHandler,
@@ -11,6 +11,7 @@ import type {
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
+import { shorthash } from './shorthash.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
@@ -309,7 +310,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
-	const astroId = shorthash.unique(
+	const astroId = shorthash(
 		`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(
 			props
 		)}`
@@ -477,7 +478,46 @@ export async function renderEndpoint(mod: EndpointHandler, request: Request, par
 			`Endpoint handler not found! Expected an exported function for "${chosenMethod}"`
 		);
 	}
-	return await handler.call(mod, params, request);
+
+	if (handler.length > 1) {
+		// eslint-disable-next-line no-console
+		console.warn(`
+API routes with 2 arguments have been deprecated. Instead they take a single argument in the form of:
+
+export function get({ params, request }) {
+	//...
+}
+
+Update your code to remove this warning.`);
+	}
+
+	const context = {
+		request,
+		params,
+	};
+
+	const proxy = new Proxy(context, {
+		get(target, prop) {
+			if (prop in target) {
+				return Reflect.get(target, prop);
+			} else if (prop in params) {
+				// eslint-disable-next-line no-console
+				console.warn(`
+API routes no longer pass params as the first argument. Instead an object containing a params property is provided in the form of:
+
+export function get({ params }) {
+	// ...
+}
+
+Update your code to remove this warning.`);
+				return Reflect.get(params, prop);
+			} else {
+				return undefined;
+			}
+		},
+	}) as APIContext & Params;
+
+	return await handler.call(mod, proxy, request);
 }
 
 async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {

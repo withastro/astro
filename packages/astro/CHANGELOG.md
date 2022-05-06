@@ -1,5 +1,50 @@
 # astro
 
+## 1.0.0-beta.27
+
+### Patch Changes
+
+- [#3178](https://github.com/withastro/astro/pull/3178) [`19e1686b`](https://github.com/withastro/astro/commit/19e1686b8701ea7c4f8449958911035ae29cb53a) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an issue that was breaking asset and stylesheet URLs when building for a subpath
+
+* [#3299](https://github.com/withastro/astro/pull/3299) [`8021998b`](https://github.com/withastro/astro/commit/8021998bb6011e31aa736abeafa4f1cf8f5a180c) Thanks [@matthewp](https://github.com/matthewp)! - Update to telemetry to include AstroConfig keys used
+
+* Updated dependencies [[`8021998b`](https://github.com/withastro/astro/commit/8021998bb6011e31aa736abeafa4f1cf8f5a180c)]:
+  - @astrojs/telemetry@0.1.2
+
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- [#3289](https://github.com/withastro/astro/pull/3289) [`61e1a267`](https://github.com/withastro/astro/commit/61e1a267a8d4653287cf8bbd2cff493699ac7d7f) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Astro.response RFC
+
+* [#3304](https://github.com/withastro/astro/pull/3304) [`3d901ca5`](https://github.com/withastro/astro/commit/3d901ca59d152ba82fa1471c0e45c9e576f5f864) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression that prevented passing classes to islands
+
+## 1.0.0-beta.25
+
+### Patch Changes
+
+- [#3272](https://github.com/withastro/astro/pull/3272) [`6643a393`](https://github.com/withastro/astro/commit/6643a3931d45e63363599bb0cf7b2b2951266cfb) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Dynamic Route API RFC
+
+## 1.0.0-beta.24
+
+### Patch Changes
+
+- [#3286](https://github.com/withastro/astro/pull/3286) [`e5f6de4e`](https://github.com/withastro/astro/commit/e5f6de4edbdfe2ae2f6e975511a5a571633e2fd6) Thanks [@thepassle](https://github.com/thepassle)! - Adds pages param to the astro:build:setup integration hook
+
+## 1.0.0-beta.23
+
+### Patch Changes
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Introduce new @astrojs/rss package for RSS feed generation! This also adds a new global env variable for your project's configured "site": import.meta.env.SITE. This is consumed by the RSS feed helper to generate the correct canonical URL.
+
+* [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: removed `shorthash`
+
+- [`1032e450`](https://github.com/withastro/astro/commit/1032e450cc224e603e8e69ef1422de6dbf184dd2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Internal: replaces `serialize-javascript` with `devalue`
+
+* [`82345fdd`](https://github.com/withastro/astro/commit/82345fdd54b7d035657c584ecfc3d98dbaecfc24) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Deprecate the markdown component in SSR.
+
+  This was not working before, so now we make it official by throwing with a clean error message. See https://docs.astro.build/en/guides/markdown-content/#markdown-component to learn more.
+
 ## 1.0.0-beta.22
 
 ### Patch Changes
