@@ -6,7 +6,7 @@ import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#HoverProvider', () => {
 	function setup(filePath: string) {
-		const env = createEnvironment(filePath, 'typescript');
+		const env = createEnvironment(filePath, 'typescript', 'hoverInfo');
 		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new HoverProviderImpl(languageServiceManager);
 
@@ -17,7 +17,7 @@ describe('TypeScript Plugin#HoverProvider', () => {
 	}
 
 	it('provides basic hover info when no docstring exists', async () => {
-		const { provider, document } = setup('hoverInfo.astro');
+		const { provider, document } = setup('basic.astro');
 
 		const hoverInfo = await provider.doHover(document, Position.create(1, 10));
 
@@ -25,10 +25,10 @@ describe('TypeScript Plugin#HoverProvider', () => {
 			contents: '```typescript\nconst MyVariable: "Astro"\n```',
 			range: Range.create(1, 7, 1, 17),
 		});
-	}).resetTimeout();
+	});
 
 	it('provides formatted hover info when a docstring exists', async () => {
-		const { provider, document } = setup('hoverInfo.astro');
+		const { provider, document } = setup('basic.astro');
 
 		const hoverInfo = await provider.doHover(document, Position.create(4, 9));
 
@@ -39,13 +39,25 @@ describe('TypeScript Plugin#HoverProvider', () => {
 	});
 
 	it('provides formatted hover info for jsDoc tags', async () => {
-		const { provider, document } = setup('hoverInfo.astro');
+		const { provider, document } = setup('basic.astro');
 
 		const hoverInfo = await provider.doHover(document, Position.create(7, 10));
 
 		expect(hoverInfo).to.deep.equal(<Hover>{
 			contents: '```typescript\nconst MyJSDocVariable: "Astro"\n```\n---\n\n\n*@author* — Astro ',
 			range: Range.create(7, 7, 7, 22),
+		});
+	});
+
+	it('provides hover inside script tags', async () => {
+		const { provider, document } = setup('scriptTag.astro');
+		document.version++;
+
+		const hoverInfo = await provider.doHover(document, Position.create(1, 10));
+
+		expect(hoverInfo).to.deep.equal(<Hover>{
+			contents: '```typescript\nconst MyVariable: "Astro"\n```',
+			range: Range.create(1, 7, 1, 17),
 		});
 	});
 });

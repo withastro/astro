@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
+      // For testing script tags
+      "checkJs": true,
       "baseUrl": ".",
       /**For testing import json file*/
-      "resolveJsonModule": true
+      "resolveJsonModule": true,
+      "noEmit": true
     },
     "exclude": [
       /**For testing exclude */

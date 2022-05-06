@@ -46,14 +46,14 @@ describe('TypeScript Plugin', () => {
 
 	describe('provide hover info', async () => {
 		it('return hover info', async () => {
-			const { plugin, document } = setup('hoverInfo.astro');
+			const { plugin, document } = setup('hoverInfo/basic.astro');
 
 			const hoverInfo = await plugin.doHover(document, Position.create(1, 10));
 			expect(hoverInfo).to.not.be.empty;
 		});
 
 		it('should not provide hover info if feature is disabled', async () => {
-			const { plugin, document, configManager } = setup('hoverInfo.astro');
+			const { plugin, document, configManager } = setup('hoverInfo/basic.astro');
 
 			configManager.updateGlobalConfig(<any>{
 				typescript: {

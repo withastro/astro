@@ -28,13 +28,21 @@ export function* walk(node: Node): Generator<Node, void, unknown> {
  * @param source text content to extract tag from
  * @param tag the tag to extract
  */
-function extractTags(text: string, tag: 'script' | 'style' | 'template', html?: HTMLDocument): TagInformation[] {
+function extractTags(text: string, tag: 'script' | 'style', html?: HTMLDocument): TagInformation[] {
 	const rootNodes = html?.roots || parseHtml(text).roots;
 	const matchedNodes = rootNodes.filter((node) => node.tag === tag);
 
 	if (tag === 'style' && !matchedNodes.length && rootNodes.length) {
 		for (let child of walk(rootNodes[0])) {
 			if (child.tag === 'style') {
+				matchedNodes.push(child);
+			}
+		}
+	}
+
+	if (tag === 'script' && !matchedNodes.length && rootNodes.length) {
+		for (let child of walk(rootNodes[0])) {
+			if (child.tag === 'script') {
 				matchedNodes.push(child);
 			}
 		}
@@ -75,6 +83,16 @@ export function extractStyleTags(source: string, html?: HTMLDocument): TagInform
 	}
 
 	return styles;
+}
+
+export function extractScriptTags(source: string, html?: HTMLDocument): TagInformation[] {
+	const scripts = extractTags(source, 'script', html);
+
+	if (!scripts.length) {
+		return [];
+	}
+
+	return scripts;
 }
 
 function parseAttributes(rawAttrs: Record<string, string | null> | undefined): Record<string, string> {

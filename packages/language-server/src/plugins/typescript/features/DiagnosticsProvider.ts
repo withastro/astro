@@ -4,8 +4,8 @@ import { Diagnostic, DiagnosticTag } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import { DiagnosticsProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
-import { SnapshotFragment } from '../snapshots/DocumentSnapshot';
-import { convertRange, mapSeverity, toVirtualAstroFilePath } from '../utils';
+import { AstroSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
+import { convertRange, getScriptTagSnapshot, mapSeverity, toVirtualAstroFilePath } from '../utils';
 
 type BoundaryTuple = [number, number];
 
@@ -27,29 +27,64 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
 		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
+		const fragment = await tsDoc.createFragment();
+
+		let scriptDiagnostics: Diagnostic[] = [];
+
+		document.scriptTags.forEach((scriptTag) => {
+			const { filePath: scriptFilePath, snapshot: scriptTagSnapshot } = getScriptTagSnapshot(
+				tsDoc as AstroSnapshot,
+				document,
+				scriptTag.container
+			);
+
+			const scriptDiagnostic = [
+				...lang.getSyntacticDiagnostics(scriptFilePath),
+				...lang.getSuggestionDiagnostics(scriptFilePath),
+				...lang.getSemanticDiagnostics(scriptFilePath),
+			]
+				// We need to duplicate the diagnostic creation here because we can't map TS's diagnostics range to the original
+				// file due to some internal cache inside TS that would cause it to being mapped twice in some cases
+				.map<Diagnostic>((diagnostic) => ({
+					range: convertRange(scriptTagSnapshot, diagnostic),
+					severity: mapSeverity(diagnostic.category),
+					source: 'ts',
+					message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+					code: diagnostic.code,
+					tags: getDiagnosticTag(diagnostic),
+				}))
+				.map(mapRange(scriptTagSnapshot, document));
+
+			scriptDiagnostics.push(...scriptDiagnostic);
+		});
 
 		const { script: scriptBoundaries } = this.getTagBoundaries(lang, filePath);
 
 		const syntaxDiagnostics = lang.getSyntacticDiagnostics(filePath);
 		const suggestionDiagnostics = lang.getSuggestionDiagnostics(filePath);
-		const semanticDiagnostics = lang.getSemanticDiagnostics(filePath).filter((d) => {
-			return isNoWithinBoundary(scriptBoundaries, d);
+		const semanticDiagnostics = lang.getSemanticDiagnostics(filePath);
+
+		const diagnostics: ts.Diagnostic[] = [
+			...syntaxDiagnostics,
+			...suggestionDiagnostics,
+			...semanticDiagnostics,
+		].filter((diag) => {
+			return isNoWithinBoundary(scriptBoundaries, diag);
 		});
 
-		const diagnostics: ts.Diagnostic[] = [...syntaxDiagnostics, ...suggestionDiagnostics, ...semanticDiagnostics];
-
-		const fragment = await tsDoc.createFragment();
-
-		return diagnostics
-			.map<Diagnostic>((diagnostic) => ({
-				range: convertRange(tsDoc, diagnostic),
-				severity: mapSeverity(diagnostic.category),
-				source: 'ts',
-				message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-				code: diagnostic.code,
-				tags: getDiagnosticTag(diagnostic),
-			}))
-			.map(mapRange(fragment, document))
+		return [
+			...diagnostics
+				.map<Diagnostic>((diagnostic) => ({
+					range: convertRange(tsDoc, diagnostic),
+					severity: mapSeverity(diagnostic.category),
+					source: 'ts',
+					message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+					code: diagnostic.code,
+					tags: getDiagnosticTag(diagnostic),
+				}))
+				.map(mapRange(fragment, document)),
+			...scriptDiagnostics,
+		]
 			.filter((diag) => {
 				return (
 					hasNoNegativeLines(diag) &&
@@ -59,6 +94,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					isNoSpreadExpected(diag) &&
 					isNoCantResolveJSONModule(diag) &&
 					isNoCantReturnOutsideFunction(diag) &&
+					isNoIsolatedModuleError(diag) &&
 					isNoJsxCannotHaveMultipleAttrsError(diag)
 				);
 			})
@@ -179,11 +215,27 @@ function isNoCantResolveJSONModule(diagnostic: Diagnostic) {
 }
 
 /**
+ * When the content of the file is invalid and can't be parsed properly for TSX generation, TS will show an error about
+ * how the current module can't be compiled under --isolatedModule, this is confusing to users so let's ignore this
+ */
+function isNoIsolatedModuleError(diagnostic: Diagnostic) {
+	return diagnostic.code !== 1208;
+}
+
+/**
  * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
  */
 function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
+	// JSX element has no closing tag. JSX -> HTML
+	if (diagnostic.code === 17008) {
+		return {
+			...diagnostic,
+			message: diagnostic.message.replace('JSX', 'HTML'),
+		};
+	}
+
+	// For the rare case where an user might try to put a client directive on something that is not a component
 	if (diagnostic.code === 2322) {
-		// For the rare case where an user might try to put a client directive on something that is not a component
 		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
 			return {
 				...diagnostic,

@@ -32,4 +32,26 @@ describe('TypeScript Plugin#FoldingRangesProvider', () => {
 		// Either way however, there shouldn't ever be more than 0 or 1 folding range in this file, so this test is still ok
 		expect(foldingRanges.length).to.be.lessThanOrEqual(1)
 	});
+
+	it('provide folding ranges inside script tags', async () => {
+		const { provider, document } = setup('scriptTag.astro');
+		document.version++;
+
+		const foldingRanges = await provider.getFoldingRanges(document);
+
+		expect(foldingRanges).to.deep.equal([
+			{
+				endCharacter: 0,
+				endLine: 10,
+				startCharacter: 0,
+				startLine: 0,
+			},
+			{
+				endCharacter: 0,
+				endLine: 7,
+				startCharacter: 34,
+				startLine: 1,
+			},
+		]);
+	});
 });

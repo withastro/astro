@@ -13,7 +13,8 @@ import {
 } from 'vscode-languageserver';
 import { AstroDocument } from '../../../core/documents';
 import { getMarkdownDocumentation } from '../previewer';
-import { toVirtualAstroFilePath } from '../utils';
+import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 
 export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
@@ -36,8 +37,25 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 
 		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
+		const node = document.html.findNodeAt(offset);
+
+		let info: ts.SignatureHelpItems | undefined;
+
 		const triggerReason = this.toTsTriggerReason(context);
-		const info = lang.getSignatureHelpItems(filePath, offset, triggerReason ? { triggerReason } : undefined);
+
+		if (node.tag === 'script') {
+			const { filePath: scriptFilePath, offset: scriptOffset } = getScriptTagSnapshot(
+				tsDoc as AstroSnapshot,
+				document,
+				node,
+				position
+			);
+
+			info = lang.getSignatureHelpItems(scriptFilePath, scriptOffset, triggerReason ? { triggerReason } : undefined);
+		} else {
+			info = lang.getSignatureHelpItems(filePath, offset, triggerReason ? { triggerReason } : undefined);
+		}
+
 		if (!info) {
 			return null;
 		}

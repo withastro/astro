@@ -3,13 +3,14 @@ import { urlToPath } from '../../utils';
 import { WritableDocument } from './DocumentBase';
 import { AstroMetadata, parseAstro } from './parseAstro';
 import { parseHtml } from './parseHtml';
-import { extractStyleTags, TagInformation } from './utils';
+import { extractScriptTags, extractStyleTags, TagInformation } from './utils';
 
 export class AstroDocument extends WritableDocument {
 	languageId = 'astro';
 	astroMeta!: AstroMetadata;
 	html!: HTMLDocument;
 	styleTags!: TagInformation[];
+	scriptTags!: TagInformation[];
 
 	constructor(public url: string, public content: string) {
 		super();
@@ -21,6 +22,7 @@ export class AstroDocument extends WritableDocument {
 		this.astroMeta = parseAstro(this.content);
 		this.html = parseHtml(this.content);
 		this.styleTags = extractStyleTags(this.content, this.html);
+		this.scriptTags = extractScriptTags(this.content, this.html);
 	}
 
 	setText(text: string): void {

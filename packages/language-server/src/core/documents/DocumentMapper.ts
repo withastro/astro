@@ -14,7 +14,7 @@ import {
 	InsertReplaceEdit,
 	FoldingRange,
 } from 'vscode-languageserver';
-import { TagInformation, offsetAt, positionAt } from './utils';
+import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
 import { SourceMapConsumer } from 'source-map';
 
 export interface DocumentMapper {
@@ -90,11 +90,16 @@ export class IdentityMapper implements DocumentMapper {
  * Maps positions in a fragment relative to a parent.
  */
 export class FragmentMapper implements DocumentMapper {
+	private lineOffsetsOriginal = getLineOffsets(this.originalText);
+	private lineOffsetsGenerated = getLineOffsets(this.tagInfo.content);
+
 	constructor(private originalText: string, private tagInfo: TagInformation, private url: string) {}
 
 	getOriginalPosition(generatedPosition: Position): Position {
-		const parentOffset = this.offsetInParent(offsetAt(generatedPosition, this.tagInfo.content));
-		return positionAt(parentOffset, this.originalText);
+		const parentOffset = this.offsetInParent(
+			offsetAt(generatedPosition, this.tagInfo.content, this.lineOffsetsGenerated)
+		);
+		return positionAt(parentOffset, this.originalText, this.lineOffsetsOriginal);
 	}
 
 	private offsetInParent(offset: number): number {
@@ -102,12 +107,12 @@ export class FragmentMapper implements DocumentMapper {
 	}
 
 	getGeneratedPosition(originalPosition: Position): Position {
-		const fragmentOffset = offsetAt(originalPosition, this.originalText) - this.tagInfo.start;
-		return positionAt(fragmentOffset, this.tagInfo.content);
+		const fragmentOffset = offsetAt(originalPosition, this.originalText, this.lineOffsetsOriginal) - this.tagInfo.start;
+		return positionAt(fragmentOffset, this.tagInfo.content, this.lineOffsetsGenerated);
 	}
 
 	isInGenerated(pos: Position): boolean {
-		const offset = offsetAt(pos, this.originalText);
+		const offset = offsetAt(pos, this.originalText, this.lineOffsetsOriginal);
 		return offset >= this.tagInfo.start && offset <= this.tagInfo.end;
 	}
 

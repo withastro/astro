@@ -188,6 +188,7 @@ export class SnapshotManager {
 			let allFiles = Array.from(new Set([...projectFiles, ...this.getFileNames()]));
 			allFiles = allFiles.map((file) => ensureRealFilePath(file));
 
+			// eslint-disable-next-line no-console
 			console.log(
 				'SnapshotManager File Statistics:\n' +
 					`Project files: ${projectFiles.length}\n` +

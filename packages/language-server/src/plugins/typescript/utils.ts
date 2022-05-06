@@ -12,7 +12,8 @@ import {
 	SemanticTokensLegend,
 } from 'vscode-languageserver';
 import { AstroDocument, mapRangeToOriginal } from '../../core/documents';
-import { SnapshotFragment } from './snapshots/DocumentSnapshot';
+import { AstroSnapshot, ScriptTagDocumentSnapshot, SnapshotFragment } from './snapshots/DocumentSnapshot';
+import { Node } from 'vscode-html-languageservice';
 
 export const enum TokenType {
 	class,
@@ -394,4 +395,32 @@ export function ensureRealFilePath(filePath: string) {
 	} else {
 		return filePath;
 	}
+}
+
+export function getScriptTagSnapshot(
+	snapshot: AstroSnapshot,
+	document: AstroDocument,
+	tagInfo: Node | { start: number; end: number },
+	position?: Position
+): {
+	snapshot: ScriptTagDocumentSnapshot;
+	filePath: string;
+	index: number;
+	offset: number;
+} {
+	const index = document.scriptTags.findIndex((value) => value.container.start == tagInfo.start);
+	const scriptFilePath = snapshot.filePath + `.__script${index}.js`;
+	const scriptTagSnapshot = snapshot.scriptTagSnapshots[index];
+
+	let offset = 0;
+	if (position) {
+		offset = scriptTagSnapshot.offsetAt(scriptTagSnapshot.getGeneratedPosition(position));
+	}
+
+	return {
+		snapshot: scriptTagSnapshot,
+		filePath: scriptFilePath,
+		index,
+		offset,
+	};
 }

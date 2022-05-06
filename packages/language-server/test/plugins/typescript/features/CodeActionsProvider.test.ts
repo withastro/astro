@@ -164,8 +164,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 						{
 							edits: [
 								{
-									newText:
-										`---${newLine}import MySuperAstroComponent from "./components/MySuperAstroComponent.astro";${newLine}${newLine}---${newLine}${newLine}`,
+									newText: `---${newLine}import MySuperAstroComponent from "./components/MySuperAstroComponent.astro";${newLine}${newLine}---${newLine}${newLine}`,
 									range: Range.create(0, 0, 0, 0),
 								},
 							],
@@ -180,5 +179,169 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 				title: 'Add import from "./components/MySuperAstroComponent.astro"',
 			},
 		]);
+	});
+
+	describe('inside script tags', async () => {
+		it('provide simple quick fixes with ability to disable', async () => {
+			const { provider, document } = setup('scriptTag.astro');
+			document.version++;
+
+			const codeActions = await provider.getCodeActions(document, Range.create(2, 23, 2, 33), {
+				diagnostics: [
+					{
+						code: 2551,
+						message: '',
+						range: Range.create(2, 23, 2, 33),
+						source: '',
+					},
+				],
+				only: [CodeActionKind.QuickFix],
+			});
+
+			codeActions.forEach((action) => {
+				delete action.diagnostics;
+			});
+
+			expect(codeActions).to.deep.equal([
+				{
+					edit: {
+						documentChanges: [
+							{
+								edits: [
+									{
+										newText: 'toString',
+										range: Range.create(2, 22, 2, 30),
+									},
+								],
+								textDocument: {
+									uri: document.getURL(),
+									version: null,
+								},
+							},
+						],
+					},
+					kind: CodeActionKind.QuickFix,
+					title: "Change spelling to 'toString'",
+				},
+				{
+					edit: {
+						documentChanges: [
+							{
+								edits: [
+									{
+										newText: '// @ts-ignore\n\t',
+										range: Range.create(2, 1, 2, 1),
+									},
+								],
+								textDocument: {
+									uri: document.getURL(),
+									version: null,
+								},
+							},
+						],
+					},
+					kind: CodeActionKind.QuickFix,
+					title: 'Ignore this error message',
+				},
+				{
+					edit: {
+						documentChanges: [
+							{
+								edits: [
+									{
+										newText: '// @ts-nocheck\n',
+										range: Range.create(0, 8, 0, 8),
+									},
+								],
+								textDocument: {
+									uri: document.getURL(),
+									version: null,
+								},
+							},
+						],
+					},
+					kind: CodeActionKind.QuickFix,
+					title: 'Disable checking for this file',
+				},
+			]);
+		});
+
+		it('provide quick fixes with properly mapped actions', async () => {
+			const { provider, document } = setup('scriptTagImports.astro');
+			document.version++;
+
+			const codeActions = await provider.getCodeActions(document, Range.create(5, 23, 5, 33), {
+				diagnostics: [
+					{
+						code: 2304,
+						message: '',
+						range: Range.create(3, 1, 3, 10),
+						source: '',
+					},
+				],
+				only: [CodeActionKind.QuickFix],
+			});
+
+			const item = codeActions.find((action) => action.title.startsWith('Add import'));
+			delete item.diagnostics;
+
+			expect(item).to.deep.equal({
+				title: 'Add import from "./components/imports"',
+				edit: {
+					documentChanges: [
+						{
+							textDocument: {
+								uri: document.getURL(),
+								version: null,
+							},
+							edits: [
+								{
+									range: Range.create(5, 0, 5, 0),
+									newText: `${newLine}import { ImportMe } from "./components/imports"\n`,
+								},
+							],
+						},
+					],
+				},
+				kind: 'quickfix',
+			});
+		});
+
+		it('organize imports', async () => {
+			const { provider, document } = setup('scriptTagImports.astro');
+			document.version++;
+
+			const codeActions = await provider.getCodeActions(
+				document,
+				Range.create(Position.create(6, 0), Position.create(6, 0)),
+				{
+					diagnostics: [],
+					only: [CodeActionKind.SourceOrganizeImports],
+				}
+			);
+
+			expect(codeActions).to.deep.equal([
+				{
+					edit: {
+						documentChanges: [
+							{
+								edits: [
+									{
+										newText: '',
+										range: Range.create(4, 0, 5, 0),
+									},
+								],
+								textDocument: {
+									uri: document.getURL(),
+									version: null,
+								},
+							},
+						],
+					},
+					kind: CodeActionKind.SourceOrganizeImports,
+					title: 'Organize Imports',
+				},
+			]);
+		});
 	});
 });

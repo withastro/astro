@@ -7,6 +7,8 @@ import {
 	getLineOffsets,
 	offsetAt,
 	IdentityMapper,
+	FragmentMapper,
+	TagInformation,
 } from '../../../core/documents';
 import { pathToUrl } from '../../../utils';
 import { FrameworkExt, getScriptKindFromFileName } from '../utils';
@@ -49,6 +51,7 @@ export interface SnapshotFragment extends DocumentMapper {
 export class AstroSnapshot implements DocumentSnapshot {
 	private fragment?: AstroSnapshotFragment;
 	version = this.parent.version;
+	public scriptTagSnapshots: ScriptTagDocumentSnapshot[] = [];
 
 	constructor(
 		private readonly parent: AstroDocument,
@@ -125,6 +128,59 @@ export class AstroSnapshotFragment implements SnapshotFragment {
 
 	getURL(): string {
 		return this.url;
+	}
+}
+
+export class ScriptTagDocumentSnapshot extends FragmentMapper implements DocumentSnapshot, SnapshotFragment {
+	readonly version = this.parent.version;
+	private text = this.parent.getText().slice(this.scriptTag.start, this.scriptTag.end) + '\nexport {}';
+
+	scriptKind: ts.ScriptKind;
+	private lineOffsets?: number[];
+
+	constructor(public scriptTag: TagInformation, private readonly parent: AstroDocument, public filePath: string) {
+		super(parent.getText(), scriptTag, filePath);
+
+		this.scriptKind = ts.ScriptKind.JS;
+	}
+
+	positionAt(offset: number) {
+		return positionAt(offset, this.text, this.getLineOffsets());
+	}
+
+	offsetAt(position: Position): number {
+		return offsetAt(position, this.text, this.getLineOffsets());
+	}
+
+	async createFragment(): Promise<SnapshotFragment> {
+		return this;
+	}
+
+	destroyFragment(): void {
+		//
+	}
+
+	getText(start: number, end: number) {
+		return this.text.substring(start, end);
+	}
+
+	getLength() {
+		return this.text.length;
+	}
+
+	getFullText() {
+		return this.text;
+	}
+
+	getChangeRange() {
+		return undefined;
+	}
+
+	private getLineOffsets() {
+		if (!this.lineOffsets) {
+			this.lineOffsets = getLineOffsets(this.text);
+		}
+		return this.lineOffsets;
 	}
 }
 

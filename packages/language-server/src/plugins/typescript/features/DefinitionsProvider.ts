@@ -1,14 +1,17 @@
+import ts from 'typescript';
 import { Position, LocationLink } from 'vscode-languageserver-types';
 import { AstroDocument } from '../../../core/documents';
 import { pathToUrl, isNotNullOrUndefined } from '../../../utils';
 import { DefinitionsProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
+import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import {
 	toVirtualAstroFilePath,
 	ensureRealFilePath,
 	isFrameworkFilePath,
 	isAstroFilePath,
 	convertToLocationRange,
+	getScriptTagSnapshot,
 } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 
@@ -24,7 +27,42 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 		const fragmentPosition = mainFragment.getGeneratedPosition(position);
 		const fragmentOffset = mainFragment.offsetAt(fragmentPosition);
 
-		const defs = lang.getDefinitionAndBoundSpan(tsFilePath, fragmentOffset);
+		let defs: ts.DefinitionInfoAndBoundSpan | undefined;
+
+		const html = document.html;
+		const offset = document.offsetAt(position);
+		const node = html.findNodeAt(offset);
+
+		if (node.tag === 'script') {
+			const {
+				snapshot: scriptTagSnapshot,
+				filePath: scriptFilePath,
+				offset: scriptOffset,
+			} = getScriptTagSnapshot(tsDoc as AstroSnapshot, document, node, position);
+
+			defs = lang.getDefinitionAndBoundSpan(scriptFilePath, scriptOffset);
+
+			if (defs) {
+				defs.definitions = defs.definitions?.map((def) => {
+					const isInSameFile = def.fileName === scriptFilePath;
+					def.fileName = isInSameFile ? tsFilePath : def.fileName;
+
+					if (isInSameFile) {
+						def.textSpan.start = mainFragment.offsetAt(
+							scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(def.textSpan.start))
+						);
+					}
+
+					return def;
+				});
+
+				defs.textSpan.start = mainFragment.offsetAt(
+					scriptTagSnapshot.getOriginalPosition(scriptTagSnapshot.positionAt(defs.textSpan.start))
+				);
+			}
+		} else {
+			defs = lang.getDefinitionAndBoundSpan(tsFilePath, fragmentOffset);
+		}
 
 		if (!defs || !defs.definitions) {
 			return [];

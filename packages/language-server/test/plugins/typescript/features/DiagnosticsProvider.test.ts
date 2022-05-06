@@ -73,6 +73,14 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		expect(codes).to.not.contain(1108);
 	});
 
+	it('provide diagnostics inside script tags', async () => {
+		const { provider, document } = setup('scriptTag.astro');
+		document.version++;
+
+		const diagnostics = await provider.getDiagnostics(document);
+		expect(diagnostics).to.not.be.empty;
+	});
+
 	describe('Astro2TSX', async () => {
 		it('correctly convert HTML comments', async () => {
 			const { provider, document } = setup('multipleComments.astro');

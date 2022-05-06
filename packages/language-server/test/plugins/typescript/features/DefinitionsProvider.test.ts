@@ -122,4 +122,29 @@ describe('TypeScript Plugin#DefinitionsProvider', () => {
 			},
 		]);
 	});
+
+	it('provide definitions inside script tags', async () => {
+		const { document, provider, languageServiceManager } = setup('scriptTag.astro');
+		document.version++;
+
+		const functionDefinition = await provider.getDefinitions(document, Position.create(1, 9));
+		const functionUsage = await provider.getDefinitions(document, Position.create(5, 5));
+
+		expect(functionDefinition).to.deep.equal([
+			{
+				originSelectionRange: Range.create(1, 1, 1, 9),
+				targetRange: Range.create(1, 10, 1, 25),
+				targetSelectionRange: Range.create(1, 10, 1, 25),
+				targetUri: document.getURL(),
+			},
+		]);
+		expect(functionUsage).to.deep.equal([
+			{
+				originSelectionRange: Range.create(5, 1, 5, 16),
+				targetRange: Range.create(1, 10, 1, 25),
+				targetSelectionRange: Range.create(1, 10, 1, 25),
+				targetUri: document.getURL(),
+			},
+		]);
+	});
 });
