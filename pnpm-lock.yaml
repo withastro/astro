@@ -1471,11 +1471,9 @@ importers:
       '@vercel/nft': ^0.18.2
       astro: workspace:*
       astro-scripts: workspace:*
-      esbuild: ^0.14.38
     dependencies:
       '@astrojs/webapi': link:../../webapi
       '@vercel/nft': 0.18.2
-      esbuild: 0.14.38
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
