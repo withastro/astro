@@ -181,15 +181,18 @@ export async function main() {
 	if (installResponse.install && !args.dryrun) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
-		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
+		const installSpinner = await loadWithRocketGradient(installingPackagesMsg);
 		await new Promise<void>((resolve, reject) => {
 			installExec.stdout?.on('data', function (data) {
-				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
+				installSpinner.text = `${rocketAscii} ${installingPackagesMsg}\n${bold(
+					`[${pkgManager}]`
+				)} ${data}`;
 			});
 			installExec.on('error', (error) => reject(error));
 			installExec.on('close', () => resolve());
 		});
-		spinner.succeed();
+		installSpinner.text = green('Packages installed!');
+		installSpinner.succeed();
 	}
 
 	const astroAddCommand = installResponse.install
