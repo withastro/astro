@@ -253,7 +253,7 @@ export async function main() {
 		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
 	);
 	if (!installResponse.install) {
-		console.log(yellow(`Remember to ${'install dependencies'} first!`));
+		console.log(yellow(`Remember to install dependencies first!`));
 	}
 	console.log(`\nStuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`);
 }
