@@ -1,7 +1,7 @@
 import type { RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import npath from 'path';
+import { prependForwardSlash } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
@@ -83,16 +83,11 @@ export function trackClientOnlyPageDatas(
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
 		let pageDataSet: Set<PageBuildData>;
-		let pathname = clientOnlyComponent;
-		if (pathname.startsWith('/@fs')) {
-			pathname = pathname.slice('/@fs'.length);
-		}
-		pathname = pathname.replace(npath.parse(pathname).root, '/');
-		if (internals.pagesByClientOnly.has(pathname)) {
-			pageDataSet = internals.pagesByClientOnly.get(pathname)!;
+		if (internals.pagesByClientOnly.has(clientOnlyComponent)) {
+			pageDataSet = internals.pagesByClientOnly.get(clientOnlyComponent)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
-			internals.pagesByClientOnly.set(pathname, pageDataSet);
+			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}
@@ -117,8 +112,9 @@ export function* getPageDatasByClientOnlyChunk(
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
 		for (const [modulePath] of Object.entries(chunk.modules)) {
-			if (pagesByClientOnly.has(modulePath)) {
-				for (const pageData of pagesByClientOnly.get(modulePath)!) {
+			const pathname = `/@fs${prependForwardSlash(modulePath)}`;
+			if (pagesByClientOnly.has(pathname)) {
+				for (const pageData of pagesByClientOnly.get(pathname)!) {
 					yield pageData;
 				}
 			}
