@@ -30,6 +30,7 @@
   "dependencies": {
     "@types/degit": "^2.8.3",
     "@types/prompts": "^2.0.14",
+    "chalk": "^5.0.1",
     "degit": "^2.8.4",
     "execa": "^6.1.0",
     "kleur": "^4.1.4",
