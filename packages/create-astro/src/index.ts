@@ -240,21 +240,22 @@ export async function main() {
 		await execaCommand('git init', { cwd });
 	}
 
+	ora({ text: green('Done. Ready for liftoff!') }).succeed();
 	console.log(`\n${bgCyan(black(' Next steps '))}\n`);
 
-	const relative = path.relative(process.cwd(), cwd);
-	const startCommand = [];
-	if (relative !== '') {
-		startCommand.push(bold(cyan(`cd ${relative}`)));
-	}
-	if (!installResponse.install) {
-		startCommand.push(bold(cyan(`${pkgManager} install`)));
-	}
-	startCommand.push(bold(cyan(pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`)));
-	console.log(startCommand.join(' && '));
+	const projectDir = path.relative(process.cwd(), cwd);
+	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 
-	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
-	console.log(`Stuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
+	console.log(
+		`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
+	);
+	console.log(
+		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
+	);
+	if (!installResponse.install) {
+		console.log(yellow(`Remember to ${'install dependencies'} first!`));
+	}
+	console.log(`\nStuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`);
 }
 
 function emojiWithFallback(char: string, fallback: string) {
