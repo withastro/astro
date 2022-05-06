@@ -9,7 +9,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'astro', 'completions');
 		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
-		const provider = new CompletionsProviderImpl(env.docManager, languageServiceManager);
+		const provider = new CompletionsProviderImpl(languageServiceManager);
 
 		return {
 			...env,
@@ -27,7 +27,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		expect(completions.items).to.deep.equal([
 			{
-				commitCharacters: ['-'],
+				commitCharacters: [],
 				detail: 'Component script',
 				insertText: '---\n$0\n---',
 				insertTextFormat: 2,
@@ -46,7 +46,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of Astro components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(7, 20));
+		const completions = await provider.getCompletions(document, Position.create(8, 20));
 
 		expect(completions.items).to.deep.equal([
 			{
@@ -63,7 +63,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of Svelte components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(8, 26));
+		const completions = await provider.getCompletions(document, Position.create(9, 26));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -78,7 +78,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of JSX components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(9, 14));
+		const completions = await provider.getCompletions(document, Position.create(10, 14));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -90,10 +90,25 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		});
 	});
 
+	it('provide prop completions in starting tag of JSX components with .d.ts definitions', async () => {
+		const { provider, document } = setup('component.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(11, 17));
+
+		expect(completions.items).to.deep.contain({
+			label: 'name',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
+			commitCharacters: [],
+			sortText: '_',
+		});
+	});
+
 	it('provide prop completions in starting tag of TSX components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(10, 14));
+		const completions = await provider.getCompletions(document, Position.create(12, 14));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -108,7 +123,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide client directives completions for non-astro components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(8, 26));
+		const completions = await provider.getCompletions(document, Position.create(9, 26));
 
 		expect(completions.items).to.deep.contain({
 			label: 'client:load',
@@ -118,7 +133,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 				value:
 					'Start importing the component JS at page load. Hydrate the component when import completes.\n\n[Astro reference](https://docs.astro.build/en/reference/directives-reference/#clientload)',
 			},
-			textEdit: { range: Range.create(8, 26, 8, 26), newText: 'client:load' },
+			textEdit: { range: Range.create(9, 26, 9, 26), newText: 'client:load' },
 			insertTextFormat: 2,
 			command: undefined,
 		});

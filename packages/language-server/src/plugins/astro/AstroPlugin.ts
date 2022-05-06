@@ -17,7 +17,7 @@ export class AstroPlugin implements Plugin {
 		this.configManager = configManager;
 		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
 
-		this.completionProvider = new CompletionsProviderImpl(docManager, this.languageServiceManager);
+		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
 	}
 
 	async getCompletions(

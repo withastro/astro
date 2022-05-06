@@ -1,6 +1,6 @@
 import type { AppCompletionList, CompletionsProvider } from '../../interfaces';
-import type { FunctionDeclaration } from 'typescript';
-import type { AstroDocument, DocumentManager } from '../../../core/documents';
+import { FunctionDeclaration, FunctionTypeNode } from 'typescript';
+import type { AstroDocument } from '../../../core/documents';
 import {
 	CompletionContext,
 	Position,
@@ -15,24 +15,29 @@ import {
 } from 'vscode-languageserver';
 import ts from 'typescript';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
-import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../../core/documents/utils';
+import { isInComponentStartTag, isInsideExpression } from '../../../core/documents/utils';
 import { isPossibleComponent } from '../../../utils';
 import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
-import { getLanguageService, Node } from 'vscode-html-languageservice';
+import { getLanguageService } from 'vscode-html-languageservice';
 import { astroDirectives } from '../../html/features/astro-attributes';
 import { removeDataAttrCompletion } from '../../html/utils';
 
+type LastCompletion = {
+	tag: string;
+	documentVersion: number;
+	completions: CompletionItem[] | null;
+};
+
 export class CompletionsProviderImpl implements CompletionsProvider {
-	private readonly docManager: DocumentManager;
 	private readonly languageServiceManager: TypeScriptLanguageServiceManager;
+	private lastCompletion: LastCompletion | null = null;
 
 	public directivesHTMLLang = getLanguageService({
 		customDataProviders: [astroDirectives],
 		useDefaultDataProvider: false,
 	});
 
-	constructor(docManager: DocumentManager, languageServiceManager: TypeScriptLanguageServiceManager) {
-		this.docManager = docManager;
+	constructor(languageServiceManager: TypeScriptLanguageServiceManager) {
 		this.languageServiceManager = languageServiceManager;
 	}
 
@@ -41,13 +46,10 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		position: Position,
 		completionContext?: CompletionContext
 	): Promise<AppCompletionList | null> {
-		const doc = this.docManager.get(document.uri);
-		if (!doc) return null;
-
 		let items: CompletionItem[] = [];
 
 		if (completionContext?.triggerCharacter === '-') {
-			const frontmatter = this.getComponentScriptCompletion(doc, position, completionContext);
+			const frontmatter = this.getComponentScriptCompletion(document, position);
 			if (frontmatter) items.push(frontmatter);
 		}
 
@@ -56,12 +58,17 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		const node = html.findNodeAt(offset);
 
 		if (isInComponentStartTag(html, offset) && !isInsideExpression(document.getText(), node.start, offset)) {
-			const props = await this.getPropCompletions(document, position, completionContext);
+			const { completions: props, componentFilePath } = await this.getPropCompletionsAndFilePath(
+				document,
+				position,
+				completionContext
+			);
+
 			if (props.length) {
 				items.push(...props);
 			}
 
-			const isAstro = await this.isAstroComponent(document, node);
+			const isAstro = componentFilePath?.endsWith('.astro');
 			if (!isAstro) {
 				const directives = removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items);
 				items.push(...directives);
@@ -71,20 +78,17 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		return CompletionList.create(items, true);
 	}
 
-	private getComponentScriptCompletion(
-		document: AstroDocument,
-		position: Position,
-		completionContext?: CompletionContext
-	): CompletionItem | null {
-		const base = {
+	private getComponentScriptCompletion(document: AstroDocument, position: Position): CompletionItem | null {
+		const base: CompletionItem = {
 			kind: CompletionItemKind.Snippet,
 			label: '---',
 			sortText: '\0',
 			preselect: true,
 			detail: 'Component script',
 			insertTextFormat: InsertTextFormat.Snippet,
-			commitCharacters: ['-'],
+			commitCharacters: [],
 		};
+
 		const prefix = document.getLineUntilOffset(document.offsetAt(position));
 
 		if (document.astroMeta.frontmatter.state === null) {
@@ -96,6 +100,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 					: undefined,
 			};
 		}
+
 		if (document.astroMeta.frontmatter.state === 'open') {
 			return {
 				...base,
@@ -108,25 +113,27 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		return null;
 	}
 
-	private async getPropCompletions(
+	private async getPropCompletionsAndFilePath(
 		document: AstroDocument,
 		position: Position,
 		completionContext?: CompletionContext
-	): Promise<CompletionItem[]> {
+	): Promise<{ completions: CompletionItem[]; componentFilePath: string | null }> {
 		const offset = document.offsetAt(position);
-		const html = document.html;
 
+		const html = document.html;
 		const node = html.findNodeAt(offset);
+
 		if (!isPossibleComponent(node)) {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
+
 		const inAttribute = node.start + node.tag!.length < offset;
 		if (!inAttribute) {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
 
 		if (completionContext?.triggerCharacter === '/' || completionContext?.triggerCharacter === '>') {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
 
 		// If inside of attribute value, skip.
@@ -135,7 +142,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter &&
 			completionContext.triggerCharacter === '"'
 		) {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
 
 		const componentName = node.tag!;
@@ -148,20 +155,43 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		const sourceFile = program?.getSourceFile(tsFilePath);
 		const typeChecker = program?.getTypeChecker();
 		if (!sourceFile || !typeChecker) {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
 
 		// Get the import statement
 		const imp = this.getImportedSymbol(sourceFile, componentName);
+
 		const importType = imp && typeChecker.getTypeAtLocation(imp);
 		if (!importType) {
-			return [];
+			return { completions: [], componentFilePath: null };
+		}
+
+		const symbol = importType.getSymbol();
+		if (!symbol) {
+			return { completions: [], componentFilePath: null };
+		}
+
+		const symbolDeclaration = symbol.declarations;
+		if (!symbolDeclaration) {
+			return { completions: [], componentFilePath: null };
+		}
+
+		const filePath = symbolDeclaration[0].getSourceFile().fileName;
+		const componentSnapshot = await this.languageServiceManager.getSnapshot(filePath);
+
+		if (this.lastCompletion) {
+			if (
+				this.lastCompletion.tag === componentName &&
+				this.lastCompletion.documentVersion == componentSnapshot.version
+			) {
+				return { completions: this.lastCompletion.completions!, componentFilePath: filePath };
+			}
 		}
 
 		// Get the component's props type
-		const componentType = this.getPropType(importType, typeChecker);
+		const componentType = this.getPropType(symbolDeclaration, typeChecker);
 		if (!componentType) {
-			return [];
+			return { completions: [], componentFilePath: null };
 		}
 
 		let completionItems: CompletionItem[] = [];
@@ -180,7 +210,13 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			return { ...item, sortText: '_' };
 		});
 
-		return completionItems;
+		this.lastCompletion = {
+			tag: componentName,
+			documentVersion: componentSnapshot.version,
+			completions: completionItems,
+		};
+
+		return { completions: completionItems, componentFilePath: filePath };
 	}
 
 	private getImportedSymbol(sourceFile: ts.SourceFile, identifier: string): ts.ImportSpecifier | ts.Identifier | null {
@@ -210,24 +246,22 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		return null;
 	}
 
-	private getPropType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Type | null {
-		const sym = type?.getSymbol();
-		if (!sym) {
-			return null;
-		}
-
-		for (const decl of sym?.getDeclarations() || []) {
+	private getPropType(declarations: ts.Declaration[], typeChecker: ts.TypeChecker): ts.Type | null {
+		for (const decl of declarations) {
 			const fileName = toVirtualFilePath(decl.getSourceFile().fileName);
-			if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx')) {
-				if (!ts.isFunctionDeclaration(decl)) {
-					console.error(`We only support function components for tsx/jsx at the moment.`);
+			if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx') || fileName.endsWith('.d.ts')) {
+				if (!ts.isFunctionDeclaration(decl) && !ts.isFunctionTypeNode(decl)) {
+					console.error(`We only support functions declarations at the moment`);
 					continue;
 				}
-				const fn = decl as FunctionDeclaration;
+
+				const fn = decl as FunctionDeclaration | FunctionTypeNode;
 				if (!fn.parameters.length) continue;
+
 				const param1 = fn.parameters[0];
-				const type = typeChecker.getTypeAtLocation(param1);
-				return type;
+				const propType = typeChecker.getTypeAtLocation(param1);
+
+				return propType;
 			}
 		}
 
@@ -272,36 +306,5 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			item.documentation = docs;
 		}
 		return item;
-	}
-
-	private async isAstroComponent(document: AstroDocument, node: Node): Promise<boolean> {
-		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-
-		// Get the source file
-		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
-
-		const program = lang.getProgram();
-		const sourceFile = program?.getSourceFile(tsFilePath);
-		const typeChecker = program?.getTypeChecker();
-		if (!sourceFile || !typeChecker) {
-			return false;
-		}
-
-		const componentName = node.tag!;
-		const imp = this.getImportedSymbol(sourceFile, componentName);
-		const importType = imp && typeChecker.getTypeAtLocation(imp);
-		if (!importType) {
-			return false;
-		}
-
-		const symbolDeclaration = importType.getSymbol()?.declarations;
-
-		if (symbolDeclaration) {
-			const fileName = symbolDeclaration[0].getSourceFile().fileName;
-
-			return fileName.endsWith('.astro');
-		}
-
-		return false;
 	}
 }
