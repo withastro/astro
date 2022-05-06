@@ -1,6 +1,7 @@
 import type { RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
+import npath from 'path';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
@@ -86,6 +87,7 @@ export function trackClientOnlyPageDatas(
 		if (pathname.startsWith('/@fs')) {
 			pathname = pathname.slice('/@fs'.length);
 		}
+		pathname = pathname.replace(npath.parse(pathname).root, '/');
 		if (internals.pagesByClientOnly.has(pathname)) {
 			pageDataSet = internals.pagesByClientOnly.get(pathname)!;
 		} else {
