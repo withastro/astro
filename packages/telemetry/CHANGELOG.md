@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3299](https://github.com/withastro/astro/pull/3299) [`8021998b`](https://github.com/withastro/astro/commit/8021998bb6011e31aa736abeafa4f1cf8f5a180c) Thanks [@matthewp](https://github.com/matthewp)! - Update to telemetry to include AstroConfig keys used
+
 ## 0.1.1
 
 ### Patch Changes
