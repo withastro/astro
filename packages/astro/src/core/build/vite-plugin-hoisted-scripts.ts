@@ -26,6 +26,7 @@ export function vitePluginHoistedScripts(
 				let code = '';
 				for (let path of internals.hoistedScriptIdToHoistedMap.get(id)!) {
 					let importPath = path;
+					// `/@fs` is added during the compiler's transform() step
 					if (importPath.startsWith('/@fs')) {
 						importPath = importPath.slice('/@fs'.length);
 					}
