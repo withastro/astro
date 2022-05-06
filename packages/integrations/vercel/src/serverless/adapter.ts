@@ -1,5 +1,7 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-import { writeJson, copyFunctionNFT, getVercelOutput } from '../lib/fs.js';
+
+import { writeJson, getVercelOutput } from '../lib/fs.js';
+import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/serverless';
@@ -40,7 +42,7 @@ export default function vercelEdge(): AstroIntegration {
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)
-				await copyFunctionNFT(_config.root, functionFolder, serverEntry);
+				await copyDependenciesToFunction(_config.root, functionFolder, serverEntry);
 
 				// Enable ESM
 				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
