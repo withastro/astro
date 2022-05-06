@@ -1,6 +1,4 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
-import { fileURLToPath } from 'node:url';
-import esbuild from 'esbuild';
 
 import { writeJson, getVercelOutput } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
@@ -30,6 +28,17 @@ export default function vercelEdge(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 			},
+			'astro:build:setup': ({ vite, target }) => {
+				if (target === 'server') {
+					vite.resolve ||= {};
+					vite.resolve.alias ||= {};
+					const alias = vite.resolve.alias as Record<string, string>;
+					alias['react-dom/server'] = 'react-dom/server.browser';
+					vite.ssr = {
+						noExternal: true,
+					};
+				}
+			},
 			'astro:build:start': async ({ buildConfig }) => {
 				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
 					throw new Error(
@@ -42,20 +51,6 @@ export default function vercelEdge(): AstroIntegration {
 				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
-				const entryPath = fileURLToPath(new URL(`./${serverEntry}`, functionFolder));
-
-				// Bundle dependencies
-				await esbuild.build({
-					entryPoints: [entryPath],
-					outfile: entryPath,
-					inject: [fileURLToPath(new URL('./shim.js', import.meta.url))],
-					bundle: true,
-					target: 'node14.19',
-					format: 'esm',
-					platform: 'browser',
-					allowOverwrite: true,
-				});
-
 				// Edge function config
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {

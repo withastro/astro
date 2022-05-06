@@ -1,6 +1,8 @@
-export let process = {
+// @ts-ignore
+var process = {
 	argv: [],
 	env: {},
 };
 
-export let global = { crypto: globalThis.crypto };
+// @ts-ignore
+var global = { crypto: globalThis.crypto };
