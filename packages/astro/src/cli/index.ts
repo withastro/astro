@@ -17,7 +17,7 @@ import preview from '../core/preview/index.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
-import { loadConfig } from '../core/config.js';
+import { openConfig } from '../core/config.js';
 import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
 import { createSafeError } from '../core/util.js';
 
@@ -138,14 +138,16 @@ export async function cli(args: string[]) {
 		}
 		case 'dev': {
 			try {
-				const config = await loadConfig({ cwd: root, flags, cmd });
+				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
+
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'dev' },
-						config
+						userConfig,
+						flags
 					)
 				);
-				await devServer(config, { logging, telemetry });
+				await devServer(astroConfig, { logging, telemetry });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
 				return throwAndExit(err);
@@ -154,41 +156,44 @@ export async function cli(args: string[]) {
 
 		case 'build': {
 			try {
-				const config = await loadConfig({ cwd: root, flags, cmd });
+				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'build' },
-						config
+						userConfig,
+						flags
 					)
 				);
-				return await build(config, { logging, telemetry });
+				return await build(astroConfig, { logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
 			}
 		}
 
 		case 'check': {
-			const config = await loadConfig({ cwd: root, flags, cmd });
+			const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
 			telemetry.record(
 				event.eventCliSession(
 					{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'check' },
-					config
+					userConfig,
+					flags,
 				)
 			);
-			const ret = await check(config);
+			const ret = await check(astroConfig);
 			return process.exit(ret);
 		}
 
 		case 'preview': {
 			try {
-				const config = await loadConfig({ cwd: root, flags, cmd });
+				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'preview' },
-						config
+						userConfig,
+						flags
 					)
 				);
-				const server = await preview(config, { logging, telemetry });
+				const server = await preview(astroConfig, { logging, telemetry });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);

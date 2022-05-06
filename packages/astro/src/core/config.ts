@@ -397,7 +397,59 @@ export async function resolveConfigURL(
 	}
 }
 
-/** Attempt to load an `astro.config.mjs` file */
+interface OpenConfigResult {
+	userConfig: AstroUserConfig;
+	astroConfig: AstroConfig;
+	flags: CLIFlags;
+	root: string;
+}
+
+/** Load a configuration file, returning both the userConfig and astroConfig */
+export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+	let userConfig: AstroUserConfig = {};
+	let userConfigPath: string | undefined;
+
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(
+			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
+		);
+	}
+
+	// Automatically load config file using Proload
+	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+	let config;
+	try {
+		config = await load('astro', {
+			mustExist: !!userConfigPath,
+			cwd: root,
+			filePath: userConfigPath,
+		});
+	} catch (err) {
+		if (err instanceof ProloadError && flags.config) {
+			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+		}
+		throw err;
+	}
+	if (config) {
+		userConfig = config.value;
+	}
+	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+
+	return {
+		astroConfig,
+		userConfig,
+		flags,
+		root
+	};
+}
+
+/**
+ * Attempt to load an `astro.config.mjs` file
+ * @deprecated
+ */
 export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
