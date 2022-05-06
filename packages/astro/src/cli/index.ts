@@ -176,7 +176,7 @@ export async function cli(args: string[]) {
 				event.eventCliSession(
 					{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'check' },
 					userConfig,
-					flags,
+					flags
 				)
 			);
 			const ret = await check(astroConfig);
