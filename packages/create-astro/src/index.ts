@@ -8,6 +8,7 @@ import ora from 'ora';
 import { TEMPLATES } from './templates.js';
 import { logger, defaultLogLevel } from './logger.js';
 import { execa, execaCommand } from 'execa';
+import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -41,10 +42,6 @@ export async function main() {
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-
-	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
-
-	spinner.succeed();
 
 	let cwd = args['_'][2] as string;
 
@@ -95,6 +92,8 @@ export async function main() {
 		process.exit(1);
 	}
 
+	const templateSpinner = await loadWithRocketGradient('Copying project files...');
+
 	const hash = args.commit ? `#${args.commit}` : '';
 
 	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
@@ -110,8 +109,6 @@ export async function main() {
 		force: true,
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
-
-	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
 
 	// Copy
 	if (!args.dryrun) {
@@ -152,7 +149,7 @@ export async function main() {
 					)
 				);
 			}
-			spinner.fail();
+			templateSpinner.fail();
 			process.exit(1);
 		}
 
@@ -167,8 +164,8 @@ export async function main() {
 		);
 	}
 
-	spinner.succeed();
-	console.log(bold(green('✔') + ' Done!'));
+	templateSpinner.text = green('Template copied!');
+	templateSpinner.succeed();
 
 	const installResponse = await prompts({
 		type: 'confirm',
