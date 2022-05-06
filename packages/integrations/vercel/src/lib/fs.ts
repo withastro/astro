@@ -1,6 +1,6 @@
-import type { PathLike } from 'fs';
-import * as fs from 'fs/promises';
-import { fileURLToPath } from 'url';
+import type { PathLike } from 'node:fs';
+import * as fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { nodeFileTrace } from '@vercel/nft';
 
 export async function writeJson<T extends any>(path: PathLike, data: T) {

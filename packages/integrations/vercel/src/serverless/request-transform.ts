@@ -1,5 +1,5 @@
-import { Readable } from 'stream';
-import type { IncomingMessage, ServerResponse } from 'http';
+import { Readable } from 'node:stream';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 /*
   Credits to the SvelteKit team
