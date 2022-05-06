@@ -25,7 +25,11 @@ export function vitePluginHoistedScripts(
 			if (virtualHoistedEntry(id)) {
 				let code = '';
 				for (let path of internals.hoistedScriptIdToHoistedMap.get(id)!) {
-					code += `import "${path}";`;
+					let importPath = path;
+					if (importPath.startsWith('/@fs')) {
+						importPath = importPath.slice('/@fs'.length);
+					}
+					code += `import "${importPath}";`;
 				}
 				return {
 					code,
