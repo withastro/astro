@@ -139,10 +139,12 @@ export async function cli(args: string[]) {
 		case 'dev': {
 			try {
 				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
+
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'dev' },
-						userConfig
+						userConfig,
+						flags
 					)
 				);
 				await devServer(astroConfig, { logging, telemetry });
@@ -158,7 +160,8 @@ export async function cli(args: string[]) {
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'build' },
-						userConfig
+						userConfig,
+						flags
 					)
 				);
 				return await build(astroConfig, { logging, telemetry });
@@ -172,7 +175,8 @@ export async function cli(args: string[]) {
 			telemetry.record(
 				event.eventCliSession(
 					{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'check' },
-					userConfig
+					userConfig,
+					flags,
 				)
 			);
 			const ret = await check(astroConfig);
@@ -185,7 +189,8 @@ export async function cli(args: string[]) {
 				telemetry.record(
 					event.eventCliSession(
 						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'preview' },
-						userConfig
+						userConfig,
+						flags
 					)
 				);
 				const server = await preview(astroConfig, { logging, telemetry });

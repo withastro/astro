@@ -15,11 +15,9 @@ interface EventCliSession {
 }
 
 interface ConfigInfo {
-	configKeys: string[];
 	markdownPlugins: string[];
 	adapter: string | null;
 	integrations: string[];
-	experimentalFeatures: string[];
 	trailingSlash: undefined | 'always' | 'never' | 'ignore';
 	build: undefined | {
 		format: undefined | 'file' | 'directory'
@@ -34,6 +32,8 @@ interface EventCliSessionInternal extends EventCliSession {
 	nodeVersion: string;
 	viteVersion: string;
 	config?: ConfigInfo;
+	configKeys?: string[];
+	flags?: string[];
 }
 
 function getViteVersion() {
@@ -42,16 +42,6 @@ function getViteVersion() {
 		return version;
 	} catch (e) {}
 	return undefined;
-}
-
-function getExperimentalFeatures(astroConfig?: Record<string, any>): string[] | undefined {
-	if (!astroConfig) return undefined;
-	return Object.entries(astroConfig.experimental || []).reduce((acc, [key, value]) => {
-		if (value) {
-			acc.push(key);
-		}
-		return acc;
-	}, [] as string[]);
 }
 
 const multiLevelKeys = new Set([
@@ -94,35 +84,39 @@ function configKeys(obj: Record<string, any> | undefined, parentKey: string): st
 
 export function eventCliSession(
 	event: EventCliSession,
-	userConfig?: AstroUserConfig
+	userConfig?: AstroUserConfig,
+	flags?: Record<string, any>,
 ): { eventName: string; payload: EventCliSessionInternal }[] {
+	const configValues = userConfig ? {
+		markdownPlugins: [
+			userConfig?.markdown?.remarkPlugins ?? [],
+			userConfig?.markdown?.rehypePlugins ?? [],
+		].flat(1),
+		adapter: userConfig?.adapter?.name ?? null,
+		integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
+		trailingSlash: userConfig?.trailingSlash,
+		build: userConfig?.build ? {
+			format: userConfig?.build?.format
+		} : undefined,
+		markdown: userConfig?.markdown ? {
+			mode: userConfig?.markdown?.mode,
+			syntaxHighlight: userConfig.markdown?.syntaxHighlight
+		} : undefined,
+	} : undefined;
+
+	// Filter out yargs default `_` flag which is the cli command
+	const cliFlags = flags ? Object.keys(flags).filter(name => name != '_'): undefined;
+
 	const payload: EventCliSessionInternal = {
 		cliCommand: event.cliCommand,
 		// Versions
 		astroVersion: event.astroVersion,
 		viteVersion: getViteVersion(),
 		nodeVersion: process.version.replace(/^v?/, ''),
+		configKeys: userConfig ? configKeys(userConfig, '') : undefined,
 		// Config Values
-		config: userConfig
-			? {
-					markdownPlugins: [
-						userConfig?.markdown?.remarkPlugins ?? [],
-						userConfig?.markdown?.rehypePlugins ?? [],
-					].flat(1),
-					configKeys: configKeys(userConfig, ''),
-					adapter: userConfig?.adapter?.name ?? null,
-					integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
-					experimentalFeatures: getExperimentalFeatures(userConfig) ?? [],
-					trailingSlash: userConfig?.trailingSlash,
-					build: userConfig?.build ? {
-						format: userConfig?.build?.format
-					} : undefined,
-					markdown: userConfig?.markdown ? {
-						mode: userConfig?.markdown?.mode,
-						syntaxHighlight: userConfig.markdown?.syntaxHighlight
-					} : undefined,
-			  }
-			: undefined,
+		config: configValues,
+		flags: cliFlags,
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }

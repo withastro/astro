@@ -22,7 +22,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).to.deep.equal(expected);
+			expect(payload.configKeys).to.deep.equal(expected);
 		});
 	});
 
@@ -41,7 +41,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).to.deep.equal(['srcDir', 'build', 'build.format']);
+			expect(payload.configKeys).to.deep.equal(['srcDir', 'build', 'build.format']);
 		});
 
 		it('config.build.format', () => {
@@ -78,7 +78,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).to.deep.equal(['srcDir', 'server', 'server.host', 'server.port']);
+			expect(payload.configKeys).to.deep.equal(['srcDir', 'server', 'server.host', 'server.port']);
 		});
 	});
 
@@ -106,7 +106,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).to.deep.equal(['publicDir', 'markdown',
+			expect(payload.configKeys).to.deep.equal(['publicDir', 'markdown',
 				'markdown.drafts', 'markdown.mode', 'markdown.shikiConfig',
 				'markdown.shikiConfig.lang', 'markdown.shikiConfig.theme', 'markdown.shikiConfig.wrap',
 				'markdown.syntaxHighlight', 'markdown.remarkPlugins', 'markdown.rehypePlugins']);
@@ -167,7 +167,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'root',
 				'vite',
 				'vite.css',
@@ -198,7 +198,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal(['vite', 'vite.resolve', 'vite.resolve.alias', 'vite.resolve.dedupe']);
+			expect(payload.configKeys).is.deep.equal(['vite', 'vite.resolve', 'vite.resolve.alias', 'vite.resolve.dedupe']);
 		});
 	
 		it('vite.css keys are captured', async () => {
@@ -221,7 +221,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'vite',
 				'vite.resolve',
 				'vite.resolve.dedupe',
@@ -252,7 +252,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'vite',
 				'vite.server',
 				'vite.server.host',
@@ -283,7 +283,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'vite',
 				'vite.build',
 				'vite.build.target',
@@ -312,7 +312,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'vite',
 				'vite.preview',
 				'vite.preview.host',
@@ -338,7 +338,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal([
+			expect(payload.configKeys).is.deep.equal([
 				'vite',
 				'vite.optimizeDeps',
 				'vite.optimizeDeps.entries',
@@ -363,7 +363,7 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal(['vite', 'vite.ssr', 'vite.ssr.external', 'vite.ssr.target']);
+			expect(payload.configKeys).is.deep.equal(['vite', 'vite.ssr', 'vite.ssr.external', 'vite.ssr.target']);
 		});
 	
 		it('vite.worker keys are captured', async () => {
@@ -383,7 +383,41 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.configKeys).is.deep.equal(['vite', 'vite.worker', 'vite.worker.format', 'vite.worker.plugins']);
+			expect(payload.configKeys).is.deep.equal(['vite', 'vite.worker', 'vite.worker.format', 'vite.worker.plugins']);
 		});
 	});
+
+	describe('flags', () => {
+		it('includes cli flags in payload', () => {
+			const config = {};
+			const flags = {
+				root: 'root',
+				site: 'http://example.com',
+				host: true,
+				port: 8080,
+				config: 'path/to/config.mjs',
+				experimentalSsr: true,
+				experimentalIntegrations: true,
+				drafts: true,
+			}
+			const [{ payload }] = events.eventCliSession(
+				{
+					cliCommand: 'dev',
+					astroVersion: '0.0.0',
+				},
+				config,
+				flags
+			);
+			expect(payload.flags).to.deep.equal([
+				'root',
+				'site',
+				'host',
+				'port',
+				'config',
+				'experimentalSsr',
+				'experimentalIntegrations',
+				'drafts'
+			]);
+		})
+	})
 });
