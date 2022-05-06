@@ -13,8 +13,8 @@
 
 1. Change the import inside `astro.config.mjs`:
    ```diff
-   - import vercel from '@astrojs/vercel'
-   + import vercel from '@astrojs/vercel/serverless'
+   - import vercel from '@astrojs/vercel';
+   + import vercel from '@astrojs/vercel/serverless';
    ```
-2. Rename the `ENABLE_FILE_SYSTEM_API` enviroment variable to `ENABLE_VC_BUILD`, as Vercel changed it.
+2. Rename the `ENABLE_FILE_SYSTEM_API` environment variable to `ENABLE_VC_BUILD`, as Vercel changed it.
 3. The output folder changed from `.output` to `.vercel/output` — you may need to update your `.gitignore`.
