@@ -9,6 +9,12 @@ type RSSOptions = {
 	/** (required) Description of the RSS Feed */
 	description: string;
 	/**
+	 * Specify the base URL to use for RSS feed links.
+	 * We recommend "import.meta.env.SITE" to pull in the "site"
+	 * from your project's astro.config.
+	 */
+	site: string;
+	/**
 	 * List of RSS feed items to render. Accepts either:
 	 * a) list of RSSFeedItems
 	 * b) import.meta.glob result. You can only glob ".md" files within src/pages/ when using this method!
@@ -22,11 +28,6 @@ type RSSOptions = {
 	stylesheet?: string | boolean;
 	/** Specify custom data in opening of file */
 	customData?: string;
-	/**
-	 * Specify the base URL to use for RSS feed links.
-	 * Defaults to "site" in your project's astro.config
-	 */
-	canonicalUrl?: string;
 };
 
 type RSSFeedItem = {
@@ -43,7 +44,6 @@ type RSSFeedItem = {
 };
 
 type GenerateRSSArgs = {
-	site: string;
 	rssOptions: RSSOptions;
 	items: RSSFeedItem[];
 };
@@ -76,19 +76,12 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 }
 
 export default async function getRSS(rssOptions: RSSOptions) {
-	const site = rssOptions.canonicalUrl ?? (import.meta as any).env.SITE;
-	if (!site) {
-		throw new Error(
-			`RSS requires a canonical URL. Either add a "site" to your project's astro.config, or supply the canonicalUrl argument.`
-		);
-	}
 	let { items } = rssOptions;
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
 	}
 	return {
 		body: await generateRSS({
-			site,
 			rssOptions,
 			items,
 		}),
@@ -96,7 +89,8 @@ export default async function getRSS(rssOptions: RSSOptions) {
 }
 
 /** Generate RSS 2.0 feed */
-export async function generateRSS({ site, rssOptions, items }: GenerateRSSArgs): Promise<string> {
+export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promise<string> {
+	const { site } = rssOptions;
 	let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
 	if (typeof rssOptions.stylesheet === 'string') {
 		xml += `<?xml-stylesheet href="${rssOptions.stylesheet}" type="text/xsl"?>`;

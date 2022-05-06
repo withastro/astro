@@ -1,5 +1,30 @@
 # astro
 
+## 1.0.0-beta.27
+
+### Patch Changes
+
+- [#3178](https://github.com/withastro/astro/pull/3178) [`19e1686b`](https://github.com/withastro/astro/commit/19e1686b8701ea7c4f8449958911035ae29cb53a) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an issue that was breaking asset and stylesheet URLs when building for a subpath
+
+* [#3299](https://github.com/withastro/astro/pull/3299) [`8021998b`](https://github.com/withastro/astro/commit/8021998bb6011e31aa736abeafa4f1cf8f5a180c) Thanks [@matthewp](https://github.com/matthewp)! - Update to telemetry to include AstroConfig keys used
+
+* Updated dependencies [[`8021998b`](https://github.com/withastro/astro/commit/8021998bb6011e31aa736abeafa4f1cf8f5a180c)]:
+  - @astrojs/telemetry@0.1.2
+
+## 1.0.0-beta.26
+
+### Patch Changes
+
+- [#3289](https://github.com/withastro/astro/pull/3289) [`61e1a267`](https://github.com/withastro/astro/commit/61e1a267a8d4653287cf8bbd2cff493699ac7d7f) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Astro.response RFC
+
+* [#3304](https://github.com/withastro/astro/pull/3304) [`3d901ca5`](https://github.com/withastro/astro/commit/3d901ca59d152ba82fa1471c0e45c9e576f5f864) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression that prevented passing classes to islands
+
+## 1.0.0-beta.25
+
+### Patch Changes
+
+- [#3272](https://github.com/withastro/astro/pull/3272) [`6643a393`](https://github.com/withastro/astro/commit/6643a3931d45e63363599bb0cf7b2b2951266cfb) Thanks [@matthewp](https://github.com/matthewp)! - Implements the Dynamic Route API RFC
+
 ## 1.0.0-beta.24
 
 ### Patch Changes
