@@ -45,16 +45,18 @@ vercel deploy --prebuilt
 
 You can deploy to different targes:
 
-- `static`: generates a static website following Vercel's output formats, redirects, etc.
-- `serverless`: SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
+- `serverless`: SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
+- `static`: generates a static website following Vercel's output formats, redirects, etc.
+
+> **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations) — they can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
 
 You can change where to target by changing the import:
 
 ```js
-import vercel from '@astrojs/vercel/static';
-import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/edge';
+import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel/static';
 ```
 
 
