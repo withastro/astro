@@ -16,6 +16,7 @@ type SitemapOptions =
 			 * ```
 			 */
 			filter?(page: string): string;
+			customPages?: Array<string>;
 
 			/**
 			 * If present, we use the `site` config option as the base for all sitemap URLs
@@ -40,6 +41,7 @@ function generateSitemap(pages: string[]) {
 
 export default function createPlugin({
 	filter,
+	customPages,
 	canonicalURL,
 }: SitemapOptions = {}): AstroIntegration {
 	let config: AstroConfig;
@@ -60,6 +62,9 @@ export default function createPlugin({
 				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
 				if (filter) {
 					pageUrls = pageUrls.filter((page: string) => filter(page));
+				}
+				if (customPages) {
+					pageUrls = [...pageUrls, ...customPages];
 				}
 				const sitemapContent = generateSitemap(pageUrls);
 				fs.writeFileSync(new URL('sitemap.xml', dir), sitemapContent);
