@@ -870,6 +870,7 @@ type Body = string;
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
+	shim?: string[];
 	exports?: string[];
 	args?: any;
 }

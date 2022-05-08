@@ -36,7 +36,8 @@ export function vitePluginSSR(
 		},
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
-				return `import * as adapter from '${adapter.serverEntrypoint}';
+				return `${adapter?.shim?.map(i => `import '${i}'`).join('\n')}
+import * as adapter from '${adapter.serverEntrypoint}';
 import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
