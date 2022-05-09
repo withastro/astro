@@ -14,7 +14,11 @@ function getAdapter(): AstroAdapter {
 	};
 }
 
-export default function vercelEdge(): AstroIntegration {
+export interface Options {
+	nodeVersion?: '12.x' | '14.x' | '16.x';
+}
+
+export default function vercelEdge({ nodeVersion = '16.x' }: Options = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let functionFolder: URL;
 	let serverEntry: string;
@@ -53,7 +57,7 @@ export default function vercelEdge(): AstroIntegration {
 				// Serverless function config
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
-					runtime: 'nodejs14.x',
+					runtime: `nodejs${nodeVersion}`,
 					handler: serverEntry,
 					launcherType: 'Nodejs',
 				});

@@ -46,7 +46,7 @@ vercel deploy --prebuilt
 You can deploy to different targes:
 
 - `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
-- `serverless`: SSR inside a [Node.js 14 function](https://vercel.com/docs/concepts/functions/serverless-functions).
+- `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `static`: generates a static website following Vercel's output formats, redirects, etc.
 
 > **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations) — they can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
@@ -59,6 +59,18 @@ import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
 
+### Node.js version
+
+When deploying to `serverless` you can choose what version of Node.js you want to target: `12.x`, `14.x` or `16.x` (default).
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+	adapter: vercel({ nodeVersion: '14.x' })
+});
+```
 
 ## Limitations
 
