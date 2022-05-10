@@ -126,6 +126,12 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
+					// HMR hoisted script only exists to make them appear in the module graph.
+					if(opts?.ssr) {
+						return {
+							code: ''
+						};
+					}
 
 					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
 						ssr: Boolean(opts?.ssr),
