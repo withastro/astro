@@ -7,9 +7,9 @@ import type {
 	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { ViteConfigWithSSR } from '../../create-vite';
-import type { LogOptions } from '../../logger';
-import type { RouteCache } from '../../render/route-cache.js';
+import { LogOptions } from '../logger/core';
+import { RouteCache } from '../render/route-cache';
+import { ViteConfigWithSSR } from '../create-vite';
 
 export type ComponentPath = string;
 export type ViteID = string;
