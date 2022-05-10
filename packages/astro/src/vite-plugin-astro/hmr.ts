@@ -68,6 +68,7 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 			filtered.add(mod);
 			files.add(mod.file);
 		}
+		
 		for (const imp of mod.importers) {
 			if (imp.file && isCached(config, imp.file)) {
 				filtered.add(imp);
@@ -85,6 +86,15 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+
+	// Add hoisted scripts so these get invalidated
+	for(const mod of mods) {
+		for(const imp of mod.importedModules) {
+			if(imp.id?.includes('?astro&type=script')) {
+				mods.push(imp);
+			}
+		}
+	}
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 
 	const file = ctx.file.replace(config.root.pathname, '/');

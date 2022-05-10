@@ -182,17 +182,21 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					while ((match = pattern.exec(metadata)?.[1])) {
 						deps.add(match);
 					}
-					// // import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);
-					// We need to be self-accepting, AND
-					// we need an explicity array of deps to track changes for SSR-only components
-					SUFFIX += `\nif (import.meta.hot) {
-						import.meta.hot.accept(mod => mod);
-					}`;
+
+					let i = 0;
+					while(i < transformResult.scripts.length) {
+						deps.add(`${id}?astro&type=script&index=${i}`);
+						SUFFIX += `import "${id}?astro&type=script&index=${i}";`;
+						i++;
+					}
+
+					SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);`
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
+				
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
@@ -260,7 +264,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
-			return handleHotUpdate(context, config, logging);
+			return handleHotUpdate.call(this, context, config, logging);
 		},
 	};
 }
