@@ -36,6 +36,6 @@ describe('Custom 404', () => {
 
 			expect($('h1').text()).to.equal('Page not found');
 			expect($('p').text()).to.equal('/a/');
-		})
+		});
 	});
 });
