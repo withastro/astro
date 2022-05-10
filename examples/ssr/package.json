@@ -19,5 +19,8 @@
   },
   "dependencies": {
     "svelte": "^3.47.0"
+  },
+  "volta": {
+    "node": "16.15.0"
   }
 }

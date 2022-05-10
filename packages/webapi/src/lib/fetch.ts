@@ -2,12 +2,33 @@ import {
 	default as nodeFetch,
 	Headers,
 	Request,
-	Response,
+	Response as NodeResponse,
 } from 'node-fetch/src/index.js'
+import { ReadableStream } from '../ponyfill.js'
 import Stream from 'node:stream'
 import * as _ from './utils'
 
-export { Headers, Request, Response }
+export { Headers, Request }
+
+export class Response extends NodeResponse {
+	constructor(_body: any, init: any) {
+		let body;
+		if (_body instanceof ReadableStream) {
+			async function* getStream() {
+				const reader = _body.getReader();
+				while (true) {
+					const { value, done } = await reader.read();
+					if (done) return;
+					yield value;
+				}
+			}
+			body = Stream.Readable.from(getStream());
+		} else {
+			body = _body;
+		}
+		super(body, init);
+	}
+};
 
 export const fetch = {
 	fetch(

@@ -11,6 +11,7 @@ import type {
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
+import { renderToReadableStream } from './stream.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
@@ -59,6 +60,29 @@ async function _render(child: any): Promise<any> {
 	}
 }
 
+export async function* _renderStream(child: any): any {
+	child = await child;
+	if (child instanceof HTMLString) {
+		yield child;
+	} else if (typeof child === 'string') {
+		yield markHTMLString(escapeHTML(child));
+	} else if (Array.isArray(child)) {
+		yield markHTMLString((await Promise.all(child.map((value) => _render(value)))).join(''));
+	} else if (typeof child === 'function') {
+		yield* _renderStream(child());
+	} else if (!child && child !== 0) {
+		yield '';
+		// do nothing, safe to ignore falsey values.
+	} else if (
+		child instanceof AstroComponent ||
+		Object.prototype.toString.call(child) === '[object AstroComponent]'
+	) {
+		yield* child;
+	} else {
+		yield child;
+	}
+}
+
 // The return value when rendering a component.
 // This is the result of calling render(), should this be named to RenderResult or...?
 export class AstroComponent {
@@ -74,7 +98,7 @@ export class AstroComponent {
 		return 'AstroComponent';
 	}
 
-	*[Symbol.iterator]() {
+	*[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
 		for (let i = 0; i < htmlParts.length; i++) {
@@ -82,7 +106,7 @@ export class AstroComponent {
 			const expression = expressions[i];
 
 			yield markHTMLString(html);
-			yield _render(expression);
+			yield* _renderStream(expression)();
 		}
 	}
 }
@@ -507,11 +531,14 @@ export async function renderPage(
 		const response = await componentFactory(result, props, children);
 
 		if (isAstroComponent(response)) {
-			let template = await renderAstroComponent(response);
-			const html = await replaceHeadInjection(result, template);
+			const stream = renderToReadableStream(response, {})
+			const res = new Response(stream, { 
+				status: 200,
+				headers: { 'Content-Type': 'text/html;charset=UTF-8' },
+			});
 			return {
-				type: 'html',
-				html,
+				type: 'response',
+				response: res,
 			};
 		} else {
 			return {

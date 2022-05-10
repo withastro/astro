@@ -76,7 +76,7 @@ const plugins = [
 		MediaQueryList: ['./MediaQueryList', 'MediaQueryList'],
 		Node: ['./Node', 'Node'],
 		ReadableStream: [
-			'web-streams-polyfill/dist/ponyfill.es6.mjs',
+			'web-streams-polyfill/dist/ponyfill.es2018.mjs',
 			'ReadableStream',
 		],
 		ShadowRoot: ['./Node', 'ShadowRoot'],
