@@ -3,6 +3,7 @@ import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { RenderResponse, SSROptions } from '../core/render/dev/index';
 import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
@@ -162,10 +163,6 @@ async function handle500Response(
 	});
 	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
-}
-
-function appendForwardSlash(path: string) {
-	return path.endsWith('/') ? path : path + '/';
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
