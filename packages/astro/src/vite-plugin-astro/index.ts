@@ -129,7 +129,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					// HMR hoisted script only exists to make them appear in the module graph.
 					if(opts?.ssr) {
 						return {
-							code: ''
+							code: `/* client hoisted script, empty in SSR: ${id} */`
 						};
 					}
 
@@ -196,7 +196,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						i++;
 					}
 
-					SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);`
+					// We only need to define deps if there are any
+					if(deps.size > 1) {
+						SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);`
+					} else {
+						SUFFIX += `\nif (import.meta.hot) {
+							import.meta.hot.accept(mod => mod);
+						}`;
+					}
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {

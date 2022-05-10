@@ -34,11 +34,12 @@ describe('Imported markdown CSS', function () {
 	});
 	describe('dev', () => {
 		let devServer;
+		let html;
 		let $;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/').then((res) => res.text());
+			html = await fixture.fetch('/').then((res) => res.text());
 			$ = cheerio.load(html);
 		});
 
