@@ -18,7 +18,7 @@ create-astro:
 markdown:
 - packages/markdown/**
 
-renderer:
+integration:
 - packages/integrations/**
 
 framework-lit:
