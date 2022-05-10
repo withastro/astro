@@ -6,9 +6,6 @@ example:
 '🚨 action':
 - .github/workflows/**
 
-test:
-- packages/**/*.test.js
-
 core:
 - packages/astro/**
 
