@@ -961,6 +961,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/custom-404:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/custom-elements:
     specifiers:
       '@test/custom-element-renderer': workspace:*

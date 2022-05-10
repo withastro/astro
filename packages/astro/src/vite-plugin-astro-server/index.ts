@@ -16,6 +16,7 @@ import { RouteCache } from '../core/render/route-cache.js';
 import { fixViteErrorMessage } from '../core/errors.js';
 import { createRequest } from '../core/request.js';
 import { Readable } from 'stream';
+import npath from 'path';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -166,7 +167,7 @@ async function handle500Response(
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	return manifest.routes.find((r) => r.component === relPages + '404.astro');
+	return manifest.routes.find((r) => r.component === npath.join(relPages, '404.astro'));
 }
 
 function log404(logging: LogOptions, pathname: string) {
