@@ -37,7 +37,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				buildConfig.server = new URL('./functions/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				await createRedirects(routes, dir, entryFile, false);			
+				await createRedirects(routes, dir, entryFile, false);
 			},
 		},
 	};
