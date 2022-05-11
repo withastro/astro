@@ -127,9 +127,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 					// HMR hoisted script only exists to make them appear in the module graph.
-					if(opts?.ssr) {
+					if (opts?.ssr) {
 						return {
-							code: `/* client hoisted script, empty in SSR: ${id} */`
+							code: `/* client hoisted script, empty in SSR: ${id} */`,
 						};
 					}
 
@@ -190,15 +190,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 
 					let i = 0;
-					while(i < transformResult.scripts.length) {
+					while (i < transformResult.scripts.length) {
 						deps.add(`${id}?astro&type=script&index=${i}`);
 						SUFFIX += `import "${id}?astro&type=script&index=${i}";`;
 						i++;
 					}
 
 					// We only need to define deps if there are any
-					if(deps.size > 1) {
-						SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);`
+					if (deps.size > 1) {
+						SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(
+							deps
+						).join('","')}"], (...mods) => mods);`;
 					} else {
 						SUFFIX += `\nif (import.meta.hot) {
 							import.meta.hot.accept(mod => mod);
@@ -209,7 +211,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if (isPage) {
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
-				
+
 				return {
 					code: `${code}${SUFFIX}`,
 					map,

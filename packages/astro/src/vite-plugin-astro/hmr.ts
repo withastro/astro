@@ -68,7 +68,7 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 			filtered.add(mod);
 			files.add(mod.file);
 		}
-		
+
 		for (const imp of mod.importers) {
 			if (imp.file && isCached(config, imp.file)) {
 				filtered.add(imp);
@@ -88,9 +88,9 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
 
 	// Add hoisted scripts so these get invalidated
-	for(const mod of mods) {
-		for(const imp of mod.importedModules) {
-			if(imp.id?.includes('?astro&type=script')) {
+	for (const mod of mods) {
+		for (const imp of mod.importedModules) {
+			if (imp.id?.includes('?astro&type=script')) {
 				mods.push(imp);
 			}
 		}
