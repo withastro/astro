@@ -16,6 +16,15 @@ type SitemapOptions =
 			 * ```
 			 */
 			filter?(page: string): string;
+
+			/**
+			 * If you have any URL, not rendered by Astro, that you want to include in your sitemap,
+			 * this config option will help you to include your array of custom pages in your sitemap.
+			 *
+			 * ```js
+			 * customPages: ['http://example.com/custom-page', 'http://example.com/custom-page2']
+			 * ```
+			 */
 			customPages?: Array<string>;
 
 			/**
