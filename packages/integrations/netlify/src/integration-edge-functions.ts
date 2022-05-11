@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroIntegration, AstroConfig, RouteData } from 'astro';
+import { createRedirects } from './shared.js';
 import * as fs from 'fs';
 
 export function getAdapter(): AstroAdapter {
@@ -97,6 +98,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			},
 			'astro:build:done': async ({ routes, dir }) => {
 				await createEdgeManifest(routes, entryFile, _config.root);
+				await createRedirects(routes, dir, entryFile, true);
 			},
 		},
 	};
