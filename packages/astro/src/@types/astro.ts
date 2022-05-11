@@ -770,8 +770,8 @@ export type GetHydrateCallback = () => Promise<
  * getStaticPaths() options
  * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
  */ export interface GetStaticPathsOptions {
-	paginate?: PaginateFunction;
-	rss?: (...args: any[]) => any;
+	paginate: PaginateFunction;
+	rss: (...args: any[]) => any;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
