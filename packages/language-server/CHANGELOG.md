@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.17.0
+
+### Minor Changes
+
+- 3ad0f65: Add support for TypeScript features inside script tags (completions, diagnostics, hover etc)
+
+### Patch Changes
+
+- 2e9da14: Add support for loading props completions from .d.ts files, improve performance of props completions
+
 ## 0.16.1
 
 ### Patch Changes
