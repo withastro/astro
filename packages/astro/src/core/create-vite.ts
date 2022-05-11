@@ -55,7 +55,7 @@ export async function createVite(
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
-      exclude: ['node-fetch'],
+			exclude: ['node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
