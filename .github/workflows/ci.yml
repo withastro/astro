@@ -153,6 +153,48 @@ jobs:
       - name: Test
         run: pnpm run test
 
+  e2e:
+    name: 'E2E: ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    runs-on: ${{ matrix.os }}
+    env:
+      ASTRO_TELEMETRY_DISABLED: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [14, 16]
+        include:
+          - os: windows-latest
+            node_version: 16
+          - os: macos-latest
+            node_version: 16
+      fail-fast: false
+    needs:
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+
+      - name: Setup node@${{ matrix.node_version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: 'pnpm'
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Extract Artifacts
+        run: ./.github/extract-artifacts.sh
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Test
+        run: pnpm run test:e2e
+
   smoke:
     name: 'Test (Smoke) ${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
