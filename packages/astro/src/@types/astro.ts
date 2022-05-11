@@ -883,18 +883,10 @@ export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
 
-interface APIRoute {
-	(context: APIContext): EndpointOutput | Response;
-
-	/**
-	 * @deprecated
-	 * Use { context: APIRouteContext } object instead.
-	 */
-	(params: Params, request: Request): EndpointOutput | Response;
-}
+export type APIRoute = (context: APIContext) => EndpointOutput | Response;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute;
+	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
 
 export interface AstroRenderer {

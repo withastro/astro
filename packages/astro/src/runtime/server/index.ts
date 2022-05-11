@@ -517,7 +517,7 @@ Update your code to remove this warning.`);
 		},
 	}) as APIContext & Params;
 
-	return await handler.call(mod, proxy, request);
+	return handler.call(mod, proxy, request);
 }
 
 async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {
