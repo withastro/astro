@@ -212,6 +212,10 @@ export function formatConfigErrorMessage(err: ZodError) {
 export function formatErrorMessage(_err: Error, args: string[] = []): string {
 	const err = collectErrorMetadata(_err);
 	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
+	if (err.hint) {
+		args.push(`  ${bold('Hint:')}`);
+    	args.push(yellow(padMultilineString(err.hint, 4)));
+	}
 	if (err.id) {
 		args.push(`  ${bold('File:')}`);
 		args.push(red(`    ${err.id}`));
