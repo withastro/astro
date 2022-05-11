@@ -201,11 +201,20 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
+		let error;
 		for (const r of renderers) {
-			if (await r.ssr.check(Component, props, children)) {
-				renderer = r;
-				break;
+			try {
+				if (await r.ssr.check(Component, props, children)) {
+					renderer = r;
+					break;
+				}
+			} catch (e) {
+				error ??= e;
 			}
+		}
+
+		if (error) {
+			throw error;
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {

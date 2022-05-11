@@ -245,6 +245,7 @@ importers:
       '@astrojs/partytown': ^0.1.2
       '@astrojs/react': ^0.1.1
       '@astrojs/sitemap': ^0.1.0
+      '@astrojs/solid-js': 0.1.2
       '@astrojs/tailwind': ^0.2.1
       '@astrojs/turbolinks': ^0.1.2
       '@webcomponents/template-shadowroot': ^0.1.0
@@ -253,7 +254,7 @@ importers:
       preact: ^10.7.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      solid-js: ^1.3.16
+      solid-js: ^1.3.6
       svelte: ^3.47.0
       vue: ^3.2.33
     dependencies:
@@ -262,7 +263,6 @@ importers:
       preact: 10.7.1
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      solid-js: 1.3.16
       svelte: 3.47.0
       vue: 3.2.33
     devDependencies:
@@ -270,9 +270,11 @@ importers:
       '@astrojs/partytown': link:../../packages/integrations/partytown
       '@astrojs/react': link:../../packages/integrations/react
       '@astrojs/sitemap': link:../../packages/integrations/sitemap
+      '@astrojs/solid-js': link:../../packages/integrations/solid
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
       astro: link:../../packages/astro
+      solid-js: 1.3.16
 
   examples/minimal:
     specifiers:

@@ -1,8 +1,9 @@
 ---
 import Lorem from '../components/Lorem.astro';
 import Link from '../components/Link.jsx';
+import SolidCounter from '../components/SolidCounter.jsx';
 import '../components/Test.js';
-import '../components/Counter.js'; 
+import '../components/Counter.js';
 ---
 
 <!DOCTYPE html>
@@ -14,20 +15,19 @@ import '../components/Counter.js';
 	<body>
 		<h1 class="px-4 py-4">Test app</h1>
 		<h2 class="partytown-status">
-      <strong>Party Mode!</strong> 
+      <strong>Party Mode!</strong>
       Colors changing = partytown is enabled
     </h2>
 		<my-counter client:load></my-counter>
+    <SolidCounter client:load></SolidCounter>
     <Link to="/foo" text="Go to Page 2" />
 		<Lorem />
 		<calc-add num={33}></calc-add>
-
-
     <script type="text/partytown">
       // Remove `type="text/partytown"` to see this block the page
       // and cause the page to become unresponsive
       console.log('start partytown blocking script')
-      const now = Date.now() 
+      const now = Date.now()
       let count = 1;
       while (Date.now() - now < 10000) {
         if (Date.now() - now > count * 1000) {
@@ -46,7 +46,7 @@ import '../components/Counter.js';
     </script>
     <style>
 h1, h2 {
-	color: blue; 
+	color: blue;
 }
 </style>
 	</body>
