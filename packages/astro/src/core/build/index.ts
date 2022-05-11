@@ -71,6 +71,8 @@ class AstroBuilder {
 	private async setup() {
 		debug('build', 'Initial setup...');
 		const { logging } = this;
+		const { mode } = this.config.vite || {};
+		this.mode = mode || this.mode;
 		this.timer.init = performance.now();
 		this.timer.viteStart = performance.now();
 		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });

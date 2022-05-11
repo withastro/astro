@@ -122,7 +122,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 
 	const viteBuildConfig = {
 		logLevel: 'error',
-		mode: 'production',
+		mode: viteConfig.mode,
 		css: viteConfig.css,
 		build: {
 			...viteConfig.build,
@@ -203,7 +203,7 @@ async function clientBuild(
 
 	const viteBuildConfig = {
 		logLevel: 'info',
-		mode: 'production',
+		mode: viteConfig.mode,
 		css: viteConfig.css,
 		build: {
 			emptyOutDir: false,
