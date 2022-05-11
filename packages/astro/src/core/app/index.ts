@@ -78,8 +78,10 @@ export class App {
 		const renderers = manifest.renderers;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
-		
-		const filteredScripts = info.scripts.filter(script => typeof script !== 'string' && script?.stage !== 'head-inline') as string[];
+
+		const filteredScripts = info.scripts.filter(
+			(script) => typeof script !== 'string' && script?.stage !== 'head-inline'
+		) as string[];
 		const scripts = createModuleScriptElementWithSrcSet(filteredScripts, manifest.site);
 
 		// Add all injected scripts to the page.
