@@ -118,7 +118,7 @@ export async function generateHydrateScript(
 		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(
 		props
-	)}, children, ${JSON.stringify(hydrate)});
+	)}, children, ${JSON.stringify({ client: hydrate })});
 `
 		: `await import("${await result.resolve(componentUrl)}");
   return () => {};

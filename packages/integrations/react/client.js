@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
-export default (element) => (Component, props, children, client) =>
+export default (element) => (Component, props, children, { client }) =>
 	{
 		const componentEl = createElement(
 			Component,
