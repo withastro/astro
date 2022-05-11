@@ -245,6 +245,7 @@ importers:
       '@astrojs/partytown': ^0.1.2
       '@astrojs/react': ^0.1.1
       '@astrojs/sitemap': ^0.1.0
+      '@astrojs/solid-js': 0.1.2
       '@astrojs/tailwind': ^0.2.1
       '@astrojs/turbolinks': ^0.1.2
       '@webcomponents/template-shadowroot': ^0.1.0
@@ -253,7 +254,7 @@ importers:
       preact: ^10.7.1
       react: ^18.0.0
       react-dom: ^18.0.0
-      solid-js: ^1.3.16
+      solid-js: ^1.3.6
       svelte: ^3.47.0
       vue: ^3.2.33
     dependencies:
@@ -262,7 +263,6 @@ importers:
       preact: 10.7.1
       react: 18.0.0
       react-dom: 18.0.0_react@18.0.0
-      solid-js: 1.3.16
       svelte: 3.47.0
       vue: 3.2.33
     devDependencies:
@@ -270,9 +270,11 @@ importers:
       '@astrojs/partytown': link:../../packages/integrations/partytown
       '@astrojs/react': link:../../packages/integrations/react
       '@astrojs/sitemap': link:../../packages/integrations/sitemap
+      '@astrojs/solid-js': link:../../packages/integrations/solid
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
       astro: link:../../packages/astro
+      solid-js: 1.3.16
 
   examples/minimal:
     specifiers:
@@ -961,6 +963,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/custom-404:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/custom-elements:
     specifiers:
       '@test/custom-element-renderer': workspace:*
@@ -1248,6 +1256,7 @@ importers:
       '@types/yargs-parser': ^21.0.0
       astro-scripts: workspace:*
       chai: ^4.3.6
+      chalk: ^5.0.1
       degit: ^2.8.4
       execa: ^6.1.0
       kleur: ^4.1.4
@@ -1259,6 +1268,7 @@ importers:
     dependencies:
       '@types/degit': 2.8.3
       '@types/prompts': 2.0.14
+      chalk: 5.0.1
       degit: 2.8.4
       execa: 6.1.0
       kleur: 4.1.4
@@ -1426,10 +1436,12 @@ importers:
       postcss-load-config: ^3.1.4
       svelte: ^3.47.0
       svelte-preprocess: ^4.10.6
+      vite: ^2.9.5
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.41_svelte@3.47.0
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.41_svelte@3.47.0+vite@2.9.5
       postcss-load-config: 3.1.4
       svelte-preprocess: 4.10.6_ouvyccvykwltmjwugnola6eovq
+      vite: 2.9.5
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -1483,9 +1495,11 @@ importers:
       '@vitejs/plugin-vue': ^2.3.1
       astro: workspace:*
       astro-scripts: workspace:*
+      vite: ^2.9.5
       vue: ^3.2.33
     dependencies:
-      '@vitejs/plugin-vue': 2.3.1_vue@3.2.33
+      '@vitejs/plugin-vue': 2.3.1_vite@2.9.5+vue@3.2.33
+      vite: 2.9.5
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -2103,6 +2117,8 @@ packages:
     resolution: {integrity: sha512-vqUSBLP8dQHFPdPi9bc5GK9vRkYHJ49fsZdtoJ8EQ8ibpwk5rPKfvNIwChB0KVXcIjcepEBBd2VHC5r9Gy8ueg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.17.0
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.16.7_@babel+core@7.17.9:
     resolution: {integrity: sha512-anv/DObl7waiGEnC24O9zqL0pSuI9hljihqiDuFHC8d7/bjr/4RLGPWuc8rYOff/QPzbEPSkzG8wGG9aDuhHRg==}
@@ -3861,7 +3877,7 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.41_svelte@3.47.0:
+  /@sveltejs/vite-plugin-svelte/1.0.0-next.41_svelte@3.47.0+vite@2.9.5:
     resolution: {integrity: sha512-2kZ49mpi/YW1PIPvKaJNSSwIFgmw9QUf1+yaNa4U8yJD6AsfSHXAU3goscWbi1jfWnSg2PhvwAf+bvLCdp2F9g==}
     engines: {node: ^14.13.1 || >= 16}
     peerDependencies:
@@ -3880,6 +3896,7 @@ packages:
       magic-string: 0.26.1
       svelte: 3.47.0
       svelte-hmr: 0.14.11_svelte@3.47.0
+      vite: 2.9.5
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -4424,7 +4441,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue/2.3.1_vue@3.2.33:
+  /@vitejs/plugin-vue/2.3.1_vite@2.9.5+vue@3.2.33:
     resolution: {integrity: sha512-YNzBt8+jt6bSwpt7LP890U1UcTOIZZxfpE5WOJ638PNxSEKOqAi0+FSKS0nVeukfdZ0Ai/H7AFd6k3hayfGZqQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -4434,6 +4451,7 @@ packages:
       vite:
         optional: true
     dependencies:
+      vite: 2.9.5
       vue: 3.2.33
     dev: false
 
@@ -10648,6 +10666,30 @@ packages:
       - '@types/babel__core'
       - supports-color
     dev: true
+
+  /vite/2.9.5:
+    resolution: {integrity: sha512-dvMN64X2YEQgSXF1lYabKXw3BbN6e+BL67+P3Vy4MacnY+UzT1AfkHiioFSi9+uiDUiaDy7Ax/LQqivk6orilg==}
+    engines: {node: '>=12.2.0'}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+    dependencies:
+      esbuild: 0.14.38
+      postcss: 8.4.12
+      resolve: 1.22.0
+      rollup: 2.70.2
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
 
   /vite/2.9.5_sass@1.50.1:
     resolution: {integrity: sha512-dvMN64X2YEQgSXF1lYabKXw3BbN6e+BL67+P3Vy4MacnY+UzT1AfkHiioFSi9+uiDUiaDy7Ax/LQqivk6orilg==}

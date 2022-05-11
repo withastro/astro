@@ -6,9 +6,6 @@ example:
 '🚨 action':
 - .github/workflows/**
 
-test:
-- packages/**/*.test.js
-
 core:
 - packages/astro/**
 
@@ -18,7 +15,7 @@ create-astro:
 markdown:
 - packages/markdown/**
 
-renderer:
+integration:
 - packages/integrations/**
 
 framework-lit:
