@@ -3,6 +3,7 @@ import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { RenderResponse, SSROptions } from '../core/render/dev/index';
 import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
+import { appendForwardSlash } from '../core/path.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
@@ -166,7 +167,7 @@ async function handle500Response(
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	return manifest.routes.find((r) => r.component === relPages + '404.astro');
+	return manifest.routes.find((r) => r.component === appendForwardSlash(relPages) + '404.astro');
 }
 
 function log404(logging: LogOptions, pathname: string) {
