@@ -72,7 +72,8 @@
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
     "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
-    "test:match": "mocha --timeout 20000 -g"
+    "test:match": "mocha --timeout 20000 -g",
+    "test:e2e": "playwright test e2e"
   },
   "dependencies": {
     "@astrojs/compiler": "^0.14.2",
@@ -134,7 +135,8 @@
     "zod": "^3.16.0"
   },
   "devDependencies": {
-    "@babel/types": "^7.17.10",
+    "@babel/types": "^7.17.0",
+    "@playwright/test": "^1.21.1",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.17.1",
