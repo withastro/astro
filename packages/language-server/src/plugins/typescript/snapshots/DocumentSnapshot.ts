@@ -54,7 +54,7 @@ export class AstroSnapshot implements DocumentSnapshot {
 	public scriptTagSnapshots: ScriptTagDocumentSnapshot[] = [];
 
 	constructor(
-		private readonly parent: AstroDocument,
+		public readonly parent: AstroDocument,
 		private readonly text: string,
 		public readonly scriptKind: ts.ScriptKind
 	) {}

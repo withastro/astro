@@ -5,8 +5,8 @@ import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { AstroVersion, getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
-import { ensureRealFilePath, findTsConfigPath } from './utils';
-import { DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
+import { ensureRealFilePath, findTsConfigPath, isAstroFilePath } from './utils';
+import { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
 import * as DocumentSnapshotUtils from './snapshots/utils';
 
 export interface LanguageServiceContainer {
@@ -223,7 +223,21 @@ async function createLanguageService(
 
 		astroModuleLoader.deleteUnresolvedResolutionsFromCache(fileName);
 		doc = DocumentSnapshotUtils.createFromFilePath(fileName, docContext.createDocument);
+
 		snapshotManager.set(fileName, doc);
+
+		// If we needed to create an Astro snapshot, also create its script tags snapshots
+		if (isAstroFilePath(fileName)) {
+			const document = (doc as AstroSnapshot).parent;
+
+			document.scriptTags.forEach((scriptTag, index) => {
+				const scriptFilePath = fileName + `.__script${index}.js`;
+				const scriptSnapshot = new ScriptTagDocumentSnapshot(scriptTag, document, scriptFilePath);
+				snapshotManager.set(scriptFilePath, scriptSnapshot);
+
+				(doc as AstroSnapshot).scriptTagSnapshots?.push(scriptSnapshot);
+			});
+		}
 
 		return doc;
 	}

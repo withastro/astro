@@ -68,14 +68,13 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		const { provider, document } = setup('ssrReturn.astro');
 
 		const diagnostics = await provider.getDiagnostics(document);
-		const codes = diagnostics.map((diag) => Number(diag.code))
+		const codes = diagnostics.map((diag) => Number(diag.code));
 
 		expect(codes).to.not.contain(1108);
 	});
 
 	it('provide diagnostics inside script tags', async () => {
 		const { provider, document } = setup('scriptTag.astro');
-		document.version++;
 
 		const diagnostics = await provider.getDiagnostics(document);
 		expect(diagnostics).to.not.be.empty;

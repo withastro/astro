@@ -51,7 +51,6 @@ describe('TypeScript Plugin#HoverProvider', () => {
 
 	it('provides hover inside script tags', async () => {
 		const { provider, document } = setup('scriptTag.astro');
-		document.version++;
 
 		const hoverInfo = await provider.doHover(document, Position.create(1, 10));
 

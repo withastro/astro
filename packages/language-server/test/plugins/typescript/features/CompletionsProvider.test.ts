@@ -103,13 +103,12 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const item = completions?.items.find((completion) => completion.label === 'MySuperFunction');
 
 		// This completion is done differently depending on the platform so we'll just test that it exists
-		expect(item).to.not.be.undefined
+		expect(item).to.not.be.undefined;
 	});
 
 	describe('inside script tags', async () => {
 		it('provide completions', async () => {
 			const { provider, document } = setup('scriptTagBasic.astro');
-			document.version++;
 
 			const completions = await provider.getCompletions(document, Position.create(1, 11));
 
@@ -118,7 +117,6 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 		it('provide auto imports completion mapped inside script tag', async () => {
 			const { provider, document } = setup('scriptTagImport.astro');
-			document.version++;
 
 			const completions = await provider.getCompletions(document, Position.create(5, 4));
 			const item = completions?.items.find((completion) => completion.label === 'MySuperFunction');

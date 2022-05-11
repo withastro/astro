@@ -125,7 +125,6 @@ describe('TypeScript Plugin#DefinitionsProvider', () => {
 
 	it('provide definitions inside script tags', async () => {
 		const { document, provider, languageServiceManager } = setup('scriptTag.astro');
-		document.version++;
 
 		const functionDefinition = await provider.getDefinitions(document, Position.create(1, 9));
 		const functionUsage = await provider.getDefinitions(document, Position.create(5, 5));

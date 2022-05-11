@@ -184,7 +184,6 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 	describe('inside script tags', async () => {
 		it('provide simple quick fixes with ability to disable', async () => {
 			const { provider, document } = setup('scriptTag.astro');
-			document.version++;
 
 			const codeActions = await provider.getCodeActions(document, Range.create(2, 23, 2, 33), {
 				diagnostics: [
@@ -268,7 +267,6 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 
 		it('provide quick fixes with properly mapped actions', async () => {
 			const { provider, document } = setup('scriptTagImports.astro');
-			document.version++;
 
 			const codeActions = await provider.getCodeActions(document, Range.create(5, 23, 5, 33), {
 				diagnostics: [
@@ -309,7 +307,6 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 
 		it('organize imports', async () => {
 			const { provider, document } = setup('scriptTagImports.astro');
-			document.version++;
 
 			const codeActions = await provider.getCodeActions(
 				document,
