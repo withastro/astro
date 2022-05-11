@@ -563,7 +563,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of remark plugins used by Astro
-		 *     remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+		 *     remarkPlugins: ['remark-gfm', 'remark-smartypants'],
 		 *   },
 		 * };
 		 * ```
@@ -582,7 +582,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of rehype plugins used by Astro
-		 *     rehypePlugins: ['rehype-slug', ['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }]],
+		 *     rehypePlugins: [],
 		 *   },
 		 * };
 		 * ```
