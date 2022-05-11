@@ -886,7 +886,7 @@ export interface EndpointOutput<Output extends Body = Body> {
 export type APIRoute = (context: APIContext) => EndpointOutput | Response;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute;
+	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
 
 export interface AstroRenderer {
