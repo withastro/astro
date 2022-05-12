@@ -2,6 +2,7 @@ import * as vscode from 'vscode-languageserver';
 import {
 	CodeActionKind,
 	DidChangeConfigurationNotification,
+	InlayHintRequest,
 	MessageType,
 	SemanticTokensRangeRequest,
 	SemanticTokensRequest,
@@ -134,6 +135,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 					range: true,
 					full: true,
 				},
+				inlayHintProvider: true,
 				signatureHelpProvider: {
 					triggerCharacters: ['(', ',', '<'],
 					retriggerCharacters: [')'],
@@ -227,6 +229,10 @@ export function startLanguageServer(connection: vscode.Connection) {
 	connection.onDocumentColor((params: vscode.DocumentColorParams) => pluginHost.getDocumentColors(params.textDocument));
 	connection.onColorPresentation((params: vscode.ColorPresentationParams) =>
 		pluginHost.getColorPresentations(params.textDocument, params.range, params.color)
+	);
+
+	connection.onRequest(InlayHintRequest.type, (params: vscode.InlayHintParams, cancellationToken) =>
+		pluginHost.getInlayHints(params.textDocument, params.range, cancellationToken)
 	);
 
 	connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));

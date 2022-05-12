@@ -3,7 +3,13 @@ import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
 import { LSConfig, LSCSSConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
 import { Connection, DidChangeConfigurationParams } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { FormatCodeSettings, SemicolonPreference, TsConfigSourceFile, UserPreferences } from 'typescript';
+import {
+	FormatCodeSettings,
+	InlayHintsOptions,
+	SemicolonPreference,
+	TsConfigSourceFile,
+	UserPreferences,
+} from 'typescript';
 
 export const defaultLSConfig: LSConfig = {
 	typescript: {
@@ -145,6 +151,25 @@ export class ConfigManager {
 		};
 	}
 
+	async getTSInlayHintsPreferences(document: TextDocument): Promise<InlayHintsOptions> {
+		const config = (await this.getConfig<any>('typescript', document.uri)) ?? {};
+
+		const tsPreferences = this.getTSPreferences(document);
+
+		return {
+			...tsPreferences,
+			includeInlayParameterNameHints: getInlayParameterNameHintsPreference(config),
+			includeInlayParameterNameHintsWhenArgumentMatchesName: !(
+				config.inlayHints?.parameterNames?.suppressWhenArgumentMatchesName ?? true
+			),
+			includeInlayFunctionParameterTypeHints: config.inlayHints?.parameterTypes?.enabled ?? false,
+			includeInlayVariableTypeHints: config.inlayHints?.variableTypes?.enabled ?? false,
+			includeInlayPropertyDeclarationTypeHints: config.inlayHints?.propertyDeclarationTypes?.enabled ?? false,
+			includeInlayFunctionLikeReturnTypeHints: config.inlayHints?.functionLikeReturnTypes?.enabled ?? false,
+			includeInlayEnumMemberValueHints: config.inlayHints?.enumMemberValues?.enabled ?? false,
+		};
+	}
+
 	/**
 	 * Return true if a plugin and an optional feature is enabled
 	 */
@@ -160,10 +185,17 @@ export class ConfigManager {
 
 	/**
 	 * Updating the global config should only be done in cases where the client doesn't support `workspace/configuration`
-	 * or inside of tests
+	 * or inside of tests.
+	 *
+	 * The `outsideAstro` parameter can be set to true to change configurations in the global scope.
+	 * For example, to change TypeScript settings
 	 */
-	updateGlobalConfig(config: DeepPartial<LSConfig>) {
-		this.globalConfig.astro = merge({}, defaultLSConfig, this.globalConfig.astro, config);
+	updateGlobalConfig(config: DeepPartial<LSConfig> | any, outsideAstro?: boolean) {
+		if (outsideAstro) {
+			this.globalConfig = merge({}, this.globalConfig, config);
+		} else {
+			this.globalConfig.astro = merge({}, defaultLSConfig, this.globalConfig.astro, config);
+		}
 	}
 }
 
@@ -201,5 +233,18 @@ function getImportModuleSpecifierEndingPreference(config: any) {
 			return 'js';
 		default:
 			return 'auto';
+	}
+}
+
+function getInlayParameterNameHintsPreference(config: any) {
+	switch (config.inlayHints?.parameterNames?.enabled) {
+		case 'none':
+			return 'none';
+		case 'literals':
+			return 'literals';
+		case 'all':
+			return 'all';
+		default:
+			return undefined;
 	}
 }

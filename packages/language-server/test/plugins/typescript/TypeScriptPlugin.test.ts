@@ -179,6 +179,31 @@ describe('TypeScript Plugin', () => {
 		});
 	});
 
+	describe('provide inlay hints', async () => {
+		it('return inlay hints', async () => {
+			const { plugin, document, configManager } = setup('inlayHints/basic.astro');
+
+			configManager.updateGlobalConfig(
+				{
+					typescript: {
+						inlayHints: {
+							parameterNames: {
+								enabled: 'all',
+							},
+							parameterTypes: {
+								enabled: 'all',
+							},
+						},
+					},
+				},
+				true
+			);
+
+			const inlayHints = await plugin.getInlayHints(document, Range.create(0, 0, 7, 0));
+			expect(inlayHints).to.not.be.empty;
+		});
+	});
+
 	describe('provide folding ranges', async () => {
 		it('return folding ranges', async () => {
 			const { plugin, document } = setup('foldingRanges/frontmatter.astro');

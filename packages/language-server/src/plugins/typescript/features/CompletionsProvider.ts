@@ -255,6 +255,10 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		if (detail) {
 			const { detail: itemDetail, documentation: itemDocumentation } = this.getCompletionDocument(detail);
 
+			if (data.originalItem.source) {
+				item.labelDetails = { description: data.originalItem.source };
+			}
+
 			item.detail = itemDetail;
 			item.documentation = itemDocumentation;
 		}
@@ -343,9 +347,8 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			}
 		}
 
-		// Label details are currently unsupported, however, they'll be supported in the next version of LSP
 		if (comp.sourceDisplay) {
-			(item as any).labelDetails = { description: ts.displayPartsToString(comp.sourceDisplay) };
+			item.labelDetails = { description: ts.displayPartsToString(comp.sourceDisplay) };
 		}
 
 		item.commitCharacters = getCommitCharactersForScriptElement(comp.kind);

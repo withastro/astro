@@ -22,6 +22,7 @@ import {
 	SemanticTokens,
 	CodeActionContext,
 	CodeAction,
+	InlayHint,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -222,6 +223,16 @@ export class PluginHost {
 		const document = this.getDocument(textDocument.uri);
 
 		return flatten(await this.execute<ColorInformation[]>('getDocumentColors', [document], ExecuteMode.Collect));
+	}
+
+	async getInlayHints(
+		textDocument: TextDocumentIdentifier,
+		range: Range,
+		cancellationToken: CancellationToken
+	): Promise<InlayHint[]> {
+		const document = this.getDocument(textDocument.uri);
+
+		return flatten(await this.execute<InlayHint[]>('getInlayHints', [document, range], ExecuteMode.FirstNonNull));
 	}
 
 	async getColorPresentations(
