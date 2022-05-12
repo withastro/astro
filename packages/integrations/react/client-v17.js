@@ -1,15 +1,18 @@
 import { createElement } from 'react';
-import { hydrate } from 'react-dom';
+import { render, hydrate } from 'react-dom';
 import StaticHtml from './static-html.js';
 
-export default (element) => (Component, props, children) =>
-	hydrate(
-		createElement(
+export default (element) => (Component, props, children, { client }) =>
+	{
+		const componentEl = createElement(
 			Component,
-			{ ...props, suppressHydrationWarning: true },
+			props,
 			children != null
-				? createElement(StaticHtml, { value: children, suppressHydrationWarning: true })
+				? createElement(StaticHtml, { value: children })
 				: children
-		),
-		element
-	);
+		);
+		if (client === 'only') {
+			return render(componentEl, element);
+		}
+		return hydrate(componentEl, element);
+	};

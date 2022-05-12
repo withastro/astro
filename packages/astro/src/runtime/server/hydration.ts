@@ -110,15 +110,15 @@ export async function generateHydrateScript(
 		);
 	}
 
-	let hydrationSource = ``;
-
-	hydrationSource += renderer.clientEntrypoint
+	const hydrationSource = renderer.clientEntrypoint
 		? `const [{ ${
 				componentExport.value
 		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
 				componentUrl
 		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
-  return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
+  return (el, children) => hydrate(el)(Component, ${serializeProps(
+		props
+	)}, children, ${JSON.stringify({ client: hydrate })});
 `
 		: `await import("${await result.resolve(componentUrl)}");
   return () => {};
