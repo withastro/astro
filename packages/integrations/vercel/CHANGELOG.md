@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3355](https://github.com/withastro/astro/pull/3355) [`945f5c68`](https://github.com/withastro/astro/commit/945f5c68e892f6f17e59e41d0dfa2a7841f96bbf) Thanks [@JuanM04](https://github.com/JuanM04)! - Added typescript definitions
+
 ## 0.2.0
 
 ### Minor Changes
