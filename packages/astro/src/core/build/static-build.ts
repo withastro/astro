@@ -120,7 +120,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const ssr = isBuildingToSSR(astroConfig);
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
-	const viteBuildConfig = {
+	const viteBuildConfig: ViteConfigWithSSR = {
 		logLevel: 'error',
 		mode: 'production',
 		css: viteConfig.css,
@@ -165,7 +165,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		base: astroConfig.base,
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
-	} as ViteConfigWithSSR;
+	};
 
 	await runHookBuildSetup({
 		config: astroConfig,
