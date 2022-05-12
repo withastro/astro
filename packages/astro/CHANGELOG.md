@@ -1,5 +1,31 @@
 # astro
 
+## 1.0.0-beta.28
+
+### Patch Changes
+
+- [#3344](https://github.com/withastro/astro/pull/3344) [`46cd8b9e`](https://github.com/withastro/astro/commit/46cd8b9eb4c5e9b526a6cba288070630b8dcbbf5) Thanks [@matthewp](https://github.com/matthewp)! - Fix for APIRoute type
+
+* [#3350](https://github.com/withastro/astro/pull/3350) [`e48aa2fd`](https://github.com/withastro/astro/commit/e48aa2fd1ee4a3637647990182e1f3aa9384e259) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve error hints for packages that should be added to `vite.ssr.noExternal`
+
+- [#3348](https://github.com/withastro/astro/pull/3348) [`43e411ee`](https://github.com/withastro/astro/commit/43e411eed8308015d517de9a0d1e036dc06d34a0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update default `vite.optimizeDeps.exclude` to keep `node-fetch` from being optimized
+
+* [#3336](https://github.com/withastro/astro/pull/3336) [`ccea6a0a`](https://github.com/withastro/astro/commit/ccea6a0a1ae55ab057d94f60014e2183013b5f60) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR of hoisted script tags
+
+- [#3331](https://github.com/withastro/astro/pull/3331) [`e22f7364`](https://github.com/withastro/astro/commit/e22f7364ceb3e4b057d89bbb32111bcffb7ae967) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an issue preventing custom 404 pages in dev
+
+* [#3339](https://github.com/withastro/astro/pull/3339) [`3dc68e14`](https://github.com/withastro/astro/commit/3dc68e148e05a36694cb5759f44cc5349bd66294) Thanks [@thepassle](https://github.com/thepassle)! - fixes injectscript in ssr mode
+
+- [#3332](https://github.com/withastro/astro/pull/3332) [`d04928e8`](https://github.com/withastro/astro/commit/d04928e8f20435cf69d1c171523aa152601cfe21) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an `import from '../core/build/types';` error
+
+* [`f40705d9`](https://github.com/withastro/astro/commit/f40705d906951a2ac16a89290bcadd597fe4cbeb) Thanks [@matthewp](https://github.com/matthewp)! - Fix for swallowed SolidJS errors
+
+- [#3300](https://github.com/withastro/astro/pull/3300) [`b463ddb3`](https://github.com/withastro/astro/commit/b463ddb3ce43641536dee4413ac5bb8ebcbdf608) Thanks [@tony-sull](https://github.com/tony-sull)! - Resolve .astro components by module ID to support the use of Astro + framework components in an NPM package
+
+* [#3352](https://github.com/withastro/astro/pull/3352) [`86855061`](https://github.com/withastro/astro/commit/8685506174962329fb7a76367ea3cf32ea0aa48c) Thanks [@JuanM04](https://github.com/JuanM04)! - Export `ViteUserConfig` type
+
+- [#3337](https://github.com/withastro/astro/pull/3337) [`678c2b75`](https://github.com/withastro/astro/commit/678c2b7523c7f10cfdf2eb5a73aa2bbb7e5cbc07) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove hydration failures on React v18 by exposing the "client" directive from Astro core.
+
 ## 1.0.0-beta.27
 
 ### Patch Changes
