@@ -18,8 +18,8 @@ test.afterAll(async ({ astro }) => {
 	await devServer.stop();
 });
 
-test('Tailwind CSS', async ({ page }) => {
-	await page.goto(`localhost:${devServer.address.port}/`);
+test('Tailwind CSS', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
 
 	await test.step('body', async () => {
 		const body = page.locator('body');
