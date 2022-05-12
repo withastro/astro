@@ -1,34 +1,27 @@
-import type { RouteData, SerializedRouteData, RoutePart } from '../../../@types/astro';
+import type { RouteData, SerializedRouteData, AstroConfig } from '../../../@types/astro';
 
-function createRouteData(
-	pattern: RegExp,
-	params: string[],
-	component: string,
-	pathname: string | undefined,
-	type: 'page' | 'endpoint',
-	segments: RoutePart[][]
-): RouteData {
+import { getRouteGenerator } from './generator.js';
+
+export function serializeRouteData(
+	routeData: RouteData,
+	trailingSlash: AstroConfig['trailingSlash']
+): SerializedRouteData {
 	return {
-		type,
-		pattern,
-		params,
-		component,
-		// TODO bring back
-		generate: () => '',
-		pathname: pathname || undefined,
-		segments,
+		...routeData,
+		generate: undefined,
+		pattern: routeData.pattern.source,
+		_meta: { trailingSlash },
 	};
 }
 
-export function serializeRouteData(routeData: RouteData): SerializedRouteData {
-	// Is there a better way to do this in TypeScript?
-	const outRouteData = routeData as unknown as SerializedRouteData;
-	outRouteData.pattern = routeData.pattern.source;
-	return outRouteData;
-}
-
-export function deserializeRouteData(rawRouteData: SerializedRouteData) {
-	const { component, params, pathname, type, segments } = rawRouteData;
-	const pattern = new RegExp(rawRouteData.pattern);
-	return createRouteData(pattern, params, component, pathname, type, segments);
+export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteData {
+	return {
+		type: rawRouteData.type,
+		pattern: new RegExp(rawRouteData.pattern),
+		params: rawRouteData.params,
+		component: rawRouteData.component,
+		generate: getRouteGenerator(rawRouteData.segments, rawRouteData._meta.trailingSlash),
+		pathname: rawRouteData.pathname || undefined,
+		segments: rawRouteData.segments,
+	};
 }

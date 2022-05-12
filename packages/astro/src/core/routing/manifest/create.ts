@@ -3,11 +3,11 @@ import type { LogOptions } from '../../logger/core';
 
 import fs from 'fs';
 import path from 'path';
-import { compile } from 'path-to-regexp';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
 import { resolvePages } from '../../util.js';
+import { getRouteGenerator } from './generator.js';
 
 interface Item {
 	basename: string;
@@ -86,34 +86,6 @@ function getTrailingSlashPattern(addTrailingSlash: AstroConfig['trailingSlash'])
 		return '$';
 	}
 	return '\\/?$';
-}
-
-function getGenerator(segments: RoutePart[][], addTrailingSlash: AstroConfig['trailingSlash']) {
-	const template = segments
-		.map((segment) => {
-			return segment[0].spread
-				? `/:${segment[0].content.slice(3)}(.*)?`
-				: '/' +
-						segment
-							.map((part) => {
-								if (part)
-									return part.dynamic
-										? `:${part.content}`
-										: part.content
-												.normalize()
-												.replace(/\?/g, '%3F')
-												.replace(/#/g, '%23')
-												.replace(/%5B/g, '[')
-												.replace(/%5D/g, ']')
-												.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							})
-							.join('');
-		})
-		.join('');
-
-	const trailing = addTrailingSlash !== 'never' && segments.length ? '/' : '';
-	const toPath = compile(template + trailing);
-	return toPath;
 }
 
 function isSpread(str: string) {
@@ -271,7 +243,7 @@ export function createRouteManifest(
 				const component = item.file;
 				const trailingSlash = item.isPage ? config.trailingSlash : 'never';
 				const pattern = getPattern(segments, trailingSlash);
-				const generate = getGenerator(segments, trailingSlash);
+				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;

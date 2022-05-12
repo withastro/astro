@@ -115,7 +115,7 @@ function buildManifest(
 					.filter((script) => script.stage === 'head-inline')
 					.map(({ stage, content }) => ({ stage, children: content })),
 			],
-			routeData: serializeRouteData(pageData.route),
+			routeData: serializeRouteData(pageData.route, astroConfig.trailingSlash),
 		});
 	}
 
