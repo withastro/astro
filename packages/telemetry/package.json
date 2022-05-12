@@ -27,18 +27,18 @@
     "dist"
   ],
   "dependencies": {
-    "ci-info": "^3.3.0",
+    "ci-info": "^3.3.1",
     "debug": "^4.3.4",
     "dlv": "^1.1.3",
-    "dset": "^3.1.1",
+    "dset": "^3.1.2",
     "escalade": "^3.1.1",
     "is-docker": "^3.0.0",
     "is-wsl": "^2.2.0",
-    "node-fetch": "^3.2.3"
+    "node-fetch": "^3.2.4"
   },
   "devDependencies": {
     "@types/dlv": "^1.1.2",
-    "@types/node": "^14.18.13",
+    "@types/node": "^14.18.17",
     "astro-scripts": "workspace:*"
   },
   "engines": {

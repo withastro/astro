@@ -36,12 +36,12 @@
     "@babel/plugin-transform-react-jsx": "^7.17.3"
   },
   "devDependencies": {
-    "@types/react": "^17.0.44",
-    "@types/react-dom": "^17.0.15",
+    "@types/react": "^17.0.45",
+    "@types/react-dom": "^17.0.16",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   },
   "peerDependencies": {
     "react": "^17.0.2 || ^18.0.0",

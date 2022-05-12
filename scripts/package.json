@@ -11,10 +11,10 @@
     "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
     "arg": "^5.0.1",
-    "esbuild": "^0.14.38",
+    "esbuild": "^0.14.39",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
-    "svelte": "^3.47.0",
+    "svelte": "^3.48.0",
     "tar": "^6.1.11"
   }
 }

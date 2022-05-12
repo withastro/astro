@@ -13,9 +13,9 @@
     "@nanostores/react": "^0.1.5",
     "@nanostores/vue": "^0.4.1",
     "nanostores": "^0.5.12",
-    "preact": "^10.7.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "preact": "^10.7.2",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "solid-nanostores": "0.0.6",
     "vue": "^3.2.33"
   },
