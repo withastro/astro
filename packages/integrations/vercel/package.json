@@ -3,7 +3,6 @@
   "description": "Deploy your site to Vercel",
   "version": "0.2.0",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -20,6 +19,19 @@
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
     "./static": "./dist/serverless/adapter.js",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "edge": [
+        "dist/edge/adapter.d.ts"
+      ],
+      "serverless": [
+        "dist/serverless/adapter.d.ts"
+      ],
+      "static": [
+        "dist/static/adapter.d.ts"
+      ]
+    }
   },
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
