@@ -99,15 +99,21 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}
+			const compileProps = {
+				config,
+				filename,
+				moduleId: id,
+				source,
+				ssr: Boolean(opts?.ssr),
+				viteTransform,
+			};
 			if (query.astro) {
 				if (query.type === 'style') {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-						ssr: Boolean(opts?.ssr),
-					});
+					const transformResult = await cachedCompilation(compileProps);
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
 					await trackCSSDependencies.call(this, {
@@ -133,9 +139,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						};
 					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-						ssr: Boolean(opts?.ssr),
-					});
+					const transformResult = await cachedCompilation(compileProps);
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
@@ -163,9 +167,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 
 			try {
-				const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-					ssr: Boolean(opts?.ssr),
-				});
+				const transformResult = await cachedCompilation(compileProps);
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.

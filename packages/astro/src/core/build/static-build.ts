@@ -56,7 +56,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 			// Track client:only usage so we can map their CSS back to the Page they are used in.
 			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
-			trackClientOnlyPageDatas(internals, pageData, clientOnlys, astroConfig);
+			trackClientOnlyPageDatas(internals, pageData, clientOnlys);
 
 			const topLevelImports = new Set([
 				// Any component that gets hydrated

@@ -1,8 +1,7 @@
-import type { AstroConfig, RouteData } from '../../@types/astro';
 import type { RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { fileURLToPath } from 'url';
+import { prependForwardSlash } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
@@ -80,17 +79,16 @@ export function trackPageData(
 export function trackClientOnlyPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	clientOnlys: string[],
-	astroConfig: AstroConfig
+	clientOnlys: string[]
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
-		const coPath = viteID(new URL('.' + clientOnlyComponent, astroConfig.root));
 		let pageDataSet: Set<PageBuildData>;
-		if (internals.pagesByClientOnly.has(coPath)) {
-			pageDataSet = internals.pagesByClientOnly.get(coPath)!;
+		// clientOnlyComponent will be similar to `/@fs{moduleID}`
+		if (internals.pagesByClientOnly.has(clientOnlyComponent)) {
+			pageDataSet = internals.pagesByClientOnly.get(clientOnlyComponent)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
-			internals.pagesByClientOnly.set(coPath, pageDataSet);
+			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}
@@ -115,8 +113,10 @@ export function* getPageDatasByClientOnlyChunk(
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
 		for (const [modulePath] of Object.entries(chunk.modules)) {
-			if (pagesByClientOnly.has(modulePath)) {
-				for (const pageData of pagesByClientOnly.get(modulePath)!) {
+			// prepend with `/@fs` to match the path used in the compiler's transform() call
+			const pathname = `/@fs${prependForwardSlash(modulePath)}`;
+			if (pagesByClientOnly.has(pathname)) {
+				for (const pageData of pagesByClientOnly.get(pathname)!) {
 					yield pageData;
 				}
 			}
