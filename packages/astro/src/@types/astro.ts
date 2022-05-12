@@ -255,6 +255,10 @@ type ServerConfig = {
 	port?: number;
 };
 
+export interface ViteUserConfig extends vite.UserConfig {
+	ssr?: vite.SSROptions;
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -652,7 +656,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
+	vite?: ViteUserConfig;
 
 	experimental?: {
 		/**
