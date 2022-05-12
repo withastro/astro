@@ -380,7 +380,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
-	 * @default `'always'`
+	 * @default `'ignore'`
 	 * @see buildOptions.pageUrlFormat
 	 * @description
 	 *
