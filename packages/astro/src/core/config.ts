@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
+import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../@types/astro';
 import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
@@ -182,7 +182,9 @@ export const AstroConfigSchema = z.object({
 				.default([]),
 		})
 		.default({}),
-	vite: z.any().optional().default({}),
+	vite: z
+		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
+		.default({}),
 	experimental: z
 		.object({
 			ssr: z.boolean().optional().default(false),
