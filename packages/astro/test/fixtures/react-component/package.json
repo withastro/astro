@@ -6,8 +6,8 @@
     "@astrojs/react": "workspace:*",
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "vue": "^3.2.33"
   }
 }
