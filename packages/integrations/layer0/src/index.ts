@@ -15,11 +15,16 @@ const EXEC_OPTS = {
 let layer0Dir: string;
 let outputDir: string;
 
-export function getAdapter(): AstroAdapter {
+interface Options {
+	port?: number;
+}
+
+export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/layer0',
-		serverEntrypoint: '@astrojs/layer0/prod.js',
-		exports: ['handler'],
+		serverEntrypoint: '@astrojs/layer0/server.js',
+		args: args ?? {},
+		exports: ['stop', 'handle', 'start', 'running'],
 	};
 }
 
