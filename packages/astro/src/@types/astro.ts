@@ -974,6 +974,9 @@ export interface RouteData {
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;
 	pattern: string;
+	_meta: {
+		trailingSlash: AstroConfig['trailingSlash'];
+	};
 };
 
 export type RuntimeMode = 'development' | 'production';
