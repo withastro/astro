@@ -1,9 +1,19 @@
 import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
 import { promises as fsp } from 'fs';
+import { chdir, cwd } from 'process';
 import { resolve, dirname } from 'pathe';
 import { fileURLToPath } from 'url';
-
+import { execa, execaCommand } from 'execa';
 import type { PackageJson } from 'pkg-types';
+
+const LAYER0_CMD = 'npx @layer0/cli';
+const LAYER0_DEPS = ['@layer0/cli@latest', '@layer0/core@latest'];
+const EXEC_OPTS = {
+	shell: true,
+	stdio: 'inherit',
+};
+let layer0Dir: string;
+let outputDir: string;
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -19,8 +29,19 @@ export default function layer0(): AstroIntegration {
 	return {
 		name: '@astrojs/layer0',
 		hooks: {
-			'astro:config:setup': async ({ config }: { config: AstroConfig }) => {
-				config.outDir = new URL('./layer0/', config.root);
+			'astro:config:setup': ({ config }) => {
+				config.outDir = new URL('.output/', config.root);
+				config.build.format = 'directory';
+			},
+
+			'astro:config:done': async ({ config, setAdapter }) => {
+				_config = config;
+				setAdapter(getAdapter());
+			},
+
+			'astro:build:done': async () => {
+				layer0Dir = fileURLToPath(new URL('./layer0/', _config.outDir));
+				outputDir = fileURLToPath(_config.outDir);
 
 				// Write Layer0 config, router, and connector files
 				const layer0Config = {
@@ -34,32 +55,28 @@ export default function layer0(): AstroIntegration {
 					},
 				};
 
-				console.log('config', config);
-				const configPath = resolve(fileURLToPath(config.outDir), 'layer0.config.js');
+				const configPath = resolve(outputDir, 'layer0.config.js');
 				await writeFile(configPath, `module.exports = ${JSON.stringify(layer0Config, null, 2)}`);
 
-				const routerPath = resolve(fileURLToPath(config.outDir), 'routes.js');
+				const routerPath = resolve(outputDir, 'routes.js');
 				await writeFile(routerPath, routesTemplate());
+
+				const entryPath = resolve(layer0Dir, 'prod.js');
+				await writeFile(entryPath, entryTemplate());
 
 				const pkgJSON: PackageJson & { scripts: Record<string, string> } = {
 					private: true,
 					scripts: {
+						build: '0 build',
 						deploy: '0 deploy',
 						preview: '0 build && 0 run -p',
 					},
-					devDependencies: {
-						'@layer0/cli': '^4.13.2',
-						'@layer0/core': '^4.13.2',
-					},
 				};
-				await writeFile(
-					resolve(fileURLToPath(config.outDir), 'package.json'),
-					JSON.stringify(pkgJSON, null, 2)
-				);
-			},
-			'astro:config:done': ({ setAdapter }) => {
-				setAdapter(getAdapter());
-				// run layer0 init?
+				await writeFile(resolve(outputDir, 'package.json'), JSON.stringify(pkgJSON, null, 2));
+				await writeFile(resolve(outputDir, 'pnpm-workspace.yaml'), '');
+
+				await installLayer0Deps();
+				await runLayer0Cmd('build');
 			},
 		},
 	};
@@ -73,13 +90,53 @@ async function writeFile(path: string, contents: string) {
 // Layer0 router (routes.js)
 function routesTemplate() {
 	return `
-import { Router } from '@layer0/core'
+import { Router } from '@layer0/core';
 
-const router = new Router()
-export default router
+const TIME_1H = 60 * 60;
+const TIME_4H = TIME_1H * 4;
+const TIME_1D = TIME_1H * 24;
 
-router.fallback(({ renderWithApp }) => {
-  renderWithApp()
-})
+const CACHE_ASSETS = {
+	edge: {
+		maxAgeSeconds: TIME_1D,
+		forcePrivateCaching: true,
+		staleWhileRevalidateSeconds: TIME_1H,
+	},
+	browser: {
+		maxAgeSeconds: 0,
+		serviceWorkerSeconds: TIME_1D,
+		spa: true,
+	},
+};
+
+export default new Router().math('/:path*', ({ cache, serveStatic, renderWithApp }) => {
+	cache(CACHE_ASSETS);
+	serveStatic('client/:path*', {
+		onNotFound: () => renderWithApp,
+	});
+	renderWithApp();
+});
 `.trim();
+}
+
+// Layer0 entrypoint (layer0/prod.js)
+function entryTemplate() {
+	return `
+const http = require('http')
+module.exports = async function prod(port) {
+  const { handler } = await import('../server/index.mjs')
+  const server = http.createServer(handler)
+  server.listen(port)
+}
+  `.trim();
+}
+
+async function installLayer0Deps() {
+	chdir(outputDir);
+	await execa('pnpm', ['--ignore-workspace-root-check', 'add', ...LAYER0_DEPS], EXEC_OPTS);
+}
+
+async function runLayer0Cmd(cmd: string) {
+	chdir(outputDir);
+	await execa(`pnpm`, ['run', cmd], EXEC_OPTS);
 }
