@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.3.4
+
+### Patch Changes
+
+- [#3342](https://github.com/withastro/astro/pull/3342) [`352fc316`](https://github.com/withastro/astro/commit/352fc3166fe3b3d3da3feff621394b20eacb9cc3) Thanks [@thepassle](https://github.com/thepassle)! - create redirects file for netlify edge adapter
+
 ## 0.3.3
 
 ### Patch Changes
