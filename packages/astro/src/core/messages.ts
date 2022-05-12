@@ -214,7 +214,7 @@ export function formatErrorMessage(_err: Error, args: string[] = []): string {
 	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
 	if (err.hint) {
 		args.push(`  ${bold('Hint:')}`);
-    	args.push(yellow(padMultilineString(err.hint, 4)));
+		args.push(yellow(padMultilineString(err.hint, 4)));
 	}
 	if (err.id) {
 		args.push(`  ${bold('File:')}`);

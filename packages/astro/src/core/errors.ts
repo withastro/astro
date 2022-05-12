@@ -83,6 +83,6 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 	}
 
 	// Generic error (probably from Vite, and already formatted)
-		e.hint = generateHint(e);
+	e.hint = generateHint(e);
 	return e;
 }
