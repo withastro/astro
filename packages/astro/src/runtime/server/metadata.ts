@@ -102,7 +102,7 @@ export class Metadata {
 			let i = 0,
 				pathname = metadata.mockURL.pathname;
 			while (i < metadata.hoisted.length) {
-				yield `${pathname}?astro&type=script&index=${i}`;
+				yield `${pathname}?astro&type=script&index=${i}&lang.ts`;
 				i++;
 			}
 		}
