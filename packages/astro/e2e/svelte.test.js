@@ -3,7 +3,7 @@ import { loadFixture, onAfterHMR } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/preact/' });
+		const fixture = await loadFixture({ root: './fixtures/svelte/' });
 		await use(fixture);
 	},
 });
@@ -22,7 +22,7 @@ test.afterEach(async ({ astro }) => {
 	astro.clean();
 });
 
-test.only('Preact', async ({ page, astro }) => {
+test.only('Svelte', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
 	await test.step('client:idle', async () => {
@@ -64,13 +64,6 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:only', async () => {
-		const label = page.locator('#client-only');
-		await expect(label).toBeVisible();
-
-		await expect(label).toHaveText('Preact client:only component');
-	});
-
 	await test.step('HMR', async () => {
 		const afterHMR = onAfterHMR(page);
 
@@ -84,26 +77,5 @@ test.only('Preact', async ({ page, astro }) => {
 
 		const count = page.locator('#counter-idle pre');
 		await expect(count).toHaveText('5');
-
-		// test 2: updating the preact component
-		await astro.writeFile(
-			'src/components/JSXComponent.jsx',
-			(original) => original.replace('Preact client:only component', 'Updated preact client:only component')
-		);
-
-		await afterHMR;
-
-		const label = page.locator('#client-only');
-		await expect(label).toBeVisible();
-
-		await expect(label).toHaveText('Updated preact client:only component');
-
-		// test 3: updating imported CSS
-		await astro.writeFile(
-			'src/components/Counter.css',
-			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
-		);
-
-		await expect(count).toHaveCSS('font-size', '24px');
 	});
 });

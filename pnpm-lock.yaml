@@ -665,13 +665,11 @@ importers:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
-      react: ^18.1.0
-      react-dom: ^18.1.0
+      preact: ^10.7.2
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
-      react: 18.1.0
-      react-dom: 18.1.0_react@18.1.0
+      preact: 10.7.2
 
   packages/astro/e2e/fixtures/react:
     specifiers:
@@ -684,6 +682,16 @@ importers:
       astro: link:../../..
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
+
+  packages/astro/e2e/fixtures/svelte:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+      svelte: ^3.48.0
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+      svelte: 3.48.0
 
   packages/astro/e2e/fixtures/tailwindcss:
     specifiers:
