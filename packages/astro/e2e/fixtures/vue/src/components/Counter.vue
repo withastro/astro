@@ -1,8 +1,8 @@
 <template>
 	<div class="counter">
-		<button @click="subtract()">-</button>
+		<button class="decrement" @click="subtract()">-</button>
 		<pre>{{ count }}</pre>
-		<button @click="add()">+</button>
+		<button class="increment" @click="add()">+</button>
 	</div>
 	<div class="counter-message">
 		<slot />

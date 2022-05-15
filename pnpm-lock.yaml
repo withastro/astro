@@ -661,6 +661,18 @@ importers:
       chai-as-promised: 7.1.1_chai@4.3.6
       mocha: 9.2.2
 
+  packages/astro/e2e/fixtures/lit:
+    specifiers:
+      '@astrojs/lit': workspace:*
+      '@webcomponents/template-shadowroot': ^0.1.0
+      astro: workspace:*
+      lit: ^2.2.3
+    dependencies:
+      '@astrojs/lit': link:../../../../integrations/lit
+      '@webcomponents/template-shadowroot': 0.1.0
+      astro: link:../../..
+      lit: 2.2.3
+
   packages/astro/e2e/fixtures/preact:
     specifiers:
       '@astrojs/preact': workspace:*
