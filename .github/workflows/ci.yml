@@ -190,7 +190,7 @@ jobs:
         run: ./.github/extract-artifacts.sh
 
       - name: Install dependencies
-        run: pnpm install && pnpx playwright install-deps
+        run: pnpm install && pnpx playwright install
 
       - name: Test
         run: pnpm run test:e2e
