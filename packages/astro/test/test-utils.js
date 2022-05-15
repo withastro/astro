@@ -28,6 +28,7 @@ polyfill(globalThis, {
  * @property {(url: string) => string} resolveUrl
  * @property {(url: string, opts: any) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
@@ -96,6 +97,17 @@ export async function loadFixture(inlineConfig) {
 
 	const resolveUrl = (url) => `http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
+	let cleanupCallbacks = [];
+
+	async function writeFile(filePath, updater) {
+		const pathname = new URL(filePath.replace(/^\//, ''), config.root);
+		const initial = await fs.promises.readFile(pathname, 'utf8');
+		
+		await fs.promises.writeFile(pathname, updater(initial), 'utf-8');
+
+		cleanupCallbacks.push(() => fs.promises.writeFile(pathname, initial, 'utf-8'));
+	}
+
 	return {
 		build: (opts = {}) => build(config, { mode: 'development', logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
@@ -113,8 +125,12 @@ export async function loadFixture(inlineConfig) {
 		},
 		readFile: (filePath) =>
 			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
+		writeFile,
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
-		clean: () => fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
+		clean: async () => {
+			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
+			await Promise.all(cleanupCallbacks.map(cb => cb()));
+		},
 		loadTestAdapterApp: async () => {
 			const url = new URL('./server/entry.mjs', config.outDir);
 			const { createApp } = await import(url);

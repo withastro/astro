@@ -14,7 +14,11 @@ if (import.meta.hot) {
 				root.innerHTML = current?.innerHTML;
 			}
 		}
-		return diff(document, doc);
+		const result = diff(document, doc);
+
+		// event used for synchronizing E2E tests
+		console.log('astro:hmr:after');
+		return result;
 	}
 	async function updateAll(files: any[]) {
 		let hasAstroUpdate = false;
@@ -31,7 +35,7 @@ if (import.meta.hot) {
 			}
 		}
 		if (hasAstroUpdate) {
-			return updatePage();
+			return await updatePage();
 		}
 	}
 	import.meta.hot.on('vite:beforeUpdate', async (event) => {

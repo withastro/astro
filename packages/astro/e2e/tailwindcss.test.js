@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, onAfterHMR } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
@@ -16,6 +16,10 @@ test.beforeAll(async ({ astro }) => {
 
 test.afterAll(async ({ astro }) => {
 	await devServer.stop();
+});
+
+test.afterEach(async ({ astro }) => {
+	astro.clean();
 });
 
 test('Tailwind CSS', async ({ page, astro }) => {
@@ -47,5 +51,24 @@ test('Tailwind CSS', async ({ page, astro }) => {
 
 		await expect(button, 'should have font-[900]').toHaveClass(/font-\[900\]/);
 		await expect(button, 'should have font weight').toHaveCSS('font-weight', '900');
+	});
+
+	await test.step('HMR', async () => {
+		const afterHMR = onAfterHMR(page);
+
+		await astro.writeFile(
+			'src/components/Button.astro',
+			(original) => original.replace('bg-purple-600', 'bg-purple-400')
+		);
+
+		await afterHMR;
+
+		const button = page.locator('button');
+		
+		await expect(button, 'should have bg-purple-400').toHaveClass(/bg-purple-400/);
+		await expect(button, 'should have background color').toHaveCSS(
+			'background-color',
+			'rgb(192, 132, 252)'
+		);
 	});
 });

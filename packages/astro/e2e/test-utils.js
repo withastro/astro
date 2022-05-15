@@ -11,3 +11,7 @@ export function loadFixture(inlineConfig) {
 		root: new URL(inlineConfig.root, import.meta.url).toString()
 	})
 }
+
+export function onAfterHMR(page) {
+	return page.waitForEvent('console', message => message.text() === 'astro:hmr:after')
+}
