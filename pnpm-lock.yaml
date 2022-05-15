@@ -711,6 +711,16 @@ importers:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/vue:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      vue: ^3.2.33
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+      vue: 3.2.33
+
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
