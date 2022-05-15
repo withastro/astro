@@ -8,6 +8,6 @@ export function loadFixture(inlineConfig) {
 	// without this, the main `loadFixture` helper will resolve relative to `packages/astro/test`
 	return baseLoadFixture({
 		...inlineConfig,
-		root: new URL(inlineConfig.root, import.meta.url).toString()
-	})
+		root: new URL(inlineConfig.root, import.meta.url).toString(),
+	});
 }

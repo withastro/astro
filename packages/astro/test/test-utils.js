@@ -94,7 +94,8 @@ export async function loadFixture(inlineConfig) {
 		},
 	};
 
-	const resolveUrl = (url) => `http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+	const resolveUrl = (url) =>
+		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
 
 	return {
 		build: (opts = {}) => build(config, { mode: 'development', logging, telemetry, ...opts }),
@@ -105,8 +106,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		config,
 		resolveUrl,
-		fetch: (url, init) =>
-			fetch(resolveUrl(url), init),
+		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;
