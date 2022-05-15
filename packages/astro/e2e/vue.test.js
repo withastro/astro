@@ -64,6 +64,24 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
+	await test.step('client:media', async () => {
+		const counter = page.locator('astro-root:nth-of-type(4)');
+		await expect(counter).toBeVisible();
+		
+		const count = counter.locator('pre');
+		await expect(count).toHaveText('0');
+
+		// test 1: not hydrated on large screens
+		const inc = counter.locator('.increment');
+		await inc.click();
+		await expect(count).toHaveText('0');
+
+		// test 2: hydrated on mobile (max-width: 50rem)
+		await page.setViewportSize({ width: 414, height: 1124 });
+		await inc.click();
+		await expect(count).toHaveText('1');
+	});
+
 	await test.step('HMR', async () => {
 		const afterHMR = onAfterHMR(page);
 

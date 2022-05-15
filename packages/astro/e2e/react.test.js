@@ -64,6 +64,24 @@ test.only('React', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
+	await test.step('client:media', async () => {
+		const counter = page.locator('#counter-media');
+		await expect(counter).toBeVisible();
+		
+		const count = counter.locator('pre');
+		await expect(count).toHaveText('0');
+
+		// test 1: not hydrated on large screens
+		const inc = counter.locator('.increment');
+		await inc.click();
+		await expect(count).toHaveText('0');
+
+		// test 2: hydrated on mobile (max-width: 50rem)
+		await page.setViewportSize({ width: 414, height: 1124 });
+		await inc.click();
+		await expect(count).toHaveText('1');
+	});
+
 	await test.step('client:only', async () => {
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();

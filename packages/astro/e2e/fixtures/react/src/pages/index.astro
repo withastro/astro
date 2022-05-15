@@ -24,6 +24,10 @@ const someProps = {
 			<h1>Hello, client:visible!</h1>
 		</Counter>
 
+		<Counter id="counter-media" {...someProps} client:media="(max-width: 50em)">
+			<h1>Hello, client:media!</h1>
+		</Counter>
+
 		<ReactComponent id="client-only" client:only="react" />
   </body>
 </html>
