@@ -683,6 +683,16 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
+  packages/astro/e2e/fixtures/solid:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+      solid-js: ^1.3.17
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+      solid-js: 1.3.17
+
   packages/astro/e2e/fixtures/svelte:
     specifiers:
       '@astrojs/svelte': workspace:*
