@@ -661,6 +661,18 @@ importers:
       chai-as-promised: 7.1.1_chai@4.3.6
       mocha: 9.2.2
 
+  packages/astro/e2e/fixtures/react:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+      react: ^18.1.0
+      react-dom: ^18.1.0
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+
   packages/astro/e2e/fixtures/tailwindcss:
     specifiers:
       '@astrojs/tailwind': workspace:*
