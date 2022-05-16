@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "@astrojs/solid-js": "workspace:*",
-    "astro": "workspace:*",
-    "solid-js": "^1.3.17"
+    "astro": "workspace:*"
+  },
+  "devDependencies": {
+    "solid-js": "^1.4.1"
   }
 }
