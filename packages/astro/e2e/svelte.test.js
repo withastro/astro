@@ -88,12 +88,12 @@ test.only('Svelte', async ({ page, astro }) => {
 		// test 1: updating the page component
 		await astro.writeFile(
 			'src/pages/index.astro',
-			(original) => original.replace('id="counter-idle" {...someProps}', 'id="counter-idle" count={5}')
+			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
 		await afterHMR;
 
-		const count = page.locator('#counter-idle pre');
-		await expect(count).toHaveText('5');
+		const label = page.locator('#counter-idle-message');
+		await expect(label).toHaveText('Hello, updated client:idle!');
 	});
 });

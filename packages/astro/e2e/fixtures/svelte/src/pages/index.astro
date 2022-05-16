@@ -11,8 +11,20 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
-		<Counter client:visible>
-				<h1>Hello, Svelte!</h1>
-			</Counter>
+		<Counter id="counter-idle" client:idle>
+			<h1>Hello, client:idle!</h1>
+		</Counter>
+
+		<Counter id="counter-load" client:load>
+			<h1>Hello, client:load!</h1>
+		</Counter>
+
+		<Counter id="counter-visible" client:visible>
+			<h1>Hello, client:visible!</h1>
+		</Counter>
+
+		<Counter id="counter-media" client:media="(max-width: 50rem)">
+			<h1>Hello, client:media!</h1>
+		</Counter>
   </body>
 </html>

@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+	export let id: string;
+
   let count = 0;
 
   function add() {
@@ -10,12 +12,12 @@
   }
 </script>
 
-<div class="counter">
-  <button on:click={subtract}>-</button>
+<div {id} class="counter">
+  <button class="decrement" on:click={subtract}>-</button>
   <pre>{ count }</pre>
-  <button on:click={add}>+</button>
+  <button class="increment" on:click={add}>+</button>
 </div>
-<div class="message">
+<div id={`${id}-message`} class="message">
   <slot />
 </div>
 
