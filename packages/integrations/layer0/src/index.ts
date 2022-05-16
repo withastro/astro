@@ -3,15 +3,11 @@ import { promises as fsp } from 'fs';
 import { chdir, cwd } from 'process';
 import { resolve, dirname } from 'pathe';
 import { fileURLToPath } from 'url';
-import { execa, execaCommand } from 'execa';
+import { execa } from 'execa';
 import type { PackageJson } from 'pkg-types';
 
-const LAYER0_CMD = 'npx @layer0/cli';
 const LAYER0_DEPS = ['@layer0/cli@latest', '@layer0/core@latest', 'kleur@4.1.4'];
-const EXEC_OPTS = {
-	shell: true,
-	stdio: 'inherit',
-};
+
 let layer0Dir: string;
 let outputDir: string;
 
@@ -136,10 +132,16 @@ module.exports = async function prod(port) {
 
 async function installLayer0Deps() {
 	chdir(outputDir);
-	await execa('pnpm', ['--ignore-workspace-root-check', 'add', ...LAYER0_DEPS], EXEC_OPTS);
+	await execa('pnpm', ['--ignore-workspace-root-check', 'add', ...LAYER0_DEPS], {
+		shell: true,
+		stdio: 'inherit',
+	});
 }
 
 async function runLayer0Cmd(cmd: string) {
 	chdir(outputDir);
-	await execa(`pnpm`, ['run', cmd], EXEC_OPTS);
+	await execa(`pnpm`, ['run', cmd], {
+		shell: true,
+		stdio: 'inherit',
+	});
 }
