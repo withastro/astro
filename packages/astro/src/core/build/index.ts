@@ -195,7 +195,6 @@ class AstroBuilder {
 		try {
 			await this.build(setupData);
 		} catch (_err) {
-			debugger;
 			throw fixViteErrorMessage(createSafeError(_err), setupData.viteServer);
 		}
 	}

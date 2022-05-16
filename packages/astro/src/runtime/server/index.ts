@@ -603,10 +603,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 			if ('data-astro-component-hydration' in script.props) {
 				needsHydrationStyles = true;
 			}
-			return renderElement('script', {
-				...script,
-				props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
-			});
+			return renderElement('script', script);
 		});
 	if (needsHydrationStyles) {
 		styles.push(
