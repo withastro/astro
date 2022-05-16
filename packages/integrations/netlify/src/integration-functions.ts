@@ -24,7 +24,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				if (dist) {
 					config.outDir = dist;
 				} else {
-					config.outDir = new URL('./netlify/', config.root);
+					config.outDir = new URL('./dist/', config.root);
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
@@ -34,7 +34,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.outDir;
-				buildConfig.server = new URL('./functions/', _config.outDir);
+				buildConfig.server = new URL('./.netlify/functions-internal/', _config.root);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
 				await createRedirects(routes, dir, entryFile, false);
