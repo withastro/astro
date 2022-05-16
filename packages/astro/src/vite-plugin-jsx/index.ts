@@ -17,6 +17,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
 	'solid-js': "import 'solid-js/web'",
+	astro: "import '@astrojs/jsx'",
 };
 
 // A code snippet to inject into JS files to prevent esbuild reference bugs.

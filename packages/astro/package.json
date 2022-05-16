@@ -20,6 +20,9 @@
       ],
       "app/*": [
         "./dist/types/core/app/*"
+      ],
+      "server": [
+        "./dist/types/runtime/server/index"
       ]
     }
   },
@@ -28,7 +31,6 @@
     "./env": "./env.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./config": "./config.mjs",
-    "./internal": "./internal.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
@@ -38,6 +40,7 @@
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
+    "./server": "./dist/runtime/server/index.js",
     "./server/*": "./dist/runtime/server/*",
     "./vite-plugin-astro": "./dist/vite-plugin-astro/index.js",
     "./vite-plugin-astro/*": "./dist/vite-plugin-astro/*",

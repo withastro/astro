@@ -21,11 +21,11 @@ import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
-export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
+export { markHTMLString, markHTMLString as unescapeHTML, HTMLString } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 
-const voidElementNames =
+export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
 	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
@@ -40,7 +40,7 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // INVESTIGATE: Can we have more specific types both for the argument and output?
 // If these are intentional, add comments that these are intention and why.
 // Or maybe type UserValue = any; ?
-async function _render(child: any): Promise<any> {
+export async function _render(child: any): Promise<any> {
 	child = await child;
 	if (child instanceof HTMLString) {
 		return child;
@@ -215,7 +215,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		let error;
 		for (const r of renderers) {
 			try {
-				if (await r.ssr.check(Component, props, children)) {
+				if (await r.ssr.check.call({ result }, Component, props, children)) {
 					renderer = r;
 					break;
 				}
@@ -281,7 +281,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+				({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -300,7 +300,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+			({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 		}
 	}
 
