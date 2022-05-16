@@ -8,19 +8,12 @@ class Counter extends LitElement {
 			count: {
 				type: Number,
 			},
-			id: {
-				type: String,
-			}
 		};
 	}
 
 	constructor() {
 		super();
-		this.count = this.count || 0;
-	}
-
-	decrement() {
-		this.count--;
+		this.count = 0;
 	}
 
 	increment() {
@@ -29,12 +22,12 @@ class Counter extends LitElement {
 
 	render() {
 		return html`
-			<div id="${this.id}">
-				<button type="button" @click=${this.decrement}>-</button>
-
+			<div>
 				<p>Count: ${this.count}</p>
 
-				<button type="button" @click=${this.increment}>+</button>
+				<button type="button" @click=${this.increment}>Increment</button>
+
+				<slot />
 			</div>
 		`;
 	}

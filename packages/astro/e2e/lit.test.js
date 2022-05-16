@@ -23,84 +23,85 @@ test.afterEach(async ({ astro }) => {
 });
 
 test.only('Lit', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
-
 	await test.step('client:idle', async () => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#counter-idle');
 		await expect(counter).toBeVisible();
 		
-		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		const count = counter.locator('p');
+		await expect(count).toHaveText('Count: 0');
 
-		const inc = counter.locator('.increment');
+		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count).toHaveText('Count: 1');
 	});
 
 	await test.step('client:load', async () => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#counter-load');
 		await expect(counter).toBeVisible();
 		
-		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		const count = counter.locator('p');
+		await expect(count).toHaveText('Count: 0');
 
-		const inc = counter.locator('.increment');
+		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count).toHaveText('Count: 1');
 	});
 
 	await test.step('client:visible', async () => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#counter-visible');
 		await expect(counter).toBeVisible();
 		
-		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		const count = counter.locator('p');
+		await expect(count).toHaveText('Count: 0');
 
-		const inc = counter.locator('.increment');
+		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
-	});
-
-	await test.step('client:only', async () => {
-		const label = page.locator('#client-only');
-		await expect(label).toBeVisible();
-
-		await expect(label).toHaveText('Preact client:only component');
+		await expect(count).toHaveText('Count: 1');
 	});
 
 	await test.step('client:media', async () => {
+		await page.goto(astro.resolveUrl('/media'));
+	
 		const counter = page.locator('#counter-media');
 		await expect(counter).toBeVisible();
 		
-		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		const count = counter.locator('p');
+		await expect(count).toHaveText('Count: 0');
 
 		// test 1: not hydrated on large screens
-		const inc = counter.locator('.increment');
+		const inc = counter.locator('button');
 		await inc.click();
-		await expect(count).toHaveText('0');
+		await expect(count).toHaveText('Count: 0');
 
 		// test 2: hydrated on mobile (max-width: 50rem)
 		await page.setViewportSize({ width: 414, height: 1124 });
 		await inc.click();
-		await expect(count).toHaveText('1');
+		await expect(count).toHaveText('Count: 1');
 	});
 
 	await test.step('HMR', async () => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const afterHMR = onAfterHMR(page);
 
 		// test 1: updating the page component
 		await astro.writeFile(
 			'src/pages/index.astro',
-			(original) => original.replace('id="counter-idle" {...someProps}', 'id="counter-idle" count={5}')
+			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
 		await afterHMR;
 
-		const count = page.locator('#counter-idle pre');
-		await expect(count).toHaveText('5');
+		const label = page.locator('#counter-idle h1');
+		await expect(label).toHaveText('Hello, updated client:idle!')
 	});
 });
