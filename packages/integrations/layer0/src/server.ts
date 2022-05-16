@@ -33,8 +33,8 @@ export function start(manifest: SSRManifest, options: Options) {
 
 	_startPromise = new Promise((resolve, reject) => {
 		try {
-			_server.on('listening', resolve);
-			_server.listen(options.port ?? process.env.PORT ?? 3001);
+			_server?.on('listening', resolve);
+			_server?.listen(options.port ?? process.env.PORT ?? 3001);
 		} catch (e) {
 			reject(e);
 		}
