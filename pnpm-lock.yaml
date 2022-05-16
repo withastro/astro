@@ -689,6 +689,12 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro pages:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-assets:
     specifiers:
       astro: workspace:*
@@ -920,12 +926,6 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-page-directory-url:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
-  packages/astro/test/fixtures/astro-pages:
     specifiers:
       astro: workspace:*
     dependencies:
