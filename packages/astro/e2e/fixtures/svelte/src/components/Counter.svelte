@@ -1,6 +1,5 @@
 <script>
-	export let id = undefined;
-  export let count = 0;
+  let count = 0;
 
   function add() {
     count += 1;
@@ -11,10 +10,10 @@
   }
 </script>
 
-<div class="counter" id={id}>
-  <button class="decrement" on:click={subtract}>-</button>
+<div class="counter">
+  <button on:click={subtract}>-</button>
   <pre>{ count }</pre>
-  <button class="increment" on:click={add}>+</button>
+  <button on:click={add}>+</button>
 </div>
 <div class="message">
   <slot />
