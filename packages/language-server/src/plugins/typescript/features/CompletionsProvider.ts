@@ -342,6 +342,17 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		if (comp.kindModifiers) {
 			const kindModifiers = new Set(comp.kindModifiers.split(/,|\s+/g));
 
+			if (kindModifiers.has(ScriptElementKindModifier.optionalModifier)) {
+				if (!item.insertText) {
+					item.insertText = item.label;
+				}
+
+				if (!item.filterText) {
+					item.filterText = item.label;
+				}
+				item.label += '?';
+			}
+
 			if (kindModifiers.has(ScriptElementKindModifier.deprecatedModifier)) {
 				item.tags = [CompletionItemTag.Deprecated];
 			}

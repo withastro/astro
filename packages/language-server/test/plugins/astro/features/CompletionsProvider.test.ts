@@ -55,7 +55,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 				insertText: 'name="$1"',
 				insertTextFormat: InsertTextFormat.Snippet,
 				commitCharacters: [],
-				sortText: '_',
+				sortText: '\u0000',
 			},
 		]);
 	});
@@ -71,7 +71,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			insertText: 'name={$1}',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
-			sortText: '_',
+			sortText: '\u0000',
 		});
 	});
 
@@ -86,7 +86,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			insertText: 'name={$1}',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
-			sortText: '_',
+			sortText: '\u0000',
 		});
 	});
 
@@ -101,7 +101,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			insertText: 'name="$1"',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
-			sortText: '_',
+			sortText: '\u0000',
 		});
 	});
 
@@ -116,7 +116,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			insertText: 'name="$1"',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
-			sortText: '_',
+			sortText: '\u0000',
 		});
 	});
 
@@ -136,6 +136,23 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			textEdit: { range: Range.create(9, 26, 9, 26), newText: 'client:load' },
 			insertTextFormat: 2,
 			command: undefined,
+		});
+	});
+
+	it('mark optional props with a ?', async () => {
+		const { provider, document } = setup('optional.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(4, 15));
+		const item = completions.items.find((completion) => completion.filterText === 'name');
+
+		expect(item).to.deep.equal({
+			label: 'name?',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
+			commitCharacters: [],
+			sortText: '_',
+			filterText: 'name',
 		});
 	});
 

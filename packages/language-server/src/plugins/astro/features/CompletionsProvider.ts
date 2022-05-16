@@ -205,11 +205,6 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			completionItems.push(completionItem);
 		});
 
-		// Ensure that props shows up first as a completion, despite this plugin being ran after the HTML one
-		completionItems = completionItems.map((item) => {
-			return { ...item, sortText: '_' };
-		});
-
 		this.lastCompletion = {
 			tag: componentName,
 			documentVersion: componentSnapshot.version,
@@ -290,7 +285,17 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			insertText: insertText,
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
+			// Ensure that props shows up first as a completion, despite this plugin being ran after the HTML one
+			sortText: '\0',
 		};
+
+		if (mem.flags & ts.SymbolFlags.Optional) {
+			item.filterText = item.label;
+			item.label += '?';
+
+			// Put optional props at a lower priority
+			item.sortText = '_';
+		}
 
 		mem.getDocumentationComment(typeChecker);
 		let description = mem
