@@ -161,7 +161,7 @@ export async function render(
 		scripts,
 		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
 		async resolve(s: string) {
-			if(s.startsWith('/@fs')) {
+			if (s.startsWith('/@fs')) {
 				return s;
 			}
 			return '/@id' + prependForwardSlash(s);
