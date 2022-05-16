@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/react": "^17.0.45",
-    "@types/react-dom": "^17.0.16",
+    "@types/react-dom": "^17.0.17",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "react": "^18.1.0",

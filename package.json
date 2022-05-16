@@ -61,7 +61,7 @@
     "@octokit/action": "^3.18.1",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",
-    "del": "^6.0.0",
+    "del": "^6.1.0",
     "esbuild": "^0.14.39",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
