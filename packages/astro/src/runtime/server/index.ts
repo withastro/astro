@@ -297,7 +297,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		html = await renderAstroComponent(
-			await render`<${Component}${spreadAttributes(props)}${markHTMLString(
+			await render`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
 				(children == null || children == '') && voidElementNames.test(Component)
 					? `/>`
 					: `>${children == null ? '' : children}</${Component}>`
@@ -426,10 +426,29 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 }
 
 // Adds support for `<Component {...value} />
-export function spreadAttributes(values: Record<any, any>, shouldEscape = true) {
+function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
 		output += addAttribute(value, key, shouldEscape);
+	}
+	return markHTMLString(output);
+}
+
+// Adds support for `<Component {...value} />
+export function spreadAttributes(values: Record<any, any>, name: string, { class: scopedClassName }: { class?: string } = {}) {
+	let output = '';
+	// If the compiler passes along a scoped class, merge with existing props or inject it
+	if (scopedClassName) {
+		if (typeof values.class !== 'undefined') {
+			values.class += ` ${scopedClassName}`;
+		} else if (typeof values['class:list'] !== 'undefined') {
+			values['class:list'] = [values['class:list'], scopedClassName];
+		} else {
+			values.class = scopedClassName;
+		}
+	}
+	for (const [key, value] of Object.entries(values)) {
+		output += addAttribute(value, key, true);
 	}
 	return markHTMLString(output);
 }
@@ -692,5 +711,5 @@ function renderElement(
 			children = defineScriptVars(defineVars) + '\n' + children;
 		}
 	}
-	return `<${name}${spreadAttributes(props, shouldEscape)}>${children}</${name}>`;
+	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
