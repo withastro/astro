@@ -7,7 +7,14 @@ import { createRequire } from 'module';
 import path from 'path';
 const resolve = createRequire(import.meta.url).resolve;
 
-export default function createPlugin(): AstroIntegration {
+type PartytownOptions = {
+	config?: {
+		forward?: string[];
+		debug?: boolean;
+	}
+} | undefined;
+
+export default function createPlugin(options: PartytownOptions): AstroIntegration {
 	let config: AstroConfig;
 	let partytownSnippetHtml: string;
 	const partytownEntrypoint = resolve('@builder.io/partytown/package.json');
@@ -16,7 +23,9 @@ export default function createPlugin(): AstroIntegration {
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
-				partytownSnippetHtml = partytownSnippet({ debug: command === 'dev' });
+				const forward = options?.config?.forward || []
+				const debug = options?.config?.debug || command === 'dev'
+				partytownSnippetHtml = partytownSnippet({ debug, forward });
 				injectScript('head-inline', partytownSnippetHtml);
 			},
 			'astro:config:done': ({ config: _config }) => {
