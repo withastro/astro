@@ -29,12 +29,14 @@ function* render(tagName, attrs, children) {
 
 	// LitElementRenderer creates a new element instance, so copy over.
 	const Ctr = getCustomElementConstructor(tagName);
-	for (let [name, value] of Object.entries(attrs)) {
-		// check if this is a reactive property
-		if (name in Ctr.prototype) {
-			instance.setProperty(name, value);
-		} else {
-			instance.setAttribute(name, value);
+	if (attrs) {
+		for (let [name, value] of Object.entries(attrs)) {
+			// check if this is a reactive property
+			if (name in Ctr.prototype) {
+				instance.setProperty(name, value);
+			} else {
+				instance.setAttribute(name, value);
+			}
 		}
 	}
 

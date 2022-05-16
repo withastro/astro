@@ -1349,11 +1349,13 @@ importers:
       '@lit-labs/ssr': ^2.1.0
       astro: workspace:*
       astro-scripts: workspace:*
+      cheerio: ^1.0.0-rc.10
     dependencies:
       '@lit-labs/ssr': 2.1.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      cheerio: 1.0.0-rc.10
 
   packages/integrations/netlify:
     specifiers:
@@ -5485,7 +5487,7 @@ packages:
     dev: false
 
   /boolbase/1.0.0:
-    resolution: {integrity: sha1-aN/1++YMUes3cl6p4+0xDcwed24=}
+    resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
   /boxen/6.2.1:
     resolution: {integrity: sha512-H4PEsJXfFI/Pt8sjDWbHlQPx4zL/bvSQjcilJmaulGt5mLDorHOHpmdXAJcBcmru7PhYSp/cDMWRko4ZUMFkSw==}
