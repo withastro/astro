@@ -59,6 +59,38 @@ Partytown should be ready-to-use with zero config. If you have an existing 3rd p
 
 If you open the "Network" tab from [your browser's dev tools](https://developer.chrome.com/docs/devtools/open/), you should see the `partytown` proxy intercepting this request.
 
+## Configuration
+
+### config.debug
+
+You can set debug mode using this integration's `config.debug` option. If `config.debug` is unset, it will fall back to `true` if the command is `dev`.
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [partytown({
+    // Example: Disable debug mode.
+    config: { debug: false },
+  })],
+}
+```
+
+### config.forward
+
+Because we’re moving third-party scripts to a web worker, the main thread needs to know which variables to patch on window, and when these services are called, the data is correctly forwarded to the web worker. You can to set it on the `config.forward` option.
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [partytown({
+    // Example: Add dataLayer.push as a forwarding-event.
+    config: { forward: ["dataLayer.push"] },
+  })],
+}
+```
+
+## Read more
+
 [Head to the Partytown docs](https://partytown.builder.io/configuration) for configuration options and more usage examples. You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
