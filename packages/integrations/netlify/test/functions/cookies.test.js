@@ -24,7 +24,10 @@ describe('Cookies', () => {
 	});
 
 	it('Can set multiple', async () => {
-		const entryURL = new URL('./fixtures/cookies/dist/functions/entry.mjs', import.meta.url);
+		const entryURL = new URL(
+			'./fixtures/cookies/.netlify/functions-internal/entry.mjs',
+			import.meta.url
+		);
 		const { handler } = await import(entryURL);
 		const resp = await handler({
 			httpMethod: 'POST',

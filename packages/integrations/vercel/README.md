@@ -59,19 +59,6 @@ import vercel from '@astrojs/vercel/serverless';
 import vercel from '@astrojs/vercel/static';
 ```
 
-### Node.js version
-
-When deploying to `serverless` you can choose what version of Node.js you want to target: `12.x`, `14.x` or `16.x` (default).
-
-```js
-import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless';
-
-export default defineConfig({
-	adapter: vercel({ nodeVersion: '14.x' })
-});
-```
-
 ## Limitations
 
 **A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.
