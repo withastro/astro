@@ -8,6 +8,7 @@ import ora from 'ora';
 import { TEMPLATES } from './templates.js';
 import { logger, defaultLogLevel } from './logger.js';
 import { execa, execaCommand } from 'execa';
+import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -41,10 +42,6 @@ export async function main() {
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-
-	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
-
-	spinner.succeed();
 
 	let cwd = args['_'][2] as string;
 
@@ -95,6 +92,8 @@ export async function main() {
 		process.exit(1);
 	}
 
+	const templateSpinner = await loadWithRocketGradient('Copying project files...');
+
 	const hash = args.commit ? `#${args.commit}` : '';
 
 	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
@@ -110,8 +109,6 @@ export async function main() {
 		force: true,
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
-
-	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
 
 	// Copy
 	if (!args.dryrun) {
@@ -152,7 +149,7 @@ export async function main() {
 					)
 				);
 			}
-			spinner.fail();
+			templateSpinner.fail();
 			process.exit(1);
 		}
 
@@ -167,8 +164,8 @@ export async function main() {
 		);
 	}
 
-	spinner.succeed();
-	console.log(bold(green('✔') + ' Done!'));
+	templateSpinner.text = green('Template copied!');
+	templateSpinner.succeed();
 
 	const installResponse = await prompts({
 		type: 'confirm',
@@ -184,15 +181,18 @@ export async function main() {
 	if (installResponse.install && !args.dryrun) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
-		spinner = ora({ color: 'green', text: installingPackagesMsg }).start();
+		const installSpinner = await loadWithRocketGradient(installingPackagesMsg);
 		await new Promise<void>((resolve, reject) => {
 			installExec.stdout?.on('data', function (data) {
-				spinner.text = `${installingPackagesMsg}\n${bold(`[${pkgManager}]`)} ${data}`;
+				installSpinner.text = `${rocketAscii} ${installingPackagesMsg}\n${bold(
+					`[${pkgManager}]`
+				)} ${data}`;
 			});
 			installExec.on('error', (error) => reject(error));
 			installExec.on('close', () => resolve());
 		});
-		spinner.succeed();
+		installSpinner.text = green('Packages installed!');
+		installSpinner.succeed();
 	}
 
 	const astroAddCommand = installResponse.install
@@ -240,21 +240,22 @@ export async function main() {
 		await execaCommand('git init', { cwd });
 	}
 
+	ora({ text: green('Done. Ready for liftoff!') }).succeed();
 	console.log(`\n${bgCyan(black(' Next steps '))}\n`);
 
-	const relative = path.relative(process.cwd(), cwd);
-	const startCommand = [];
-	if (relative !== '') {
-		startCommand.push(bold(cyan(`cd ${relative}`)));
-	}
-	if (!installResponse.install) {
-		startCommand.push(bold(cyan(`${pkgManager} install`)));
-	}
-	startCommand.push(bold(cyan(pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`)));
-	console.log(startCommand.join(' && '));
+	const projectDir = path.relative(process.cwd(), cwd);
+	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 
-	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
-	console.log(`Stuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
+	console.log(
+		`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
+	);
+	console.log(
+		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
+	);
+	if (!installResponse.install) {
+		console.log(yellow(`Remember to install dependencies first!`));
+	}
+	console.log(`\nStuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`);
 }
 
 function emojiWithFallback(char: string, fallback: string) {

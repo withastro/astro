@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3337](https://github.com/withastro/astro/pull/3337) [`678c2b75`](https://github.com/withastro/astro/commit/678c2b7523c7f10cfdf2eb5a73aa2bbb7e5cbc07) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: remove hydration failures on React v18 by exposing the "client" directive from Astro core.
+
 ## 0.1.1
 
 ### Patch Changes

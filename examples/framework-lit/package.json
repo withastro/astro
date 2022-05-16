@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.1.2",
-    "astro": "^1.0.0-beta.25"
+    "astro": "^1.0.0-beta.28"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.2"
+    "lit": "^2.2.3"
   }
 }

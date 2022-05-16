@@ -39,7 +39,7 @@ export default defineConfig({
 
 ### dist
 
-We build to a `netlify` directory at the base of your project. To change this, use the `dist` option:
+We build to a `dist` directory at the base of your project. To change this, use the `dist` option:
 
 ```js
 import { defineConfig } from 'astro/config';

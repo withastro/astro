@@ -1,5 +1,5 @@
 import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
-import fs from 'fs';
+import { createRedirects } from './shared.js';
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -24,7 +24,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				if (dist) {
 					config.outDir = dist;
 				} else {
-					config.outDir = new URL('./netlify/', config.root);
+					config.outDir = new URL('./dist/', config.root);
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
@@ -34,29 +34,10 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.outDir;
-				buildConfig.server = new URL('./functions/', _config.outDir);
+				buildConfig.server = new URL('./.netlify/functions-internal/', _config.root);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
-				const _redirectsURL = new URL('./_redirects', dir);
-
-				// Create the redirects file that is used for routing.
-				let _redirects = '';
-				for (const route of routes) {
-					if (route.pathname) {
-						_redirects += `
-${route.pathname}    /.netlify/functions/${entryFile}    200`;
-					} else {
-						const pattern =
-							'/' + route.segments.map(([part]) => (part.dynamic ? '*' : part.content)).join('/');
-						_redirects += `
-${pattern}    /.netlify/functions/${entryFile}    200`;
-					}
-				}
-
-				// Always use appendFile() because the redirects file could already exist,
-				// e.g. due to a `/public/_redirects` file that got copied to the output dir.
-				// If the file does not exist yet, appendFile() automatically creates it.
-				await fs.promises.appendFile(_redirectsURL, _redirects, 'utf-8');
+				await createRedirects(routes, dir, entryFile, false);
 			},
 		},
 	};

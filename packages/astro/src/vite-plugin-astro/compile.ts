@@ -34,16 +34,25 @@ function safelyReplaceImportPlaceholder(code: string) {
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
-async function compile(
-	config: AstroConfig,
-	filename: string,
-	source: string,
-	viteTransform: TransformHook,
-	opts: { ssr: boolean }
-): Promise<CompileResult> {
+interface CompileProps {
+	config: AstroConfig;
+	filename: string;
+	moduleId: string;
+	source: string;
+	ssr: boolean;
+	viteTransform: TransformHook;
+}
+
+async function compile({
+	config,
+	filename,
+	moduleId,
+	source,
+	ssr,
+	viteTransform,
+}: CompileProps): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const pathname = filenameURL.pathname.slice(config.root.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
@@ -52,7 +61,8 @@ async function compile(
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		pathname,
+		// For Windows compat, prepend the module ID with `/@fs`
+		pathname: `/@fs${prependForwardSlash(moduleId)}`,
 		projectRoot: config.root.toString(),
 		site: config.site ? new URL(config.base, config.site).toString() : undefined,
 		sourcefile: filename,
@@ -86,7 +96,7 @@ async function compile(
 					lang,
 					id: normalizedID,
 					transformHook: viteTransform,
-					ssr: opts.ssr,
+					ssr,
 				});
 
 				let map: SourceMapInput | undefined;
@@ -131,13 +141,8 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(
-	config: AstroConfig,
-	filename: string,
-	source: string,
-	viteTransform: TransformHook,
-	opts: { ssr: boolean }
-): Promise<CompileResult> {
+export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
+	const { config, filename } = props;
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();
@@ -148,7 +153,7 @@ export async function cachedCompilation(
 	if (cache.has(filename)) {
 		return cache.get(filename)!;
 	}
-	const compileResult = await compile(config, filename, source, viteTransform, opts);
+	const compileResult = await compile(props);
 	cache.set(filename, compileResult);
 	return compileResult;
 }

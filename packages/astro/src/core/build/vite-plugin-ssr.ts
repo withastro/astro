@@ -109,8 +109,13 @@ function buildManifest(
 		routes.push({
 			file: '',
 			links: Array.from(pageData.css),
-			scripts,
-			routeData: serializeRouteData(pageData.route),
+			scripts: [
+				...scripts,
+				...astroConfig._ctx.scripts
+					.filter((script) => script.stage === 'head-inline')
+					.map(({ stage, content }) => ({ stage, children: content })),
+			],
+			routeData: serializeRouteData(pageData.route, astroConfig.trailingSlash),
 		});
 	}
 

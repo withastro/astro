@@ -1,0 +1,99 @@
+{
+  "version": "4.13.10",
+  "backends": {},
+  "destinations": {
+    "default": {
+      "index": 0,
+      "errorRoutes": [],
+      "routes": [
+        {
+          "path": "/__layer0__/cache-manifest.js",
+          "routeJson": "{\"path\":\"/__layer0__/cache-manifest.js\"}",
+          "match": [
+            {
+              "value": "${path}",
+              "matchRegex": "(?i)^/__layer0__/cache-manifest\\.js[/#\\?]?$"
+            }
+          ],
+          "matchResp": [],
+          "cache": {
+            "maxAgeSeconds": 31536000
+          },
+          "route": {
+            "action": "proxy",
+            "backend": "__js__"
+          },
+          "transform": {
+            "request": [],
+            "upstreamResponse": [
+              {
+                "action": "set-header",
+                "name": "vary",
+                "value": "accept-encoding"
+              }
+            ],
+            "response": [
+              {
+                "action": "set-header",
+                "name": "cache-control",
+                "value": "private, max-age=3600"
+              },
+              {
+                "action": "set-header",
+                "name": "content-type",
+                "value": "text/javascript"
+              },
+              {
+                "action": "set-header",
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        {
+          "path": "/:path*",
+          "routeJson": "{\"path\":\"/:path*\"}",
+          "match": [
+            {
+              "value": "${path}",
+              "matchRegex": "(?i)^(?:/((?:[^/#\\?]+?)(?:/(?:[^/#\\?]+?))*))?[/#\\?]?$"
+            }
+          ],
+          "matchResp": [],
+          "cache": {
+            "maxAgeSeconds": 86400,
+            "staleWhileRevalidateSeconds": 3600,
+            "forcePrivateCaching": true
+          },
+          "route": {
+            "action": "proxy",
+            "backend": "__js__"
+          },
+          "transform": {
+            "request": [],
+            "upstreamResponse": [
+              {
+                "action": "set-header",
+                "name": "vary",
+                "value": "accept-encoding"
+              }
+            ],
+            "response": [
+              {
+                "action": "set-header",
+                "name": "cache-control",
+                "value": "private, no-store, no-cache"
+              },
+              {
+                "action": "set-header",
+                "name": "x-sw-cache-control",
+                "value": "max-age=86400"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

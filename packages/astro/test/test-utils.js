@@ -25,6 +25,7 @@ polyfill(globalThis, {
  *
  * @typedef {Object} Fixture
  * @property {typeof build} build
+ * @property {(url: string) => string} resolveUrl
  * @property {(url: string, opts: any) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
  * @property {(path: string) => Promise<string[]>} readdir
@@ -93,6 +94,9 @@ export async function loadFixture(inlineConfig) {
 		},
 	};
 
+	const resolveUrl = (url) =>
+		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+
 	return {
 		build: (opts = {}) => build(config, { mode: 'development', logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
@@ -101,8 +105,8 @@ export async function loadFixture(inlineConfig) {
 			return devResult;
 		},
 		config,
-		fetch: (url, init) =>
-			fetch(`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`, init),
+		resolveUrl,
+		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;

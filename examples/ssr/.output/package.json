@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "0 build",
+    "deploy": "0 deploy",
+    "preview": "0 run -p"
+  },
+  "dependencies": {
+    "@layer0/cli": "^4.13.10",
+    "@layer0/core": "^4.13.10",
+    "kleur": "4.1.4"
+  }
+}

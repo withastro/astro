@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.12.1
+
+### Patch Changes
+
+- [#3313](https://github.com/withastro/astro/pull/3313) [`1a5335ed`](https://github.com/withastro/astro/commit/1a5335ed9abaef397ee9543a3b4ad7a3fddcf024) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update "next steps" with more informative text on each CLI command. Oh, and gradients. A lot more gradients.
+
 ## 0.12.0
 
 ### Minor Changes

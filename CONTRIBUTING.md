@@ -59,6 +59,24 @@ pnpm run test
 pnpm run test:match "$STRING_MATCH"
 ```
 
+#### E2E tests
+
+Certain features, like HMR and client hydration, need end-to-end tests to verify functionality in the dev server. [Playwright](https://playwright.dev/) is used to test against the dev server.
+
+```shell
+# run this in the top-level project root to run all E2E tests
+pnpm run test:e2e
+# run only a few tests, great for working on a single feature
+# (example - `pnpm run test:e2e:match "Tailwind CSS" runs `tailwindcss.test.js`)
+pnpm run test:e2e:match "$STRING_MATCH"
+```
+
+**When should you add E2E tests?**
+
+Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
+
+If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
+
 ### Other useful commands
 
 ```shell

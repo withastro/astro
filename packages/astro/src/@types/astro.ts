@@ -255,6 +255,10 @@ type ServerConfig = {
 	port?: number;
 };
 
+export interface ViteUserConfig extends vite.UserConfig {
+	ssr?: vite.SSROptions;
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -376,7 +380,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
-	 * @default `'always'`
+	 * @default `'ignore'`
 	 * @see buildOptions.pageUrlFormat
 	 * @description
 	 *
@@ -432,11 +436,11 @@ export interface AstroUserConfig {
 	 * @name Server Options
 	 * @description
 	 *
-	 * Customize the Astro dev server, used by both `astro dev` and `astro serve`.
+	 * Customize the Astro dev server, used by both `astro dev` and `astro preview`.
 	 *
 	 * ```js
 	 * {
-	 *   server: {port: 1234, host: true}
+	 *   server: { port: 1234, host: true}
 	 * }
 	 * ```
 	 *
@@ -445,7 +449,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({port: command === 'dev' ? 3000 : 4000})
+	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -457,10 +461,10 @@ export interface AstroUserConfig {
 	 * @default `false`
 	 * @version 0.24.0
 	 * @description
-	 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+	 * Set which network IP addresses the server should listen on (i.e. non-localhost IPs).
 	 * - `false` - do not expose on a network IP address
 	 * - `true` - listen on all addresses, including LAN and public addresses
-	 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
+	 * - `[custom-address]` - expose on a network IP address at `[custom-address]` (ex: `192.168.0.1`)
 	 */
 
 	/**
@@ -469,9 +473,15 @@ export interface AstroUserConfig {
 	 * @type {number}
 	 * @default `3000`
 	 * @description
-	 * Set which port the dev server should listen on.
+	 * Set which port the server should listen on.
 	 *
 	 * If the given port is already in use, Astro will automatically try the next available port.
+	 *
+	 * ```js
+	 * {
+	 *   server: { port: 8080 }
+	 * }
+	 * ```
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
@@ -557,7 +567,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of remark plugins used by Astro
-		 *     remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+		 *     remarkPlugins: ['remark-gfm', 'remark-smartypants'],
 		 *   },
 		 * };
 		 * ```
@@ -576,7 +586,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of rehype plugins used by Astro
-		 *     rehypePlugins: ['rehype-slug', ['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }]],
+		 *     rehypePlugins: [],
 		 *   },
 		 * };
 		 * ```
@@ -646,7 +656,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
+	vite?: ViteUserConfig;
 
 	experimental?: {
 		/**
@@ -764,8 +774,8 @@ export type GetHydrateCallback = () => Promise<
  * getStaticPaths() options
  * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
  */ export interface GetStaticPathsOptions {
-	paginate?: PaginateFunction;
-	rss?: (...args: any[]) => any;
+	paginate: PaginateFunction;
+	rss: (...args: any[]) => any;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
@@ -877,18 +887,10 @@ export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
 
-interface APIRoute {
-	(context: APIContext): EndpointOutput | Response;
-
-	/**
-	 * @deprecated
-	 * Use { context: APIRouteContext } object instead.
-	 */
-	(params: Params, request: Request): EndpointOutput | Response;
-}
+export type APIRoute = (context: APIContext) => EndpointOutput | Response;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute;
+	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
 
 export interface AstroRenderer {
@@ -972,6 +974,9 @@ export interface RouteData {
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;
 	pattern: string;
+	_meta: {
+		trailingSlash: AstroConfig['trailingSlash'];
+	};
 };
 
 export type RuntimeMode = 'development' | 'production';

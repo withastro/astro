@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3333](https://github.com/withastro/astro/pull/3333) [`ce6d7982`](https://github.com/withastro/astro/commit/ce6d79828250e9a3631778a37d43068cae04bb4f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a vite peer dependency bug
+
 ## 0.1.3
 
 ### Patch Changes

@@ -21,6 +21,7 @@ const ALWAYS_EXTERNAL = new Set([
 	...builtinModules.map((name) => `node:${name}`),
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
+	'serialize-javascript',
 	'node-fetch',
 	'prismjs',
 	'shiki',
@@ -54,6 +55,7 @@ export async function createVite(
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			exclude: ['node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
@@ -91,6 +93,13 @@ export async function createVite(
 		},
 		css: {
 			postcss: astroConfig.style.postcss || {},
+		},
+		resolve: {
+			alias: {
+				// This is needed for Deno compatibility, as the non-browser version
+				// of this module depends on Node `crypto`
+				randombytes: 'randombytes/browser',
+			},
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {

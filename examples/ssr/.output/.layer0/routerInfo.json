@@ -1,0 +1,13 @@
+{
+   "location": "routes.js",
+   "info": [
+      {
+         "criteria": {
+            "method": "match",
+            "path": "/:path*"
+         },
+         "line": 20,
+         "column": 28
+      }
+   ]
+}

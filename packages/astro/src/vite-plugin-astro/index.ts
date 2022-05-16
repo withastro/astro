@@ -99,15 +99,21 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}
+			const compileProps = {
+				config,
+				filename,
+				moduleId: id,
+				source,
+				ssr: Boolean(opts?.ssr),
+				viteTransform,
+			};
 			if (query.astro) {
 				if (query.type === 'style') {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-						ssr: Boolean(opts?.ssr),
-					});
+					const transformResult = await cachedCompilation(compileProps);
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
 					await trackCSSDependencies.call(this, {
@@ -126,10 +132,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
+					// HMR hoisted script only exists to make them appear in the module graph.
+					if (opts?.ssr) {
+						return {
+							code: `/* client hoisted script, empty in SSR: ${id} */`,
+						};
+					}
 
-					const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-						ssr: Boolean(opts?.ssr),
-					});
+					const transformResult = await cachedCompilation(compileProps);
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
@@ -157,9 +167,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 
 			try {
-				const transformResult = await cachedCompilation(config, filename, source, viteTransform, {
-					ssr: Boolean(opts?.ssr),
-				});
+				const transformResult = await cachedCompilation(compileProps);
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
@@ -182,17 +190,30 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					while ((match = pattern.exec(metadata)?.[1])) {
 						deps.add(match);
 					}
-					// // import.meta.hot.accept(["${id}", "${Array.from(deps).join('","')}"], (...mods) => mods);
-					// We need to be self-accepting, AND
-					// we need an explicity array of deps to track changes for SSR-only components
-					SUFFIX += `\nif (import.meta.hot) {
-						import.meta.hot.accept(mod => mod);
-					}`;
+
+					let i = 0;
+					while (i < transformResult.scripts.length) {
+						deps.add(`${id}?astro&type=script&index=${i}`);
+						SUFFIX += `import "${id}?astro&type=script&index=${i}";`;
+						i++;
+					}
+
+					// We only need to define deps if there are any
+					if (deps.size > 1) {
+						SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(
+							deps
+						).join('","')}"], (...mods) => mods);`;
+					} else {
+						SUFFIX += `\nif (import.meta.hot) {
+							import.meta.hot.accept(mod => mod);
+						}`;
+					}
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
+
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
@@ -260,7 +281,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
-			return handleHotUpdate(context, config, logging);
+			return handleHotUpdate.call(this, context, config, logging);
 		},
 	};
 }

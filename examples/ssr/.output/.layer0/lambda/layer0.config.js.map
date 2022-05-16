@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../layer0.config.js"],
+  "sourcesContent": ["module.exports = {\n  \"connector\": \"./layer0\",\n  \"name\": \"astro-app\",\n  \"routes\": \"routes.js\",\n  \"backends\": {},\n  \"includeFiles\": {\n    \"public/**/*\": true,\n    \"server/**/*\": true\n  }\n}"],
+  "mappings": "AAAA,OAAO,QAAU,CACf,UAAa,WACb,KAAQ,YACR,OAAU,YACV,SAAY,GACZ,aAAgB,CACd,cAAe,GACf,cAAe",
+  "names": []
+}

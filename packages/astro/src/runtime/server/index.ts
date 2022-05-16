@@ -201,11 +201,20 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
+		let error;
 		for (const r of renderers) {
-			if (await r.ssr.check(Component, props, children)) {
-				renderer = r;
-				break;
+			try {
+				if (await r.ssr.check(Component, props, children)) {
+					renderer = r;
+					break;
+				}
+			} catch (e) {
+				error ??= e;
 			}
+		}
+
+		if (error) {
+			throw error;
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
@@ -508,7 +517,7 @@ Update your code to remove this warning.`);
 		},
 	}) as APIContext & Params;
 
-	return await handler.call(mod, proxy, request);
+	return handler.call(mod, proxy, request);
 }
 
 async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {
@@ -594,10 +603,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 			if ('data-astro-component-hydration' in script.props) {
 				needsHydrationStyles = true;
 			}
-			return renderElement('script', {
-				...script,
-				props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
-			});
+			return renderElement('script', script);
 		});
 	if (needsHydrationStyles) {
 		styles.push(

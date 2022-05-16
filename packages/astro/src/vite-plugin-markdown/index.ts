@@ -9,8 +9,8 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
-import { appendForwardSlash } from '../core/path.js';
-import { resolvePages } from '../core/util.js';
+import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
+import { resolvePages, viteID } from '../core/util.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -156,7 +156,9 @@ ${setup}`.trim();
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
+					internalURL: `/@fs${prependForwardSlash(
+						viteID(new URL('../runtime/server/index.js', import.meta.url))
+					)}`,
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
