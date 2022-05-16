@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, isWindows} from './test-utils.js';
+import { loadFixture, isWindows } from './test-utils.js';
 
 describe('Pages', () => {
 	let fixture;
@@ -23,7 +23,7 @@ describe('Pages', () => {
 		});
 	});
 
-	if(isWindows) return;
+	if (isWindows) return;
 
 	describe('Development', () => {
 		let devServer;
