@@ -1,3 +1,11 @@
+# This integration is no longer actively supported
+
+[Turbolinks](https://github.com/turbolinks/turbolinks) is no longer under active development. The `@astrojs/turbolinks` integration has been deprecated.
+
+## Looking for an alternative?
+
+Check out [swup](https://swup.js.org/)! If you are using any `client:*` script for partial hydration, make sure to install the `@swup/scripts-plugin` to ensure components are rehydrated after a page navigation.
+
 # @astrojs/turbolinks ⚡️
 
 This **[Astro integration][astro-integration]** brings [Turbo](https://github.com/hotwired/turbo) to your Astro project.
