@@ -39,7 +39,7 @@ export default defineConfig({
 
 ### dist
 
-We build to a `netlify` directory at the base of your project. To change this, use the `dist` option:
+For Netlify Functions, we build to a `netlify` directory at the base of your project. In the case of Netlify Edge Functions, we build to a `dist` directory at the base of your project. To change this, use the `dist` option:
 
 ```js
 import { defineConfig } from 'astro/config';
