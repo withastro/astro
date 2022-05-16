@@ -216,7 +216,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
-	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
+	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
@@ -750,6 +750,12 @@ export interface ComponentInstance {
 	default: AstroComponentFactory;
 	css?: string[];
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+}
+
+export interface AstroInstance {
+	file: string;
+	url: string | undefined;
+	default: AstroComponentFactory;
 }
 
 export interface MarkdownInstance<T extends Record<string, any>> {
