@@ -160,18 +160,11 @@ export async function render(
 		pathname,
 		scripts,
 		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
-		// TODO: Can we pass the hydration code more directly through Vite, so that we
-		// don't need to copy-paste and maintain Vite's import resolution here?
 		async resolve(s: string) {
-			const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-			if (resolvedPath.includes('node_modules/.vite')) {
-				return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
+			if(s.startsWith('/@fs')) {
+				return s;
 			}
-			// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
-			if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
-				return '/@id' + prependForwardSlash(resolvedUrl);
-			}
-			return '/@fs' + prependForwardSlash(resolvedPath);
+			return '/@id' + prependForwardSlash(s);
 		},
 		renderers,
 		request,
