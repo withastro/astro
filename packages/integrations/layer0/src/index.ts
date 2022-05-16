@@ -7,7 +7,7 @@ import { execa, execaCommand } from 'execa';
 import type { PackageJson } from 'pkg-types';
 
 const LAYER0_CMD = 'npx @layer0/cli';
-const LAYER0_DEPS = ['@layer0/cli@latest', '@layer0/core@latest'];
+const LAYER0_DEPS = ['@layer0/cli@latest', '@layer0/core@latest', 'kleur@4.1.4'];
 const EXEC_OPTS = {
 	shell: true,
 	stdio: 'inherit',
@@ -114,12 +114,12 @@ const CACHE_ASSETS = {
 	},
 };
 
-export default new Router().math('/:path*', ({ cache, serveStatic, renderWithApp }) => {
+export default new Router().match('/:path*', ({ cache, serveStatic, renderWithApp }) => {
 	cache(CACHE_ASSETS);
-	serveStatic('client/:path*', {
-		onNotFound: () => renderWithApp,
-	});
-	renderWithApp();
+	// serveStatic('client/:path*', {
+	// 	onNotFound: () => renderWithApp,
+	// });
+	renderWithApp()
 });
 `.trim();
 }
@@ -127,11 +127,9 @@ export default new Router().math('/:path*', ({ cache, serveStatic, renderWithApp
 // Layer0 entrypoint (layer0/prod.js)
 function entryTemplate() {
 	return `
-const http = require('http')
 module.exports = async function prod(port) {
-  const { handler } = await import('../server/index.mjs')
-  const server = http.createServer(handler)
-  server.listen(port)
+	process.env.PORT = port.toString()
+  await import('../server/entry.mjs')
 }
   `.trim();
 }
