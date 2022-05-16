@@ -39,7 +39,7 @@ test.only('Preact', async ({ page, astro }) => {
 	});
 
 	await test.step('client:idle', async () => {
-		const counter = page.locator('#counter-idle');
+		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -52,7 +52,7 @@ test.only('Preact', async ({ page, astro }) => {
 	});
 
 	await test.step('client:load', async () => {
-		const counter = page.locator('#counter-load');
+		const counter = page.locator('#client-load');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -65,7 +65,7 @@ test.only('Preact', async ({ page, astro }) => {
 	});
 
 	await test.step('client:visible', async () => {
-		const counter = page.locator('#counter-visible');
+		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 		
@@ -79,7 +79,7 @@ test.only('Preact', async ({ page, astro }) => {
 	});
 
 	await test.step('client:media', async () => {
-		const counter = page.locator('#counter-media');
+		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -109,12 +109,12 @@ test.only('Preact', async ({ page, astro }) => {
 		// test 1: updating the page component
 		await astro.writeFile(
 			'src/pages/index.astro',
-			(original) => original.replace('id="counter-idle" {...someProps}', 'id="counter-idle" count={5}')
+			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
 
 		await afterHMR;
 
-		const count = page.locator('#counter-idle pre');
+		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
 
 		// test 2: updating the preact component

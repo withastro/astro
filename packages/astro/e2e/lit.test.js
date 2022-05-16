@@ -26,7 +26,7 @@ test.only('Lit', async ({ page, astro }) => {
 	await test.step('client:idle', async () => {
 		await page.goto(astro.resolveUrl('/'));
 	
-		const counter = page.locator('#counter-idle');
+		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('p');
@@ -41,7 +41,7 @@ test.only('Lit', async ({ page, astro }) => {
 	await test.step('client:load', async () => {
 		await page.goto(astro.resolveUrl('/'));
 	
-		const counter = page.locator('#counter-load');
+		const counter = page.locator('#client-load');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('p');
@@ -56,7 +56,7 @@ test.only('Lit', async ({ page, astro }) => {
 	await test.step('client:visible', async () => {
 		await page.goto(astro.resolveUrl('/'));
 	
-		const counter = page.locator('#counter-visible');
+		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 		
@@ -72,7 +72,7 @@ test.only('Lit', async ({ page, astro }) => {
 	await test.step('client:media', async () => {
 		await page.goto(astro.resolveUrl('/media'));
 	
-		const counter = page.locator('#counter-media');
+		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('p');
@@ -102,7 +102,7 @@ test.only('Lit', async ({ page, astro }) => {
 
 		await afterHMR;
 
-		const label = page.locator('#counter-idle h1');
+		const label = page.locator('#client-idle h1');
 		await expect(label).toHaveText('Hello, updated client:idle!')
 	});
 });

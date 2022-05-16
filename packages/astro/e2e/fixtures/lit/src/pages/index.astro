@@ -11,15 +11,15 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
-		<my-counter id="counter-idle" {...someProps} client:idle>
+		<my-counter id="client-idle" {...someProps} client:idle>
 			<h1>Hello, client:idle!</h1>
 		</my-counter>
 
-		<my-counter id="counter-load" {...someProps} client:load>
+		<my-counter id="client-load" {...someProps} client:load>
 			<h1>Hello, client:load!</h1>
 		</my-counter>
 
-    <my-counter id="counter-visible" {...someProps} client:visible>
+    <my-counter id="client-visible" {...someProps} client:visible>
 			<h1>Hello, client:visible!</h1>
 		</my-counter>
   </body>

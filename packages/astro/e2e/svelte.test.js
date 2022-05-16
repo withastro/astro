@@ -39,7 +39,7 @@ test.only('Svelte', async ({ page, astro }) => {
 	});
 
 	await test.step('client:idle', async () => {
-		const counter = page.locator('#counter-idle');
+		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -52,7 +52,7 @@ test.only('Svelte', async ({ page, astro }) => {
 	});
 
 	await test.step('client:load', async () => {
-		const counter = page.locator('#counter-load');
+		const counter = page.locator('#client-load');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -65,7 +65,7 @@ test.only('Svelte', async ({ page, astro }) => {
 	});
 
 	await test.step('client:visible', async () => {
-		const counter = page.locator('#counter-visible');
+		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 		
@@ -79,7 +79,7 @@ test.only('Svelte', async ({ page, astro }) => {
 	});
 
 	await test.step('client:media', async () => {
-		const counter = page.locator('#counter-media');
+		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');
@@ -107,7 +107,7 @@ test.only('Svelte', async ({ page, astro }) => {
 
 		await afterHMR;
 
-		const label = page.locator('#counter-idle-message');
+		const label = page.locator('#client-idle-message');
 		await expect(label).toHaveText('Hello, updated client:idle!');
 	});
 });
