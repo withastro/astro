@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*",
     "@astrojs/preact": "workspace:*",
     "@astrojs/react": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "@test/component-library-shared": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "astro": "workspace:*",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   }
 }
