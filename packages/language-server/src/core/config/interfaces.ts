@@ -6,6 +6,12 @@ export interface LSConfig {
 	typescript: LSTypescriptConfig;
 	html: LSHTMLConfig;
 	css: LSCSSConfig;
+	format: LSFormatConfig;
+}
+
+export interface LSFormatConfig {
+	indentFrontmatter: boolean;
+	newLineAfterFrontmatter: boolean;
 }
 
 export interface LSTypescriptConfig {

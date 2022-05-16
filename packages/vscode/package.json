@@ -208,6 +208,16 @@
           "default": true,
           "title": "CSS: Symbols in Outline",
           "description": "Enable document symbols for CSS"
+        },
+        "astro.format.indentFrontmatter": {
+          "type": "boolean",
+          "default": true,
+          "title": "Formatting: Indent the frontmatter by one level of indentation"
+        },
+        "astro.format.newLineAfterFrontmatter": {
+          "type": "boolean",
+          "default": true,
+          "title": "Formatting: Add a line return between the frontmatter and the template"
         }
       }
     },

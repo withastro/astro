@@ -1,15 +1,9 @@
-import { get, merge } from 'lodash';
+import { merge } from 'lodash';
 import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
-import { LSConfig, LSCSSConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
-import { Connection, DidChangeConfigurationParams } from 'vscode-languageserver';
+import { LSConfig, LSCSSConfig, LSFormatConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
+import { Connection, FormattingOptions } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import {
-	FormatCodeSettings,
-	InlayHintsOptions,
-	SemicolonPreference,
-	TsConfigSourceFile,
-	UserPreferences,
-} from 'typescript';
+import { FormatCodeSettings, InlayHintsOptions, SemicolonPreference, UserPreferences } from 'typescript';
 
 export const defaultLSConfig: LSConfig = {
 	typescript: {
@@ -37,6 +31,10 @@ export const defaultLSConfig: LSConfig = {
 		completions: { enabled: true, emmet: true },
 		tagComplete: { enabled: true },
 		documentSymbols: { enabled: true },
+	},
+	format: {
+		indentFrontmatter: true,
+		newLineAfterFrontmatter: true,
 	},
 };
 
@@ -97,10 +95,22 @@ export class ConfigManager {
 		return emmetConfig;
 	}
 
-	async getTSFormatConfig(document: TextDocument): Promise<FormatCodeSettings> {
+	async getAstroFormatConfig(document: TextDocument): Promise<LSFormatConfig> {
+		const astroFormatConfig = (await this.getConfig<LSFormatConfig>('astro.format', document.uri)) ?? {};
+
+		return {
+			indentFrontmatter: astroFormatConfig.indentFrontmatter ?? true,
+			newLineAfterFrontmatter: astroFormatConfig.newLineAfterFrontmatter ?? true,
+		};
+	}
+
+	async getTSFormatConfig(document: TextDocument, vscodeOptions?: FormattingOptions): Promise<FormatCodeSettings> {
 		const formatConfig = (await this.getConfig<FormatCodeSettings>('typescript.format', document.uri)) ?? {};
 
 		return {
+			tabSize: vscodeOptions?.tabSize,
+			indentSize: vscodeOptions?.tabSize,
+			convertTabsToSpaces: vscodeOptions?.insertSpaces,
 			// We can use \n here since the editor normalizes later on to its line endings.
 			newLineCharacter: '\n',
 			insertSpaceAfterCommaDelimiter: formatConfig.insertSpaceAfterCommaDelimiter ?? true,

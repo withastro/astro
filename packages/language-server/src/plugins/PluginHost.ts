@@ -23,6 +23,8 @@ import {
 	CodeActionContext,
 	CodeAction,
 	InlayHint,
+	FormattingOptions,
+	TextEdit,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -136,6 +138,12 @@ export class PluginHost {
 		const document = this.getDocument(textDocument.uri);
 
 		return this.execute<Hover>('doHover', [document, position], ExecuteMode.FirstNonNull);
+	}
+
+	async formatDocument(textDocument: TextDocumentIdentifier, options: FormattingOptions): Promise<TextEdit[]> {
+		const document = this.getDocument(textDocument.uri);
+
+		return flatten(await this.execute<TextEdit[]>('formatDocument', [document, options], ExecuteMode.Collect));
 	}
 
 	async getCodeActions(

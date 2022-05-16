@@ -8,6 +8,7 @@ import {
 	Diagnostic,
 	FileChangeType,
 	FoldingRange,
+	FormattingOptions,
 	Hover,
 	InlayHint,
 	Position,
@@ -17,6 +18,7 @@ import {
 	SignatureHelpContext,
 	SymbolInformation,
 	TextDocumentContentChangeEvent,
+	TextEdit,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
 import { ConfigManager, LSTypescriptConfig } from '../../core/config';
@@ -27,13 +29,21 @@ import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { LanguageServiceManager } from './LanguageServiceManager';
-import { convertToLocationRange, ensureRealFilePath, getScriptKindFromFileName, toVirtualAstroFilePath } from './utils';
+import {
+	convertRange,
+	convertToLocationRange,
+	ensureRealFilePath,
+	getScriptKindFromFileName,
+	getScriptTagSnapshot,
+	toVirtualAstroFilePath,
+} from './utils';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
+import { FormattingProviderImpl } from './features/FormattingProvider';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -51,6 +61,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly inlayHintsProvider: InlayHintsProviderImpl;
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
+	private readonly formattingProvider: FormattingProviderImpl;
 
 	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
 		this.configManager = configManager;
@@ -66,6 +77,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
 		this.inlayHintsProvider = new InlayHintsProviderImpl(this.languageServiceManager, this.configManager);
 		this.foldingRangesProvider = new FoldingRangesProviderImpl(this.languageServiceManager);
+		this.formattingProvider = new FormattingProviderImpl(this.languageServiceManager, this.configManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
@@ -104,6 +116,10 @@ export class TypeScriptPlugin implements Plugin {
 		});
 
 		return edit;
+	}
+
+	async formatDocument(document: AstroDocument, options: FormattingOptions): Promise<TextEdit[]> {
+		return this.formattingProvider.formatDocument(document, options);
 	}
 
 	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[] | null> {

@@ -88,6 +88,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 				foldingRangeProvider: true,
 				definitionProvider: true,
 				renameProvider: true,
+				documentFormattingProvider: true,
 				codeActionProvider: {
 					codeActionKinds: [
 						CodeActionKind.QuickFix,
@@ -224,6 +225,10 @@ export function startLanguageServer(connection: vscode.Connection) {
 	);
 	connection.onRequest(SemanticTokensRangeRequest.type, (evt, cancellationToken) =>
 		pluginHost.getSemanticTokens(evt.textDocument, evt.range, cancellationToken)
+	);
+
+	connection.onDocumentFormatting((params: vscode.DocumentFormattingParams) =>
+		pluginHost.formatDocument(params.textDocument, params.options)
 	);
 
 	connection.onDocumentColor((params: vscode.DocumentColorParams) => pluginHost.getDocumentColors(params.textDocument));

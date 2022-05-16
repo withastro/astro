@@ -3,6 +3,7 @@ import { AstroDocument, DocumentManager } from '../src/core/documents';
 import ts from 'typescript';
 import { join } from 'path';
 import { pathToUrl } from '../src/utils';
+import { FormattingOptions } from 'vscode-languageserver-types';
 
 /**
  *
@@ -49,3 +50,9 @@ export function createFakeEnvironment(content: string) {
 
 	return { document, configManager };
 }
+
+export const defaultFormattingOptions: FormattingOptions = {
+	tabSize: 2,
+	indentSize: 2,
+	insertSpaces: true,
+};
