@@ -66,12 +66,13 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		const completions = await provider.getCompletions(document, Position.create(11, 14));
 
 		expect(completions.items).to.deep.contain({
-			label: 'name',
+			label: 'name?',
 			detail: 'string',
 			insertText: 'name="$1"',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 			sortText: '_',
+			filterText: 'name',
 		});
 	});
 
@@ -86,7 +87,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			insertText: 'name="$1"',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
-			sortText: '_',
+			sortText: '\u0000',
 		});
 	});
 
