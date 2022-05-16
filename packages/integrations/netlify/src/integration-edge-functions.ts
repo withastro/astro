@@ -72,7 +72,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				if (dist) {
 					config.outDir = dist;
 				} else {
-					config.outDir = new URL('./netlify/', config.root);
+					config.outDir = new URL('./dist/', config.root);
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
@@ -82,7 +82,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.outDir;
-				buildConfig.server = new URL('./edge-functions/', _config.outDir);
+				buildConfig.server = new URL('./.netlify/edge-functions/', _config.root);
 				buildConfig.serverEntry = 'entry.js';
 			},
 			'astro:build:setup': ({ vite, target }) => {
