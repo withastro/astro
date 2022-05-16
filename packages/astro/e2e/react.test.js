@@ -22,7 +22,7 @@ test.afterEach(async ({ astro }) => {
 	astro.clean();
 });
 
-test.skip('React', async ({ page, astro }) => {
+test.only('React', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
 	await test.step('server only', async () => {
