@@ -12,6 +12,10 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
+		<Counter id="server-only" {...someProps}>
+			<h1>Hello, server!</h1>
+		</Counter>
+
 		<Counter id="counter-idle" {...someProps} client:idle>
 			<h1>Hello, client:idle!</h1>
 		</Counter>

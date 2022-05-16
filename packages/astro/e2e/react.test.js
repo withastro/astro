@@ -25,6 +25,19 @@ test.afterEach(async ({ astro }) => {
 test.only('React', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
+	await test.step('server only', async () => {
+		const counter = page.locator('#server-only');
+		await expect(counter).toBeVisible();
+		
+		const count = counter.locator('pre');
+		await expect(count).toHaveText('0');
+
+		const inc = counter.locator('.increment');
+		await inc.click();
+
+		await expect(count).toHaveText('0');
+	});
+
 	await test.step('client:idle', async () => {
 		const counter = page.locator('#counter-idle');
 		await expect(counter).toBeVisible();
@@ -53,6 +66,7 @@ test.only('React', async ({ page, astro }) => {
 
 	await test.step('client:visible', async () => {
 		const counter = page.locator('#counter-visible');
+		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('pre');

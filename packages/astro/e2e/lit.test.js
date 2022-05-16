@@ -57,6 +57,7 @@ test.only('Lit', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#counter-visible');
+		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 		
 		const count = counter.locator('p');

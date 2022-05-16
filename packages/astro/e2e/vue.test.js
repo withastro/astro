@@ -25,7 +25,7 @@ test.afterEach(async ({ astro }) => {
 test.only('Vue', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
-	await test.step('client:only', async () => {
+	await test.step('server only', async () => {
 		const counter = page.locator('#server-only');
 		await expect(counter).toBeVisible();
 		
@@ -90,6 +90,7 @@ test.only('Vue', async ({ page, astro }) => {
 
 	await test.step('client:visible', async () => {
 		const counter = page.locator('#client-visible');
+		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
 
 		await counter.scrollIntoViewIfNeeded();
