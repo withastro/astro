@@ -28,14 +28,16 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha"
   },
   "dependencies": {
     "@lit-labs/ssr": "^2.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "cheerio": "^1.0.0-rc.10"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
