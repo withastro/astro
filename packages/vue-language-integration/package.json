@@ -1,0 +1,17 @@
+{
+  "name": "@astrojs/vue-language-integration",
+  "version": "0.1.0",
+  "description": "",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.2.33",
+    "@vue/runtime-core": "^3.2.33"
+  }
+}

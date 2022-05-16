@@ -46,7 +46,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of Astro components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(8, 20));
+		const completions = await provider.getCompletions(document, Position.create(10, 20));
 
 		expect(completions.items).to.deep.equal([
 			{
@@ -60,10 +60,40 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		]);
 	});
 
+	it('provide prop completions in starting tag of Vue components', async () => {
+		const { provider, document } = setup('component.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(11, 14));
+
+		expect(completions.items).to.deep.contain({
+			label: 'name',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
+			commitCharacters: [],
+			sortText: '_',
+		});
+	});
+
+	it('provide prop completions in starting tag of Vue components with props defined using TypeScript', async () => {
+		const { provider, document } = setup('component.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(12, 16));
+
+		expect(completions.items).to.deep.contain({
+			label: 'name',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
+			commitCharacters: [],
+			sortText: '_',
+		});
+	});
+
 	it('provide prop completions in starting tag of Svelte components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(9, 26));
+		const completions = await provider.getCompletions(document, Position.create(13, 26));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -78,7 +108,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of JSX components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(10, 14));
+		const completions = await provider.getCompletions(document, Position.create(14, 14));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -93,7 +123,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of JSX components with .d.ts definitions', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(11, 17));
+		const completions = await provider.getCompletions(document, Position.create(15, 17));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -108,7 +138,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide prop completions in starting tag of TSX components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(12, 14));
+		const completions = await provider.getCompletions(document, Position.create(16, 14));
 
 		expect(completions.items).to.deep.contain({
 			label: 'name',
@@ -123,7 +153,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 	it('provide client directives completions for non-astro components', async () => {
 		const { provider, document } = setup('component.astro');
 
-		const completions = await provider.getCompletions(document, Position.create(9, 26));
+		const completions = await provider.getCompletions(document, Position.create(13, 26));
 
 		expect(completions.items).to.deep.contain({
 			label: 'client:load',
@@ -133,7 +163,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 				value:
 					'Start importing the component JS at page load. Hydrate the component when import completes.\n\n[Astro reference](https://docs.astro.build/en/reference/directives-reference/#clientload)',
 			},
-			textEdit: { range: Range.create(9, 26, 9, 26), newText: 'client:load' },
+			textEdit: { range: Range.create(13, 26, 13, 26), newText: 'client:load' },
 			insertTextFormat: 2,
 			command: undefined,
 		});

@@ -5,6 +5,7 @@ import { URI, Utils } from 'vscode-uri';
 import { FrameworkExt, getFrameworkFromFilePath, isAstroFilePath, isFrameworkFilePath } from '../utils';
 import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 import { toTSX as svelte2tsx } from '@astrojs/svelte-language-integration';
+import { toTSX as vue2tsx } from '@astrojs/vue-language-integration';
 import { toPascalCase } from '../../../utils';
 
 // Utilities to create Snapshots from different contexts
@@ -76,8 +77,8 @@ export function createFromFrameworkFilePath(filePath: string, framework: Framewo
 
 	if (framework === 'svelte') {
 		code = svelte2tsx(originalText, className);
-	} else {
-		code = `export default function ${className}__AstroComponent_(props: Record<string, any>): any {}`;
+	} else if (framework === 'vue') {
+		code = vue2tsx(originalText, className);
 	}
 
 	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX);
