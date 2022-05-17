@@ -14,18 +14,16 @@ export interface LogOptions {
 	level: LoggerLevel;
 }
 
-function getLoggerLocale(): string {
-	const defaultLocale = 'en-US';
-	if (process.env.LANG) {
-		const extractedLocale = process.env.LANG.split('.')[0].replace(/_/g, '-');
-		// Check if language code is atleast two characters long (ie. en, es).
-		// NOTE: if "c" locale is encountered, the default locale will be returned.
-		if (extractedLocale.length < 2) return defaultLocale;
-		else return extractedLocale.substring(0, 5);
-	} else return defaultLocale;
-}
-
-export const dateTimeFormat = new Intl.DateTimeFormat(getLoggerLocale(), {
+// Hey, locales are pretty complicated! Be careful modifying this logic...
+// If we throw at the top-level, international users can't use Astro.
+// 
+// Using `[]` sets the default locale properly from the system!
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#parameters
+// 
+// Here be the dragons we've slain:
+// https://github.com/withastro/astro/issues/2625
+// https://github.com/withastro/astro/issues/3309
+export const dateTimeFormat = new Intl.DateTimeFormat([], {
 	hour: '2-digit',
 	minute: '2-digit',
 	second: '2-digit',
