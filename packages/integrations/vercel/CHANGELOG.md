@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3368](https://github.com/withastro/astro/pull/3368) [`9d01f93b`](https://github.com/withastro/astro/commit/9d01f93b1c7db5d4afc4041e6ee73fb52f24d2d1) Thanks [@JuanM04](https://github.com/JuanM04)! - Remove `nodeVersion` option for `serverless` target. Now it is inferred from Vercel
+
 ## 0.2.1
 
 ### Patch Changes
