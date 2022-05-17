@@ -23,6 +23,14 @@ import { isBuildingToSSR } from '../util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { getTimeStat } from './util.js';
 
+async function collectImportsFromMetadata(generator: AsyncGenerator<string, void, unknown>) {
+	let metadata = [];
+	for await (let value of generator) {
+		metadata.push(value);
+	}
+	return metadata;
+}
+
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
@@ -55,18 +63,20 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const metadata = mod.$$metadata;
 
 			// Track client:only usage so we can map their CSS back to the Page they are used in.
-			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
+			const clientOnlys = Array.from(
+				await collectImportsFromMetadata(metadata.clientOnlyComponentPaths())
+			);
 			trackClientOnlyPageDatas(internals, pageData, clientOnlys);
 
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				// 'components/Counter.jsx'
 				// { 'components/Counter.jsx': 'counter.hash.js' }
-				...metadata.hydratedComponentPaths(),
+				...(await collectImportsFromMetadata(metadata.hydratedComponentPaths())),
 				// Client-only components
 				...clientOnlys,
 				// Any hydration directive like astro/client/idle.js
-				...metadata.hydrationDirectiveSpecifiers(),
+				...(await collectImportsFromMetadata(metadata.hydrationDirectiveSpecifiers())),
 				// The client path for each renderer
 				...renderers
 					.filter((renderer) => !!renderer.clientEntrypoint)
@@ -74,7 +84,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			]);
 
 			// Add hoisted scripts
-			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+			const hoistedScripts = new Set(
+				await collectImportsFromMetadata(metadata.hoistedScriptPaths())
+			);
 			if (hoistedScripts.size) {
 				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
 				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);

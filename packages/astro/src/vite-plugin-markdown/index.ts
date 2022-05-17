@@ -84,11 +84,15 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
 				return {
-					code: `   
+					code: `
 						// Static
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
+
+						export function $$loadMetadata() {
+							return load().then((m) => m.$$metadata);
+						}
 						
 						// Deferred
 						export default async function load() {

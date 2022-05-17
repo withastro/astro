@@ -56,9 +56,9 @@ export class Metadata {
 	 * Gets the paths of all hydrated components within this component
 	 * and children components.
 	 */
-	*hydratedComponentPaths() {
+	async *hydratedComponentPaths() {
 		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
+		for await (const metadata of this.deepMetadata()) {
 			for (const component of metadata.hydratedComponents) {
 				const path = metadata.getPath(component);
 				if (path && !found.has(path)) {
@@ -69,9 +69,9 @@ export class Metadata {
 		}
 	}
 
-	*clientOnlyComponentPaths() {
+	async *clientOnlyComponentPaths() {
 		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
+		for await (const metadata of this.deepMetadata()) {
 			for (const component of metadata.clientOnlyComponents) {
 				const path = metadata.resolvePath(component);
 				if (path && !found.has(path)) {
@@ -85,9 +85,9 @@ export class Metadata {
 	/**
 	 * Gets all of the hydration specifiers used within this component.
 	 */
-	*hydrationDirectiveSpecifiers() {
+	async *hydrationDirectiveSpecifiers() {
 		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
+		for await (const metadata of this.deepMetadata()) {
 			for (const directive of metadata.hydrationDirectives) {
 				if (!found.has(directive)) {
 					found.add(directive);
@@ -97,8 +97,8 @@ export class Metadata {
 		}
 	}
 
-	*hoistedScriptPaths() {
-		for (const metadata of this.deepMetadata()) {
+	async *hoistedScriptPaths() {
+		for await (const metadata of this.deepMetadata()) {
 			let i = 0,
 				pathname = metadata.mockURL.pathname;
 			while (i < metadata.hoisted.length) {
@@ -108,21 +108,26 @@ export class Metadata {
 		}
 	}
 
-	private *deepMetadata(): Generator<Metadata, void, unknown> {
+	private async *deepMetadata(): AsyncGenerator<Metadata, void, unknown> {
 		// Yield self
 		yield this;
 		// Keep a Set of metadata objects so we only yield them out once.
 		const seen = new Set<Metadata>();
 		for (const { module: mod } of this.modules) {
+			let metadata: Metadata;
 			if (typeof mod.$$metadata !== 'undefined') {
-				const md = mod.$$metadata as Metadata;
-				// Call children deepMetadata() which will yield the child metadata
-				// and any of its children metadatas
-				for (const childMetdata of md.deepMetadata()) {
-					if (!seen.has(childMetdata)) {
-						seen.add(childMetdata);
-						yield childMetdata;
-					}
+				metadata = mod.$$metadata;
+			} else if (typeof mod.$$loadMetadata !== 'undefined') {
+				metadata = await mod.$$loadMetadata();
+			} else {
+				continue;
+			}
+			// Call children deepMetadata() which will yield the child metadata
+			// and any of its children metadatas
+			for await (const childMetdata of metadata.deepMetadata()) {
+				if (!seen.has(childMetdata)) {
+					seen.add(childMetdata);
+					yield childMetdata;
 				}
 			}
 		}
