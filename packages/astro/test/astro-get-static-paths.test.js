@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
+import * as cheerio from 'cheerio';
 
 describe('getStaticPaths - build calls', () => {
 	before(async () => {
@@ -59,7 +60,7 @@ describe('getStaticPaths - route params type validation', () => {
 		devServer = await fixture.startDevServer();
 	});
 
-	it('resolves 200 on mathcing static path - string params', async () => {
+	it('resolves 200 on matching static path - string params', async () => {
 		// route provided with { params: { year: "2022", slug: "post-2" }}
 		const res = await fixture.fetch('/blog/2022/post-1');
 		expect(res.status).to.equal(200);
@@ -69,5 +70,30 @@ describe('getStaticPaths - route params type validation', () => {
 		// route provided with { params: { year: 2022, slug: "post-2" }}
 		const res = await fixture.fetch('/blog/2022/post-2');
 		expect(res.status).to.equal(200);
+	});
+});
+
+describe ('getStaticPaths - numeric route params', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-get-static-paths/',
+			site: 'https://mysite.dev/'
+		});
+		devServer = await fixture.startDevServer();
+	})
+
+	it('resolves 200 on matching static paths', async () => {
+		// route provided with { params: { page: 1 }}
+		let res = await fixture.fetch('/posts/1');
+		expect(res.status).to.equal(200);
+
+		const html = await res.text();
+		$ = cheerio.load(html);
+
+		const canonical = $('link[rel=canonical]');
+		expect(canonical).to.equal('https://mysite.dev/posts/1/');
 	});
 });

@@ -3,9 +3,12 @@ import type { ModuleNode, ViteDevServer } from 'vite';
 import type { Metadata } from '../../runtime/server/metadata.js';
 
 /** Normalize URL to its canonical form */
-export function createCanonicalURL(url: string, base?: string): URL {
+export function createCanonicalURL(url: string, base?: string, paginated?: boolean): URL {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
-	pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
+	// Only trim the first page's /1 param if Astro's paginated() was used
+	if (paginated) {
+		pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
+	}
 	if (!npath.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
 	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
 	return new URL(pathname, base);
