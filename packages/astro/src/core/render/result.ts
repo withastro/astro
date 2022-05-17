@@ -107,9 +107,9 @@ function isPaginatedRoute({ page }: { page?: Page }) {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props, renderers, request, resolve, site } = args;
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
 
-	const paginated = isPaginatedRoute(props);
+	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const response: ResponseInit = {
