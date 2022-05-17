@@ -101,14 +101,14 @@ export async function loadFixture(inlineConfig) {
 	let fileEdits = new Map();
 
 	const resetAllFiles = () => {
-		for(const [, reset] of fileEdits) {
+		for (const [, reset] of fileEdits) {
 			reset();
 		}
 		fileEdits.clear();
 	};
 
 	// After each test, reset each of the edits to their original contents.
-	if(typeof afterEach === 'function') {
+	if (typeof afterEach === 'function') {
 		afterEach(resetAllFiles);
 	}
 	// Also do it on process exit, just in case.
@@ -145,15 +145,16 @@ export async function loadFixture(inlineConfig) {
 			const reset = () => fs.writeFileSync(fileUrl, contents);
 			// Only save this reset if not already in the map, in case multiple edits happen
 			// to the same file.
-			if(!fileEdits.has(fileUrl.toString())) {
+			if (!fileEdits.has(fileUrl.toString())) {
 				fileEdits.set(fileUrl.toString(), reset);
 			}
 			await fs.promises.writeFile(fileUrl, newContents);
 			return reset;
 		},
-		onNextChange: () => devServer ?
-			new Promise(resolve => devServer.watcher.once('change', resolve)) :
-			Promise.reject(new Error('No dev server running')),
+		onNextChange: () =>
+			devServer
+				? new Promise((resolve) => devServer.watcher.once('change', resolve))
+				: Promise.reject(new Error('No dev server running')),
 	};
 }
 
