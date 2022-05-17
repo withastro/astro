@@ -198,16 +198,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						i++;
 					}
 
-					// We only need to define deps if there are any
-					if (deps.size > 1) {
-						SUFFIX += `\nif(import.meta.hot) import.meta.hot.accept(["${id}", "${Array.from(
-							deps
-						).join('","')}"], (...mods) => mods);`;
-					} else {
-						SUFFIX += `\nif (import.meta.hot) {
-							import.meta.hot.accept(mod => mod);
-						}`;
-					}
+					SUFFIX += `\nif (import.meta.hot) {
+						import.meta.hot.accept(mod => mod);
+					}`;
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
