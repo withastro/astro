@@ -30,7 +30,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "@babel/plugin-transform-react-jsx": "^7.17.12",
     "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
