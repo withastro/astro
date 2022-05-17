@@ -25,6 +25,18 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include(pkgVersion);
 	});
 
+	const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+	const LOCALES = ['en_US', 'sv_SE', 'es_419.UTF-8', 'es_ES@euro', 'C'];
+	LOCALES.forEach((locale) => {
+		it(`astro does NOT throw on "${locale}" locales`, async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+			const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { extendEnv: false, env: { LANG: locale }});
+
+			await Promise.race([proc, sleep(5000).then(() => proc.kill(0))]);
+			expect(proc.exitCode).to.equal(0, ``);
+		});
+	})
+
 	it('astro build', async () => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 		const proc = await cli('build', '--root', fileURLToPath(projectRootURL));
