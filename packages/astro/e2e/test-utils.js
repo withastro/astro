@@ -12,6 +12,3 @@ export function loadFixture(inlineConfig) {
 	});
 }
 
-export function onAfterHMR(page) {
-	return page.waitForEvent('console', message => message.text() === 'astro:hmr:after')
-}

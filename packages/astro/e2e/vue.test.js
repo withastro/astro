@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture, onAfterHMR } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
@@ -123,15 +123,13 @@ test.only('Vue', async ({ page, astro }) => {
 	});
 
 	await test.step('HMR', async () => {
-		const afterHMR = onAfterHMR(page);
-
 		// test 1: updating the page component
-		await astro.writeFile(
-			'src/pages/index.astro',
+		await astro.editFile(
+			'./src/pages/index.astro',
 			(original) => original.replace('Hello, client:visible!', 'Hello, updated client:visible!')
 		);
 
-		await afterHMR;
+		await astro.onNextChange();
 
 		const label = page.locator('#client-visible h1');
 		await expect(label).toHaveText('Hello, updated client:visible!');

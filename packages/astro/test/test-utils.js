@@ -97,17 +97,6 @@ export async function loadFixture(inlineConfig) {
 
 	const resolveUrl = (url) =>
 		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
-
-	let cleanupCallbacks = [];
-
-	async function writeFile(filePath, updater) {
-		const pathname = new URL(filePath.replace(/^\//, ''), config.root);
-		const initial = await fs.promises.readFile(pathname, 'utf8');
-		
-		await fs.promises.writeFile(pathname, updater(initial), 'utf-8');
-
-		cleanupCallbacks.push(() => fs.promises.writeFile(pathname, initial, 'utf-8'));
-	}
 	
 	// A map of files that have been editted.
 	let fileEdits = new Map();
@@ -144,18 +133,16 @@ export async function loadFixture(inlineConfig) {
 		},
 		readFile: (filePath) =>
 			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
-		writeFile,
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		clean: async () => {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
-			await Promise.all(cleanupCallbacks.map(cb => cb()));
 		},
 		loadTestAdapterApp: async () => {
 			const url = new URL('./server/entry.mjs', config.outDir);
 			const { createApp } = await import(url);
 			return createApp();
 		},
-		editFile: async (filePath, newContents) => {
+		editFile: async (filePath, newContentsOrCallback) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => fs.writeFileSync(fileUrl, contents);
@@ -164,6 +151,9 @@ export async function loadFixture(inlineConfig) {
 			if (!fileEdits.has(fileUrl.toString())) {
 				fileEdits.set(fileUrl.toString(), reset);
 			}
+			const newContents = typeof newContentsOrCallback === 'function'
+				? newContentsOrCallback(contents)
+				: newContentsOrCallback;
 			await fs.promises.writeFile(fileUrl, newContents);
 			return reset;
 		},

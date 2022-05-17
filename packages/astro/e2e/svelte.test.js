@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture, onAfterHMR } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
@@ -97,15 +97,13 @@ test.only('Svelte', async ({ page, astro }) => {
 	});
 
 	await test.step('HMR', async () => {
-		const afterHMR = onAfterHMR(page);
-
 		// test 1: updating the page component
-		await astro.writeFile(
-			'src/pages/index.astro',
+		await astro.editFile(
+			'./src/pages/index.astro',
 			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
-		await afterHMR;
+		await astro.onNextChange();
 
 		const label = page.locator('#client-idle-message');
 		await expect(label).toHaveText('Hello, updated client:idle!');

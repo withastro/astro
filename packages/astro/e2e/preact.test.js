@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture, onAfterHMR } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
@@ -104,26 +104,24 @@ test.only('Preact', async ({ page, astro }) => {
 	});
 
 	await test.step('HMR', async () => {
-		const afterHMR = onAfterHMR(page);
-
 		// test 1: updating the page component
-		await astro.writeFile(
-			'src/pages/index.astro',
+		await astro.editFile(
+			'./src/pages/index.astro',
 			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
 
-		await afterHMR;
+		await astro.onNextChange();
 
 		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
 
 		// test 2: updating the preact component
-		await astro.writeFile(
-			'src/components/JSXComponent.jsx',
+		await astro.editFile(
+			'./src/components/JSXComponent.jsx',
 			(original) => original.replace('Preact client:only component', 'Updated preact client:only component')
 		);
 
-		await afterHMR;
+		await astro.onNextChange();
 
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
@@ -131,8 +129,8 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(label).toHaveText('Updated preact client:only component');
 
 		// test 3: updating imported CSS
-		await astro.writeFile(
-			'src/components/Counter.css',
+		await astro.editFile(
+			'./src/components/Counter.css',
 			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
 		);
 

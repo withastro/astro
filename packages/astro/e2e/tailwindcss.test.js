@@ -1,5 +1,5 @@
 import { test as base, expect } from '@playwright/test';
-import { loadFixture, onAfterHMR } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
@@ -54,14 +54,12 @@ test('Tailwind CSS', async ({ page, astro }) => {
 	});
 
 	await test.step('HMR', async () => {
-		const afterHMR = onAfterHMR(page);
-
-		await astro.writeFile(
-			'src/components/Button.astro',
+		await astro.editFile(
+			'./src/components/Button.astro',
 			(original) => original.replace('bg-purple-600', 'bg-purple-400')
 		);
 
-		await afterHMR;
+		await astro.onNextChange();
 
 		const button = page.locator('button');
 		

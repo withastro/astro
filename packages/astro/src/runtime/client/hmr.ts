@@ -14,11 +14,7 @@ if (import.meta.hot) {
 				root.innerHTML = current?.innerHTML;
 			}
 		}
-		const result = diff(document, doc);
-
-		// event used for synchronizing E2E tests
-		console.log('astro:hmr:after');
-		return result;
+		return diff(document, doc);
 	}
 	async function updateAll(files: any[]) {
 		let hasAstroUpdate = false;
