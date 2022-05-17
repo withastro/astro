@@ -1,5 +1,11 @@
 # @astrojs/turbolinks
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3383](https://github.com/withastro/astro/pull/3383) [`387ed0cf`](https://github.com/withastro/astro/commit/387ed0cfa1ed73e0025dd81f221ea7c95d724a59) Thanks [@tony-sull](https://github.com/tony-sull)! - The @astrojs/turbolinks integration has been deprecated
+
 ## 0.1.2
 
 ### Patch Changes

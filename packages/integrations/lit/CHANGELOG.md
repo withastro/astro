@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3375](https://github.com/withastro/astro/pull/3375) [`fe61e469`](https://github.com/withastro/astro/commit/fe61e469b243c27781112499f151782baf9004a4) Thanks [@jdvivar](https://github.com/jdvivar)! - Added tests and fix a small edge case for when you call render with no props/attrs
+
 ## 0.1.2
 
 ### Patch Changes

@@ -316,7 +316,6 @@ async function handleRequest(
 			return await writeSSRResult(result, res, statusCode);
 		}
 	} catch (_err) {
-		debugger;
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
 		error(logging, null, msg.formatErrorMessage(err));
 		handle500Response(viteServer, origin, req, res, err);
