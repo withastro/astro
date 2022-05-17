@@ -91,7 +91,7 @@ describe ('getStaticPaths - numeric route params', () => {
 		expect(res.status).to.equal(200);
 
 		const html = await res.text();
-		$ = cheerio.load(html);
+		const $ = cheerio.load(html);
 
 		const canonical = $('link[rel=canonical]');
 		expect(canonical).to.equal('https://mysite.dev/posts/1/');
