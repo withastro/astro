@@ -23,6 +23,7 @@ export interface DevOptions {
 
 export interface DevServer {
 	address: AddressInfo;
+	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
 }
 
@@ -69,6 +70,9 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 
 	return {
 		address: devServerAddressInfo,
+		get watcher() {
+			return viteServer.watcher;
+		},
 		stop: async () => {
 			await viteServer.close();
 			await runHookServerDone({ config });
