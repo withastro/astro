@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3380](https://github.com/withastro/astro/pull/3380) [`31b0bc87`](https://github.com/withastro/astro/commit/31b0bc87a4f6f652d9007810026e99756a32cc46) Thanks [@rotate-mark](https://github.com/rotate-mark)! - Add config options for integration
+
 ## 0.1.2
 
 ### Patch Changes

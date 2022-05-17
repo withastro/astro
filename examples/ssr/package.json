@@ -11,7 +11,7 @@
   "devDependencies": {
     "@astrojs/node": "^0.1.1",
     "@astrojs/svelte": "^0.1.3",
-    "astro": "^1.0.0-beta.28",
+    "astro": "^1.0.0-beta.29",
     "concurrently": "^7.2.0",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
