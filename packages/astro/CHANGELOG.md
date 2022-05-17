@@ -1,5 +1,15 @@
 # astro
 
+## 1.0.0-beta.29
+
+### Patch Changes
+
+- [#3388](https://github.com/withastro/astro/pull/3388) [`4d00473d`](https://github.com/withastro/astro/commit/4d00473dbd20e673b5c9857d500dee072bb20f99) Thanks [@matthewp](https://github.com/matthewp)! - Fixes nested style bug causing initial styles to be off
+
+* [#3379](https://github.com/withastro/astro/pull/3379) [`0259d765`](https://github.com/withastro/astro/commit/0259d7658be82a4a5e09fb703498571d958a0569) Thanks [@matthewp](https://github.com/matthewp)! - Fixes issue with loading md pages in project with a space in folder name
+
+- [#3376](https://github.com/withastro/astro/pull/3376) [`b1230152`](https://github.com/withastro/astro/commit/b1230152ff67ca9c184b24023651f4f8739097b8) Thanks [@matthewp](https://github.com/matthewp)! - Allow using aliases for hydrated scripts
+
 ## 1.0.0-beta.28
 
 ### Patch Changes
