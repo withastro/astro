@@ -165,8 +165,11 @@ async function handle500Response(
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
-function getCustom404Route(manifest: ManifestData) {
-	return manifest.routes.find((r) => '/404'.match(r.pattern));
+function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+	// For Windows compat, use relative page paths to match the 404 route
+	const relPages = resolvePages(config).href.replace(config.root.href, '');
+	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
+	return manifest.routes.find((r) => r.component.match(pattern));
 }
 
 function log404(logging: LogOptions, pathname: string) {
@@ -234,7 +237,7 @@ async function handleRequest(
 
 		if (!route) {
 			log404(logging, pathname);
-			const custom404 = getCustom404Route(manifest);
+			const custom404 = getCustom404Route(config, manifest);
 			if (custom404) {
 				route = custom404;
 			} else {
@@ -262,7 +265,7 @@ async function handleRequest(
 				`Route pattern matched, but no matching static path found. (${pathname})`
 			);
 			log404(logging, pathname);
-			const routeCustom404 = getCustom404Route(manifest);
+			const routeCustom404 = getCustom404Route(config, manifest);
 			if (routeCustom404) {
 				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.root);
 				const preloadedCompCustom404 = await preload({
