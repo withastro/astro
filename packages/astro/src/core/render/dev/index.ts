@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type * as vite from 'vite';
+import type { HtmlTagDescriptor, ModuleNode, ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -38,7 +38,7 @@ export interface SSROptions {
 	/** pass in route cache because SSR can’t manage cache-busting */
 	routeCache: RouteCache;
 	/** Vite instance */
-	viteServer: vite.ViteDevServer;
+	viteServer: ViteDevServer;
 	/** Request */
 	request: Request;
 }
@@ -52,7 +52,7 @@ export type RenderResponse =
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
 async function loadRenderer(
-	viteServer: vite.ViteDevServer,
+	viteServer: ViteDevServer,
 	renderer: AstroRenderer
 ): Promise<SSRLoadedRenderer> {
 	// Vite modules can be out-of-date when using an un-resolved url
@@ -66,10 +66,53 @@ async function loadRenderer(
 }
 
 export async function loadRenderers(
-	viteServer: vite.ViteDevServer,
+	viteServer: ViteDevServer,
 	astroConfig: AstroConfig
 ): Promise<SSRLoadedRenderer[]> {
 	return Promise.all(astroConfig._ctx.renderers.map((r) => loadRenderer(viteServer, r)));
+}
+
+// During prod builds, some modules have dependencies we should preload by hand
+// Ex. markdown files imported asynchronously or via Astro.glob(...)
+// We will call each md file's $$loadMetadata to discover those dependencies
+async function collectMdMetadata(
+	metadata: Metadata,
+	modGraph: ModuleNode,
+	viteServer: ViteDevServer
+) {
+	const importedModules = [...(modGraph?.importedModules ?? [])];
+	await Promise.all(
+		importedModules.map(async (importedModule) => {
+			const importedModGraph = importedModule.id
+				? viteServer.moduleGraph.getModuleById(importedModule.id)
+				: null;
+			// if the imported module has a graph entry, recursively collect metadata
+			if (importedModGraph) await collectMdMetadata(metadata, importedModGraph, viteServer);
+
+			if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
+
+			const mdMod = await viteServer.ssrLoadModule(importedModule.id);
+			const mdMetadata = (await mdMod.$$loadMetadata?.()) as Metadata;
+			if (!mdMetadata) return;
+
+			for (let mdMod of mdMetadata.modules) {
+				mdMod.specifier = mdMetadata.resolvePath(mdMod.specifier);
+				metadata.modules.push(mdMod);
+			}
+			for (let mdHoisted of mdMetadata.hoisted) {
+				metadata.hoisted.push(mdHoisted);
+			}
+			for (let mdHydrated of mdMetadata.hydratedComponents) {
+				metadata.hydratedComponents.push(mdHydrated);
+			}
+			for (let mdClientOnly of mdMetadata.clientOnlyComponents) {
+				metadata.clientOnlyComponents.push(mdClientOnly);
+			}
+			for (let mdHydrationDirective of mdMetadata.hydrationDirectives) {
+				metadata.hydrationDirectives.add(mdHydrationDirective);
+			}
+		})
+	);
 }
 
 export async function preload({
@@ -84,39 +127,13 @@ export async function preload({
 	if (viteServer.config.mode === 'development' || !mod?.$$metadata) {
 		return [renderers, mod];
 	}
-	// During prod builds, some modules have dependencies we should preload by hand
-	// Ex. markdown files imported asynchronously or via Astro.glob(...)
-	// We will call each md file's $$loadMetadata to discover those dependencies
+
+	// append all nested markdown metadata to mod.$$metadata
 	const modGraph = await viteServer.moduleGraph.getModuleByUrl(fileURLToPath(filePath));
-	for await (let importedModule of modGraph?.importedModules ?? []) {
-		if (importedModule.id?.endsWith(MARKDOWN_IMPORT_FLAG)) {
-			const mdMod = await viteServer.ssrLoadModule(importedModule.id);
-			const mdMetadata = (await mdMod.$$loadMetadata?.()) as Metadata;
-			if (mdMetadata) {
-				// if md metadata, merge with parent page metadata
-				const { modules, hoisted, hydratedComponents, clientOnlyComponents, hydrationDirectives } =
-					mod.$$metadata;
-				mod.$$metadata.modules = modules.concat(
-					mdMetadata.modules.map((metadataMod) => {
-						// resolve any relative paths against the md file path
-						metadataMod.specifier = mdMetadata.resolvePath(metadataMod.specifier);
-						return metadataMod;
-					})
-				);
-				mod.$$metadata.hoisted = hoisted.concat(mdMetadata.hoisted);
-				mod.$$metadata.hydratedComponents = hydratedComponents.concat(
-					mdMetadata.hydratedComponents
-				);
-				mod.$$metadata.clientOnlyComponents = clientOnlyComponents.concat(
-					mdMetadata.clientOnlyComponents
-				);
-				mod.$$metadata.hydrationDirectives = new Set([
-					...hydrationDirectives,
-					...mdMetadata.hydrationDirectives,
-				]);
-			}
-		}
+	if (modGraph) {
+		await collectMdMetadata(mod.$$metadata, modGraph, viteServer);
 	}
+
 	return [renderers, mod];
 }
 
@@ -215,7 +232,7 @@ export async function render(
 	}
 
 	// inject tags
-	const tags: vite.HtmlTagDescriptor[] = [];
+	const tags: HtmlTagDescriptor[] = [];
 
 	// add injected tags
 	let html = injectTags(content.html, tags);
