@@ -120,7 +120,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const ssr = isBuildingToSSR(astroConfig);
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
-	const viteBuildConfig: ViteConfigWithSSR = vite.mergeConfig({
+	const viteBuildConfig: ViteConfigWithSSR = {
 		logLevel: 'error',
 		mode: 'production',
 		css: viteConfig.css,
@@ -136,6 +136,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output
 				},
 			},
 			ssr: true,
@@ -146,7 +147,18 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			polyfillModulePreload: false,
 			reportCompressedSize: false,
 		},
-		plugins: [],
+		plugins: [
+			vitePluginInternals(input, internals),
+			vitePluginPages(opts, internals),
+			rollupPluginAstroBuildCSS({
+				internals,
+				target: 'server',
+			}),
+			...(viteConfig.plugins || []),
+			// SSR needs to be last
+			isBuildingToSSR(opts.astroConfig) &&
+				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
@@ -154,20 +166,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		base: astroConfig.base,
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
-	}, viteConfig);
-
-	viteConfig.plugins = [
-		vitePluginInternals(input, internals),
-		vitePluginPages(opts, internals),
-		rollupPluginAstroBuildCSS({
-			internals,
-			target: 'server',
-		}),
-		...(viteConfig.plugins || []),
-		// SSR needs to be last
-		isBuildingToSSR(opts.astroConfig) &&
-			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
-	];
+	};
 
 	await runHookBuildSetup({
 		config: astroConfig,
@@ -203,7 +202,7 @@ async function clientBuild(
 	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
-	const viteBuildConfig = vite.mergeConfig({
+	const viteBuildConfig = {
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
@@ -218,27 +217,27 @@ async function clientBuild(
 					entryFileNames: 'entry.[hash].js',
 					chunkFileNames: 'chunks/chunk.[hash].js',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
 			target: 'esnext', // must match an esbuild target
 		},
+		plugins: [
+			vitePluginInternals(input, internals),
+			vitePluginHoistedScripts(astroConfig, internals),
+			rollupPluginAstroBuildCSS({
+				internals,
+				target: 'client',
+			}),
+			...(viteConfig.plugins || []),
+		],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
 		base: astroConfig.base,
-	}, viteConfig) as ViteConfigWithSSR;
-	
-	viteBuildConfig.plugins = [
-		vitePluginInternals(input, internals),
-		vitePluginHoistedScripts(astroConfig, internals),
-		rollupPluginAstroBuildCSS({
-			internals,
-			target: 'client',
-		}),
-		...(viteConfig.plugins || []),
-	];
+	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({
 		config: astroConfig,

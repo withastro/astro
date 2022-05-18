@@ -134,7 +134,14 @@ export async function runHookBuildSetup({
 }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:setup']) {
-			await integration.hooks['astro:build:setup']({ vite, pages, target });
+			await integration.hooks['astro:build:setup']({
+				vite,
+				pages,
+				target,
+				updateConfig: (newConfig) => {
+					mergeConfig(vite, newConfig);
+				},
+			});
 		}
 	}
 }
