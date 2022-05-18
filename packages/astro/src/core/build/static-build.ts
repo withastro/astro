@@ -223,21 +223,22 @@ async function clientBuild(
 			},
 			target: 'esnext', // must match an esbuild target
 		},
-		plugins: [
-			vitePluginInternals(input, internals),
-			vitePluginHoistedScripts(astroConfig, internals),
-			rollupPluginAstroBuildCSS({
-				internals,
-				target: 'client',
-			}),
-			...(viteConfig.plugins || []),
-		],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
 		base: astroConfig.base,
 	}, viteConfig) as ViteConfigWithSSR;
+	
+	viteBuildConfig.plugins = [
+		vitePluginInternals(input, internals),
+		vitePluginHoistedScripts(astroConfig, internals),
+		rollupPluginAstroBuildCSS({
+			internals,
+			target: 'client',
+		}),
+		...(viteConfig.plugins || []),
+	];
 
 	await runHookBuildSetup({
 		config: astroConfig,
