@@ -255,9 +255,10 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		if (detail) {
 			const { detail: itemDetail, documentation: itemDocumentation } = this.getCompletionDocument(detail);
 
-			if (data.originalItem.source) {
-				item.labelDetails = { description: data.originalItem.source };
-			}
+			// TODO: Add support for labelDetails
+			// if (data.originalItem.source) {
+			// 	item.labelDetails = { description: data.originalItem.source };
+			// }
 
 			item.detail = itemDetail;
 			item.documentation = itemDocumentation;
@@ -358,9 +359,10 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			}
 		}
 
-		if (comp.sourceDisplay) {
-			item.labelDetails = { description: ts.displayPartsToString(comp.sourceDisplay) };
-		}
+		// TODO: Add support for labelDetails
+		// if (comp.sourceDisplay) {
+		// 	item.labelDetails = { description: ts.displayPartsToString(comp.sourceDisplay) };
+		// }
 
 		item.commitCharacters = getCommitCharactersForScriptElement(comp.kind);
 		item.sortText = comp.sortText;
