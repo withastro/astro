@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 describe('Error display', () => {
 	if (isWindows) return;
 
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -43,7 +44,7 @@ describe('Error display', () => {
 			await devServer.stop();
 		});
 
-		it('Errors recover when fixed', async () => {
+		it.only('Errors recover when fixed', async () => {
 			let html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());
 
 			// 1. Verify an error message is being shown.
@@ -53,7 +54,8 @@ describe('Error display', () => {
 			// 2. Edit the file, fixing the error
 			let changeOccured = fixture.onNextChange();
 			await fixture.editFile('./src/components/SvelteSyntaxError.svelte', `<h1>No mismatch</h1>`);
-			await changeOccured;
+			console.log("CHANGE", await changeOccured);
+			await new Promise(resolve => setTimeout(resolve, 50));
 
 			// 3. Verify that the file is fixed.
 			html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());
