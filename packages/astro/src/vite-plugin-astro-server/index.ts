@@ -194,9 +194,10 @@ async function handleRequest(
 	// When file-based build format is used, pages will be built to `/blog.html`
 	// rather than `/blog/index.html`. The dev server should handle this as well
 	// to match production deployments.
-	const url = config.build.format === 'file'
-		? new URL(origin + req.url?.replace(/(index)?\.html$/, ''))
-		: new URL(origin + req.url);
+	const url =
+		config.build.format === 'file'
+			? new URL(origin + req.url?.replace(/(index)?\.html$/, ''))
+			: new URL(origin + req.url);
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	if (!buildingToSSR) {
