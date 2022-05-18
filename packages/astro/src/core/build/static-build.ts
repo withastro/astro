@@ -142,6 +142,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output
 				},
 			},
 			ssr: true,
@@ -222,6 +223,7 @@ async function clientBuild(
 					entryFileNames: 'entry.[hash].js',
 					chunkFileNames: 'chunks/chunk.[hash].js',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
