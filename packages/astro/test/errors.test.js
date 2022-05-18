@@ -33,7 +33,7 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Framework components', function() {
+	describe('Framework components', function () {
 		let devServer;
 
 		before(async () => {

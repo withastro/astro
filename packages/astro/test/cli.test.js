@@ -118,13 +118,13 @@ describe('astro cli i18n', () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			let error = null;
 			try {
-				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { env: { LANG: locale }});
-				await parseCliDevStart(proc)
+				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { env: { LANG: locale } });
+				await parseCliDevStart(proc);
 			} catch (e) {
 				console.log(e);
 				error = e.message;
 			}
 			expect(error).to.be.null;
 		});
-	})
-})
+	});
+});

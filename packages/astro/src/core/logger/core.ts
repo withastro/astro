@@ -16,10 +16,10 @@ export interface LogOptions {
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
 // If we throw at the top-level, international users can't use Astro.
-// 
+//
 // Using `[]` sets the default locale properly from the system!
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#parameters
-// 
+//
 // Here be the dragons we've slain:
 // https://github.com/withastro/astro/issues/2625
 // https://github.com/withastro/astro/issues/3309
