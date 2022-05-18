@@ -14,16 +14,32 @@ describe('Astro Plugin', () => {
 	}
 
 	it('provides folding ranges for frontmatter', async () => {
-		const { plugin, document } = setup('frontmatter.astro');
+		const { plugin, document } = setup('folding/frontmatter.astro');
 
 		const foldingRanges = plugin.getFoldingRanges(document);
 
 		expect(foldingRanges).to.deep.equal([
 			{
-				startCharacter: 0,
+				startCharacter: 3,
 				startLine: 0,
 				endLine: 1,
-				endCharacter: 25,
+				endCharacter: 27,
+				kind: 'imports',
+			},
+		]);
+	});
+
+	it('provides folding ranges for white-space only frontmatter', async () => {
+		const { plugin, document } = setup('folding/frontmatterWhitespace.astro');
+
+		const foldingRanges = plugin.getFoldingRanges(document);
+
+		expect(foldingRanges).to.deep.equal([
+			{
+				startCharacter: 3,
+				startLine: 0,
+				endLine: 7,
+				endCharacter: 0,
 				kind: 'imports',
 			},
 		]);

@@ -36,8 +36,16 @@ export class AstroPlugin implements Plugin {
 		// Currently editing frontmatter, don't fold
 		if (frontmatter.state !== 'closed') return foldingRanges;
 
-		const start = document.positionAt(frontmatter.startOffset as number);
-		const end = document.positionAt((frontmatter.endOffset as number) - 3);
+		// The way folding ranges work is by folding anything between the starting position and the ending one, as such
+		// the start in this case should be after the frontmatter start (after the starting ---) until the last character
+		// of the last line of the frontmatter before its ending (before the closing ---)
+		// ---
+		//		^ -- start
+		// console.log("Astro")
+		// ---								^ -- end
+		const start = document.positionAt(frontmatter.startOffset! + 3);
+		const end = document.positionAt(frontmatter.endOffset! - 1);
+
 		return [
 			{
 				startLine: start.line,
