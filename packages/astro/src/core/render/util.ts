@@ -52,11 +52,8 @@ export async function collectMdMetadata(
 	const importedModules = [...(modGraph?.importedModules ?? [])];
 	await Promise.all(
 		importedModules.map(async (importedModule) => {
-			const importedModGraph = importedModule.id
-				? viteServer.moduleGraph.getModuleById(importedModule.id)
-				: null;
-			// if the imported module has a graph entry, recursively collect metadata
-			if (importedModGraph) await collectMdMetadata(metadata, importedModGraph, viteServer);
+			// recursively check for importedModules
+			await collectMdMetadata(metadata, importedModule, viteServer);
 
 			if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
 
