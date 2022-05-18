@@ -24,7 +24,7 @@ const routes = [
 		url: '/about/contact',
 		h1: '[...catchall].astro',
 		p: 'about/contact'
-	}*/
+	},*/
 	{
 		url: '/posts/post-1',
 		h1: 'posts/[pid].astro',
@@ -50,7 +50,7 @@ const routes = [
 	},
 	{
 		url: '/de/index.html',
-		h1: 'de/index.html'
+		h1: 'de/index.astro'
 	},*/
 	{
 		url: '/en',
@@ -62,11 +62,11 @@ const routes = [
 		h1: '[lang]/index.astro',
 		p: 'en'
 	},
-	/**{
+	{
 		url: '/en/index.html',
 		h1: '[lang]/index.astro',
 		p: 'en'
-	},*/
+	},
 	{
 		url: '/de/1/2',
 		h1: '[lang]/[...catchall].astro',
