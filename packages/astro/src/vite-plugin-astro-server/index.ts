@@ -166,8 +166,10 @@ async function handle500Response(
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+	// For Windows compat, use relative page paths to match the 404 route
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	return manifest.routes.find((r) => r.component === appendForwardSlash(relPages) + '404.astro');
+	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
+	return manifest.routes.find((r) => r.component.match(pattern));
 }
 
 function log404(logging: LogOptions, pathname: string) {
