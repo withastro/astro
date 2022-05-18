@@ -40,7 +40,7 @@ const routes = [
 		h1: 'posts/[...slug].astro',
 		p: '1/2'
 	},
-	/**{	
+	{	
 		url: '/de',
 		h1: 'de/index.astro'
 	},
@@ -51,7 +51,7 @@ const routes = [
 	{
 		url: '/de/index.html',
 		h1: 'de/index.astro'
-	},*/
+	},
 	{
 		url: '/en',
 		h1: '[lang]/index.astro',

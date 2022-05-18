@@ -10,6 +10,7 @@ import { debug } from '../logger/core.js';
 import { preload as ssrPreload } from '../render/dev/index.js';
 import { generateRssFunction } from '../render/rss.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import { isBuildingToSSR } from '../util.js';
 
 export interface CollectPagesDataOptions {
@@ -35,6 +36,7 @@ export async function collectPagesData(
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
+	const builtPaths = new Set<string>();
 
 	const buildMode = isBuildingToSSR(astroConfig) ? 'ssr' : 'static';
 
@@ -60,6 +62,7 @@ export async function collectPagesData(
 				);
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
+			builtPaths.add(route.pathname);
 			allPages[route.component] = {
 				component: route.component,
 				route,
@@ -138,7 +141,8 @@ export async function collectPagesData(
 		}
 		const finalPaths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
-			.filter(Boolean);
+			.filter(Boolean)
+			.filter(path => !builtPaths.has(removeTrailingForwardSlash(path))); // TODO: why don't the paths match static?
 		allPages[route.component] = {
 			component: route.component,
 			route,
