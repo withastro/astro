@@ -18,7 +18,7 @@ import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { isBuildingToSSR } from '../../util.js';
 import { Metadata } from '../../../runtime/server/metadata.js';
-import { MARKDOWN_IMPORT_FLAG } from '../../../vite-plugin-markdown.js';
+import { MARKDOWN_IMPORT_FLAG } from '../../../vite-plugin-markdown/index.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
