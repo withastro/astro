@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 describe('Error display', () => {
 	if (isWindows) return;
 
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -32,7 +33,7 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Framework components', () => {
+	describe('Framework components', function() {
 		let devServer;
 
 		before(async () => {
@@ -43,8 +44,7 @@ describe('Error display', () => {
 			await devServer.stop();
 		});
 
-		// Skip until https://github.com/withastro/astro/pull/3376 is revisited
-		it.skip('Errors recover when fixed', async () => {
+		it('Errors recover when fixed', async () => {
 			let html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());
 
 			// 1. Verify an error message is being shown.
