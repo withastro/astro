@@ -5,6 +5,7 @@ import * as cheerio from 'cheerio';
 describe('Error display', () => {
 	if (isWindows) return;
 
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 	let devServer;
 
@@ -32,7 +33,7 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Framework components', () => {
+	describe('Framework components', function () {
 		let devServer;
 
 		before(async () => {

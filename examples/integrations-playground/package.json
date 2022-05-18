@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.3",
+    "lit": "^2.2.4",
     "preact": "^10.7.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
