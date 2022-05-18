@@ -34,6 +34,7 @@ polyfill(globalThis, {
  * @property {() => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
+ * @property {() => Promise<void>} onNextChange
  */
 
 /**
