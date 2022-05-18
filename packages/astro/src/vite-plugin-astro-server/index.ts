@@ -191,7 +191,7 @@ async function handleRequest(
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
-	const url = new URL(origin + req.url);
+	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	if (!buildingToSSR) {

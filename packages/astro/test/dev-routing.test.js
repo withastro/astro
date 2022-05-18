@@ -265,8 +265,33 @@ describe('Development Routing', () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		it('200 when loading /blog.html', async () => {
-			const response = await fixture.fetch('/blog.html');
+		it('200 when loading /index.html', async () => {
+			const response = await fixture.fetch('/index.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /', async () => {
+			const response = await fixture.fetch('/');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /another.html', async () => {
+			const response = await fixture.fetch('/another.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /another', async () => {
+			const response = await fixture.fetch('/another');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /1.html', async () => {
+			const response = await fixture.fetch('/1.html');
+			expect(response.status).to.equal(200);
+		});
+		
+		it('200 when loading /1', async () => {
+			const response = await fixture.fetch('/1');
 			expect(response.status).to.equal(200);
 		});
 	});
