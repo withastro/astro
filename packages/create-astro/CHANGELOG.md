@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.12.2
+
+### Patch Changes
+
+- [#3391](https://github.com/withastro/astro/pull/3391) [`cf8015ea`](https://github.com/withastro/astro/commit/cf8015eaa2b756f4ec399e8fd7071dee7dfa9ab6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix [#3309](https://github.com/withastro/astro/issues/3309) default logger locale behavior.
+
 ## 0.12.1
 
 ### Patch Changes

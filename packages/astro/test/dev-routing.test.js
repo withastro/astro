@@ -289,7 +289,7 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/1.html');
 			expect(response.status).to.equal(200);
 		});
-		
+
 		it('200 when loading /1', async () => {
 			const response = await fixture.fetch('/1');
 			expect(response.status).to.equal(200);
