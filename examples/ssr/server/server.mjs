@@ -7,6 +7,7 @@ const clientRoot = new URL('../dist/client/', import.meta.url);
 
 async function handle(req, res) {
 	ssrHandler(req, res, async (err) => {
+		console.log('ssr handler', req);
 		if (err) {
 			res.writeHead(500);
 			res.end(err.stack);
