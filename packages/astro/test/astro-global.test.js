@@ -80,8 +80,8 @@ describe('Astro Global', () => {
 		it('Astro.glob() correctly returns meta info for MD and Astro files', async () => {
 			const html = await fixture.readFile('/glob/index.html');
 			const $ = cheerio.load(html);
-			expect($('[data-file]').length).to.be(3);
-			expect($('.post-url[href]').length).to.be(3);
+			expect($('[data-file]').length).to.equal(3);
+			expect($('.post-url[href]').length).to.equal(3);
 		});
 	});
 });
