@@ -34,7 +34,6 @@ describe('Error display', () => {
 	});
 
 	describe('Framework components', function() {
-		this.timeout(30000);
 		let devServer;
 
 		before(async () => {
@@ -56,8 +55,6 @@ describe('Error display', () => {
 			let changeOccured = fixture.onNextChange();
 			await fixture.editFile('./src/components/SvelteSyntaxError.svelte', `<h1>No mismatch</h1>`);
 			await changeOccured;
-			// Add a short wait so that Vite has a change to update its internals before we try to fetch a new page.
-			await new Promise(resolve => setTimeout(resolve, 5000));
 
 			// 3. Verify that the file is fixed.
 			html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());
