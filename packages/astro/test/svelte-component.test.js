@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
-describe('Svelte component', () => {
+describe.only('Svelte component', () => {
 	let fixture;
 
 	before(async () => {

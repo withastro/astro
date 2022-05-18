@@ -167,6 +167,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		resolve: viteConfig.resolve,
 	}, viteConfig);
 
+	console.log("BUILD CONFIG", viteBuildConfig);
+
 	await runHookBuildSetup({
 		config: astroConfig,
 		pages: internals.pagesByComponent,
