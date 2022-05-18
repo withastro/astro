@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { HtmlTagDescriptor, ModuleNode, ViteDevServer } from 'vite';
+import type { HtmlTagDescriptor, ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -9,7 +9,6 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import type { Metadata } from '../../../runtime/server/metadata.js';
 import { LogOptions } from '../../logger/core.js';
 import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
@@ -18,7 +17,7 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { isBuildingToSSR } from '../../util.js';
-import { MARKDOWN_IMPORT_FLAG } from '../../../vite-plugin-markdown/index.js';
+import { collectMdMetadata } from '../util.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -70,49 +69,6 @@ export async function loadRenderers(
 	astroConfig: AstroConfig
 ): Promise<SSRLoadedRenderer[]> {
 	return Promise.all(astroConfig._ctx.renderers.map((r) => loadRenderer(viteServer, r)));
-}
-
-// During prod builds, some modules have dependencies we should preload by hand
-// Ex. markdown files imported asynchronously or via Astro.glob(...)
-// We will call each md file's $$loadMetadata to discover those dependencies
-async function collectMdMetadata(
-	metadata: Metadata,
-	modGraph: ModuleNode,
-	viteServer: ViteDevServer
-) {
-	const importedModules = [...(modGraph?.importedModules ?? [])];
-	await Promise.all(
-		importedModules.map(async (importedModule) => {
-			const importedModGraph = importedModule.id
-				? viteServer.moduleGraph.getModuleById(importedModule.id)
-				: null;
-			// if the imported module has a graph entry, recursively collect metadata
-			if (importedModGraph) await collectMdMetadata(metadata, importedModGraph, viteServer);
-
-			if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
-
-			const mdMod = await viteServer.ssrLoadModule(importedModule.id);
-			const mdMetadata = (await mdMod.$$loadMetadata?.()) as Metadata;
-			if (!mdMetadata) return;
-
-			for (let mdMod of mdMetadata.modules) {
-				mdMod.specifier = mdMetadata.resolvePath(mdMod.specifier);
-				metadata.modules.push(mdMod);
-			}
-			for (let mdHoisted of mdMetadata.hoisted) {
-				metadata.hoisted.push(mdHoisted);
-			}
-			for (let mdHydrated of mdMetadata.hydratedComponents) {
-				metadata.hydratedComponents.push(mdHydrated);
-			}
-			for (let mdClientOnly of mdMetadata.clientOnlyComponents) {
-				metadata.clientOnlyComponents.push(mdClientOnly);
-			}
-			for (let mdHydrationDirective of mdMetadata.hydrationDirectives) {
-				metadata.hydrationDirectives.add(mdHydrationDirective);
-			}
-		})
-	);
 }
 
 export async function preload({
