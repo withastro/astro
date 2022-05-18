@@ -86,14 +86,16 @@ describe ('getStaticPaths - numeric route params', () => {
 	})
 
 	it('resolves 200 on matching static paths', async () => {
-		// route provided with { params: { page: 1 }}
-		let res = await fixture.fetch('/posts/1');
-		expect(res.status).to.equal(200);
-
-		const html = await res.text();
-		const $ = cheerio.load(html);
-
-		const canonical = $('link[rel=canonical]');
-		expect(canonical.attr('href')).to.equal('https://mysite.dev/posts/1/', "doesn't trim the /1 route param");
+		// routes params provided for pages /posts/1, /posts/2, and /posts/3
+		for (const page of [1, 2, 3]) {
+			let res = await fixture.fetch(`/posts/${page}`);
+			expect(res.status).to.equal(200);
+	
+			const html = await res.text();
+			const $ = cheerio.load(html);
+	
+			const canonical = $('link[rel=canonical]');
+			expect(canonical.attr('href')).to.equal(`https://mysite.dev/posts/${page}/`, `doesn't trim the /${page}/ route param`);
+		}
 	});
 });
