@@ -17,7 +17,7 @@ interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
-export const MARKDOWN_IMPORT_FLAG = '?mdImport';
+const MARKDOWN_IMPORT_FLAG = '?mdImport';
 const MARKDOWN_CONTENT_FLAG = '?content';
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.

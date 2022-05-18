@@ -1,7 +1,6 @@
 import npath from 'path-browserify';
 import type { ModuleNode, ViteDevServer } from 'vite';
 import type { Metadata } from '../../runtime/server/metadata.js';
-import { MARKDOWN_IMPORT_FLAG } from '../../vite-plugin-markdown/index.js';
 
 /** Normalize URL to its canonical form */
 export function createCanonicalURL(url: string, base?: string): URL {
@@ -32,6 +31,11 @@ export const STYLE_EXTENSIONS = new Set([
 	'.stylus',
 	'.less',
 ]);
+
+// duplicate const from vite-plugin-markdown
+// can't import directly due to Deno bundling issue
+// (node fs import failing during prod builds)
+const MARKDOWN_IMPORT_FLAG = '?mdImport';
 
 const cssRe = new RegExp(
 	`\\.(${Array.from(STYLE_EXTENSIONS)
