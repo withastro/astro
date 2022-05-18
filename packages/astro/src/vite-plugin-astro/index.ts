@@ -182,7 +182,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				});
 
 				let SUFFIX = '';
-				SUFFIX += `\nexport const file = ${JSON.stringify(file)};\nexport const url = ${JSON.stringify(url)};\n`;
+				SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(url)};export { $$file as file, $$url as url };\n`;
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
 					// HACK: extract dependencies from metadata until compiler static extraction handles them
