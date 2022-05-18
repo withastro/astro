@@ -33,7 +33,8 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Framework components', () => {
+	describe('Framework components', function() {
+		this.timeout(30000);
 		let devServer;
 
 		before(async () => {
