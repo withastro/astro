@@ -15,9 +15,10 @@ import { prependForwardSlash } from '../../../core/path.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
-import { getHmrScript } from './hmr.js';
 import { injectTags } from './html.js';
 import { isBuildingToSSR } from '../../util.js';
+import { Metadata } from '../../../runtime/server/metadata.js';
+import { MARKDOWN_IMPORT_FLAG } from '../../../vite-plugin-markdown.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -80,7 +81,39 @@ export async function preload({
 	const renderers = await loadRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-
+	// some modules have dependencies we should preload by hand
+	// in this case, markdown files imported asynchronously or via Astro.glob(...)
+	// we will call each md file's $$loadMetadata to discover those dependencies
+	const modGraph = await viteServer.moduleGraph.getModuleByUrl(fileURLToPath(filePath));
+	for await (let importedModule of modGraph?.importedModules ?? []) {
+		if (importedModule.id?.endsWith(MARKDOWN_IMPORT_FLAG)) {
+			const mdMod = await viteServer.ssrLoadModule(importedModule.id);
+			const mdMetadata = (await mdMod.$$loadMetadata?.()) as Metadata;
+			if (mdMetadata) {
+				// if md metadata, merge with parent page metadata
+				const { modules, hoisted, hydratedComponents, clientOnlyComponents, hydrationDirectives } =
+					mod.$$metadata;
+				mod.$$metadata.modules = modules.concat(
+					mdMetadata.modules.map((mod) => {
+						// resolve any relative paths against the md file path
+						mod.specifier = mdMetadata.resolvePath(mod.specifier);
+						return mod;
+					})
+				);
+				mod.$$metadata.hoisted = hoisted.concat(mdMetadata.hoisted);
+				mod.$$metadata.hydratedComponents = hydratedComponents.concat(
+					mdMetadata.hydratedComponents
+				);
+				mod.$$metadata.clientOnlyComponents = clientOnlyComponents.concat(
+					mdMetadata.clientOnlyComponents
+				);
+				mod.$$metadata.hydrationDirectives = new Set([
+					...hydrationDirectives,
+					...mdMetadata.hydrationDirectives,
+				]);
+			}
+		}
+	}
 	return [renderers, mod];
 }
 
