@@ -9,6 +9,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
+import type { Metadata } from '../../../runtime/server/metadata.js';
 import { LogOptions } from '../../logger/core.js';
 import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
@@ -17,7 +18,6 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { isBuildingToSSR } from '../../util.js';
-import { Metadata } from '../../../runtime/server/metadata.js';
 import { MARKDOWN_IMPORT_FLAG } from '../../../vite-plugin-markdown/index.js';
 
 export interface SSROptions {
@@ -94,10 +94,10 @@ export async function preload({
 				const { modules, hoisted, hydratedComponents, clientOnlyComponents, hydrationDirectives } =
 					mod.$$metadata;
 				mod.$$metadata.modules = modules.concat(
-					mdMetadata.modules.map((mod) => {
+					mdMetadata.modules.map((metadataMod) => {
 						// resolve any relative paths against the md file path
-						mod.specifier = mdMetadata.resolvePath(mod.specifier);
-						return mod;
+						metadataMod.specifier = mdMetadata.resolvePath(metadataMod.specifier);
+						return metadataMod;
 					})
 				);
 				mod.$$metadata.hoisted = hoisted.concat(mdMetadata.hoisted);
