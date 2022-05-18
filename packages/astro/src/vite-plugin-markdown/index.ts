@@ -89,6 +89,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
+
+						export function $$loadMetadata() {
+							return load().then((m) => m.$$metadata)
+						}
 						
 						// Deferred
 						export default async function load() {
