@@ -760,7 +760,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent;
+		frontmatter: MarkdownContent & T;
 		$$metadata: Metadata;
 		default: AstroComponentFactory;
 	}>;
