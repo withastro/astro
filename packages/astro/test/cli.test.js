@@ -110,3 +110,21 @@ describe('astro cli', () => {
 		});
 	});
 });
+
+describe('astro cli i18n', () => {
+	const LOCALES = ['en_US', 'sv_SE', 'es_419.UTF-8', 'es_ES@euro', 'C'];
+	LOCALES.forEach((locale) => {
+		it(`astro does NOT throw on "${locale}" locales`, async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+			let error = null;
+			try {
+				const proc = cli('dev', '--root', fileURLToPath(projectRootURL), { env: { LANG: locale }});
+				await parseCliDevStart(proc)
+			} catch (e) {
+				console.log(e);
+				error = e.message;
+			}
+			expect(error).to.be.null;
+		});
+	})
+})
