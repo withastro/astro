@@ -94,6 +94,6 @@ describe ('getStaticPaths - numeric route params', () => {
 		const $ = cheerio.load(html);
 
 		const canonical = $('link[rel=canonical]');
-		expect(canonical).to.equal('https://mysite.dev/posts/1/');
+		expect(canonical.attr('href')).to.equal('https://mysite.dev/posts/1/', "doesn't trim the /1 route param");
 	});
 });
