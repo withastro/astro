@@ -146,18 +146,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			polyfillModulePreload: false,
 			reportCompressedSize: false,
 		},
-		plugins: [
-			vitePluginInternals(input, internals),
-			vitePluginPages(opts, internals),
-			rollupPluginAstroBuildCSS({
-				internals,
-				target: 'server',
-			}),
-			...(viteConfig.plugins || []),
-			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) &&
-				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
-		],
+		plugins: [],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
@@ -167,7 +156,18 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		resolve: viteConfig.resolve,
 	}, viteConfig);
 
-	console.log("BUILD CONFIG", viteBuildConfig);
+	viteConfig.plugins = [
+		vitePluginInternals(input, internals),
+		vitePluginPages(opts, internals),
+		rollupPluginAstroBuildCSS({
+			internals,
+			target: 'server',
+		}),
+		...(viteConfig.plugins || []),
+		// SSR needs to be last
+		isBuildingToSSR(opts.astroConfig) &&
+			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+	];
 
 	await runHookBuildSetup({
 		config: astroConfig,
