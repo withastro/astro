@@ -43,7 +43,8 @@ describe('Error display', () => {
 			await devServer.stop();
 		});
 
-		it('Errors recover when fixed', async () => {
+		// Skip until https://github.com/withastro/astro/pull/3376 is revisited
+		it.skip('Errors recover when fixed', async () => {
 			let html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());
 
 			// 1. Verify an error message is being shown.
