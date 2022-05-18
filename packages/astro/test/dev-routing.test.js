@@ -247,4 +247,27 @@ describe('Development Routing', () => {
 			expect(body.title).to.equal('data [slug]');
 		});
 	});
+
+	describe('file format routing', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				build: {
+					format: 'file',
+				},
+				root: './fixtures/without-site-config/',
+				site: 'http://example.com/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		it('200 when loading /blog.html', async () => {
+			const response = await fixture.fetch('/blog.html');
+			expect(response.status).to.equal(200);
+		});
+	});
 });
