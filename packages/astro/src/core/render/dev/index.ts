@@ -81,10 +81,12 @@ export async function preload({
 	const renderers = await loadRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	if (!mod?.$$metadata) return [renderers, mod];
-	// some modules have dependencies we should preload by hand
-	// in this case, markdown files imported asynchronously or via Astro.glob(...)
-	// we will call each md file's $$loadMetadata to discover those dependencies
+	if (viteServer.config.mode === 'development' || !mod?.$$metadata) {
+		return [renderers, mod];
+	}
+	// During prod builds, some modules have dependencies we should preload by hand
+	// Ex. markdown files imported asynchronously or via Astro.glob(...)
+	// We will call each md file's $$loadMetadata to discover those dependencies
 	const modGraph = await viteServer.moduleGraph.getModuleByUrl(fileURLToPath(filePath));
 	for await (let importedModule of modGraph?.importedModules ?? []) {
 		if (importedModule.id?.endsWith(MARKDOWN_IMPORT_FLAG)) {
