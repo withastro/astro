@@ -1,5 +1,5 @@
 {
-  "name": "@test/routing",
+  "name": "@test/routing-priority",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

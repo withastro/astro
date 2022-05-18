@@ -1,0 +1,22 @@
+---
+	export async function getStaticPaths() {
+		return [
+			{ params: { catchall: 'about/contact' } }
+		]
+	}
+---
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<title>Routing</title>
+</head>
+
+<body>
+	<h1>[...catchall].astro</h1>
+	<p>{Astro.params.catchall}</p>
+</body>
+
+</html>
