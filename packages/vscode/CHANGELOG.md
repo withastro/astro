@@ -1,5 +1,21 @@
 # astro-vscode
 
+## 0.18.0
+
+### Minor Changes
+
+- d3c6fd8: Add support for formatting
+- 09e1163: Updated language server to latest version of LSP, added support for Inlay Hints
+
+### Patch Changes
+
+- Updated dependencies [d3c6fd8]
+- Updated dependencies [09e1163]
+- Updated dependencies [fcaba8e]
+- Updated dependencies [4138005]
+- Updated dependencies [76ff46a]
+  - @astrojs/language-server@0.18.0
+
 ## 0.17.0
 
 ### Patch Changes

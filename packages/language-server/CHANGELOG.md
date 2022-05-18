@@ -1,5 +1,18 @@
 # @astrojs/language-server
 
+## 0.18.0
+
+### Minor Changes
+
+- d3c6fd8: Add support for formatting
+- 09e1163: Updated language server to latest version of LSP, added support for Inlay Hints
+- fcaba8e: Add support for completions and type checking for Vue props
+
+### Patch Changes
+
+- 4138005: Fix frontmatter folding not working properly when last few lines of frontmatter are empty
+- 76ff46a: Add `?` in the label of completions of optional parameters (including component props)
+
 ## 0.17.0
 
 ### Minor Changes
