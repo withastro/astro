@@ -2,6 +2,7 @@
 setup: |
   import Counter from '../components/Counter.jsx'
   import Hello from '../components/Hello.jsx'
+  import SvelteButton from '../components/SvelteButton.svelte'
 ---
 
 ## With components
@@ -13,3 +14,4 @@ setup: |
 ### Hydrated
 
 <Counter client:load />
+<SvelteButton client:load />
