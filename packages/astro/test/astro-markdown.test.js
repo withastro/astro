@@ -42,6 +42,13 @@ describe('Astro Markdown', () => {
 		expect($('h1').attr("id")).to.equal('my-blog-post');
 	});
 
+	it('Correctly handles component children in markdown pages (#3319)', async () => {
+		const html = await fixture.readFile('/children/index.html');
+
+		console.log(html);
+		expect(html).not.to.contain('<p></p>');
+	});
+
 	it('Can load more complex jsxy stuff', async () => {
 		const html = await fixture.readFile('/complex/index.html');
 		const $ = cheerio.load(html);
