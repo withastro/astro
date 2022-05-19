@@ -8,8 +8,8 @@ export function getFileInfo(id: string, config: AstroConfig) {
 
 	const fileId = id.split('?')[0];
 	let fileUrl = fileId.includes('/pages/')
-			? fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.(md|astro)$/, '')
-			: undefined;
+		? fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.(md|astro)$/, '')
+		: undefined;
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
