@@ -72,6 +72,13 @@ describe('Astro Markdown', () => {
 		expect($('h1').text()).to.equal('It works!');
 	});
 
+	// https://github.com/withastro/astro/issues/3254
+	it('Can handle scripts in markdown pages', async () => {
+		const html = await fixture.readFile('/script/index.html');
+		console.log(html);
+		expect(html).not.to.match(new RegExp("\/src\/scripts\/test\.js"));
+	});
+
 	it('Can load more complex jsxy stuff', async () => {
 		const html = await fixture.readFile('/complex/index.html');
 		const $ = cheerio.load(html);

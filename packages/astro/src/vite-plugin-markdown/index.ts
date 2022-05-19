@@ -127,7 +127,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Turn HTML comments into JS comments
 				markdownContent = markdownContent.replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => `{/*${whole}*/}`)
 
-				let renderResult = await renderMarkdown(markdownContent, { ...renderOpts, fileURL: fileUrl });
+				let renderResult = await renderMarkdown(markdownContent, { ...renderOpts, fileURL: fileUrl } as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
@@ -156,6 +156,8 @@ ${setup}`.trim();
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
 					sourcemap: 'inline',
+					// TODO: baseline flag
+					experimentalStaticExtraction: true,
 					internalURL: `/@fs${prependForwardSlash(
 						viteID(new URL('../runtime/server/index.js', import.meta.url))
 					)}`,
