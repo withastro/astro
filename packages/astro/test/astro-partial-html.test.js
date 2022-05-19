@@ -48,3 +48,24 @@ describe('Partial HTML', async () => {
 		expect(href).to.be.ok;
 	});
 });
+
+describe('Head Component', async () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-partial-html/',
+		});
+		await fixture.build();
+	});
+
+	it('injects Astro hydration scripts', async () => {
+		const html = await fixture.readFile('/head/index.html');
+		const $ = cheerio.load(html);
+
+		const hydrationId = $('astro-root').attr('uid');
+
+		const script = $('script').html();
+		expect(script).to.match(new RegExp(hydrationId));
+	});
+});
