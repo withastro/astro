@@ -1176,8 +1176,10 @@ importers:
 
   packages/astro/test/fixtures/slots-preact:
     specifiers:
+      '@astrojs/preact': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
   packages/astro/test/fixtures/slots-react:
