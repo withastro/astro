@@ -37,6 +37,14 @@ function removeViteHttpMiddleware(server: vite.Connect.Server) {
 	}
 }
 
+function truncateString(str: string, n: number) {
+  if (str.length > n) {
+    return str.substring(0, n) + '&#8230;';
+  } else {
+    return str;
+  }
+}
+
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
 		'Content-Type': 'text/html; charset=utf-8',
@@ -157,9 +165,9 @@ async function handle500Response(
 		statusCode: 500,
 		title: 'Internal Error',
 		tabTitle: '500: Error',
-		message: stripAnsi(err.message),
+		message: stripAnsi(err.hint ?? err.message),
 		url: err.url || undefined,
-		stack: stripAnsi(err.stack),
+		stack: truncateString(stripAnsi(err.stack), 500),
 	});
 	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);

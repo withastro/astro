@@ -41,9 +41,21 @@ export function fixViteErrorMessage(_err: unknown, server: ViteDevServer) {
 	return err;
 }
 
+
+const incompatiblePackages = {
+	'react-spectrum': `@adobe/react-spectrum is not compatible with Vite's server-side rendering mode at the moment. You can still use React Spectrum from the client. Create an island React component and use the client:only directive. From there you can use React Spectrum.`
+};
+const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackages).join('|')})`);
+
 function generateHint(err: ErrorWithMetadata): string | undefined {
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
+	} else {
+		const res = incompatPackageExp.exec(err.stack);
+		if(res) {
+			const key = res[0] as keyof typeof incompatiblePackages;
+			return incompatiblePackages[key];
+		}
 	}
 	return undefined;
 }
