@@ -9,8 +9,9 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
-import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
+import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -78,17 +79,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`)) {
-				const sitePathname = appendForwardSlash(
-					config.site ? new URL(config.base, config.site).pathname : config.base
-				);
-
-				const fileId = id.replace(MARKDOWN_IMPORT_FLAG, '');
-				let fileUrl = fileId.includes('/pages/')
-					? fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
-					: undefined;
-				if (fileUrl && config.trailingSlash === 'always') {
-					fileUrl = appendForwardSlash(fileUrl);
-				}
+				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);

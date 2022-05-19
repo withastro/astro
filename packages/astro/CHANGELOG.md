@@ -1,5 +1,17 @@
 # astro
 
+## 1.0.0-beta.30
+
+### Patch Changes
+
+- [#3392](https://github.com/withastro/astro/pull/3392) [`2939be5f`](https://github.com/withastro/astro/commit/2939be5f2d95711a2a891d77824763c7dbbf10d2) Thanks [@matthewp](https://github.com/matthewp)! - Allows vite config to override options used in the build
+
+* [#3401](https://github.com/withastro/astro/pull/3401) [`0d3c673d`](https://github.com/withastro/astro/commit/0d3c673dd9d9431bf6e6a88c448e324033f7f2f7) Thanks [@tony-sull](https://github.com/tony-sull)! - Adding support for config.build.format to the dev server
+
+- [#3399](https://github.com/withastro/astro/pull/3399) [`1bf12260`](https://github.com/withastro/astro/commit/1bf12260afad57f83768d040fe3917fb214aaf5f) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update "building for SSR..." log for SSG users to say "building entrypoints for prerendering..."
+
+* [#3391](https://github.com/withastro/astro/pull/3391) [`cf8015ea`](https://github.com/withastro/astro/commit/cf8015eaa2b756f4ec399e8fd7071dee7dfa9ab6) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix [#3309](https://github.com/withastro/astro/issues/3309) default logger locale behavior.
+
 ## 1.0.0-beta.29
 
 ### Patch Changes

@@ -140,8 +140,10 @@ export async function loadFixture(inlineConfig) {
 		},
 		loadTestAdapterApp: async () => {
 			const url = new URL('./server/entry.mjs', config.outDir);
-			const { createApp } = await import(url);
-			return createApp();
+			const { createApp, manifest } = await import(url);
+			const app = createApp();
+			app.manifest = manifest;
+			return app;
 		},
 		editFile: async (filePath, newContentsOrCallback) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);

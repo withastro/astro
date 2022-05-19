@@ -45,14 +45,14 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
       '@astrojs/preact': ^0.1.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
     dependencies:
       preact: 10.7.2
@@ -63,7 +63,7 @@ importers:
   examples/blog-multiple-authors:
     specifiers:
       '@astrojs/preact': ^0.1.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
       sass: ^1.51.0
     dependencies:
@@ -75,14 +75,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -98,7 +98,7 @@ importers:
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
       '@types/react': ^17.0.45
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
       react: ^17.0.2
       react-dom: ^17.0.2
@@ -117,14 +117,14 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-alpine:
     specifiers:
       alpinejs: ^3.10.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     dependencies:
       alpinejs: 3.10.2
     devDependencies:
@@ -134,7 +134,7 @@ importers:
     specifiers:
       '@astrojs/lit': ^0.1.3
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       lit: ^2.2.4
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
@@ -152,23 +152,23 @@ importers:
       '@astrojs/svelte': ^0.1.3
       '@astrojs/vue': ^0.1.4
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       lit: ^2.2.4
       preact: ^10.7.2
       react: ^18.1.0
       react-dom: ^18.1.0
-      solid-js: ^1.4.1
+      solid-js: ^1.4.2
       svelte: ^3.48.0
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.4
       preact: 10.7.2
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
-      solid-js: 1.4.1
+      solid-js: 1.4.2
       svelte: 3.48.0
-      vue: 3.2.33
+      vue: 3.2.34
     devDependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -181,7 +181,7 @@ importers:
   examples/framework-preact:
     specifiers:
       '@astrojs/preact': ^0.1.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
     dependencies:
       preact: 10.7.2
@@ -194,7 +194,7 @@ importers:
       '@astrojs/react': ^0.1.2
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.4
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -209,10 +209,10 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^0.1.2
-      astro: ^1.0.0-beta.29
-      solid-js: ^1.4.1
+      astro: ^1.0.0-beta.30
+      solid-js: ^1.4.2
     dependencies:
-      solid-js: 1.4.1
+      solid-js: 1.4.2
     devDependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
       astro: link:../../packages/astro
@@ -220,7 +220,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^0.1.3
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       svelte: ^3.48.0
     dependencies:
       svelte: 3.48.0
@@ -231,10 +231,10 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^0.1.4
-      astro: ^1.0.0-beta.29
-      vue: ^3.2.33
+      astro: ^1.0.0-beta.30
+      vue: ^3.2.34
     dependencies:
-      vue: 3.2.33
+      vue: 3.2.34
     devDependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
@@ -249,14 +249,14 @@ importers:
       '@astrojs/tailwind': ^0.2.1
       '@astrojs/turbolinks': ^0.1.3
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       lit: ^2.2.4
       preact: ^10.7.2
       react: ^18.1.0
       react-dom: ^18.1.0
-      solid-js: ^1.4.1
+      solid-js: ^1.4.2
       svelte: ^3.48.0
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.4
@@ -264,7 +264,7 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
       svelte: 3.48.0
-      vue: 3.2.33
+      vue: 3.2.34
     devDependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
       '@astrojs/partytown': link:../../packages/integrations/partytown
@@ -274,24 +274,24 @@ importers:
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
       astro: link:../../packages/astro
-      solid-js: 1.4.1
+      solid-js: 1.4.2
 
   examples/minimal:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
       '@astrojs/preact': ^0.1.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
       sass: ^1.51.0
     dependencies:
@@ -305,7 +305,7 @@ importers:
     specifiers:
       '@astrojs/node': ^0.1.1
       '@astrojs/svelte': ^0.1.3
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       concurrently: ^7.2.0
       lightcookie: ^1.0.25
       svelte: ^3.48.0
@@ -324,14 +324,14 @@ importers:
 
   examples/starter:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
       '@astrojs/react': ^0.1.2
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       react: ^18.1.0
       react-dom: ^18.1.0
       sass: ^1.51.0
@@ -350,18 +350,18 @@ importers:
       '@astrojs/react': ^0.1.2
       '@astrojs/svelte': ^0.1.3
       '@astrojs/vue': ^0.1.4
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       preact: ^10.7.2
       react: ^18.1.0
       react-dom: ^18.1.0
       svelte: ^3.48.0
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
       preact: 10.7.2
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
       svelte: 3.48.0
-      vue: 3.2.33
+      vue: 3.2.34
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -373,7 +373,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^0.9.4
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -391,7 +391,7 @@ importers:
   examples/with-markdown-shiki:
     specifiers:
       '@astrojs/markdown-remark': ^0.9.4
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
@@ -406,23 +406,23 @@ importers:
       '@nanostores/preact': ^0.1.3
       '@nanostores/react': ^0.1.5
       '@nanostores/vue': ^0.4.1
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       nanostores: ^0.5.12
       preact: ^10.7.2
       react: ^18.1.0
       react-dom: ^18.1.0
       solid-nanostores: 0.0.6
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
       '@nanostores/preact': 0.1.3_57fvx76pa5saeyi2u347ideiqy
       '@nanostores/react': 0.1.5_ib7jseorxmnfrhevtrqzsp5cr4
-      '@nanostores/vue': 0.4.1_vboeo7axrmyjwprm7hcgpjx6rm
+      '@nanostores/vue': 0.4.1_abgv3lyim3o3bwlwlj5wplxdli
       nanostores: 0.5.12
       preact: 10.7.2
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
       solid-nanostores: 0.0.6
-      vue: 3.2.33
+      vue: 3.2.34
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       '@astrojs/react': link:../../packages/integrations/react
@@ -434,22 +434,22 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/tailwind': ^0.2.1
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
-      postcss: ^8.4.13
+      postcss: ^8.4.14
       tailwindcss: ^3.0.24
     devDependencies:
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       astro: link:../../packages/astro
-      autoprefixer: 10.4.7_postcss@8.4.13
+      autoprefixer: 10.4.7_postcss@8.4.14
       canvas-confetti: 1.5.1
-      postcss: 8.4.13
+      postcss: 8.4.14
       tailwindcss: 3.0.24
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.0.0-beta.29
+      astro: ^1.0.0-beta.30
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     devDependencies:
@@ -521,14 +521,14 @@ importers:
       ora: ^6.1.0
       path-browserify: ^1.0.1
       path-to-regexp: ^6.2.1
-      postcss: ^8.4.13
+      postcss: ^8.4.14
       postcss-load-config: ^3.1.4
       preferred-pm: ^3.0.3
       prismjs: ^1.28.0
       prompts: ^2.4.2
       recast: ^0.20.5
       resolve: ^1.22.0
-      rollup: ^2.73.0
+      rollup: ^2.74.0
       sass: ^1.51.0
       semver: ^7.3.7
       serialize-javascript: ^6.0.0
@@ -581,14 +581,14 @@ importers:
       ora: 6.1.0
       path-browserify: 1.0.1
       path-to-regexp: 6.2.1
-      postcss: 8.4.13
-      postcss-load-config: 3.1.4_postcss@8.4.13
+      postcss: 8.4.14
+      postcss-load-config: 3.1.4_postcss@8.4.14
       preferred-pm: 3.0.3
       prismjs: 1.28.0
       prompts: 2.4.2
       recast: 0.20.5
       resolve: 1.22.0
-      rollup: 2.73.0
+      rollup: 2.74.0
       semver: 7.3.7
       serialize-javascript: 6.0.0
       shiki: 0.10.1
@@ -1164,14 +1164,14 @@ importers:
       '@astrojs/vue': workspace:*
       astro: workspace:*
       autoprefixer: ^10.4.7
-      postcss: ^8.4.13
+      postcss: ^8.4.14
     dependencies:
       '@astrojs/solid-js': link:../../../../integrations/solid
       '@astrojs/svelte': link:../../../../integrations/svelte
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
-      autoprefixer: 10.4.7_postcss@8.4.13
-      postcss: 8.4.13
+      autoprefixer: 10.4.7_postcss@8.4.14
+      postcss: 8.4.14
 
   packages/astro/test/fixtures/preact-component:
     specifiers:
@@ -1188,14 +1188,14 @@ importers:
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
       '@astrojs/react': link:../../../../integrations/react
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
-      vue: 3.2.33
+      vue: 3.2.34
 
   packages/astro/test/fixtures/remote-css:
     specifiers:
@@ -1329,13 +1329,13 @@ importers:
       '@astrojs/tailwind': workspace:*
       astro: workspace:*
       autoprefixer: ^10.4.7
-      postcss: ^8.4.13
+      postcss: ^8.4.14
       tailwindcss: ^3.0.24
     dependencies:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
-      autoprefixer: 10.4.7_postcss@8.4.13
-      postcss: 8.4.13
+      autoprefixer: 10.4.7_postcss@8.4.14
+      postcss: 8.4.14
       tailwindcss: 3.0.24
 
   packages/astro/test/fixtures/vue-component:
@@ -1538,14 +1538,14 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
-      babel-preset-solid: ^1.4.0
-      solid-js: ^1.4.1
+      babel-preset-solid: ^1.4.2
+      solid-js: ^1.4.2
     dependencies:
-      babel-preset-solid: 1.4.0
+      babel-preset-solid: 1.4.2
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      solid-js: 1.4.1
+      solid-js: 1.4.2
 
   packages/integrations/svelte:
     specifiers:
@@ -1573,12 +1573,12 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
-      postcss: ^8.4.13
+      postcss: ^8.4.14
       tailwindcss: ^3.0.24
     dependencies:
       '@proload/core': 0.3.2
-      autoprefixer: 10.4.7_postcss@8.4.13
-      postcss: 8.4.13
+      autoprefixer: 10.4.7_postcss@8.4.14
+      postcss: 8.4.14
       tailwindcss: 3.0.24
     devDependencies:
       '@types/tailwindcss': 3.0.10
@@ -1615,14 +1615,14 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       vite: ^2.9.9
-      vue: ^3.2.33
+      vue: ^3.2.34
     dependencies:
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.9+vue@3.2.33
+      '@vitejs/plugin-vue': 2.3.3_vite@2.9.9+vue@3.2.34
       vite: 2.9.9
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      vue: 3.2.33
+      vue: 3.2.34
 
   packages/markdown/remark:
     specifiers:
@@ -1722,17 +1722,17 @@ importers:
       magic-string: ^0.25.9
       mocha: ^9.2.2
       node-fetch: ^3.2.4
-      rollup: ^2.73.0
+      rollup: ^2.74.0
       rollup-plugin-terser: ^7.0.2
       tslib: ^2.4.0
       typescript: ^4.6.4
       urlpattern-polyfill: ^1.0.0-rc5
       web-streams-polyfill: ^3.2.1
     devDependencies:
-      '@rollup/plugin-alias': 3.1.9_rollup@2.73.0
-      '@rollup/plugin-inject': 4.0.4_rollup@2.73.0
-      '@rollup/plugin-node-resolve': 13.3.0_rollup@2.73.0
-      '@rollup/plugin-typescript': 8.3.2_qvmxwb53ll4ofwdq3bekbs74hi
+      '@rollup/plugin-alias': 3.1.9_rollup@2.74.0
+      '@rollup/plugin-inject': 4.0.4_rollup@2.74.0
+      '@rollup/plugin-node-resolve': 13.3.0_rollup@2.74.0
+      '@rollup/plugin-typescript': 8.3.2_dwhto3eknlchw7qifl3asmnahy
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
       '@types/node': 14.18.18
@@ -1745,8 +1745,8 @@ importers:
       magic-string: 0.25.9
       mocha: 9.2.2
       node-fetch: 3.2.4
-      rollup: 2.73.0
-      rollup-plugin-terser: 7.0.2_rollup@2.73.0
+      rollup: 2.74.0
+      rollup-plugin-terser: 7.0.2_rollup@2.74.0
       tslib: 2.4.0
       typescript: 4.6.4
       urlpattern-polyfill: 1.0.0-rc5
@@ -3704,7 +3704,7 @@ packages:
       react-dom: 18.1.0_react@18.1.0
     dev: false
 
-  /@nanostores/vue/0.4.1_vboeo7axrmyjwprm7hcgpjx6rm:
+  /@nanostores/vue/0.4.1_abgv3lyim3o3bwlwlj5wplxdli:
     resolution: {integrity: sha512-b0nNzKD2fTi8R48Jrlg6j+/InPH9r1HOl0iOnpNmL84BOxl+jQnbgyzNlf+3VWAEQSD955hJ/HTl/N1bjJSz5g==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
@@ -3716,7 +3716,7 @@ packages:
         optional: true
     dependencies:
       nanostores: 0.5.12
-      vue: 3.2.33
+      vue: 3.2.34
     dev: false
 
   /@netlify/edge-handler-types/0.34.1:
@@ -3886,13 +3886,13 @@ packages:
       tsm: 2.2.1
     dev: false
 
-  /@rollup/plugin-alias/3.1.9_rollup@2.73.0:
+  /@rollup/plugin-alias/3.1.9_rollup@2.74.0:
     resolution: {integrity: sha512-QI5fsEvm9bDzt32k39wpOwZhVzRcL5ydcffUHMyLVaVaLeC70I8TJZ17F1z1eMoLu4E/UOcH9BWVkKpIKdrfiw==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0
     dependencies:
-      rollup: 2.73.0
+      rollup: 2.74.0
       slash: 3.0.0
     dev: true
 
@@ -3915,15 +3915,15 @@ packages:
       rollup: 2.72.1
     dev: true
 
-  /@rollup/plugin-inject/4.0.4_rollup@2.73.0:
+  /@rollup/plugin-inject/4.0.4_rollup@2.74.0:
     resolution: {integrity: sha512-4pbcU4J/nS+zuHk+c+OL3WtmEQhqxlZ9uqfjQMQDOHOPld7PsCd8k5LWs8h5wjwJN7MgnAn768F2sDxEP4eNFQ==}
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.73.0
+      '@rollup/pluginutils': 3.1.0_rollup@2.74.0
       estree-walker: 2.0.2
       magic-string: 0.25.9
-      rollup: 2.73.0
+      rollup: 2.74.0
     dev: true
 
   /@rollup/plugin-node-resolve/11.2.1_rollup@2.72.1:
@@ -3941,19 +3941,19 @@ packages:
       rollup: 2.72.1
     dev: true
 
-  /@rollup/plugin-node-resolve/13.3.0_rollup@2.73.0:
+  /@rollup/plugin-node-resolve/13.3.0_rollup@2.74.0:
     resolution: {integrity: sha512-Lus8rbUo1eEcnS4yTFKLZrVumLPY+YayBdWXgFSHYhTT2iJbMhoaaBL3xl5NCdeRytErGr8tZ0L71BMRmnlwSw==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
       rollup: ^2.42.0
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.73.0
+      '@rollup/pluginutils': 3.1.0_rollup@2.74.0
       '@types/resolve': 1.17.1
       deepmerge: 4.2.2
       is-builtin-module: 3.1.0
       is-module: 1.0.0
       resolve: 1.22.0
-      rollup: 2.73.0
+      rollup: 2.74.0
     dev: true
 
   /@rollup/plugin-replace/2.4.2_rollup@2.72.1:
@@ -3966,7 +3966,7 @@ packages:
       rollup: 2.72.1
     dev: true
 
-  /@rollup/plugin-typescript/8.3.2_qvmxwb53ll4ofwdq3bekbs74hi:
+  /@rollup/plugin-typescript/8.3.2_dwhto3eknlchw7qifl3asmnahy:
     resolution: {integrity: sha512-MtgyR5LNHZr3GyN0tM7gNO9D0CS+Y+vflS4v/PHmrX17JCkHUYKvQ5jN5o3cz1YKllM3duXUqu3yOHwMPUxhDg==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
@@ -3974,9 +3974,9 @@ packages:
       tslib: '*'
       typescript: '>=3.7.0'
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.73.0
+      '@rollup/pluginutils': 3.1.0_rollup@2.74.0
       resolve: 1.22.0
-      rollup: 2.73.0
+      rollup: 2.74.0
       tslib: 2.4.0
       typescript: 4.6.4
     dev: true
@@ -3993,7 +3993,7 @@ packages:
       rollup: 2.72.1
     dev: true
 
-  /@rollup/pluginutils/3.1.0_rollup@2.73.0:
+  /@rollup/pluginutils/3.1.0_rollup@2.74.0:
     resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
     engines: {node: '>= 8.0.0'}
     peerDependencies:
@@ -4002,7 +4002,7 @@ packages:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.3.1
-      rollup: 2.73.0
+      rollup: 2.74.0
     dev: true
 
   /@rollup/pluginutils/4.2.1:
@@ -4586,7 +4586,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue/2.3.3_vite@2.9.9+vue@3.2.33:
+  /@vitejs/plugin-vue/2.3.3_vite@2.9.9+vue@3.2.34:
     resolution: {integrity: sha512-SmQLDyhz+6lGJhPELsBdzXGc+AcaT8stgkbiTFGpXPe8Tl1tJaBw1A6pxDqDuRsVkD8uscrkx3hA7QDOoKYtyw==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -4597,7 +4597,7 @@ packages:
         optional: true
     dependencies:
       vite: 2.9.9
-      vue: 3.2.33
+      vue: 3.2.34
     dev: false
 
   /@vscode/emmet-helper/2.8.4:
@@ -4611,46 +4611,46 @@ packages:
       vscode-uri: 2.1.2
     dev: false
 
-  /@vue/compiler-core/3.2.33:
-    resolution: {integrity: sha512-AAmr52ji3Zhk7IKIuigX2osWWsb2nQE5xsdFYjdnmtQ4gymmqXbjLvkSE174+fF3A3kstYrTgGkqgOEbsdLDpw==}
+  /@vue/compiler-core/3.2.34:
+    resolution: {integrity: sha512-Y53lv04ZhDfqflhk4yEgBZrCL1RipbxqmqJFfl1PRkjOzt0bvJpf1sCNN81QNfXohVwFGf+Hng2ztwLwOZgbuA==}
     dependencies:
       '@babel/parser': 7.17.12
-      '@vue/shared': 3.2.33
+      '@vue/shared': 3.2.34
       estree-walker: 2.0.2
       source-map: 0.6.1
 
-  /@vue/compiler-dom/3.2.33:
-    resolution: {integrity: sha512-GhiG1C8X98Xz9QUX/RlA6/kgPBWJkjq0Rq6//5XTAGSYrTMBgcLpP9+CnlUg1TFxnnCVughAG+KZl28XJqw8uQ==}
+  /@vue/compiler-dom/3.2.34:
+    resolution: {integrity: sha512-MFLUYDgy0aES9x1goU/pgxpzgT9IZOndO8qwQVSyVfUvl/CywEBtfBi5+8fsiBDhoGIT7g8qcsUUF1NYViU2vQ==}
     dependencies:
-      '@vue/compiler-core': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/compiler-core': 3.2.34
+      '@vue/shared': 3.2.34
 
-  /@vue/compiler-sfc/3.2.33:
-    resolution: {integrity: sha512-H8D0WqagCr295pQjUYyO8P3IejM3vEzeCO1apzByAEaAR/WimhMYczHfZVvlCE/9yBaEu/eu9RdiWr0kF8b71Q==}
+  /@vue/compiler-sfc/3.2.34:
+    resolution: {integrity: sha512-I+vT4soKJtdsoREBDYAcz56+yGpZ5T3GUigvBFgC2yTeTtBtREOPzYw8kZyMuD2ZlryPYBkbV8D9xxcvU0j/aw==}
     dependencies:
       '@babel/parser': 7.17.12
-      '@vue/compiler-core': 3.2.33
-      '@vue/compiler-dom': 3.2.33
-      '@vue/compiler-ssr': 3.2.33
-      '@vue/reactivity-transform': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/compiler-core': 3.2.34
+      '@vue/compiler-dom': 3.2.34
+      '@vue/compiler-ssr': 3.2.34
+      '@vue/reactivity-transform': 3.2.34
+      '@vue/shared': 3.2.34
       estree-walker: 2.0.2
       magic-string: 0.25.9
-      postcss: 8.4.13
+      postcss: 8.4.14
       source-map: 0.6.1
 
-  /@vue/compiler-ssr/3.2.33:
-    resolution: {integrity: sha512-XQh1Xdk3VquDpXsnoCd7JnMoWec9CfAzQDQsaMcSU79OrrO2PNR0ErlIjm/mGq3GmBfkQjzZACV+7GhfRB8xMQ==}
+  /@vue/compiler-ssr/3.2.34:
+    resolution: {integrity: sha512-zyaMdGJhxoA34ibWsXF7VH1PO5yrNB1MZg/ByRfXGM8JefGQaz+PpHvBy/5OI0ehEyhAyCb7279JdhYHacMZbw==}
     dependencies:
-      '@vue/compiler-dom': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/compiler-dom': 3.2.34
+      '@vue/shared': 3.2.34
 
-  /@vue/reactivity-transform/3.2.33:
-    resolution: {integrity: sha512-4UL5KOIvSQb254aqenW4q34qMXbfZcmEsV/yVidLUgvwYQQ/D21bGX3DlgPUGI3c4C+iOnNmDCkIxkILoX/Pyw==}
+  /@vue/reactivity-transform/3.2.34:
+    resolution: {integrity: sha512-OtsrL4/i6Md279pMhZ8wRijeDhPSdnXrH9wmqAcKDhVcp1L2kSWlgVVLa1jGIyyFYE806YiJNJiGBvXPGXMzxw==}
     dependencies:
       '@babel/parser': 7.17.12
-      '@vue/compiler-core': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/compiler-core': 3.2.34
+      '@vue/shared': 3.2.34
       estree-walker: 2.0.2
       magic-string: 0.25.9
 
@@ -4660,39 +4660,39 @@ packages:
       '@vue/shared': 3.1.5
     dev: false
 
-  /@vue/reactivity/3.2.33:
-    resolution: {integrity: sha512-62Sq0mp9/0bLmDuxuLD5CIaMG2susFAGARLuZ/5jkU1FCf9EDbwUuF+BO8Ub3Rbodx0ziIecM/NsmyjardBxfQ==}
+  /@vue/reactivity/3.2.34:
+    resolution: {integrity: sha512-xbRIOPqxdNOr0zS47moRS6zf4BKd0z+55R85UJlo4r5ezqCktk6fYy1atY4tGzo7Maqh6QoKw3LtIKvpz8d7WA==}
     dependencies:
-      '@vue/shared': 3.2.33
+      '@vue/shared': 3.2.34
 
-  /@vue/runtime-core/3.2.33:
-    resolution: {integrity: sha512-N2D2vfaXsBPhzCV3JsXQa2NECjxP3eXgZlFqKh4tgakp3iX6LCGv76DLlc+IfFZq+TW10Y8QUfeihXOupJ1dGw==}
+  /@vue/runtime-core/3.2.34:
+    resolution: {integrity: sha512-GtaHqYiuEb56OA0cbMh20UPpDiXGRX+NS1buKif4OL341JJ3NtmNOIchCzknaN76oN6KqrLiO82/+TEZXl2Xtw==}
     dependencies:
-      '@vue/reactivity': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/reactivity': 3.2.34
+      '@vue/shared': 3.2.34
 
-  /@vue/runtime-dom/3.2.33:
-    resolution: {integrity: sha512-LSrJ6W7CZTSUygX5s8aFkraDWlO6K4geOwA3quFF2O+hC3QuAMZt/0Xb7JKE3C4JD4pFwCSO7oCrZmZ0BIJUnw==}
+  /@vue/runtime-dom/3.2.34:
+    resolution: {integrity: sha512-uqizbaJqmNH3O4TRr+8cM1tid5ODWHyQYZ3CLWcjn3dLkf0N7wvNuhUELQUZU/wQLvVMhJUQNrmOqckHLm6Xpw==}
     dependencies:
-      '@vue/runtime-core': 3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/runtime-core': 3.2.34
+      '@vue/shared': 3.2.34
       csstype: 2.6.20
 
-  /@vue/server-renderer/3.2.33_vue@3.2.33:
-    resolution: {integrity: sha512-4jpJHRD4ORv8PlbYi+/MfP8ec1okz6rybe36MdpkDrGIdEItHEUyaHSKvz+ptNEyQpALmmVfRteHkU9F8vxOew==}
+  /@vue/server-renderer/3.2.34_vue@3.2.34:
+    resolution: {integrity: sha512-PMnBAq1BexPFXBxuLngp4lQvc0XQD1CBDIHtEsG0pRusGWVJddBUKlR/EnnSvGaJ34YmKkAl9kdvczOz0kddew==}
     peerDependencies:
-      vue: 3.2.33
+      vue: 3.2.34
     dependencies:
-      '@vue/compiler-ssr': 3.2.33
-      '@vue/shared': 3.2.33
-      vue: 3.2.33
+      '@vue/compiler-ssr': 3.2.34
+      '@vue/shared': 3.2.34
+      vue: 3.2.34
 
   /@vue/shared/3.1.5:
     resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
     dev: false
 
-  /@vue/shared/3.2.33:
-    resolution: {integrity: sha512-UBc1Pg1T3yZ97vsA2ueER0F6GbJebLHYlEi4ou1H5YL4KWvMOOWwpYo9/QpWq93wxKG6Wo13IY74Hcn/f7c7Bg==}
+  /@vue/shared/3.2.34:
+    resolution: {integrity: sha512-zhEeB8TrFmTXmTXmu/wcjEhgrjO4xqdDQrCdPhjX7NxfoLqoBVKguOm8qyihWNLbP+41svYY4za9mqXyqFLzNg==}
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
@@ -4947,7 +4947,7 @@ packages:
     engines: {node: '>= 4.0.0'}
     dev: true
 
-  /autoprefixer/10.4.7_postcss@8.4.13:
+  /autoprefixer/10.4.7_postcss@8.4.14:
     resolution: {integrity: sha512-ypHju4Y2Oav95SipEcCcI5J7CGPuvz8oat7sUtYj3ClK44bldfvtvcxK6IEK++7rqB7YchDGzweZIBG+SD0ZAA==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -4959,7 +4959,7 @@ packages:
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.13
+      postcss: 8.4.14
       postcss-value-parser: 4.2.0
 
   /available-typed-arrays/1.0.5:
@@ -4973,8 +4973,8 @@ packages:
       object.assign: 4.1.2
     dev: true
 
-  /babel-plugin-jsx-dom-expressions/0.33.0:
-    resolution: {integrity: sha512-f70XzLfr+x8pOxRAZPNe7MBaILcgIp10RE6AVA7BZqtZYclsT/h/9Bj2GZU6rXG+ud1fEZCW1lAIt6gv9kt3Cw==}
+  /babel-plugin-jsx-dom-expressions/0.33.7:
+    resolution: {integrity: sha512-2RsP7+i8KAd7EPxw3L1mJ9YGhxF56YJ0qQgWgPRiWWECzmxd3RYc+gaIwPw0yZRTN5Z0xQfa+3yTdNgDzq36dQ==}
     dependencies:
       '@babel/helper-module-imports': 7.16.0
       '@babel/plugin-syntax-jsx': 7.17.12
@@ -5029,10 +5029,10 @@ packages:
       - supports-color
     dev: true
 
-  /babel-preset-solid/1.4.0:
-    resolution: {integrity: sha512-mcnAtsQj4cxX+rPomhH+XgNunTFxW6CnkyaD9nZqzpcBULtfSTnqqlfFx0+OqaD5/71Q90UgOSNv7NJp+GGU4g==}
+  /babel-preset-solid/1.4.2:
+    resolution: {integrity: sha512-dDAYTT4UcBvUjdnlf1SOBNTospI/L1wWyzrMxEie3B4Auofo0lSFaCc95Pn5AZY8sdAew13Rp4a1ImByIsZlsQ==}
     dependencies:
-      babel-plugin-jsx-dom-expressions: 0.33.0
+      babel-plugin-jsx-dom-expressions: 0.33.7
     transitivePeerDependencies:
       - '@babel/core'
     dev: false
@@ -7743,12 +7743,12 @@ packages:
       unist-util-visit: 3.1.0
     dev: false
 
-  /mdast-util-find-and-replace/2.1.0:
-    resolution: {integrity: sha512-1w1jbqAd13oU78QPBf5223+xB+37ecNtQ1JElq2feWols5oEYAl+SgNDnOZipe7NfLemoEt362yUS15/wip4mw==}
+  /mdast-util-find-and-replace/2.2.0:
+    resolution: {integrity: sha512-bz8hUWkMX7UcasORORcyBEsTKJ+dBiFwRPrm43hHC9NMRylIMLbfO5rwfeCN+UtY4AAi7s8WqXftb9eX6ZsqCg==}
     dependencies:
       escape-string-regexp: 5.0.0
       unist-util-is: 5.1.1
-      unist-util-visit-parents: 4.1.1
+      unist-util-visit-parents: 5.1.0
     dev: false
 
   /mdast-util-from-markdown/1.2.0:
@@ -7775,7 +7775,7 @@ packages:
     dependencies:
       '@types/mdast': 3.0.10
       ccount: 2.0.1
-      mdast-util-find-and-replace: 2.1.0
+      mdast-util-find-and-replace: 2.2.0
       micromark-util-character: 1.1.0
     dev: false
 
@@ -8899,14 +8899,14 @@ packages:
     hasBin: true
     dev: true
 
-  /postcss-js/4.0.0_postcss@8.4.13:
+  /postcss-js/4.0.0_postcss@8.4.14:
     resolution: {integrity: sha512-77QESFBwgX4irogGVPgQ5s07vLvFqWr228qZY+w6lW599cRlK/HmnlivnnVUxkjHnCu4J16PDMHcH+e+2HbvTQ==}
     engines: {node: ^12 || ^14 || >= 16}
     peerDependencies:
       postcss: ^8.3.3
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.13
+      postcss: 8.4.14
 
   /postcss-load-config/3.1.4:
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
@@ -8924,7 +8924,7 @@ packages:
       yaml: 1.10.2
     dev: false
 
-  /postcss-load-config/3.1.4_postcss@8.4.13:
+  /postcss-load-config/3.1.4_postcss@8.4.14:
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
     engines: {node: '>= 10'}
     peerDependencies:
@@ -8937,16 +8937,16 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.0.5
-      postcss: 8.4.13
+      postcss: 8.4.14
       yaml: 1.10.2
 
-  /postcss-nested/5.0.6_postcss@8.4.13:
+  /postcss-nested/5.0.6_postcss@8.4.14:
     resolution: {integrity: sha512-rKqm2Fk0KbA8Vt3AdGN0FB9OBOMDVajMG6ZCf/GoHgdxUJ4sBFp0A/uMIRm+MJUdo33YXEtjqIz8u7DAp8B7DA==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.2.14
     dependencies:
-      postcss: 8.4.13
+      postcss: 8.4.14
       postcss-selector-parser: 6.0.10
 
   /postcss-selector-parser/6.0.10:
@@ -8959,8 +8959,8 @@ packages:
   /postcss-value-parser/4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  /postcss/8.4.13:
-    resolution: {integrity: sha512-jtL6eTBrza5MPzy8oJLFuUscHDXTV5KcLlqAWHl5q5WYRfnNRGSmOZmOZ1T6Gy7A99mOZfqungmZMpMmCVJ8ZA==}
+  /postcss/8.4.14:
+    resolution: {integrity: sha512-E398TUmfAYFPBSdzgeieK2Y1+1cpdxJx8yXbK/m57nRhKSmk1GB2tO4lbLBtlkfPQTDKfe4Xqv1ASWPpayPEig==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.4
@@ -9510,14 +9510,14 @@ packages:
       terser: 5.13.1
     dev: true
 
-  /rollup-plugin-terser/7.0.2_rollup@2.73.0:
+  /rollup-plugin-terser/7.0.2_rollup@2.74.0:
     resolution: {integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==}
     peerDependencies:
       rollup: ^2.0.0
     dependencies:
       '@babel/code-frame': 7.16.7
       jest-worker: 26.6.2
-      rollup: 2.73.0
+      rollup: 2.74.0
       serialize-javascript: 4.0.0
       terser: 5.13.1
     dev: true
@@ -9536,8 +9536,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rollup/2.73.0:
-    resolution: {integrity: sha512-h/UngC3S4Zt28mB3g0+2YCMegT5yoftnQplwzPqGZcKvlld5e+kT/QRmJiL+qxGyZKOYpgirWGdLyEO1b0dpLQ==}
+  /rollup/2.74.0:
+    resolution: {integrity: sha512-RRwXTX5+ObPJhcMV6zP3RdHvy90/lBOUfbzL7IKkFjMJGAqeBGZiv9nZWm/DoTESaTE3GBkkzbU9QVN2AuCkjw==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
@@ -9817,6 +9817,10 @@ packages:
 
   /solid-js/1.4.1:
     resolution: {integrity: sha512-ts480PccmUW9WAludSXET2dbBevjv+l6XMmN/OyG/a/xA8ZQoX4hNBN3gGhW785ZZv90fowbUSuSQUwOISm3YA==}
+    dev: true
+
+  /solid-js/1.4.2:
+    resolution: {integrity: sha512-IU5yKuT8P/n5F5g8j1rTXqxUdPYmoZDk/074TG94AEYf/nyXAeG82BSge4/lLIbCfUcnGUJ6DRdebIjujOAYyg==}
 
   /solid-nanostores/0.0.6:
     resolution: {integrity: sha512-iwbgdBzQSxBKoxkzaZgC9MGGUsHWJ74at9i7FF0naoqtwGuKdLYOgOJ9QRlA353DHDS/ttH2e0SRS6s3gz8NLQ==}
@@ -10197,10 +10201,10 @@ packages:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.0.0
-      postcss: 8.4.13
-      postcss-js: 4.0.0_postcss@8.4.13
-      postcss-load-config: 3.1.4_postcss@8.4.13
-      postcss-nested: 5.0.6_postcss@8.4.13
+      postcss: 8.4.14
+      postcss-js: 4.0.0_postcss@8.4.14
+      postcss-load-config: 3.1.4_postcss@8.4.14
+      postcss-nested: 5.0.6_postcss@8.4.14
       postcss-selector-parser: 6.0.10
       postcss-value-parser: 4.2.0
       quick-lru: 5.1.1
@@ -10884,9 +10888,9 @@ packages:
         optional: true
     dependencies:
       esbuild: 0.14.39
-      postcss: 8.4.13
+      postcss: 8.4.14
       resolve: 1.22.0
-      rollup: 2.73.0
+      rollup: 2.74.0
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
@@ -10908,9 +10912,9 @@ packages:
         optional: true
     dependencies:
       esbuild: 0.14.39
-      postcss: 8.4.13
+      postcss: 8.4.14
       resolve: 1.22.0
-      rollup: 2.73.0
+      rollup: 2.74.0
       sass: 1.51.0
     optionalDependencies:
       fsevents: 2.3.2
@@ -11006,14 +11010,14 @@ packages:
     resolution: {integrity: sha512-EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==}
     dev: false
 
-  /vue/3.2.33:
-    resolution: {integrity: sha512-si1ExAlDUrLSIg/V7D/GgA4twJwfsfgG+t9w10z38HhL/HA07132pUQ2KuwAo8qbCyMJ9e6OqrmWrOCr+jW7ZQ==}
+  /vue/3.2.34:
+    resolution: {integrity: sha512-gXRg5v8OSmGT4ZiQ/X/Pcz6Fr2igHQx/wvRH/pLnt0VvjfGGqrwhnwjYZilLP4HBcO211rMD9PpU6lfWfIv3wg==}
     dependencies:
-      '@vue/compiler-dom': 3.2.33
-      '@vue/compiler-sfc': 3.2.33
-      '@vue/runtime-dom': 3.2.33
-      '@vue/server-renderer': 3.2.33_vue@3.2.33
-      '@vue/shared': 3.2.33
+      '@vue/compiler-dom': 3.2.34
+      '@vue/compiler-sfc': 3.2.34
+      '@vue/runtime-dom': 3.2.34
+      '@vue/server-renderer': 3.2.34_vue@3.2.34
+      '@vue/shared': 3.2.34
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=}

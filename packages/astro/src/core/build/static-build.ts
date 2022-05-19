@@ -101,7 +101,13 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
-	info(opts.logging, 'build', 'Building for SSR...');
+	info(
+		opts.logging,
+		'build',
+		isBuildingToSSR(astroConfig)
+			? 'Building SSR entrypoints...'
+			: 'Building entrypoints for prerendering...'
+	);
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
@@ -136,6 +142,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output,
 				},
 			},
 			ssr: true,
@@ -216,6 +223,7 @@ async function clientBuild(
 					entryFileNames: 'entry.[hash].js',
 					chunkFileNames: 'chunks/chunk.[hash].js',
 					assetFileNames: 'assets/asset.[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
