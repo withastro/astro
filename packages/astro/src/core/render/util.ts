@@ -55,36 +55,34 @@ export async function collectMdMetadata(
 	viteServer: ViteDevServer,
 ) {
 	const importedModules = [...(modGraph?.importedModules ?? [])];
-	await Promise.all(
-		importedModules.map(async (importedModule) => {
-			// recursively check for importedModules
-			if (!importedModule.id || seenMdMetadata.has(importedModule.id)) return;
+	for await (let importedModule of importedModules) {
+		// recursively check for importedModules
+		if (!importedModule.id || seenMdMetadata.has(importedModule.id)) return;
 
-			seenMdMetadata.add(importedModule.id);
-			await collectMdMetadata(metadata, importedModule, viteServer);
+		seenMdMetadata.add(importedModule.id);
+		await collectMdMetadata(metadata, importedModule, viteServer);
 
-			if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
+		if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
 
-			const mdSSRMod = await viteServer.ssrLoadModule(importedModule.id);
-			const mdMetadata = (await mdSSRMod.$$loadMetadata?.()) as Metadata;
-			if (!mdMetadata) return;
+		const mdSSRMod = await viteServer.ssrLoadModule(importedModule.id);
+		const mdMetadata = (await mdSSRMod.$$loadMetadata?.()) as Metadata;
+		if (!mdMetadata) return;
 
-			for (let mdMod of mdMetadata.modules) {
-				mdMod.specifier = mdMetadata.resolvePath(mdMod.specifier);
-				metadata.modules.push(mdMod);
-			}
-			for (let mdHoisted of mdMetadata.hoisted) {
-				metadata.hoisted.push(mdHoisted);
-			}
-			for (let mdHydrated of mdMetadata.hydratedComponents) {
-				metadata.hydratedComponents.push(mdHydrated);
-			}
-			for (let mdClientOnly of mdMetadata.clientOnlyComponents) {
-				metadata.clientOnlyComponents.push(mdClientOnly);
-			}
-			for (let mdHydrationDirective of mdMetadata.hydrationDirectives) {
-				metadata.hydrationDirectives.add(mdHydrationDirective);
-			}
-		})
-	);
+		for (let mdMod of mdMetadata.modules) {
+			mdMod.specifier = mdMetadata.resolvePath(mdMod.specifier);
+			metadata.modules.push(mdMod);
+		}
+		for (let mdHoisted of mdMetadata.hoisted) {
+			metadata.hoisted.push(mdHoisted);
+		}
+		for (let mdHydrated of mdMetadata.hydratedComponents) {
+			metadata.hydratedComponents.push(mdHydrated);
+		}
+		for (let mdClientOnly of mdMetadata.clientOnlyComponents) {
+			metadata.clientOnlyComponents.push(mdClientOnly);
+		}
+		for (let mdHydrationDirective of mdMetadata.hydrationDirectives) {
+			metadata.hydrationDirectives.add(mdHydrationDirective);
+		}
+	}
 }
