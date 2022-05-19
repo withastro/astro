@@ -69,11 +69,18 @@ if(_start in adapter) {
 			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
-			const staticFiles = await glob('**/*', {
+			const staticFiles = new Set(await glob('**/*', {
 				cwd: fileURLToPath(buildOpts.buildConfig.client),
-			});
+			}));
 
-			const manifest = buildManifest(buildOpts, internals, staticFiles);
+			// Add assets from this SSR chunk as well.
+			for(const [_chunkName, chunk] of Object.entries(bundle)) {
+				if(chunk.type === 'asset') {
+					staticFiles.add(chunk.fileName);
+				}
+			}
+
+			const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
 			await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
 
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
