@@ -13,7 +13,7 @@
     "astro": "^1.0.0-beta.30",
     "autoprefixer": "^10.4.7",
     "canvas-confetti": "^1.5.1",
-    "postcss": "^8.4.13",
+    "postcss": "^8.4.14",
     "tailwindcss": "^3.0.24"
   }
 }
