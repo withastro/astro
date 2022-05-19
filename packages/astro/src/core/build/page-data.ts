@@ -142,14 +142,23 @@ export async function collectPagesData(
 		}
 		const finalPaths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
-			.filter(Boolean)
 			.filter((staticPath) => {
+				// Remove empty or undefined paths
+				if (!staticPath) {
+					return false;
+				}
+
+				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
 					return true;
 				}
 
+				// The path was already built once. Check the manifest to see if
+				// this route takes priority for the final URL.
+				// NOTE: The same URL may match multiple routes in the manifest.
+				// Routing priority needs to be verified here for any duplicate
+				// paths to ensure routing priority rules are enforced in the final build.
 				const matchedRoute = matchRoute(staticPath, manifest);
-
 				return matchedRoute === route;
 			});
 
