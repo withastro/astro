@@ -79,7 +79,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`)) {
-				const { fileId, fileUrl } = getFileInfo(id.replace(MARKDOWN_IMPORT_FLAG, ''), config);
+				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
