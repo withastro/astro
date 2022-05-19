@@ -544,7 +544,7 @@ export async function renderToString(
 	}
 
 	let template = await renderAstroComponent(Component);
-	return replaceHeadInjection(result, template);
+	return template;
 }
 
 export async function renderPage(
