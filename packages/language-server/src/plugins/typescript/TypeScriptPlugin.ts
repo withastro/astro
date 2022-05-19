@@ -10,6 +10,7 @@ import {
 	FoldingRange,
 	FormattingOptions,
 	Hover,
+	InlayHint,
 	Position,
 	Range,
 	SemanticTokens,
@@ -41,6 +42,7 @@ import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
+import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import { FormattingProviderImpl } from './features/FormattingProvider';
 
 export class TypeScriptPlugin implements Plugin {
@@ -56,6 +58,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
+	private readonly inlayHintsProvider: InlayHintsProviderImpl;
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
 	private readonly formattingProvider: FormattingProviderImpl;
@@ -72,6 +75,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
 		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
+		this.inlayHintsProvider = new InlayHintsProviderImpl(this.languageServiceManager, this.configManager);
 		this.foldingRangesProvider = new FoldingRangesProviderImpl(this.languageServiceManager);
 		this.formattingProvider = new FormattingProviderImpl(this.languageServiceManager, this.configManager);
 	}
@@ -183,6 +187,10 @@ export class TypeScriptPlugin implements Plugin {
 		cancellationToken?: CancellationToken
 	): Promise<AppCompletionItem<CompletionItemData>> {
 		return this.completionProvider.resolveCompletion(document, completionItem, cancellationToken);
+	}
+
+	async getInlayHints(document: AstroDocument, range: Range): Promise<InlayHint[]> {
+		return this.inlayHintsProvider.getInlayHints(document, range);
 	}
 
 	async getDefinitions(document: AstroDocument, position: Position): Promise<DefinitionLink[]> {

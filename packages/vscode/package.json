@@ -19,7 +19,7 @@
     "test": "node ./test/runTest.js"
   },
   "engines": {
-    "vscode": "^1.56.0"
+    "vscode": "^1.67.0"
   },
   "activationEvents": [
     "onLanguage:astro",
@@ -28,11 +28,11 @@
   "dependencies": {
     "@astrojs/language-server": "0.18.1",
     "@astrojs/ts-plugin": "0.2.1",
-    "vscode-languageclient": "~7.0.0"
+    "vscode-languageclient": "^8.0.1"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
-    "@types/vscode": "^1.56.0",
+    "@types/vscode": "^1.67.0",
     "@vscode/test-electron": "^2.1.3",
     "astro-scripts": "file:../../scripts",
     "glob": "^7.2.0"
