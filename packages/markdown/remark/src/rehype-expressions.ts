@@ -7,10 +7,10 @@ export default function rehypeExpressions(): any {
 				return { ...child, type: 'raw' };
 			}
 			if (child.type === 'mdxTextExpression') {
-				return { type: 'text', value: `{${(child as any).value}}` };
+				return { type: 'raw', value: `{${(child as any).value}}` };
 			}
 			if (child.type === 'mdxFlowExpression') {
-				return { type: 'text', value: `{${(child as any).value}}` };
+				return { type: 'raw', value: `{${(child as any).value}}` };
 			}
 			return child;
 		});

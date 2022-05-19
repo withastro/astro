@@ -28,10 +28,18 @@ describe('Astro Markdown', () => {
 		const $ = cheerio.load(html);
 
 		expect($('h2').html()).to.equal('Blog Post with JSX expressions');
-		expect($('p').first().html()).to.equal('JSX at the start of the line!');
+
+		expect(html).to.contain('JSX at the start of the line!');
 		for (let listItem of ['test-1', 'test-2', 'test-3']) {
-			expect($(`#${listItem}`).html()).to.equal(`\n${listItem}\n`);
+			expect($(`#${listItem}`).html()).to.equal(`${listItem}`);
 		}
+	});
+
+	it('Can handle slugs with JSX expressions in markdown pages', async () => {
+		const html = await fixture.readFile('/slug/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').attr("id")).to.equal('my-blog-post');
 	});
 
 	it('Can load more complex jsxy stuff', async () => {

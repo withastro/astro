@@ -31,4 +31,10 @@ describe('expressions', () => {
 
 		chai.expect(code).to.equal(`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello <span>{frontmatter.name}</span></h1>`);
 	});
+
+	it('should be able to serialize function expression', async () => {
+		const { code } = await renderMarkdown(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`	, {});
+
+		chai.expect(code).to.equal(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`);
+	})
 });
