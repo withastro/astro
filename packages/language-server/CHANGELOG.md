@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.18.1
+
+### Patch Changes
+
+- 666739a: Revert update to latest LSP and inlay hints support
+
 ## 0.18.0
 
 ### Minor Changes
