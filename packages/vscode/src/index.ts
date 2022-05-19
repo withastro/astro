@@ -41,9 +41,10 @@ export async function activate(context: ExtensionContext) {
 	};
 
 	client = createLanguageServer(serverOptions, clientOptions);
+	context.subscriptions.push(client.start());
 
 	client
-		.start()
+		.onReady()
 		.then(() => {
 			const tagRequestor = (document: TextDocument, position: Position) => {
 				const param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
@@ -104,7 +105,8 @@ export async function activate(context: ExtensionContext) {
 		await client.stop();
 
 		client = createLanguageServer(serverOptions, clientOptions);
-		await client.start();
+		context.subscriptions.push(client.start());
+		await client.onReady();
 
 		if (showNotification) {
 			window.showInformationMessage('Astro language server restarted.');

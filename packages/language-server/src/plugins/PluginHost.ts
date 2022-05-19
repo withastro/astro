@@ -22,7 +22,6 @@ import {
 	SemanticTokens,
 	CodeActionContext,
 	CodeAction,
-	InlayHint,
 	FormattingOptions,
 	TextEdit,
 } from 'vscode-languageserver';
@@ -231,16 +230,6 @@ export class PluginHost {
 		const document = this.getDocument(textDocument.uri);
 
 		return flatten(await this.execute<ColorInformation[]>('getDocumentColors', [document], ExecuteMode.Collect));
-	}
-
-	async getInlayHints(
-		textDocument: TextDocumentIdentifier,
-		range: Range,
-		cancellationToken: CancellationToken
-	): Promise<InlayHint[]> {
-		const document = this.getDocument(textDocument.uri);
-
-		return flatten(await this.execute<InlayHint[]>('getInlayHints', [document, range], ExecuteMode.FirstNonNull));
 	}
 
 	async getColorPresentations(

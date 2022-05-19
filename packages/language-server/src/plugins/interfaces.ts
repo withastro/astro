@@ -13,7 +13,6 @@ import {
 	FoldingRange,
 	FormattingOptions,
 	Hover,
-	InlayHint,
 	LinkedEditingRanges,
 	Position,
 	Range,
@@ -104,10 +103,6 @@ export interface UpdateImportsProvider {
 	updateImports(fileRename: FileRename): Resolvable<WorkspaceEdit | null>;
 }
 
-export interface InlayHintsProvider {
-	getInlayHints(document: TextDocument, range: Range): Resolvable<InlayHint[]>;
-}
-
 export interface RenameProvider {
 	rename(document: TextDocument, position: Position, newName: string): Resolvable<WorkspaceEdit | null>;
 	prepareRename(document: TextDocument, position: Position): Resolvable<Range | null>;
@@ -169,7 +164,6 @@ type ProviderBase = DiagnosticsProvider &
 	SelectionRangeProvider &
 	OnWatchFileChangesProvider &
 	LinkedEditingRangesProvider &
-	InlayHintsProvider &
 	UpdateNonAstroFile;
 
 export type LSProvider = ProviderBase;

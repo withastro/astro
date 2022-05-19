@@ -28,7 +28,7 @@
   "dependencies": {
     "@astrojs/language-server": "0.18.0",
     "@astrojs/ts-plugin": "0.2.1",
-    "vscode-languageclient": "^8.0.0"
+    "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
