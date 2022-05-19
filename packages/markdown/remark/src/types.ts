@@ -36,6 +36,8 @@ export interface AstroMarkdownOptions {
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	/** @internal */
+	fileURL?: URL;
+	/** @internal */
 	$?: {
 		scopedClassName: string | null;
 	};

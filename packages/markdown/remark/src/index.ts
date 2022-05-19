@@ -19,6 +19,7 @@ import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
 import Slugger from 'github-slugger';
+import { VFile } from 'vfile';
 
 export * from './types.js';
 
@@ -35,7 +36,8 @@ export async function renderMarkdown(
 	content: string,
 	opts: MarkdownRenderingOptions = {}
 ): Promise<MarkdownRenderingResult> {
-	let { mode = 'mdx', syntaxHighlight = 'shiki', shikiConfig = {}, remarkPlugins = [], rehypePlugins = [] } = opts;
+	let { fileURL, mode = 'mdx', syntaxHighlight = 'shiki', shikiConfig = {}, remarkPlugins = [], rehypePlugins = [] } = opts;
+	const input = new VFile({ value: content, path: fileURL })
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
@@ -97,7 +99,7 @@ export async function renderMarkdown(
 		const vfile = await parser
 			.use([rehypeCollectHeaders])
 			.use(rehypeStringify, { allowDangerousHtml: true, allowParseErrors: true })
-			.process(content);
+			.process(input);
 		result = vfile.toString();
 	} catch (err) {
 		console.error(err);
