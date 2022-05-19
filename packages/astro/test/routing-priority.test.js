@@ -10,21 +10,6 @@ const routes = [
 		url: '/',
 		h1: 'index.astro'
 	},
-	/**{
-		url: '/privacy',
-		h1: '[slug].astro',
-		p: 'privacy'
-	},
-	{
-		url: '/about',
-		h1: '[slug].astro',
-		p: 'about'
-	},
-	{
-		url: '/about/contact',
-		h1: '[...catchall].astro',
-		p: 'about/contact'
-	},*/
 	{
 		url: '/posts/post-1',
 		h1: 'posts/[pid].astro',
