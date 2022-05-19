@@ -6,6 +6,7 @@ import type {
 	ShikiConfig,
 	RemarkPlugins,
 	RehypePlugins,
+	FrontmatterPlugins,
 	MarkdownHeader,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
@@ -592,6 +593,23 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
+		/**
+		 * @docs
+		 * @name markdown.frontmatterPlugins
+		 * @type {FrontmatterPlugins}
+		 * @description
+		 * Pass a custom Frontmatter plugin to customize Markdown frontmatter.
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: The default set of frontmatter plugins used by Astro
+		 *     frontmatterPlugins: [],
+		 *   },
+		 * };
+		 * ```
+		 */
+		frontmatterPlugins?: FrontmatterPlugins;
 	};
 
 	/**

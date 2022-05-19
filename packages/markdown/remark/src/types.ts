@@ -19,6 +19,18 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
+export type FrontmatterPlugin<PluginParameters extends any[] = any[]> = unified.Plugin<
+	PluginParameters,
+	hast.Root
+>;
+
+export type FrontmatterPlugins = (
+	| string
+	| [string, any]
+	| FrontmatterPlugin
+	| [FrontmatterPlugin, any]
+)[];
+
 export interface ShikiConfig {
 	langs: ILanguageRegistration[];
 	theme: Theme | IThemeRegistration;
@@ -32,6 +44,7 @@ export interface AstroMarkdownOptions {
 	shikiConfig: ShikiConfig;
 	remarkPlugins: RemarkPlugins;
 	rehypePlugins: RehypePlugins;
+	frontmatterPlugins: FrontmatterPlugins;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {

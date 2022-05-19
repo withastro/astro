@@ -1,4 +1,4 @@
-import { renderMarkdown } from '@astrojs/markdown-remark';
+import { renderMarkdown, loadPlugins } from '@astrojs/markdown-remark';
 import { transform } from '@astrojs/compiler';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -118,7 +118,17 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
-				const { data: frontmatter, content: markdownContent } = matter(source);
+				let { data: frontmatter, content: markdownContent } = matter(source);
+
+				if (renderOpts.frontmatterPlugins.length > 0) {
+					const loadedFrontmatterPlugins = await Promise.all(
+						loadPlugins(renderOpts.frontmatterPlugins)
+					);
+					loadedFrontmatterPlugins.forEach(([plugin, opts]) => {
+						frontmatter = plugin(frontmatter, getFileInfo(id, config), opts);
+					});
+				}
+
 				let renderResult = await renderMarkdown(markdownContent, renderOpts);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
@@ -162,6 +172,7 @@ ${tsResult}`;
 					sourcemap: false,
 					sourcefile: id,
 				});
+
 				return {
 					code,
 					map: null,

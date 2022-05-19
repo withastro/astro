@@ -2,7 +2,7 @@ import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../
 import type { Arguments as Flags } from 'yargs-parser';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import type { RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
+import type { RemarkPlugin, RehypePlugin, FrontmatterPlugin } from '@astrojs/markdown-remark';
 
 import * as colors from 'kleur/colors';
 import path from 'path';
@@ -177,6 +177,15 @@ export const AstroConfigSchema = z.object({
 					z.tuple([z.string(), z.any()]),
 					z.custom<RehypePlugin>((data) => typeof data === 'function'),
 					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
+				])
+				.array()
+				.default([]),
+			frontmatterPlugins: z
+				.union([
+					z.string(),
+					z.tuple([z.string(), z.any()]),
+					z.custom<FrontmatterPlugin>((data) => typeof data === 'function'),
+					z.tuple([z.custom<FrontmatterPlugin>((data) => typeof data === 'function'), z.any()]),
 				])
 				.array()
 				.default([]),

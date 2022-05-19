@@ -21,6 +21,8 @@ import rehypeRaw from 'rehype-raw';
 
 export * from './types.js';
 
+export { loadPlugins };
+
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = [];
 

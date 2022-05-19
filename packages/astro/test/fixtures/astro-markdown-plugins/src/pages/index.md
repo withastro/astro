@@ -2,4 +2,4 @@
 layout: ../layouts/content.astro
 ---
 
-# Hello world
+# Hello world from page
