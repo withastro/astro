@@ -8,6 +8,6 @@
     "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.13"
+    "postcss": "^8.4.14"
   }
 }
