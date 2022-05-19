@@ -76,17 +76,58 @@ describe('Routing priority', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ url, h1, p }) => {
-			it(`matches ${url} to ${h1}`, async () => {
-				const html = await fixture.readFile(url.endsWith('index.html') ? url : path.join(url, 'index.html'));
-				const $ = cheerioLoad(html);
+		it('matches / to index.astro', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
 
-				expect($('h1').text()).to.equal(h1);
+			expect($('h1').text()).to.equal('index.astro');
+		});
 
-				if (p) {
-					expect($('p').text()).to.equal(p);
-				}
-			});
+		it('matches /posts/post-1 to posts/[pid].astro', async () => {
+			const html = await fixture.readFile('/posts/post-1/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('posts/[pid].astro');
+			expect($('p').text()).to.equal('post-1');
+		});
+
+		it('matches /posts/1/2 to posts/[...slug].astro', async () => {
+			const html = await fixture.readFile('/posts/1/2/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('posts/[...slug].astro');
+			expect($('p').text()).to.equal('1/2');
+		});
+
+		it('matches /de to de/index.astro', async () => {
+			const html = await fixture.readFile('/de/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('de/index.astro');
+		});
+
+		it('matches /en to [lang]/index.astro', async () => {
+			const html = await fixture.readFile('/en/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[lang]/index.astro');
+			expect($('p').text()).to.equal('en');
+		});
+
+		it('matches /de/1/2 to [lang]/[...catchall].astro', async () => {
+			const html = await fixture.readFile('/de/1/2/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[lang]/[...catchall].astro');
+			expect($('p').text()).to.equal('de | 1/2')
+		});
+
+		it('matches /en/1/2 to [lang]/[...catchall].astro', async () => {
+			const html = await fixture.readFile('/en/1/2/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[lang]/[...catchall].astro');
+			expect($('p').text()).to.equal('en | 1/2')
 		});
 	});
 
@@ -101,17 +142,95 @@ describe('Routing priority', () => {
 			await devServer.stop();
 		});
 
-		routes.forEach(({ url, h1, p }) => {
-			it(`matches ${url} to ${h1}`, async () => {
-				const html = await fixture.fetch(url).then((res) => res.text());
+		it('matches / to index.astro', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
 				const $ = cheerioLoad(html);
 
-				expect($('h1').text()).to.equal(h1);
+				expect($('h1').text()).to.equal('index.astro');
+		});
 
-				if (p) {
-					expect($('p').text()).to.equal(p);
-				}
-			})
+		it('matches /posts/post-1 to /posts/[pid].astro', async () => {
+			const html = await fixture.fetch('/posts/post-1').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('posts/[pid].astro');
+				expect($('p').text()).to.equal('post-1');
+		});
+
+		it('matches /posts/1/2 to /posts/[...slug].astro', async () => {
+			const html = await fixture.fetch('/posts/1/2').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('posts/[...slug].astro');
+				expect($('p').text()).to.equal('1/2');
+		});
+
+		it('matches /de to de/index.astro', async () => {
+			const html = await fixture.fetch('/de').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('de/index.astro');
+		});
+
+		it('matches /de to de/index.astro', async () => {
+			const html = await fixture.fetch('/de').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('de/index.astro');
+		});
+
+		it('matches /de/ to de/index.astro', async () => {
+			const html = await fixture.fetch('/de/').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('de/index.astro');
+		});
+
+		it('matches /de/index.html to de/index.astro', async () => {
+			const html = await fixture.fetch('/de/index.html').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('de/index.astro');
+		});
+
+		it('matches /en to [lang]/index.astro', async () => {
+			const html = await fixture.fetch('/en').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('[lang]/index.astro');
+				expect($('p').text()).to.equal('en');
+		});
+
+		it('matches /en/ to [lang]/index.astro', async () => {
+			const html = await fixture.fetch('/en/').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('[lang]/index.astro');
+				expect($('p').text()).to.equal('en');
+		});
+
+		it('matches /en/index.html to de/index.astro', async () => {
+			const html = await fixture.fetch('/en/index.html').then((res) => res.text());
+				const $ = cheerioLoad(html);
+
+				expect($('h1').text()).to.equal('[lang]/index.astro');
+				expect($('p').text()).to.equal('en');
+		});
+
+		it('matches /de/1/2 to [lang]/[...catchall].astro', async () => {
+			const html = await fixture.fetch('/de/1/2/index.html').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[lang]/[...catchall].astro');
+			expect($('p').text()).to.equal('de | 1/2');
+		});
+
+		it('matches /en/1/2 to [lang]/[...catchall].astro', async () => {
+			const html = await fixture.fetch('/en/1/2/index.html').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[lang]/[...catchall].astro');
+			expect($('p').text()).to.equal('en | 1/2');
 		});
 	});
 });
