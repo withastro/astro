@@ -48,15 +48,19 @@ export const isCSSRequest = (request: string): boolean => cssRe.test(request);
 // Ex. markdown files imported asynchronously or via Astro.glob(...)
 // This calls each md file's $$loadMetadata to discover those dependencies
 // and writes all results to the input `metadata` object
+const seenMdMetadata = new Set<string>();
 export async function collectMdMetadata(
 	metadata: Metadata,
 	modGraph: ModuleNode,
-	viteServer: ViteDevServer
+	viteServer: ViteDevServer,
 ) {
 	const importedModules = [...(modGraph?.importedModules ?? [])];
 	await Promise.all(
 		importedModules.map(async (importedModule) => {
 			// recursively check for importedModules
+			if (!importedModule.id || seenMdMetadata.has(importedModule.id)) return;
+
+			seenMdMetadata.add(importedModule.id);
 			await collectMdMetadata(metadata, importedModule, viteServer);
 
 			if (!importedModule?.id?.endsWith(MARKDOWN_IMPORT_FLAG)) return;
