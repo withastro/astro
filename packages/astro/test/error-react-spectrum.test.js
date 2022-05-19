@@ -21,7 +21,7 @@ describe('Error packages: react-spectrum', () => {
 
 	it('properly detect syntax errors in template', async () => {
 		devServer = await fixture.startDevServer();
-		let html = await fixture.fetch('/').then(res => res.text());
+		let html = await fixture.fetch('/').then((res) => res.text());
 		let $ = cheerio.load(html);
 		const msg = $('.error-message').text();
 		expect(msg).to.match(/@adobe\/react-spectrum is not compatible/);

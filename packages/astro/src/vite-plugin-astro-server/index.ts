@@ -38,11 +38,11 @@ function removeViteHttpMiddleware(server: vite.Connect.Server) {
 }
 
 function truncateString(str: string, n: number) {
-  if (str.length > n) {
-    return str.substring(0, n) + '&#8230;';
-  } else {
-    return str;
-  }
+	if (str.length > n) {
+		return str.substring(0, n) + '&#8230;';
+	} else {
+		return str;
+	}
 }
 
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
