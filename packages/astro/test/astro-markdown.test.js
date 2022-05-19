@@ -42,6 +42,15 @@ describe('Astro Markdown', () => {
 		expect($('h1').attr("id")).to.equal('my-blog-post');
 	});
 
+	it('Can handle code elements without extra spacing', async () => {
+		const html = await fixture.readFile('/code-element/index.html');
+		const $ = cheerio.load(html);
+
+		$('code').each((_, el) => {
+			expect($(el).html()).to.equal($(el).html().trim())
+		});
+	});
+
 	it('Can handle namespaced components in markdown', async () => {
 		const html = await fixture.readFile('/namespace/index.html');
 		const $ = cheerio.load(html);
