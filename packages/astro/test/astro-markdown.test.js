@@ -42,6 +42,14 @@ describe('Astro Markdown', () => {
 		expect($('h1').attr("id")).to.equal('my-blog-post');
 	});
 
+	it('Can handle namespaced components in markdown', async () => {
+		const html = await fixture.readFile('/namespace/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('Hello Namespace!');
+		expect($('button').length).to.equal(1);
+	});
+
 	it('Correctly handles component children in markdown pages (#3319)', async () => {
 		const html = await fixture.readFile('/children/index.html');
 
