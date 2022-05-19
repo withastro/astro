@@ -1,5 +1,16 @@
 # astro-vscode
 
+## 0.19.0
+
+### Minor Changes
+
+- a97b9a4: Add support for Inlay Hints. Minimum VS Code version supported starting from this update is 1.67.0 (April 2022)
+
+### Patch Changes
+
+- Updated dependencies [a97b9a4]
+  - @astrojs/language-server@0.19.0
+
 ## 0.18.1
 
 ### Patch Changes
