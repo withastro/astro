@@ -12,6 +12,7 @@ import { generateRssFunction } from '../render/rss.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
 import { removeTrailingForwardSlash } from '../path.js';
 import { isBuildingToSSR } from '../util.js';
+import { matchRoute } from '../routing/match.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -142,7 +143,18 @@ export async function collectPagesData(
 		const finalPaths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
 			.filter(Boolean)
-			.filter(path => !builtPaths.has(removeTrailingForwardSlash(path))); // TODO: why don't the paths match static?
+			.filter((staticPath) => {
+				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+					return true;
+				}
+
+				const matchedRoute = matchRoute(staticPath, manifest);
+
+				return matchedRoute === route;
+			});
+
+		finalPaths.map((staticPath) => builtPaths.add(removeTrailingForwardSlash(staticPath)));
+		
 		allPages[route.component] = {
 			component: route.component,
 			route,
