@@ -44,8 +44,8 @@ export default function createCollectHeaders() {
 					if (isJSX) {
 						// HACK: for ids that have JSX content, use $$slug helper to generate slug at runtime
 						node.properties.id = `$$slug(\`${text.replace(/\{/g, '${')}\`)`;
-						node.type = 'raw';
-						node.value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
+						(node as any).type = 'raw';
+						(node as any).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
 					} else {
 						node.properties.id = slugger.slug(text);
 					}
