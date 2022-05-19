@@ -84,7 +84,9 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
 				return {
-					code: `   
+					code: `
+						import { slug as $$slug } from '@astrojs/markdown-remark';
+
 						// Static
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
