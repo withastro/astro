@@ -122,7 +122,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
-				const { data: frontmatter, content: markdownContent } = matter(source);
+				let { data: frontmatter, content: markdownContent } = matter(source);
+
+				// Turn HTML comments into JS comments
+				markdownContent = markdownContent.replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => `{/*${whole}*/}`)
+
 				let renderResult = await renderMarkdown(markdownContent, renderOpts);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;

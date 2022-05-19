@@ -45,8 +45,14 @@ describe('Astro Markdown', () => {
 	it('Correctly handles component children in markdown pages (#3319)', async () => {
 		const html = await fixture.readFile('/children/index.html');
 
-		console.log(html);
 		expect(html).not.to.contain('<p></p>');
+	});
+
+	it('Can handle HTML comments in markdown pages', async () => {
+		const html = await fixture.readFile('/comment/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('It works!');
 	});
 
 	it('Can load more complex jsxy stuff', async () => {
