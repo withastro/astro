@@ -1,5 +1,15 @@
 # astro
 
+## 1.0.0-beta.31
+
+### Patch Changes
+
+- [#3402](https://github.com/withastro/astro/pull/3402) [`0c9f770e`](https://github.com/withastro/astro/commit/0c9f770e8ab361f11549f1e24114e557fdcca65d) Thanks [@matthewp](https://github.com/matthewp)! - Include server CSS in the SSR manifest assets
+
+* [#3406](https://github.com/withastro/astro/pull/3406) [`4007aebc`](https://github.com/withastro/astro/commit/4007aebc6aba8d732abed7c001f59e61678ea3f2) Thanks [@matthewp](https://github.com/matthewp)! - Provides a better error message when using @adobe/react-spectrum
+
+- [#3385](https://github.com/withastro/astro/pull/3385) [`d34859d7`](https://github.com/withastro/astro/commit/d34859d75008812fcd101e197ce835bcc1ee2017) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Expose `file` and `url` properties when fetching `.astro` files with `Astro.glob()`
+
 ## 1.0.0-beta.30
 
 ### Patch Changes
