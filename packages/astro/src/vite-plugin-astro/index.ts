@@ -14,6 +14,7 @@ import ancestor from 'common-ancestor-path';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { resolvePages } from '../core/util.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
@@ -168,6 +169,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);
+				const { fileId: file, fileUrl: url } = getFileInfo(id, config);
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
@@ -180,6 +182,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				});
 
 				let SUFFIX = '';
+				SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(url)};export { $$file as file, $$url as url };\n`;
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
 					// HACK: extract dependencies from metadata until compiler static extraction handles them

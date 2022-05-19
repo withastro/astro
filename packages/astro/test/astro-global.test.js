@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Astro.*', () => {
+describe('Astro Global', () => {
 	let fixture;
 
 	before(async () => {
@@ -75,6 +75,13 @@ describe('Astro.*', () => {
 			const html = await fixture.readFile('/posts/1/index.html');
 			const $ = cheerio.load(html);
 			expect($('.post-url').attr('href')).to.equal('/blog/post/post-2');
+		});
+
+		it('Astro.glob() correctly returns meta info for MD and Astro files', async () => {
+			const html = await fixture.readFile('/glob/index.html');
+			const $ = cheerio.load(html);
+			expect($('[data-file]').length).to.equal(3);
+			expect($('.post-url[href]').length).to.equal(3);
 		});
 	});
 });
