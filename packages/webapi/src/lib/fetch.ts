@@ -1,9 +1,4 @@
-import {
-	default as nodeFetch,
-	Headers,
-	Request,
-	Response,
-} from 'node-fetch'
+import { default as nodeFetch, Headers, Request, Response } from 'node-fetch'
 import type { RequestInit } from 'node-fetch'
 import Stream from 'node:stream'
 import * as _ from './utils'
