@@ -1,5 +1,5 @@
 ---
-'@astrojs/webapi': patch
+'@astrojs/webapi': minor
 'astro': patch
 ---
 
