@@ -22,7 +22,7 @@ describe('Client only components', () => {
 		const script = $script.html();
 
 		// test 2: svelte renderer is on the page
-		expect(/import\(".\/entry.*/g.test(script)).to.be.ok;
+		expect(/import\("\/entry.*/g.test(script)).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {

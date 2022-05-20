@@ -110,24 +110,29 @@ export async function generateHydrateScript(
 		);
 	}
 
+	const resolveAbsolute = async (path: string) => {
+		const relative = await result.resolve(path);
+		return relative.replace(/((\.*)\/)*/, '/');
+	}
+
 	const hydrationSource = renderer.clientEntrypoint
 		? `const [{ ${
 				componentExport.value
-		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
+		  }: Component }, { default: hydrate }] = await Promise.all([import("${await resolveAbsolute(
 				componentUrl
-		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
+		  )}"), import("${await resolveAbsolute(renderer.clientEntrypoint)}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(
 		props
 	)}, children, ${JSON.stringify({ client: hydrate })});
 `
-		: `await import("${await result.resolve(componentUrl)}");
+		: `await import("${await resolveAbsolute(componentUrl)}");
   return () => {};
 `;
 	// TODO: If we can figure out tree-shaking in the final SSR build, we could safely
 	// use BEFORE_HYDRATION_SCRIPT_ID instead of 'astro:scripts/before-hydration.js'.
 	const hydrationScript = {
 		props: { type: 'module', 'data-astro-component-hydration': true },
-		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
+		children: `import setup from '${await resolveAbsolute(hydrationSpecifier(hydrate))}';
 ${`import '${await result.resolve('astro:scripts/before-hydration.js')}';`}
 setup("${astroId}", {name:"${metadata.displayName}",${
 			metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''
