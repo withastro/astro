@@ -52,7 +52,7 @@ const seenMdMetadata = new Set<string>();
 export async function collectMdMetadata(
 	metadata: Metadata,
 	modGraph: ModuleNode,
-	viteServer: ViteDevServer,
+	viteServer: ViteDevServer
 ) {
 	const importedModules = [...(modGraph?.importedModules ?? [])];
 	await Promise.all(
