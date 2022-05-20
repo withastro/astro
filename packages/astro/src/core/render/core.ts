@@ -133,6 +133,7 @@ export async function render(
 		markdown,
 		origin,
 		params,
+		props: pageProps,
 		pathname,
 		resolve,
 		renderers,
