@@ -163,7 +163,7 @@ export async function collectPagesData(
 			});
 
 		finalPaths.map((staticPath) => builtPaths.add(removeTrailingForwardSlash(staticPath)));
-		
+
 		allPages[route.component] = {
 			component: route.component,
 			route,
