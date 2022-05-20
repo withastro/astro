@@ -98,7 +98,7 @@ export async function renderMarkdown(
 	try {
 		const vfile = await parser
 			.use([rehypeCollectHeaders])
-			.use(rehypeStringify, { allowDangerousHtml: true, allowParseErrors: true })
+			.use(rehypeStringify, { allowDangerousHtml: true })
 			.process(input);
 		result = vfile.toString();
 	} catch (err) {
