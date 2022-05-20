@@ -1,0 +1,28 @@
+><style lang="less">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro
+#       ^^^^ source.astro meta.attribute.lang.html entity.other.attribute-name.html
+#           ^ source.astro meta.attribute.lang.html punctuation.separator.key-value.html
+#            ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#             ^^^^ source.astro string.quoted.double.html
+#                 ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                  ^ source.astro punctuation.definition.tag.end.html
+>	@link-color:        #428bca; // sea blue
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.css.less
+>	@link-color-hover:  darken(@link-color, 10%);
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.css.less
+>
+>	a,
+#^^^^ source.astro source.css.less
+>	.link {
+#^^^^^^^^^ source.astro source.css.less
+>		color: @link-color;
+#^^^^^^^^^^^^^^^^^^^^^^ source.astro source.css.less
+>	}
+#^^^ source.astro source.css.less
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>

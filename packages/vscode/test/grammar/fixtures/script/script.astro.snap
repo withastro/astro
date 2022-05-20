@@ -1,0 +1,11 @@
+><script>
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>	console.log("Hello!")
+#^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>

@@ -1,0 +1,68 @@
+><div is:raw>
+#^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+# ^^^ source.astro astro.element.raw entity.name.tag.html
+#    ^ source.astro astro.element.raw
+#     ^^^^^^ source.astro astro.element.raw meta.attribute.is:raw.html entity.other.attribute-name.html
+#           ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>	Hello
+#^^^^^^^ source.astro astro.element.raw source.unknown
+></div>
+#^^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+#  ^^^ source.astro astro.element.raw entity.name.tag.html
+#     ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>
+><div aria-busy class="hello" is:raw>
+#^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+# ^^^ source.astro astro.element.raw entity.name.tag.html
+#    ^ source.astro astro.element.raw
+#     ^^^^^^^^^ source.astro astro.element.raw meta.attribute.aria-busy.html entity.other.attribute-name.html
+#              ^ source.astro astro.element.raw
+#               ^^^^^ source.astro astro.element.raw meta.attribute.class.html entity.other.attribute-name.html
+#                    ^ source.astro astro.element.raw meta.attribute.class.html punctuation.separator.key-value.html
+#                     ^ source.astro astro.element.raw string.quoted.double.html punctuation.definition.string.begin.html
+#                      ^^^^^ source.astro astro.element.raw string.quoted.double.html
+#                           ^ source.astro astro.element.raw string.quoted.double.html punctuation.definition.string.end.html
+#                            ^ source.astro astro.element.raw
+#                             ^^^^^^ source.astro astro.element.raw meta.attribute.is:raw.html entity.other.attribute-name.html
+#                                   ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>	Hello
+#^^^^^^^ source.astro astro.element.raw source.unknown
+></div>
+#^^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+#  ^^^ source.astro astro.element.raw entity.name.tag.html
+#     ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>
+><div class="hello" is:raw aria-busy>
+#^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+# ^^^ source.astro astro.element.raw entity.name.tag.html
+#    ^ source.astro astro.element.raw
+#     ^^^^^ source.astro astro.element.raw meta.attribute.class.html entity.other.attribute-name.html
+#          ^ source.astro astro.element.raw meta.attribute.class.html punctuation.separator.key-value.html
+#           ^ source.astro astro.element.raw string.quoted.double.html punctuation.definition.string.begin.html
+#            ^^^^^ source.astro astro.element.raw string.quoted.double.html
+#                 ^ source.astro astro.element.raw string.quoted.double.html punctuation.definition.string.end.html
+#                  ^ source.astro astro.element.raw
+#                   ^^^^^^ source.astro astro.element.raw meta.attribute.is:raw.html entity.other.attribute-name.html
+#                         ^ source.astro astro.element.raw
+#                          ^^^^^^^^^ source.astro astro.element.raw meta.attribute.aria-busy.html entity.other.attribute-name.html
+#                                   ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>	Hello
+#^^^^^^^ source.astro astro.element.raw source.unknown
+></div>
+#^^ source.astro astro.element.raw punctuation.definition.tag.begin.html
+#  ^^^ source.astro astro.element.raw entity.name.tag.html
+#     ^ source.astro astro.element.raw punctuation.definition.tag.end.html
+>
+><Component is:raw>
+#^ source.astro meta.tag.component.astro astro.component.raw punctuation.definition.tag.begin.astro
+# ^^^^^^^^^ source.astro meta.tag.component.astro astro.component.raw entity.name.tag.astro support.class.component.astro
+#          ^ source.astro meta.tag.component.astro astro.component.raw
+#           ^^^^^^ source.astro meta.tag.component.astro astro.component.raw meta.attribute.is:raw.html entity.other.attribute-name.html
+#                 ^ source.astro meta.tag.component.astro astro.component.raw punctuation.definition.tag.end.astro
+>	Hello
+#^^^^^^^ source.astro meta.tag.component.astro astro.component.raw source.unknown
+></Component>
+#^^ source.astro meta.tag.component.astro astro.component.raw punctuation.definition.tag.begin.astro
+#  ^^^^^^^^^ source.astro meta.tag.component.astro astro.component.raw entity.name.tag.astro support.class.component.astro
+#           ^ source.astro meta.tag.component.astro astro.component.raw punctuation.definition.tag.end.astro
+>

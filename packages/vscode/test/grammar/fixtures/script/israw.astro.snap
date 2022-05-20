@@ -1,0 +1,13 @@
+><script is:raw>
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^^^ source.astro meta.attribute.is:raw.html entity.other.attribute-name.html
+#              ^ source.astro punctuation.definition.tag.end.html
+>	"hello"
+#^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>

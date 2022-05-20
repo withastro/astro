@@ -1,0 +1,68 @@
+><script type="text/javascript">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^ source.astro meta.attribute.type.html entity.other.attribute-name.html
+#            ^ source.astro meta.attribute.type.html punctuation.separator.key-value.html
+#             ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^^^^^^^^^^^^^^ source.astro string.quoted.double.html
+#                             ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                              ^ source.astro punctuation.definition.tag.end.html
+>	console.log("")
+#^^^^^^^^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>
+><script type="text/partytown">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^ source.astro meta.attribute.type.html entity.other.attribute-name.html
+#            ^ source.astro meta.attribute.type.html punctuation.separator.key-value.html
+#             ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^^^^^^^^^^^^^ source.astro string.quoted.double.html
+#                            ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                             ^ source.astro punctuation.definition.tag.end.html
+>	console.log("")
+#^^^^^^^^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>
+><script type="application/javascript">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^ source.astro meta.attribute.type.html entity.other.attribute-name.html
+#            ^ source.astro meta.attribute.type.html punctuation.separator.key-value.html
+#             ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^^^^^^^^^^^^^^^^^^^^^ source.astro string.quoted.double.html
+#                                    ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                                     ^ source.astro punctuation.definition.tag.end.html
+>	console.log("")
+#^^^^^^^^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>
+><script type="application/node">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^ source.astro meta.attribute.type.html entity.other.attribute-name.html
+#            ^ source.astro meta.attribute.type.html punctuation.separator.key-value.html
+#             ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^^^^^^^^^^^^^^^ source.astro string.quoted.double.html
+#                              ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                               ^ source.astro punctuation.definition.tag.end.html
+>	console.log("")
+#^^^^^^^^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>

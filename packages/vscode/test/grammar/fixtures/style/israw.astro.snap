@@ -1,0 +1,17 @@
+><style is:raw>
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro
+#       ^^^^^^ source.astro meta.attribute.is:raw.html entity.other.attribute-name.html
+#             ^ source.astro punctuation.definition.tag.end.html
+>	h1 {
+#^^^^^^ source.astro source.css
+>		color: red
+#^^^^^^^^^^^^^ source.astro source.css
+>	}
+#^^^ source.astro source.css
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>

@@ -1,0 +1,26 @@
+><style lang="sass">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro
+#       ^^^^ source.astro meta.attribute.lang.html entity.other.attribute-name.html
+#           ^ source.astro meta.attribute.lang.html punctuation.separator.key-value.html
+#            ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#             ^^^^ source.astro string.quoted.double.html
+#                 ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                  ^ source.astro punctuation.definition.tag.end.html
+>	$font-stack: Helvetica, sans-serif
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.sass
+>	$primary-color: #333
+#^^^^^^^^^^^^^^^^^^^^^^ source.astro source.sass
+>
+>	body
+#^^^^^^ source.astro source.sass
+>		font: 100% $font-stack
+#^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.sass
+>		color: $primary-color
+#^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.sass
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>

@@ -1,0 +1,17 @@
+><Component>
+#^ source.astro meta.tag.component.astro punctuation.definition.tag.begin.astro
+# ^^^^^^^^^ source.astro meta.tag.component.astro entity.name.tag.astro support.class.component.astro
+#          ^ source.astro meta.tag.component.astro punctuation.definition.tag.end.astro
+>	<div></div>
+#^ source.astro
+# ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.begin.html
+#  ^^^ source.astro meta.tag.any.div.start.html entity.name.tag.html
+#     ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.end.html
+#      ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
+#        ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
+#           ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
+></Component>
+#^^ source.astro meta.tag.component.astro punctuation.definition.tag.begin.astro
+#  ^^^^^^^^^ source.astro meta.tag.component.astro entity.name.tag.astro support.class.component.astro
+#           ^ source.astro meta.tag.component.astro punctuation.definition.tag.end.astro
+>

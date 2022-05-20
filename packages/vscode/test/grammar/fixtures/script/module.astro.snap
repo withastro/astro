@@ -1,0 +1,17 @@
+><script type="module">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro
+#        ^^^^ source.astro meta.attribute.type.html entity.other.attribute-name.html
+#            ^ source.astro meta.attribute.type.html punctuation.separator.key-value.html
+#             ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#              ^^^^^^ source.astro string.quoted.double.html
+#                    ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                     ^ source.astro punctuation.definition.tag.end.html
+>  "hello"
+#^^^^^^^^^^ source.astro source.js
+></script>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astro entity.name.tag.html
+#        ^ source.astro punctuation.definition.tag.end.html
+>

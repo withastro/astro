@@ -1,0 +1,38 @@
+><style lang="styl">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro
+#       ^^^^ source.astro meta.attribute.lang.html entity.other.attribute-name.html
+#           ^ source.astro meta.attribute.lang.html punctuation.separator.key-value.html
+#            ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#             ^^^^ source.astro string.quoted.double.html
+#                 ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                  ^ source.astro punctuation.definition.tag.end.html
+>	body
+#^^^^^^ source.astro source.stylus
+>		font: 12px Helvetica, Arial, sans-serif
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.stylus
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>
+><style lang="stylus">
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro
+#       ^^^^ source.astro meta.attribute.lang.html entity.other.attribute-name.html
+#           ^ source.astro meta.attribute.lang.html punctuation.separator.key-value.html
+#            ^ source.astro string.quoted.double.html punctuation.definition.string.begin.html
+#             ^^^^^^ source.astro string.quoted.double.html
+#                   ^ source.astro string.quoted.double.html punctuation.definition.string.end.html
+#                    ^ source.astro punctuation.definition.tag.end.html
+>	body
+#^^^^^^ source.astro source.stylus
+>		font: 12px Helvetica, Arial, sans-serif
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro source.stylus
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>

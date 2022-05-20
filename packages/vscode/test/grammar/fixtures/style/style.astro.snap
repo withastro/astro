@@ -1,0 +1,11 @@
+><style>
+#^ source.astro punctuation.definition.tag.begin.html
+# ^^^^^ source.astro entity.name.tag.html
+#      ^ source.astro punctuation.definition.tag.end.html
+>  .astro {}
+#^^^^^^^^^^^^ source.astro source.css
+></style>
+#^^ source.astro punctuation.definition.tag.begin.html
+#  ^^^^^ source.astro entity.name.tag.html
+#       ^ source.astro punctuation.definition.tag.end.html
+>
