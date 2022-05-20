@@ -207,7 +207,10 @@ export async function parseCliDevStart(proc, log) {
 		if (log) {
 			console.log('cli::', chunk);
 		}
-		if (chunk.includes('Local')) break;
+		if (chunk.includes('Local')) {
+			console.log('cli::break');
+			break;
+		}
 	}
 	if (!stdout) {
 		for await (const chunk of proc.stderr) {
