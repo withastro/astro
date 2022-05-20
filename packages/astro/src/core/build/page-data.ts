@@ -10,7 +10,9 @@ import { debug } from '../logger/core.js';
 import { preload as ssrPreload } from '../render/dev/index.js';
 import { generateRssFunction } from '../render/rss.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import { isBuildingToSSR } from '../util.js';
+import { matchRoute } from '../routing/match.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -35,6 +37,7 @@ export async function collectPagesData(
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
+	const builtPaths = new Set<string>();
 
 	const buildMode = isBuildingToSSR(astroConfig) ? 'ssr' : 'static';
 
@@ -60,6 +63,7 @@ export async function collectPagesData(
 				);
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
+			builtPaths.add(route.pathname);
 			allPages[route.component] = {
 				component: route.component,
 				route,
@@ -138,7 +142,28 @@ export async function collectPagesData(
 		}
 		const finalPaths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
-			.filter(Boolean);
+			.filter((staticPath) => {
+				// Remove empty or undefined paths
+				if (!staticPath) {
+					return false;
+				}
+
+				// The path hasn't been built yet, include it
+				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+					return true;
+				}
+
+				// The path was already built once. Check the manifest to see if
+				// this route takes priority for the final URL.
+				// NOTE: The same URL may match multiple routes in the manifest.
+				// Routing priority needs to be verified here for any duplicate
+				// paths to ensure routing priority rules are enforced in the final build.
+				const matchedRoute = matchRoute(staticPath, manifest);
+				return matchedRoute === route;
+			});
+
+		finalPaths.map((staticPath) => builtPaths.add(removeTrailingForwardSlash(staticPath)));
+		
 		allPages[route.component] = {
 			component: route.component,
 			route,

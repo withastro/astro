@@ -1162,6 +1162,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/routing-priority:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/sass:
     specifiers:
       astro: workspace:*
