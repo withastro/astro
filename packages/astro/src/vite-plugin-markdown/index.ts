@@ -89,6 +89,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
+
+						export function $$loadMetadata() {
+							return load().then((m) => m.$$metadata)
+						}
 						
 						// Deferred
 						export default async function load() {
@@ -109,10 +113,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// directly as a page in Vite, or it was a deferred render from a JS module.
 			// This returns the compiled markdown -> astro component that renders to HTML.
 			if (id.endsWith('.md')) {
-				const source = await fs.promises.readFile(id, 'utf8');
+				const filename = normalizeFilename(id);
+				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
 
-				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
@@ -142,7 +146,7 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname: fileUrl.pathname.slice(config.root.pathname.length - 1),
+					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
 					projectRoot: config.root.toString(),
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
