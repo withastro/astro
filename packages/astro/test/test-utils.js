@@ -208,7 +208,9 @@ export async function parseCliDevStart(proc, log) {
 			console.log('cli::', chunk);
 		}
 		if (chunk.includes('Local')) {
-			console.log('cli::break');
+			if(log) {
+				console.log('cli::break');
+			}
 			break;
 		}
 	}
@@ -225,6 +227,10 @@ export async function parseCliDevStart(proc, log) {
 
 	if (stderr) {
 		throw new Error(stderr);
+	}
+
+	if (log) {
+		console.log(stdout);
 	}
 
 	const messages = stdout
