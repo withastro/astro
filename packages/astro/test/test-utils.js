@@ -198,12 +198,15 @@ export function cli(/** @type {string[]} */ ...args) {
 	return spawned;
 }
 
-export async function parseCliDevStart(proc) {
+export async function parseCliDevStart(proc, log) {
 	let stdout = '';
 	let stderr = '';
 
 	for await (const chunk of proc.stdout) {
 		stdout += chunk;
+		if (log) {
+			console.log('cli::', chunk);
+		}
 		if (chunk.includes('Local')) break;
 	}
 	if (!stdout) {
@@ -232,7 +235,7 @@ export async function parseCliDevStart(proc) {
 export async function cliServerLogSetup(flags = [], cmd = 'dev', log = false) {
 	const proc = cli(cmd, ...flags);
 
-	const { messages } = await parseCliDevStart(proc);
+	const { messages } = await parseCliDevStart(proc, log);
 
 	if (log) {
 		console.log('cliServerLogSetup::', flags, messages);
