@@ -198,21 +198,13 @@ export function cli(/** @type {string[]} */ ...args) {
 	return spawned;
 }
 
-export async function parseCliDevStart(proc, log) {
+export async function parseCliDevStart(proc) {
 	let stdout = '';
 	let stderr = '';
 
 	for await (const chunk of proc.stdout) {
 		stdout += chunk;
-		if (log) {
-			console.log('cli::', chunk);
-		}
-		if (chunk.includes('Local')) {
-			if(log) {
-				console.log('cli::break');
-			}
-			break;
-		}
+		if (chunk.includes('Local')) break;
 	}
 	if (!stdout) {
 		for await (const chunk of proc.stderr) {
@@ -229,10 +221,6 @@ export async function parseCliDevStart(proc, log) {
 		throw new Error(stderr);
 	}
 
-	if (log) {
-		console.log(stdout);
-	}
-
 	const messages = stdout
 		.split('\n')
 		.filter((ln) => !!ln.trim())
@@ -241,14 +229,11 @@ export async function parseCliDevStart(proc, log) {
 	return { messages };
 }
 
-export async function cliServerLogSetup(flags = [], cmd = 'dev', log = false) {
+export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	const proc = cli(cmd, ...flags);
 
-	const { messages } = await parseCliDevStart(proc, log);
+	const { messages } = await parseCliDevStart(proc);
 
-	if (log) {
-		console.log('cliServerLogSetup::', flags, messages);
-	}
 	const local = messages.find((msg) => msg.includes('Local'))?.replace(/Local\s*/g, '');
 	const network = messages.find((msg) => msg.includes('Network'))?.replace(/Network\s*/g, '');
 

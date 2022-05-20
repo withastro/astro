@@ -83,7 +83,11 @@ describe ('getStaticPaths - numeric route params', () => {
 			site: 'https://mysite.dev/'
 		});
 		devServer = await fixture.startDevServer();
-	})
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
 
 	it('resolves 200 on matching static paths', async () => {
 		// routes params provided for pages /posts/1, /posts/2, and /posts/3

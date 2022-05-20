@@ -5,9 +5,9 @@ import { fileURLToPath } from 'url';
 import { isIPv4 } from 'net';
 
 describe('astro cli', () => {
-	const cliServerLogSetupWithFixture = (flags, cmd, log = false) => {
+	const cliServerLogSetupWithFixture = (flags, cmd) => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd, log);
+		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd);
 	};
 
 	it('astro', async () => {
@@ -45,16 +45,13 @@ describe('astro cli', () => {
 	});
 
 	['dev', 'preview'].forEach((cmd) => {
-		const networkLogFlags = [['--host', '0.0.0.0'], ['--host']];
+		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
 		networkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
-				const result = await cliServerLogSetupWithFixture(
+				const { local, network } = await cliServerLogSetupWithFixture(
 					flagValue ? [flag, flagValue] : [flag],
-					cmd,
-					cmd === 'preview' && !flagValue
+					cmd
 				);
-
-				const { local, network } = result;
 
 				expect(local).to.not.be.undefined;
 				expect(network).to.not.be.undefined;
