@@ -73,14 +73,14 @@ describe('getStaticPaths - route params type validation', () => {
 	});
 });
 
-describe ('getStaticPaths - numeric route params', () => {
+describe('getStaticPaths - numeric route params', () => {
 	let fixture;
 	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
-			site: 'https://mysite.dev/'
+			site: 'https://mysite.dev/',
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -94,12 +94,15 @@ describe ('getStaticPaths - numeric route params', () => {
 		for (const page of [1, 2, 3]) {
 			let res = await fixture.fetch(`/posts/${page}`);
 			expect(res.status).to.equal(200);
-	
+
 			const html = await res.text();
 			const $ = cheerio.load(html);
-	
+
 			const canonical = $('link[rel=canonical]');
-			expect(canonical.attr('href')).to.equal(`https://mysite.dev/posts/${page}/`, `doesn't trim the /${page}/ route param`);
+			expect(canonical.attr('href')).to.equal(
+				`https://mysite.dev/posts/${page}/`,
+				`doesn't trim the /${page}/ route param`
+			);
 		}
 	});
 });
