@@ -48,10 +48,13 @@ describe('astro cli', () => {
 		const networkLogFlags = [['--host'], ['--host', '0.0.0.0']];
 		networkLogFlags.forEach(([flag, flagValue]) => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
-				const { local, network } = await cliServerLogSetupWithFixture(
+				const result = await cliServerLogSetupWithFixture(
 					flagValue ? [flag, flagValue] : [flag],
 					cmd
 				);
+				console.log(`astro ${cmd} ${flag} ${flagValue ?? ''} result::`, result);
+
+				const { local, network } = result;
 
 				expect(local).to.not.be.undefined;
 				expect(network).to.not.be.undefined;
