@@ -5,9 +5,9 @@ import { fileURLToPath } from 'url';
 import { isIPv4 } from 'net';
 
 describe('astro cli', () => {
-	const cliServerLogSetupWithFixture = (flags, cmd) => {
+	const cliServerLogSetupWithFixture = (flags, cmd, log = false) => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd);
+		return cliServerLogSetup(['--root', fileURLToPath(projectRootURL), ...flags], cmd, log);
 	};
 
 	it('astro', async () => {
@@ -50,7 +50,8 @@ describe('astro cli', () => {
 			it(`astro ${cmd} ${flag} ${flagValue ?? ''} - network log`, async () => {
 				const result = await cliServerLogSetupWithFixture(
 					flagValue ? [flag, flagValue] : [flag],
-					cmd
+					cmd,
+					cmd === 'preview' && !flagValue
 				);
 				console.log(`astro ${cmd} ${flag} ${flagValue ?? ''} result::`, result);
 

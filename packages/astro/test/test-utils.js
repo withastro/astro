@@ -229,11 +229,14 @@ export async function parseCliDevStart(proc) {
 	return { messages };
 }
 
-export async function cliServerLogSetup(flags = [], cmd = 'dev') {
+export async function cliServerLogSetup(flags = [], cmd = 'dev', log = false) {
 	const proc = cli(cmd, ...flags);
 
 	const { messages } = await parseCliDevStart(proc);
 
+	if (log) {
+		console.log('cliServerLogSetup::', flags, messages);
+	}
 	const local = messages.find((msg) => msg.includes('Local'))?.replace(/Local\s*/g, '');
 	const network = messages.find((msg) => msg.includes('Network'))?.replace(/Network\s*/g, '');
 
