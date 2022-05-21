@@ -1225,6 +1225,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/routing-priority:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/sass:
     specifiers:
       astro: workspace:*
@@ -1744,6 +1750,8 @@ importers:
       typescript: ^4.6.4
       urlpattern-polyfill: ^1.0.0-rc5
       web-streams-polyfill: ^3.2.1
+    dependencies:
+      node-fetch: 3.2.4
     devDependencies:
       '@rollup/plugin-alias': 3.1.9_rollup@2.74.1
       '@rollup/plugin-inject': 4.0.4_rollup@2.74.1
@@ -1760,7 +1768,6 @@ importers:
       formdata-polyfill: 4.0.10
       magic-string: 0.25.9
       mocha: 9.2.2
-      node-fetch: 3.2.4
       rollup: 2.74.1
       rollup-plugin-terser: 7.0.2_rollup@2.74.1
       tslib: 2.4.0
@@ -7809,6 +7816,7 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
+    dev: false
 
   /dataloader/1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
@@ -9674,7 +9682,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 17.0.32
+      '@types/node': 17.0.35
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -10690,6 +10698,7 @@ packages:
       data-uri-to-buffer: 4.0.0
       fetch-blob: 3.1.5
       formdata-polyfill: 4.0.10
+    dev: false
 
   /node-gyp-build/4.4.0:
     resolution: {integrity: sha512-amJnQCcgtRVw9SvoebO3BKGESClrfXGCUTX9hSn1OuGQTQBOZmVd0Z0OlecpuRksKvbsUqALE8jls/ErClAPuQ==}
