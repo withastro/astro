@@ -661,7 +661,7 @@ importers:
       chai-as-promised: 7.1.1_chai@4.3.6
       mocha: 9.2.2
 
-  packages/astro/e2e/fixtures/lit:
+  packages/astro/e2e/fixtures/lit-component:
     specifiers:
       '@astrojs/lit': workspace:*
       '@webcomponents/template-shadowroot': ^0.1.0
@@ -679,7 +679,7 @@ importers:
     dependencies:
       astro: link:../../..
 
-  packages/astro/e2e/fixtures/preact:
+  packages/astro/e2e/fixtures/preact-component:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
@@ -689,7 +689,7 @@ importers:
       astro: link:../../..
       preact: 10.7.2
 
-  packages/astro/e2e/fixtures/react:
+  packages/astro/e2e/fixtures/react-component:
     specifiers:
       '@astrojs/react': workspace:*
       astro: workspace:*
@@ -701,7 +701,7 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
-  packages/astro/e2e/fixtures/solid:
+  packages/astro/e2e/fixtures/solid-component:
     specifiers:
       '@astrojs/solid-js': workspace:*
       astro: workspace:*
@@ -710,9 +710,9 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
     devDependencies:
-      solid-js: 1.4.1
+      solid-js: 1.4.2
 
-  packages/astro/e2e/fixtures/svelte:
+  packages/astro/e2e/fixtures/svelte-component:
     specifiers:
       '@astrojs/svelte': workspace:*
       astro: workspace:*
@@ -730,7 +730,7 @@ importers:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
-  packages/astro/e2e/fixtures/vue:
+  packages/astro/e2e/fixtures/vue-component:
     specifiers:
       '@astrojs/vue': workspace:*
       astro: workspace:*
@@ -12092,10 +12092,6 @@ packages:
   /solid-js/1.3.17:
     resolution: {integrity: sha512-BFCosxa4hRm+LF7S+kBL5bNr4RtuZif6AaR5FdQkBpV1E6QNLAOFm4HWgEN8vL2aCWEKl384cT8Etw8ziW8aag==}
     dev: false
-
-  /solid-js/1.4.1:
-    resolution: {integrity: sha512-ts480PccmUW9WAludSXET2dbBevjv+l6XMmN/OyG/a/xA8ZQoX4hNBN3gGhW785ZZv90fowbUSuSQUwOISm3YA==}
-    dev: true
 
   /solid-js/1.4.2:
     resolution: {integrity: sha512-IU5yKuT8P/n5F5g8j1rTXqxUdPYmoZDk/074TG94AEYf/nyXAeG82BSge4/lLIbCfUcnGUJ6DRdebIjujOAYyg==}

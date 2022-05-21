@@ -14,8 +14,9 @@ test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterEach(async () => {
+test.afterEach(async ({ astro }) => {
 	await devServer.stop();
+	astro.resetAllFiles();
 });
 
 test.describe('Tailwind CSS', () => {

@@ -150,8 +150,9 @@ export async function loadFixture(inlineConfig) {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => {
-				console.log('reset::', fileUrl.href);
+				console.log('reset::', filePath);
 				fs.writeFileSync(fileUrl, contents);
+				console.log('reset::done', filePath);
 			}
 			// Only save this reset if not already in the map, in case multiple edits happen
 			// to the same file.
