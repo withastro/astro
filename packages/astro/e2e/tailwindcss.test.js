@@ -52,7 +52,7 @@ test.describe('Tailwind CSS', () => {
 	});
 
 	test('HMR', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+	  await page.goto(astro.resolveUrl('/'));
 
 		await astro.editFile(
 			'./src/components/Button.astro',
