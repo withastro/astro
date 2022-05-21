@@ -10,22 +10,18 @@ const test = base.extend({
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.afterEach(async ({ astro }) => {
-	astro.clean();
-});
-
-test('Tailwind CSS', async ({ page, astro }) => {
+test.describe('Tailwind CSS', () => {
+	test('body', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
-	await test.step('body', async () => {
 		const body = page.locator('body');
 
 		await expect(body, 'should have classes').toHaveClass('bg-dawn text-midnight');
@@ -36,7 +32,9 @@ test('Tailwind CSS', async ({ page, astro }) => {
 		await expect(body, 'should have color').toHaveCSS('color', 'rgb(49, 39, 74)');
 	});
 
-	await test.step('button', async () => {
+	test('button', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		const button = page.locator('button');
 
 		await expect(button, 'should have bg-purple-600').toHaveClass(/bg-purple-600/);
@@ -53,7 +51,9 @@ test('Tailwind CSS', async ({ page, astro }) => {
 		await expect(button, 'should have font weight').toHaveCSS('font-weight', '900');
 	});
 
-	await test.step('HMR', async () => {
+	test('HMR', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		await astro.editFile(
 			'./src/components/Button.astro',
 			(original) => original.replace('bg-purple-600', 'bg-purple-400')

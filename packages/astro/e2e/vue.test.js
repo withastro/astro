@@ -10,22 +10,18 @@ const test = base.extend({
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.afterEach(async ({ astro }) => {
-	astro.clean();
-});
-
-test.only('Vue', async ({ page, astro }) => {
+test.describe('Vue', () => {
+	test('server only', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
-	await test.step('server only', async () => {
 		const counter = page.locator('#server-only');
 		await expect(counter).toBeVisible();
 		
@@ -38,7 +34,9 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(count).toHaveText('0');
 	});
 
-	await test.step('client:idle', async () => {
+	test('client:idle', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
 		
@@ -51,7 +49,9 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:load', async () => {
+	test('client:load', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		const counter = page.locator('#client-load');
 		const counterDup = page.locator('#client-load-dup');
 		const counterStep = page.locator('#client-load-step');
@@ -88,7 +88,9 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(countStep).toHaveText('4');
 	});
 
-	await test.step('client:visible', async () => {
+	test('client:visible', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
@@ -104,7 +106,9 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:media', async () => {
+	test('client:media', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
 		
@@ -122,7 +126,9 @@ test.only('Vue', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('HMR', async () => {
+	test('HMR', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
+
 		// test 1: updating the page component
 		await astro.editFile(
 			'./src/pages/index.astro',

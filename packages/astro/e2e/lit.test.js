@@ -10,20 +10,16 @@ const test = base.extend({
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.afterEach(async ({ astro }) => {
-	astro.clean();
-});
-
-test.only('Lit', async ({ page, astro }) => {
-	await test.step('client:idle', async () => {
+test.describe('Lit', () => {
+	test('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#client-idle');
@@ -38,7 +34,7 @@ test.only('Lit', async ({ page, astro }) => {
 		await expect(count).toHaveText('Count: 1');
 	});
 
-	await test.step('client:load', async () => {
+	test('client:load', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#client-load');
@@ -53,7 +49,7 @@ test.only('Lit', async ({ page, astro }) => {
 		await expect(count).toHaveText('Count: 1');
 	});
 
-	await test.step('client:visible', async () => {
+	test('client:visible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#client-visible');
@@ -69,7 +65,7 @@ test.only('Lit', async ({ page, astro }) => {
 		await expect(count).toHaveText('Count: 1');
 	});
 
-	await test.step('client:media', async () => {
+	test('client:media', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/media'));
 	
 		const counter = page.locator('#client-media');
@@ -89,7 +85,7 @@ test.only('Lit', async ({ page, astro }) => {
 		await expect(count).toHaveText('Count: 1');
 	});
 
-	await test.step('HMR', async () => {
+	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		// test 1: updating the page component

@@ -10,22 +10,18 @@ const test = base.extend({
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.afterEach(async ({ astro }) => {
-	astro.clean();
-});
-
-test.only('Preact', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
-
-	await test.step('server only', async () => {
+test.describe('Preact', () => {
+	test('server only', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#server-only');
 		await expect(counter).toBeVisible();
 		
@@ -38,7 +34,9 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('0');
 	});
 
-	await test.step('client:idle', async () => {
+	test('client:idle', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
 		
@@ -51,7 +49,9 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:load', async () => {
+	test('client:load', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#client-load');
 		await expect(counter).toBeVisible();
 		
@@ -64,7 +64,9 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:visible', async () => {
+	test('client:visible', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
@@ -78,7 +80,9 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:media', async () => {
+	test('client:media', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
 		
@@ -96,14 +100,18 @@ test.only('Preact', async ({ page, astro }) => {
 		await expect(count).toHaveText('1');
 	});
 
-	await test.step('client:only', async () => {
+	test('client:only', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
 
 		await expect(label).toHaveText('Preact client:only component');
 	});
 
-	await test.step('HMR', async () => {
+	test('HMR', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+	
 		// test 1: updating the page component
 		await astro.editFile(
 			'./src/pages/index.astro',

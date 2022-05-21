@@ -1,7 +1,5 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
-
-const config: PlaywrightTestConfig = {
-	testMatch: 'e2e/*.test.ts',
+const config = {
+	testMatch: 'e2e/*.test.js',
   projects: [
     {
       name: 'Chrome Stable',
