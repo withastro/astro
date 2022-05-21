@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/react/' });
+		const fixture = await loadFixture({ root: './fixtures/preact/' });
 		await use(fixture);
 	},
 });
@@ -18,7 +18,7 @@ test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.describe('React', () => {
+test.describe('Preact components', () => {
 	test('server only', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
@@ -106,10 +106,10 @@ test.describe('React', () => {
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
 
-		await expect(label).toHaveText('React client:only component');
+		await expect(label).toHaveText('Preact client:only component');
 	});
 
-	test('HMR', async ({ page, astro }) => {
+	test.skip('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		// test 1: updating the page component
@@ -123,10 +123,10 @@ test.describe('React', () => {
 		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
 
-		// test 2: updating the react component
+		// test 2: updating the preact component
 		await astro.editFile(
 			'./src/components/JSXComponent.jsx',
-			(original) => original.replace('React client:only component', 'Updated react client:only component')
+			(original) => original.replace('Preact client:only component', 'Updated preact client:only component')
 		);
 
 		await astro.onNextChange();
@@ -134,7 +134,7 @@ test.describe('React', () => {
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
 
-		await expect(label).toHaveText('Updated react client:only component');
+		await expect(label).toHaveText('Updated preact client:only component');
 
 		// test 3: updating imported CSS
 		await astro.editFile(

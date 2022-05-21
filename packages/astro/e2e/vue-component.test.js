@@ -18,7 +18,7 @@ test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.describe('Vue', () => {
+test.describe('Vue components', () => {
 	test('server only', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
@@ -126,7 +126,7 @@ test.describe('Vue', () => {
 		await expect(count).toHaveText('1');
 	});
 
-	test('HMR', async ({ page, astro }) => {
+	test.skip('HMR', async ({ page, astro }) => {
 	await page.goto(astro.resolveUrl('/'));
 
 		// test 1: updating the page component

@@ -20,7 +20,7 @@ test.afterEach(async () => {
 
 // TODO: configure playwright to handle web component APIs
 // https://github.com/microsoft/playwright/issues/14241
-test.describe.skip('Lit', () => {
+test.describe.skip('Lit components', () => {
 	test('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	

@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/solid/' });
+		const fixture = await loadFixture({ root: './fixtures/svelte/' });
 		await use(fixture);
 	},
 });
@@ -18,9 +18,9 @@ test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.describe('Solid', () => {
+test.describe('Svelte components', () => {
 	test('server only', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#server-only');
 		await expect(counter).toBeVisible();
@@ -35,7 +35,7 @@ test.describe('Solid', () => {
 	});
 
 	test('client:idle', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');
 		await expect(counter).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('Solid', () => {
 	});
 
 	test('client:load', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-load');
 		await expect(counter).toBeVisible();
@@ -65,7 +65,7 @@ test.describe('Solid', () => {
 	});
 
 	test('client:visible', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
@@ -81,7 +81,7 @@ test.describe('Solid', () => {
 	});
 
 	test('client:media', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-media');
 		await expect(counter).toBeVisible();
@@ -100,28 +100,18 @@ test.describe('Solid', () => {
 		await expect(count).toHaveText('1');
 	});
 
-	test('HMR', async ({ page, astro }) => {
-		await page.goto(astro.resolveUrl('/'));
+	test.skip('HMR', async ({ page, astro }) => {
+	await page.goto(astro.resolveUrl('/'));
 
 		// test 1: updating the page component
 		await astro.editFile(
 			'./src/pages/index.astro',
-			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
+			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
 		await astro.onNextChange();
 
-		const count = page.locator('#client-idle pre');
-		await expect(count).toHaveText('5');
-
-		// test 2: updating imported CSS
-		await astro.editFile(
-			'./src/components/Counter.css',
-			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
-		);
-
-		await astro.onNextChange();
-
-		await expect(count).toHaveCSS('font-size', '24px');
+		const label = page.locator('#client-idle-message');
+		await expect(label).toHaveText('Hello, updated client:idle!');
 	});
 });
