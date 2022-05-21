@@ -23,6 +23,7 @@ test.afterEach(async ({ astro }) => {
 });
 
 test.only('Solid', async ({ page, astro }) => {
+	page.on('console', msg => console.log('Solid::', msg.text()));
 	await page.goto(astro.resolveUrl('/'));
 
 	await test.step('server only', async () => {
