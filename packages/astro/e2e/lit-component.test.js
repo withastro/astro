@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/lit/' });
+		const fixture = await loadFixture({ root: './fixtures/lit-component/' });
 		await use(fixture);
 	},
 });

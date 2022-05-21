@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/vue/' });
+		const fixture = await loadFixture({ root: './fixtures/vue-component/' });
 		await use(fixture);
 	},
 });

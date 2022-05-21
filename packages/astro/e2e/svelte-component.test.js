@@ -3,7 +3,7 @@ import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
 	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/svelte/' });
+		const fixture = await loadFixture({ root: './fixtures/svelte-component/' });
 		await use(fixture);
 	},
 });

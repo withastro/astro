@@ -1,5 +1,5 @@
 {
-  "name": "@e2e/solid",
+  "name": "@e2e/solid-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

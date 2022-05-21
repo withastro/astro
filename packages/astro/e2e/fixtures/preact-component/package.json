@@ -1,10 +1,10 @@
 {
-  "name": "@e2e/svelte",
+  "name": "@e2e/preact-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/svelte": "workspace:*",
+    "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "svelte": "^3.48.0"
+    "preact": "^10.7.2"
   }
 }
