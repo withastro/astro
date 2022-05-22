@@ -25,78 +25,80 @@ test.describe.skip('Lit components', () => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#client-idle');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('p');
-		await expect(count).toHaveText('Count: 0');
+		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
 		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('Count: 1');
+		await expect(count, 'count incremented by 1').toHaveText('Count: 1');
 	});
 
 	test('client:load', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		const counter = page.locator('#client-load');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('p');
-		await expect(count).toHaveText('Count: 0');
+		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
 		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('Count: 1');
+		await expect(count, 'count incremented by 1').toHaveText('Count: 1');
 	});
 
 	test('client:visible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
+		// Make sure the component is on screen to trigger hydration
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('p');
-		await expect(count).toHaveText('Count: 0');
+		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
 		const inc = counter.locator('button');
 		await inc.click();
 
-		await expect(count).toHaveText('Count: 1');
+		await expect(count, 'count incremented by 1').toHaveText('Count: 1');
 	});
 
 	test('client:media', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/media'));
 	
 		const counter = page.locator('#client-media');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('p');
-		await expect(count).toHaveText('Count: 0');
+		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
-		// test 1: not hydrated on large screens
 		const inc = counter.locator('button');
 		await inc.click();
-		await expect(count).toHaveText('Count: 0');
 
-		// test 2: hydrated on mobile (max-width: 50rem)
+		await expect(count, 'component not hydrated yet').toHaveText('Count: 0');
+
+		// Reset the viewport to hydrate the component (max-width: 50rem)
 		await page.setViewportSize({ width: 414, height: 1124 });
+
 		await inc.click();
-		await expect(count).toHaveText('Count: 1');
+		await expect(count, 'count incremented by 1').toHaveText('Count: 1');
 	});
 
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		// test 1: updating the page component
+		const label = page.locator('#client-idle h1');
+
 		await astro.editFile(
 			'./src/pages/index.astro',
 			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
-		const label = page.locator('#client-idle h1');
-		await expect(label).toHaveText('Hello, updated client:idle!')
+		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!')
 	});
 });

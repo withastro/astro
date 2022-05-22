@@ -23,101 +23,103 @@ test.describe('Solid components', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#server-only');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('0');
+		await expect(count, 'component not hydrated').toHaveText('0');
 	});
 
 	test('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:load', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-load');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:visible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
+		// Make sure the component is on screen to trigger hydration
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:media', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-media');
-		await expect(counter).toBeVisible();
+		await expect(counter, 'component is visible').toBeVisible();
 		
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
-		// test 1: not hydrated on large screens
 		const inc = counter.locator('.increment');
 		await inc.click();
-		await expect(count).toHaveText('0');
+		await expect(count, 'component not hydrated yet').toHaveText('0');
 
-		// test 2: hydrated on mobile (max-width: 50rem)
+		// Reset the viewport to hydrate the component (max-width: 50rem)
 		await page.setViewportSize({ width: 414, height: 1124 });
 		await inc.click();
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		// test 1: updating the page component
+		const count = page.locator('#client-idle pre');
+		await expect(count, 'initial count is 0').toHaveText('0');
+
+		// Edit the component's initial count prop
 		await astro.editFile(
 			'./src/pages/index.astro',
 			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
 
-		const count = page.locator('#client-idle pre');
-		await expect(count).toHaveText('5');
+		await expect(count, 'count prop updated').toHaveText('5');
 
-		// test 2: updating imported CSS
+		// Edit the imported CSS
 		await astro.editFile(
 			'./src/components/Counter.css',
 			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
 		);
 
-		await expect(count).toHaveCSS('font-size', '24px');
+		await expect(count, 'imported CSS updated').toHaveCSS('font-size', '24px');
 	});
 });

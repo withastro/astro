@@ -20,96 +20,95 @@ test.afterEach(async () => {
 
 test.describe('Svelte components', () => {
 	test('server only', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#server-only');
-		await expect(counter).toBeVisible();
-		
+		await expect(counter, 'component is visible').toBeVisible();
+
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('0');
+		await expect(count, 'component not hydrated').toHaveText('0');
 	});
 
 	test('client:idle', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');
-		await expect(counter).toBeVisible();
-		
+		await expect(counter, 'component is visible').toBeVisible();
+
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:load', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-load');
-		await expect(counter).toBeVisible();
-		
+		await expect(counter, 'component is visible').toBeVisible();
+
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:visible', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
+		// Make sure the component is on screen to trigger hydration
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
-		await expect(counter).toBeVisible();
-		
+		await expect(counter, 'component is visible').toBeVisible();
+
 		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(count, 'initial count is 0').toHaveText('0');
 
 		const inc = counter.locator('.increment');
 		await inc.click();
 
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('client:media', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-media');
-		await expect(counter).toBeVisible();
-		
-		const count = counter.locator('pre');
-		await expect(count).toHaveText('0');
+		await expect(counter, 'component is visible').toBeVisible();
 
-		// test 1: not hydrated on large screens
+		const count = counter.locator('pre');
+		await expect(count, 'initial count is 0').toHaveText('0');
+
 		const inc = counter.locator('.increment');
 		await inc.click();
-		await expect(count).toHaveText('0');
+		await expect(count, 'component not hydrated yet').toHaveText('0');
 
-		// test 2: hydrated on mobile (max-width: 50rem)
+		// Reset the viewport to hydrate the component (max-width: 50rem)
 		await page.setViewportSize({ width: 414, height: 1124 });
 		await inc.click();
-		await expect(count).toHaveText('1');
+		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
 	test('HMR', async ({ page, astro }) => {
-	  await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
-		// test 1: updating the page component
-		await astro.editFile(
-			'./src/pages/index.astro',
-			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
+		// Edit the component's slot text
+		await astro.editFile('./src/pages/index.astro', (original) =>
+			original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
 		const label = page.locator('#client-idle-message');
-		await expect(label).toHaveText('Hello, updated client:idle!');
+		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!');
 	});
 });
