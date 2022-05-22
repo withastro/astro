@@ -146,13 +146,10 @@ export async function loadFixture(inlineConfig) {
 			return app;
 		},
 		editFile: async (filePath, newContentsOrCallback) => {
-			console.log('editFile::', filePath);
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => {
-				console.log('reset::', filePath);
 				fs.writeFileSync(fileUrl, contents);
-				console.log('reset::done', filePath);
 			}
 			// Only save this reset if not already in the map, in case multiple edits happen
 			// to the same file.
@@ -162,7 +159,6 @@ export async function loadFixture(inlineConfig) {
 			const newContents = typeof newContentsOrCallback === 'function'
 				? newContentsOrCallback(contents)
 				: newContentsOrCallback;
-			console.log('editFile::write', filePath);
 			await fs.promises.writeFile(fileUrl, newContents);
 			return reset;
 		},
