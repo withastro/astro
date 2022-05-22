@@ -22,17 +22,21 @@ test.describe('Astro components', () => {
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		// 1: Verify the initial styles are loaded
 		const hero = page.locator('section');
-		await expect(hero).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-		await expect(hero).toHaveCSS('color', 'rgb(0, 0, 0)');
+		await expect(hero, 'hero has background: white').toHaveCSS(
+			'background-color',
+			'rgb(255, 255, 255)'
+		);
+		await expect(hero, 'hero has color: black').toHaveCSS('color', 'rgb(0, 0, 0)');
 
-		// 2: Edit the Hero component with a new background color
+		// Edit the Hero component with a new background color
 		await astro.editFile('./src/components/Hero.astro', (content) =>
 			content.replace('background: white', 'background: rgb(230, 230, 230)')
 		);
 
-		// 3: Verify the background color was updated in the browser window
-		await expect(hero).toHaveCSS('background-color', 'rgb(230, 230, 230)');
+		await expect(hero, 'background color updated').toHaveCSS(
+			'background-color',
+			'rgb(230, 230, 230)'
+		);
 	});
 });

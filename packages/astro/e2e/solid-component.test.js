@@ -24,7 +24,7 @@ test.describe('Solid components', () => {
 
 		const counter = page.locator('#server-only');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -39,7 +39,7 @@ test.describe('Solid components', () => {
 
 		const counter = page.locator('#client-idle');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -54,7 +54,7 @@ test.describe('Solid components', () => {
 
 		const counter = page.locator('#client-load');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -71,7 +71,7 @@ test.describe('Solid components', () => {
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -86,7 +86,7 @@ test.describe('Solid components', () => {
 
 		const counter = page.locator('#client-media');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -107,17 +107,15 @@ test.describe('Solid components', () => {
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		// Edit the component's initial count prop
-		await astro.editFile(
-			'./src/pages/index.astro',
-			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
+		await astro.editFile('./src/pages/index.astro', (original) =>
+			original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
 
 		await expect(count, 'count prop updated').toHaveText('5');
 
 		// Edit the imported CSS
-		await astro.editFile(
-			'./src/components/Counter.css',
-			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
+		await astro.editFile('./src/components/Counter.css', (original) =>
+			original.replace('font-size: 2em;', 'font-size: 24px;')
 		);
 
 		await expect(count, 'imported CSS updated').toHaveCSS('font-size', '24px');

@@ -20,11 +20,11 @@ test.afterEach(async () => {
 
 test.describe('Vue components', () => {
 	test('server only', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#server-only');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -35,11 +35,11 @@ test.describe('Vue components', () => {
 	});
 
 	test('client:idle', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -50,7 +50,7 @@ test.describe('Vue components', () => {
 	});
 
 	test('client:load', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		// Multiple counters on the page to verify islands aren't sharing state
 		const counter = page.locator('#client-load');
@@ -60,7 +60,7 @@ test.describe('Vue components', () => {
 		await expect(counter).toBeVisible();
 		await expect(counterDup).toBeVisible();
 		await expect(counterStep).toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		const countDup = counterDup.locator('pre');
 		const countStep = counterStep.locator('pre');
@@ -95,13 +95,13 @@ test.describe('Vue components', () => {
 	});
 
 	test('client:visible', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		// Make sure the component is on screen to trigger hydration
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter).toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -112,11 +112,11 @@ test.describe('Vue components', () => {
 	});
 
 	test('client:media', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-media');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -131,12 +131,11 @@ test.describe('Vue components', () => {
 	});
 
 	test('HMR', async ({ page, astro }) => {
-	  await page.goto(astro.resolveUrl('/'));
-		
+		await page.goto(astro.resolveUrl('/'));
+
 		// Edit the component's slot text
-		await astro.editFile(
-			'./src/pages/index.astro',
-			(original) => original.replace('Hello, client:visible!', 'Hello, updated client:visible!')
+		await astro.editFile('./src/pages/index.astro', (original) =>
+			original.replace('Hello, client:visible!', 'Hello, updated client:visible!')
 		);
 
 		const label = page.locator('#client-visible h1');

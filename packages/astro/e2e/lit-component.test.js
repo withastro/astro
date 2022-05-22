@@ -23,10 +23,10 @@ test.afterEach(async () => {
 test.describe.skip('Lit components', () => {
 	test('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-	
+
 		const counter = page.locator('#client-idle');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('p');
 		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
@@ -38,10 +38,10 @@ test.describe.skip('Lit components', () => {
 
 	test('client:load', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-	
+
 		const counter = page.locator('#client-load');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('p');
 		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
@@ -53,12 +53,12 @@ test.describe.skip('Lit components', () => {
 
 	test('client:visible', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-	
+
 		// Make sure the component is on screen to trigger hydration
 		const counter = page.locator('#client-visible');
 		await counter.scrollIntoViewIfNeeded();
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('p');
 		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
@@ -70,10 +70,10 @@ test.describe.skip('Lit components', () => {
 
 	test('client:media', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/media'));
-	
+
 		const counter = page.locator('#client-media');
 		await expect(counter, 'component is visible').toBeVisible();
-		
+
 		const count = counter.locator('p');
 		await expect(count, 'initial count is 0').toHaveText('Count: 0');
 
@@ -94,11 +94,10 @@ test.describe.skip('Lit components', () => {
 
 		const label = page.locator('#client-idle h1');
 
-		await astro.editFile(
-			'./src/pages/index.astro',
-			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
+		await astro.editFile('./src/pages/index.astro', (original) =>
+			original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
-		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!')
+		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!');
 	});
 });

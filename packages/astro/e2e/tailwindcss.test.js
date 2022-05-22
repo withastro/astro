@@ -21,7 +21,7 @@ test.afterEach(async ({ astro }) => {
 
 test.describe('Tailwind CSS', () => {
 	test('body', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const body = page.locator('body');
 
@@ -34,7 +34,7 @@ test.describe('Tailwind CSS', () => {
 	});
 
 	test('button', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
 		const button = page.locator('button');
 
@@ -53,15 +53,14 @@ test.describe('Tailwind CSS', () => {
 	});
 
 	test('HMR', async ({ page, astro }) => {
-	  await page.goto(astro.resolveUrl('/'));
+		await page.goto(astro.resolveUrl('/'));
 
-		await astro.editFile(
-			'./src/components/Button.astro',
-			(original) => original.replace('bg-purple-600', 'bg-purple-400')
+		await astro.editFile('./src/components/Button.astro', (original) =>
+			original.replace('bg-purple-600', 'bg-purple-400')
 		);
 
 		const button = page.locator('button');
-		
+
 		await expect(button, 'should have bg-purple-400').toHaveClass(/bg-purple-400/);
 		await expect(button, 'should have background color').toHaveCSS(
 			'background-color',

@@ -21,7 +21,7 @@ test.afterEach(async () => {
 test.describe('Loading styles that are nested', () => {
 	test('header', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-	
+
 		const header = page.locator('header');
 
 		await expect(header, 'should have background color').toHaveCSS(

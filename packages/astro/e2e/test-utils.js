@@ -11,4 +11,3 @@ export function loadFixture(inlineConfig) {
 		root: new URL(inlineConfig.root, import.meta.url).toString(),
 	});
 }
-
