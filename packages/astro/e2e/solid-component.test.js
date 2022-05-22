@@ -100,7 +100,7 @@ test.describe('Solid components', () => {
 		await expect(count).toHaveText('1');
 	});
 
-	test.skip('HMR', async ({ page, astro }) => {
+	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		// test 1: updating the page component
@@ -108,8 +108,6 @@ test.describe('Solid components', () => {
 			'./src/pages/index.astro',
 			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
-
-		await astro.onNextChange();
 
 		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
@@ -119,8 +117,6 @@ test.describe('Solid components', () => {
 			'./src/components/Counter.css',
 			(original) => original.replace('font-size: 2em;', 'font-size: 24px;')
 		);
-
-		await astro.onNextChange();
 
 		await expect(count).toHaveCSS('font-size', '24px');
 	});

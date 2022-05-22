@@ -100,16 +100,14 @@ test.describe('Svelte components', () => {
 		await expect(count).toHaveText('1');
 	});
 
-	test.skip('HMR', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+	test('HMR', async ({ page, astro }) => {
+	  await page.goto(astro.resolveUrl('/'));
 
 		// test 1: updating the page component
 		await astro.editFile(
 			'./src/pages/index.astro',
 			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
-
-		await astro.onNextChange();
 
 		const label = page.locator('#client-idle-message');
 		await expect(label).toHaveText('Hello, updated client:idle!');

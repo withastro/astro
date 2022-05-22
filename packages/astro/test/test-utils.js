@@ -109,6 +109,11 @@ export async function loadFixture(inlineConfig) {
 		fileEdits.clear();
 	};
 
+	const onNextChange = () =>
+		devServer
+			? new Promise((resolve) => devServer.watcher.once('change', resolve))
+			: Promise.reject(new Error('No dev server running'))
+
 	// After each test, reset each of the edits to their original contents.
 	if (typeof afterEach === 'function') {
 		afterEach(resetAllFiles);
@@ -159,14 +164,12 @@ export async function loadFixture(inlineConfig) {
 			const newContents = typeof newContentsOrCallback === 'function'
 				? newContentsOrCallback(contents)
 				: newContentsOrCallback;
+			const nextChange = onNextChange();
 			await fs.promises.writeFile(fileUrl, newContents);
+			await nextChange;
 			return reset;
 		},
-		resetAllFiles,
-		onNextChange: () =>
-			devServer
-				? new Promise((resolve) => devServer.watcher.once('change', resolve))
-				: Promise.reject(new Error('No dev server running')),
+		resetAllFiles
 	};
 }
 

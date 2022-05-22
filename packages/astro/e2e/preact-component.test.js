@@ -109,16 +109,15 @@ test.describe('Preact components', () => {
 		await expect(label).toHaveText('Preact client:only component');
 	});
 
-	test.skip('HMR', async ({ page, astro }) => {
+	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
-	
+
+
 		// test 1: updating the page component
 		await astro.editFile(
 			'./src/pages/index.astro',
 			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
-
-		await astro.onNextChange();
 
 		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
@@ -129,11 +128,8 @@ test.describe('Preact components', () => {
 			(original) => original.replace('Preact client:only component', 'Updated preact client:only component')
 		);
 
-		await astro.onNextChange();
-
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
-
 		await expect(label).toHaveText('Updated preact client:only component');
 
 		// test 3: updating imported CSS

@@ -96,8 +96,6 @@ test.describe.skip('Lit components', () => {
 			(original) => original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
-		await astro.onNextChange();
-
 		const label = page.locator('#client-idle h1');
 		await expect(label).toHaveText('Hello, updated client:idle!')
 	});

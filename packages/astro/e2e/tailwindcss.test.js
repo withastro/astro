@@ -55,14 +55,10 @@ test.describe('Tailwind CSS', () => {
 	test('HMR', async ({ page, astro }) => {
 	  await page.goto(astro.resolveUrl('/'));
 
-		const nextChange = astro.onNextChange();
-
 		await astro.editFile(
 			'./src/components/Button.astro',
 			(original) => original.replace('bg-purple-600', 'bg-purple-400')
 		);
-
-		await nextChange;
 
 		const button = page.locator('button');
 		

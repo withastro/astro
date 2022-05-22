@@ -109,7 +109,7 @@ test.describe('React components', () => {
 		await expect(label).toHaveText('React client:only component');
 	});
 
-	test.skip('HMR', async ({ page, astro }) => {
+	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 	
 		// test 1: updating the page component
@@ -117,8 +117,6 @@ test.describe('React components', () => {
 			'./src/pages/index.astro',
 			(original) => original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
-
-		await astro.onNextChange();
 
 		const count = page.locator('#client-idle pre');
 		await expect(count).toHaveText('5');
@@ -129,11 +127,8 @@ test.describe('React components', () => {
 			(original) => original.replace('React client:only component', 'Updated react client:only component')
 		);
 
-		await astro.onNextChange();
-
 		const label = page.locator('#client-only');
 		await expect(label).toBeVisible();
-
 		await expect(label).toHaveText('Updated react client:only component');
 
 		// test 3: updating imported CSS
