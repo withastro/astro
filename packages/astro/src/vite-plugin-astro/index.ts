@@ -64,6 +64,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (from) {
 				const { query: fromQuery, filename } = parseAstroRequest(from);
 				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
+					console.log("FROM", from, filename);
 					const resolvedURL = new URL(id, `file://${filename}`);
 					const resolved = resolvedURL.pathname;
 					if (isBrowserPath(resolved)) {
