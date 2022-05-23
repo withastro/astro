@@ -2,7 +2,7 @@
 
 This **[Astro integration][astro-integration]** brings [Tailwind CSS](https://tailwindcss.com/) to your Astro project.
 
-https://github.com/Jutanium/astro/blob/main/packages/integrations/tailwind/readme_media/tailwinduse.mp4"
+https://github.com/Jutanium/astro/blob/main/packages/integrations/tailwind/readme_media/tailwinduse.mp4
 
 This integration brings Tailwind's utility CSS classes to every Astro page or [UI component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
 
