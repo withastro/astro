@@ -6,41 +6,40 @@ https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b
 
 ## Why Tailwind?
 
-Tailwind lets you use utility classes instead of writing CSS. These utility classes are mostly one-to-one with a certain CSS property setting: for example, adding the `text-lg` to an element is equivalent to setting `font-size: 1.125rem` in CSS. You might find it easier to write and maintain your styles using these predefined utility classes! And if you don't like those predefined settings, you can [customize the Tailwind configuration file](https://tailwindcss.com/docs/configuration) to your project's design requirements.
+Tailwind lets you use utility classes instead of writing CSS. These utility classes are mostly one-to-one with a certain CSS property setting: for example, adding the `text-lg` to an element is equivalent to setting `font-size: 1.125rem` in CSS. You might find it easier to write and maintain your styles using these predefined utility classes!
+
+If you don't like those predefined settings, you can [customize the Tailwind configuration file](https://tailwindcss.com/docs/configuration) to your project's design requirements. For exmaple, if the "large text" in your design is actually `2rem`, you can [change the `lg` fontSize setting](https://tailwindcss.com/docs/font-size#customizing-your-theme) to `2rem`.
 
 Tailwind is also a great choice to add styles to a React, Preact, or Solid component, which don't support a `<style>` tag in the component file. That said, it's generally discouraged to use both Tailwind and another styling method in the same file.
 
 ## Installation
 
-There are two ways to add integrations to your project. Let's try the most convenient option first!
+https://user-images.githubusercontent.com/4033662/169920154-4b42fc52-e2b5-4ca4-b7d2-d9057ab42ddf.mp4
 
-### (experimental) `astro add` command
+<details>
+  <summary>Quick Install</summary>
+  <br/>
+The experimental Astro Add tool automates the installation for you. Run one of the following commands in your terminal (if you aren't sure which package manager you're using, run the first command). Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+  
+  ```sh
+  # Using NPM
+  npx astro add tailwind
+  # Using Yarn
+  yarn astro add tailwind
+  # Using PNPM
+  pnpx astro add tailwind
+  ```
+  
+Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+</details>
 
-Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
-1. (Optionally) Install all necessary dependencies and peer dependencies
-2. (Also optionally) Update your `astro.config.*` file to apply this integration
-
-To install `@astrojs/tailwind`, run the following from your project directory and follow the prompts:
-
+<details>
+  <summary>Manual Install</summary>
+<br/>
+First, install the `@astrojs/tailwind` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
-# Using NPM
-npx astro add tailwind
-# Using Yarn
-yarn astro add tailwind
-# Using PNPM
-pnpx astro add tailwind
-```
-
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-
-### Install dependencies manually
-
-First, install the `@astrojs/tailwind` integration like so:
-
-```
 npm install @astrojs/tailwind
 ```
-
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
 __astro.config.mjs__
@@ -53,22 +52,30 @@ export default {
   integrations: [tailwind()],
 }
 ```
+</details>
 
-## Getting started
+## Usage
 
-Tailwind's utility classes should be ready-to-use with zero config, including [preprocessor setup](https://tailwindcss.com/docs/using-with-preprocessors) and [production optimization](https://tailwindcss.com/docs/optimizing-for-production). Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn all of the options and features available!
+When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
 
-## Configuration
+### Configuring Tailwind
 
-### Custom Tailwind Config File
+If you used the Quick Install instructions and said yes to each prompt, you'll see a `tailwind.config.cjs` file in your project's root directory. Use this file for your Tailwind configuration changes. You can learn how to customize Tailwind using this file [in the Tailwind docs](https://tailwindcss.com/docs/configuration).
 
-Add your own `tailwind.config.(js|cjs|mjs)` file to the base of your project, and this integration will respect it. This can be useful for setting a [custom theme](https://tailwindcss.com/docs/configuration) or providing other configuration?
+If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the root directory and the integration will use its configurations. This can be great if you already have Tailwind configured in aother project and want to bring those settings over to this one.
 
-### config.path
+### Configuring the Integration
 
-You can give a different config file location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root. 
+The Astro Tailwind integration handles the communication between Astro and Tailwind and it has its own options. Change these in the `astro.config.mjs` file (_not_ the Tailwind configuration file) which is where your project's integration settings live.
 
-Changing `config.path` is well supported in Astro, but not recommended overall since it can cause problems with other Tailwind integrations, like the official Tailwind VSCode extension.
+<details>
+  <summary>config.path</summary>
+  <br/>
+  If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root. 
+  <br/>
+  
+> **Warning**
+> Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
 
 ```js
 // astro.config.mjs
@@ -81,10 +88,12 @@ export default {
   })],
 }
 ```
+</details>
 
-### config.applyBaseStyles
-
-By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
+<details>
+  <summary>config.applyBaseStyles</summary>
+  <br/>
+  By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
 
 ```css
 /* The integration's default injected base.css file */
@@ -105,6 +114,9 @@ export default {
   })],
 }
 ```
+</details>
+
+
 
 ## Read more
 
