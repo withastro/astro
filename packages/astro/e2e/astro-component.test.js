@@ -58,7 +58,7 @@ test.describe('Astro component HMR', () => {
 
 		// Updating the astro component will trigger a full reload,
 		// wait for the page to navigate back to /
-		await page.waitForNavigation({ timeout: 2000, url: astro.resolveUrl('/') });
+		await page.waitForNavigation({ url: astro.resolveUrl('/') });
 
 		await expect(logs.includes('Hello, updated Astro!')).toBeTruthy();
 	});
