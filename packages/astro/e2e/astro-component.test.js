@@ -18,8 +18,8 @@ test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test.describe('Astro components', () => {
-	test('HMR', async ({ page, astro }) => {
+test.describe('Astro component HMR', () => {
+	test('component styles', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const hero = page.locator('section');
@@ -38,5 +38,28 @@ test.describe('Astro components', () => {
 			'background-color',
 			'rgb(230, 230, 230)'
 		);
+	});
+
+	test('hoisted scripts', async ({ page, astro }) => {
+		// Track all console logs to verify the hoisted script runs
+		let logs = [];
+		page.on('console', (message) => {
+			logs.push(message.text());	
+		});
+		
+		await page.goto(astro.resolveUrl('/'));
+
+		await expect(logs.includes('Hello, Astro!')).toBeTruthy();
+
+		// Edit the hoisted script on the page
+		await astro.editFile('./src/pages/index.astro', (content) =>
+			content.replace('Hello, Astro!', 'Hello, updated Astro!')
+		);
+
+		// Updating the astro component will trigger a full reload,
+		// wait for the page to navigate back to /
+		await page.waitForNavigation({ timeout: 2000, url: astro.resolveUrl('/') });
+
+		await expect(logs.includes('Hello, updated Astro!')).toBeTruthy();
 	});
 });
