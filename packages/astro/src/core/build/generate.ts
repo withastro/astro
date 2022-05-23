@@ -219,9 +219,7 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
-			const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
-			return fullyRelativePath;
+			return prependForwardSlash(npath.posix.join(astroConfig.base, hashedFilePath));
 		},
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		route: pageData.route,
