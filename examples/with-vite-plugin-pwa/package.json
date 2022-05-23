@@ -5,12 +5,14 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "build": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true astro build",
+    "preview": "npm run build && astro preview"
   },
   "devDependencies": {
-    "astro": "^1.0.0-beta.69",
-    "vite-plugin-pwa": "0.11.11",
+    "@astrojs/pwa": "^0.0.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "astro": "^1.0.0-beta.32",
+    "cross-env": "^7.0.3",
     "workbox-window": "^6.5.3"
   }
 }
