@@ -1,16 +1,14 @@
 # @astrojs/tailwind 💨
 
-This **[Astro integration][astro-integration]** brings [Tailwind CSS](https://tailwindcss.com/) to your Astro project.
-
+This **[Astro integration][astro-integration]** brings [Tailwind's](https://tailwindcss.com/) utility CSS classes to every `.astro` file and [framework component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
 
 https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b861-d6e1cc800b6c.mp4
 
-
-This integration brings Tailwind's utility CSS classes to every Astro page or [UI component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
-
 ## Why Tailwind?
 
-Tailw
+Tailwind lets you use utility classes instead of writing CSS. These utility classes are mostly one-to-one with a certain CSS property setting: for example, adding the `text-lg` to an element is equivalent to setting `font-size: 1.125rem` in CSS. You might find it easier to write and maintain your styles using these predefined utility classes! And if you don't like those predefined settings, you can [customize the Tailwind configuration file](https://tailwindcss.com/docs/configuration) to your project's design requirements.
+
+Tailwind is also a great choice to add styles to a React, Preact, or Solid component, which don't support a `<style>` tag in the component file. That said, it's generally discouraged to use both Tailwind and another styling method in the same file.
 
 ## Installation
 
