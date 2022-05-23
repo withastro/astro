@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -30,7 +30,7 @@
     "test": "npm run test-fn"
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.11.1"
+    "@astrojs/webapi": "^0.12.0"
   },
   "devDependencies": {
     "@netlify/edge-handler-types": "^0.34.1",
