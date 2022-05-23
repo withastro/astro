@@ -1,9 +1,5 @@
-import {
-	default as nodeFetch,
-	Headers,
-	Request,
-	Response,
-} from 'node-fetch/src/index.js'
+import { default as nodeFetch, Headers, Request, Response } from 'node-fetch'
+import type { RequestInit } from 'node-fetch'
 import Stream from 'node:stream'
 import * as _ from './utils'
 
@@ -11,7 +7,7 @@ export { Headers, Request, Response }
 
 export const fetch = {
 	fetch(
-		resource: string | URL | Request,
+		resource: string | Request,
 		init?: Partial<FetchInit>
 	): Promise<Response> {
 		const resourceURL = new URL(
@@ -62,13 +58,7 @@ export const fetch = {
 type USVString = {} & string
 
 interface FetchInit {
-	body:
-		| Blob
-		| BufferSource
-		| FormData
-		| URLSearchParams
-		| ReadableStream
-		| USVString
+	body: RequestInit['body']
 	cache:
 		| 'default'
 		| 'no-store'

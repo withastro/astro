@@ -19,6 +19,7 @@
     "test:smoke": "node scripts/smoke/index.js",
     "test:vite-ci": "turbo run test --no-deps --scope=astro --concurrency=1",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
+    "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w .",

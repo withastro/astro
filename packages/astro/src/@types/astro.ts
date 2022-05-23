@@ -216,7 +216,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
-	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
+	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
@@ -752,6 +752,12 @@ export interface ComponentInstance {
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
+export interface AstroInstance {
+	file: string;
+	url: string | undefined;
+	default: AstroComponentFactory;
+}
+
 export interface MarkdownInstance<T extends Record<string, any>> {
 	frontmatter: T;
 	file: string;
@@ -944,6 +950,7 @@ export interface AstroIntegration {
 			vite: ViteConfigWithSSR;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
+			updateConfig: (newConfig: ViteConfigWithSSR) => void;
 		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];

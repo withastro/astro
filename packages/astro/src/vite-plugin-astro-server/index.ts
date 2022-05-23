@@ -37,6 +37,14 @@ function removeViteHttpMiddleware(server: vite.Connect.Server) {
 	}
 }
 
+function truncateString(str: string, n: number) {
+	if (str.length > n) {
+		return str.substring(0, n) + '&#8230;';
+	} else {
+		return str;
+	}
+}
+
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
 		'Content-Type': 'text/html; charset=utf-8',
@@ -157,9 +165,9 @@ async function handle500Response(
 		statusCode: 500,
 		title: 'Internal Error',
 		tabTitle: '500: Error',
-		message: stripAnsi(err.message),
+		message: stripAnsi(err.hint ?? err.message),
 		url: err.url || undefined,
-		stack: stripAnsi(err.stack),
+		stack: truncateString(stripAnsi(err.stack), 500),
 	});
 	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
@@ -191,7 +199,10 @@ async function handleRequest(
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
-	const url = new URL(origin + req.url);
+	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
+	// routing behavior matches production builds. This supports both file and directory
+	// build formats, and is necessary based on how the manifest tracks build targets.
+	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	if (!buildingToSSR) {

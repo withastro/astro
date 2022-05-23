@@ -71,9 +71,9 @@ export default function template({
 						statusCode ? `<span class="statusCode">${statusCode}: </span> ` : ''
 					}<span class="statusMessage">${title}</span></h1>
         </header>
-        <pre>${encode(error)}</pre>
+        <pre class="error-message">${encode(error)}</pre>
         ${url ? `<a target="_blank" href="${url}">${url}</a>` : ''}
-        <pre>${encode(stack)}</pre>
+        <pre class="error-stack">${encode(stack)}</pre>
         </main>
     </body>
   </html>`;

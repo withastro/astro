@@ -31,7 +31,7 @@ if (import.meta.hot) {
 			}
 		}
 		if (hasAstroUpdate) {
-			return updatePage();
+			return await updatePage();
 		}
 	}
 	import.meta.hot.on('vite:beforeUpdate', async (event) => {

@@ -52,9 +52,7 @@ describe('Error display', () => {
 			expect($('.statusMessage').text()).to.equal('Internal Error');
 
 			// 2. Edit the file, fixing the error
-			let changeOccured = fixture.onNextChange();
 			await fixture.editFile('./src/components/SvelteSyntaxError.svelte', `<h1>No mismatch</h1>`);
-			await changeOccured;
 
 			// 3. Verify that the file is fixed.
 			html = await fixture.fetch('/svelte-syntax-error').then((res) => res.text());

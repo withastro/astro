@@ -2,7 +2,9 @@ import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Page,
 	Params,
+	Props,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -27,6 +29,7 @@ export interface CreateResultArgs {
 	markdown: MarkdownRenderingOptions;
 	params: Params;
 	pathname: string;
+	props: Props;
 	renderers: SSRLoadedRenderer[];
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
@@ -99,11 +102,16 @@ class Slots {
 
 let renderMarkdown: any = null;
 
-export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, request, resolve, site } = args;
+function isPaginatedRoute({ page }: { page?: Page }) {
+	return page && 'currentPage' in page;
+}
 
+export function createResult(args: CreateResultArgs): SSRResult {
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+
+	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
-	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
+	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const response: ResponseInit = {
 		status: 200,
 		statusText: 'OK',

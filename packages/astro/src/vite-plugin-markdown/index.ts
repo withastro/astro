@@ -9,8 +9,9 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
-import { appendForwardSlash, prependForwardSlash } from '../core/path.js';
+import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
+import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -78,17 +79,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
 			if (id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`)) {
-				const sitePathname = appendForwardSlash(
-					config.site ? new URL(config.base, config.site).pathname : config.base
-				);
-
-				const fileId = id.replace(MARKDOWN_IMPORT_FLAG, '');
-				let fileUrl = fileId.includes('/pages/')
-					? fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '')
-					: undefined;
-				if (fileUrl && config.trailingSlash === 'always') {
-					fileUrl = appendForwardSlash(fileUrl);
-				}
+				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
@@ -98,6 +89,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
+
+						export function $$loadMetadata() {
+							return load().then((m) => m.$$metadata)
+						}
 						
 						// Deferred
 						export default async function load() {
@@ -118,10 +113,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// directly as a page in Vite, or it was a deferred render from a JS module.
 			// This returns the compiled markdown -> astro component that renders to HTML.
 			if (id.endsWith('.md')) {
-				const source = await fs.promises.readFile(id, 'utf8');
+				const filename = normalizeFilename(id);
+				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
 
-				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
@@ -151,7 +146,7 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname: fileUrl.pathname.slice(config.root.pathname.length - 1),
+					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
 					projectRoot: config.root.toString(),
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,

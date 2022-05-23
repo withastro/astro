@@ -1,0 +1,11 @@
+{
+  "name": "@e2e/lit-component",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/lit": "workspace:*",
+    "astro": "workspace:*",
+    "@webcomponents/template-shadowroot": "^0.1.0",
+    "lit": "^2.2.3"
+  }
+}

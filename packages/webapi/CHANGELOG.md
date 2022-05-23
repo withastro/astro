@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 0.12.0
+
+### Minor Changes
+
+- [#3417](https://github.com/withastro/astro/pull/3417) [`4de53ecc`](https://github.com/withastro/astro/commit/4de53eccef346bed843b491b7ab93987d7d85655) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: support FormData object on fetch body
+
 ## 0.11.1
 
 ### Patch Changes
