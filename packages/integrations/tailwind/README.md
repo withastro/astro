@@ -1,10 +1,12 @@
 # @astrojs/tailwind 💨
 
 This **[Astro integration][astro-integration]** brings [Tailwind CSS](https://tailwindcss.com/) to your Astro project.
+ 
+This integration brings Tailwind's utility CSS classes to every Astro page or [UI component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
 
-test commit
+## Why Tailwind?
 
-Tailwind brings utility CSS classes for fonts, colors, layouts, transforms, and more to every Astro page or [UI component](https://docs.astro.build/en/core-concepts/framework-components/) in your project. It also includes extensive theming options for unifying your styles.
+Tailw
 
 ## Installation
 
