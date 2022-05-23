@@ -136,6 +136,7 @@ function buildManifest(
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
 		site: astroConfig.site,
+		base: astroConfig.base,
 		markdown: astroConfig.markdown,
 		pageMap: null as any,
 		renderers: [],
