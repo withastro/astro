@@ -251,19 +251,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					const search = new URLSearchParams({
 						labels: 'compiler',
 						title: '🐛 BUG: `@astrojs/compiler` panic',
-						body: `### Describe the Bug
-    
-    \`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
-    
-    **${id.replace(fileURLToPath(config.root), '')}**
-    \`\`\`astro
-    ${source}
-    \`\`\`
-    `,
+						template: '---01-bug-report.yml',
+						'bug-description': `\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+
+**${id.replace(fileURLToPath(config.root), '')}**
+\`\`\`astro
+${source}
+\`\`\``,
 					});
 					err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
 					err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
-    
+
     Please open
     a GitHub issue using the link below:
     ${err.url}`;
