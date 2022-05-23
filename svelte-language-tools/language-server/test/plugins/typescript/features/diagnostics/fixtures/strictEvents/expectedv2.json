@@ -1,0 +1,10 @@
+[
+    {
+        "range": { "start": { "line": 7, "character": 17 }, "end": { "line": 7, "character": 20 } },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '\"bar\"' is not assignable to parameter of type '\"foo\" | \"click\"'.",
+        "code": 2345,
+        "tags": []
+    }
+]

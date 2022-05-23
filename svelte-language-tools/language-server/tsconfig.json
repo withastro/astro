@@ -1,0 +1,13 @@
+{
+    "extends": "@tsconfig/node12/tsconfig.json",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "strict": true,
+        "declaration": true,
+        "outDir": "dist",
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "composite": true,
+        "skipLibCheck": true
+    }
+}

@@ -1,0 +1,57 @@
+[
+    {
+        "range": {
+            "start": { "line": 36, "character": 1 },
+            "end": { "line": 36, "character": 11 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "'DoesntWork' cannot be used as a JSX component.\n  Its instance type 'DoesntWork' is not a valid JSX element.\n    Property '$$prop_def' is missing in type 'DoesntWork' but required in type 'ElementClass'.\n\nPossible causes:\n- You use the instance type of a component where you should use the constructor type\n- Type definitions are missing for this Svelte Component. If you are using Svelte 3.31+, use SvelteComponentTyped to add a definition:\n  import type { SvelteComponentTyped } from \"svelte\";\n  class ComponentName extends SvelteComponentTyped<{propertyName: string;}> {}",
+        "code": 2786,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 40, "character": 0 },
+            "end": { "line": 40, "character": 49 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Element does not support attributes because type definitions are missing for this Svelte Component or element cannot be used as such.\n\nUnderlying error:\nJSX element class does not support attributes because it does not have a '$$prop_def' property.",
+        "code": 2607,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 40, "character": 1 },
+            "end": { "line": 40, "character": 11 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "'DoesntWork' cannot be used as a JSX component.\n  Its instance type 'DoesntWork' is not a valid JSX element.\n\nPossible causes:\n- You use the instance type of a component where you should use the constructor type\n- Type definitions are missing for this Svelte Component. If you are using Svelte 3.31+, use SvelteComponentTyped to add a definition:\n  import type { SvelteComponentTyped } from \"svelte\";\n  class ComponentName extends SvelteComponentTyped<{propertyName: string;}> {}",
+        "code": 2786,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 40, "character": 48 },
+            "end": { "line": 40, "character": 48 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Property '$$slot_def' does not exist on type 'DoesntWork'.",
+        "code": 2339,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 40, "character": 24 },
+            "end": { "line": 42, "character": 12 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Property '$on' does not exist on type 'DoesntWork'.",
+        "code": 2339,
+        "tags": []
+    }
+]

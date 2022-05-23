@@ -1,0 +1,5 @@
+/node_modules
+/src
+/test
+tsconfig.json
+rollup.config.js

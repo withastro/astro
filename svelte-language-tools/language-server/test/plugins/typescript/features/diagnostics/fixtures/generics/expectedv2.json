@@ -1,0 +1,57 @@
+[
+    {
+        "range": {
+            "start": { "line": 10, "character": 25 },
+            "end": { "line": 10, "character": 26 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type '\"asd\"' is not assignable to type 'number | unique symbol | \"charAt\" | \"charCodeAt\" | \"concat\" | \"indexOf\" | \"lastIndexOf\" | \"localeCompare\" | \"match\" | \"replace\" | \"search\" | \"slice\" | \"split\" | \"substring\" | ... 36 more ... | \"valueOf\"'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 10, "character": 35 },
+            "end": { "line": 10, "character": 36 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type 'string' is not assignable to type 'boolean'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 10, "character": 55 },
+            "end": { "line": 10, "character": 72 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 11, "character": 3 },
+            "end": { "line": 11, "character": 13 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 15, "character": 5 },
+            "end": { "line": 15, "character": 16 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types '\"anchor\"' and '\"big\"' have no overlap.",
+        "code": 2367,
+        "tags": []
+    }
+]

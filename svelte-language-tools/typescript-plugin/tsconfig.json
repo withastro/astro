@@ -1,0 +1,14 @@
+{
+    "extends": "@tsconfig/node12/tsconfig.json",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "strict": true,
+        "declaration": true,
+        "outDir": "dist",
+        "sourceMap": false,
+        "composite": true
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["./node_modules"]
+}

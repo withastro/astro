@@ -1,0 +1,68 @@
+[
+    {
+        "range": {
+            "start": { "line": 15, "character": 40 },
+            "end": { "line": 15, "character": 57 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 21, "character": 12 },
+            "end": { "line": 21, "character": 16 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type 'string' is not assignable to type 'boolean'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 28, "character": 46 },
+            "end": { "line": 28, "character": 69 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 35, "character": 41 },
+            "end": { "line": 35, "character": 58 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 40, "character": 13 },
+            "end": { "line": 40, "character": 17 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type 'string' is not assignable to type 'boolean'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 47, "character": 47 },
+            "end": { "line": 47, "character": 70 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "range": { "start": { "line": 9, "character": 5 }, "end": { "line": 9, "character": 19 } },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '{ \"this-is\": string; }' is not assignable to parameter of type 'HTMLProps<HTMLDivElement>'.\n  Object literal may only specify known properties, and '\"this-is\"' does not exist in type 'HTMLProps<HTMLDivElement>'.",
+        "code": 2345,
+        "tags": []
+    },
+    {
+        "range": { "start": { "line": 10, "character": 6 }, "end": { "line": 10, "character": 9 } },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '{ bar: string; }' is not assignable to parameter of type 'HTMLProps<HTMLDivElement>'.\n  Object literal may only specify known properties, and 'bar' does not exist in type 'HTMLProps<HTMLDivElement>'.",
+        "code": 2345,
+        "tags": []
+    }
+]

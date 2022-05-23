@@ -1,0 +1,10 @@
+{
+    "extends": "@tsconfig/node12/tsconfig.json",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "strict": true,
+        "allowJs": true,
+        "checkJs": true
+    },
+    "files": ["./Index.svelte"]
+}

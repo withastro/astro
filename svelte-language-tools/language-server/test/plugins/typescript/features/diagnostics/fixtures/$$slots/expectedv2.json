@@ -1,0 +1,57 @@
+[
+    {
+        "range": {
+            "start": { "line": 13, "character": 20 },
+            "end": { "line": 13, "character": 39 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type 'boolean' is not assignable to type 'string'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 14, "character": 20 },
+            "end": { "line": 14, "character": 39 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '{ valid1: true; invalidProp1: boolean; }' is not assignable to parameter of type '{ valid1: boolean; validPropWrongType1: string; }'.\n  Object literal may only specify known properties, and '\"invalidProp1\"' does not exist in type '{ valid1: boolean; validPropWrongType1: string; }'.",
+        "code": 2345,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 15, "character": 31 },
+            "end": { "line": 15, "character": 50 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Type 'boolean' is not assignable to type 'string'.",
+        "code": 2322,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 16, "character": 31 },
+            "end": { "line": 16, "character": 50 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '{ valid2: true; invalidProp2: boolean; }' is not assignable to parameter of type '{ valid2: boolean; validPropWrongType2: string; }'.\n  Object literal may only specify known properties, and '\"invalidProp2\"' does not exist in type '{ valid2: boolean; validPropWrongType2: string; }'.",
+        "code": 2345,
+        "tags": []
+    },
+    {
+        "range": {
+            "start": { "line": 17, "character": 12 },
+            "end": { "line": 17, "character": 19 }
+        },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '\"invalid\"' is not assignable to parameter of type 'keyof $$Slots'.",
+        "code": 2345,
+        "tags": []
+    }
+]

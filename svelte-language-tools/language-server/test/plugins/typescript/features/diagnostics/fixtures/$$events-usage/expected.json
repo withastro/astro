@@ -1,0 +1,18 @@
+[
+    {
+        "range": { "start": { "line": 7, "character": 10 }, "end": { "line": 7, "character": 15 } },
+        "severity": 1,
+        "source": "ts",
+        "message": "Argument of type '\"bar\"' is not assignable to parameter of type '\"foo\" | \"click\"'.",
+        "code": 2345,
+        "tags": []
+    },
+    {
+        "range": { "start": { "line": 7, "character": 37 }, "end": { "line": 7, "character": 54 } },
+        "severity": 1,
+        "source": "ts",
+        "message": "This condition will always return 'false' since the types 'string' and 'boolean' have no overlap.",
+        "code": 2367,
+        "tags": []
+    }
+]
