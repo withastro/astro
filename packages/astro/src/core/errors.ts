@@ -47,7 +47,7 @@ const incompatiblePackages = {
 const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackages).join('|')})`);
 
 function generateHint(err: ErrorWithMetadata): string | undefined {
-	if (/Unknown file extension \"\.(jsx|vue|svelte|astro)\" for /.test(err.message)) {
+	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
 	} else {
 		const res = incompatPackageExp.exec(err.stack);
