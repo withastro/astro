@@ -26,7 +26,7 @@ describe('Scripts (hoisted and not)', () => {
 		expect($('body script')).to.have.lengthOf(0);
 	});
 
-	it.only('Moves inline scripts up', async () => {
+	it('Moves inline scripts up', async () => {
 		const html = await fixture.readFile('/inline/index.html');
 		const $ = cheerio.load(html);
 
