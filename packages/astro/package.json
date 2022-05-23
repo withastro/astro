@@ -73,7 +73,8 @@
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
     "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js --ignore **/errors.test.js && mocha --timeout 20000 **/lit-element.test.js && mocha --timeout 20000 **/errors.test.js",
     "test:match": "mocha --timeout 20000 -g",
-    "test:e2e": "playwright test e2e"
+    "test:e2e": "playwright test",
+    "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
     "@astrojs/compiler": "^0.14.3",

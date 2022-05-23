@@ -1,9 +1,10 @@
 {
-  "name": "@e2e/e2e-tailwindcss",
+  "name": "@e2e/svelte-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
-    "@astrojs/tailwind": "workspace:*"
+    "svelte": "^3.48.0"
   }
 }

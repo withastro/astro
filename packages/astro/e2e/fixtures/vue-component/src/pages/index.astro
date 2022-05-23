@@ -1,0 +1,33 @@
+---
+import Counter from '../components/Counter.vue'
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width"
+    />
+    <title>Vue component</title>
+    <style>
+      :global(:root) {
+        font-family: system-ui;
+        padding: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <Counter id="server-only" start="0">No Client</Counter>
+      <Counter id="client-load" start="0" client:load>Hello, client:load!</Counter>
+      <!-- Test island deduplication, i.e. same UID as the component above. -->
+      <Counter id="client-load-dup" start="0" client:load>Hello, client:load!</Counter>
+      <!-- Test island deduplication account for non-render affecting props. -->
+      <Counter id="client-load-step" start="0" step-size="2" client:load>Hello, client:load!</Counter>
+      <Counter id="client-idle" start="0" client:idle>Hello, client:idle!</Counter>
+      <!-- Test that two client:visibles have unique uids -->
+      <Counter id="client-visible" start="0" client:visible>Hello, client:visible!</Counter>
+      <Counter id="client-media" start="0" client:media="(max-width: 50rem)">Hello, client:media!</Counter>
+    </main>
+  </body>
+</html>

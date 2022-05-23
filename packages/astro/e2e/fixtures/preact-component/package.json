@@ -1,9 +1,10 @@
 {
-  "name": "@e2e/e2e-tailwindcss",
+  "name": "@e2e/preact-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/preact": "workspace:*",
     "astro": "workspace:*",
-    "@astrojs/tailwind": "workspace:*"
+    "preact": "^10.7.2"
   }
 }

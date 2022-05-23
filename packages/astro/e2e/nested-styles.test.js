@@ -10,18 +10,18 @@ const test = base.extend({
 
 let devServer;
 
-test.beforeAll(async ({ astro }) => {
+test.beforeEach(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterAll(async ({ astro }) => {
+test.afterEach(async () => {
 	await devServer.stop();
 });
 
-test('Loading styles that are nested', async ({ page, astro }) => {
-	await page.goto(astro.resolveUrl('/'));
+test.describe('Loading styles that are nested', () => {
+	test('header', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
 
-	await test.step('header', async () => {
 		const header = page.locator('header');
 
 		await expect(header, 'should have background color').toHaveCSS(

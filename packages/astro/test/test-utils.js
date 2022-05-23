@@ -28,6 +28,7 @@ polyfill(globalThis, {
  * @property {(url: string) => string} resolveUrl
  * @property {(url: string, opts: any) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
@@ -97,7 +98,7 @@ export async function loadFixture(inlineConfig) {
 
 	const resolveUrl = (url) =>
 		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
-
+	
 	// A map of files that have been editted.
 	let fileEdits = new Map();
 
@@ -107,6 +108,11 @@ export async function loadFixture(inlineConfig) {
 		}
 		fileEdits.clear();
 	};
+
+	const onNextChange = () =>
+		devServer
+			? new Promise((resolve) => devServer.watcher.once('change', resolve))
+			: Promise.reject(new Error('No dev server running'))
 
 	// After each test, reset each of the edits to their original contents.
 	if (typeof afterEach === 'function') {
@@ -134,7 +140,9 @@ export async function loadFixture(inlineConfig) {
 		readFile: (filePath) =>
 			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
-		clean: () => fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
+		clean: async () => {
+			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
+		},
 		loadTestAdapterApp: async () => {
 			const url = new URL('./server/entry.mjs', config.outDir);
 			const { createApp, manifest } = await import(url);
@@ -142,22 +150,26 @@ export async function loadFixture(inlineConfig) {
 			app.manifest = manifest;
 			return app;
 		},
-		editFile: async (filePath, newContents) => {
+		editFile: async (filePath, newContentsOrCallback) => {
 			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
-			const reset = () => fs.writeFileSync(fileUrl, contents);
+			const reset = () => {
+				fs.writeFileSync(fileUrl, contents);
+			}
 			// Only save this reset if not already in the map, in case multiple edits happen
 			// to the same file.
 			if (!fileEdits.has(fileUrl.toString())) {
 				fileEdits.set(fileUrl.toString(), reset);
 			}
+			const newContents = typeof newContentsOrCallback === 'function'
+				? newContentsOrCallback(contents)
+				: newContentsOrCallback;
+			const nextChange = onNextChange();
 			await fs.promises.writeFile(fileUrl, newContents);
+			await nextChange;
 			return reset;
 		},
-		onNextChange: () =>
-			devServer
-				? new Promise((resolve) => devServer.watcher.once('change', resolve))
-				: Promise.reject(new Error('No dev server running')),
+		resetAllFiles
 	};
 }
 

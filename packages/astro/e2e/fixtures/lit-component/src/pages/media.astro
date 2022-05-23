@@ -1,0 +1,18 @@
+---
+import '../components/Counter.js';
+
+const someProps = {
+	count: 0,
+};
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+		<my-counter id="client-media" {...someProps} client:media="(max-width: 50em)">
+			<h1>Hello, client:media!</h1>
+		</my-counter>
+  </body>
+</html>
