@@ -219,7 +219,7 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			return prependForwardSlash(npath.join(astroConfig.base, hashedFilePath));
+			return prependForwardSlash(npath.posix.join(astroConfig.base, hashedFilePath));
 		},
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		route: pageData.route,
