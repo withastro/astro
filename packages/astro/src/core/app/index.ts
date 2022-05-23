@@ -108,7 +108,9 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = manifest.entryModules[specifier];
-				return bundlePath.startsWith('data:') ? bundlePath : prependForwardSlash(joinPaths(manifest.base, bundlePath));
+				return bundlePath.startsWith('data:')
+					? bundlePath
+					: prependForwardSlash(joinPaths(manifest.base, bundlePath));
 			},
 			route: routeData,
 			routeCache: this.#routeCache,
