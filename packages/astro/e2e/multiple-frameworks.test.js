@@ -101,7 +101,6 @@ test.describe('Multiple frameworks', () => {
 		await expect(aComponent, 'component is visible').toBeVisible();
 		await expect(aComponent, 'component text is visible').toHaveText('Hello Astro (A)');
 
-
 		const bComponent = await page.locator('#astro-b');
 		await expect(bComponent, 'component is visible').toBeVisible();
 		await expect(bComponent, 'component text is visible').toHaveText('Hello Astro (B)');
@@ -130,12 +129,18 @@ test.describe('Multiple frameworks', () => {
 
 		// Edit the svelte component's style
 		const svelteCounter = page.locator('#svelte-counter');
-		await expect(svelteCounter, 'initial background is white').toHaveCSS('background-color', 'rgb(255, 255, 255)');
+		await expect(svelteCounter, 'initial background is white').toHaveCSS(
+			'background-color',
+			'rgb(255, 255, 255)'
+		);
 
 		await astro.editFile('./src/components/SvelteCounter.svelte', (content) =>
 			content.replace('background: white', 'background: rgb(230, 230, 230)')
 		);
 
-		await expect(svelteCounter, 'background color updated').toHaveCSS('background-color', 'rgb(230, 230, 230)');
+		await expect(svelteCounter, 'background color updated').toHaveCSS(
+			'background-color',
+			'rgb(230, 230, 230)'
+		);
 	});
 });

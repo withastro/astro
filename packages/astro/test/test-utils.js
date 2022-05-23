@@ -98,7 +98,7 @@ export async function loadFixture(inlineConfig) {
 
 	const resolveUrl = (url) =>
 		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
-	
+
 	// A map of files that have been editted.
 	let fileEdits = new Map();
 
@@ -112,7 +112,7 @@ export async function loadFixture(inlineConfig) {
 	const onNextChange = () =>
 		devServer
 			? new Promise((resolve) => devServer.watcher.once('change', resolve))
-			: Promise.reject(new Error('No dev server running'))
+			: Promise.reject(new Error('No dev server running'));
 
 	// After each test, reset each of the edits to their original contents.
 	if (typeof afterEach === 'function') {
@@ -155,21 +155,22 @@ export async function loadFixture(inlineConfig) {
 			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
 			const reset = () => {
 				fs.writeFileSync(fileUrl, contents);
-			}
+			};
 			// Only save this reset if not already in the map, in case multiple edits happen
 			// to the same file.
 			if (!fileEdits.has(fileUrl.toString())) {
 				fileEdits.set(fileUrl.toString(), reset);
 			}
-			const newContents = typeof newContentsOrCallback === 'function'
-				? newContentsOrCallback(contents)
-				: newContentsOrCallback;
+			const newContents =
+				typeof newContentsOrCallback === 'function'
+					? newContentsOrCallback(contents)
+					: newContentsOrCallback;
 			const nextChange = onNextChange();
 			await fs.promises.writeFile(fileUrl, newContents);
 			await nextChange;
 			return reset;
 		},
-		resetAllFiles
+		resetAllFiles,
 	};
 }
 
