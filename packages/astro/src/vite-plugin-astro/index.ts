@@ -62,10 +62,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
 			if (from) {
-				const parsedFrom = parseAstroRequest(from);
-				//const { query: fromQuery, filename } );
-				if (parsedFrom.query.astro && isRelativePath(id) && parsedFrom.query.type === 'script') {
-					const filename = normalizeFilename(parsedFrom.filename);
+				const { query: fromQuery, filename } = parseAstroRequest(from);
+				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
 					const resolvedURL = new URL(id, `file://${filename}`);
 					const resolved = resolvedURL.pathname;
 					if (isBrowserPath(resolved)) {
