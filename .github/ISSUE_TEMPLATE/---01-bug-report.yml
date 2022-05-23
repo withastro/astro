@@ -13,36 +13,42 @@ body:
         ✅ I am using the **latest version of Astro** and all plugins.
         ✅ I am using a version of Node that supports ESM (`v14.15.0+`, or `v16.0.0+`)
   - type: input
+    id: astro-version
     attributes:
       label: What version of `astro` are you using?
       placeholder: 0.0.0
     validations:
       required: true
   - type: input
+    id: ssr-adapter
     attributes:
       label: Are you using an SSR adapter? If so, which one?
       placeholder: None, or Netlify, Vercel, Cloudflare, etc.
     validations:
       required: true
   - type: input
+    id: package-manager
     attributes:
       label: What package manager are you using?
       placeholder: npm, yarn, pnpm
     validations:
       required: true
   - type: input
+    id: os
     attributes:
       label: What operating system are you using?
       placeholder: Mac, Windows, Linux
     validations:
       required: true
   - type: textarea
+    id: bug-description
     attributes:
       label: Describe the Bug
       description: A clear and concise description of what the bug is.
     validations:
       required: true
   - type: input
+    id: bug-reproduction
     attributes:
       label: Link to Minimal Reproducible Example
       description: 'Use [astro.new](https://astro.new) to create a minimal reproduction of the problem. **A minimal reproduction is required** so that others can help debug your issue. If a report is vague (e.g. just a generic error message) and has no reproduction, it may be auto-closed.'
@@ -50,6 +56,7 @@ body:
     validations:
       required: true
   - type: checkboxes
+    id: will-pr
     attributes:
       label: Participation
       options:
