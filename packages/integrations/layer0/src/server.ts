@@ -17,6 +17,7 @@ export function start(manifest: SSRManifest, options: Options) {
 
 	const app = new App(manifest);
 	const handler = async (request: any) => {
+		console.log('request from `start`', request);
 		return await app.render(request);
 	};
 
@@ -58,6 +59,7 @@ export function createExports(manifest: SSRManifest, options: Options) {
 			return start(manifest, options);
 		},
 		async handle(request: Request) {
+			console.log('request from `createExports`', request);
 			return app.render(request);
 		},
 	};

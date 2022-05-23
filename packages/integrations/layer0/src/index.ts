@@ -1,7 +1,8 @@
 import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
 import { promises as fsp } from 'fs';
+import fse from 'fs-extra';
 import { chdir, cwd } from 'process';
-import { resolve, dirname } from 'pathe';
+import { resolve, dirname, join } from 'pathe';
 import { fileURLToPath } from 'url';
 import { execa } from 'execa';
 import type { PackageJson } from 'pkg-types';
@@ -31,6 +32,7 @@ export default function layer0(): AstroIntegration {
 		name: '@astrojs/layer0',
 		hooks: {
 			'astro:config:setup': ({ config }) => {
+				console.log('config', config);
 				config.outDir = new URL('.output/', config.root);
 				config.build.format = 'directory';
 			},
@@ -43,6 +45,7 @@ export default function layer0(): AstroIntegration {
 			'astro:build:done': async () => {
 				layer0Dir = fileURLToPath(new URL('./layer0/', _config.outDir));
 				outputDir = fileURLToPath(_config.outDir);
+				const packageJsonPath = fileURLToPath(new URL('./package.json', _config.root));
 
 				// Write Layer0 config, router, and connector files
 				const layer0Config = {
@@ -54,6 +57,7 @@ export default function layer0(): AstroIntegration {
 						'public/**/*': true,
 						'server/**/*': true,
 					},
+					includeNodeModules: true,
 				};
 
 				const configPath = resolve(outputDir, 'layer0.config.js');
@@ -65,14 +69,17 @@ export default function layer0(): AstroIntegration {
 				const entryPath = resolve(layer0Dir, 'prod.js');
 				await writeFile(entryPath, entryTemplate());
 
-				const pkgJSON: PackageJson & { scripts: Record<string, string> } = {
-					private: true,
-					scripts: {
-						build: '0 build',
-						deploy: '0 deploy',
-						preview: '0 build && 0 run -p',
-					},
+				// copy package.json from the project root and modify it for Layer0 dependencies
+				const pkgJSON: PackageJson & { scripts: Record<string, string> } = await fse.readJSON(
+					packageJsonPath
+				);
+
+				pkgJSON.scripts = {
+					build: '0 build',
+					deploy: '0 deploy',
+					preview: '0 run -p',
 				};
+
 				await writeFile(resolve(outputDir, 'package.json'), JSON.stringify(pkgJSON, null, 2));
 				await writeFile(resolve(outputDir, 'pnpm-workspace.yaml'), '');
 
