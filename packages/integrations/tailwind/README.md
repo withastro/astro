@@ -19,7 +19,8 @@ https://user-images.githubusercontent.com/4033662/169920154-4b42fc52-e2b5-4ca4-b
 <details>
   <summary>Quick Install</summary>
   <br/>
-The experimental Astro Add tool automates the installation for you. Run one of the following commands in your terminal (if you aren't sure which package manager you're using, run the first command). Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+  
+The experimental `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
   
   ```sh
   # Using NPM
@@ -30,12 +31,16 @@ The experimental Astro Add tool automates the installation for you. Run one of t
   pnpx astro add tailwind
   ```
   
+Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
+  
 Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 </details>
 
 <details>
   <summary>Manual Install</summary>
+  
 <br/>
+  
 First, install the `@astrojs/tailwind` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
 npm install @astrojs/tailwind
@@ -52,6 +57,8 @@ export default {
   integrations: [tailwind()],
 }
 ```
+  
+Then, restart the dev server.
 </details>
 
 ## Usage
@@ -70,8 +77,11 @@ The Astro Tailwind integration handles the communication between Astro and Tailw
 
 <details>
   <summary>config.path</summary>
+  
   <br/>
+  
   If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root. 
+  
   <br/>
   
 > **Warning**
@@ -92,7 +102,9 @@ export default {
 
 <details>
   <summary>config.applyBaseStyles</summary>
+  
   <br/>
+  
   By default, the integration imports a basic `base.css` file on every page of your project. This basic CSS file includes the three main `@tailwind` directives:
 
 ```css
@@ -116,11 +128,22 @@ export default {
 ```
 </details>
 
+## Troubleshooting
+- If your installation doesn't seem to be working, make sure to restart the dev server.
+- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
+- Occasionally, Astro's dev server will run into a problem, and refreshing the page still won't work. In these cases, restart the dev server.
 
-
-## Read more
+For help, check out the `#support-threads` channel on Discord. Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+## Changelog
+
+
