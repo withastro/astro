@@ -25,18 +25,20 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
+				const lib = `${_config.base}~partytown/`;
 				const forward = options?.config?.forward || [];
 				const debug = options?.config?.debug || command === 'dev';
-				partytownSnippetHtml = partytownSnippet({ debug, forward });
+				partytownSnippetHtml = partytownSnippet({ lib, debug, forward });
 				injectScript('head-inline', partytownSnippetHtml);
 			},
 			'astro:config:done': ({ config: _config }) => {
 				config = _config;
 			},
 			'astro:server:setup': ({ server }) => {
+				const lib = `${config.base}~partytown/`;
 				server.middlewares.use(
 					sirv(partytownLibDirectory, {
-						mount: '/~partytown',
+						mount: lib,
 						dev: true,
 						etag: true,
 						extensions: [],
