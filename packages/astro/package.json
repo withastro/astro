@@ -94,7 +94,7 @@
     "ci-info": "^3.3.1",
     "common-ancestor-path": "^1.0.1",
     "debug": "^4.3.4",
-    "diff": "^5.0.0",
+    "diff": "^5.1.0",
     "eol": "^0.9.1",
     "es-module-lexer": "^0.10.5",
     "esbuild": "^0.14.39",
@@ -133,11 +133,11 @@
     "tsconfig-resolver": "^3.0.1",
     "vite": "^2.9.9",
     "yargs-parser": "^21.0.1",
-    "zod": "^3.16.0"
+    "zod": "^3.17.3"
   },
   "devDependencies": {
     "@babel/types": "^7.18.0",
-    "@playwright/test": "^1.22.1",
+    "@playwright/test": "^1.22.2",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.17.1",
@@ -160,9 +160,9 @@
     "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
-    "cheerio": "^1.0.0-rc.10",
+    "cheerio": "^1.0.0-rc.11",
     "mocha": "^9.2.2",
-    "sass": "^1.52.0",
+    "sass": "^1.52.1",
     "srcset-parse": "^1.1.0"
   },
   "engines": {
