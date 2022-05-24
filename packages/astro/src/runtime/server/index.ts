@@ -435,7 +435,11 @@ function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true)
 }
 
 // Adds support for `<Component {...value} />
-export function spreadAttributes(values: Record<any, any>, name: string, { class: scopedClassName }: { class?: string } = {}) {
+export function spreadAttributes(
+	values: Record<any, any>,
+	name: string,
+	{ class: scopedClassName }: { class?: string } = {}
+) {
 	let output = '';
 	// If the compiler passes along a scoped class, merge with existing props or inject it
 	if (scopedClassName) {
