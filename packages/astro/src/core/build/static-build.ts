@@ -95,7 +95,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 					const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
 					pages!.add(astroModuleId);
 				} else {
-					internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]))
+					internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]));
 					internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 				}
 			}
