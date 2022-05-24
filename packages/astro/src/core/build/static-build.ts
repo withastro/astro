@@ -38,6 +38,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
+	const uniqueHoistedIds = new Map<string, string>();
 
 	const timer: Record<string, number> = {};
 
@@ -76,9 +77,27 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			// Add hoisted scripts
 			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
 			if (hoistedScripts.size) {
-				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
-				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+				const uniqueHoistedId = JSON.stringify(Array.from(hoistedScripts).sort());
+				let moduleId: string;
+
+				// If we're already tracking this set of hoisted scripts, get the unique id
+				if (uniqueHoistedIds.has(uniqueHoistedId)) {
+					moduleId = uniqueHoistedIds.get(uniqueHoistedId)!;
+				} else {
+					// Otherwise, create a unique id for this set of hoisted scripts
+					moduleId = `/astro/hoisted.js?q=${uniqueHoistedIds.size}`;
+					uniqueHoistedIds.set(uniqueHoistedId, moduleId);
+				}
 				topLevelImports.add(moduleId);
+
+				// Make sure to track that this page uses this set of hoisted scripts
+				if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
+					const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
+					pages!.add(astroModuleId);
+				} else {
+					internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]))
+					internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+				}
 			}
 
 			for (const specifier of topLevelImports) {
