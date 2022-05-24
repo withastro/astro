@@ -76,6 +76,20 @@ describe('Astro basics', () => {
 			expect($('#spread-ts').attr('c')).to.equal('2');
 		});
 
+		it('Allows scoped classes with spread', async () => {
+			const html = await fixture.readFile('/spread-scope/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#spread-plain')).to.have.lengthOf(1);
+			expect($('#spread-plain').attr('class')).to.match(/astro-.*/);
+
+			expect($('#spread-class')).to.have.lengthOf(1);
+			expect($('#spread-class').attr('class')).to.match(/astro-.*/);
+
+			expect($('#spread-class-list')).to.have.lengthOf(1);
+			expect($('#spread-class-list').attr('class')).to.match(/astro-.*/);
+		});
+
 		it('Allows using the Fragment element to be used', async () => {
 			const html = await fixture.readFile('/fragment/index.html');
 			const $ = cheerio.load(html);
