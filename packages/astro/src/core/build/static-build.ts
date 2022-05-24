@@ -127,7 +127,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
 	const viteBuildConfig: ViteConfigWithSSR = {
-		logLevel: 'error',
+		// use default Vite's logLevel if not configured
+		logLevel: opts.viteConfig.logLevel ?? 'info',
 		mode: 'production',
 		css: viteConfig.css,
 		build: {
