@@ -36,8 +36,15 @@ export async function renderMarkdown(
 	content: string,
 	opts: MarkdownRenderingOptions = {}
 ): Promise<MarkdownRenderingResult> {
-	let { fileURL, mode = 'mdx', syntaxHighlight = 'shiki', shikiConfig = {}, remarkPlugins = [], rehypePlugins = [] } = opts;
-	const input = new VFile({ value: content, path: fileURL })
+	let {
+		fileURL,
+		mode = 'mdx',
+		syntaxHighlight = 'shiki',
+		shikiConfig = {},
+		remarkPlugins = [],
+		rehypePlugins = [],
+	} = opts;
+	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();

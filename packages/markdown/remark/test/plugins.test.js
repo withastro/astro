@@ -16,11 +16,11 @@ describe('plugins', () => {
 					};
 
 					return transformer;
-				}
-			]
+				},
+			],
 		});
 
 		chai.expect(typeof context).to.equal('object');
 		chai.expect(context.path).to.equal(fileURLToPath(new URL('virtual.md', import.meta.url)));
 	});
-})
+});

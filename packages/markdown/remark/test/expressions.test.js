@@ -17,24 +17,35 @@ describe('expressions', () => {
 	it('should be able to serialize expression inside markdown', async () => {
 		const { code } = await renderMarkdown(`# {frontmatter.title}`, {});
 
-		chai.expect(code).to.equal(`<h1 id={$$slug(\`\${frontmatter.title}\`)}>{frontmatter.title}</h1>`);
+		chai
+			.expect(code)
+			.to.equal(`<h1 id={$$slug(\`\${frontmatter.title}\`)}>{frontmatter.title}</h1>`);
 	});
 
 	it('should be able to serialize complex expression inside markdown', async () => {
 		const { code } = await renderMarkdown(`# Hello {frontmatter.name}`, {});
 
-		chai.expect(code).to.equal(`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello {frontmatter.name}</h1>`);
+		chai
+			.expect(code)
+			.to.equal(`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello {frontmatter.name}</h1>`);
 	});
 
 	it('should be able to serialize complex expression with markup inside markdown', async () => {
 		const { code } = await renderMarkdown(`# Hello <span>{frontmatter.name}</span>`, {});
 
-		chai.expect(code).to.equal(`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello <span>{frontmatter.name}</span></h1>`);
+		chai
+			.expect(code)
+			.to.equal(
+				`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello <span>{frontmatter.name}</span></h1>`
+			);
 	});
 
 	it('should be able to serialize function expression', async () => {
-		const { code } = await renderMarkdown(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`	, {});
+		const { code } = await renderMarkdown(
+			`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`,
+			{}
+		);
 
 		chai.expect(code).to.equal(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`);
-	})
+	});
 });

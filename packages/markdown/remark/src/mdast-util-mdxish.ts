@@ -1,18 +1,12 @@
-import {
-  mdxExpressionFromMarkdown,
-  mdxExpressionToMarkdown
-} from 'mdast-util-mdx-expression'
-import {mdxJsxFromMarkdown, mdxJsxToMarkdown} from 'mdast-util-mdx-jsx'
+import { mdxExpressionFromMarkdown, mdxExpressionToMarkdown } from 'mdast-util-mdx-expression';
+import { mdxJsxFromMarkdown, mdxJsxToMarkdown } from 'mdast-util-mdx-jsx';
 
 export function mdxFromMarkdown(): any {
-  return [mdxExpressionFromMarkdown, mdxJsxFromMarkdown]
+	return [mdxExpressionFromMarkdown, mdxJsxFromMarkdown];
 }
 
 export function mdxToMarkdown(): any {
-  return {
-    extensions: [
-      mdxExpressionToMarkdown,
-      mdxJsxToMarkdown,
-    ]
-  }
+	return {
+		extensions: [mdxExpressionToMarkdown, mdxJsxToMarkdown],
+	};
 }

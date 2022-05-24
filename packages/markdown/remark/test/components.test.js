@@ -49,14 +49,23 @@ describe('components', () => {
 	it('should normalize children', async () => {
 		const { code } = await renderMarkdown(`<Component bool={true}>Hello world!</Component>`, {});
 
-		chai.expect(code).to.equal(`<Fragment>\n<Component bool={true}>Hello world!</Component>\n</Fragment>`);
+		chai
+			.expect(code)
+			.to.equal(`<Fragment>\n<Component bool={true}>Hello world!</Component>\n</Fragment>`);
 	});
 
 	it('should allow markdown without many spaces', async () => {
-		const { code } = await renderMarkdown(`<Component>
+		const { code } = await renderMarkdown(
+			`<Component>
 # Hello world!
-</Component>`, {});
+</Component>`,
+			{}
+		);
 
-		chai.expect(code).to.equal(`<Fragment>\n<Component><h1 id="hello-world">Hello world!</h1></Component>\n</Fragment>`);
+		chai
+			.expect(code)
+			.to.equal(
+				`<Fragment>\n<Component><h1 id="hello-world">Hello world!</h1></Component>\n</Fragment>`
+			);
 	});
 });
