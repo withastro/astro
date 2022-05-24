@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import path from 'path';
 import { loadFixture } from './test-utils.js';
 
 describe('Scripts (hoisted and not)', () => {
@@ -50,6 +49,9 @@ describe('Scripts (hoisted and not)', () => {
 
 		// test 3: the JS exists
 		expect(inlineEntryJS).to.be.ok;
+
+		// test 4: Inline imported JS is included
+		expect(inlineEntryJS).to.contain("I AM IMPORTED INLINE", "The inline imported JS is included in the bundle");
 	});
 
 	it('External page builds the hoisted scripts to a single bundle', async () => {
