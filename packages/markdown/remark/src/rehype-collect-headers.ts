@@ -31,13 +31,12 @@ export default function createCollectHeaders() {
 							return;
 						}
 					}
-					if (child.type === 'text' || child.type === 'raw')  {
+					if (child.type === 'text' || child.type === 'raw') {
 						raw += child.value;
 						text += child.value;
 						isJSX = isJSX || child.value.includes('{');
 					}
 				});
-
 
 				node.properties = node.properties || {};
 				if (typeof node.properties.id !== 'string') {
@@ -45,7 +44,9 @@ export default function createCollectHeaders() {
 						// HACK: for ids that have JSX content, use $$slug helper to generate slug at runtime
 						node.properties.id = `$$slug(\`${text.replace(/\{/g, '${')}\`)`;
 						(node as any).type = 'raw';
-						(node as any).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
+						(
+							node as any
+						).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
 					} else {
 						node.properties.id = slugger.slug(text);
 					}

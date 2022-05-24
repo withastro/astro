@@ -39,7 +39,7 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/slug/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('h1').attr("id")).to.equal('my-blog-post');
+		expect($('h1').attr('id')).to.equal('my-blog-post');
 	});
 
 	it('Can handle code elements without extra spacing', async () => {
@@ -47,7 +47,7 @@ describe('Astro Markdown', () => {
 		const $ = cheerio.load(html);
 
 		$('code').each((_, el) => {
-			expect($(el).html()).to.equal($(el).html().trim())
+			expect($(el).html()).to.equal($(el).html().trim());
 		});
 	});
 
@@ -76,7 +76,7 @@ describe('Astro Markdown', () => {
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
 		console.log(html);
-		expect(html).not.to.match(new RegExp("\/src\/scripts\/test\.js"));
+		expect(html).not.to.match(new RegExp('/src/scripts/test.js'));
 	});
 
 	it('Can load more complex jsxy stuff', async () => {
