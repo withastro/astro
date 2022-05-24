@@ -1013,6 +1013,17 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/css-assets:
+    specifiers:
+      '@astrojs/test-font-awesome-package': file:./packages/font-awesome
+      astro: workspace:*
+    dependencies:
+      '@astrojs/test-font-awesome-package': file:packages/astro/test/fixtures/css-assets/packages/font-awesome
+      astro: link:../../..
+
+  packages/astro/test/fixtures/css-assets/packages/font-awesome:
+    specifiers: {}
+
   packages/astro/test/fixtures/custom-404:
     specifiers:
       astro: workspace:*
@@ -13600,3 +13611,9 @@ packages:
 
   /zwitch/2.0.2:
     resolution: {integrity: sha512-JZxotl7SxAJH0j7dN4pxsTV6ZLXoLdGME+PsjkL/DaBrVryK9kTGq06GfKrwcSOqypP+fdXGoCHE36b99fWVoA==}
+
+  file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
+    resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
+    name: '@astrojs/test-font-awesome-package'
+    version: 0.0.1
+    dev: false

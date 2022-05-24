@@ -1,16 +1,11 @@
 import { BuildInternals } from '../core/build/internal';
-import type { ModuleInfo, PluginContext } from 'rollup';
+import type { GetModuleInfo } from 'rollup';
 
-import * as path from 'path';
-import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/util.js';
-import {
-	getPageDatasByChunk,
-	getPageDataByViteID,
-	hasPageDataByViteID,
-	getPageDatasByClientOnlyChunk,
-} from '../core/build/internal.js';
+import { getPageDataByViteID } from '../core/build/internal.js';
+import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
+import crypto from 'crypto';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -40,59 +35,29 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	const { internals } = options;
 	const styleSourceMap = new Map<string, string>();
 
-	function* walkStyles(
-		ctx: PluginContext,
-		id: string,
-		seen = new Set<string>()
-	): Generator<[string, string], void, unknown> {
+	function* getTopLevelPages(id: string, ctx: {getModuleInfo: GetModuleInfo}, seen = new Set<string>()): Generator<string, void, unknown> {
 		seen.add(id);
-		if (styleSourceMap.has(id)) {
-			yield [id, styleSourceMap.get(id)!];
-		}
-
 		const info = ctx.getModuleInfo(id);
-		if (info) {
-			for (const importedId of [...info.importedIds, ...info.dynamicallyImportedIds]) {
-				if (!seen.has(importedId) && !isRawOrUrlModule(importedId)) {
-					yield* walkStyles(ctx, importedId, seen);
-				}
+		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
+		if(importers.length === 1 && importers[0] === resolvedPagesVirtualModuleId) {
+			yield id;
+			return;
+		}
+		for(const imp of importers) {
+			if(seen.has(imp)) {
+				continue;
 			}
+			yield * getTopLevelPages(imp, ctx, seen);
 		}
 	}
 
-	/**
-	 * This walks the dependency graph looking for styles that are imported
-	 * by a page and then creates a chunking containing all of the styles for that page.
-	 * Since there is only 1 entrypoint for the entire app, we do this in order
-	 * to prevent adding all styles to all pages.
-	 */
-	async function addStyles(this: PluginContext) {
-		for (const id of this.getModuleIds()) {
-			if (hasPageDataByViteID(internals, id)) {
-				let pageStyles = '';
-				for (const [_styleId, styles] of walkStyles(this, id)) {
-					pageStyles += styles;
-				}
-
-				// Pages with no styles, nothing more to do
-				if (!pageStyles) continue;
-
-				const { code: minifiedCSS } = await esbuild.transform(pageStyles, {
-					loader: 'css',
-					minify: true,
-				});
-				const referenceId = this.emitFile({
-					name: 'entry' + '.css',
-					type: 'asset',
-					source: minifiedCSS,
-				});
-				const fileName = this.getFileName(referenceId);
-
-				// Add CSS file to the page's pageData, so that it will be rendered with
-				// the correct links.
-				getPageDataByViteID(internals, id)?.css.add(fileName);
-			}
+	function createHashOfPageParents(id: string, ctx: {getModuleInfo: GetModuleInfo}): string {
+		const parents = Array.from(getTopLevelPages(id, ctx)).sort();
+		const hash = crypto.createHash('sha256');
+		for(const page of parents) {
+			hash.update(page, 'utf-8');
 		}
+		return hash.digest('hex');
 	}
 
 	return {
@@ -109,8 +74,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				const viteCSSPost = plugins[viteCSSPostIndex];
 				// Prevent this plugin's bundling behavior from running since we need to
 				// do that ourselves in order to handle updating the HTML.
-				delete viteCSSPost.renderChunk;
-				delete viteCSSPost.generateBundle;
+			//	delete viteCSSPost.renderChunk;
+			//	delete viteCSSPost.generateBundle;
 
 				// Move our plugin to be right before this one.
 				const ourIndex = plugins.findIndex((p) => p.name === PLUGIN_NAME);
@@ -141,90 +106,58 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return null;
 		},
 
-		async renderChunk(_code, chunk) {
-			if (options.target === 'server') return null;
-
-			let chunkCSS = '';
-			let isPureCSS = true;
-			for (const [id] of Object.entries(chunk.modules)) {
-				if (!isCSSRequest(id) && !isPageStyleVirtualModule(id)) {
-					isPureCSS = false;
+		outputOptions(outputOptions) {
+			const manualChunks = outputOptions.manualChunks || Function.prototype;
+			outputOptions.manualChunks = function(id, ...args) {
+				if(typeof manualChunks == 'object') {
+					if(id in manualChunks) {
+						return manualChunks[id];
+					}
+				} else if(typeof manualChunks === 'function') {
+					const outid = manualChunks.call(this, id, ...args);
+					if(outid) {
+						return outid;
+					}
 				}
-				if (styleSourceMap.has(id)) {
-					chunkCSS += styleSourceMap.get(id)!;
+
+				if (isCSSRequest(id)) {
+					return createHashOfPageParents(id, args[0]);
 				}
-			}
-
-			if (!chunkCSS) return null; // don’t output empty .css files
-
-			if (isPureCSS) {
-				internals.pureCSSChunks.add(chunk);
-			}
-
-			const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
-				loader: 'css',
-				minify: true,
-			});
-			const referenceId = this.emitFile({
-				name: chunk.name + '.css',
-				type: 'asset',
-				source: minifiedCSS,
-			});
-
-			if (chunk.type === 'chunk') {
-				const fileName = this.getFileName(referenceId);
-				for (const pageData of getPageDatasByChunk(internals, chunk)) {
-					pageData.css.add(fileName);
-				}
-				// Adds this CSS for client:only components to the appropriate page
-				for (const pageData of getPageDatasByClientOnlyChunk(internals, chunk)) {
-					pageData.css.add(fileName);
-				}
-			}
-
-			return null;
+			};
 		},
 
-		// Delete CSS chunks so JS is not produced for them.
-		async generateBundle(opts, bundle) {
-			const hasPureCSSChunks = internals.pureCSSChunks.size;
-			const pureChunkFilenames = new Set(
-				[...internals.pureCSSChunks].map((chunk) => chunk.fileName)
-			);
-			const emptyChunkFiles = [...pureChunkFilenames]
-				.map((file) => path.basename(file))
-				.join('|')
-				.replace(/\./g, '\\.');
-			const emptyChunkRE = new RegExp(
-				opts.format === 'es'
-					? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
-					: `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
-				'g'
-			);
+		async generateBundle(_opts, bundle) {
+			type ViteMetadata = {
+				importedAssets: Set<string>;
+				importedCss: Set<string>;
+			}
 
-			// Crawl the module graph to find CSS chunks to create
-			await addStyles.call(this);
-
-			for (const [chunkId, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk') {
-					// Removes imports for pure CSS chunks.
-					if (hasPureCSSChunks) {
-						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {
-							// Delete pure CSS chunks, these are JavaScript chunks that only import
-							// other CSS files, so are empty at the end of bundling.
-							delete bundle[chunkId];
-						} else {
-							// Remove any pure css chunk imports from JavaScript.
-							// Note that this code comes from Vite's CSS build plugin.
-							chunk.code = chunk.code.replace(
-								emptyChunkRE,
-								// remove css import while preserving source map location
-								(m) => `/* empty css ${''.padEnd(m.length - 15)}*/`
-							);
+			for (const [_, chunk] of Object.entries(bundle)) {
+				if(chunk.type === 'chunk') {
+					const c = chunk;
+					if('viteMetadata' in chunk) {
+						
+						const meta = chunk['viteMetadata'] as ViteMetadata;
+						if(meta.importedCss.size) {
+							for(const [id] of Object.entries(c.modules)) {
+								for(const pageViteID of getTopLevelPages(id, this)) {
+									const pageData = getPageDataByViteID(internals, pageViteID);
+									for(const importedCssImport of meta.importedCss) {
+										pageData?.css.add(importedCssImport);
+									}
+								}
+							}
 						}
 					}
 				}
+
+				if (chunk.type === 'chunk') {
+					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:chunk\.[0-9a-z]+\.mjs))['](;\n?)`, 'g');
+					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
+						return begin + '"' + chunkPath + '"' + end;
+					});
+				}
 			}
-		},
+		}
 	};
 }
