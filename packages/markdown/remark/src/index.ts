@@ -2,10 +2,10 @@ import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types'
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
-import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
-import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
+import remarkMdxish from './remark-mdxish.js';
+import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import rehypeJsx from './rehype-jsx.js';
 import rehypeEscape from './rehype-escape.js';
 import remarkPrism from './remark-prism.js';
@@ -18,27 +18,33 @@ import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
 import rehypeRaw from 'rehype-raw';
+import Slugger from 'github-slugger';
+import { VFile } from 'vfile';
 
 export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = [];
 
+const slugger = new Slugger();
+export function slug(value: string): string {
+	return slugger.slug(value);
+}
+
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
-	opts: MarkdownRenderingOptions
+	opts: MarkdownRenderingOptions = {}
 ): Promise<MarkdownRenderingResult> {
-	let { mode, syntaxHighlight, shikiConfig, remarkPlugins, rehypePlugins } = opts;
+	let { fileURL, mode = 'mdx', syntaxHighlight = 'shiki', shikiConfig = {}, remarkPlugins = [], rehypePlugins = [] } = opts;
+	const input = new VFile({ value: content, path: fileURL })
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
-	await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
-
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkJsx, remarkExpressions] : [])
+		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel] : [])
 		.use([remarkUnwrap]);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
@@ -68,7 +74,13 @@ export async function renderMarkdown(
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'],
+				passThrough: [
+					'raw',
+					'mdxFlowExpression',
+					'mdxJsxFlowElement',
+					'mdxJsxTextElement',
+					'mdxTextExpression',
+				],
 			},
 		],
 	]);
@@ -87,7 +99,7 @@ export async function renderMarkdown(
 		const vfile = await parser
 			.use([rehypeCollectHeaders])
 			.use(rehypeStringify, { allowDangerousHtml: true })
-			.process(content);
+			.process(input);
 		result = vfile.toString();
 	} catch (err) {
 		console.error(err);

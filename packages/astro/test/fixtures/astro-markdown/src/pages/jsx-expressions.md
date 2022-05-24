@@ -8,4 +8,6 @@ list: ['test-1', 'test-2', 'test-3']
 
 {frontmatter.paragraph}
 
-{frontmatter.list.map(item => <p id={item}>{item}</p>)}
+<ul>
+  {frontmatter.list.map(item => <li id={item}>{item}</li>)}
+</ul>

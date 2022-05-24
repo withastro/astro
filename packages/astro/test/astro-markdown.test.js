@@ -28,10 +28,55 @@ describe('Astro Markdown', () => {
 		const $ = cheerio.load(html);
 
 		expect($('h2').html()).to.equal('Blog Post with JSX expressions');
-		expect($('p').first().html()).to.equal('JSX at the start of the line!');
+
+		expect(html).to.contain('JSX at the start of the line!');
 		for (let listItem of ['test-1', 'test-2', 'test-3']) {
-			expect($(`#${listItem}`).html()).to.equal(`\n${listItem}\n`);
+			expect($(`#${listItem}`).html()).to.equal(`${listItem}`);
 		}
+	});
+
+	it('Can handle slugs with JSX expressions in markdown pages', async () => {
+		const html = await fixture.readFile('/slug/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').attr("id")).to.equal('my-blog-post');
+	});
+
+	it('Can handle code elements without extra spacing', async () => {
+		const html = await fixture.readFile('/code-element/index.html');
+		const $ = cheerio.load(html);
+
+		$('code').each((_, el) => {
+			expect($(el).html()).to.equal($(el).html().trim())
+		});
+	});
+
+	it('Can handle namespaced components in markdown', async () => {
+		const html = await fixture.readFile('/namespace/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('Hello Namespace!');
+		expect($('button').length).to.equal(1);
+	});
+
+	it('Correctly handles component children in markdown pages (#3319)', async () => {
+		const html = await fixture.readFile('/children/index.html');
+
+		expect(html).not.to.contain('<p></p>');
+	});
+
+	it('Can handle HTML comments in markdown pages', async () => {
+		const html = await fixture.readFile('/comment/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('It works!');
+	});
+
+	// https://github.com/withastro/astro/issues/3254
+	it('Can handle scripts in markdown pages', async () => {
+		const html = await fixture.readFile('/script/index.html');
+		console.log(html);
+		expect(html).not.to.match(new RegExp("\/src\/scripts\/test\.js"));
 	});
 
 	it('Can load more complex jsxy stuff', async () => {

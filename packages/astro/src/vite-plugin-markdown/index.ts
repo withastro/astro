@@ -84,7 +84,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const source = await fs.promises.readFile(fileId, 'utf8');
 				const { data: frontmatter } = matter(source);
 				return {
-					code: `   
+					code: `
 						// Static
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
@@ -122,12 +122,17 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
-				const { data: frontmatter, content: markdownContent } = matter(source);
-				let renderResult = await renderMarkdown(markdownContent, renderOpts);
+				let { data: frontmatter, content: markdownContent } = matter(source);
+
+				// Turn HTML comments into JS comments
+				markdownContent = markdownContent.replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => `{/*${whole}*/}`)
+
+				let renderResult = await renderMarkdown(markdownContent, { ...renderOpts, fileURL: fileUrl } as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
 				const prelude = `---
+import { slug as $$slug } from '@astrojs/markdown-remark';
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
@@ -151,6 +156,8 @@ ${setup}`.trim();
 					site: config.site ? new URL(config.base, config.site).toString() : undefined,
 					sourcefile: id,
 					sourcemap: 'inline',
+					// TODO: baseline flag
+					experimentalStaticExtraction: true,
 					internalURL: `/@fs${prependForwardSlash(
 						viteID(new URL('../runtime/server/index.js', import.meta.url))
 					)}`,
