@@ -41,25 +41,18 @@ test.describe('Astro component HMR', () => {
 	});
 
 	test('hoisted scripts', async ({ page, astro }) => {
-		// Track all console logs to verify the hoisted script runs
-		let logs = [];
-		page.on('console', (message) => {
-			logs.push(message.text());	
-		});
-		
-		await page.goto(astro.resolveUrl('/'));
+		const initialLog = page.waitForEvent('console', (message) => message.text() === 'Hello, Astro!');
 
-		await expect(logs.includes('Hello, Astro!')).toBeTruthy();
+		await page.goto(astro.resolveUrl('/'));
+		await initialLog;
+
+		const updatedLog = page.waitForEvent('console', (message) => message.text() === 'Hello, updated Astro!');
 
 		// Edit the hoisted script on the page
 		await astro.editFile('./src/pages/index.astro', (content) =>
 			content.replace('Hello, Astro!', 'Hello, updated Astro!')
 		);
 
-		// Updating the astro component will trigger a full reload,
-		// wait for the page to navigate back to /
-		await page.waitForNavigation({ url: astro.resolveUrl('/') });
-
-		await expect(logs.includes('Hello, updated Astro!')).toBeTruthy();
+		await updatedLog;
 	});
 });
