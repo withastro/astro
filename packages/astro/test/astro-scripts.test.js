@@ -51,7 +51,10 @@ describe('Scripts (hoisted and not)', () => {
 		expect(inlineEntryJS).to.be.ok;
 
 		// test 4: Inline imported JS is included
-		expect(inlineEntryJS).to.contain("I AM IMPORTED INLINE", "The inline imported JS is included in the bundle");
+		expect(inlineEntryJS).to.contain(
+			'I AM IMPORTED INLINE',
+			'The inline imported JS is included in the bundle'
+		);
 	});
 
 	it('External page builds the hoisted scripts to a single bundle', async () => {
