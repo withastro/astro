@@ -41,6 +41,7 @@ test.describe('Astro component HMR', () => {
 	});
 
 	test('hoisted scripts', async ({ page, astro }) => {
+		page.on('console', message => console.log('console::', message.text()));
 		const initialLog = page.waitForEvent('console', (message) => message.text() === 'Hello, Astro!');
 
 		await page.goto(astro.resolveUrl('/'));
