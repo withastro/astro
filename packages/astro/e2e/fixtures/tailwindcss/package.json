@@ -1,5 +1,5 @@
 {
-  "name": "@test/e2e-tailwindcss",
+  "name": "@e2e/e2e-tailwindcss",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

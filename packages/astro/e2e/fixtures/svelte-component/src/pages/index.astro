@@ -1,0 +1,34 @@
+---
+import Counter from '../components/Counter.svelte';
+
+const someProps = {
+	count: 0,
+};
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+		<Counter id="server-only">
+			<h1>Hello, server!</h1>
+		</Counter>
+
+		<Counter id="client-idle" client:idle>
+			<h1>Hello, client:idle!</h1>
+		</Counter>
+
+		<Counter id="client-load" client:load>
+			<h1>Hello, client:load!</h1>
+		</Counter>
+
+		<Counter id="client-visible" client:visible>
+			<h1>Hello, client:visible!</h1>
+		</Counter>
+
+		<Counter id="client-media" client:media="(max-width: 50rem)">
+			<h1>Hello, client:media!</h1>
+		</Counter>
+  </body>
+</html>

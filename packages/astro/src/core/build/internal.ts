@@ -8,8 +8,10 @@ export interface BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.
 	pureCSSChunks: Set<RenderedChunk>;
 
-	// TODO document what this is
+	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
+	// A mapping of hoisted script ids back to the pages which reference it
+	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
 
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
 	// Used to render pages with the correct specifiers.
@@ -50,9 +52,13 @@ export function createBuildInternals(): BuildInternals {
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
 
+	// This tracks hoistedScriptId => page components
+	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
+
 	return {
 		pureCSSChunks,
 		hoistedScriptIdToHoistedMap,
+		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 
 		pagesByComponent: new Map(),

@@ -5,7 +5,7 @@ import { viteID } from '../util.js';
 import { getPageDataByViteID } from './internal.js';
 
 function virtualHoistedEntry(id: string) {
-	return id.endsWith('.astro/hoisted.js') || id.endsWith('.md/hoisted.js');
+	return id.startsWith('/astro/hoisted.js?q=');
 }
 
 export function vitePluginHoistedScripts(
@@ -49,12 +49,13 @@ export function vitePluginHoistedScripts(
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
 					const facadeId = output.facadeModuleId!;
-					const pathname = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
-
-					const vid = viteID(new URL('.' + pathname, astroConfig.root));
-					const pageInfo = getPageDataByViteID(internals, vid);
-					if (pageInfo) {
-						pageInfo.hoistedScript = id;
+					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
+					for (const pathname of pages) {
+						const vid = viteID(new URL('.' + pathname, astroConfig.root));
+						const pageInfo = getPageDataByViteID(internals, vid);
+						if (pageInfo) {
+							pageInfo.hoistedScript = id;
+						}
 					}
 				}
 			}

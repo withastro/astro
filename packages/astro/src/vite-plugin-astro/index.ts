@@ -62,8 +62,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
 			if (from) {
-				const { query: fromQuery, filename } = parseAstroRequest(from);
-				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
+				const parsedFrom = parseAstroRequest(from);
+				if (parsedFrom.query.astro && isRelativePath(id) && parsedFrom.query.type === 'script') {
+					const filename = normalizeFilename(parsedFrom.filename);
 					const resolvedURL = new URL(id, `file://${filename}`);
 					const resolved = resolvedURL.pathname;
 					if (isBrowserPath(resolved)) {
@@ -251,19 +252,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					const search = new URLSearchParams({
 						labels: 'compiler',
 						title: '🐛 BUG: `@astrojs/compiler` panic',
-						body: `### Describe the Bug
-    
-    \`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
-    
-    **${id.replace(fileURLToPath(config.root), '')}**
-    \`\`\`astro
-    ${source}
-    \`\`\`
-    `,
+						template: '---01-bug-report.yml',
+						'bug-description': `\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+
+**${id.replace(fileURLToPath(config.root), '')}**
+\`\`\`astro
+${source}
+\`\`\``,
 					});
 					err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
 					err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
-    
+
     Please open
     a GitHub issue using the link below:
     ${err.url}`;
