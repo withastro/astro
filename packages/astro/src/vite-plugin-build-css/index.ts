@@ -53,7 +53,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		for(const page of parents) {
 			hash.update(page, 'utf-8');
 		}
-		return hash.digest('hex');
+		return hash.digest('hex').slice(0, 8);
 	}
 
 	return {
@@ -122,7 +122,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			};
 		},
 
-		async generateBundle(_opts, bundle) {
+		async generateBundle(outputOptions, bundle) {
 			type ViteMetadata = {
 				importedAssets: Set<string>;
 				importedCss: Set<string>;
@@ -148,7 +148,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				}
 
 				if (chunk.type === 'chunk') {
-					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:chunk\.[0-9a-z]+\.mjs))['](;\n?)`, 'g');
+					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
 					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
 						return begin + '"' + chunkPath + '"' + end;
 					});
