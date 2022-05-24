@@ -22,10 +22,6 @@ function isPageStyleVirtualModule(id: string) {
 	return id.startsWith(ASTRO_PAGE_STYLE_PREFIX);
 }
 
-function isRawOrUrlModule(id: string) {
-	return id.match(/(\?|\&)([^=]+)(raw|url)/gm);
-}
-
 interface PluginOptions {
 	internals: BuildInternals;
 	target: 'client' | 'server';
