@@ -62,10 +62,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		name: '@astrojs/rollup-plugin-build-css',
 
 		configResolved(resolvedConfig) {
-			// Our plugin needs to run before `vite:css-post` which does a lot of what we do
-			// for bundling CSS, but since we need to control CSS we should go first.
-			// We move to right before the vite:css-post plugin so that things like the
-			// Vue plugin go before us.
+			// Our plugin needs to run before `vite:css-post` because we have to modify
+			// The bundles before vite:css-post sees them. We can remove this code
+			// after this bug is fixed: https://github.com/vitejs/vite/issues/8330
 			const plugins = resolvedConfig.plugins as VitePlugin[];
 			const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
 			if (viteCSSPostIndex !== -1) {
@@ -141,11 +140,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 				if (chunk.type === 'chunk') {
 					// This simply replaces single quotes with double quotes because the vite:css-post 
-					// plugin only works with single for some reason. See bug:
-					/*const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
+					// plugin only works with single for some reason. This code can be removed
+					// When the Vite bug is fixed: https://github.com/vitejs/vite/issues/8330
+					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
 					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
 						return begin + '"' + chunkPath + '"' + end;
-					});*/
+					});
 				}
 			}
 		}
