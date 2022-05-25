@@ -294,6 +294,7 @@ async function createLanguageService(
 			noEmit: true,
 			declaration: false,
 
+			resolveJsonModule: true,
 			allowNonTsExtensions: true,
 			allowJs: true,
 			jsx: ts.JsxEmit.Preserve,

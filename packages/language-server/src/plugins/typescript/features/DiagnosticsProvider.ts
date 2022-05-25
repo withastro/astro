@@ -14,6 +14,20 @@ interface BoundaryParseResults {
 	markdown: BoundaryTuple[];
 }
 
+// List of codes:
+// https://github.com/Microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
+export enum DiagnosticCodes {
+	SPREAD_EXPECTED = 1005, // '{0}' expected.
+	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
+	MUST_HAVE_PARENT_ELEMENT = 2657, // JSX expressions must have one parent element.
+	CANNOT_IMPORT_TS_EXT = 2691, // An import path cannot end with a '{0}' extension. Consider importing '{1}' instead.
+	CANT_RETURN_OUTSIDE_FUNC = 1108, // A 'return' statement can only be used within a function body.
+	ISOLATED_MODULE_COMPILE_ERR = 1208, // '{0}' cannot be compiled under '--isolatedModules' because it is considered a global script file.
+	TYPE_NOT_ASSIGNABLE = 2322, // Type '{0}' is not assignable to type '{1}'.
+	JSX_NO_CLOSING_TAG = 17008, // JSX element '{0}' has no corresponding closing tag.
+	NO_DECL_IMPLICIT_ANY_TYPE = 7016, // Could not find a declaration file for module '{0}'. '{1}' implicitly has an 'any' type.
+}
+
 export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
 
@@ -53,6 +67,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					code: diagnostic.code,
 					tags: getDiagnosticTag(diagnostic),
 				}))
+				.filter(isNoCantEndWithTS)
 				.map(mapRange(scriptTagSnapshot, document));
 
 			scriptDiagnostics.push(...scriptDiagnostic);
@@ -60,14 +75,10 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 
 		const { script: scriptBoundaries } = this.getTagBoundaries(lang, filePath);
 
-		const syntaxDiagnostics = lang.getSyntacticDiagnostics(filePath);
-		const suggestionDiagnostics = lang.getSuggestionDiagnostics(filePath);
-		const semanticDiagnostics = lang.getSemanticDiagnostics(filePath);
-
 		const diagnostics: ts.Diagnostic[] = [
-			...syntaxDiagnostics,
-			...suggestionDiagnostics,
-			...semanticDiagnostics,
+			...lang.getSyntacticDiagnostics(filePath),
+			...lang.getSuggestionDiagnostics(filePath),
+			...lang.getSemanticDiagnostics(filePath),
 		].filter((diag) => {
 			return isNoWithinBoundary(scriptBoundaries, diag);
 		});
@@ -87,14 +98,14 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 		]
 			.filter((diag) => {
 				return (
+					// Make sure the diagnostic is inside the document and not in generated code
+					diag.range.start.line <= document.lineCount &&
 					hasNoNegativeLines(diag) &&
-					isNoJSXImplicitRuntimeWarning(diag) &&
 					isNoJSXMustHaveOneParent(diag) &&
-					isNoCantEndWithTS(diag) &&
-					isNoSpreadExpected(diag) &&
-					isNoCantResolveJSONModule(diag) &&
+					isNoSpreadExpected(diag, document) &&
 					isNoCantReturnOutsideFunction(diag) &&
 					isNoIsolatedModuleError(diag) &&
+					isNoImportImplicitAnyType(diag) &&
 					isNoJsxCannotHaveMultipleAttrsError(diag)
 				);
 			})
@@ -140,112 +151,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 	}
 }
 
-function getDiagnosticTag(diagnostic: ts.Diagnostic): DiagnosticTag[] {
-	const tags: DiagnosticTag[] = [];
-	if (diagnostic.reportsUnnecessary) {
-		tags.push(DiagnosticTag.Unnecessary);
-	}
-	if (diagnostic.reportsDeprecated) {
-		tags.push(DiagnosticTag.Deprecated);
-	}
-	return tags;
-}
-
-function mapRange(fragment: SnapshotFragment, _document: AstroDocument): (value: Diagnostic) => Diagnostic {
-	return (diagnostic) => {
-		let range = mapRangeToOriginal(fragment, diagnostic.range);
-
-		if (range.start.line < 0) {
-			// Could be a props error?
-			// From svelte
-		}
-
-		return { ...diagnostic, range };
-	};
-}
-
-/**
- * In some rare cases mapping of diagnostics does not work and produces negative lines.
- * We filter out these diagnostics with negative lines because else the LSP
- * apparently has a hickup and does not show any diagnostics at all.
- */
-function hasNoNegativeLines(diagnostic: Diagnostic): boolean {
-	return diagnostic.range.start.line >= 0 && diagnostic.range.end.line >= 0;
-}
-
-/**
- * Astro allows multiple attributes to have the same name
- */
-function isNoJsxCannotHaveMultipleAttrsError(diagnostic: Diagnostic) {
-	return diagnostic.code !== 17001;
-}
-
-/** Astro allows component with multiple root elements */
-function isNoJSXMustHaveOneParent(diagnostic: Diagnostic) {
-	return diagnostic.code !== 2657;
-}
-
-/** Astro allows `.ts` ending for imports, unlike TypeScript */
-function isNoCantEndWithTS(diagnostic: Diagnostic) {
-	return diagnostic.code !== 2691;
-}
-
-function isNoSpreadExpected(diagnostic: Diagnostic) {
-	return diagnostic.code !== 1005;
-}
-
-function isNoJSXImplicitRuntimeWarning(diagnostic: Diagnostic) {
-	return diagnostic.code !== 7016 && diagnostic.code !== 2792;
-}
-
-/**
- * Ignore "Can't return outside of function body"
- * This is technically a valid diagnostic, but due to how we format our TSX, the frontmatter is at top-level so we have
- * to ignore this. It wasn't a problem before because users didn't need to return things but they can now with SSR
- */
-function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
-	return diagnostic.code !== 1108;
-}
-
-/**
- * Astro allows users to import JSON modules
- */
-function isNoCantResolveJSONModule(diagnostic: Diagnostic) {
-	return diagnostic.code !== 2732;
-}
-
-/**
- * When the content of the file is invalid and can't be parsed properly for TSX generation, TS will show an error about
- * how the current module can't be compiled under --isolatedModule, this is confusing to users so let's ignore this
- */
-function isNoIsolatedModuleError(diagnostic: Diagnostic) {
-	return diagnostic.code !== 1208;
-}
-
-/**
- * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
- */
-function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
-	// JSX element has no closing tag. JSX -> HTML
-	if (diagnostic.code === 17008) {
-		return {
-			...diagnostic,
-			message: diagnostic.message.replace('JSX', 'HTML'),
-		};
-	}
-
-	// For the rare case where an user might try to put a client directive on something that is not a component
-	if (diagnostic.code === 2322) {
-		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
-			return {
-				...diagnostic,
-				message: 'Client directives are only available on framework components',
-			};
-		}
-	}
-	return diagnostic;
-}
-
 function isWithinBoundaries(boundaries: BoundaryTuple[], start: number): boolean {
 	for (let [bstart, bend] of boundaries) {
 		if (start > bstart && start < bend) {
@@ -274,4 +179,123 @@ function diagnosticIsWithinBoundaries(
 
 function isNoWithinBoundary(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
 	return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic);
+}
+
+function mapRange(fragment: SnapshotFragment, _document: AstroDocument): (value: Diagnostic) => Diagnostic {
+	return (diagnostic) => {
+		let range = mapRangeToOriginal(fragment, diagnostic.range);
+
+		return { ...diagnostic, range };
+	};
+}
+
+/**
+ * In some rare cases mapping of diagnostics does not work and produces negative lines.
+ * We filter out these diagnostics with negative lines because else the LSP
+ * apparently has a hiccup and does not show any diagnostics at all.
+ */
+function hasNoNegativeLines(diagnostic: Diagnostic): boolean {
+	return diagnostic.range.start.line >= 0 && diagnostic.range.end.line >= 0;
+}
+
+/**
+ * Astro allows multiple attributes to have the same name
+ */
+function isNoJsxCannotHaveMultipleAttrsError(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.DUPLICATED_JSX_ATTRIBUTES;
+}
+
+/** Astro allows component with multiple root elements */
+function isNoJSXMustHaveOneParent(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.MUST_HAVE_PARENT_ELEMENT;
+}
+
+function isNoImportImplicitAnyType(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.NO_DECL_IMPLICIT_ANY_TYPE;
+}
+
+/**
+ * When using the shorthand syntax for props TSX expects you to use the spread operator
+ * Since the shorthand syntax works differently in Astro and this is not required, hide this message
+ * However, the error code used here is quite generic, as such we need to make we only ignore in valid cases
+ */
+function isNoSpreadExpected(diagnostic: Diagnostic, document: AstroDocument) {
+	if (
+		diagnostic.code === DiagnosticCodes.SPREAD_EXPECTED &&
+		diagnostic.message.includes('...') &&
+		document.offsetAt(diagnostic.range.start) > (document.astroMeta.frontmatter.endOffset ?? 0)
+	) {
+		return false;
+	}
+
+	return true;
+}
+
+/** Inside script tags, Astro currently require the `.ts` file extension for imports */
+function isNoCantEndWithTS(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.CANNOT_IMPORT_TS_EXT;
+}
+
+/**
+ * Ignore "Can't return outside of function body"
+ * Since the frontmatter is at the top level, users trying to return a Response  for SSR mode run into this
+ */
+function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.CANT_RETURN_OUTSIDE_FUNC;
+}
+
+/**
+ * When the content of the file is invalid and can't be parsed properly for TSX generation, TS will show an error about
+ * how the current module can't be compiled under --isolatedModule, this is confusing to users so let's ignore this
+ */
+function isNoIsolatedModuleError(diagnostic: Diagnostic) {
+	return diagnostic.code !== DiagnosticCodes.ISOLATED_MODULE_COMPILE_ERR;
+}
+
+/**
+ * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
+ */
+function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
+	// JSX element has no closing tag. JSX -> HTML
+	if (diagnostic.code === DiagnosticCodes.JSX_NO_CLOSING_TAG) {
+		return {
+			...diagnostic,
+			message: diagnostic.message.replace('JSX', 'HTML'),
+		};
+	}
+
+	// For the rare case where an user might try to put a client directive on something that is not a component
+	if (diagnostic.code === DiagnosticCodes.TYPE_NOT_ASSIGNABLE) {
+		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
+			return {
+				...diagnostic,
+				message: 'Client directives are only available on framework components',
+			};
+		}
+	}
+
+	// An import path cannot end with '.ts(x)' consider importing with no extension
+	// TODO: Remove this when https://github.com/withastro/astro/issues/3415 is fixed
+	if (diagnostic.code === DiagnosticCodes.CANNOT_IMPORT_TS_EXT) {
+		return {
+			...diagnostic,
+			message: diagnostic.message.replace(/\.jsx?/, ''),
+		};
+	}
+
+	return diagnostic;
+}
+
+function getDiagnosticTag(diagnostic: ts.Diagnostic): DiagnosticTag[] {
+	const tags: DiagnosticTag[] = [];
+
+	if (diagnostic.reportsUnnecessary) {
+		tags.push(DiagnosticTag.Unnecessary);
+	}
+
+	if (diagnostic.reportsDeprecated) {
+		tags.push(DiagnosticTag.Deprecated);
+	}
+
+	return tags;
 }

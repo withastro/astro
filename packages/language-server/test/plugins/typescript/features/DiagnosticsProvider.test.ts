@@ -2,7 +2,10 @@ import { expect } from 'chai';
 import { Range } from 'vscode-languageserver-types';
 import { createEnvironment } from '../../../utils';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { DiagnosticsProviderImpl } from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
+import {
+	DiagnosticsProviderImpl,
+	DiagnosticCodes,
+} from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
 
 describe('TypeScript Plugin#DiagnosticsProvider', () => {
 	function setup(filePath: string) {
@@ -78,6 +81,26 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 
 		const diagnostics = await provider.getDiagnostics(document);
 		expect(diagnostics).to.not.be.empty;
+	});
+
+	it('ignore specific diagnostics', async () => {
+		const { provider, document } = setup('scriptTag.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+		const codes = diagnostics.map((diag) => Number(diag.code));
+		const ignoredCodes = Object.values(DiagnosticCodes)
+			.filter((value) => !isNaN(Number(value)))
+			// TODO: Since we don't support shorthand properties at the moment, this one gets wrongly activated in the fixture
+			.filter((code) => code !== 2322);
+
+		const foundIgnored = codes.reduce((ignored, current) => {
+			return ignored || ignoredCodes.indexOf(current) !== -1;
+		}, false);
+
+		expect(foundIgnored).to.be.false;
+
+		const rangesStart = diagnostics.map((diag) => diag.range.start.line);
+		expect(rangesStart).to.satisfy((ranges: number[]) => ranges.every((start) => start <= document.lineCount));
 	});
 
 	describe('Astro2TSX', async () => {
