@@ -51,7 +51,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		seen.add(id);
 		const info = ctx.getModuleInfo(id);
 		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-		if(importers.length === 1 && importers[0] === resolvedPagesVirtualModuleId) {
+		if(importers.length <= 2 && importers[0] === resolvedPagesVirtualModuleId) {
 			yield id;
 			return;
 		}
