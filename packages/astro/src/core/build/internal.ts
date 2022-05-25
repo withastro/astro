@@ -74,10 +74,9 @@ export function trackPageData(
 	componentModuleId: string,
 	componentURL: URL
 ): void {
-	pageData.viteID = viteID(componentURL);
 	pageData.moduleSpecifier = componentModuleId;
 	internals.pagesByComponent.set(component, pageData);
-	internals.pagesByViteID.set(pageData.viteID, pageData);
+	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
 /**
