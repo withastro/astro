@@ -1,18 +1,14 @@
 import * as vscode from 'vscode-languageserver';
 import {
-	ApplyWorkspaceEditParams,
-	ApplyWorkspaceEditRequest,
 	CodeActionKind,
 	DidChangeConfigurationNotification,
 	InlayHintRequest,
 	LinkedEditingRangeRequest,
 	MessageType,
-	RenameFile,
 	SemanticTokensRangeRequest,
 	SemanticTokensRequest,
 	ShowMessageNotification,
 	TextDocumentIdentifier,
-	WorkspaceEdit,
 } from 'vscode-languageserver';
 import { ConfigManager, defaultLSConfig } from './core/config/ConfigManager';
 import { DocumentManager } from './core/documents/DocumentManager';
@@ -275,12 +271,6 @@ export function startLanguageServer(connection: vscode.Connection) {
 		diagnosticsManager.removeDiagnostics(document);
 		configManager.removeDocument(document.uri);
 	});
-
-    // The language server protocol does not have a specific "did rename/move files" event,
-    // so we create our own in the extension client and handle it here
-    connection.onRequest('$/getEditsForFileRename', async (fileRename: RenameFile) =>
-        pluginHost.updateImports(fileRename)
-    );
 
 	// Taking off 🚀
 	connection.onInitialized(() => {

@@ -1,14 +1,14 @@
 import { EOL } from 'os';
 import { parseAstro } from '../../core/documents/parseAstro';
 
-function addProps(content: string, className: string, htmlRaw: string = `{''}`): string {
+function addProps(content: string, className: string): string {
 	let defaultExportType = 'Record<string, any>';
 
 	if (/(interface|type) Props/.test(content)) {
 		defaultExportType = 'Props';
 	}
 
-	return EOL + `export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {\nreturn (<>${htmlRaw}</>);\n}`;
+	return EOL + `export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {}`;
 }
 
 function escapeTemplateLiteralContent(content: string) {
@@ -91,10 +91,10 @@ export default function (content: string, className: string): Astro2TSXResult {
 
 	result.code =
 		frontMatterRaw +
-		// htmlRaw +
+		htmlRaw +
 		EOL +
 		// Add TypeScript definitions
-		addProps(frontMatterRaw, className, htmlRaw.trim());
+		addProps(frontMatterRaw, className);
 
 	return result;
 }

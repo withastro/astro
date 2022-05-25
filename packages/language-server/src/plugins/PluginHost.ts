@@ -27,7 +27,7 @@ import {
 	TextEdit,
 	LinkedEditingRanges,
 } from 'vscode-languageserver';
-import type { AppCompletionItem, Plugin, LSProvider, FileRename } from './interfaces';
+import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
 import { DocumentManager } from '../core/documents/DocumentManager';
 import { isNotNullOrUndefined } from '../utils';
@@ -230,14 +230,6 @@ export class PluginHost {
 			return definitions.map((def) => <Location>{ range: def.targetSelectionRange, uri: def.targetUri });
 		}
 	}
-
-    async updateImports(fileRename: FileRename): Promise<WorkspaceEdit | null> {
-        return await this.execute<WorkspaceEdit>(
-            'updateImports',
-            [fileRename],
-            ExecuteMode.FirstNonNull
-        );
-    }
 
 	async rename(
 		textDocument: TextDocumentIdentifier,

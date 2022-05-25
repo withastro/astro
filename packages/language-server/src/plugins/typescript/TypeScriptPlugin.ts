@@ -23,7 +23,7 @@ import {
 } from 'vscode-languageserver';
 import { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import { AstroDocument, DocumentManager } from '../../core/documents';
-import { AppCompletionItem, AppCompletionList, FileRename, OnWatchFileChangesParam, Plugin } from '../interfaces';
+import { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
 import { CompletionItemData, CompletionsProviderImpl } from './features/CompletionsProvider';
 import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
@@ -44,7 +44,6 @@ import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import { FormattingProviderImpl } from './features/FormattingProvider';
-import { UpdateImportsProviderImpl } from './features/UpdateImportsProvider';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -54,9 +53,6 @@ export class TypeScriptPlugin implements Plugin {
 
 	private readonly codeActionsProvider: CodeActionsProviderImpl;
 	private readonly completionProvider: CompletionsProviderImpl;
-
-	private readonly updateImportsProvider: UpdateImportsProviderImpl;
-	
 	private readonly hoverProvider: HoverProviderImpl;
 	private readonly definitionsProvider: DefinitionsProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
@@ -71,11 +67,8 @@ export class TypeScriptPlugin implements Plugin {
 		this.configManager = configManager;
 		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
 
-        this.updateImportsProvider = new UpdateImportsProviderImpl(this.languageServiceManager);
-
-		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager, this.configManager);
-		
+		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.definitionsProvider = new DefinitionsProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
@@ -124,10 +117,6 @@ export class TypeScriptPlugin implements Plugin {
 
 		return edit;
 	}
-
-    async updateImports(fileRename: FileRename): Promise<WorkspaceEdit | null> {
-        return this.updateImportsProvider.updateImports(fileRename);
-    }
 
 	async formatDocument(document: AstroDocument, options: FormattingOptions): Promise<TextEdit[]> {
 		return this.formattingProvider.formatDocument(document, options);

@@ -19,7 +19,7 @@ export function createEnvironment(filePath: string, baseDir: string, pathPrefix?
 	const configManager = new ConfigManager();
 	const document = openDocument(filePath, join(fixtureDir, pathPrefix ?? ''), docManager);
 
-	return { document, docManager, configManager, fixturesDir: pathToUrl(fixtureDir), dir: fixtureDir };
+	return { document, docManager, configManager, fixturesDir: pathToUrl(fixtureDir) };
 }
 
 function openDocument(filePath: string, baseDir: string, docManager: DocumentManager) {

@@ -1,23 +1,4 @@
-import {
-	commands,
-	ExtensionContext,
-	extensions,
-	IndentAction,
-	languages,
-	Position,
-	ProgressLocation,
-	Range,
-	TextDocument,
-	TextDocumentChangeEvent,
-	Uri,
-	ViewColumn,
-	window,
-	workspace,
-	WorkspaceEdit
-} from 'vscode';
-import {
-	WorkspaceEdit as LSWorkspaceEdit
-} from 'vscode-languageclient';
+import { window, commands, workspace, ExtensionContext, TextDocument, Position, TextDocumentChangeEvent } from 'vscode';
 import {
 	LanguageClient,
 	RequestType,
@@ -25,7 +6,7 @@ import {
 	ServerOptions,
 	TransportKind,
 } from 'vscode-languageclient/node';
-import { LanguageClientOptions, TextDocumentEdit } from 'vscode-languageclient';
+import { LanguageClientOptions } from 'vscode-languageclient';
 import { activateTagClosing } from './html/autoClose.js';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
@@ -87,14 +68,14 @@ export async function activate(context: ExtensionContext) {
 
 	workspace.onDidChangeTextDocument((params: TextDocumentChangeEvent) => {
 		if (
-			['vue', 'astro', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(
+			['vue', 'svelte', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(
 				params.document.languageId
 			)
 		) {
 			getLSClient().sendNotification('$/onDidChangeNonAstroFile', {
 				uri: params.document.uri.toString(true),
 				// We only support partial changes for JS/TS files
-				changes: ['vue', 'astro'].includes(params.document.languageId)
+				changes: ['vue', 'svelte'].includes(params.document.languageId)
 					? undefined
 					: params.contentChanges.map((c) => ({
 							range: {
@@ -136,120 +117,9 @@ export async function activate(context: ExtensionContext) {
 		return client;
 	}
 
-	addDidChangeTextDocumentListener(getLSClient);
-	addRenameFileListener(getLSClient);
-
 	return {
 		getLanguageServer: getLSClient,
 	};
-}
-
-function addDidChangeTextDocumentListener(getLSClient: () => LanguageClient) {
-	// Only Astro file changes are automatically notified through the inbuilt LSP
-	// because the extension says it's only responsible for Astro files.
-	// Therefore we need to set this up for TS/JS files manually.
-	workspace.onDidChangeTextDocument((evt) => {
-		if (evt.document.languageId === 'typescript' || evt.document.languageId === 'javascript') {
-			getLSClient().sendNotification('$/onDidChangeNonAstroFile', {
-				uri: evt.document.uri.toString(true),
-				changes: evt.contentChanges.map((c) => ({
-					range: {
-						start: { line: c.range.start.line, character: c.range.start.character },
-						end: { line: c.range.end.line, character: c.range.end.character }
-					},
-					text: c.text
-				}))
-			});
-		}
-	});
-}
-
-function addRenameFileListener(getLSClient: () => LanguageClient) {
-	workspace.onDidRenameFiles(async (evt) => {
-		const oldUri = evt.files[0].oldUri.toString(true);
-		const parts = oldUri.split(/\/|\\/);
-		const lastPart = parts[parts.length - 1];
-		// If user moves/renames a folder, the URI only contains the parts up to that folder,
-		// and not files. So in case the URI does not contain a '.', check for imports to update.
-		if (
-			lastPart.includes('.') &&
-			!['.ts', '.js', '.json', '.astro'].some((ending) => lastPart.endsWith(ending))
-		) {
-			return;
-		}
-
-		window.withProgress(
-			{ location: ProgressLocation.Window, title: 'Updating Imports..' },
-			async () => {
-				const editsForFileRename = await getLSClient().sendRequest<LSWorkspaceEdit | null>(
-					'$/getEditsForFileRename',
-					// Right now files is always an array with a single entry.
-					// The signature was only designed that way to - maybe, in the future -
-					// have the possibility to change that. If that ever does, update this.
-					// In the meantime, just assume it's a single entry and simplify the
-					// rest of the logic that way.
-					{
-						oldUri,
-						newUri: evt.files[0].newUri.toString(true)
-					}
-				);
-				const edits = editsForFileRename?.documentChanges?.filter(TextDocumentEdit.is);
-				if (!edits) {
-					return;
-				}
-
-				const workspaceEdit = new WorkspaceEdit();
-				// We need to take into account multiple cases:
-				// - A Astro file is moved/renamed
-				//      -> all updates will be related to that Astro file, do that here. The TS LS won't even notice the update
-				// - A TS/JS file is moved/renamed
-				//      -> all updates will be related to that TS/JS file
-				//      -> let the TS LS take care of these updates in TS/JS files, do Astro file updates here
-				// - A folder with TS/JS AND Astro files is moved/renamed
-				//      -> all Astro file updates are handled here
-				//      -> all TS/JS file updates that consist of only TS/JS import updates are handled by the TS LS
-				//      -> all TS/JS file updates that consist of only Astro import updates are handled here
-				//      -> all TS/JS file updates that are mixed are handled here, but also possibly by the TS LS
-				//         if the TS plugin doesn't prevent it. This trades risk of broken updates with certainty of missed updates
-				edits.forEach((change) => {
-					const isTsOrJsFile =
-						change.textDocument.uri.endsWith('.ts') ||
-						change.textDocument.uri.endsWith('.js') ||
-						change.textDocument.uri.endsWith('.tsx') ||
-						change.textDocument.uri.endsWith('.jsx');
-					const containsAstroImportUpdate = change.edits.some((edit) =>
-						edit.newText.endsWith('.astro')
-					);
-					if (isTsOrJsFile && !containsAstroImportUpdate) {
-						return;
-					}
-
-					change.edits.forEach((edit) => {
-						if (
-							isTsOrJsFile &&
-							!edit.newText.endsWith('.astro')
-							// && !TsPlugin.isEnabled()
-						) {
-							// TS plugin enabled -> all mixed imports are handled here
-							// TS plugin disabled -> let TS/JS path updates be handled by the TS LS, Astro here
-							return;
-						}
-
-						// Renaming a file should only result in edits of existing files
-						workspaceEdit.replace(
-							Uri.parse(change.textDocument.uri),
-							new Range(
-								new Position(edit.range.start.line, edit.range.start.character),
-								new Position(edit.range.end.line, edit.range.end.character)
-							),
-							edit.newText
-						);
-					});
-				});
-				workspace.applyEdit(workspaceEdit);
-			}
-		);
-	});
 }
 
 export function deactivate(): Promise<void> | undefined {

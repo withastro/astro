@@ -197,7 +197,7 @@ export class SourceMapDocumentMapper implements DocumentMapper {
 	 */
 	destroy() {
 		this.parent?.destroy?.();
-		// this.consumer?.destroy?.();
+		this.consumer.destroy();
 	}
 }
 

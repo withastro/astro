@@ -137,7 +137,6 @@ async function createLanguageService(
 			),
 		getScriptSnapshot,
 		getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
-        // getScriptKind: (fileName: string) => getScriptSnapshot(fileName).scriptKind,
 	};
 
 	let languageService = ts.createLanguageService(host);
@@ -182,9 +181,6 @@ async function createLanguageService(
 		}
 
 		const newSnapshot = DocumentSnapshotUtils.createFromDocument(document);
-
-		if (newSnapshot.filePath.includes("update-import"))
-			console.log(newSnapshot)
 
 		snapshotManager.set(filePath, newSnapshot);
 

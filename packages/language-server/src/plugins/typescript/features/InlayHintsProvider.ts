@@ -1,9 +1,9 @@
-import { InlayHint, InlayHintKind } from 'vscode-languageserver';
+import { InlayHint } from 'vscode-languageserver';
 import { AstroDocument } from '../../../core/documents';
 import { InlayHintsProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
 import { toVirtualAstroFilePath } from '../utils';
-import { Range } from 'vscode-languageserver-types';
+import { InlayHintKind, Range } from 'vscode-languageserver-types';
 import ts from 'typescript';
 import { ConfigManager } from '../../../core/config';
 
