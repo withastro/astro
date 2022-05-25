@@ -142,10 +142,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				if (chunk.type === 'chunk') {
 					// This simply replaces single quotes with double quotes because the vite:css-post 
 					// plugin only works with single for some reason. See bug:
-					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
+					/*const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
 					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
 						return begin + '"' + chunkPath + '"' + end;
-					});
+					});*/
 				}
 			}
 		}
