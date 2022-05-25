@@ -94,14 +94,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 							return load().then((m) => m.$$metadata);
 						}
 
-						export const rawContent = {
-							toString() {
-								return ${JSON.stringify(rawContent)};
-							},
-							// Deferred
-							async parsedHtml() {
-								return load().then((m) => m.rawContent.html());
-							}
+						export function rawContent() {
+							return ${JSON.stringify(rawContent)};
+						}
+						rawContent.parseHtml = async function() {
+							return load().then((m) => m.rawContent.parseHtml());
 						}
 						
 						// Deferred
@@ -181,13 +178,11 @@ ${setup}`.trim();
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
-export const rawContent = {
-	toString() {
-		return ${JSON.stringify(markdownContent)};
-	},
-	parsedHtml() {
-		return ${JSON.stringify(renderResult.metadata.html)};
-	}
+export function rawContent() {
+	return ${JSON.stringify(markdownContent)};
+}
+rawContent.parseHtml = async function() {
+	return ${JSON.stringify(renderResult.metadata.html)};
 }
 ${tsResult}`;
 
