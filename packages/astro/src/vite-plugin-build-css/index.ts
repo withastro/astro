@@ -8,21 +8,6 @@ import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/i
 import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
 import crypto from 'crypto';
 
-const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
-
-// This is a virtual module that represents the .astro <style> usage on a page
-const ASTRO_STYLE_PREFIX = '@astro-inline-style';
-
-const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
-
-function isStyleVirtualModule(id: string) {
-	return id.startsWith(ASTRO_STYLE_PREFIX);
-}
-
-function isPageStyleVirtualModule(id: string) {
-	return id.startsWith(ASTRO_PAGE_STYLE_PREFIX);
-}
-
 interface PluginOptions {
 	internals: BuildInternals;
 	target: 'client' | 'server';
@@ -30,8 +15,8 @@ interface PluginOptions {
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	const { internals } = options;
-	const styleSourceMap = new Map<string, string>();
 
+	// This walks up the dependency graph and yields out each ModuleInfo object.
 	function* walkParentInfos(id: string, ctx: {getModuleInfo: GetModuleInfo}, seen = new Set<string>()): Generator<ModuleInfo, void, unknown> {
 		seen.add(id);
 		const info = ctx.getModuleInfo(id);
@@ -47,19 +32,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		}
 	}
 
-	function* getTopLevelPages(id: string, ctx: {getModuleInfo: GetModuleInfo}, seen = new Set<string>()): Generator<string, void, unknown> {
-		seen.add(id);
-		const info = ctx.getModuleInfo(id);
-		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-		if(importers.length <= 2 && importers[0] === resolvedPagesVirtualModuleId) {
-			yield id;
-			return;
-		}
-		for(const imp of importers) {
-			if(seen.has(imp)) {
-				continue;
+	// This function walks the dependency graph, going up until it finds a page component.
+	// This could be a .astro page or a .md page.
+	function* getTopLevelPages(id: string, ctx: {getModuleInfo: GetModuleInfo}): Generator<string, void, unknown> {
+		for(const info of walkParentInfos(id, ctx)) {
+			const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
+			if(importers.length <= 2 && importers[0] === resolvedPagesVirtualModuleId) {
+				yield info.id;
 			}
-			yield * getTopLevelPages(imp, ctx, seen);
 		}
 	}
 
@@ -79,7 +59,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	}
 
 	return {
-		name: PLUGIN_NAME,
+		name: '@astrojs/rollup-plugin-build-css',
 
 		configResolved(resolvedConfig) {
 			// Our plugin needs to run before `vite:css-post` which does a lot of what we do
@@ -89,39 +69,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			const plugins = resolvedConfig.plugins as VitePlugin[];
 			const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
 			if (viteCSSPostIndex !== -1) {
-				const viteCSSPost = plugins[viteCSSPostIndex];
-				// Prevent this plugin's bundling behavior from running since we need to
-				// do that ourselves in order to handle updating the HTML.
-			//	delete viteCSSPost.renderChunk;
-			//	delete viteCSSPost.generateBundle;
-
 				// Move our plugin to be right before this one.
-				const ourIndex = plugins.findIndex((p) => p.name === PLUGIN_NAME);
+				const ourIndex = plugins.findIndex((p) => p.name === '@astrojs/rollup-plugin-build-css');
 				const ourPlugin = plugins[ourIndex];
 
 				// Remove us from where we are now and place us right before the viteCSSPost plugin
 				plugins.splice(ourIndex, 1);
 				plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
 			}
-		},
-		async resolveId(id) {
-			if (isPageStyleVirtualModule(id)) {
-				return id;
-			}
-			if (isStyleVirtualModule(id)) {
-				return id;
-			}
-			return undefined;
-		},
-
-		async transform(value, id) {
-			if (isStyleVirtualModule(id)) {
-				styleSourceMap.set(id, value);
-			}
-			if (isCSSRequest(id)) {
-				styleSourceMap.set(id, value);
-			}
-			return null;
 		},
 
 		outputOptions(outputOptions) {
@@ -156,7 +111,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 					if('viteMetadata' in chunk) {
 						const meta = chunk['viteMetadata'] as ViteMetadata;
 
+						// Chunks that have the viteMetadata.importedCss are CSS chunks
 						if(meta.importedCss.size) {
+							// For the client build, client:only styles need to be mapped
+							// over to their page. For this chunk, determine if it's a child of a
+							// client:only compoennt and if so, add its CSS to the page it belongs to.
 							if(options.target === 'client') {
 								for(const [id] of Object.entries(c.modules)) {
 									for(const pageData of getParentClientOnlys(id, this)) {
@@ -167,6 +126,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 								}
 							}
 
+							// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 							for(const [id] of Object.entries(c.modules)) {
 								for(const pageViteID of getTopLevelPages(id, this)) {
 									const pageData = getPageDataByViteID(internals, pageViteID);
