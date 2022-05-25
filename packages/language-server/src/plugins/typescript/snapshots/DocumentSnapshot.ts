@@ -56,7 +56,8 @@ export class AstroSnapshot implements DocumentSnapshot {
 	constructor(
 		public readonly parent: AstroDocument,
 		private readonly text: string,
-		public readonly scriptKind: ts.ScriptKind
+		public readonly scriptKind: ts.ScriptKind,
+		public readonly content: string = ''
 	) {}
 
 	async createFragment() {
@@ -79,12 +80,20 @@ export class AstroSnapshot implements DocumentSnapshot {
 		return this.text.substring(start, end);
 	}
 
+	getContent(start: number, end: number): string {
+		return this.content.substring(start, end);
+	}
+
 	getLength() {
 		return this.text.length;
 	}
 
 	getFullText() {
 		return this.text;
+	}
+
+	getFullContent() {
+		return this.content;
 	}
 
 	getChangeRange() {

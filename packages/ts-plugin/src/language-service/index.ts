@@ -14,6 +14,18 @@ export function decorateLanguageService(
     ls: ts.LanguageService,
     snapshotManager: AstroSnapshotManager,
     logger: Logger
+) {
+    // Decorate using a proxy so we can dynamically enable/disable method
+    // patches depending on the enabled state of our config
+    const proxy = new Proxy(ls, createProxyHandler());
+    decorateLanguageServiceInner(proxy, snapshotManager, logger);
+    return proxy;
+}
+
+export function decorateLanguageServiceInner(
+    ls: ts.LanguageService,
+    snapshotManager: AstroSnapshotManager,
+    logger: Logger
 ): ts.LanguageService {
     patchLineColumnOffset(ls, snapshotManager);
     decorateRename(ls, snapshotManager, logger);
@@ -24,6 +36,36 @@ export function decorateLanguageService(
     decorateGetImplementation(ls, snapshotManager, logger);
     decorateUpdateImports(ls, snapshotManager, logger);
     return ls;
+}
+
+const astroPluginPatchSymbol = Symbol('astroPluginPatchSymbol');
+
+export function isPatched(ls: ts.LanguageService) {
+    return (ls as any)[astroPluginPatchSymbol] === true;
+}
+
+function createProxyHandler(): ProxyHandler<ts.LanguageService> {
+    const decorated: Partial<ts.LanguageService> = {};
+
+    return {
+        get(target, p) {
+            // always return patch symbol whether the plugin is enabled or not
+            if (p === astroPluginPatchSymbol) 
+                return true;
+
+            if (p === 'dispose') 
+                return target[p as keyof ts.LanguageService];
+
+            return (
+                decorated[p as keyof ts.LanguageService] ?? target[p as keyof ts.LanguageService]
+            );
+        },
+        set(_, p, value) {
+            decorated[p as keyof ts.LanguageService] = value;
+
+            return true;
+        }
+    };
 }
 
 function patchLineColumnOffset(ls: ts.LanguageService, snapshotManager: AstroSnapshotManager) {
