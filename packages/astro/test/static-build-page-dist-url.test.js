@@ -13,7 +13,6 @@ describe('Static build: pages routes have distURL', () => {
 				name: '@astrojs/distURL',
 				hooks: {
 					'astro:build:done': ({ routes }) => {
-						console.log(routes)
 						checkRoutes = routes.filter(p => p.type === 'page')
 					},
 				},
