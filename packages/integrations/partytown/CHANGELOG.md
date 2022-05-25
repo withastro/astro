@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3437](https://github.com/withastro/astro/pull/3437) [`78e962f7`](https://github.com/withastro/astro/commit/78e962f744a495b587bc691ad6b109543a5a5dde) Thanks [@caioferrarezi](https://github.com/caioferrarezi)! - Fix partytown script generation to get astro base config option
+
 ## 0.1.3
 
 ### Patch Changes

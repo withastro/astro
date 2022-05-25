@@ -1,5 +1,26 @@
 # astro
 
+## 1.0.0-beta.33
+
+### Patch Changes
+
+- [#3426](https://github.com/withastro/astro/pull/3426) [`946630a1`](https://github.com/withastro/astro/commit/946630a112dca39d6afc32ef02edceda94a604cb) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Logs: Add "ssr.noExternal" hint for CSS loaded from npm packages
+
+* [#3434](https://github.com/withastro/astro/pull/3434) [`4e3b405e`](https://github.com/withastro/astro/commit/4e3b405e9eb03f7c286234a30ca45c26e3e17fcf) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Respect user's configured vite logLevel during build
+
+- [#3423](https://github.com/withastro/astro/pull/3423) [`463a1c21`](https://github.com/withastro/astro/commit/463a1c214779e0558bcd99c30294e1a14a97232e) Thanks [@matthewp](https://github.com/matthewp)! - Fix relative inline scripts on Windows
+
+* [#3384](https://github.com/withastro/astro/pull/3384) [`296fff2c`](https://github.com/withastro/astro/commit/296fff2cffd4632f2d2e891069f52f6859a5c076) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix long-standing bug where a `class` attribute inside of a spread prop will cause duplicate `class` attributes
+
+- [#3433](https://github.com/withastro/astro/pull/3433) [`4ca60e93`](https://github.com/withastro/astro/commit/4ca60e9344f882ee1a216ec66fb409c88c740641) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix build issue where hoisted scripts would be duplicated per page
+
+* [#3422](https://github.com/withastro/astro/pull/3422) [`0209d627`](https://github.com/withastro/astro/commit/0209d6276c6ed86914b6433e223628010b6a7dfd) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates component hydration scripts to use absolute paths for script imports
+
+- [#3410](https://github.com/withastro/astro/pull/3410) [`cfae9760`](https://github.com/withastro/astro/commit/cfae9760b252052b6189e96398b819a4337634a8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Significantally more stable behavior for "Markdown + Components" usage, which now handles component serialization much more similarly to MDX. Also supports switching between Components and Markdown without extra newlines, removes wrapping `<p>` tags from standalone components, and improves JSX expression handling.
+
+- Updated dependencies [[`cfae9760`](https://github.com/withastro/astro/commit/cfae9760b252052b6189e96398b819a4337634a8)]:
+  - @astrojs/markdown-remark@0.10.0
+
 ## 1.0.0-beta.32
 
 ### Patch Changes
