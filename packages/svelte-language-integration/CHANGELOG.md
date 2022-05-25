@@ -1,5 +1,11 @@
 # @astrojs/svelte-language-integration
 
+## 0.1.5
+
+### Patch Changes
+
+- fe2d26b: Add support for showing Svelte components documentation on hover
+
 ## 0.1.4
 
 ### Patch Changes

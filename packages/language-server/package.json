@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "author": "withastro",
   "license": "MIT",
   "type": "commonjs",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@astrojs/vue-language-integration": "^0.1.0",
-    "@astrojs/svelte-language-integration": "^0.1.4",
+    "@astrojs/svelte-language-integration": "^0.1.5",
     "@vscode/emmet-helper": "^2.8.4",
     "lodash": "^4.17.21",
     "source-map": "^0.7.3",

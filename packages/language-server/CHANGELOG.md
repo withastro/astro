@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.19.1
+
+### Patch Changes
+
+- 729dff5: Add support for giving linked editing ranges
+- 05a48c2: Fix some TypeScript diagnostics not showing up in certain cases
+- fe2d26b: Add support for showing Svelte components documentation on hover
+- Updated dependencies [fe2d26b]
+  - @astrojs/svelte-language-integration@0.1.5
+
 ## 0.19.0
 
 ### Minor Changes

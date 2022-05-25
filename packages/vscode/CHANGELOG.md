@@ -1,5 +1,16 @@
 # astro-vscode
 
+## 0.19.1
+
+### Patch Changes
+
+- 59e8ad6: Update README, disable frontmatter indenting by default
+- fec2817: Improved syntax highlighting, auto-indentation and auto-closing
+- Updated dependencies [729dff5]
+- Updated dependencies [05a48c2]
+- Updated dependencies [fe2d26b]
+  - @astrojs/language-server@0.19.1
+
 ## 0.19.0
 
 ### Minor Changes
