@@ -1,9 +1,10 @@
 import { BuildInternals } from '../core/build/internal';
-import type { GetModuleInfo } from 'rollup';
+import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { PageBuildData } from '../core/build/types';
 
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/util.js';
-import { getPageDataByViteID } from '../core/build/internal.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
 import crypto from 'crypto';
 
@@ -31,6 +32,21 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 	const { internals } = options;
 	const styleSourceMap = new Map<string, string>();
 
+	function* walkParentInfos(id: string, ctx: {getModuleInfo: GetModuleInfo}, seen = new Set<string>()): Generator<ModuleInfo, void, unknown> {
+		seen.add(id);
+		const info = ctx.getModuleInfo(id);
+		if(info) {
+			yield info;
+		}
+		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
+		for(const imp of importers) {
+			if(seen.has(imp)) {
+				continue;
+			}
+			yield * walkParentInfos(imp, ctx, seen);
+		}
+	}
+
 	function* getTopLevelPages(id: string, ctx: {getModuleInfo: GetModuleInfo}, seen = new Set<string>()): Generator<string, void, unknown> {
 		seen.add(id);
 		const info = ctx.getModuleInfo(id);
@@ -54,6 +70,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			hash.update(page, 'utf-8');
 		}
 		return hash.digest('hex').slice(0, 8);
+	}
+
+	function* getParentClientOnlys(id: string, ctx: {getModuleInfo: GetModuleInfo}): Generator<PageBuildData, void, unknown> {
+		for(const info of walkParentInfos(id, ctx)) {
+			yield * getPageDatasByClientOnlyID(internals, info.id);
+		}
 	}
 
 	return {
@@ -122,7 +144,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			};
 		},
 
-		async generateBundle(outputOptions, bundle) {
+		async generateBundle(_outputOptions, bundle) {
 			type ViteMetadata = {
 				importedAssets: Set<string>;
 				importedCss: Set<string>;
@@ -132,9 +154,19 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				if(chunk.type === 'chunk') {
 					const c = chunk;
 					if('viteMetadata' in chunk) {
-						
 						const meta = chunk['viteMetadata'] as ViteMetadata;
+
 						if(meta.importedCss.size) {
+							if(options.target === 'client') {
+								for(const [id] of Object.entries(c.modules)) {
+									for(const pageData of getParentClientOnlys(id, this)) {
+										for(const importedCssImport of meta.importedCss) {
+											pageData.css.add(importedCssImport);
+										}
+									}
+								}
+							}
+
 							for(const [id] of Object.entries(c.modules)) {
 								for(const pageViteID of getTopLevelPages(id, this)) {
 									const pageData = getPageDataByViteID(internals, pageViteID);
@@ -148,6 +180,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				}
 
 				if (chunk.type === 'chunk') {
+					// This simply replaces single quotes with double quotes because the vite:css-post 
+					// plugin only works with single for some reason. See bug:
 					const exp = new RegExp(`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`, 'g');
 					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
 						return begin + '"' + chunkPath + '"' + end;
