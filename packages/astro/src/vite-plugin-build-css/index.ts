@@ -81,6 +81,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		outputOptions(outputOptions) {
 			const manualChunks = outputOptions.manualChunks || Function.prototype;
 			outputOptions.manualChunks = function(id, ...args) {
+				// Defer to user-provided `manualChunks`, if it was provided.
 				if(typeof manualChunks == 'object') {
 					if(id in manualChunks) {
 						return manualChunks[id];
@@ -92,6 +93,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 					}
 				}
 
+				// For CSS, create a hash of all of the pages that use it.
+				// This causes CSS to be built into shared chunks when used by multiple pages.
 				if (isCSSRequest(id)) {
 					return createHashOfPageParents(id, args[0]);
 				}
