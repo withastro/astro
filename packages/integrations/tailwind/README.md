@@ -2,7 +2,14 @@
 
 This **[Astro integration][astro-integration]** brings [Tailwind's](https://tailwindcss.com/) utility CSS classes to every `.astro` file and [framework component](https://docs.astro.build/en/core-concepts/framework-components/) in your project, along with support for the Tailwind configuration file.
 
-https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b861-d6e1cc800b6c.mp4
+- <strong>[Why Tailwind](#why-tailwind)</strong>
+- <strong>[Installation](#installation)</strong>
+- <strong>[Usage](#usage)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
+- <strong>[Troubleshooting](#troubleshooting)</strong>
+- <strong>[Contributing](#contributing)</strong>
+- <strong>[Changelog](#changelog)</strong>
 
 ## Why Tailwind?
 
@@ -65,6 +72,10 @@ Then, restart the dev server.
 
 When you install the integration, Tailwind's utility classes should be ready to go right away. Head to the [Tailwind docs](https://tailwindcss.com/docs/utility-first) to learn how to use Tailwind, and if you see a utility class you want to try, add it to any HTML element to your project!
 
+https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b861-d6e1cc800b6c.mp4
+
+## Configuration
+
 ### Configuring Tailwind
 
 If you used the Quick Install instructions and said yes to each prompt, you'll see a `tailwind.config.cjs` file in your project's root directory. Use this file for your Tailwind configuration changes. You can learn how to customize Tailwind using this file [in the Tailwind docs](https://tailwindcss.com/docs/configuration).
@@ -76,7 +87,7 @@ If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the r
 The Astro Tailwind integration handles the communication between Astro and Tailwind and it has its own options. Change these in the `astro.config.mjs` file (_not_ the Tailwind configuration file) which is where your project's integration settings live.
 
 <details>
-  <summary>config.path</summary>
+  <summary><strong>config.path</strong></summary>
   
   <br/>
   
@@ -101,7 +112,7 @@ export default {
 </details>
 
 <details>
-  <summary>config.applyBaseStyles</summary>
+  <summary><strong>config.applyBaseStyles</strong></summary>
   
   <br/>
   
