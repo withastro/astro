@@ -117,7 +117,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 						if(meta.importedCss.size) {
 							// For the client build, client:only styles need to be mapped
 							// over to their page. For this chunk, determine if it's a child of a
-							// client:only compoennt and if so, add its CSS to the page it belongs to.
+							// client:only component and if so, add its CSS to the page it belongs to.
 							if(options.target === 'client') {
 								for(const [id] of Object.entries(c.modules)) {
 									for(const pageData of getParentClientOnlys(id, this)) {
