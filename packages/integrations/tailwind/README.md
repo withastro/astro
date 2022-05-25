@@ -10,7 +10,7 @@ Tailwind lets you use utility classes instead of writing CSS. These utility clas
 
 If you don't like those predefined settings, you can [customize the Tailwind configuration file](https://tailwindcss.com/docs/configuration) to your project's design requirements. For example, if the "large text" in your design is actually `2rem`, you can [change the `lg` fontSize setting](https://tailwindcss.com/docs/font-size#customizing-your-theme) to `2rem`.
 
-Tailwind is also a great choice to add styles to a React, Preact, or Solid component, which don't support a `<style>` tag in the component file. That said, it's generally discouraged to use both Tailwind and another styling method in the same file.
+Tailwind is also a great choice to add styles to React, Preact, or Solid components, which don't support a `<style>` tag in the component file. That said, it's generally discouraged to use both Tailwind and another styling method in the same file.
 
 ## Installation
 
