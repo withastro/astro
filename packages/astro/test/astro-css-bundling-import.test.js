@@ -28,10 +28,7 @@ describe('CSS Bundling (ESM import)', () => {
 		}
 
 		// test 1: insure green comes after red (site.css)
-		expect(css.indexOf('p{color:green}')).to.be.greaterThan(css.indexOf('p{color:red}'));
-
-		// test 2: insure green comes after blue (page-1.css)
-		expect(css.indexOf('p{color:green}')).to.be.greaterThan(css.indexOf('p{color:#00f}'));
+		expect(css.indexOf('color: green')).to.be.greaterThan(css.indexOf('color: red'));
 	});
 
 	it('no empty CSS files', async () => {
@@ -65,15 +62,15 @@ describe('CSS Bundling (ESM import)', () => {
 		}
 
 		// test 1: insure green is included (site.css)
-		expect(css.indexOf('p{color:red}')).to.be.greaterThanOrEqual(0);
+		expect(css.indexOf('color: red')).to.be.greaterThanOrEqual(0);
 
 		// test 2: insure purple is not included as an import (page-3.css)
 		// this makes sure the styles imported with ?raw and ?url weren't bundled
-		expect(css.indexOf('p{color:purple}')).to.be.lessThan(0);
+		expect(css.indexOf('color: purple')).to.be.lessThan(0);
 
 		// test 3: insure purple was inlined (page-3.css inlined with set:html)
 		// this makes sure the styles imported with ?url were inlined
-		let inlineCss = $('style').html().replace(/\s/g, '').replace('/n', '');
-		expect(inlineCss.indexOf('p{color:purple;}')).to.be.greaterThanOrEqual(0);
+		let inlineCss = $('style').html();
+		expect(inlineCss.indexOf('color: purple')).to.be.greaterThanOrEqual(0);
 	});
 });
