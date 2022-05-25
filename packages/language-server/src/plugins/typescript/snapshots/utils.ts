@@ -10,9 +10,10 @@ import { toPascalCase } from '../../../utils';
 
 // Utilities to create Snapshots from different contexts
 export function createFromDocument(document: AstroDocument) {
-	const { code } = astro2tsx(document.getText(), classNameFromFilename(document.getURL()));
+	const content = document.getText();
+	const { code } = astro2tsx(content, classNameFromFilename(document.getURL()));
 
-	return new AstroSnapshot(document, code, ts.ScriptKind.TSX);
+	return new AstroSnapshot(document, code, ts.ScriptKind.TSX, content);
 }
 
 /**
