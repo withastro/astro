@@ -25,6 +25,7 @@ import {
 	InlayHint,
 	FormattingOptions,
 	TextEdit,
+	LinkedEditingRanges,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -196,6 +197,19 @@ export class PluginHost {
 		return await this.execute<SemanticTokens>(
 			'getSemanticTokens',
 			[document, range, cancellationToken],
+			ExecuteMode.FirstNonNull
+		);
+	}
+
+	async getLinkedEditingRanges(
+		textDocument: TextDocumentIdentifier,
+		position: Position
+	): Promise<LinkedEditingRanges | null> {
+		const document = this.getDocument(textDocument.uri);
+
+		return await this.execute<LinkedEditingRanges>(
+			'getLinkedEditingRanges',
+			[document, position],
 			ExecuteMode.FirstNonNull
 		);
 	}

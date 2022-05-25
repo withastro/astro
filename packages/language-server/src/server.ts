@@ -3,6 +3,7 @@ import {
 	CodeActionKind,
 	DidChangeConfigurationNotification,
 	InlayHintRequest,
+	LinkedEditingRangeRequest,
 	MessageType,
 	SemanticTokensRangeRequest,
 	SemanticTokensRequest,
@@ -131,6 +132,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 				colorProvider: true,
 				hoverProvider: true,
 				documentSymbolProvider: true,
+				linkedEditingRangeProvider: true,
 				semanticTokensProvider: {
 					legend: getSemanticTokenLegend(),
 					range: true,
@@ -225,6 +227,11 @@ export function startLanguageServer(connection: vscode.Connection) {
 	);
 	connection.onRequest(SemanticTokensRangeRequest.type, (evt, cancellationToken) =>
 		pluginHost.getSemanticTokens(evt.textDocument, evt.range, cancellationToken)
+	);
+
+	connection.onRequest(
+		LinkedEditingRangeRequest.type,
+		async (evt) => await pluginHost.getLinkedEditingRanges(evt.textDocument, evt.position)
 	);
 
 	connection.onDocumentFormatting((params: vscode.DocumentFormattingParams) =>

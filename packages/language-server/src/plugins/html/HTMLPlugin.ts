@@ -9,6 +9,7 @@ import {
 	Range,
 	SymbolInformation,
 	FormattingOptions,
+	LinkedEditingRanges,
 } from 'vscode-languageserver';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
 import { getLanguageService, HTMLFormatConfiguration } from 'vscode-html-languageservice';
@@ -149,6 +150,22 @@ export class HTMLPlugin implements Plugin {
 		}
 
 		return this.lang.getFoldingRanges(document);
+	}
+
+	getLinkedEditingRanges(document: AstroDocument, position: Position): LinkedEditingRanges | null {
+		const html = document.html;
+
+		if (!html) {
+			return null;
+		}
+
+		const ranges = this.lang.findLinkedEditingRanges(document, position, html);
+
+		if (!ranges) {
+			return null;
+		}
+
+		return { ranges };
 	}
 
 	async doTagComplete(document: AstroDocument, position: Position): Promise<string | null> {

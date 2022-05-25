@@ -129,6 +129,26 @@ describe('HTML Plugin', () => {
 		});
 	});
 
+	describe('provides linked editing ranges', () => {
+		it('for html', () => {
+			const { plugin, document } = setup(`<div></div>
+			`);
+
+			const linkedEditingRanges = plugin.getLinkedEditingRanges(document, Position.create(0, 2));
+
+			expect(linkedEditingRanges.ranges).to.deep.equal([
+				{
+					start: Position.create(0, 1),
+					end: Position.create(0, 4),
+				},
+				{
+					start: Position.create(0, 7),
+					end: Position.create(0, 10),
+				},
+			]);
+		});
+	});
+
 	describe('provides formatting', () => {
 		it('return formatting', async () => {
 			const { plugin, document } = setup('<div><p>Astro</p></div>');
