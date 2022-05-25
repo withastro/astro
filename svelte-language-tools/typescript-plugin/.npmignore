@@ -1,6 +1,0 @@
-/node_modules
-/src
-tsconfig.json
-.gitignore
-internal.md
-dist/tsconfig.tsbuildinfo

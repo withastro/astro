@@ -1,1 +1,0 @@
-<script context="module" lang="ts">const asd: string = true;asd;</script>

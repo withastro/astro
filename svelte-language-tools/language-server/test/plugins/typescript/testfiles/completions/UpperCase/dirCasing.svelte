@@ -1,3 +1,0 @@
-<script>
-    import {} from './'
-</script>

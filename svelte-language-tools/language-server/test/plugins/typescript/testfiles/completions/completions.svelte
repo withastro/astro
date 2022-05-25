@@ -1,1 +1,0 @@
-<script>class A { b() { return true; } } new A().</script>

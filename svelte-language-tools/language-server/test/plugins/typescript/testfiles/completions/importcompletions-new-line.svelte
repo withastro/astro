@@ -1,3 +1,0 @@
-<script>
-    Scn
-</script>

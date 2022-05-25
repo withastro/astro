@@ -27,6 +27,7 @@ export class LanguageServiceManager {
 		};
 
 		const handleDocumentChange = (document: AstroDocument) => {
+            // This refreshes the document in the ts language service
 			this.getSnapshot(document);
 		};
 

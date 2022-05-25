@@ -8,6 +8,7 @@ import { decorateDiagnostics } from './diagnostics.js';
 import { decorateFindReferences } from './find-references.js';
 import { decorateGetImplementation } from './implementation.js';
 import { decorateRename } from './rename.js';
+import { decorateUpdateImports } from './update-import';
 
 export function decorateLanguageService(
     ls: ts.LanguageService,
@@ -21,6 +22,7 @@ export function decorateLanguageService(
     decorateCompletions(ls, logger);
     decorateGetDefinition(ls, snapshotManager, logger);
     decorateGetImplementation(ls, snapshotManager, logger);
+    decorateUpdateImports(ls, snapshotManager, logger);
     return ls;
 }
 
