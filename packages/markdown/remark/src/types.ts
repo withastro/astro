@@ -20,21 +20,23 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
 export interface ShikiConfig {
-	langs: ILanguageRegistration[];
-	theme: Theme | IThemeRegistration;
-	wrap: boolean | null;
+	langs?: ILanguageRegistration[];
+	theme?: Theme | IThemeRegistration;
+	wrap?: boolean | null;
 }
 
 export interface AstroMarkdownOptions {
-	mode: 'md' | 'mdx';
-	drafts: boolean;
-	syntaxHighlight: 'shiki' | 'prism' | false;
-	shikiConfig: ShikiConfig;
-	remarkPlugins: RemarkPlugins;
-	rehypePlugins: RehypePlugins;
+	mode?: 'md' | 'mdx';
+	drafts?: boolean;
+	syntaxHighlight?: 'shiki' | 'prism' | false;
+	shikiConfig?: ShikiConfig;
+	remarkPlugins?: RemarkPlugins;
+	rehypePlugins?: RehypePlugins;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
+	/** @internal */
+	fileURL?: URL;
 	/** @internal */
 	$?: {
 		scopedClassName: string | null;
