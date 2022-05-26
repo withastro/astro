@@ -1,5 +1,5 @@
 {
-  "name": "@e2e/client-only",
+  "name": "@e2e/nested-in-vue",
   "version": "0.0.0",
   "private": true,
   "devDependencies": {
