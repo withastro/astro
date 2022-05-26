@@ -13,6 +13,6 @@ describe('Vite Config', async () => {
 	it('Allows overriding bundle naming options in the build', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		expect($('link').attr('href')).to.equal('/assets/testing-entry.css');
+		expect($('link').attr('href')).to.match(/\/assets\/testing-[a-z0-9]+\.css/)
 	});
 });

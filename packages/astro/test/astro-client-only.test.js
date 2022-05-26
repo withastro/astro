@@ -28,7 +28,12 @@ describe('Client only components', () => {
 	it('Adds the CSS to the page', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
-		expect($('link[rel=stylesheet]')).to.have.lengthOf(2);
+
+		const href = $('link[rel=stylesheet]').attr('href');
+		const css = await fixture.readFile(href);
+
+		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
+		expect(css).to.match(/Courier New/, 'Global styles are added');
 	});
 });
 
@@ -60,6 +65,11 @@ describe('Client only components subpath', () => {
 	it('Adds the CSS to the page', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
-		expect($('link[rel=stylesheet]')).to.have.lengthOf(2);
+		
+		const href = $('link[rel=stylesheet]').attr('href');
+		const css = await fixture.readFile(href.replace(/\/blog/, ''));
+
+		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
+		expect(css).to.match(/Courier New/, 'Global styles are added');
 	});
 });

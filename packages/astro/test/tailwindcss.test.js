@@ -39,7 +39,7 @@ describe('Tailwind', () => {
 
 			// tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
 			expect(bundledCSS, 'supports arbitrary value classes').to.match(
-				/\.font-\\\[900\\\]{font-weight:900}/
+				/\.font-\\\[900\\\]{/
 			);
 
 			// custom theme colors were included

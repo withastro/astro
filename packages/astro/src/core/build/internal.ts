@@ -112,19 +112,17 @@ export function* getPageDatasByChunk(
 	}
 }
 
-export function* getPageDatasByClientOnlyChunk(
+export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
-	chunk: RenderedChunk
+	viteid: ViteID
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		for (const [modulePath] of Object.entries(chunk.modules)) {
-			// prepend with `/@fs` to match the path used in the compiler's transform() call
-			const pathname = `/@fs${prependForwardSlash(modulePath)}`;
-			if (pagesByClientOnly.has(pathname)) {
-				for (const pageData of pagesByClientOnly.get(pathname)!) {
-					yield pageData;
-				}
+		const pathname = `/@fs${prependForwardSlash(viteid)}`;
+		const pageBuildDatas = pagesByClientOnly.get(pathname)
+		if(pageBuildDatas) {
+			for(const pageData of pageBuildDatas) {
+				yield pageData;
 			}
 		}
 	}

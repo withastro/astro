@@ -28,7 +28,8 @@ describe('CSS', function () {
 			const html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
 			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
-			bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				.replace(/\s/g, '').replace('/n', '');
 		});
 
 		describe('Astro Styles', () => {
@@ -102,7 +103,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.sass', async () => {
@@ -112,7 +113,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-sass-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy`));
 			});
 
 			it('.scss', async () => {
@@ -122,7 +123,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-scss-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.sass', async () => {
@@ -134,7 +135,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.scss', async () => {
@@ -146,7 +147,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 		});
 
@@ -185,7 +186,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
 			});
 
 			it('<style lang="sass">', async () => {
@@ -222,7 +223,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -238,7 +239,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -254,7 +255,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 		});

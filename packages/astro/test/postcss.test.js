@@ -4,7 +4,7 @@ import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
 describe('PostCSS', () => {
-	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none}`;
+	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none`;
 
 	let fixture;
 	let bundledCSS;
@@ -18,7 +18,8 @@ describe('PostCSS', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
-		bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+		bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+			.replace(/\s/g, '').replace('/n', '');
 	});
 
 	it('works in Astro page styles', () => {
@@ -42,8 +43,8 @@ describe('PostCSS', () => {
 	});
 
 	it('ignores CSS in public/', async () => {
-		const publicCSS = await fixture.readFile('/global.css');
+		const publicCSS = (await fixture.readFile('/global.css')).trim().replace(/\s/g, '').replace('/n', '');
 		// neither minified nor prefixed
-		expect(eol.lf(publicCSS.trim())).to.equal(`.global {\n  appearance: none;\n}`);
+		expect(eol.lf(publicCSS)).to.equal(`.global{appearance:none;}`);
 	});
 });
