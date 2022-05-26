@@ -35,7 +35,7 @@ describe('Astro Markdown', () => {
 		}
 	});
 
-	it('Can handle slugs with JSX expressions in markdown pages', async () => {
+	it.skip('Can handle slugs with JSX expressions in markdown pages', async () => {
 		const html = await fixture.readFile('/slug/index.html');
 		const $ = cheerio.load(html);
 
