@@ -40,10 +40,16 @@ export default function createCollectHeaders() {
 
 				node.properties = node.properties || {};
 				if (typeof node.properties.id !== 'string') {
-					node.properties.id = slugger.slug(text);
-					// TODO: restore fix for IDs from JSX expressions
-					// Reverted due to https://github.com/withastro/astro/issues/3443
-					// See https://github.com/withastro/astro/pull/3410/files#diff-f0cc828ac662d9b8d48cbb9cb147883e319cdd8fa24f24ef401960520f1436caR44-R51
+					if (isJSX) {
+						// HACK: for ids that have JSX content, use $$slug helper to generate slug at runtime
+						node.properties.id = `$$slug(\`${text.replace(/\{/g, '${')}\`)`;
+						(node as any).type = 'raw';
+						(
+							node as any
+						).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
+					} else {
+						node.properties.id = slugger.slug(text);
+					}
 				}
 
 				headers.push({ depth, slug: node.properties.id, text });

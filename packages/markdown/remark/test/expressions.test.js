@@ -14,10 +14,7 @@ describe('expressions', () => {
 		chai.expect(code).to.equal(`<Fragment>\n<Component>{a}</Component>\n</Fragment>`);
 	});
 
-	// TODO: remove skips when IDs-by-JSX-expressions are restored
-	// Reverted due to https://github.com/withastro/astro/issues/3443
-	// See https://github.com/withastro/astro/pull/3410/files#diff-f0cc828ac662d9b8d48cbb9cb147883e319cdd8fa24f24ef401960520f1436caR44-R51
-	it.skip('should be able to serialize expression inside markdown', async () => {
+	it('should be able to serialize expression inside markdown', async () => {
 		const { code } = await renderMarkdown(`# {frontmatter.title}`, {});
 
 		chai
@@ -25,7 +22,7 @@ describe('expressions', () => {
 			.to.equal(`<h1 id={$$slug(\`\${frontmatter.title}\`)}>{frontmatter.title}</h1>`);
 	});
 
-	it.skip('should be able to serialize complex expression inside markdown', async () => {
+	it('should be able to serialize complex expression inside markdown', async () => {
 		const { code } = await renderMarkdown(`# Hello {frontmatter.name}`, {});
 
 		chai
@@ -33,7 +30,7 @@ describe('expressions', () => {
 			.to.equal(`<h1 id={$$slug(\`Hello \${frontmatter.name}\`)}>Hello {frontmatter.name}</h1>`);
 	});
 
-	it.skip('should be able to serialize complex expression with markup inside markdown', async () => {
+	it('should be able to serialize complex expression with markup inside markdown', async () => {
 		const { code } = await renderMarkdown(`# Hello <span>{frontmatter.name}</span>`, {});
 
 		chai
