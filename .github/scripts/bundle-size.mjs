@@ -33,7 +33,7 @@ export default async function checkBundleSize({ github, context }) {
 	const output = await bundle(clientRuntimeFiles);
 	
 	for (let [filename, { oldSize, newSize, sourceFile }] of Object.entries(output)) {
-		filename = filename !== 'hmr' ? `client:${filename}` : filename;
+		filename = ['idle', 'load', 'media', 'only', 'visible'].includes(filename) ? `client:${filename}` : filename;
 		const prefix = (newSize - oldSize) === 0 ? '' : (newSize - oldSize) > 0 ? '+ ' : '- ';
 		const change = `${prefix}${formatBytes(newSize - oldSize)}`;
 		table.push(`| [\`${filename}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/tree/${context.payload.pull_request.head.ref}/${sourceFile}) | ${formatBytes(oldSize)} | ${formatBytes(newSize)} | ${change} |`);
