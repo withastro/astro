@@ -1,4 +1,5 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
+import { listen, notify } from './events';
 
 /**
  * Hydrate this component only on the client
@@ -9,11 +10,12 @@ export default async function onOnly(
 	getHydrateCallback: GetHydrateCallback
 ) {
 	let innerHTML: string | null = null;
+	let hydrate: Awaited<ReturnType<GetHydrateCallback>>;
+
 	async function only() {
-		window.addEventListener('astro:hydrate', only, { once: true })
+		listen(only);
 		const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
 		if (roots.length === 0) return;
-
 		if (typeof innerHTML !== 'string') {
 			let fragment = roots[0].querySelector(`astro-fragment`);
 			if (fragment == null && roots[0].hasAttribute('tmpl')) {
@@ -28,12 +30,15 @@ export default async function onOnly(
 				innerHTML = fragment.innerHTML;
 			}
 		}
-		const hydrate = await getHydrateCallback();
-
+		if (!hydrate) {
+			hydrate = await getHydrateCallback();
+		}
 		for (const root of roots) {
-			hydrate(root, innerHTML);
+			if (root.parentElement?.closest('astro-root[ssr]')) continue;
+			await hydrate(root, innerHTML);
 			root.removeAttribute('ssr');
 		}
+		notify();
 	}
-	only()
+	only();
 }

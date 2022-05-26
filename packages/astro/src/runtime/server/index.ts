@@ -629,15 +629,6 @@ export async function renderHead(result: SSRResult): Promise<string> {
 			return renderElement('script', script);
 		});
 	if (needsHydrationStyles) {
-		scripts.push(renderElement('script', {
-			children: `const notify = () => {
-		if (document.querySelector('astro-root[ssr]')) {
-			window.dispatchEvent(new CustomEvent('astro:hydrate'));
-		}
-};
-new MutationObserver(() => notify()).observe(document.body, { subtree: true, childList: true })`,
-			props: { type: 'module' }
-		}));
 		styles.push(
 			renderElement('style', {
 				props: {},

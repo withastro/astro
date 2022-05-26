@@ -1,15 +1,8 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
-
-function debounce(func, timeout){
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { func.apply(this, args); }, timeout);
-  };
-}
+import { notify, listen } from './events';
 
 /**
- * Hydrate this component immediately!
+ * Hydrate this component immediately
  */
 export default async function onLoad(
 	astroId: string,
@@ -17,8 +10,10 @@ export default async function onLoad(
 	getHydrateCallback: GetHydrateCallback
 ) {
 	let innerHTML: string | null = null;
-	const load = debounce(async () => {
-		window.addEventListener('astro:hydrate', load, { once: true });
+	let hydrate: Awaited<ReturnType<GetHydrateCallback>>;
+
+	async function load() {
+		listen(load);
 		const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
 		if (roots.length === 0) return;
 		if (typeof innerHTML !== 'string') {
@@ -35,22 +30,15 @@ export default async function onLoad(
 				innerHTML = fragment.innerHTML;
 			}
 		}
-
-
-		const hydrate = await getHydrateCallback();
+		if (!hydrate) {
+			hydrate = await getHydrateCallback();
+		}
 		for (const root of roots) {
 			if (root.parentElement?.closest('astro-root[ssr]')) continue;
 			await hydrate(root, innerHTML);
 			root.removeAttribute('ssr');
 		}
 		notify();
-	}, 1);
-
-	load();
-}
-
-const notify = () => {
-	if (document.querySelector('astro-root[ssr]')) {
-		window.dispatchEvent(new CustomEvent('astro:hydrate'));
 	}
+	load();
 }
