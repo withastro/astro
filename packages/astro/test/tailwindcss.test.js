@@ -38,9 +38,7 @@ describe('Tailwind', () => {
 			expect(bundledCSS, 'includes responsive classes').to.match(/\.lg\\:py-3{/);
 
 			// tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
-			expect(bundledCSS, 'supports arbitrary value classes').to.match(
-				/\.font-\\\[900\\\]{/
-			);
+			expect(bundledCSS, 'supports arbitrary value classes').to.match(/\.font-\\\[900\\\]{/);
 
 			// custom theme colors were included
 			expect(bundledCSS, 'includes custom theme colors').to.match(/\.text-midnight{/);

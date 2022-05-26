@@ -119,9 +119,9 @@ export function* getPageDatasByClientOnlyID(
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
 		const pathname = `/@fs${prependForwardSlash(viteid)}`;
-		const pageBuildDatas = pagesByClientOnly.get(pathname)
-		if(pageBuildDatas) {
-			for(const pageData of pageBuildDatas) {
+		const pageBuildDatas = pagesByClientOnly.get(pathname);
+		if (pageBuildDatas) {
+			for (const pageData of pageBuildDatas) {
 				yield pageData;
 			}
 		}
