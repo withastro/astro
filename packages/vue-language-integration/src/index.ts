@@ -4,7 +4,7 @@ export const languageId = 'vue';
 export const extension = '.vue';
 
 export function toTSX(code: string, className: string): string {
-	let result = `export default function ${className}__AstroComponent_(): any {}`;
+	let result = `export default function ${className}__AstroComponent_(_props: Record<string, any>): any {}`;
 
 	// NOTE: As you can expect, using regexes for this is not exactly the most reliable way of doing things
 	// However, I couldn't figure out a way to do it using Vue's compiler, I tried looking at how Volar does it, but I
@@ -13,6 +13,13 @@ export function toTSX(code: string, className: string): string {
 	// Vue components (and it's an improvement over, well, nothing), it's alright, I think
 	try {
 		const parsedResult = parse(code);
+
+		if (parsedResult.errors.length > 0) {
+			return `
+				let ${className}__AstroComponent_: Error
+				export default ${className}__AstroComponent_
+			`;
+		}
 
 		if (parsedResult.descriptor.scriptSetup) {
 			const definePropsType = parsedResult.descriptor.scriptSetup.content.match(/defineProps<([\s\S]+)>/m);

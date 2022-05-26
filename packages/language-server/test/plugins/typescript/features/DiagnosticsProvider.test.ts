@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Range } from 'vscode-languageserver-types';
+import { DiagnosticSeverity, Range } from 'vscode-languageserver-types';
 import { createEnvironment } from '../../../utils';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import {
@@ -36,7 +36,7 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 				message:
 					"Type '{ astroIsAmazing: true; }' is not assignable to type 'HTMLProps<HTMLDivElement>'.\n  Property 'astroIsAmazing' does not exist on type 'HTMLProps<HTMLDivElement>'.",
 				range: Range.create(0, 5, 0, 19),
-				severity: 1,
+				severity: DiagnosticSeverity.Error,
 				source: 'ts',
 				tags: [],
 			},
@@ -52,7 +52,7 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 				code: 6385,
 				message: "'deprecated' is deprecated.",
 				range: Range.create(3, 0, 3, 10),
-				severity: 4,
+				severity: DiagnosticSeverity.Hint,
 				source: 'ts',
 				tags: [2],
 			},
@@ -60,7 +60,7 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 				code: 6133,
 				message: "'hello' is declared but its value is never read.",
 				range: Range.create(4, 6, 4, 11),
-				severity: 4,
+				severity: DiagnosticSeverity.Hint,
 				source: 'ts',
 				tags: [1],
 			},
@@ -81,6 +81,33 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 
 		const diagnostics = await provider.getDiagnostics(document);
 		expect(diagnostics).to.not.be.empty;
+	});
+
+	it('provide diagnostics for invalid framework components', async () => {
+		const { provider, document } = setup('frameworkComponentError.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+
+		expect(diagnostics).to.deep.equal([
+			{
+				code: 2604,
+				message:
+					"Component 'SvelteError' is not a valid component.\n\nIf this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.",
+				range: Range.create(5, 1, 5, 12),
+				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+				tags: [],
+			},
+			{
+				code: 2604,
+				message:
+					"Component 'VueError' is not a valid component.\n\nIf this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.",
+				range: Range.create(6, 1, 6, 9),
+				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+				tags: [],
+			},
+		]);
 	});
 
 	it('ignore specific diagnostics', async () => {

@@ -4,7 +4,10 @@ export const languageId = 'svelte';
 export const extension = '.svelte';
 
 export function toTSX(code: string, className: string): string {
-	let result = 'export default function ${className}__AstroComponent_(): any {}';
+	let result = `
+		let ${className}__AstroComponent_: Error
+		export default ${className}__AstroComponent_
+	`;
 
 	try {
 		let tsx = svelte2tsx(code).code;

@@ -26,6 +26,7 @@ export enum DiagnosticCodes {
 	TYPE_NOT_ASSIGNABLE = 2322, // Type '{0}' is not assignable to type '{1}'.
 	JSX_NO_CLOSING_TAG = 17008, // JSX element '{0}' has no corresponding closing tag.
 	NO_DECL_IMPLICIT_ANY_TYPE = 7016, // Could not find a declaration file for module '{0}'. '{1}' implicitly has an 'any' type.
+	JSX_ELEMENT_NO_CALL = 2604, // JSX element type '{0}' does not have any construct or call signatures.
 }
 
 export class DiagnosticsProviderImpl implements DiagnosticsProvider {
@@ -261,6 +262,19 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 		return {
 			...diagnostic,
 			message: diagnostic.message.replace('JSX', 'HTML'),
+		};
+	}
+
+	// JSX Element can't be constructed or called. This happens on syntax errors / invalid components
+	if (diagnostic.code === DiagnosticCodes.JSX_ELEMENT_NO_CALL) {
+		return {
+			...diagnostic,
+			message: diagnostic.message
+				.replace('JSX element type', 'Component')
+				.replace(
+					'does not have any construct or call signatures.',
+					'is not a valid component.\n\nIf this is a Svelte or Vue component, it might have a syntax error that makes it impossible to parse.'
+				),
 		};
 	}
 
