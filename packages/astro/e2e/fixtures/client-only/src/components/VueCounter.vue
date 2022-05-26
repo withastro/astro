@@ -3,9 +3,9 @@
 		<button class="decrement" @click="subtract()">-</button>
 		<pre>{{ count }}</pre>
 		<button class="increment" @click="add()">+</button>
-	</div>
-	<div class="counter-message">
-		<slot />
+		<div class="children">
+			<slot />
+		</div>
 	</div>
 </template>
 

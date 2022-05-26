@@ -28,7 +28,7 @@ test.describe('Client only', () => {
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const children = await counter.locator('h1');
+		const children = await counter.locator('.children');
 		await expect(children, 'children exist').toHaveText('react');
 
 		const increment = await counter.locator('.increment');
@@ -46,7 +46,7 @@ test.describe('Client only', () => {
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const children = await counter.locator('h1');
+		const children = await counter.locator('.children');
 		await expect(children, 'children exist').toHaveText('preact');
 
 		const increment = await counter.locator('.increment');
@@ -64,7 +64,7 @@ test.describe('Client only', () => {
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const children = await counter.locator('h1');
+		const children = await counter.locator('.children');
 		await expect(children, 'children exist').toHaveText('solid');
 
 		const increment = await counter.locator('.increment');
@@ -82,7 +82,7 @@ test.describe('Client only', () => {
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const children = await counter.locator('h1');
+		const children = await counter.locator('.children');
 		await expect(children, 'children exist').toHaveText('vue');
 
 		const increment = await counter.locator('.increment');
@@ -100,7 +100,7 @@ test.describe('Client only', () => {
 		const count = await counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
-		const children = await counter.locator('h1');
+		const children = await counter.locator('.children');
 		await expect(children, 'children exist').toHaveText('svelte');
 
 		const increment = await counter.locator('.increment');

@@ -7,13 +7,11 @@ export function Counter({ children, id }) {
 	const subtract = () => setCount((i) => i - 1);
 
 	return (
-		<>
-			<div id={id} className="counter">
-				<button className="decrement" onClick={subtract}>-</button>
-				<pre>{count}</pre>
-				<button className="increment" onClick={add}>+</button>
-			</div>
-			<div className="counter-message">{children}</div>
-		</>
+		<div id={id} className="counter">
+			<button className="decrement" onClick={subtract}>-</button>
+			<pre>{count}</pre>
+			<button className="increment" onClick={add}>+</button>
+			<div className="children">{children}</div>
+		</div>
 	);
 }

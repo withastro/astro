@@ -17,9 +17,9 @@
   <button class="decrement" on:click={subtract}>-</button>
   <pre>{ count }</pre>
   <button class="increment" on:click={add}>+</button>
-</div>
-<div class="counter-message">
-  <slot />
+	<div class="children">
+		<slot />
+	</div>
 </div>
 
 <style>

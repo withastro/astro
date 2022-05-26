@@ -7,13 +7,11 @@ export default function SolidCounter({ children, id }) {
 	const subtract = () => setCount(count() - 1);
 
 	return (
-		<>
 			<div id={id} class="counter">
 				<button class="decrement" onClick={subtract}>-</button>
 				<pre>{count()}</pre>
 				<button class="increment" onClick={add}>+</button>
+				<div class="children">{children}</div>
 			</div>
-			<div class="counter-message">{children}</div>
-		</>
 	);
 }
