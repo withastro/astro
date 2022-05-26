@@ -1,5 +1,17 @@
 # @astrojs/markdown-remark
 
+## 0.10.1
+
+### Patch Changes
+
+- [#3444](https://github.com/withastro/astro/pull/3444) [`51db2b9b`](https://github.com/withastro/astro/commit/51db2b9b4efd899bdd7efc481a5f226b3b040614) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: markdown imports failing due to internal dependency issue
+
+## 0.10.0
+
+### Minor Changes
+
+- [#3410](https://github.com/withastro/astro/pull/3410) [`cfae9760`](https://github.com/withastro/astro/commit/cfae9760b252052b6189e96398b819a4337634a8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Significantally more stable behavior for "Markdown + Components" usage, which now handles component serialization much more similarly to MDX. Also supports switching between Components and Markdown without extra newlines, removes wrapping `<p>` tags from standalone components, and improves JSX expression handling.
+
 ## 0.9.4
 
 ### Patch Changes

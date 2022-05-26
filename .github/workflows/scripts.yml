@@ -1,0 +1,48 @@
+name: Scripts
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  bundle:
+    name: Bundle Size
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Checkout Main into tmp
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          path: main
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Check Bundle Size
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { default: script } = await import('${{ github.workspace }}/.github/scripts/bundle-size.mjs')
+            await script({ github, context })

@@ -515,16 +515,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `mdx`
-		 * @description
-		 * Control wheater to allow components inside markdown files ('mdx') or not ('md').
-		 */
-		mode?: 'md' | 'mdx';
-
-		/**
-		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
@@ -973,6 +963,8 @@ export interface RouteData {
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
+	// expose the real path name on SSG
+	distURL?: URL;
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;

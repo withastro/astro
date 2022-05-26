@@ -1,9 +1,9 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
 
 /**
- * Hydrate this component immediately
+ * Hydrate this component only on the client
  */
-export default async function onLoad(
+export default async function onOnly(
 	astroId: string,
 	options: HydrateOptions,
 	getHydrateCallback: GetHydrateCallback

@@ -8,8 +8,10 @@ export interface BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.
 	pureCSSChunks: Set<RenderedChunk>;
 
-	// TODO document what this is
+	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
+	// A mapping of hoisted script ids back to the pages which reference it
+	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
 
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
 	// Used to render pages with the correct specifiers.
@@ -50,9 +52,13 @@ export function createBuildInternals(): BuildInternals {
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
 
+	// This tracks hoistedScriptId => page components
+	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
+
 	return {
 		pureCSSChunks,
 		hoistedScriptIdToHoistedMap,
+		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 
 		pagesByComponent: new Map(),
@@ -106,19 +112,17 @@ export function* getPageDatasByChunk(
 	}
 }
 
-export function* getPageDatasByClientOnlyChunk(
+export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
-	chunk: RenderedChunk
+	viteid: ViteID
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		for (const [modulePath] of Object.entries(chunk.modules)) {
-			// prepend with `/@fs` to match the path used in the compiler's transform() call
-			const pathname = `/@fs${prependForwardSlash(modulePath)}`;
-			if (pagesByClientOnly.has(pathname)) {
-				for (const pageData of pagesByClientOnly.get(pathname)!) {
-					yield pageData;
-				}
+		const pathname = `/@fs${prependForwardSlash(viteid)}`;
+		const pageBuildDatas = pagesByClientOnly.get(pathname);
+		if (pageBuildDatas) {
+			for (const pageData of pageBuildDatas) {
+				yield pageData;
 			}
 		}
 	}
