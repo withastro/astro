@@ -65,7 +65,7 @@ describe('Client only components subpath', () => {
 	it('Adds the CSS to the page', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
-		
+
 		const href = $('link[rel=stylesheet]').attr('href');
 		const css = await fixture.readFile(href.replace(/\/blog/, ''));
 

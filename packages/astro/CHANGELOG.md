@@ -1,5 +1,15 @@
 # astro
 
+## 1.0.0-beta.35
+
+### Patch Changes
+
+- [#3439](https://github.com/withastro/astro/pull/3439) [`ac3c60d4`](https://github.com/withastro/astro/commit/ac3c60d48d5c8bbfb783434cafa75b9ffb7c7a7b) Thanks [@matthewp](https://github.com/matthewp)! - Fixes importing npm packages within CSS
+
+  This change fixes a longstanding bug where the string `VITE_ASSET` was left in CSS when trying to import CSS packages. The fix comes thanks to an upstream Vite feature that allows us to hand off most of the CSS bundling work to Vite.
+
+* [#3438](https://github.com/withastro/astro/pull/3438) [`79b9ebc8`](https://github.com/withastro/astro/commit/79b9ebc83ab7e190bd2894338e51e7f3f41e04d2) Thanks [@userquin](https://github.com/userquin)! - Expose route dist URL on SSG
+
 ## 1.0.0-beta.34
 
 ### Patch Changes

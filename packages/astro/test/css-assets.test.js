@@ -10,9 +10,9 @@ describe('Assets in CSS', () => {
 			root: './fixtures/css-assets/',
 			vite: {
 				build: {
-					assetsInlineLimit: 0
-				}
-			}
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 		await fixture.build();
 	});
@@ -20,7 +20,7 @@ describe('Assets in CSS', () => {
 	function getAllMatches(re, text) {
 		let count = 0;
 		while (re.exec(text) !== null) {
-				++count;
+			++count;
 		}
 		return count;
 	}

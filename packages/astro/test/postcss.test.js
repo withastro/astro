@@ -19,7 +19,8 @@ describe('PostCSS', () => {
 		const $ = cheerio.load(html);
 		const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
 		bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
-			.replace(/\s/g, '').replace('/n', '');
+			.replace(/\s/g, '')
+			.replace('/n', '');
 	});
 
 	it('works in Astro page styles', () => {
@@ -43,7 +44,10 @@ describe('PostCSS', () => {
 	});
 
 	it('ignores CSS in public/', async () => {
-		const publicCSS = (await fixture.readFile('/global.css')).trim().replace(/\s/g, '').replace('/n', '');
+		const publicCSS = (await fixture.readFile('/global.css'))
+			.trim()
+			.replace(/\s/g, '')
+			.replace('/n', '');
 		// neither minified nor prefixed
 		expect(eol.lf(publicCSS)).to.equal(`.global{appearance:none;}`);
 	});
