@@ -754,7 +754,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	url: string | undefined;
 	Content: AstroComponentFactory;
 	rawContent: () => string & {
-		parseHtml: () => Promise<string>;
+		html: () => Promise<string>;
 	};
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
