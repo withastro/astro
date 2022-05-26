@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import { existsSync } from 'fs';
 
 const CLIENT_RUNTIME_PATH = 'packages/astro/src/runtime/client/';
 
@@ -57,8 +58,9 @@ ${table.join('\n')}`,
 }
 
 async function bundle(files) {
+	
 	const { metafile } = await build({
-		entryPoints: [...files.map(({ filename }) => filename), ...files.map(({ filename }) => `main/${filename}`)],
+		entryPoints: [...files.map(({ filename }) => filename), ...files.map(({ filename }) => `main/${filename}`).filter(f => existsSync(f))],
 		bundle: true,
 		minify: true,
 		sourcemap: false,
@@ -72,10 +74,10 @@ async function bundle(files) {
 		if (filename.startsWith('main/')) {
 			filename = filename.slice('main/'.length).replace(CLIENT_RUNTIME_PATH, '').replace('.js', '');
 			const oldSize = info.bytes;
-			return Object.assign(acc, { [filename]: Object.assign(acc[filename] ?? {}, { oldSize }) });
+			return Object.assign(acc, { [filename]: Object.assign(acc[filename] ?? { oldSize: 0, newSize: 0 }, { oldSize }) });
 		}
 		filename = filename.replace(CLIENT_RUNTIME_PATH, '').replace('.js', '');
 		const newSize = info.bytes;
-		return Object.assign(acc, { [filename]: Object.assign(acc[filename] ?? {}, { newSize, sourceFile: Object.keys(info.inputs).find(src => src.endsWith('.ts')) }) });
+		return Object.assign(acc, { [filename]: Object.assign(acc[filename] ?? { oldSize: 0, newSize: 0 }, { newSize, sourceFile: Object.keys(info.inputs).find(src => src.endsWith('.ts')) }) });
 	}, {});
 }
