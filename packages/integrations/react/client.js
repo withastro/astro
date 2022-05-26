@@ -12,18 +12,19 @@ function isAlreadyHydrated(element) {
 
 export default (element) =>
 	(Component, props, children, { client }) => {
+		if (!element.hasAttribute('ssr')) return;
 		const componentEl = createElement(
 			Component,
 			props,
 			children != null ? createElement(StaticHtml, { value: children }) : children
 		);
-		if (client === 'only') {
-			return createRoot(element).render(componentEl);
-		}
 		const rootKey = isAlreadyHydrated(element);
 		// HACK: delete internal react marker for nested components to suppress agressive warnings
 		if (rootKey) {
 			delete element[rootKey];
+		}
+		if (client === 'only') {
+			return createRoot(element).render(componentEl);
 		}
 		return hydrateRoot(element, componentEl);
 	};
