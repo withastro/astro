@@ -10,6 +10,6 @@
   },
   "devDependencies": {
     "@example/my-component": "workspace:*",
-    "astro": "^1.0.0-beta.33"
+    "astro": "^1.0.0-beta.34"
   }
 }
