@@ -1,7 +1,7 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
 
 /**
- * Hydrate this component as soon as the main thread is free
+ * Hydrate this component as soon as the main thread is free!
  * (or after a short delay, if `requestIdleCallback`) isn't supported
  */
 export default async function onIdle(

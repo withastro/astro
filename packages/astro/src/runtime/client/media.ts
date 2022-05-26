@@ -1,7 +1,7 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
 
 /**
- * Hydrate this component when a matching media query is found
+ * Hydrate this component when a matching media query is found!
  */
 export default async function onMedia(
 	astroId: string,
