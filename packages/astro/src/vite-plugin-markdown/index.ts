@@ -181,7 +181,7 @@ export const frontmatter = ${JSON.stringify(content)};
 export function rawContent() {
 	return ${JSON.stringify(markdownContent)};
 }
-rawContent.html = async function() {
+rawContent.html = function() {
 	return ${JSON.stringify(renderResult.metadata.html)};
 }
 ${tsResult}`;
