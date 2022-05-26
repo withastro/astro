@@ -33,8 +33,8 @@ export default async function checkBundleSize({ github, context }) {
 	
 	for (let [filename, { oldSize, newSize, sourceFile }] of Object.entries(output)) {
 		filename = filename !== 'hmr' ? `client:${filename}` : filename;
-		const prefix = (newSize - oldSize) > 0 ? '+' : '-';
-		const change = `${prefix} ${formatBytes(newSize - oldSize)}`;
+		const prefix = (newSize - oldSize) === 0 ? '' : (newSize - oldSize) > 0 ? '+ ' : '- ';
+		const change = `${prefix}${formatBytes(newSize - oldSize)}`;
 		table.push(`| [\`${filename}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/tree/${context.payload.pull_request.head.ref}/${sourceFile}) | ${formatBytes(oldSize)} | ${formatBytes(newSize)} | ${change} |`);
 	}
 
