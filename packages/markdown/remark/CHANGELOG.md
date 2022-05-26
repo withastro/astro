@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.10.1
+
+### Patch Changes
+
+- [#3444](https://github.com/withastro/astro/pull/3444) [`51db2b9b`](https://github.com/withastro/astro/commit/51db2b9b4efd899bdd7efc481a5f226b3b040614) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: markdown imports failing due to internal dependency issue
+
 ## 0.10.0
 
 ### Minor Changes
