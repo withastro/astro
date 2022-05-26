@@ -873,12 +873,6 @@ importers:
     dependencies:
       astro: link:../../..
 
-  packages/astro/test/fixtures/astro-css-bundling-import:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
   packages/astro/test/fixtures/astro-css-bundling-nested-layouts:
     specifiers:
       astro: workspace:*
