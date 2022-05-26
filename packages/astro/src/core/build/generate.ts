@@ -250,6 +250,7 @@ async function generatePath(
 
 	const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 	const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
+	pageData.route.distURL = outFile;
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body, 'utf-8');
 }

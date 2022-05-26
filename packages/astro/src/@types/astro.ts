@@ -963,6 +963,8 @@ export interface RouteData {
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
+	// expose the real path name on SSG
+	distURL?: URL;
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;
