@@ -1,5 +1,5 @@
-import { createServer, Server } from 'http';
-import { App } from 'astro/app';
+import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
+import { NodeApp } from 'astro/app/node';
 import type { SSRManifest } from 'astro';
 
 interface Options {
@@ -15,13 +15,16 @@ export function start(manifest: SSRManifest, options: Options) {
 		return;
 	}
 
-	const app = new App(manifest);
+	const port = options.port ?? process.env.PORT ?? 3001;
+	const app = new NodeApp(manifest);
+
 	const handler = async (request: any) => {
 		console.log('request from `start`', request);
+		request.url = `http://localhost:${port}${request.url}`;
 		return await app.render(request);
 	};
 
-	_server = createServer(async (req, res) => {
+	_server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
 		try {
 			await handler(req);
 		} catch (e: any) {
@@ -35,7 +38,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	_startPromise = new Promise((resolve, reject) => {
 		try {
 			_server?.on('listening', resolve);
-			_server?.listen(options.port ?? process.env.PORT ?? 3001);
+			_server?.listen(port);
 		} catch (e) {
 			reject(e);
 		}
@@ -43,7 +46,7 @@ export function start(manifest: SSRManifest, options: Options) {
 }
 
 export function createExports(manifest: SSRManifest, options: Options) {
-	const app = new App(manifest);
+	const app = new NodeApp(manifest);
 	return {
 		async stop() {
 			if (_server) {

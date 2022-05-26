@@ -16,6 +16,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./server.js": "./dist/server.js",
+    "./templates.js": "./dist/templates.js",
     "./package.json": "./package.json"
   },
   "scripts": {
