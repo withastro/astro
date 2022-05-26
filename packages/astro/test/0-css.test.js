@@ -44,7 +44,7 @@ describe('CSS', function () {
 				expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
 				// 2. check CSS
-				const expected = `.blue.${scopedClass}{color:powderblue}.color\\\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`;
+				const expected = `.blue.${scopedClass}{color:#b0e0e6}.color\\\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`;
 				expect(bundledCSS).to.include(expected);
 			});
 
@@ -77,7 +77,7 @@ describe('CSS', function () {
 			});
 
 			it('.sass', async () => {
-				expect(bundledCSS).to.match(new RegExp('.linked-sass[^{]*{color:#778899'));
+				expect(bundledCSS).to.match(new RegExp('.linked-sass[^{]*{color:#789'));
 			});
 
 			it('.scss', async () => {
@@ -223,7 +223,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:['"]ComicSansMS['"]`)
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -239,7 +239,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:['"]ComicSansMS['"]`)
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -255,7 +255,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:['"]ComicSansMS['"]`)
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 		});

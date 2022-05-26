@@ -68,6 +68,29 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			const plugins = resolvedConfig.plugins as VitePlugin[];
 			const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
 			if (viteCSSPostIndex !== -1) {
+				const viteCSSPost = plugins[viteCSSPostIndex];
+
+				// Wrap the renderChunk hook in CSSPost to enable minification.
+				// We do this instead of setting minification globally to avoid minifying
+				// server JS.
+				const renderChunk = viteCSSPost.renderChunk;
+				if(renderChunk) {
+					viteCSSPost.renderChunk =	async function(...args) {
+						const minifyOption = resolvedConfig.build.minify;
+						if(minifyOption === false) {
+							resolvedConfig.build.minify = 'esbuild';
+						}
+						const result = await renderChunk.apply(this, args);
+						if(typeof result === 'string') {
+							return {
+								code: result
+							};
+						}
+						resolvedConfig.build.minify = minifyOption;
+						return result || null;
+					};
+				}
+
 				// Move our plugin to be right before this one.
 				const ourIndex = plugins.findIndex((p) => p.name === '@astrojs/rollup-plugin-build-css');
 				const ourPlugin = plugins[ourIndex];
