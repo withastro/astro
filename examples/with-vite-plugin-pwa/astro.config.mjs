@@ -8,8 +8,9 @@ const pwaOptions = {
 	registerType: 'autoUpdate',
 	includeAssets: ['favicon.svg'],
 	manifest: {
-		name: 'PWA Router',
-		short_name: 'PWA Router',
+		name: 'Astro PWA',
+		short_name: 'Astro PWA',
+		description: 'Astro PWA Auto Generate',
 		theme_color: '#ffffff',
 		icons: [
 			{
@@ -35,6 +36,9 @@ const pwaOptions = {
 		// we don't need the html files: we only need the navigation fallback
 		globPatterns: ['**/*.{js,css}'],
 	},
+	injectManifest: {
+		globPatterns: ['**/*.{js,css}'],
+	},
 	devOptions: {
 		enabled: process.env.SW_DEV === 'true',
 		/* when using generateSW the PWA plugin will switch to classic */
@@ -54,8 +58,7 @@ if (process.env.SW === 'true') {
 	pwaOptions.srcDir = 'src'
 	pwaOptions.filename = 'claims-sw.ts'
 	pwaOptions.strategies = 'injectManifest'
-	pwaOptions.manifest.name = 'PWA Inject Manifest'
-	pwaOptions.manifest.short_name = 'PWA Inject'
+	pwaOptions.manifest.description = 'Astro PWA Inject Manifest'
 }
 
 if (reload) {
@@ -67,6 +70,7 @@ if (reload) {
 export default defineConfig({
 	integrations: [pwa(pwaOptions)],
 	vite: {
+		logLevel: 'info',
 		build: {
 			sourcemap: process.env.SOURCE_MAP === 'true',
 		},
