@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.36
+
+### Minor Changes
+
+- [#3452](https://github.com/withastro/astro/pull/3452) [`47d1a8d5`](https://github.com/withastro/astro/commit/47d1a8d59cb3d88655de3d7658026e84843cb043) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add content parsing helpers to imported markdown files. This exposes both the raw markdown content when using rawContent() and the parsed Astro syntax when using compiledContent()
+
 ## 1.0.0-beta.35
 
 ### Patch Changes
