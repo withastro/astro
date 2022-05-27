@@ -237,12 +237,16 @@ describe('Astro Markdown', () => {
 	it('Exposes raw markdown content', async () => {
 		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
-		expect(fixLineEndings(raw)).to.equal(`\n## With components\n\n### Non-hydrated\n\n<Hello name="Astro Naut" />\n\n### Hydrated\n\n<Counter client:load />\n<SvelteButton client:load />\n`);
+		expect(fixLineEndings(raw)).to.equal(
+			`\n## With components\n\n### Non-hydrated\n\n<Hello name="Astro Naut" />\n\n### Hydrated\n\n<Counter client:load />\n<SvelteButton client:load />\n`
+		);
 	});
-	
+
 	it('Exposes HTML parser for raw markdown content', async () => {
 		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
-	
-		expect(fixLineEndings(compiled)).to.equal(`<h2 id="with-components">With components</h2>\n<h3 id="non-hydrated">Non-hydrated</h3>\n<Hello name="Astro Naut" />\n<h3 id="hydrated">Hydrated</h3>\n<Counter client:load />\n<SvelteButton client:load />`);
-	})
+
+		expect(fixLineEndings(compiled)).to.equal(
+			`<h2 id="with-components">With components</h2>\n<h3 id="non-hydrated">Non-hydrated</h3>\n<Hello name="Astro Naut" />\n<h3 id="hydrated">Hydrated</h3>\n<Counter client:load />\n<SvelteButton client:load />`
+		);
+	});
 });
