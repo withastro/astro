@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte-language-integration",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "type": "commonjs",
   "main": "dist/index.js",

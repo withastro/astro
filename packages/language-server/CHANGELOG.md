@@ -1,5 +1,14 @@
 # @astrojs/language-server
 
+## 0.19.2
+
+### Patch Changes
+
+- 7de4967: Add better error messages for Vue and Svelte components with syntax errors
+- Updated dependencies [7de4967]
+  - @astrojs/svelte-language-integration@0.1.6
+  - @astrojs/vue-language-integration@0.1.1
+
 ## 0.19.1
 
 ### Patch Changes
