@@ -3,6 +3,7 @@ import StaticHtml from './static-html.js';
 
 export default (element) => (Component, props, children, { client }) => {
 	delete props['class'];
+	if (!element.hasAttribute('ssr')) return;
 
 	// Expose name on host component for Vue devtools
 	const name = Component.name ? `${Component.name} Host` : undefined;

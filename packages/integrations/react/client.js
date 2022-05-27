@@ -12,6 +12,7 @@ function isAlreadyHydrated(element) {
 
 export default (element) =>
 	(Component, props, children, { client }) => {
+		if (!element.hasAttribute('ssr')) return;
 		const componentEl = createElement(
 			Component,
 			props,

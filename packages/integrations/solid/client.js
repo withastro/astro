@@ -6,6 +6,7 @@ export default (element) => (Component, props, childHTML, { client }) => {
 	if (!window._$HY) {
 		window._$HY = { events: [], completed: new WeakSet(), r: {} };
 	}
+	if (!element.hasAttribute('ssr')) return;
 
 	const fn = client === 'only' ? render : hydrate;
 	
