@@ -753,12 +753,10 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
-	content: {
-		/** raw Markdown file content, excluding frontmatter */
-		raw: () => string;
-		/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
-		compiled: () => Promise<string>;
-	};
+	/** raw Markdown file content, excluding frontmatter */
+	rawContent(): string;
+	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
+	compiledContent(): Promise<string>;
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;

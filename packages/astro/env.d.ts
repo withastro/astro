@@ -20,7 +20,8 @@ declare module '*.md' {
 	export const url: MD['url'];
 	export const getHeaders: MD['getHeaders'];
 	export const Content: MD['Content'];
-	export const content: MD['content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
 
 	const load: MD['default'];
 	export default load;
