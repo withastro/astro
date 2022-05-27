@@ -269,6 +269,8 @@ async function handleRequest(
 			logging,
 			ssr: isBuildingToSSR(config),
 		});
+
+		
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(
 				logging,
