@@ -82,28 +82,33 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
-				const { data: frontmatter } = matter(source);
+				const { data: frontmatter, content: rawContent } = matter(source);
 				return {
 					code: `
 						// Static
 						export const frontmatter = ${JSON.stringify(frontmatter)};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
-
+						export function rawContent() {
+							return ${JSON.stringify(rawContent)};
+						}
+						export async function compiledContent() {
+							return load().then((m) => m.compiledContent());
+						}
 						export function $$loadMetadata() {
-							return load().then((m) => m.$$metadata)
+							return load().then((m) => m.$$metadata);
 						}
 						
 						// Deferred
 						export default async function load() {
 							return (await import(${JSON.stringify(fileId + MARKDOWN_CONTENT_FLAG)}));
-						};
+						}
 						export function Content(...args) {
-							return load().then((m) => m.default(...args))
+							return load().then((m) => m.default(...args));
 						}
 						Content.isAstroComponentFactory = true;
 						export function getHeaders() {
-							return load().then((m) => m.metadata.headers)
+							return load().then((m) => m.metadata.headers);
 						};`,
 					map: null,
 				};
@@ -171,6 +176,12 @@ ${setup}`.trim();
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
+export function rawContent() {
+	return ${JSON.stringify(markdownContent)};
+}
+export function compiledContent() {
+		return ${JSON.stringify(renderResult.metadata.html)};
+}
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`

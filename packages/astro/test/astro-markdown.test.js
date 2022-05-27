@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, fixLineEndings } from './test-utils.js';
 
 describe('Astro Markdown', () => {
 	let fixture;
@@ -233,4 +233,16 @@ describe('Astro Markdown', () => {
 		expect($('#target > ol > li').children()).to.have.lengthOf(1);
 		expect($('#target > ol > li > ol > li').text()).to.equal('nested hello');
 	});
+
+	it('Exposes raw markdown content', async () => {
+		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
+
+		expect(fixLineEndings(raw)).to.equal(`\n## With components\n\n### Non-hydrated\n\n<Hello name="Astro Naut" />\n\n### Hydrated\n\n<Counter client:load />\n<SvelteButton client:load />\n`);
+	});
+	
+	it('Exposes HTML parser for raw markdown content', async () => {
+		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
+	
+		expect(fixLineEndings(compiled)).to.equal(`<h2 id="with-components">With components</h2>\n<h3 id="non-hydrated">Non-hydrated</h3>\n<Hello name="Astro Naut" />\n<h3 id="hydrated">Hydrated</h3>\n<Counter client:load />\n<SvelteButton client:load />`);
+	})
 });
