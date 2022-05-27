@@ -18,7 +18,7 @@ export const listen = (cb: (...args: any[]) => any) => window.addEventListener(H
 
 if (!(window as any)[HYDRATE_KEY]) {
 	if ('MutationObserver' in window) {
-		new MutationObserver(() => notify()).observe(document.body, { subtree: true, childList: true });
+		new MutationObserver(notify).observe(document.body, { subtree: true, childList: true });
 	}
 	(window as any)[HYDRATE_KEY] = true;
 }
