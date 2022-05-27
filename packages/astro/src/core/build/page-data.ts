@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
 import { preload as ssrPreload } from '../render/dev/index.js';
-import { generateRssFunction } from '../render/rss.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
 import { removeTrailingForwardSlash } from '../path.js';
 import { isBuildingToSSR } from '../util.js';
@@ -114,32 +113,6 @@ export async function collectPagesData(
 				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 				throw err;
 			});
-		const rssFn = generateRssFunction(astroConfig.site, route);
-		for (const rssCallArg of result.rss) {
-			const rssResult = rssFn(rssCallArg);
-			if (rssResult.xml) {
-				const { url, content } = rssResult.xml;
-				if (content) {
-					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
-					if (assets[fileURLToPath(rssFile)]) {
-						throw new Error(
-							`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`
-						);
-					}
-					assets[fileURLToPath(rssFile)] = content;
-				}
-			}
-			if (rssResult.xsl?.content) {
-				const { url, content } = rssResult.xsl;
-				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.outDir);
-				if (assets[fileURLToPath(stylesheetFile)]) {
-					throw new Error(
-						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
-					);
-				}
-				assets[fileURLToPath(stylesheetFile)] = content;
-			}
-		}
 		const finalPaths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
 			.filter((staticPath) => {
