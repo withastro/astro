@@ -2,7 +2,6 @@ import SvelteWrapper from './Wrapper.svelte';
 
 export default (target) => {
 	return (component, props, children, { client }) => {
-		if (!target.hasAttribute('ssr')) return;
 		delete props['class'];
 		try {
 			new SvelteWrapper({
