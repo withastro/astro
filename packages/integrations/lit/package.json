@@ -32,7 +32,7 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@lit-labs/ssr": "^2.1.0"
+    "@lit-labs/ssr": "^2.2.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
