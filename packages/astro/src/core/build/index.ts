@@ -63,6 +63,7 @@ class AstroBuilder {
 		this.origin = config.site
 			? new URL(config.site).origin
 			: `http://localhost:${config.server.port}`;
+		this.manifest = {routes: []};
 		this.timer = {};
 	}
 
