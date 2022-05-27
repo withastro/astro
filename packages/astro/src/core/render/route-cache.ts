@@ -38,7 +38,7 @@ export async function callGetStaticPaths({
 			await mod.getStaticPaths({
 				paginate: generatePaginateFunction(route),
 				rss() {
-					throw new Error('The RSS helper has been removed! Try the new @astrojs/rss package instead. See https://docs.astro.build/en/guides/rss/')
+					throw new Error('The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead. See https://docs.astro.build/en/guides/rss/')
 				}
 			})
 		).flat();

@@ -776,7 +776,7 @@ export type GetHydrateCallback = () => Promise<
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
 	/**
-	 * The RSS helper has been removed! Try the new @astrojs/rss package instead.
+	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
 	 * @see https://docs.astro.build/en/guides/rss/
 	 */
 	rss(): never;
