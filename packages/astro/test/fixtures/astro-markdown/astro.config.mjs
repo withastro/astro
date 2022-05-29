@@ -4,5 +4,6 @@ import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [preact(), svelte()]
+  integrations: [preact(), svelte()],
+  site: 'https://astro.build/',
 });
