@@ -16,7 +16,7 @@
     "@astrojs/solid-js": "0.1.2",
     "@astrojs/tailwind": "^0.2.1",
     "@astrojs/turbolinks": "^0.1.3",
-    "astro": "^1.0.0-beta.36",
+    "astro": "^1.0.0-beta.37",
     "solid-js": "^1.4.2"
   },
   "dependencies": {
