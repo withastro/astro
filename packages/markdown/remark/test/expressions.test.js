@@ -2,7 +2,7 @@ import { renderMarkdown } from '../dist/index.js';
 import chai from 'chai';
 
 describe('expressions', () => {
-	it('should be able to serialize bare expession', async () => {
+	it('should be able to serialize bare expression', async () => {
 		const { code } = await renderMarkdown(`{a}`, {});
 
 		chai.expect(code).to.equal(`{a}`);
