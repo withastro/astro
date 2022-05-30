@@ -34,6 +34,7 @@
     "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
+    "@astrojs/store": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "preact": "^10.7.3"

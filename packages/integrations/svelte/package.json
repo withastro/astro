@@ -37,6 +37,7 @@
     "vite": "^2.9.9"
   },
   "devDependencies": {
+    "@astrojs/store": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "svelte": "^3.48.0"

@@ -35,6 +35,7 @@
     "vite": "^2.9.9"
   },
   "devDependencies": {
+    "@astrojs/store": "workspace:*",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "vue": "^3.2.36"
