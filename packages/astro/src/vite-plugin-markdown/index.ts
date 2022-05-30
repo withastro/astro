@@ -86,11 +86,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				return {
 					code: `
 						// Static
-						export const frontmatter = ${JSON.stringify(frontmatter)};
+						export const frontmatter = ${escapeViteEnvReferences(JSON.stringify(frontmatter))};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
 						export function rawContent() {
-							return ${JSON.stringify(rawContent)};
+							return ${escapeViteEnvReferences(JSON.stringify(rawContent))};
 						}
 						export async function compiledContent() {
 							return load().then((m) => m.compiledContent());
@@ -192,7 +192,7 @@ ${tsResult}`;
 					sourcefile: id,
 				});
 				return {
-					code,
+					code: escapeViteEnvReferences(code),
 					map: null,
 				};
 			}
@@ -200,4 +200,11 @@ ${tsResult}`;
 			return null;
 		},
 	};
+}
+
+// Converts the first dot in `import.meta.env.` to its Unicode escape sequence,
+// which prevents Vite from replacing strings like `import.meta.env.SITE`
+// in our JS representation of loaded Markdown files
+function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env\./g, 'import\\u002Emeta.env.');
 }
