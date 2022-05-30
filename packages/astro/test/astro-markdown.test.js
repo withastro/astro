@@ -266,7 +266,7 @@ describe('Astro Markdown', () => {
 		expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
 		expect($('code').eq(2).text()).to.contain('site: import.meta.env.SITE');
 		expect($('blockquote').text()).to.contain('import.meta.env.SITE');
-		
+
 		// test 2: referencing a non-existing var name
 		expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
 		expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
