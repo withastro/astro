@@ -129,10 +129,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Extract special frontmatter keys
 				let { data: frontmatter, content: markdownContent } = matter(source);
 
-				// Turn HTML comments into JS comments
+				// Turn HTML comments into JS comments while preventing nested `*/` sequences
+				// from ending the JS comment by injecting a zero-width space
 				markdownContent = markdownContent.replace(
 					/<\s*!--([^-->]*)(.*?)-->/gs,
-					(whole) => `{/*${whole}*/}`
+					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
 				);
 
 				let renderResult = await renderMarkdown(markdownContent, {

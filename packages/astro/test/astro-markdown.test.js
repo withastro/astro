@@ -72,6 +72,13 @@ describe('Astro Markdown', () => {
 		expect($('h1').text()).to.equal('It works!');
 	});
 
+	it('Prevents `*/` sequences from breaking HTML comments (#3476)', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('It still works!');
+	});
+
 	// https://github.com/withastro/astro/issues/3254
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
