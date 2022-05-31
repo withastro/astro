@@ -1,5 +1,6 @@
 ---
 import ReactComponent from '../components/React.jsx';
+const envValue = import.meta.env.SOME_VARIABLE;
 ---
 <html>
 <head>
@@ -8,6 +9,7 @@ import ReactComponent from '../components/React.jsx';
 </head>
 <body>
 	<h1>Basic App on Deno</h1>
+	<p id="env-value">{envValue}</p>
 	<ReactComponent />
 </body>
 </html>
