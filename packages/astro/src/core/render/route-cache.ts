@@ -5,7 +5,6 @@ import type {
 	GetStaticPathsResultKeyed,
 	Params,
 	RouteData,
-	RSS,
 } from '../../@types/astro';
 import { LogOptions, warn, debug } from '../logger/core.js';
 
@@ -15,8 +14,6 @@ import {
 	validateGetStaticPathsModule,
 	validateGetStaticPathsResult,
 } from '../routing/validation.js';
-
-type RSSFn = (...args: any[]) => any;
 
 interface CallGetStaticPathsOptions {
 	mod: ComponentInstance;
@@ -34,18 +31,15 @@ export async function callGetStaticPaths({
 	ssr,
 }: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
 	validateGetStaticPathsModule(mod, { ssr });
-	const resultInProgress = {
-		rss: [] as RSS[],
-	};
 
 	let staticPaths: GetStaticPathsResult = [];
 	if (mod.getStaticPaths) {
 		staticPaths = (
 			await mod.getStaticPaths({
 				paginate: generatePaginateFunction(route),
-				rss: (data) => {
-					resultInProgress.rss.push(data);
-				},
+				rss() {
+					throw new Error('The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead. See https://docs.astro.build/en/guides/rss/')
+				}
 			})
 		).flat();
 	}
@@ -61,14 +55,12 @@ export async function callGetStaticPaths({
 		validateGetStaticPathsResult(keyedStaticPaths, logging);
 	}
 	return {
-		rss: resultInProgress.rss,
 		staticPaths: keyedStaticPaths,
 	};
 }
 
 export interface RouteCacheEntry {
 	staticPaths: GetStaticPathsResultKeyed;
-	rss: RSS[];
 }
 
 /**

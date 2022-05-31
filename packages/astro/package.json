@@ -101,7 +101,6 @@
     "estree-walker": "^3.0.1",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
-    "fast-xml-parser": "^4.0.7",
     "gray-matter": "^4.0.3",
     "html-entities": "^2.3.3",
     "html-escaper": "^3.0.3",

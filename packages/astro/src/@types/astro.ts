@@ -775,7 +775,11 @@ export type GetHydrateCallback = () => Promise<
  * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
-	rss: (...args: any[]) => any;
+	/**
+	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
+	 * @see https://docs.astro.build/en/guides/rss/
+	 */
+	rss(): never;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
@@ -985,51 +989,6 @@ export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 };
 
 export type RuntimeMode = 'development' | 'production';
-
-/**
- * RSS
- * Docs: https://docs.astro.build/reference/api-reference/#rss
- */
-export interface RSS {
-	/** (required) Title of the RSS Feed */
-	title: string;
-	/** (required) Description of the RSS Feed */
-	description: string;
-	/** Specify arbitrary metadata on opening <xml> tag */
-	xmlns?: Record<string, string>;
-	/**
-	 * If false (default), does not include XSL stylesheet.
-	 * If true, automatically includes 'pretty-feed-v3'.
-	 * If a string value, specifies a local custom XSL stylesheet, for example '/custom-feed.xsl'.
-	 */
-	stylesheet?: string | boolean;
-	/** Specify custom data in opening of file */
-	customData?: string;
-	/**
-	 * Specify where the RSS xml file should be written.
-	 * Relative to final build directory. Example: '/foo/bar.xml'
-	 * Defaults to '/rss.xml'.
-	 */
-	dest?: string;
-	/** Return data about each item */
-	items: {
-		/** (required) Title of item */
-		title: string;
-		/** (required) Link to item */
-		link: string;
-		/** Publication date of item */
-		pubDate?: Date;
-		/** Item description */
-		description?: string;
-		/** Append some other XML-valid data to this item */
-		customData?: string;
-	}[];
-}
-
-export type RSSFunction = (args: RSS) => RSSResult;
-
-export type FeedResult = { url: string; content?: string };
-export type RSSResult = { xml: FeedResult; xsl?: FeedResult };
 
 export type SSRError = Error & vite.ErrorPayload['err'];
 
