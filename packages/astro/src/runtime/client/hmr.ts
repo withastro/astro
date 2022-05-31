@@ -5,19 +5,27 @@ if (import.meta.hot) {
 		const { default: diff } = await import('micromorph');
 		const html = await fetch(`${window.location}`).then((res) => res.text());
 		const doc = parser.parseFromString(html, 'text/html');
-
+		for (const style of sheetsMap.values()) {
+			doc.head.appendChild(style);
+		}
 		// Match incoming islands to current state
 		for (const root of doc.querySelectorAll('astro-root')) {
 			const uid = root.getAttribute('uid');
 			const current = document.querySelector(`astro-root[uid="${uid}"]`);
 			if (current) {
-				root.innerHTML = current?.innerHTML;
+				current.setAttribute('data-persist', '');
+				root.replaceWith(current);
 			}
 		}
-		return diff(document, doc);
+		return diff(document, doc).then(() => {
+			for (const root of document.querySelectorAll('astro-root[data-persist]')) {
+				root.removeAttribute('data-persist');
+			}
+		});
 	}
 	async function updateAll(files: any[]) {
 		let hasAstroUpdate = false;
+		let styles = [];
 		for (const file of files) {
 			if (file.acceptedPath.endsWith('.astro')) {
 				hasAstroUpdate = true;
@@ -29,6 +37,14 @@ if (import.meta.hot) {
 					link.replaceWith(link.cloneNode(true));
 				}
 			}
+			if (file.acceptedPath.includes('astro&type=style')) {
+				styles.push(fetch(file.acceptedPath).then(res => res.text()).then(res => [file.acceptedPath, res]))
+			}
+		}
+		if (styles.length > 0) {
+			for (const [id, content] of await Promise.all(styles)) {
+				updateStyle(id, content);
+			}
 		}
 		if (hasAstroUpdate) {
 			return await updatePage();
@@ -37,4 +53,39 @@ if (import.meta.hot) {
 	import.meta.hot.on('vite:beforeUpdate', async (event) => {
 		await updateAll(event.updates);
 	});
+}
+
+const sheetsMap = new Map()
+
+function updateStyle(id: string, content: string): void {
+	let style = sheetsMap.get(id)
+	if (style && !(style instanceof HTMLStyleElement)) {
+		removeStyle(id)
+		style = undefined
+	}
+
+	if (!style) {
+		style = document.createElement('style')
+		style.setAttribute('type', 'text/css')
+		style.innerHTML = content
+		document.head.appendChild(style)
+	} else {
+		style.innerHTML = content
+	}
+	sheetsMap.set(id, style)
+}
+
+function removeStyle(id: string): void {
+	const style = sheetsMap.get(id)
+	if (style) {
+		if (style instanceof CSSStyleSheet) {
+			// @ts-expect-error: using experimental API
+			document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+				(s: CSSStyleSheet) => s !== style
+			)
+		} else {
+			document.head.removeChild(style)
+		}
+		sheetsMap.delete(id)
+	}
 }
