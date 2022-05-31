@@ -887,7 +887,9 @@ export interface EndpointOutput {
 	body: Body;
 }
 
-export type APIRoute = (context: APIContext) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
+export type APIRoute = (
+	context: APIContext
+) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
