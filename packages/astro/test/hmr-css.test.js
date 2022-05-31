@@ -22,7 +22,9 @@ describe('HMR - CSS', () => {
 	});
 
 	it('Timestamp URL used by Vite gets the right mime type', async () => {
-		let res = await fixture.fetch('/src/pages/index.astro?astro=&type=style&index=0&lang.css=&t=1653657441095');
+		let res = await fixture.fetch(
+			'/src/pages/index.astro?astro=&type=style&index=0&lang.css=&t=1653657441095'
+		);
 		let headers = res.headers;
 		expect(headers.get('content-type')).to.equal('text/css');
 	});
