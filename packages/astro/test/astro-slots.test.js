@@ -44,6 +44,16 @@ describe('Slots', () => {
 		expect($('#override')).to.have.lengthOf(1);
 	});
 
+	it('Components that accept slots don\'t require theme', async () => {
+		const html = await fixture.readFile('/empty.html');
+		const $ = cheerio.load(html);
+
+		expect($('#a').length).to.equal(1);
+		expect($('#b').length).to.equal(1);
+		expect($('#c').length).to.equal(1);
+		expect($('#default').length).to.equal(1);
+	});
+
 	it('Slots work with multiple elements', async () => {
 		const html = await fixture.readFile('/multiple/index.html');
 		const $ = cheerio.load(html);
