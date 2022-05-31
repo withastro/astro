@@ -82,7 +82,6 @@ describe('Astro Markdown', () => {
 	// https://github.com/withastro/astro/issues/3254
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
-		console.log(html);
 		expect(html).not.to.match(new RegExp('/src/scripts/test.js'));
 	});
 
@@ -272,5 +271,43 @@ describe('Astro Markdown', () => {
 		expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
 		expect($('code').eq(2).text()).to.contain('title: import.meta.env.TITLE');
 		expect($('blockquote').text()).to.contain('import.meta.env.TITLE');
+	});
+
+	it('Escapes HTML tags in code blocks', async () => {
+		const html = await fixture.readFile('/code-in-md/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('code').eq(0).html()).to.equal('&lt;script&gt;');
+		expect($('blockquote').length).to.equal(1);
+		expect($('code').eq(1).html()).to.equal('&lt;/script&gt;');
+		expect($('pre').html()).to.contain('&gt;This should also work without any problems.&lt;');
+	});
+
+	it('Allows defining slot contents in component children', async () => {
+		const html = await fixture.readFile('/slots/index.html');
+		const $ = cheerio.load(html);
+
+		const slots = $('article').eq(0);
+		expect(slots.find('> .fragmentSlot > div').text()).to.contain('1:');
+		expect(slots.find('> .fragmentSlot > div + p').text()).to.contain('2:');
+		expect(slots.find('> .pSlot > p[title="hello"]').text()).to.contain('3:');
+		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(`
+			4: Div in default slot
+			5: Paragraph in fragment in default slot
+			6: Regular text in default slot
+		`.replace(/\s+/g, ' '));
+
+		const nestedSlots = $('article').eq(1);
+		expect(nestedSlots.find('> .fragmentSlot').html()).to.contain('1:');
+		expect(nestedSlots.find('> .pSlot > p').text()).to.contain('2:');
+		expect(nestedSlots.find('> .defaultSlot > article').text().replace(/\s+/g, ' ')).to.equal(`
+			3: nested fragmentSlot
+			4: nested pSlot
+			5: nested text in default slot
+		`.replace(/\s+/g, ' '));
+
+		expect($('article').eq(3).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
+		
+		expect($('article').eq(4).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
 	});
 });

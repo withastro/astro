@@ -51,7 +51,18 @@ describe('components', () => {
 
 		chai
 			.expect(code)
-			.to.equal(`<Fragment>\n<Component bool={true}>Hello world!</Component>\n</Fragment>`);
+			.to.equal(`\n<Component bool={true}>Hello world!</Component>\n`);
+	});
+
+	it('should be able to nest components', async () => {
+		const { code } = await renderMarkdown(
+			`<Component bool={true}><Component>Hello world!</Component></Component>`,
+			{}
+		);
+
+		chai
+			.expect(code)
+			.to.equal(`\n<Component bool={true}>\n<Component>Hello world!</Component>\n</Component>\n`);
 	});
 
 	it('should allow markdown without many spaces', async () => {
@@ -65,7 +76,7 @@ describe('components', () => {
 		chai
 			.expect(code)
 			.to.equal(
-				`<Fragment>\n<Component><h1 id="hello-world">Hello world!</h1></Component>\n</Fragment>`
+				`\n<Component><h1 id="hello-world">Hello world!</h1></Component>\n`
 			);
 	});
 });
