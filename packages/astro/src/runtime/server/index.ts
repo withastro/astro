@@ -330,7 +330,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
 	return markHTMLString(
-		`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
+		`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
 			html ?? ''
 		}${template}</astro-root>`
 	);
