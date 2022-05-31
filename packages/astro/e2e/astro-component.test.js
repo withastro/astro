@@ -45,12 +45,18 @@ test.describe('Astro component HMR', () => {
 	// https://github.com/withastro/astro/issues/3424
 	const it = os.platform() === 'win32' ? test.skip : test;
 	it('hoisted scripts', async ({ page, astro }) => {
-		const initialLog = page.waitForEvent('console', (message) => message.text() === 'Hello, Astro!');
+		const initialLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, Astro!'
+		);
 
 		await page.goto(astro.resolveUrl('/'));
 		await initialLog;
 
-		const updatedLog = page.waitForEvent('console', (message) => message.text() === 'Hello, updated Astro!');
+		const updatedLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, updated Astro!'
+		);
 
 		// Edit the hoisted script on the page
 		await astro.editFile('./src/pages/index.astro', (content) =>
