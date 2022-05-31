@@ -1,4 +1,5 @@
 (globalThis as any).process = {
 	argv: [],
-	env: {},
+	// @ts-ignore
+	env: Deno.env.toObject(),
 };

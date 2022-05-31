@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.0-beta.37
+
+### Patch Changes
+
+- [#3471](https://github.com/withastro/astro/pull/3471) [`75fa58f1`](https://github.com/withastro/astro/commit/75fa58f13fff27a872b7b85948d65e82d9e7a8eb) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix using Vite env var names in Markdown
+
+* [#3477](https://github.com/withastro/astro/pull/3477) [`429b65d6`](https://github.com/withastro/astro/commit/429b65d60bb64973f1e5867cc58f1fe07bada952) Thanks [@hippotastic](https://github.com/hippotastic)! - Prevent `*/` from breaking HTML comments in Markdown
+
+## 1.0.0-beta.36
+
+### Minor Changes
+
+- [#3452](https://github.com/withastro/astro/pull/3452) [`47d1a8d5`](https://github.com/withastro/astro/commit/47d1a8d59cb3d88655de3d7658026e84843cb043) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add content parsing helpers to imported markdown files. This exposes both the raw markdown content when using rawContent() and the parsed Astro syntax when using compiledContent()
+
 ## 1.0.0-beta.35
 
 ### Patch Changes

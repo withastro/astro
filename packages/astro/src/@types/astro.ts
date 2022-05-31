@@ -759,6 +759,10 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
+	/** raw Markdown file content, excluding frontmatter */
+	rawContent(): string;
+	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
+	compiledContent(): Promise<string>;
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
@@ -871,8 +875,6 @@ export type Params = Record<string, string | number | undefined>;
 
 export type Props = Record<string, unknown>;
 
-type Body = string;
-
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -880,16 +882,20 @@ export interface AstroAdapter {
 	args?: any;
 }
 
+type Body = string;
+
 export interface APIContext {
 	params: Params;
 	request: Request;
 }
 
-export interface EndpointOutput<Output extends Body = Body> {
-	body: Output;
+export interface EndpointOutput {
+	body: Body;
 }
 
-export type APIRoute = (context: APIContext) => EndpointOutput | Response;
+export type APIRoute = (
+	context: APIContext
+) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
