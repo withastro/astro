@@ -335,6 +335,31 @@ async function handleRequest(
 	}
 }
 
+/**
+ * Vite HMR sends requests for new CSS and those get returned as JS, but we want it to be CSS
+ * since they are inside of a link tag for Astro.
+ */
+const forceTextCSSForStylesMiddleware: vite.Connect.NextHandleFunction = function(req, res, next) {
+	if(req.url) {
+		// We are just using this to parse the URL to get the search params object
+		// so the second arg here doesn't matter
+		const url = new URL(req.url, 'https://astro.build');
+		// lang.css is a search param that exists on Astro, Svelte, and Vue components.
+		// We only want to override for astro files.
+		if(url.searchParams.has('astro') && url.searchParams.has('lang.css')) {
+			// Override setHeader so we can set the correct content-type for this request.
+			const setHeader = res.setHeader;
+			res.setHeader = function(key, value) {
+				if(key.toLowerCase() === 'content-type') {
+					return setHeader.call(this, key, 'text/css');
+				}
+				return setHeader.apply(this, [key, value]);
+			};
+		}
+	}
+	next();
+};
+
 export default function createPlugin({ config, logging }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
@@ -354,6 +379,9 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
 				removeViteHttpMiddleware(viteServer.middlewares);
+
+				// Push this middleware to the front of the stack so that it can intercept responses.
+				viteServer.middlewares.stack.unshift({ route: '', handle: forceTextCSSForStylesMiddleware });
 				viteServer.middlewares.use(async (req, res) => {
 					if (!req.url || !req.method) {
 						throw new Error('Incomplete request');
