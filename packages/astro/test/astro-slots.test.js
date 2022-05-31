@@ -45,7 +45,7 @@ describe('Slots', () => {
 	});
 
 	it('Components that accept slots don\'t require theme', async () => {
-		const html = await fixture.readFile('/empty.html');
+		const html = await fixture.readFile('/empty/index.html');
 		const $ = cheerio.load(html);
 
 		expect($('#a').length).to.equal(1);
