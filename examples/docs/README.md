@@ -32,7 +32,7 @@ To deploy your site to production, check out our [Deploy an Astro Website](https
 
 ## New to Astro?
 
-Welcome! Check out [our documentation](https://github.com/withastro/astro) or jump into our [Discord server](https://astro.build/chat).
+Welcome! Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 
 ## Customize This Theme
 
