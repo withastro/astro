@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3455](https://github.com/withastro/astro/pull/3455) [`e9a77d86`](https://github.com/withastro/astro/commit/e9a77d861907adccfa75811f9aaa555f186d78f8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update client hydration to check for `ssr` attribute. Requires `astro@^1.0.0-beta.36`.
+
 ## 0.1.2
 
 ### Patch Changes

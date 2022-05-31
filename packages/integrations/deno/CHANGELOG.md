@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3483](https://github.com/withastro/astro/pull/3483) [`b795a085`](https://github.com/withastro/astro/commit/b795a085f0d20abe83c5ada1e7ba89ec4444c2d5) Thanks [@mvolfik](https://github.com/mvolfik)! - Deno integration now loads environment variables in server runtime
+
 ## 0.1.2
 
 ### Patch Changes
