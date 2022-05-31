@@ -291,23 +291,27 @@ describe('Astro Markdown', () => {
 		expect(slots.find('> .fragmentSlot > div').text()).to.contain('1:');
 		expect(slots.find('> .fragmentSlot > div + p').text()).to.contain('2:');
 		expect(slots.find('> .pSlot > p[title="hello"]').text()).to.contain('3:');
-		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(`
+		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(
+			`
 			4: Div in default slot
 			5: Paragraph in fragment in default slot
 			6: Regular text in default slot
-		`.replace(/\s+/g, ' '));
+		`.replace(/\s+/g, ' ')
+		);
 
 		const nestedSlots = $('article').eq(1);
 		expect(nestedSlots.find('> .fragmentSlot').html()).to.contain('1:');
 		expect(nestedSlots.find('> .pSlot > p').text()).to.contain('2:');
-		expect(nestedSlots.find('> .defaultSlot > article').text().replace(/\s+/g, ' ')).to.equal(`
+		expect(nestedSlots.find('> .defaultSlot > article').text().replace(/\s+/g, ' ')).to.equal(
+			`
 			3: nested fragmentSlot
 			4: nested pSlot
 			5: nested text in default slot
-		`.replace(/\s+/g, ' '));
+		`.replace(/\s+/g, ' ')
+		);
 
 		expect($('article').eq(3).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
-		
+
 		expect($('article').eq(4).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
 	});
 });

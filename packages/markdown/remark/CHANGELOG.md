@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.10.2
+
+### Patch Changes
+
+- [#3486](https://github.com/withastro/astro/pull/3486) [`119ecf8d`](https://github.com/withastro/astro/commit/119ecf8d469f034eaf1b1217523954d29f492cb6) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix components in markdown regressions
+
 ## 0.10.1
 
 ### Patch Changes

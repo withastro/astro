@@ -7,9 +7,8 @@ export default function rehypeJsx(): any {
 			child.tagName = `${child.tagName}`;
 		});
 		visit(node, MDX_ELEMENTS, (child: any, index: number | null, parent: any) => {
-			if (index === null || !Boolean(parent))
-				return;
-			
+			if (index === null || !Boolean(parent)) return;
+
 			const attrs = child.attributes.reduce((acc: any[], entry: any) => {
 				let attr = entry.value;
 				if (attr && typeof attr === 'object') {
