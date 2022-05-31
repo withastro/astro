@@ -14,7 +14,7 @@ export default async function onIdle(
 	let hydrate: Awaited<ReturnType<GetHydrateCallback>>;
 
 	async function idle() {
-		listen(idle)
+		listen(idle);
 		const cb = async () => {
 			const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
 			if (roots.length === 0) return;

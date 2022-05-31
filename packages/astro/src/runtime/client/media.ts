@@ -13,7 +13,7 @@ export default async function onMedia(
 	let hydrate: Awaited<ReturnType<GetHydrateCallback>>;
 
 	async function media() {
-		listen(media)
+		listen(media);
 		const cb = async () => {
 			const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
 			if (roots.length === 0) return;

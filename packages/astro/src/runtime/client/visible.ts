@@ -16,7 +16,7 @@ export default async function onVisible(
 	let hydrate: Awaited<ReturnType<GetHydrateCallback>>;
 
 	async function visible() {
-		listen(visible)
+		listen(visible);
 		const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
 		const cb = async () => {
 			if (roots.length === 0) return;

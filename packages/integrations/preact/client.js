@@ -7,4 +7,4 @@ export default (element) => (Component, props, children) => {
 		h(Component, props, children != null ? h(StaticHtml, { value: children }) : children),
 		element
 	);
-}
+};
