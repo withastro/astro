@@ -13,6 +13,10 @@
     "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
+    "format": "pnpm run format:code",
+    "format:ci": "pnpm run format:imports && pnpm run format:code",
+    "format:code": "prettier -w .",
+    "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --concurrency=1",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "turbo run test --filter=create-astro --concurrency=1",
@@ -22,7 +26,6 @@
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
-    "format": "prettier -w .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
@@ -68,6 +71,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
+    "organize-imports-cli": "^0.10.0",
     "patch-package": "^6.4.7",
     "prettier": "^2.6.2",
     "pretty-bytes": "^6.0.0",
