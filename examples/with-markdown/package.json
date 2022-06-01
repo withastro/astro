@@ -17,7 +17,7 @@
     "astro": "^1.0.0-beta.38"
   },
   "dependencies": {
-    "preact": "^10.7.2",
+    "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "svelte": "^3.48.0",
