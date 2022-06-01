@@ -254,3 +254,7 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 }
 
 export const isWindows = os.platform() === 'win32';
+
+export function fixLineEndings(str) {
+	return str.replace(/\r\n/g, '\n');
+}

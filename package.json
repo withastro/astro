@@ -73,6 +73,6 @@
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
     "turbo": "1.2.5",
-    "typescript": "~4.6.4"
+    "typescript": "~4.7.0"
   }
 }
