@@ -138,6 +138,22 @@ Not every contributor will reach this level, and that's okay! L2 Maintainers sti
 - Once nominated, there will be a vote by existing Core members. 
 - See [vote rules & requirements](#voting) for info on how the vote works.
 
+#### Special Membership Type: Core Residency
+
+**Core Residency** is a special type of Core membership that is limited in the following way(s):
+
+- No voting abilities.
+- No nomination abilities.
+- Can be revoked at any time by the project Steward.
+
+Because of these limitations, this type of Core membership is useful for anyone who has been brought in to work on or contribute to the Astro project without rising through our normal contributor levels. For example: an Astro designer or developer advocate hired by The Astro Technology Company to assist the community could be nominated for a Core Residency role without having a previously earned contributor level.
+
+A Core Residency nomination must still be approved through the normal Core nomination and voting process. During the nomination, the Project Steward will state that the nomination is for the Core Residency designation. The project Steward is the only one who can officially make this designation during the nomination process.
+
+A Core Residency member can become a full Core member (with all limitations removed) through the normal Core nomination and voting procedure. 
+
+If a Core Residency member has their membership revoked, the project Steward may choose to impose a waiting period of some number of days, during which the member can not be re-nominated to become a full Core member.
+
 ### Level 4 - Project Steward
 
 The **Steward** is an additional role bestowed to 1 (or more) Core member of the project. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, assist in resolving conflicts, and act as tiebreakers in the event of disagreements.
@@ -230,9 +246,7 @@ A TSC member has significant sway in software design decisions. For this reason,
 
 ### Staff
 
-**Staff** is a special designation for employees of [The Astro Technology Company](https://astro.build/company) that lives outside of our Governance model. The staff role was designed to help those of us working full-time on Astro to work productively without "skipping the line" and circumventing our governance model entirely.
-
-The staff role was designed to offer instant **visibility** and **trust**, but not instant **authority.**
+**Staff** is a special designation for employees of [The Astro Technology Company](https://astro.build/company). 
 
 #### Privileges
 
@@ -241,11 +255,7 @@ The staff role was designed to offer instant **visibility** and **trust**, but n
 - Invitation to some private channels on Discord, at the discretion of the project Steward.
 - Invitation to the `staff` team on GitHub.
 
-Staff membership does not grant any additional abilities when it comes to voting and project governance. However, a Staff member is still eligible for other roles in the community and may still still vote as defined by their other roles. For example, a Staff member who is also a part of `@core` will be able to vote as any other `@core` member would.
-
-#### Nomination
-
-There is no nomination process for this role. The project steward is responsible for granting and revoking the `@staff` role. This usually coincides with someone joining or departing from [The Astro Technology Company](https://astro.build/blog/the-astro-technology-company/).
+Staff membership does not grant any additional abilities when it comes to voting and project governance. A Staff member is still eligible for other roles in the community and may still vote as defined by their other roles. For example, a Staff member who is also a part of `@core` will be able to vote as any other `@core` member would.
 
 ### Alumni
 
