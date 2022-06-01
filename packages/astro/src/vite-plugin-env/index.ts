@@ -85,6 +85,7 @@ export default function envVitePlugin({
 					replacements = Object.fromEntries(entries);
 					// These additional replacements are needed to match Vite
 					replacements = Object.assign(replacements, {
+						'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
 						// This catches destructed `import.meta.env` calls,
 						// BUT we only want to inject private keys referenced in the file.
 						// We overwrite this value on a per-file basis.

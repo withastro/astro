@@ -527,7 +527,7 @@ importers:
       prompts: ^2.4.2
       recast: ^0.20.5
       resolve: ^1.22.0
-      rollup: ^2.75.4
+      rollup: ^2.75.5
       sass: ^1.52.1
       semver: ^7.3.7
       serialize-javascript: ^6.0.0
@@ -586,7 +586,7 @@ importers:
       prompts: 2.4.2
       recast: 0.20.5
       resolve: 1.22.0
-      rollup: 2.75.4
+      rollup: 2.75.5
       semver: 7.3.7
       serialize-javascript: 6.0.0
       shiki: 0.10.1
@@ -12175,6 +12175,15 @@ packages:
     hasBin: true
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
+
+  /rollup/2.75.5:
+    resolution: {integrity: sha512-JzNlJZDison3o2mOxVmb44Oz7t74EfSd1SQrplQk0wSaXV7uLQXtVdHbxlcT3w+8tZ1TL4r/eLfc7nAbz38BBA==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
 
   /run-parallel/1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -13522,7 +13531,7 @@ packages:
       esbuild: 0.14.42
       postcss: 8.4.14
       resolve: 1.22.0
-      rollup: 2.75.4
+      rollup: 2.75.5
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
@@ -13546,7 +13555,7 @@ packages:
       esbuild: 0.14.42
       postcss: 8.4.14
       resolve: 1.22.0
-      rollup: 2.75.4
+      rollup: 2.75.5
       sass: 1.52.1
     optionalDependencies:
       fsevents: 2.3.2
