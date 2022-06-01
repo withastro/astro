@@ -22,7 +22,7 @@
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
     "lit": "^2.2.5",
-    "preact": "^10.7.2",
+    "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "svelte": "^3.48.0",
