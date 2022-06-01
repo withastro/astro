@@ -77,7 +77,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.15.1",
+    "@astrojs/compiler": "^0.15.2",
     "@astrojs/language-server": "^0.13.4",
     "@astrojs/markdown-remark": "^0.10.2",
     "@astrojs/prism": "0.4.1",
@@ -85,7 +85,7 @@
     "@astrojs/webapi": "^0.12.0",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
-    "@babel/parser": "^7.18.3",
+    "@babel/parser": "^7.18.4",
     "@babel/traverse": "^7.18.2",
     "@proload/core": "^0.3.2",
     "@proload/plugin-tsm": "^0.2.1",
@@ -97,7 +97,7 @@
     "diff": "^5.1.0",
     "eol": "^0.9.1",
     "es-module-lexer": "^0.10.5",
-    "esbuild": "^0.14.40",
+    "esbuild": "^0.14.42",
     "estree-walker": "^3.0.1",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
@@ -119,7 +119,7 @@
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
     "resolve": "^1.22.0",
-    "rollup": "^2.75.0",
+    "rollup": "^2.75.4",
     "semver": "^7.3.7",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
@@ -135,7 +135,7 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@babel/types": "^7.18.2",
+    "@babel/types": "^7.18.4",
     "@playwright/test": "^1.22.2",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
@@ -151,7 +151,7 @@
     "@types/mocha": "^9.1.1",
     "@types/parse5": "^6.0.3",
     "@types/path-browserify": "^1.0.0",
-    "@types/prettier": "^2.6.1",
+    "@types/prettier": "^2.6.3",
     "@types/resolve": "^1.20.2",
     "@types/rimraf": "^3.0.2",
     "@types/send": "^0.17.1",
