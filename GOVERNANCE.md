@@ -110,7 +110,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 
 ### Level 3 (L3) - Core
 
-The **Core** role is available to community members who have a larger-than-usual impact on the Astro project and community. They are seen as leaders in the project and are listened to by the wider Astro community, often before they have even reached this level. A Core member is recognized for contributing a significant amount of time and energy to the project through issues, pull requests, bug fixes, implementing advanced enhancements/features, and/oractivly posting on Discord. 
+The **Core** role is available to community members who have a larger-than-usual impact on the Astro project and community. They are seen as leaders in the project and are listened to by the wider Astro community, often before they have even reached this level. A Core member is recognized for contributing a significant amount of time and energy to the project through issues, pull requests, bug fixes, implementing advanced enhancements/features, and/or actively posting on Discord. 
 
 Not every contributor will reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
 
