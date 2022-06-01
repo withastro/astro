@@ -251,8 +251,10 @@ export function createRouteManifest(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = `/${segments.map(([{dynamic, content}]) => dynamic ? `[${content}]` : content).join('/')}`;
 
 				routes.push({
+					route,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
 					segments,
@@ -299,13 +301,14 @@ export function createRouteManifest(
 			const generate = getRouteGenerator(segments, trailingSlash);
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join("/")}` : null;
 			const params = segments.flat().filter((p) => p.dynamic).map((p) => p.content);
-			
-			const collision = routes.find(route => route.pathname === pathname?.toLowerCase());
+			const route = `/${segments.map(([{dynamic, content}]) => dynamic ? `[${content}]` : content).join('/')}`;
+
+			const collision = routes.find(({route: r}) => r === route?.toLowerCase());
       if(collision) {
         throw new Error(`An integration attempted to inject a route that is already used in your project: "${pathname}" at "${component}". \nThis route collides with: "${collision.component}".`);
       }
 
-			routes.push({type, pattern, segments, params, component, generate, pathname: pathname || void 0})
+			routes.push({type, route, pattern, segments, params, component, generate, pathname: pathname || void 0})
 		});
 	} else {
 		const pagesDirRootRelative = pages.href.slice(config.root.href.length);

@@ -976,6 +976,7 @@ export interface RoutePart {
 }
 
 export interface RouteData {
+	route: string,
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
