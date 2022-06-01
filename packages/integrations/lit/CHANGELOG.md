@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3484](https://github.com/withastro/astro/pull/3484) [`55820fa7`](https://github.com/withastro/astro/commit/55820fa784d6d4f66a45092321a47c8ce9de5546) Thanks [@matthewp](https://github.com/matthewp)! - Wait for DOMCOntentLoaded to polyfill in Lit
+
 ## 0.1.3
 
 ### Patch Changes

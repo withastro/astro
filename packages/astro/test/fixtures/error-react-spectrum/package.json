@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@adobe/react-spectrum": "^3.17.0",
+    "@adobe/react-spectrum": "^3.18.0",
     "@astrojs/react": "workspace:*",
     "astro": "workspace:*",
     "react": "^17.0.2",

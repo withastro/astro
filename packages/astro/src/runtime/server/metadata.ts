@@ -102,7 +102,8 @@ export class Metadata {
 			let i = 0,
 				pathname = metadata.mockURL.pathname;
 			while (i < metadata.hoisted.length) {
-				yield `${pathname}?astro&type=script&index=${i}`;
+				// Strip off the leading "/@fs" added during compilation.
+				yield `${pathname.replace('/@fs', '')}?astro&type=script&index=${i}`;
 				i++;
 			}
 		}

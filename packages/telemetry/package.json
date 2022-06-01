@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@types/dlv": "^1.1.2",
-    "@types/node": "^14.18.18",
+    "@types/node": "^14.18.20",
     "astro-scripts": "workspace:*"
   },
   "engines": {
