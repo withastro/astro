@@ -1,5 +1,20 @@
 # astro
 
+## 1.0.0-beta.38
+
+### Patch Changes
+
+- [#3459](https://github.com/withastro/astro/pull/3459) [`efccebb9`](https://github.com/withastro/astro/commit/efccebb9643f927d88e6b6f592e53c7c95e7c2b6) Thanks [@matthewp](https://github.com/matthewp)! - Forces the correct mime type for CSS in HMR
+
+* [#3486](https://github.com/withastro/astro/pull/3486) [`119ecf8d`](https://github.com/withastro/astro/commit/119ecf8d469f034eaf1b1217523954d29f492cb6) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix components in markdown regressions
+
+- [#3462](https://github.com/withastro/astro/pull/3462) [`d145b868`](https://github.com/withastro/astro/commit/d145b8689c5658671a496ffee070b428438effc3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove the rss() helper from getStaticPaths. Using rss() now prints an error pointing to the new @astrojs/rss documentation.
+
+* [#3455](https://github.com/withastro/astro/pull/3455) [`e9a77d86`](https://github.com/withastro/astro/commit/e9a77d861907adccfa75811f9aaa555f186d78f8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Implements improved hydration event system, meaning hydration for client:only and nested frameworks should be see significant stability improvements
+
+* Updated dependencies [[`119ecf8d`](https://github.com/withastro/astro/commit/119ecf8d469f034eaf1b1217523954d29f492cb6)]:
+  - @astrojs/markdown-remark@0.10.2
+
 ## 1.0.0-beta.37
 
 ### Patch Changes
