@@ -305,7 +305,7 @@ export function createRouteManifest(
 
 			const collision = routes.find(({route: r}) => r === route?.toLowerCase());
       if(collision) {
-        throw new Error(`An integration attempted to inject a route that is already used in your project: "${pathname}" at "${component}". \nThis route collides with: "${collision.component}".`);
+				throw new Error(`An integration attempted to inject a route that is already used in your project: "${route}" at "${component}". \nThis route collides with: "${collision.component}".`);
       }
 
 			routes.push({type, route, pattern, segments, params, component, generate, pathname: pathname || void 0})
