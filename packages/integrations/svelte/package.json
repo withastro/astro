@@ -21,6 +21,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./*": "./*",
+    "./store": "./dist/store.js",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"
