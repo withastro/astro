@@ -300,7 +300,7 @@ export function createRouteManifest(
 			const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join("/")}` : null;
 			const params = segments.flat().filter((p) => p.dynamic).map((p) => p.content);
 			
-			const collision = routes.find(route => route.pathname === pathname.toLowerCase());
+			const collision = routes.find(route => route.pathname === pathname?.toLowerCase());
       if(collision) {
         throw new Error(`An integration attempted to inject a route that is already used in your project: "${pathname}" at "${component}". \nThis route collides with: "${collision.component}".`);
       }
