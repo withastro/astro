@@ -1,9 +1,8 @@
-import type * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import type { TransformPluginContext } from 'rollup';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 import { loadEnv } from 'vite';
+import type { AstroConfig } from '../@types/astro';
 
 interface EnvPluginOptions {
 	config: AstroConfig;

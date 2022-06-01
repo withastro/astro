@@ -1,17 +1,17 @@
+import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
-import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger/core';
 import { info } from '../logger/core.js';
-import type { ViteDevServer } from 'vite';
+import type { AllPagesData } from './types';
 
-import { fileURLToPath } from 'url';
 import * as colors from 'kleur/colors';
+import { fileURLToPath } from 'url';
 import { debug } from '../logger/core.js';
+import { removeTrailingForwardSlash } from '../path.js';
 import { preload as ssrPreload } from '../render/dev/index.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
-import { removeTrailingForwardSlash } from '../path.js';
-import { isBuildingToSSR } from '../util.js';
 import { matchRoute } from '../routing/match.js';
+import { isBuildingToSSR } from '../util.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;

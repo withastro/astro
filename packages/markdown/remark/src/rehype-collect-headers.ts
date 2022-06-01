@@ -1,5 +1,5 @@
-import { visit } from 'unist-util-visit';
 import Slugger from 'github-slugger';
+import { visit } from 'unist-util-visit';
 
 import type { MarkdownHeader, RehypePlugin } from './types.js';
 

@@ -1,22 +1,22 @@
-import type * as vite from 'vite';
 import type http from 'http';
+import { Readable } from 'stream';
+import stripAnsi from 'strip-ansi';
+import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
-import type { RenderResponse, SSROptions } from '../core/render/dev/index';
-import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
+import { call as callEndpoint } from '../core/endpoint/dev/index.js';
+import { fixViteErrorMessage } from '../core/errors.js';
+import { error, info, LogOptions, warn } from '../core/logger/core.js';
+import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
+import type { RenderResponse, SSROptions } from '../core/render/dev/index';
+import { preload, ssr } from '../core/render/dev/index.js';
+import { RouteCache } from '../core/render/route-cache.js';
+import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import stripAnsi from 'strip-ansi';
-import { createSafeError, resolvePages, isBuildingToSSR } from '../core/util.js';
-import { ssr, preload } from '../core/render/dev/index.js';
-import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import * as msg from '../core/messages.js';
+import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
-import { RouteCache } from '../core/render/route-cache.js';
-import { fixViteErrorMessage } from '../core/errors.js';
-import { createRequest } from '../core/request.js';
-import { Readable } from 'stream';
 
 interface AstroPluginOptions {
 	config: AstroConfig;

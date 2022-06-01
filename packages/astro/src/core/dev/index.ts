@@ -1,5 +1,5 @@
-import type { AddressInfo } from 'net';
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
@@ -12,7 +12,6 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
-import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 

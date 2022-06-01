@@ -1,10 +1,10 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
+import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
+import ssgAdapter from '../adapter-ssg/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
 import { isBuildingToSSR } from '../core/util.js';
 

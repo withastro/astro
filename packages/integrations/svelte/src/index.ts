@@ -1,7 +1,7 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import preprocess from 'svelte-preprocess';
 import type { Options } from '@sveltejs/vite-plugin-svelte';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import type { AstroIntegration, AstroRenderer } from 'astro';
+import preprocess from 'svelte-preprocess';
 
 function getRenderer(): AstroRenderer {
 	return {

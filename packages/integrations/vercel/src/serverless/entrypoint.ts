@@ -1,6 +1,6 @@
+import { polyfill } from '@astrojs/webapi';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-import { polyfill } from '@astrojs/webapi';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import { getRequest, setResponse } from './request-transform.js';

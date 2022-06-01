@@ -1,6 +1,6 @@
 import type { EndpointHandler } from '../../@types/astro';
-import type { RenderOptions } from '../render/core';
 import { renderEndpoint } from '../../runtime/server/index.js';
+import type { RenderOptions } from '../render/core';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 export type EndpointOptions = Pick<

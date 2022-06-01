@@ -4,20 +4,10 @@ import {
 	AbortController,
 	AbortSignal,
 } from 'abort-controller/dist/abort-controller.mjs'
-import {
-	requestAnimationFrame,
-	cancelAnimationFrame,
-} from './lib/AnimationFrame'
-import { atob, btoa } from './lib/Base64'
-import { CharacterData, Comment, Text } from './lib/CharacterData'
-import { File, Blob } from 'fetch-blob/from.js'
-import { CustomEvent } from './lib/CustomEvent'
-import { DOMException } from './lib/DOMException'
-import { TreeWalker } from './lib/TreeWalker'
-import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
 import { Event, EventTarget } from 'event-target-shim'
-import { fetch, Headers, Request, Response } from './lib/fetch'
+import { Blob, File } from 'fetch-blob/from.js'
 import { FormData } from 'formdata-polyfill/esm.min.js'
+import { URLPattern } from 'urlpattern-polyfill'
 import {
 	ByteLengthQueuingStrategy,
 	CountQueuingStrategy,
@@ -32,29 +22,31 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 } from 'web-streams-polyfill/dist/ponyfill.es6.mjs'
-import { URLPattern } from 'urlpattern-polyfill'
-import { setTimeout, clearTimeout } from './lib/Timeout'
+import {
+	cancelAnimationFrame,
+	requestAnimationFrame,
+} from './lib/AnimationFrame'
+import { atob, btoa } from './lib/Base64'
+import { CharacterData, Comment, Text } from './lib/CharacterData'
+import { CustomEvent } from './lib/CustomEvent'
+import { DOMException } from './lib/DOMException'
+import { fetch, Headers, Request, Response } from './lib/fetch'
+import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
 import structuredClone from './lib/structuredClone'
+import { clearTimeout, setTimeout } from './lib/Timeout'
+import { TreeWalker } from './lib/TreeWalker'
 
 import { CanvasRenderingContext2D } from './lib/CanvasRenderingContext2D'
-import { CSSStyleSheet, StyleSheet } from './lib/StyleSheet'
 import {
 	CustomElementRegistry,
 	initCustomElementRegistry,
 } from './lib/CustomElementRegistry'
 import { Document, HTMLDocument, initDocument } from './lib/Document'
 import {
-	DocumentFragment,
-	Node,
-	NodeFilter,
-	NodeIterator,
-	ShadowRoot,
-} from './lib/Node'
-import {
 	Element,
-	HTMLElement,
 	HTMLBodyElement,
 	HTMLDivElement,
+	HTMLElement,
 	HTMLHeadElement,
 	HTMLHtmlElement,
 	HTMLSpanElement,
@@ -66,15 +58,23 @@ import { HTMLCanvasElement } from './lib/HTMLCanvasElement'
 import { HTMLImageElement } from './lib/HTMLImageElement'
 import { Image } from './lib/Image'
 import { ImageData } from './lib/ImageData'
+import { initMediaQueryList, MediaQueryList } from './lib/MediaQueryList'
+import {
+	DocumentFragment,
+	Node,
+	NodeFilter,
+	NodeIterator,
+	ShadowRoot,
+} from './lib/Node'
 import {
 	IntersectionObserver,
 	MutationObserver,
 	ResizeObserver,
 } from './lib/Observer'
-import { MediaQueryList, initMediaQueryList } from './lib/MediaQueryList'
 import { OffscreenCanvas } from './lib/OffscreenCanvas'
-import { Storage, initStorage } from './lib/Storage'
-import { Window, initWindow } from './lib/Window'
+import { initStorage, Storage } from './lib/Storage'
+import { CSSStyleSheet, StyleSheet } from './lib/StyleSheet'
+import { initWindow, Window } from './lib/Window'
 
 import { alert } from './lib/Alert'
 

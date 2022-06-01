@@ -1,6 +1,4 @@
-import escalade from 'escalade/sync';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 
