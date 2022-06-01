@@ -146,7 +146,9 @@ export function telemetryReset() {
 }
 
 export function fsStrictWarning() {
-	return yellow('⚠️ Serving with vite.server.fs.strict: false. Note that all files on your machine will be accessible to anyone on your network!')
+	return yellow(
+		'⚠️ Serving with vite.server.fs.strict: false. Note that all files on your machine will be accessible to anyone on your network!'
+	);
 }
 
 export function prerelease({ currentVersion }: { currentVersion: string }) {
