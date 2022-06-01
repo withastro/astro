@@ -145,6 +145,10 @@ export function telemetryReset() {
 	)}. You may be prompted again.\n`;
 }
 
+export function fsStrictWarning() {
+	return yellow('⚠️ Serving with vite.server.fs.strict: false. Note that all files on your machine will be accessible to anyone on your network!')
+}
+
 export function prerelease({ currentVersion }: { currentVersion: string }) {
 	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '');
 	const badge = bgYellow(black(` ${tag} `));
