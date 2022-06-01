@@ -40,6 +40,29 @@ describe('expressions', () => {
 			);
 	});
 
+	it('should be able to avoid evaluating JSX-like expressions in inline codes', async () => {
+		const { code } = await renderMarkdown(`# \`{ foo }\` is a shorthand for \`{ foo: foo }\``, {});
+
+		chai
+			.expect(code)
+			.to.equal(
+				'<h1 id="-is-a-shorthand-for-"><code is:raw>{ foo }</code> is a shorthand for <code is:raw>{ foo: foo }</code></h1>'
+			);
+	});
+
+	it('should be able to avoid evaluating JSX-like expressions & escape HTML tag characters in inline codes', async () => {
+		const { code } = await renderMarkdown(
+			`###### \`{}\` is equivalent to \`Record<never, never>\` <small>(at TypeScript v{frontmatter.version})</small>`,
+			{}
+		);
+
+		chai
+			.expect(code)
+			.to.equal(
+				`<h6 id={$$slug(\` is equivalent to  (at TypeScript v\${frontmatter.version})\`)}><code is:raw>{}</code> is equivalent to <code is:raw>Record&lt;never, never&gt;</code> <small>(at TypeScript v{frontmatter.version})</small></h6>`
+			);
+	});
+
 	it('should be able to serialize function expression', async () => {
 		const { code } = await renderMarkdown(
 			`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`,
