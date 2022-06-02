@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3505](https://github.com/withastro/astro/pull/3505) [`2b35650b`](https://github.com/withastro/astro/commit/2b35650b5dca28b5cd5dd7c9bb689d0eee6a2ddf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix newline characters in SolidJS JSX attributes (ex: multiline CSS classes)
+
 ## 0.1.3
 
 ### Patch Changes
