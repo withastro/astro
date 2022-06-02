@@ -63,6 +63,7 @@ async function transformJSX({
 		sourceMaps: true,
 		configFile: false,
 		babelrc: false,
+    inputSourceMap: options.inputSourceMap,
 	});
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
