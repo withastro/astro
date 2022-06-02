@@ -17,9 +17,20 @@ if (import.meta.hot) {
 				root.replaceWith(current);
 			}
 		}
+		// both Vite and Astro's HMR scripts include `type="text/css"` on injected
+		// <style> blocks. These style blocks would not have been rendered in Astro's
+		// build and need to be persisted when diffing HTML changes.
+		for (const style of document.querySelectorAll("style[type='text/css']")) {
+			style.setAttribute('data-persist', '');
+			doc.head.appendChild(style.cloneNode(true));
+		}
 		return diff(document, doc).then(() => {
+			// clean up data-persist attributes added before diffing
 			for (const root of document.querySelectorAll('astro-root[data-persist]')) {
 				root.removeAttribute('data-persist');
+			}
+			for (const style of document.querySelectorAll("style[type='text/css'][data-persist]")) {
+				style.removeAttribute('data-persist');
 			}
 		});
 	}
@@ -38,7 +49,11 @@ if (import.meta.hot) {
 				}
 			}
 			if (file.acceptedPath.includes('astro&type=style')) {
-				styles.push(fetch(file.acceptedPath).then(res => res.text()).then(res => [file.acceptedPath, res]))
+				styles.push(
+					fetch(file.acceptedPath)
+						.then((res) => res.text())
+						.then((res) => [file.acceptedPath, res])
+				);
 			}
 		}
 		if (styles.length > 0) {
@@ -55,37 +70,37 @@ if (import.meta.hot) {
 	});
 }
 
-const sheetsMap = new Map()
+const sheetsMap = new Map();
 
 function updateStyle(id: string, content: string): void {
-	let style = sheetsMap.get(id)
+	let style = sheetsMap.get(id);
 	if (style && !(style instanceof HTMLStyleElement)) {
-		removeStyle(id)
-		style = undefined
+		removeStyle(id);
+		style = undefined;
 	}
 
 	if (!style) {
-		style = document.createElement('style')
-		style.setAttribute('type', 'text/css')
-		style.innerHTML = content
-		document.head.appendChild(style)
+		style = document.createElement('style');
+		style.setAttribute('type', 'text/css');
+		style.innerHTML = content;
+		document.head.appendChild(style);
 	} else {
-		style.innerHTML = content
+		style.innerHTML = content;
 	}
-	sheetsMap.set(id, style)
+	sheetsMap.set(id, style);
 }
 
 function removeStyle(id: string): void {
-	const style = sheetsMap.get(id)
+	const style = sheetsMap.get(id);
 	if (style) {
 		if (style instanceof CSSStyleSheet) {
 			// @ts-expect-error: using experimental API
 			document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
 				(s: CSSStyleSheet) => s !== style
-			)
+			);
 		} else {
-			document.head.removeChild(style)
+			document.head.removeChild(style);
 		}
-		sheetsMap.delete(id)
+		sheetsMap.delete(id);
 	}
 }
