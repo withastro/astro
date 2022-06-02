@@ -119,7 +119,7 @@
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
     "resolve": "^1.22.0",
-    "rollup": "^2.75.4",
+    "rollup": "^2.75.5",
     "semver": "^7.3.7",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
