@@ -18,6 +18,7 @@ describe('CSS', function () {
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
 		let $;
+		let html;
 		let bundledCSS;
 
 		before(async () => {
@@ -25,7 +26,7 @@ describe('CSS', function () {
 			await fixture.build();
 
 			// get bundled CSS (will be hashed, hence DOM query)
-			const html = await fixture.readFile('/index.html');
+			html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
 			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
 			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
@@ -47,6 +48,10 @@ describe('CSS', function () {
 				// 2. check CSS
 				const expected = `.blue.${scopedClass}{color:#b0e0e6}.color\\\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`;
 				expect(bundledCSS).to.include(expected);
+			});
+
+			it('Generated link tags are void elements', async () => {
+				expect(html).to.not.include("</link>");
 			});
 
 			it('No <style> skips scoping', async () => {
