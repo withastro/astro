@@ -19,9 +19,11 @@ export default function createCollectHeaders() {
 
 				let raw = '';
 				let text = '';
+				let elementTag: string | null = null;
 				let isJSX = false;
 				visit(node, (child) => {
 					if (child.type === 'element') {
+						elementTag = child.tagName;
 						return;
 					}
 					if (child.type === 'raw') {
@@ -34,7 +36,9 @@ export default function createCollectHeaders() {
 					if (child.type === 'text' || child.type === 'raw') {
 						raw += child.value;
 						text += child.value;
-						isJSX = isJSX || child.value.includes('{');
+						if(elementTag !== 'code') {
+							isJSX = isJSX || child.value.includes('{');
+						}
 					}
 				});
 

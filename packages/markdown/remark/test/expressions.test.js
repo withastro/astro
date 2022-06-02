@@ -22,6 +22,14 @@ describe('expressions', () => {
 			.to.equal(`<h1 id={$$slug(\`\${frontmatter.title}\`)}>{frontmatter.title}</h1>`);
 	});
 
+	it('should skip expressions inside of backtick blocks', async () => {
+		const { code } = await renderMarkdown(`# \`{frontmatter.title}\` and \`{another}\``, {});
+
+		chai
+			.expect(code)
+			.to.equal(`<h1 id="frontmattertitle-and-another"><code is:raw>{frontmatter.title}</code> and <code is:raw>{another}</code></h1>`);
+	});
+
 	it('should be able to serialize complex expression inside markdown', async () => {
 		const { code } = await renderMarkdown(`# Hello {frontmatter.name}`, {});
 
