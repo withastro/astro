@@ -21,7 +21,7 @@ export default function createCollectHeaders() {
 				let text = '';
 				let isJSX = false;
 				visit(node, (child, _, parent) => {
-					if (child.type === 'element' || ['code', 'pre'].some((tag) => parent?.tagName === tag)) {
+					if (child.type === 'element' || parent == null) {
 						return;
 					}
 					if (child.type === 'raw') {
@@ -30,8 +30,12 @@ export default function createCollectHeaders() {
 						}
 					}
 					if (child.type === 'text' || child.type === 'raw') {
-						text += child.value;
-						isJSX = isJSX || child.value.includes('{');
+						if (new Set(['code', 'pre']).has(parent.tagName)) {
+							text += child.value;
+						} else {
+							text += child.value.replace(/\{/g, '${');
+							isJSX = isJSX || child.value.includes('{');
+						}
 					}
 				});
 
@@ -43,7 +47,7 @@ export default function createCollectHeaders() {
 							.replace(/\n(<)/g, '<')
 							.replace(/(>)\n/g, '>');
 						// HACK: for ids that have JSX content, use $$slug helper to generate slug at runtime
-						node.properties.id = `$$slug(\`${text.replace(/\{/g, '${')}\`)`;
+						node.properties.id = `$$slug(\`${text}\`)`;
 						(node as any).type = 'raw';
 						(
 							node as any
