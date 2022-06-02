@@ -34,7 +34,7 @@
     "escalade": "^3.1.1",
     "is-docker": "^3.0.0",
     "is-wsl": "^2.2.0",
-    "node-fetch": "^3.2.4"
+    "node-fetch": "^3.2.5"
   },
   "devDependencies": {
     "@types/dlv": "^1.1.2",

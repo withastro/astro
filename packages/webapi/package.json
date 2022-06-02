@@ -50,7 +50,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "dependencies": {
-    "node-fetch": "^3.2.4"
+    "node-fetch": "^3.2.5"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
@@ -68,7 +68,7 @@
     "formdata-polyfill": "^4.0.10",
     "magic-string": "^0.25.9",
     "mocha": "^9.2.2",
-    "rollup": "^2.75.4",
+    "rollup": "^2.75.5",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "~4.7.2",
