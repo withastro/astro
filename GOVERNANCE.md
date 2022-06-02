@@ -163,7 +163,7 @@ They are seen as leaders in the project and are listened to by the wider Astro c
 
 A Core member is recognized for contributing a significant amount of their time and energy to the project through issues, pull requests, bug fixes, implementing advanced enhancements/features, and is activly posting on Discord. 
 
-Not every contributor will reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges as is within our community.
+Not every contributor will reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges within our community.
 
 
 #### Privileges
