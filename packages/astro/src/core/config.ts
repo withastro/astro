@@ -23,7 +23,7 @@ interface PostCSSConfigResult {
 	plugins: Postcss.Plugin[];
 }
 
-export const astroConfigDefaults: AstroUserConfig & any = {
+const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	root: '.',
 	srcDir: './src',
 	publicDir: './public',
@@ -97,22 +97,22 @@ export const AstroConfigSchema = z.object({
 	root: z
 		.string()
 		.optional()
-		.default(astroConfigDefaults.root)
+		.default(ASTRO_CONFIG_DEFAULTS.root)
 		.transform((val) => new URL(val)),
 	srcDir: z
 		.string()
 		.optional()
-		.default(astroConfigDefaults.srcDir)
+		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 		.transform((val) => new URL(val)),
 	publicDir: z
 		.string()
 		.optional()
-		.default(astroConfigDefaults.publicDir)
+		.default(ASTRO_CONFIG_DEFAULTS.publicDir)
 		.transform((val) => new URL(val)),
 	outDir: z
 		.string()
 		.optional()
-		.default(astroConfigDefaults.outDir)
+		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
 	site: z
 		.string()
@@ -126,18 +126,18 @@ export const AstroConfigSchema = z.object({
 	base: z
 		.string()
 		.optional()
-		.default(astroConfigDefaults.base)
+		.default(ASTRO_CONFIG_DEFAULTS.base)
 		.transform((val) => prependForwardSlash(appendForwardSlash(trimSlashes(val)))),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
-		.default(astroConfigDefaults.trailingSlash),
+		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	build: z
 		.object({
 			format: z
 				.union([z.literal('file'), z.literal('directory')])
 				.optional()
-				.default(astroConfigDefaults.build.format),
+				.default(ASTRO_CONFIG_DEFAULTS.build.format),
 		})
 		.optional()
 		.default({}),
@@ -149,8 +149,8 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.object({
-				host: z.union([z.string(), z.boolean()]).optional().default(astroConfigDefaults.server.host),
-				port: z.number().optional().default(astroConfigDefaults.server.port),
+				host: z.union([z.string(), z.boolean()]).optional().default(ASTRO_CONFIG_DEFAULTS.server.host),
+				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 			})
 			.optional()
 			.default({})
@@ -161,7 +161,7 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default(astroConfigDefaults.integrations)
+			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
 	style: z
 		.object({
@@ -171,7 +171,7 @@ export const AstroConfigSchema = z.object({
 					plugins: z.array(z.any()),
 				})
 				.optional()
-				.default(astroConfigDefaults.style.postcss),
+				.default(ASTRO_CONFIG_DEFAULTS.style.postcss),
 		})
 		.optional()
 		.default({}),
@@ -183,15 +183,15 @@ export const AstroConfigSchema = z.object({
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
-				.default(astroConfigDefaults.markdown.syntaxHighlight),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({
 					langs: z.custom<ILanguageRegistration>().array().default([]),
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IThemeRegistration>())
-						.default(astroConfigDefaults.markdown.shikiConfig.theme),
-					wrap: z.boolean().or(z.null()).default(astroConfigDefaults.markdown.shikiConfig.wrap),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme),
+					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -202,7 +202,7 @@ export const AstroConfigSchema = z.object({
 					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
 				])
 				.array()
-				.default(astroConfigDefaults.markdown.remarkPlugins),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkPlugins),
 			rehypePlugins: z
 				.union([
 					z.string(),
@@ -211,16 +211,16 @@ export const AstroConfigSchema = z.object({
 					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
 				])
 				.array()
-				.default(astroConfigDefaults.markdown.rehypePlugins),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
 		})
 		.default({}),
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
-		.default(astroConfigDefaults.vite),
+		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			ssr: z.boolean().optional().default(astroConfigDefaults.experimental.ssr),
-			integrations: z.boolean().optional().default(astroConfigDefaults.experimental.integrations),
+			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
+			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
 		})
 		.optional()
 		.default({}),
@@ -286,19 +286,19 @@ export async function validateConfig(
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
 		root: z
 			.string()
-			.default(astroConfigDefaults.root)
+			.default(ASTRO_CONFIG_DEFAULTS.root)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		srcDir: z
 			.string()
-			.default(astroConfigDefaults.srcDir)
+			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		publicDir: z
 			.string()
-			.default(astroConfigDefaults.publicDir)
+			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		outDir: z
 			.string()
-			.default(astroConfigDefaults.outDir)
+			.default(ASTRO_CONFIG_DEFAULTS.outDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		server: z.preprocess(
 			// preprocess
@@ -307,8 +307,8 @@ export async function validateConfig(
 			// validate
 			z
 				.object({
-					host: z.union([z.string(), z.boolean()]).optional().default(astroConfigDefaults.server.host),
-					port: z.number().optional().default(astroConfigDefaults.server.port),
+					host: z.union([z.string(), z.boolean()]).optional().default(ASTRO_CONFIG_DEFAULTS.server.host),
+					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				})
 				.optional()
 				.default({})
@@ -323,7 +323,7 @@ export async function validateConfig(
 							plugins: z.array(z.any()),
 						})
 						.optional()
-						.default(astroConfigDefaults.style.postcss)
+						.default(ASTRO_CONFIG_DEFAULTS.style.postcss)
 				),
 			})
 			.optional()
