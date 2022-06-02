@@ -3,7 +3,7 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 
-import { transformAsync } from '@babel/core';
+import babel from '@babel/core';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
@@ -53,9 +53,9 @@ async function transformJSX({
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
 	const plugins = [...(options.plugins || [])];
-	const result = await transformAsync(code, {
+	const result = await babel.transformAsync(code, {
 		presets: options.presets,
-    plugins,
+		plugins,
 		cwd: process.cwd(),
 		filename: id,
 		ast: false,
