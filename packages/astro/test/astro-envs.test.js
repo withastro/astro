@@ -35,6 +35,12 @@ describe('Environment Variables', () => {
 		expect(indexHtml).to.include('http://example.com');
 	});
 
+	it('does render destructured builtin SITE env', async () => {
+		let indexHtml = await fixture.readFile('/destructured/index.html');
+
+		expect(indexHtml).to.include('http://example.com');
+	});
+
 	it('includes public env in client-side JS', async () => {
 		let dirs = await fixture.readdir('/');
 		let found = false;
