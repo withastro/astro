@@ -12,7 +12,6 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
-import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
@@ -64,6 +63,9 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
 		warn(options.logging, null, msg.prerelease({ currentVersion }));
+	}
+	if (viteConfig.server?.fs?.strict === false) {
+		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
 	await runHookServerStart({ config, address: devServerAddressInfo });
