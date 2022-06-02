@@ -793,7 +793,10 @@ export interface HydrateOptions {
 	value?: string;
 }
 
-export type JSXTransformConfig = Pick<babel.TransformOptions, 'presets' | 'plugins' | 'inputSourceMap'>;
+export type JSXTransformConfig = Pick<
+	babel.TransformOptions,
+	'presets' | 'plugins' | 'inputSourceMap'
+>;
 
 export type JSXTransformFn = (options: {
 	mode: string;
