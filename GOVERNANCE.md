@@ -46,7 +46,7 @@ The two off the most important things that we look from our contributors is:
   Strive to go above and beyond our [Code of Conduct](CODE_OF_CONDUCT.md) and commit to a healthy, honest discourse when communicating: 
   - Within our Github Project and its wider umbrella groups and projects.
     - Pull Requests, 
-    - Issue's 
+    - Issues 
     - Discussions,
     - RFC process, 
   - Discord conversations, 
