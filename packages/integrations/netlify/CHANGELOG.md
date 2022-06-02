@@ -1,5 +1,12 @@
 # @astrojs/netlify
 
+## 0.4.2
+
+### Patch Changes
+
+- [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
 ## 0.4.1
 
 ### Patch Changes
