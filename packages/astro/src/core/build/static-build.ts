@@ -152,6 +152,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		mode: 'production',
 		css: viteConfig.css,
+		optimizeDeps: {
+			include: [...(viteConfig.optimizeDeps?.include ?? [])],
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])]
+		},
 		build: {
 			...viteConfig.build,
 			emptyOutDir: false,
@@ -234,6 +238,10 @@ async function clientBuild(
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
+		optimizeDeps: {
+			include: [...(viteConfig.optimizeDeps?.include ?? [])],
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])]
+		},
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
