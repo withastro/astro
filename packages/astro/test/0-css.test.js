@@ -51,7 +51,7 @@ describe('CSS', function () {
 			});
 
 			it('Generated link tags are void elements', async () => {
-				expect(html).to.not.include("</link>");
+				expect(html).to.not.include('</link>');
 			});
 
 			it('No <style> skips scoping', async () => {

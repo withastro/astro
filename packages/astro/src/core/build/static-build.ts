@@ -154,7 +154,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		css: viteConfig.css,
 		optimizeDeps: {
 			include: [...(viteConfig.optimizeDeps?.include ?? [])],
-			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])]
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
 		},
 		build: {
 			...viteConfig.build,
@@ -240,7 +240,7 @@ async function clientBuild(
 		css: viteConfig.css,
 		optimizeDeps: {
 			include: [...(viteConfig.optimizeDeps?.include ?? [])],
-			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])]
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
 		},
 		build: {
 			emptyOutDir: false,
