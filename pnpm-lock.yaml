@@ -6508,7 +6508,7 @@ packages:
     resolution: {integrity: sha512-QefRbadcwfBnd3HWrltpjRJprHgeKfQsnbyGbRF8pEjMqISAljJwq4wfRETxxojsmN4GWuJv3PWG+W7kBIHMMw==}
     dependencies:
       fast-glob: 3.2.11
-      minimatch: 5.0.1
+      minimatch: 5.1.0
       mkdirp: 1.0.4
       path-browserify: 1.0.1
     dev: true
