@@ -24,7 +24,7 @@ All types of contribution are meaningful, from code to documentation, even blog 
 
 **Anyone** can become an Astro Contributor (yes, even you!). Regardless of skill, experience or background.
 
-Our goal is too always recognize all of our contributors and their effort given to Astro. 
+Our goal is to always recognize all of our contributors and their effort given to Astro. 
 
 > 🚀 Remember no contribution is too small or too little. 
 
