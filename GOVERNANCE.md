@@ -54,7 +54,7 @@ The two off the most important things that we look from our contributors is:
 
 All Contributor roles are granted for as long as the individual wishes to engage with the project. 
 
-Contributor's can voluntarily leave the project at any time (see [Retiring a Role](#retiring-a-role-alumni) below). 
+Contributors can voluntarily leave the project at any time (see [Retiring a Role](#retiring-a-role-alumni) below). 
 
 In extreme cases such as a *Code of Conduct violation* this role may be revoked by a project Steward at their discretion.
 
