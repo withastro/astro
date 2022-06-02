@@ -1,5 +1,18 @@
 # astro
 
+## 1.0.0-beta.40
+
+### Patch Changes
+
+- [#3507](https://github.com/withastro/astro/pull/3507) [`cf2fb300`](https://github.com/withastro/astro/commit/cf2fb3004ecea4e0343fdf9e3e84884c5870835b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Silence noisy build warnings about `optimizeDeps.include`
+
+* [#3506](https://github.com/withastro/astro/pull/3506) [`d41540cc`](https://github.com/withastro/astro/commit/d41540cc772c7003a73cc5971598e5dd1255cbc9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where generated `link` tags would have an invalid closing tag
+
+- [#3498](https://github.com/withastro/astro/pull/3498) [`4a23b5aa`](https://github.com/withastro/astro/commit/4a23b5aaedd69043635711dfdd60dd0d69dd69a8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of import.meta.env.SITE
+
+* [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
 ## 1.0.0-beta.39
 
 ### Patch Changes
