@@ -82,28 +82,33 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
-				const { data: frontmatter } = matter(source);
+				const { data: frontmatter, content: rawContent } = matter(source);
 				return {
 					code: `
 						// Static
-						export const frontmatter = ${JSON.stringify(frontmatter)};
+						export const frontmatter = ${escapeViteEnvReferences(JSON.stringify(frontmatter))};
 						export const file = ${JSON.stringify(fileId)};
 						export const url = ${JSON.stringify(fileUrl)};
-
+						export function rawContent() {
+							return ${escapeViteEnvReferences(JSON.stringify(rawContent))};
+						}
+						export async function compiledContent() {
+							return load().then((m) => m.compiledContent());
+						}
 						export function $$loadMetadata() {
-							return load().then((m) => m.$$metadata)
+							return load().then((m) => m.$$metadata);
 						}
 						
 						// Deferred
 						export default async function load() {
 							return (await import(${JSON.stringify(fileId + MARKDOWN_CONTENT_FLAG)}));
-						};
+						}
 						export function Content(...args) {
-							return load().then((m) => m.default(...args))
+							return load().then((m) => m.default(...args));
 						}
 						Content.isAstroComponentFactory = true;
 						export function getHeaders() {
-							return load().then((m) => m.metadata.headers)
+							return load().then((m) => m.metadata.headers);
 						};`,
 					map: null,
 				};
@@ -124,10 +129,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Extract special frontmatter keys
 				let { data: frontmatter, content: markdownContent } = matter(source);
 
-				// Turn HTML comments into JS comments
+				// Turn HTML comments into JS comments while preventing nested `*/` sequences
+				// from ending the JS comment by injecting a zero-width space
 				markdownContent = markdownContent.replace(
 					/<\s*!--([^-->]*)(.*?)-->/gs,
-					(whole) => `{/*${whole}*/}`
+					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
 				);
 
 				let renderResult = await renderMarkdown(markdownContent, {
@@ -171,6 +177,12 @@ ${setup}`.trim();
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
+export function rawContent() {
+	return ${JSON.stringify(markdownContent)};
+}
+export function compiledContent() {
+		return ${JSON.stringify(renderResult.metadata.html)};
+}
 ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
@@ -180,7 +192,7 @@ ${tsResult}`;
 					sourcefile: id,
 				});
 				return {
-					code,
+					code: escapeViteEnvReferences(code),
 					map: null,
 				};
 			}
@@ -188,4 +200,11 @@ ${tsResult}`;
 			return null;
 		},
 	};
+}
+
+// Converts the first dot in `import.meta.env.` to its Unicode escape sequence,
+// which prevents Vite from replacing strings like `import.meta.env.SITE`
+// in our JS representation of loaded Markdown files
+function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env\./g, 'import\\u002Emeta.env.');
 }

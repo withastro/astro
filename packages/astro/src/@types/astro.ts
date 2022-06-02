@@ -753,6 +753,10 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
+	/** raw Markdown file content, excluding frontmatter */
+	rawContent(): string;
+	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
+	compiledContent(): Promise<string>;
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
@@ -763,7 +767,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 }
 
 export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void
+	(element: Element, innerHTML: string | null) => void | Promise<void>
 >;
 
 /**
@@ -771,7 +775,11 @@ export type GetHydrateCallback = () => Promise<
  * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
-	rss: (...args: any[]) => any;
+	/**
+	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
+	 * @see https://docs.astro.build/en/guides/rss/
+	 */
+	rss(): never;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
@@ -785,12 +793,10 @@ export interface HydrateOptions {
 	value?: string;
 }
 
-export interface JSXTransformConfig {
-	/** Babel presets */
-	presets?: babel.PluginItem[];
-	/** Babel plugins */
-	plugins?: babel.PluginItem[];
-}
+export type JSXTransformConfig = Pick<
+	babel.TransformOptions,
+	'presets' | 'plugins' | 'inputSourceMap'
+>;
 
 export type JSXTransformFn = (options: {
 	mode: string;
@@ -865,8 +871,6 @@ export type Params = Record<string, string | number | undefined>;
 
 export type Props = Record<string, unknown>;
 
-type Body = string;
-
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -874,16 +878,20 @@ export interface AstroAdapter {
 	args?: any;
 }
 
+type Body = string;
+
 export interface APIContext {
 	params: Params;
 	request: Request;
 }
 
-export interface EndpointOutput<Output extends Body = Body> {
-	body: Output;
+export interface EndpointOutput {
+	body: Body;
 }
 
-export type APIRoute = (context: APIContext) => EndpointOutput | Response;
+export type APIRoute = (
+	context: APIContext
+) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
 	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
@@ -979,51 +987,6 @@ export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 };
 
 export type RuntimeMode = 'development' | 'production';
-
-/**
- * RSS
- * Docs: https://docs.astro.build/reference/api-reference/#rss
- */
-export interface RSS {
-	/** (required) Title of the RSS Feed */
-	title: string;
-	/** (required) Description of the RSS Feed */
-	description: string;
-	/** Specify arbitrary metadata on opening <xml> tag */
-	xmlns?: Record<string, string>;
-	/**
-	 * If false (default), does not include XSL stylesheet.
-	 * If true, automatically includes 'pretty-feed-v3'.
-	 * If a string value, specifies a local custom XSL stylesheet, for example '/custom-feed.xsl'.
-	 */
-	stylesheet?: string | boolean;
-	/** Specify custom data in opening of file */
-	customData?: string;
-	/**
-	 * Specify where the RSS xml file should be written.
-	 * Relative to final build directory. Example: '/foo/bar.xml'
-	 * Defaults to '/rss.xml'.
-	 */
-	dest?: string;
-	/** Return data about each item */
-	items: {
-		/** (required) Title of item */
-		title: string;
-		/** (required) Link to item */
-		link: string;
-		/** Publication date of item */
-		pubDate?: Date;
-		/** Item description */
-		description?: string;
-		/** Append some other XML-valid data to this item */
-		customData?: string;
-	}[];
-}
-
-export type RSSFunction = (args: RSS) => RSSResult;
-
-export type FeedResult = { url: string; content?: string };
-export type RSSResult = { xml: FeedResult; xsl?: FeedResult };
 
 export type SSRError = Error & vite.ErrorPayload['err'];
 

@@ -3,3 +3,5 @@ installWindowOnGlobal();
 
 window.global = window;
 document.getElementsByTagName = () => [];
+// See https://github.com/lit/lit/issues/2393
+document.currentScript = null;

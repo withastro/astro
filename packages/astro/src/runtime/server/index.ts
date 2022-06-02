@@ -330,7 +330,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
 	return markHTMLString(
-		`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
+		`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
 			html ?? ''
 		}${template}</astro-root>`
 	);
@@ -714,6 +714,9 @@ function renderElement(
 			delete props.hoist;
 			children = defineScriptVars(defineVars) + '\n' + children;
 		}
+	}
+	if ((children == null || children == '') && voidElementNames.test(name)) {
+		return `<${name}${internalSpreadAttributes(props, shouldEscape)} />`;
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }

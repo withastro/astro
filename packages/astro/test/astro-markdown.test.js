@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, fixLineEndings } from './test-utils.js';
 
 describe('Astro Markdown', () => {
 	let fixture;
@@ -72,10 +72,16 @@ describe('Astro Markdown', () => {
 		expect($('h1').text()).to.equal('It works!');
 	});
 
+	it('Prevents `*/` sequences from breaking HTML comments (#3476)', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('h1').text()).to.equal('It still works!');
+	});
+
 	// https://github.com/withastro/astro/issues/3254
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
-		console.log(html);
 		expect(html).not.to.match(new RegExp('/src/scripts/test.js'));
 	});
 
@@ -232,5 +238,80 @@ describe('Astro Markdown', () => {
 		 */
 		expect($('#target > ol > li').children()).to.have.lengthOf(1);
 		expect($('#target > ol > li > ol > li').text()).to.equal('nested hello');
+	});
+
+	it('Exposes raw markdown content', async () => {
+		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
+
+		expect(fixLineEndings(raw)).to.equal(
+			`\n## With components\n\n### Non-hydrated\n\n<Hello name="Astro Naut" />\n\n### Hydrated\n\n<Counter client:load />\n<SvelteButton client:load />\n`
+		);
+	});
+
+	it('Exposes HTML parser for raw markdown content', async () => {
+		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
+
+		expect(fixLineEndings(compiled)).to.equal(
+			`<h2 id="with-components">With components</h2>\n<h3 id="non-hydrated">Non-hydrated</h3>\n<Hello name="Astro Naut" />\n<h3 id="hydrated">Hydrated</h3>\n<Counter client:load />\n<SvelteButton client:load />`
+		);
+	});
+
+	it('Allows referencing Vite env var names in markdown (#3412)', async () => {
+		const html = await fixture.readFile('/vite-env-vars/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: referencing an existing var name
+		expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
+		expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
+		expect($('code').eq(2).text()).to.contain('site: import.meta.env.SITE');
+		expect($('blockquote').text()).to.contain('import.meta.env.SITE');
+
+		// test 2: referencing a non-existing var name
+		expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
+		expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
+		expect($('code').eq(2).text()).to.contain('title: import.meta.env.TITLE');
+		expect($('blockquote').text()).to.contain('import.meta.env.TITLE');
+	});
+
+	it('Escapes HTML tags in code blocks', async () => {
+		const html = await fixture.readFile('/code-in-md/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('code').eq(0).html()).to.equal('&lt;script&gt;');
+		expect($('blockquote').length).to.equal(1);
+		expect($('code').eq(1).html()).to.equal('&lt;/script&gt;');
+		expect($('pre').html()).to.contain('&gt;This should also work without any problems.&lt;');
+	});
+
+	it('Allows defining slot contents in component children', async () => {
+		const html = await fixture.readFile('/slots/index.html');
+		const $ = cheerio.load(html);
+
+		const slots = $('article').eq(0);
+		expect(slots.find('> .fragmentSlot > div').text()).to.contain('1:');
+		expect(slots.find('> .fragmentSlot > div + p').text()).to.contain('2:');
+		expect(slots.find('> .pSlot > p[title="hello"]').text()).to.contain('3:');
+		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(
+			`
+			4: Div in default slot
+			5: Paragraph in fragment in default slot
+			6: Regular text in default slot
+		`.replace(/\s+/g, ' ')
+		);
+
+		const nestedSlots = $('article').eq(1);
+		expect(nestedSlots.find('> .fragmentSlot').html()).to.contain('1:');
+		expect(nestedSlots.find('> .pSlot > p').text()).to.contain('2:');
+		expect(nestedSlots.find('> .defaultSlot > article').text().replace(/\s+/g, ' ')).to.equal(
+			`
+			3: nested fragmentSlot
+			4: nested pSlot
+			5: nested text in default slot
+		`.replace(/\s+/g, ' ')
+		);
+
+		expect($('article').eq(3).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
+
+		expect($('article').eq(4).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
 	});
 });

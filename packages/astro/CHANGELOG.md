@@ -1,5 +1,59 @@
 # astro
 
+## 1.0.0-beta.40
+
+### Patch Changes
+
+- [#3507](https://github.com/withastro/astro/pull/3507) [`cf2fb300`](https://github.com/withastro/astro/commit/cf2fb3004ecea4e0343fdf9e3e84884c5870835b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Silence noisy build warnings about `optimizeDeps.include`
+
+* [#3506](https://github.com/withastro/astro/pull/3506) [`d41540cc`](https://github.com/withastro/astro/commit/d41540cc772c7003a73cc5971598e5dd1255cbc9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where generated `link` tags would have an invalid closing tag
+
+- [#3498](https://github.com/withastro/astro/pull/3498) [`4a23b5aa`](https://github.com/withastro/astro/commit/4a23b5aaedd69043635711dfdd60dd0d69dd69a8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of import.meta.env.SITE
+
+* [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
+## 1.0.0-beta.39
+
+### Patch Changes
+
+- [#3496](https://github.com/withastro/astro/pull/3496) [`d588bc4a`](https://github.com/withastro/astro/commit/d588bc4a9cc6baccf4d63ac74f2242735494391a) Thanks [@matthewp](https://github.com/matthewp)! - Update rollup to fix default param regression
+
+* [#3464](https://github.com/withastro/astro/pull/3464) [`9c2ba137`](https://github.com/withastro/astro/commit/9c2ba13748b975fb4b15b28b1b8ddc5ece3ccbb0) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add warning on startup when `vite.server.fs.strict` is disabled
+
+- [#3427](https://github.com/withastro/astro/pull/3427) [`10b25890`](https://github.com/withastro/astro/commit/10b2589093f23d5f92e0509f9d3eebfaae2d46a7) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes HMR support for inline scripts in Astro components on Linux and OSX
+
+* [#3505](https://github.com/withastro/astro/pull/3505) [`2b35650b`](https://github.com/withastro/astro/commit/2b35650b5dca28b5cd5dd7c9bb689d0eee6a2ddf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix newline characters in SolidJS JSX attributes (ex: multiline CSS classes)
+
+## 1.0.0-beta.38
+
+### Patch Changes
+
+- [#3459](https://github.com/withastro/astro/pull/3459) [`efccebb9`](https://github.com/withastro/astro/commit/efccebb9643f927d88e6b6f592e53c7c95e7c2b6) Thanks [@matthewp](https://github.com/matthewp)! - Forces the correct mime type for CSS in HMR
+
+* [#3486](https://github.com/withastro/astro/pull/3486) [`119ecf8d`](https://github.com/withastro/astro/commit/119ecf8d469f034eaf1b1217523954d29f492cb6) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix components in markdown regressions
+
+- [#3462](https://github.com/withastro/astro/pull/3462) [`d145b868`](https://github.com/withastro/astro/commit/d145b8689c5658671a496ffee070b428438effc3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove the rss() helper from getStaticPaths. Using rss() now prints an error pointing to the new @astrojs/rss documentation.
+
+* [#3455](https://github.com/withastro/astro/pull/3455) [`e9a77d86`](https://github.com/withastro/astro/commit/e9a77d861907adccfa75811f9aaa555f186d78f8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Implements improved hydration event system, meaning hydration for client:only and nested frameworks should be see significant stability improvements
+
+* Updated dependencies [[`119ecf8d`](https://github.com/withastro/astro/commit/119ecf8d469f034eaf1b1217523954d29f492cb6)]:
+  - @astrojs/markdown-remark@0.10.2
+
+## 1.0.0-beta.37
+
+### Patch Changes
+
+- [#3471](https://github.com/withastro/astro/pull/3471) [`75fa58f1`](https://github.com/withastro/astro/commit/75fa58f13fff27a872b7b85948d65e82d9e7a8eb) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix using Vite env var names in Markdown
+
+* [#3477](https://github.com/withastro/astro/pull/3477) [`429b65d6`](https://github.com/withastro/astro/commit/429b65d60bb64973f1e5867cc58f1fe07bada952) Thanks [@hippotastic](https://github.com/hippotastic)! - Prevent `*/` from breaking HTML comments in Markdown
+
+## 1.0.0-beta.36
+
+### Minor Changes
+
+- [#3452](https://github.com/withastro/astro/pull/3452) [`47d1a8d5`](https://github.com/withastro/astro/commit/47d1a8d59cb3d88655de3d7658026e84843cb043) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add content parsing helpers to imported markdown files. This exposes both the raw markdown content when using rawContent() and the parsed Astro syntax when using compiledContent()
+
 ## 1.0.0-beta.35
 
 ### Patch Changes
