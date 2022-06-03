@@ -165,6 +165,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
+					inlineDynamicImports: true,
 					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
