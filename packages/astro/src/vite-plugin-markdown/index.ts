@@ -194,6 +194,11 @@ ${tsResult}`;
 				return {
 					code: escapeViteEnvReferences(code),
 					map: null,
+					meta: {
+						vite: {
+							lang: 'ts'
+						}
+					}
 				};
 			}
 
