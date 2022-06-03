@@ -140,9 +140,10 @@ export async function render(
 		}
 	}
 
-	// Pass framework CSS in as link tags to be appended to the page.
+	// Pass framework CSS in as style tags to be appended to the page.
+	const { urls: styleUrls, contents: styleContents } = await getStylesForURL(filePath, viteServer);
 	let links = new Set<SSRElement>();
-	[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
+	[...styleUrls].forEach((href) => {
 		if (mode === 'development' && svelteStylesRE.test(href)) {
 			scripts.add({
 				props: { type: 'module', src: href },
@@ -160,8 +161,19 @@ export async function render(
 		}
 	});
 
+	let styles = new Set<SSRElement>();
+	[...(styleContents)].forEach((style) => {
+		styles.add({
+			props: {
+				'data-astro-injected': true
+			},
+			children: style
+		});
+	});
+
 	let content = await coreRender({
 		links,
+		styles,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

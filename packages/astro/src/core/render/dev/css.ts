@@ -14,8 +14,9 @@ const fileExtensionsToSSR = new Set(['.md']);
 export async function getStylesForURL(
 	filePath: URL,
 	viteServer: vite.ViteDevServer
-): Promise<Set<string>> {
+): Promise<{urls: Set<string>, contents: Set<string>}> {
 	const importedCssUrls = new Set<string>();
+	const importedStyleContents = new Set<string>();
 
 	/** recursively crawl the module graph to get all style files imported by parent id */
 	async function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
@@ -64,8 +65,12 @@ export async function getStylesForURL(
 			}
 			const ext = path.extname(importedModule.url).toLowerCase();
 			if (STYLE_EXTENSIONS.has(ext)) {
-				// NOTE: We use the `url` property here. `id` would break Windows.
-				importedCssUrls.add(importedModule.url);
+				if (importedModule.ssrModule?.default && typeof importedModule.ssrModule.default === 'string') {
+					importedStyleContents.add(importedModule.ssrModule.default);
+				} else {
+					// NOTE: We use the `url` property here. `id` would break Windows.
+					importedCssUrls.add(importedModule.url);
+				}
 			}
 			await crawlCSS(importedModule.id, false, scanned);
 		}
@@ -73,5 +78,8 @@ export async function getStylesForURL(
 
 	// Crawl your import graph for CSS files, populating `importedCssUrls` as a result.
 	await crawlCSS(viteID(filePath), true);
-	return importedCssUrls;
+	return {
+		urls: importedCssUrls,
+		contents: importedStyleContents
+	};
 }

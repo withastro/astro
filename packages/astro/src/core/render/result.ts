@@ -35,6 +35,7 @@ export interface CreateResultArgs {
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
+	styles?: Set<SSRElement>;
 	request: Request;
 }
 
@@ -129,7 +130,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
-		styles: new Set<SSRElement>(),
+		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
 		/** This function returns the `Astro` faux-global */
