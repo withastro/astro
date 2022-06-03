@@ -196,9 +196,9 @@ ${tsResult}`;
 					map: null,
 					meta: {
 						vite: {
-							lang: 'ts'
-						}
-					}
+							lang: 'ts',
+						},
+					},
 				};
 			}
 

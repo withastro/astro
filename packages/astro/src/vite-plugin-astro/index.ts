@@ -220,9 +220,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						vite: {
 							// Setting this vite metadata to `ts` causes Vite to resolve .js
 							// extensions to .ts files.
-							lang: 'ts'
-						}
-					}
+							lang: 'ts',
+						},
+					},
 				};
 			} catch (err: any) {
 				// Verify frontmatter: a common reason that this plugin fails is that
