@@ -35,25 +35,25 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		host: false,
 		port: 3000,
 	},
-	style: { postcss: { options: {}, plugins: [] }},
+	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
 	markdown: {
-			drafts: false,
-			syntaxHighlight: 'shiki',
-			shikiConfig: {
-					langs: [],
-					theme: 'github-dark',
-					wrap: false,
-				},
-			remarkPlugins: [],
-			rehypePlugins: [],
+		drafts: false,
+		syntaxHighlight: 'shiki',
+		shikiConfig: {
+			langs: [],
+			theme: 'github-dark',
+			wrap: false,
 		},
+		remarkPlugins: [],
+		rehypePlugins: [],
+	},
 	vite: {},
 	experimental: {
-			ssr: false,
-			integrations: false,
-		},
-}
+		ssr: false,
+		integrations: false,
+	},
+};
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
 	if (isObject(inlineOptions)) {
@@ -149,7 +149,10 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.object({
-				host: z.union([z.string(), z.boolean()]).optional().default(ASTRO_CONFIG_DEFAULTS.server.host),
+				host: z
+					.union([z.string(), z.boolean()])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 			})
 			.optional()
@@ -307,7 +310,10 @@ export async function validateConfig(
 			// validate
 			z
 				.object({
-					host: z.union([z.string(), z.boolean()]).optional().default(ASTRO_CONFIG_DEFAULTS.server.host),
+					host: z
+						.union([z.string(), z.boolean()])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 				})
 				.optional()
