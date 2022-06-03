@@ -297,53 +297,64 @@ describe('CSS', function () {
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 
+		it('resolves ESM style imports', async () => {
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+			
+			expect(allInjectedStyles, 'styles/imported-url.css').to.contain('.imported{');
+			expect(allInjectedStyles, 'styles/imported-url.sass').to.contain('.imported-sass{');
+			expect(allInjectedStyles, 'styles/imported-url.scss').to.contain('.imported-scss{');
+		});
+
 		it('resolves Astro styles', async () => {
-			const astroPageCss = $('link[rel=stylesheet][href^=/src/pages/index.astro?astro&type=style]');
-			expect(astroPageCss.length).to.equal(
-				4,
-				'The index.astro page should generate 4 stylesheets, 1 for each <style> tag on the page.'
-			);
+			const allInjectedStyles = $('style[data-astro-injected]').text();
+			
+			expect(allInjectedStyles).to.contain('.linked-css.astro-');
+			expect(allInjectedStyles).to.contain('.linked-sass.astro-');
+			expect(allInjectedStyles).to.contain('.linked-scss.astro-');
+			expect(allInjectedStyles).to.contain('.wrapper.astro-');
 		});
 
 		it('resolves Styles from React', async () => {
 			const styles = [
-				'ReactCSS.css',
 				'ReactModules.module.css',
 				'ReactModules.module.scss',
-				'ReactModules.module.sass',
-				'ReactSass.sass',
-				'ReactScss.scss',
+				'ReactModules.module.sass'
 			];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
+
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+
+			expect(allInjectedStyles).to.contain('.react-title{');
+			expect(allInjectedStyles).to.contain('.react-sass-title{');
+			expect(allInjectedStyles).to.contain('.react-scss-title{');
 		});
 
 		it('resolves CSS from Svelte', async () => {
-			const scripts = [
-				'SvelteCSS.svelte?svelte&type=style&lang.css',
-				'SvelteSass.svelte?svelte&type=style&lang.css',
-				'SvelteScss.svelte?svelte&type=style&lang.css',
-			];
-			for (const script of scripts) {
-				const src = $(`script[src$="${script}"]`).attr('src');
-				expect((await fixture.fetch(src)).status, script).to.equal(200);
-			}
+			const allInjectedStyles = $('style[data-astro-injected]').text();
+
+			expect(allInjectedStyles).to.contain('.svelte-css');
+			expect(allInjectedStyles).to.contain('.svelte-sass');
+			expect(allInjectedStyles).to.contain('.svelte-scss');
 		});
 
 		it('resolves CSS from Vue', async () => {
 			const styles = [
-				'VueCSS.vue?vue&type=style&index=0&lang.css',
-				'VueModules.vue?vue&type=style&index=0&lang.module.scss',
-				'VueSass.vue?vue&type=style&index=0&lang.sass',
-				'VueScoped.vue?vue&type=style&index=0&scoped=true&lang.css',
-				'VueScss.vue?vue&type=style&index=0&lang.scss',
+				'VueModules.vue?vue&type=style&index=0&lang.module.scss'
 			];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
+
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+
+			expect(allInjectedStyles).to.contain('.vue-css{');
+			expect(allInjectedStyles).to.contain('.vue-sass{');
+			expect(allInjectedStyles).to.contain('.vue-scss{');
+			expect(allInjectedStyles).to.contain('.vue-scoped[data-v-');
 		});
 	});
 });
