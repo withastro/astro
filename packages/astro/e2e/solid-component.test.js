@@ -103,7 +103,8 @@ test.describe('Solid components', () => {
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const count = page.locator('#client-idle pre');
+		const counter = page.locator('#client-idle');
+		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		// Edit the component's initial count prop
@@ -111,6 +112,7 @@ test.describe('Solid components', () => {
 			original.replace('id="client-idle" {...someProps}', 'id="client-idle" count={5}')
 		);
 
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid');
 		await expect(count, 'count prop updated').toHaveText('5');
 
 		// Edit the imported CSS

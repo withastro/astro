@@ -138,7 +138,10 @@ test.describe('Vue components', () => {
 			original.replace('Hello, client:visible!', 'Hello, updated client:visible!')
 		);
 
-		const label = page.locator('#client-visible h1');
+		const counter = page.locator('#client-visible');
+		const label = counter.locator('h1');
+
 		await expect(label, 'slotted text updated').toHaveText('Hello, updated client:visible!');
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid')
 	});
 });
