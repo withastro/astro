@@ -18,6 +18,7 @@ import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { isBuildingToSSR } from '../../util.js';
 import { collectMdMetadata } from '../util.js';
+import { hydrationSpecifier } from '../../../runtime/server/util.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -129,6 +130,17 @@ export async function render(
 			},
 			children: '',
 		});
+		// generate client directive scripts to prevent `isSelfAccepting` issues during development
+		await Promise.all([...mod.$$metadata.hydrationDirectives].map(async (hydrationDirective) => {
+      const [, resolvedImport] = await viteServer.moduleGraph.resolveUrl(hydrationSpecifier(hydrationDirective))
+      scripts.add({
+        props: {
+          type: 'module',
+          src: resolvedImport,
+        },
+        children: "",
+      });
+    }))
 	}
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts
 	for (const script of astroConfig._ctx.scripts) {
