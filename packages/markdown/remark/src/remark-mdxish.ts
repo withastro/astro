@@ -17,15 +17,11 @@ export default function remarkMdxish(this: any, options = {}) {
 }
 
 function makeFromMarkdownLessStrict(extensions: fromMarkdown.Extension[]) {
-	extensions.forEach(extension => {
+	extensions.forEach((extension) => {
 		// Fix exit handlers that are too strict
-		['mdxJsxFlowTag', 'mdxJsxTextTag'].forEach(exitHandler => {
-			if (!extension.exit || !extension.exit[exitHandler])
-				return;
-			extension.exit[exitHandler] = chainHandlers(
-				fixSelfClosing,
-				extension.exit[exitHandler]
-			);
+		['mdxJsxFlowTag', 'mdxJsxTextTag'].forEach((exitHandler) => {
+			if (!extension.exit || !extension.exit[exitHandler]) return;
+			extension.exit[exitHandler] = chainHandlers(fixSelfClosing, extension.exit[exitHandler]);
 		});
 	});
 
@@ -33,18 +29,28 @@ function makeFromMarkdownLessStrict(extensions: fromMarkdown.Extension[]) {
 }
 
 const selfClosingTags = new Set([
-	'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source',
-	'track', 'wbr'
+	'area',
+	'base',
+	'br',
+	'col',
+	'embed',
+	'hr',
+	'img',
+	'input',
+	'link',
+	'meta',
+	'source',
+	'track',
+	'wbr',
 ]);
 
 function fixSelfClosing(this: fromMarkdown.CompileContext) {
 	const tag = this.getData('mdxJsxTag') as Tag;
-	if (tag.name && selfClosingTags.has(tag.name))
-		tag.selfClosing = true;
+	if (tag.name && selfClosingTags.has(tag.name)) tag.selfClosing = true;
 }
 
 function chainHandlers(...handlers: fromMarkdown.Handle[]) {
-	return function handlerChain (this: fromMarkdown.CompileContext, token: fromMarkdown.Token) {
-		handlers.forEach(handler => handler.call(this, token));
+	return function handlerChain(this: fromMarkdown.CompileContext, token: fromMarkdown.Token) {
+		handlers.forEach((handler) => handler.call(this, token));
 	};
 }

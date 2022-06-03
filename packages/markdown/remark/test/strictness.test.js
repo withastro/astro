@@ -8,9 +8,11 @@ describe('strictness', () => {
 			{}
 		);
 
-		chai.expect(code).to.equal(
-			`<p>Use self-closing void elements<br />like word<wbr />break and images: ` +
-			`<img src="hi.jpg" /></p>`
-		);
+		chai
+			.expect(code)
+			.to.equal(
+				`<p>Use self-closing void elements<br />like word<wbr />break and images: ` +
+					`<img src="hi.jpg" /></p>`
+			);
 	});
 });
