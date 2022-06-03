@@ -1,4 +1,5 @@
 import { visit } from 'unist-util-visit';
+import { toHtml } from 'hast-util-to-html';
 import Slugger from 'github-slugger';
 
 import type { MarkdownHeader, RehypePlugin } from './types.js';
@@ -17,32 +18,36 @@ export default function createCollectHeaders() {
 				if (!level) return;
 				const depth = Number.parseInt(level);
 
-				let raw = '';
 				let text = '';
 				let isJSX = false;
-				visit(node, (child) => {
-					if (child.type === 'element') {
+				visit(node, (child, _, parent) => {
+					if (child.type === 'element' || parent == null) {
 						return;
 					}
 					if (child.type === 'raw') {
-						// HACK: serialized JSX from internal plugins, ignore these for slug
 						if (child.value.startsWith('\n<') || child.value.endsWith('>\n')) {
-							raw += child.value.replace(/^\n|\n$/g, '');
 							return;
 						}
 					}
 					if (child.type === 'text' || child.type === 'raw') {
-						raw += child.value;
-						text += child.value;
-						isJSX = isJSX || child.value.includes('{');
+						if (new Set(['code', 'pre']).has(parent.tagName)) {
+							text += child.value;
+						} else {
+							text += child.value.replace(/\{/g, '${');
+							isJSX = isJSX || child.value.includes('{');
+						}
 					}
 				});
 
 				node.properties = node.properties || {};
 				if (typeof node.properties.id !== 'string') {
 					if (isJSX) {
+						// HACK: serialized JSX from internal plugins, ignore these for slug
+						const raw = toHtml(node.children, { allowDangerousHtml: true })
+							.replace(/\n(<)/g, '<')
+							.replace(/(>)\n/g, '>');
 						// HACK: for ids that have JSX content, use $$slug helper to generate slug at runtime
-						node.properties.id = `$$slug(\`${text.replace(/\{/g, '${')}\`)`;
+						node.properties.id = `$$slug(\`${text}\`)`;
 						(node as any).type = 'raw';
 						(
 							node as any

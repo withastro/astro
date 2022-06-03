@@ -109,6 +109,9 @@ export async function renderMarkdown(
 			.process(input);
 		result = vfile.toString();
 	} catch (err) {
+		// Ensure that the error message contains the input filename
+		// to make it easier for the user to fix the issue
+		err = prefixError(err, `Failed to parse Markdown file "${input.path}"`);
 		console.error(err);
 		throw err;
 	}
@@ -117,4 +120,28 @@ export async function renderMarkdown(
 		metadata: { headers, source: content, html: result.toString() },
 		code: result.toString(),
 	};
+}
+
+function prefixError(err: any, prefix: string) {
+	// If the error is an object with a `message` property, attempt to prefix the message
+	if (err && err.message) {
+		try {
+			err.message = `${prefix}:\n${err.message}`;
+			return err;
+		} catch (error) {
+			// Any errors here are ok, there's fallback code below
+		}
+	}
+
+	// If that failed, create a new error with the desired message and attempt to keep the stack
+	const wrappedError = new Error(`${prefix}${err ? `: ${err}` : ''}`);
+	try {
+		wrappedError.stack = err.stack;
+		// @ts-ignore
+		wrappedError.cause = err;
+	} catch (error) {
+		// It's ok if we could not set the stack or cause - the message is the most important part
+	}
+
+	return wrappedError;
 }
