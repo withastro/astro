@@ -78,6 +78,7 @@ export default function envVitePlugin({
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
+					privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
 					const entries = Object.entries(privateEnv).map(([key, value]) => [
 						`import.meta.env.${key}`,
 						value,
