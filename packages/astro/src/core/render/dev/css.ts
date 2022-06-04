@@ -11,10 +11,6 @@ import { RuntimeMode } from '../../../@types/astro.js';
  */
 const fileExtensionsToSSR = new Set(['.md']);
 
-
-
-const svelteStylesRE = /svelte\?svelte&type=style/;
-
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
