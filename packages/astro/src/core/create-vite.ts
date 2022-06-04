@@ -4,8 +4,9 @@ import type { LogOptions } from './logger/core';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import path from 'path';
+import glob from 'fast-glob';
 import * as vite from 'vite';
-import { runHookServerSetup } from '../integrations/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
@@ -47,6 +48,8 @@ export async function createVite(
 	commandConfig: ViteConfigWithSSR,
 	{ astroConfig, logging, mode }: CreateViteOptions
 ): Promise<ViteConfigWithSSR> {
+	const clientRuntimeScripts = await glob(new URL('../runtime/client/*.js', import.meta.url).pathname);
+	const clientRuntimeFilePaths = clientRuntimeScripts.map(script => `astro/client/${path.basename(script)}`);
 	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
@@ -56,6 +59,7 @@ export async function createVite(
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			include: clientRuntimeFilePaths,
 			exclude: ['node-fetch'],
 		},
 		plugins: [
