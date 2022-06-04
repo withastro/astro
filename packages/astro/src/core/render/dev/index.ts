@@ -48,8 +48,6 @@ export type RenderResponse =
 	| { type: 'html'; html: string; response: ResponseInit }
 	| { type: 'response'; response: Response };
 
-const svelteStylesRE = /svelte\?svelte&type=style/;
-
 async function loadRenderer(
 	viteServer: ViteDevServer,
 	renderer: AstroRenderer
@@ -141,24 +139,17 @@ export async function render(
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, contents: styleContents } = await getStylesForURL(filePath, viteServer);
+	const { urls: styleUrls, contents: styleContents } = await getStylesForURL(filePath, viteServer, mode);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
-		if (mode === 'development' && svelteStylesRE.test(href)) {
-			scripts.add({
-				props: { type: 'module', src: href },
-				children: '',
-			});
-		} else {
-			links.add({
-				props: {
-					rel: 'stylesheet',
-					href,
-					'data-astro-injected': true,
-				},
-				children: '',
-			});
-		}
+		links.add({
+			props: {
+				rel: 'stylesheet',
+				href,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
 	});
 
 	let styles = new Set<SSRElement>();

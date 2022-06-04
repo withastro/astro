@@ -3,6 +3,7 @@ import type * as vite from 'vite';
 import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
+import { RuntimeMode } from '../../../@types/astro.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -10,10 +11,15 @@ import { STYLE_EXTENSIONS } from '../util.js';
  */
 const fileExtensionsToSSR = new Set(['.md']);
 
+
+
+const svelteStylesRE = /svelte\?svelte&type=style/;
+
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
-	viteServer: vite.ViteDevServer
+	viteServer: vite.ViteDevServer,
+	mode: RuntimeMode
 ): Promise<{urls: Set<string>, contents: Set<string>}> {
 	const importedCssUrls = new Set<string>();
 	const importedStyleContents = new Set<string>();
@@ -63,9 +69,17 @@ export async function getStylesForURL(
 			if (!importedModule.id || scanned.has(importedModule.id)) {
 				continue;
 			}
+			// Svelte styles are built into the component JS
+			// Vite handles inlining those automatically, Astro can skip them in dev
+			if (mode === 'development' && svelteStylesRE.test(importedModule.url)) {
+				continue;
+			}
 			const ext = path.extname(importedModule.url).toLowerCase();
 			if (STYLE_EXTENSIONS.has(ext)) {
-				if (importedModule.ssrModule?.default && typeof importedModule.ssrModule.default === 'string') {
+				if (
+					mode === 'development' // only inline in development
+					&& typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
+				) {
 					importedStyleContents.add(importedModule.ssrModule.default);
 				} else {
 					// NOTE: We use the `url` property here. `id` would break Windows.
