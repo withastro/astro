@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Default.astro';
+
+export function withHeaders(headers: Headers) {
+	headers.set('X-Test', 'ok');
+}
+---
+<Layout>
+	<h1>Homepage</h1>
+</Layout>
