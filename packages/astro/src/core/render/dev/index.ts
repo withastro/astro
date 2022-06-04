@@ -139,7 +139,7 @@ export async function render(
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, contents: styleContents } = await getStylesForURL(filePath, viteServer, mode);
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, viteServer, mode);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
@@ -153,12 +153,12 @@ export async function render(
 	});
 
 	let styles = new Set<SSRElement>();
-	[...(styleContents)].forEach((style) => {
+	[...(stylesMap)].forEach(([url, content]) => {
 		styles.add({
 			props: {
-				'data-astro-injected': true
+				'data-astro-injected': url
 			},
-			children: style
+			children: content
 		});
 	});
 

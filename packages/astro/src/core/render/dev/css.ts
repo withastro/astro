@@ -20,9 +20,9 @@ export async function getStylesForURL(
 	filePath: URL,
 	viteServer: vite.ViteDevServer,
 	mode: RuntimeMode
-): Promise<{urls: Set<string>, contents: Set<string>}> {
+): Promise<{urls: Set<string>, stylesMap: Map<string, string>}> {
 	const importedCssUrls = new Set<string>();
-	const importedStyleContents = new Set<string>();
+	const importedStylesMap = new Map<string, string>();
 
 	/** recursively crawl the module graph to get all style files imported by parent id */
 	async function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
@@ -69,18 +69,13 @@ export async function getStylesForURL(
 			if (!importedModule.id || scanned.has(importedModule.id)) {
 				continue;
 			}
-			// Svelte styles are built into the component JS
-			// Vite handles inlining those automatically, Astro can skip them in dev
-			if (mode === 'development' && svelteStylesRE.test(importedModule.url)) {
-				continue;
-			}
 			const ext = path.extname(importedModule.url).toLowerCase();
 			if (STYLE_EXTENSIONS.has(ext)) {
 				if (
 					mode === 'development' // only inline in development
 					&& typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
 				) {
-					importedStyleContents.add(importedModule.ssrModule.default);
+					importedStylesMap.set(importedModule.url, importedModule.ssrModule.default);
 				} else {
 					// NOTE: We use the `url` property here. `id` would break Windows.
 					importedCssUrls.add(importedModule.url);
@@ -94,6 +89,6 @@ export async function getStylesForURL(
 	await crawlCSS(viteID(filePath), true);
 	return {
 		urls: importedCssUrls,
-		contents: importedStyleContents
+		stylesMap: importedStylesMap
 	};
 }
