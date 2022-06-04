@@ -15,7 +15,7 @@
     "concurrently": "^7.2.1",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
-    "vite-imagetools": "^4.0.3"
+    "vite-imagetools": "^4.0.4"
   },
   "dependencies": {
     "svelte": "^3.48.0"

@@ -38,7 +38,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "^1.0.0-rc.11",
-    "sass": "^1.52.1"
+    "sass": "^1.52.2"
   },
   "peerDependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
