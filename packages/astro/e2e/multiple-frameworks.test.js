@@ -134,6 +134,8 @@ test.describe('Multiple frameworks', () => {
 		});
 
 		test('Svelte component', async ({ astro, page }) => {
+			page.on('console', (event) => console.log('console::', event.text()));
+
 			await page.goto('/');
 
 			// Edit the svelte component's style
