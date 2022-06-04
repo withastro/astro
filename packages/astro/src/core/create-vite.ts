@@ -49,7 +49,11 @@ export async function createVite(
 	{ astroConfig, logging, mode }: CreateViteOptions
 ): Promise<ViteConfigWithSSR> {
 	const clientRuntimeScripts = await glob(new URL('../runtime/client/*.js', import.meta.url).pathname);
-	const clientRuntimeFilePaths = clientRuntimeScripts.map(script => `astro/client/${path.basename(script)}`);
+	const clientRuntimeFilePaths = clientRuntimeScripts
+	.map(script => `astro/client/${path.basename(script)}`)
+	// fixes duplicate dependency issue in monorepo when using astro: "workspace:*"
+	.filter(filePath => filePath !== 'astro/client/hmr.js');
+
 	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
 	const astroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
