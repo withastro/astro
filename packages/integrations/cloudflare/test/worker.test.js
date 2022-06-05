@@ -23,7 +23,7 @@ describe('Cloudflare Worker', () => {
 	});
 
 	after(async () => {
-		await _server.done();
+		await _server?.done();
 	});
 
 	describe('HTML', () => {
