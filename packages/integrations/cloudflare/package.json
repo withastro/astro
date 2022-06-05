@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "wrangler": "^2.0.7"
+    "astro-scripts": "workspace:*"
   }
 }

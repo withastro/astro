@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/cloudflare": "workspace:*"
+    "@astrojs/cloudflare": "workspace:*",
+    "wrangler": "^2.0.7"
   }
 }
