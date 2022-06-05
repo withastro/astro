@@ -19,7 +19,7 @@ describe('Cloudflare Worker', () => {
 
 		await _fixture.build();
 
-		_server = await server(_fixture.config.outDir, site, ['--binding', 'COLOR="yellow"']);
+		_server = await server(_fixture.config.outDir, site);
 	});
 
 	after(async () => {
