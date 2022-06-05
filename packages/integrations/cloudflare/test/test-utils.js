@@ -28,7 +28,7 @@ export async function server(dir, site, args = []) {
 	const wrangler = spawn(
 		'npx',
 		['wrangler', 'pages', 'dev', fileURLToPath(dir), '--port', port, '--local'].concat(args),
-		{ stdio: 'pipe' }
+		{ stdio: 'pipe', shell: 'win32' === process.platform }
 	);
 
 	const done = () => {
