@@ -155,4 +155,7 @@ export function derived<T>(stores: Stores, fn: Function, initialValue?: T): Read
     });
 }
 
+console.log("SSR?", typeof window === 'undefined');
+export const store = typeof window === 'undefined' ? readable : writable;
+
 export const get = getStoreValue;
