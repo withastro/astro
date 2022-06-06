@@ -1,8 +1,8 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
-import { fileURLToPath } from 'url';
 import esbuild from 'esbuild';
-import * as npath from 'path';
 import * as fs from 'fs';
+import * as npath from 'path';
+import { fileURLToPath } from 'url';
 
 interface Options {
 	port?: number;

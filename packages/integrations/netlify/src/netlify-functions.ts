@@ -1,7 +1,7 @@
-import { SSRManifest } from 'astro';
-import type { Handler } from '@netlify/functions';
-import { App } from 'astro/app';
 import { polyfill } from '@astrojs/webapi';
+import type { Handler } from '@netlify/functions';
+import { SSRManifest } from 'astro';
+import { App } from 'astro/app';
 
 polyfill(globalThis, {
 	exclude: 'window document',

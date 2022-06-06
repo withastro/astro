@@ -1,6 +1,6 @@
+import { nodeFileTrace } from '@vercel/nft';
 import * as fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { nodeFileTrace } from '@vercel/nft';
 
 export async function copyDependenciesToFunction(
 	root: URL,

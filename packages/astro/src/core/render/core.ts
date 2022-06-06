@@ -1,18 +1,18 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
 	Params,
 	Props,
-	SSRLoadedRenderer,
 	RouteData,
 	SSRElement,
+	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type { LogOptions } from '../logger/core.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
-import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;

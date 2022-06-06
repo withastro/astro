@@ -9,15 +9,15 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import { LogOptions } from '../../logger/core.js';
-import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
+import { LogOptions } from '../../logger/core.js';
+import { isBuildingToSSR } from '../../util.js';
+import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
+import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
-import { isBuildingToSSR } from '../../util.js';
-import { collectMdMetadata } from '../util.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */

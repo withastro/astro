@@ -1,12 +1,12 @@
-import { BuildInternals } from '../core/build/internal';
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import { BuildInternals } from '../core/build/internal';
 import type { PageBuildData } from '../core/build/types';
 
-import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/util.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
-import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
 import crypto from 'crypto';
+import { Plugin as VitePlugin } from 'vite';
+import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
+import { isCSSRequest } from '../core/render/util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;

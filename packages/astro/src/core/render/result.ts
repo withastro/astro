@@ -1,3 +1,4 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
@@ -9,11 +10,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
+import { createCanonicalURL, isCSSRequest } from './util.js';
 
 function onlyAvailableInSSR(name: string) {
 	return function _onlyAvailableInSSR() {

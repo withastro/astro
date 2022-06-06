@@ -1,27 +1,29 @@
-import type { RollupOutput } from 'rollup';
-import { BuildInternals, trackClientOnlyPageDatas } from '../../core/build/internal.js';
-import type { ViteConfigWithSSR } from '../create-vite';
-import type { PageBuildData, StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import npath from 'path';
+import type { RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { createBuildInternals } from '../../core/build/internal.js';
-import { info } from '../logger/core.js';
+import {
+	BuildInternals,
+	createBuildInternals,
+	trackClientOnlyPageDatas,
+} from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
+import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
-import { vitePluginInternals } from './vite-plugin-internals.js';
-import { vitePluginSSR } from './vite-plugin-ssr.js';
-import { vitePluginPages } from './vite-plugin-pages.js';
+import type { ViteConfigWithSSR } from '../create-vite';
+import { info } from '../logger/core.js';
+import { isBuildingToSSR } from '../util.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { isBuildingToSSR } from '../util.js';
-import { runHookBuildSetup } from '../../integrations/index.js';
+import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
+import { vitePluginInternals } from './vite-plugin-internals.js';
+import { vitePluginPages } from './vite-plugin-pages.js';
+import { vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;

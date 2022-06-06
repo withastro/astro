@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import ora from 'ora';
 import type { Ora } from 'ora';
+import ora from 'ora';
 
 const gradientColors = [
 	`#ff5e00`,

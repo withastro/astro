@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { createRedirects } from './shared.js';
 
 export function getAdapter(): AstroAdapter {

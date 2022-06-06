@@ -1,7 +1,7 @@
-import glob from 'fast-glob';
-import path from 'path';
-import type { AddressInfo } from 'net';
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import glob from 'fast-glob';
+import type { AddressInfo } from 'net';
+import path from 'path';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
