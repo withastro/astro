@@ -1,4 +1,4 @@
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
 import { BuildInternals } from '../core/build/internal';
 import type { PageBuildData } from '../core/build/types';
 
@@ -76,25 +76,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		{
 			name: CSS_PLUGIN_NAME,
 
-			configResolved(resolvedConfig) {
-				// Our plugin needs to run before `vite:css-post` because we have to modify
-				// The bundles before vite:css-post sees them. We can remove this code
-				// after this bug is fixed: https://github.com/vitejs/vite/issues/8330
-				const plugins = resolvedConfig.plugins as VitePlugin[];
-				const viteCSSPostIndex = resolvedConfig.plugins.findIndex(
-					(p) => p.name === 'vite:css-post'
-				);
-				if (viteCSSPostIndex !== -1) {
-					// Move our plugin to be right before this one.
-					const ourIndex = plugins.findIndex((p) => p.name === CSS_PLUGIN_NAME);
-					const ourPlugin = plugins[ourIndex];
-
-					// Remove us from where we are now and place us right before the viteCSSPost plugin
-					plugins.splice(ourIndex, 1);
-					plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
-				}
-			},
-
 			outputOptions(outputOptions) {
 				const manualChunks = outputOptions.manualChunks || Function.prototype;
 				outputOptions.manualChunks = function (id, ...args) {
@@ -157,21 +138,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							}
 						}
 					}
-
-					if (chunk.type === 'chunk') {
-						// This simply replaces single quotes with double quotes because the vite:css-post
-						// plugin only works with single for some reason. This code can be removed
-						// When the Vite bug is fixed: https://github.com/vitejs/vite/issues/8330
-						const exp = new RegExp(
-							`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`,
-							'g'
-						);
-						chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
-							return begin + '"' + chunkPath + '"' + end;
-						});
-					}
 				}
-			},
+			}
 		},
 		{
 			name: CSS_MINIFY_PLUGIN_NAME,
@@ -190,10 +158,40 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								});
 								output.source = minifiedCSS;
 							}
+						} else if (output.type === 'chunk') {
+							// vite:css-post removes "pure CSS" JavaScript chunks, that is chunks that only contain a comment
+							// about it being a CSS module. We need to keep these chunks around because Astro
+							// re-imports all modules as their namespace `import * as module1 from 'some/path';
+							// in order to determine if one of them is a side-effectual web component.
+							// If we ever get rid of that feature, the code below can be removed.
+							for(const [imp, bindings] of Object.entries(output.importedBindings)) {
+								if(imp.startsWith('chunks/') && !bundle[imp] && output.code.includes(imp)) {
+									// This just creates an empty chunk module so that the main entry module
+									// that is importing it doesn't break.
+									const depChunk: OutputChunk = {
+										type: 'chunk',
+										fileName: imp,
+										name: imp,
+										facadeModuleId: imp,
+										code: `/* Pure CSS chunk ${imp} */ ${bindings.map(b => `export const ${b} = {};`)}`,
+										dynamicImports: [],
+										implicitlyLoadedBefore: [],
+										importedBindings: {},
+										imports: [],
+										referencedFiles: [],
+										exports: Array.from(bindings),
+										isDynamicEntry: false,
+										isEntry: false,
+										isImplicitEntry: false,
+										modules: {},
+									};
+									bundle[imp] = depChunk;
+								}
+							}
 						}
 					}
 				}
-			},
-		},
+			}
+		}
 	];
 }
