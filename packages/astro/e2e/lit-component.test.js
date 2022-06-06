@@ -92,12 +92,14 @@ test.describe.skip('Lit components', () => {
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const label = page.locator('#client-idle h1');
+		const counter = page.locator('#client-idle');
+		const label = counter.locator('h1');
 
 		await astro.editFile('./src/pages/index.astro', (original) =>
 			original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
 		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!');
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid');
 	});
 });

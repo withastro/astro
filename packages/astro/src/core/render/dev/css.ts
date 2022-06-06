@@ -3,6 +3,7 @@ import type * as vite from 'vite';
 import path from 'path';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
+import { RuntimeMode } from '../../../@types/astro.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -13,9 +14,11 @@ const fileExtensionsToSSR = new Set(['.md']);
 /** Given a filePath URL, crawl Vite’s module graph to find all style imports. */
 export async function getStylesForURL(
 	filePath: URL,
-	viteServer: vite.ViteDevServer
-): Promise<Set<string>> {
+	viteServer: vite.ViteDevServer,
+	mode: RuntimeMode
+): Promise<{urls: Set<string>, stylesMap: Map<string, string>}> {
 	const importedCssUrls = new Set<string>();
+	const importedStylesMap = new Map<string, string>();
 
 	/** recursively crawl the module graph to get all style files imported by parent id */
 	async function crawlCSS(_id: string, isFile: boolean, scanned = new Set<string>()) {
@@ -64,8 +67,15 @@ export async function getStylesForURL(
 			}
 			const ext = path.extname(importedModule.url).toLowerCase();
 			if (STYLE_EXTENSIONS.has(ext)) {
-				// NOTE: We use the `url` property here. `id` would break Windows.
-				importedCssUrls.add(importedModule.url);
+				if (
+					mode === 'development' // only inline in development
+					&& typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
+				) {
+					importedStylesMap.set(importedModule.url, importedModule.ssrModule.default);
+				} else {
+					// NOTE: We use the `url` property here. `id` would break Windows.
+					importedCssUrls.add(importedModule.url);
+				}
 			}
 			await crawlCSS(importedModule.id, false, scanned);
 		}
@@ -73,5 +83,8 @@ export async function getStylesForURL(
 
 	// Crawl your import graph for CSS files, populating `importedCssUrls` as a result.
 	await crawlCSS(viteID(filePath), true);
-	return importedCssUrls;
+	return {
+		urls: importedCssUrls,
+		stylesMap: importedStylesMap
+	};
 }

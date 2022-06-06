@@ -106,6 +106,14 @@ describe('Component Libraries', () => {
 			return async function findEvidence(pathname) {
 				const html = await fixture.fetch(pathname).then((res) => res.text());
 				const $ = cheerioLoad(html);
+
+				// Most styles are inlined in a <style> block in the dev server
+				const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+				if (expected.test(allInjectedStyles)) {
+					return true;
+				}
+				
+				// Also check for <link> stylesheets
 				const links = $('link[rel=stylesheet]');
 				for (const link of links) {
 					const href = $(link).attr('href');

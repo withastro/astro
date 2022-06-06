@@ -48,7 +48,7 @@ export type RenderResponse =
 	| { type: 'html'; html: string; response: ResponseInit }
 	| { type: 'response'; response: Response };
 
-const svelteStylesRE = /svelte\?svelte&type=style/;
+const svelteStylesRE = /svelte\?svelte&type=style/;	
 
 async function loadRenderer(
 	viteServer: ViteDevServer,
@@ -140,28 +140,35 @@ export async function render(
 		}
 	}
 
-	// Pass framework CSS in as link tags to be appended to the page.
+	// Pass framework CSS in as style tags to be appended to the page.
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, viteServer, mode);
 	let links = new Set<SSRElement>();
-	[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
-		if (mode === 'development' && svelteStylesRE.test(href)) {
-			scripts.add({
-				props: { type: 'module', src: href },
-				children: '',
-			});
-		} else {
-			links.add({
-				props: {
-					rel: 'stylesheet',
-					href,
-					'data-astro-injected': true,
-				},
-				children: '',
-			});
-		}
+	[...styleUrls].forEach((href) => {
+		links.add({
+			props: {
+				rel: 'stylesheet',
+				href,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
+	});
+
+	let styles = new Set<SSRElement>();
+	[...(stylesMap)].forEach(([url, content]) => {
+		// The URL is only used by HMR for Svelte components
+		// See src/runtime/client/hmr.ts for more details
+		styles.add({
+			props: {
+				'data-astro-injected': svelteStylesRE.test(url) ? url : true
+			},
+			children: content
+		});
 	});
 
 	let content = await coreRender({
 		links,
+		styles,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

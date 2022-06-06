@@ -68,6 +68,7 @@ export async function getParamsAndProps(
 export interface RenderOptions {
 	logging: LogOptions;
 	links: Set<SSRElement>;
+	styles?: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
 	origin: string;
@@ -89,6 +90,7 @@ export async function render(
 > {
 	const {
 		links,
+		styles,
 		logging,
 		origin,
 		markdown,
@@ -129,6 +131,7 @@ export async function render(
 
 	const result = createResult({
 		links,
+		styles,
 		logging,
 		markdown,
 		origin,

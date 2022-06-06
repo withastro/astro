@@ -669,12 +669,12 @@ importers:
 
   packages/astro/e2e/fixtures/client-only:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -710,14 +710,14 @@ importers:
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     specifiers:
-      '@astrojs/lit': ^0.1.4
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
+      '@astrojs/lit': workspace:*
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.40
+      astro: workspace:*
       lit: ^2.2.5
       preact: ^10.7.3
       react: ^18.1.0
@@ -745,12 +745,12 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-preact:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -774,12 +774,12 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-react:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -803,12 +803,12 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-solid:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -832,12 +832,12 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-svelte:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -861,12 +861,12 @@ importers:
 
   packages/astro/e2e/fixtures/nested-in-vue:
     specifiers:
-      '@astrojs/preact': ^0.1.3
-      '@astrojs/react': ^0.1.3
-      '@astrojs/solid-js': ^0.1.4
-      '@astrojs/svelte': ^0.1.4
-      '@astrojs/vue': ^0.1.5
-      astro: ^1.0.0-beta.40
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0

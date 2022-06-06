@@ -52,11 +52,8 @@ describe('Imported markdown CSS', function () {
 			expect(importedAstroComponent?.name).to.equal('h2');
 			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
 
-			const astroCSSHREF = $('link[rel=stylesheet][href^=/src/components/Visual.astro]').attr(
-				'href'
-			);
-			const css = await fixture.fetch(astroCSSHREF.replace(/^\/?/, '/')).then((res) => res.text());
-			expect(css).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+			expect(allInjectedStyles).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
 		});
 	});
 });
