@@ -1,5 +1,16 @@
 # astro
 
+## 1.0.0-beta.41
+
+### Patch Changes
+
+- [#3518](https://github.com/withastro/astro/pull/3518) [`df7c43df`](https://github.com/withastro/astro/commit/df7c43df632f276dabb9bce0ca59eb93d2ebc021) Thanks [@matthewp](https://github.com/matthewp)! - Allow importing .ts files with .js extension
+
+* [#3521](https://github.com/withastro/astro/pull/3521) [`85b90549`](https://github.com/withastro/astro/commit/85b905495d4bc538686109e056a821e35139c111) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix isSelfAccepting errors when hydrating JSX components
+
+* Updated dependencies [[`6c955ca6`](https://github.com/withastro/astro/commit/6c955ca643a7a071609ce8a5258cc7faf5a636b2), [`30578015`](https://github.com/withastro/astro/commit/30578015919e019cd8dd354288a45c1fc63bd01f), [`939fe159`](https://github.com/withastro/astro/commit/939fe159255cecf1cab5c1b3da2670d30ac8e4a7)]:
+  - @astrojs/markdown-remark@0.11.0
+
 ## 1.0.0-beta.40
 
 ### Patch Changes

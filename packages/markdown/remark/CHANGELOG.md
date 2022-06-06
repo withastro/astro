@@ -1,5 +1,17 @@
 # @astrojs/markdown-remark
 
+## 0.11.0
+
+### Minor Changes
+
+- [#3502](https://github.com/withastro/astro/pull/3502) [`939fe159`](https://github.com/withastro/astro/commit/939fe159255cecf1cab5c1b3da2670d30ac8e4a7) Thanks [@nokazn](https://github.com/nokazn)! - Fix cases for JSX-like expressions in code blocks of headings
+
+### Patch Changes
+
+- [#3514](https://github.com/withastro/astro/pull/3514) [`6c955ca6`](https://github.com/withastro/astro/commit/6c955ca643a7a071609ce8a5258cc7faf5a636b2) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix Markdown errors missing source filename
+
+* [#3516](https://github.com/withastro/astro/pull/3516) [`30578015`](https://github.com/withastro/astro/commit/30578015919e019cd8dd354288a45c1fc63bd01f) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix: Allow self-closing tags in Markdown
+
 ## 0.10.2
 
 ### Patch Changes

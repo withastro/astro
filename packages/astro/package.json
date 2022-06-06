@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-beta.40",
+  "version": "1.0.0-beta.41",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -79,7 +79,7 @@
   "dependencies": {
     "@astrojs/compiler": "^0.15.2",
     "@astrojs/language-server": "^0.13.4",
-    "@astrojs/markdown-remark": "^0.10.2",
+    "@astrojs/markdown-remark": "^0.11.0",
     "@astrojs/prism": "0.4.1",
     "@astrojs/telemetry": "^0.1.2",
     "@astrojs/webapi": "^0.12.0",
