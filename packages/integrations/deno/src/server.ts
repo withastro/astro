@@ -32,13 +32,15 @@ export function start(manifest: SSRManifest, options: Options) {
 		return fetch(localPath.toString());
 	};
 
+	const port = options.port ?? 8085;
 	_server = new Server({
-		port: options.port ?? 8085,
+		port,
 		hostname: options.hostname ?? '0.0.0.0',
 		handler,
 	});
 
-	_startPromise = _server.listenAndServe();
+	_startPromise = Promise.resolve(_server.listenAndServe());
+	console.error(`Server running on port ${port}`);
 }
 
 export function createExports(manifest: SSRManifest, options: Options) {

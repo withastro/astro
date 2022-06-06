@@ -1645,6 +1645,9 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
+      esbuild: ^0.14.42
+    dependencies:
+      esbuild: 0.14.42
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -1657,6 +1660,14 @@ importers:
     dependencies:
       '@astrojs/deno': link:../../..
       '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
+  packages/integrations/deno/test/fixtures/dynimport:
+    specifiers:
+      '@astrojs/deno': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/deno': link:../../..
       astro: link:../../../../../astro
 
   packages/integrations/lit:
