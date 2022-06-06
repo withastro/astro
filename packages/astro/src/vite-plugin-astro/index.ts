@@ -93,6 +93,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (!id.endsWith('.astro') && !query.astro) {
 				return null;
 			}
+			// if we still get a relative path here, vite couldn't resolve the import
+			if (isRelativePath(parsedId.filename)) {
+				return null;
+			}
 
 			const filename = normalizeFilename(parsedId.filename);
 			const fileUrl = new URL(`file://${filename}`);
