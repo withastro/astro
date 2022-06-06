@@ -198,7 +198,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							// in order to determine if one of them is a side-effectual web component.
 							// If we ever get rid of that feature, the code below can be removed.
 							for(const [imp, bindings] of Object.entries(output.importedBindings)) {
-								if(imp.startsWith('chunks/') && !bundle[imp]) {
+								if(imp.startsWith('chunks/') && !bundle[imp] && output.code.includes(imp)) {
 									// This just creates an empty chunk module so that the main entry module
 									// that is importing it doesn't break.
 									const depChunk: OutputChunk = {
