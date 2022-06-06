@@ -26,13 +26,13 @@ export async function startModFromSubprocess(baseUrl) {
 	let proc = Deno.run({
 		cmd: ['deno', 'run', '--allow-env', '--allow-net', fromFileUrl(entryUrl)],
 		cwd: fromFileUrl(baseUrl),
-		stderr: 'piped'
+		stderr: 'piped',
 	});
 	const stderr = readableStreamFromReader(proc.stderr);
 	const dec = new TextDecoder();
-	for await(let bytes of stderr) {
+	for await (let bytes of stderr) {
 		let msg = dec.decode(bytes);
-		if(msg.includes(`Server running`)) {
+		if (msg.includes(`Server running`)) {
 			break;
 		}
 	}
@@ -48,7 +48,6 @@ export async function runBuildAndStartApp(fixturePath, cb) {
 	await stop();
 	await close();
 }
-
 
 export async function runBuildAndStartAppFromSubprocess(fixturePath, cb) {
 	const url = new URL(fixturePath, dir);

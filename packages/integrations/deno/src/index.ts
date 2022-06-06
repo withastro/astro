@@ -62,17 +62,18 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					allowOverwrite: true,
 					format: 'esm',
 					bundle: true,
-					external: [ "@astrojs/markdown-remark"]
+					external: ['@astrojs/markdown-remark'],
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 				try {
-					const chunkFileNames = _vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+					const chunkFileNames =
+						_vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
 					const chunkPath = npath.dirname(chunkFileNames);
 					const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
 					await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
 				} catch {}
-			}
+			},
 		},
 	};
 }
