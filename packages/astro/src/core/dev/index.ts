@@ -39,9 +39,9 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	// load client runtime scripts ahead-of-time to fix "isSelfAccepting" bug during HMR
 	const clientRuntimeScripts = await glob(new URL('../../runtime/client/*.js', import.meta.url).pathname);
 	const clientRuntimeFilePaths = clientRuntimeScripts
-	.map(script => `astro/client/${path.basename(script)}`)
-	// fixes duplicate dependency issue in monorepo when using astro: "workspace:*"
-	.filter(filePath => filePath !== 'astro/client/hmr.js');
+		.map(script => `astro/client/${path.basename(script)}`)
+		// fixes duplicate dependency issue in monorepo when using astro: "workspace:*"
+		.filter(filePath => filePath !== 'astro/client/hmr.js');
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
