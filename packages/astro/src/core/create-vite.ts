@@ -5,7 +5,6 @@ import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import * as vite from 'vite';
-import { runHookServerSetup } from '../integrations/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
