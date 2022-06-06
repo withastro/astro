@@ -61,7 +61,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					outfile: pth,
 					allowOverwrite: true,
 					format: 'esm',
-					bundle: true
+					bundle: true,
+					external: [ "@astrojs/markdown-remark"]
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.

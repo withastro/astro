@@ -12,7 +12,6 @@ Deno.test({
 			const resp = await fetch('http://127.0.0.1:8085/');
 			assertEquals(resp.status, 200);
 			const html = await resp.text();
-			console.log(html);
 			assert(html);
 			const doc = new DOMParser().parseFromString(html, `text/html`);
 			const div = doc.querySelector('#thing');
