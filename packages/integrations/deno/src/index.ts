@@ -1,4 +1,8 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
+import { fileURLToPath } from 'url';
+import esbuild from 'esbuild';
+import * as npath from 'path';
+import * as fs from 'fs';
 
 interface Options {
 	port?: number;
@@ -15,14 +19,20 @@ export function getAdapter(args?: Options): AstroAdapter {
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
+	let _buildConfig: any;
+	let _vite: any;
 	return {
 		name: '@astrojs/deno',
 		hooks: {
 			'astro:config:done': ({ setAdapter }) => {
 				setAdapter(getAdapter(args));
 			},
+			'astro:build:start': ({ buildConfig }) => {
+				_buildConfig = buildConfig;
+			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
+					_vite = vite;
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
 
@@ -41,6 +51,28 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					};
 				}
 			},
+			'astro:build:done': async () => {
+				const entryUrl = new URL(_buildConfig.serverEntry, _buildConfig.server);
+				const pth = fileURLToPath(entryUrl);
+				await esbuild.build({
+					target: 'es2020',
+					platform: 'browser',
+					entryPoints: [pth],
+					outfile: pth,
+					allowOverwrite: true,
+					format: 'esm',
+					bundle: true,
+					external: [ "@astrojs/markdown-remark"]
+				});
+
+				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
+				try {
+					const chunkFileNames = _vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+					const chunkPath = npath.dirname(chunkFileNames);
+					const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
+					await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
+				} catch {}
+			}
 		},
 	};
 }
