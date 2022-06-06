@@ -9,12 +9,12 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.10.2",
+    "@astrojs/markdown-remark": "^0.11.0",
     "@astrojs/preact": "^0.1.3",
     "@astrojs/react": "^0.1.3",
     "@astrojs/svelte": "^0.1.4",
     "@astrojs/vue": "^0.1.5",
-    "astro": "^1.0.0-beta.40"
+    "astro": "^1.0.0-beta.41"
   },
   "dependencies": {
     "preact": "^10.7.3",
