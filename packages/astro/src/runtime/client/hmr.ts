@@ -46,7 +46,9 @@ if (import.meta.hot) {
 				// This will only be called after the svelte component has hydrated in the browser.
 				// At this point Vite is tracking component style updates, we need to remove
 				// styles injected by Astro for the component in favor of Vite's internal HMR.
-				const injectedStyle = document.querySelector(`style[data-astro-injected="${file.acceptedPath}"]`);
+				const injectedStyle = document.querySelector(
+					`style[data-astro-injected="${file.acceptedPath}"]`
+				);
 				if (injectedStyle) {
 					injectedStyle.parentElement?.removeChild(injectedStyle);
 				}

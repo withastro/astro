@@ -52,7 +52,7 @@ describe('Imported markdown CSS', function () {
 			expect(importedAstroComponent?.name).to.equal('h2');
 			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
 
-			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 			expect(allInjectedStyles).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
 		});
 	});

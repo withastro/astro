@@ -48,7 +48,7 @@ export type RenderResponse =
 	| { type: 'html'; html: string; response: ResponseInit }
 	| { type: 'response'; response: Response };
 
-const svelteStylesRE = /svelte\?svelte&type=style/;	
+const svelteStylesRE = /svelte\?svelte&type=style/;
 
 async function loadRenderer(
 	viteServer: ViteDevServer,
@@ -155,14 +155,14 @@ export async function render(
 	});
 
 	let styles = new Set<SSRElement>();
-	[...(stylesMap)].forEach(([url, content]) => {
+	[...stylesMap].forEach(([url, content]) => {
 		// The URL is only used by HMR for Svelte components
 		// See src/runtime/client/hmr.ts for more details
 		styles.add({
 			props: {
-				'data-astro-injected': svelteStylesRE.test(url) ? url : true
+				'data-astro-injected': svelteStylesRE.test(url) ? url : true,
 			},
-			children: content
+			children: content,
 		});
 	});
 

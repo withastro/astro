@@ -108,11 +108,11 @@ describe('Component Libraries', () => {
 				const $ = cheerioLoad(html);
 
 				// Most styles are inlined in a <style> block in the dev server
-				const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+				const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 				if (expected.test(allInjectedStyles)) {
 					return true;
 				}
-				
+
 				// Also check for <link> stylesheets
 				const links = $('link[rel=stylesheet]');
 				for (const link of links) {

@@ -37,7 +37,7 @@ describe('Partial HTML', async () => {
 		expect(html).to.match(/^<!DOCTYPE html/);
 
 		// test 2: link tag present
-		const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+		const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 		expect(allInjectedStyles).to.match(/h1{color:red;}/);
 	});
 });

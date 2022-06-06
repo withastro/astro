@@ -298,8 +298,8 @@ describe('CSS', function () {
 		});
 
 		it('resolves ESM style imports', async () => {
-			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
-			
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
+
 			expect(allInjectedStyles, 'styles/imported-url.css').to.contain('.imported{');
 			expect(allInjectedStyles, 'styles/imported-url.sass').to.contain('.imported-sass{');
 			expect(allInjectedStyles, 'styles/imported-url.scss').to.contain('.imported-scss{');
@@ -307,7 +307,7 @@ describe('CSS', function () {
 
 		it('resolves Astro styles', async () => {
 			const allInjectedStyles = $('style[data-astro-injected]').text();
-			
+
 			expect(allInjectedStyles).to.contain('.linked-css.astro-');
 			expect(allInjectedStyles).to.contain('.linked-sass.astro-');
 			expect(allInjectedStyles).to.contain('.linked-scss.astro-');
@@ -318,14 +318,14 @@ describe('CSS', function () {
 			const styles = [
 				'ReactModules.module.css',
 				'ReactModules.module.scss',
-				'ReactModules.module.sass'
+				'ReactModules.module.sass',
 			];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 
-			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 
 			expect(allInjectedStyles).to.contain('.react-title{');
 			expect(allInjectedStyles).to.contain('.react-sass-title{');
@@ -341,15 +341,13 @@ describe('CSS', function () {
 		});
 
 		it('resolves CSS from Vue', async () => {
-			const styles = [
-				'VueModules.vue?vue&type=style&index=0&lang.module.scss'
-			];
+			const styles = ['VueModules.vue?vue&type=style&index=0&lang.module.scss'];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 
-			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g,"");
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 
 			expect(allInjectedStyles).to.contain('.vue-css{');
 			expect(allInjectedStyles).to.contain('.vue-sass{');

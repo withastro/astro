@@ -142,6 +142,6 @@ test.describe('Vue components', () => {
 		const label = counter.locator('h1');
 
 		await expect(label, 'slotted text updated').toHaveText('Hello, updated client:visible!');
-		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid')
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid');
 	});
 });

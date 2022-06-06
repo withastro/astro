@@ -1,9 +1,9 @@
 import type * as vite from 'vite';
 
 import path from 'path';
+import { RuntimeMode } from '../../../@types/astro.js';
 import { unwrapId, viteID } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
-import { RuntimeMode } from '../../../@types/astro.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -16,7 +16,7 @@ export async function getStylesForURL(
 	filePath: URL,
 	viteServer: vite.ViteDevServer,
 	mode: RuntimeMode
-): Promise<{urls: Set<string>, stylesMap: Map<string, string>}> {
+): Promise<{ urls: Set<string>; stylesMap: Map<string, string> }> {
 	const importedCssUrls = new Set<string>();
 	const importedStylesMap = new Map<string, string>();
 
@@ -68,8 +68,8 @@ export async function getStylesForURL(
 			const ext = path.extname(importedModule.url).toLowerCase();
 			if (STYLE_EXTENSIONS.has(ext)) {
 				if (
-					mode === 'development' // only inline in development
-					&& typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
+					mode === 'development' && // only inline in development
+					typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
 				) {
 					importedStylesMap.set(importedModule.url, importedModule.ssrModule.default);
 				} else {
@@ -85,6 +85,6 @@ export async function getStylesForURL(
 	await crawlCSS(viteID(filePath), true);
 	return {
 		urls: importedCssUrls,
-		stylesMap: importedStylesMap
+		stylesMap: importedStylesMap,
 	};
 }
