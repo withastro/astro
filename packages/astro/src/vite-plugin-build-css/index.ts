@@ -1,4 +1,4 @@
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
+import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
 import { BuildInternals } from '../core/build/internal';
 import type { PageBuildData } from '../core/build/types';
 
@@ -158,6 +158,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 						}
 					}
 
+					// TODO remove this code, I think.
 					if (chunk.type === 'chunk') {
 						// This simply replaces single quotes with double quotes because the vite:css-post
 						// plugin only works with single for some reason. This code can be removed
@@ -171,7 +172,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 						});
 					}
 				}
-			},
+			}
 		},
 		{
 			name: CSS_MINIFY_PLUGIN_NAME,
@@ -190,10 +191,39 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								});
 								output.source = minifiedCSS;
 							}
+						} else if (output.type === 'chunk') {
+						// vite:css-post removes "pure CSS" JavaScript chunks, that is chunks that only contain a comment
+						// about it being a CSS module. We need to keep these chunks around because Astro
+						// re-imports all modules as their namespace `import * as module1 from 'some/path';
+						// in order to determine if one of them is a side-effectual web component.
+						// If we ever get rid of that feature, the code below can be removed.
+						for(const [imp, bindings] of Object.entries(output.importedBindings)) {
+							if(imp.startsWith('chunks/') && !bundle[imp]) {
+								// This just creates an empty chunk module so that the main entry module
+								// that is importing it doesn't break.
+								const depChunk: OutputChunk = {
+									type: 'chunk',
+									fileName: imp,
+									name: imp,
+									facadeModuleId: imp,
+									code: `/* Pure CSS chunk ${imp} */ ${bindings.map(b => `export const ${b} = {};`)}`,
+									dynamicImports: [],
+									implicitlyLoadedBefore: [],
+									importedBindings: {},
+									imports: [],
+									referencedFiles: [],
+									exports: Array.from(bindings),
+									isDynamicEntry: false,
+									isEntry: false,
+									isImplicitEntry: false,
+									modules: {},
+								};
+								bundle[imp] = depChunk;
+							}
 						}
 					}
 				}
-			},
+			}
 		},
-	];
+	}];
 }

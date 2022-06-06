@@ -542,7 +542,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: ^2.9.9
+      vite: ^2.9.10
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -599,7 +599,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      vite: 2.9.9_sass@1.52.2
+      vite: 2.9.10_sass@1.52.2
       yargs-parser: 21.0.1
       zod: 3.17.3
     devDependencies:
@@ -1365,6 +1365,14 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/svelte': link:../../../../integrations/svelte
       '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/test/fixtures/fontsource-package:
+    specifiers:
+      '@fontsource/montserrat': 4.5.11
+      astro: workspace:*
+    dependencies:
+      '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
   packages/astro/test/fixtures/legacy-build:
@@ -3894,6 +3902,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@fontsource/montserrat/4.5.11:
+    resolution: {integrity: sha512-XAYZmprnZDVSLIeEiB3evVG2JD+yoR9aT+I6LCOcwZFQ6ro9UPpopDncqoqwv+j5M0/UjyAP6ov70+L/fmP8Gg==}
+    dev: false
 
   /@formatjs/ecma402-abstract/1.11.4:
     resolution: {integrity: sha512-EBikYFp2JCdIfGEb5G9dyCkTGDmC57KSHhRQOC3aYxoPWVZvfWCDjZwkGYHN7Lis/fmuWl906bnNTJifDQ3sXw==}
@@ -13592,6 +13604,31 @@ packages:
       - supports-color
     dev: true
 
+  /vite/2.9.10_sass@1.52.2:
+    resolution: {integrity: sha512-TwZRuSMYjpTurLqXspct+HZE7ONiW9d+wSWgvADGxhDPPyoIcNywY+RX4ng+QpK30DCa1l/oZgi2PLZDibhzbQ==}
+    engines: {node: '>=12.2.0'}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+    dependencies:
+      esbuild: 0.14.42
+      postcss: 8.4.14
+      resolve: 1.22.0
+      rollup: 2.75.5
+      sass: 1.52.2
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
+
   /vite/2.9.9:
     resolution: {integrity: sha512-ffaam+NgHfbEmfw/Vuh6BHKKlI/XIAhxE5QSS7gFLIngxg171mg1P3a4LSRME0z2ZU1ScxoKzphkipcYwSD5Ew==}
     engines: {node: '>=12.2.0'}
@@ -13612,31 +13649,6 @@ packages:
       postcss: 8.4.14
       resolve: 1.22.0
       rollup: 2.75.5
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
-  /vite/2.9.9_sass@1.52.2:
-    resolution: {integrity: sha512-ffaam+NgHfbEmfw/Vuh6BHKKlI/XIAhxE5QSS7gFLIngxg171mg1P3a4LSRME0z2ZU1ScxoKzphkipcYwSD5Ew==}
-    engines: {node: '>=12.2.0'}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-    dependencies:
-      esbuild: 0.14.42
-      postcss: 8.4.14
-      resolve: 1.22.0
-      rollup: 2.75.5
-      sass: 1.52.2
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
