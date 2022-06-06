@@ -12,6 +12,7 @@
 <script>
 import { useStore } from '@astrojs/vue/store';
 import { getContext } from '@astrojs/store';
+import { decrement, increment } from '../stores/counter';
 export default {
 	props: {
 		id: {
@@ -26,8 +27,8 @@ export default {
 		return {
 			id: props.id,
 			state,
-			increment: counter.increment,
-			decrement: counter.decrement,
+			increment: () => increment(counter),
+			decrement: () => decrement(counter),
 		};
 	},
 };

@@ -8,15 +8,13 @@ import { PreactCounter } from '../components/PreactCounter.tsx';
 import SolidCounter from '../components/SolidCounter.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
-import createCounter from '../stores/counter';
-import { setContext } from '@astrojs/store';
+import { setContext, store } from '@astrojs/store';
 
 const state = {
 	count: 0
 };
 
-const counter = createCounter(state);
-setContext("counter", counter);
+setContext("counter", store(state));
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
@@ -27,15 +25,16 @@ setContext("counter", counter);
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-		<script>
-			import createCounter from '../stores/counter';
-			import { setContext } from '@astrojs/store';
 
-			const counter = createCounter({
+		<!-- TODO: Astro would inject this script at build time -->
+		<script>
+			import { setContext, store } from '@astrojs/store';
+
+			const state = {
 				count: 0
-			});
+			};
 			
-			setContext('counter', counter);
+			setContext('counter', store(state));
 		</script>
 	</head>
 	<body>
