@@ -30,7 +30,8 @@
     "test": "npm run test-fn"
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.12.0"
+    "@astrojs/webapi": "^0.12.0",
+    "esbuild": "^0.14.42"
   },
   "devDependencies": {
     "@netlify/edge-handler-types": "^0.34.1",
