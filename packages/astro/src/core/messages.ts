@@ -78,7 +78,7 @@ export function devStart({
 		`${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 
 	let local = `${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`;
-	let network = '';
+	let network = null;
 
 	if (networkLogging === 'host-to-expose') {
 		network = `${networkPrefix}${dim('use --host to expose')}`;
@@ -110,7 +110,7 @@ export function devStart({
 		network,
 		'',
 	];
-	return messages.map((msg) => `  ${msg}`).join('\n');
+	return messages.filter((msg) => typeof msg === 'string').map((msg) => `  ${msg}`).join('\n');
 }
 
 export function telemetryNotice() {
