@@ -1702,13 +1702,23 @@ importers:
       '@netlify/functions': ^1.0.0
       astro: workspace:*
       astro-scripts: workspace:*
+      esbuild: ^0.14.42
     dependencies:
       '@astrojs/webapi': link:../../webapi
+      esbuild: 0.14.42
     devDependencies:
       '@netlify/edge-handler-types': 0.34.1
       '@netlify/functions': 1.0.0
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+
+  packages/integrations/netlify/test/edge-functions/fixtures/dynimport:
+    specifiers:
+      '@astrojs/netlify': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/netlify': link:../../../..
+      astro: link:../../../../../../astro
 
   packages/integrations/netlify/test/edge-functions/fixtures/edge-basic:
     specifiers:
