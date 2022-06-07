@@ -165,7 +165,9 @@ ${setup}`.trim();
 				let { code: tsResult } = await transform(astroResult, {
 					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
 					projectRoot: config.root.toString(),
-					site: config.site ? new URL(config.base, config.site).toString() : `http://localhost:${config.server.port}/`,
+					site: config.site
+						? new URL(config.base, config.site).toString()
+						: `http://localhost:${config.server.port}/`,
 					sourcefile: id,
 					sourcemap: 'inline',
 					// TODO: baseline flag

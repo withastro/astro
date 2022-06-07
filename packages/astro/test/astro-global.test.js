@@ -9,7 +9,7 @@ describe('Astro Global', () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
 			site: 'https://mysite.dev/',
-			base: '/blog'
+			base: '/blog',
 		});
 	});
 
@@ -93,7 +93,7 @@ describe('Astro Global Defaults', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-global/'
+			root: './fixtures/astro-global/',
 		});
 	});
 
