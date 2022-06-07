@@ -4,11 +4,11 @@ import { createHash, randomBytes } from 'node:crypto';
 import { isCI } from 'ci-info';
 import debug from 'debug';
 
+import { getAnonymousMeta } from './anonymous-meta.js';
+import { Config } from './config.js';
 import * as KEY from './keys.js';
 import { post } from './post.js';
-import { getAnonymousMeta } from './anonymous-meta.js';
 import { getRawProjectId } from './project-id.js';
-import { Config } from './config.js';
 
 export interface AstroTelemetryOptions {
 	version: string;

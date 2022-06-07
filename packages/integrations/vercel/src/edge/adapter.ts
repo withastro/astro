@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { writeJson, getVercelOutput } from '../lib/fs.js';
+import { getVercelOutput, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';

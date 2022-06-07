@@ -1,24 +1,24 @@
 import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
 
+import { loadPlugins } from './load-plugins.js';
 import createCollectHeaders from './rehype-collect-headers.js';
-import scopedStyles from './remark-scoped-styles.js';
+import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
-import remarkMdxish from './remark-mdxish.js';
-import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import rehypeJsx from './rehype-jsx.js';
-import rehypeEscape from './rehype-escape.js';
+import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
+import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';
+import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
-import { loadPlugins } from './load-plugins.js';
 
-import { unified } from 'unified';
+import Slugger from 'github-slugger';
+import rehypeRaw from 'rehype-raw';
+import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
-import rehypeStringify from 'rehype-stringify';
-import rehypeRaw from 'rehype-raw';
-import Slugger from 'github-slugger';
+import { unified } from 'unified';
 import { VFile } from 'vfile';
 
 export * from './types.js';

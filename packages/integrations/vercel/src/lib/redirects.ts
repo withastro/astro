@@ -1,4 +1,4 @@
-import type { AstroConfig, RoutePart, RouteData } from 'astro';
+import type { AstroConfig, RouteData, RoutePart } from 'astro';
 
 // https://vercel.com/docs/project-configuration#legacy/routes
 interface VercelRoute {

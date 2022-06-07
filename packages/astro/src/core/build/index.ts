@@ -1,35 +1,27 @@
+import type { AstroTelemetry } from '@astrojs/telemetry';
 import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
-import type { AstroTelemetry } from '@astrojs/telemetry';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
-import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
-import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import {
-	debug,
-	info,
-	levels,
-	timerMessage,
-	warn,
-	warnIfUsingExperimentalSSR,
-} from '../logger/core.js';
-import { nodeLogOptions } from '../logger/node.js';
-import { createRouteManifest } from '../routing/index.js';
-import { collectPagesData } from './page-data.js';
-import { staticBuild } from './static-build.js';
-import { RouteCache } from '../render/route-cache.js';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/index.js';
-import { getTimeStat } from './util.js';
-import { createSafeError, isBuildingToSSR } from '../util.js';
+import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { fixViteErrorMessage } from '../errors.js';
+import { debug, info, levels, timerMessage, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { apply as applyPolyfill } from '../polyfill.js';
+import { RouteCache } from '../render/route-cache.js';
+import { createRouteManifest } from '../routing/index.js';
+import { createSafeError, isBuildingToSSR } from '../util.js';
+import { collectPagesData } from './page-data.js';
+import { staticBuild } from './static-build.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: string;

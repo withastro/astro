@@ -1,10 +1,10 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
+	ComponentInstance,
 	RouteData,
 	SerializedRouteData,
-	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 
 export type ComponentPath = string;
 

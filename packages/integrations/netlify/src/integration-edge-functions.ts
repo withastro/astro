@@ -1,6 +1,6 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig, RouteData } from 'astro';
-import { createRedirects } from './shared.js';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import * as fs from 'fs';
+import { createRedirects } from './shared.js';
 
 export function getAdapter(): AstroAdapter {
 	return {

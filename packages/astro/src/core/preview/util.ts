@@ -1,5 +1,3 @@
-import type { AstroConfig } from '../../@types/astro';
-
 export function getResolvedHostForHttpServer(host: string | boolean) {
 	if (host === false) {
 		// Use a secure default

@@ -1,19 +1,20 @@
+import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
 import { BuildInternals } from '../core/build/internal';
-import type { GetModuleInfo, ModuleInfo } from 'rollup';
 import type { PageBuildData } from '../core/build/types';
 
-import { Plugin as VitePlugin } from 'vite';
-import { isCSSRequest } from '../core/render/util.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
-import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
 import crypto from 'crypto';
+import esbuild from 'esbuild';
+import { Plugin as VitePlugin } from 'vite';
+import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
+import { isCSSRequest } from '../core/render/util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
 	target: 'client' | 'server';
 }
 
-export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
+export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals } = options;
 
 	// This walks up the dependency graph and yields out each ModuleInfo object.
@@ -68,125 +69,131 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 		}
 	}
 
-	return {
-		name: '@astrojs/rollup-plugin-build-css',
+	const CSS_PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
+	const CSS_MINIFY_PLUGIN_NAME = '@astrojs/rollup-plugin-build-css-minify';
 
-		configResolved(resolvedConfig) {
-			// Our plugin needs to run before `vite:css-post` because we have to modify
-			// The bundles before vite:css-post sees them. We can remove this code
-			// after this bug is fixed: https://github.com/vitejs/vite/issues/8330
-			const plugins = resolvedConfig.plugins as VitePlugin[];
-			const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
-			if (viteCSSPostIndex !== -1) {
-				const viteCSSPost = plugins[viteCSSPostIndex];
+	return [
+		{
+			name: CSS_PLUGIN_NAME,
 
-				// Wrap the renderChunk hook in CSSPost to enable minification.
-				// We do this instead of setting minification globally to avoid minifying
-				// server JS.
-				const renderChunk = viteCSSPost.renderChunk;
-				if (renderChunk) {
-					viteCSSPost.renderChunk = async function (...args) {
-						const minifyOption = resolvedConfig.build.minify;
-						if (minifyOption === false) {
-							resolvedConfig.build.minify = 'esbuild';
+			outputOptions(outputOptions) {
+				const manualChunks = outputOptions.manualChunks || Function.prototype;
+				outputOptions.manualChunks = function (id, ...args) {
+					// Defer to user-provided `manualChunks`, if it was provided.
+					if (typeof manualChunks == 'object') {
+						if (id in manualChunks) {
+							return manualChunks[id];
 						}
-						const result = await renderChunk.apply(this, args);
-						if (typeof result === 'string') {
-							return {
-								code: result,
-							};
+					} else if (typeof manualChunks === 'function') {
+						const outid = manualChunks.call(this, id, ...args);
+						if (outid) {
+							return outid;
 						}
-						resolvedConfig.build.minify = minifyOption;
-						return result || null;
-					};
-				}
-
-				// Move our plugin to be right before this one.
-				const ourIndex = plugins.findIndex((p) => p.name === '@astrojs/rollup-plugin-build-css');
-				const ourPlugin = plugins[ourIndex];
-
-				// Remove us from where we are now and place us right before the viteCSSPost plugin
-				plugins.splice(ourIndex, 1);
-				plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
-			}
-		},
-
-		outputOptions(outputOptions) {
-			const manualChunks = outputOptions.manualChunks || Function.prototype;
-			outputOptions.manualChunks = function (id, ...args) {
-				// Defer to user-provided `manualChunks`, if it was provided.
-				if (typeof manualChunks == 'object') {
-					if (id in manualChunks) {
-						return manualChunks[id];
 					}
-				} else if (typeof manualChunks === 'function') {
-					const outid = manualChunks.call(this, id, ...args);
-					if (outid) {
-						return outid;
+
+					// For CSS, create a hash of all of the pages that use it.
+					// This causes CSS to be built into shared chunks when used by multiple pages.
+					if (isCSSRequest(id)) {
+						return createHashOfPageParents(id, args[0]);
 					}
-				}
+				};
+			},
 
-				// For CSS, create a hash of all of the pages that use it.
-				// This causes CSS to be built into shared chunks when used by multiple pages.
-				if (isCSSRequest(id)) {
-					return createHashOfPageParents(id, args[0]);
-				}
-			};
-		},
+			async generateBundle(_outputOptions, bundle) {
+				type ViteMetadata = {
+					importedAssets: Set<string>;
+					importedCss: Set<string>;
+				};
 
-		async generateBundle(_outputOptions, bundle) {
-			type ViteMetadata = {
-				importedAssets: Set<string>;
-				importedCss: Set<string>;
-			};
+				for (const [_, chunk] of Object.entries(bundle)) {
+					if (chunk.type === 'chunk') {
+						const c = chunk;
+						if ('viteMetadata' in chunk) {
+							const meta = chunk['viteMetadata'] as ViteMetadata;
 
-			for (const [_, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk') {
-					const c = chunk;
-					if ('viteMetadata' in chunk) {
-						const meta = chunk['viteMetadata'] as ViteMetadata;
+							// Chunks that have the viteMetadata.importedCss are CSS chunks
+							if (meta.importedCss.size) {
+								// For the client build, client:only styles need to be mapped
+								// over to their page. For this chunk, determine if it's a child of a
+								// client:only component and if so, add its CSS to the page it belongs to.
+								if (options.target === 'client') {
+									for (const [id] of Object.entries(c.modules)) {
+										for (const pageData of getParentClientOnlys(id, this)) {
+											for (const importedCssImport of meta.importedCss) {
+												pageData.css.add(importedCssImport);
+											}
+										}
+									}
+								}
 
-						// Chunks that have the viteMetadata.importedCss are CSS chunks
-						if (meta.importedCss.size) {
-							// For the client build, client:only styles need to be mapped
-							// over to their page. For this chunk, determine if it's a child of a
-							// client:only component and if so, add its CSS to the page it belongs to.
-							if (options.target === 'client') {
+								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
-									for (const pageData of getParentClientOnlys(id, this)) {
+									for (const pageViteID of getTopLevelPages(id, this)) {
+										const pageData = getPageDataByViteID(internals, pageViteID);
 										for (const importedCssImport of meta.importedCss) {
-											pageData.css.add(importedCssImport);
+											pageData?.css.add(importedCssImport);
 										}
 									}
 								}
 							}
-
-							// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
-							for (const [id] of Object.entries(c.modules)) {
-								for (const pageViteID of getTopLevelPages(id, this)) {
-									const pageData = getPageDataByViteID(internals, pageViteID);
-									for (const importedCssImport of meta.importedCss) {
-										pageData?.css.add(importedCssImport);
-									}
+						}
+					}
+				}
+			},
+		},
+		{
+			name: CSS_MINIFY_PLUGIN_NAME,
+			enforce: 'post',
+			async generateBundle(_outputOptions, bundle) {
+				// Minify CSS in each bundle ourselves, since server builds are not minified
+				// so that the JS is debuggable. Since you cannot configure vite:css-post to minify
+				// we need to do it ourselves.
+				if (options.target === 'server') {
+					for (const [, output] of Object.entries(bundle)) {
+						if (output.type === 'asset') {
+							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
+								const { code: minifiedCSS } = await esbuild.transform(output.source, {
+									loader: 'css',
+									minify: true,
+								});
+								output.source = minifiedCSS;
+							}
+						} else if (output.type === 'chunk') {
+							// vite:css-post removes "pure CSS" JavaScript chunks, that is chunks that only contain a comment
+							// about it being a CSS module. We need to keep these chunks around because Astro
+							// re-imports all modules as their namespace `import * as module1 from 'some/path';
+							// in order to determine if one of them is a side-effectual web component.
+							// If we ever get rid of that feature, the code below can be removed.
+							for (const [imp, bindings] of Object.entries(output.importedBindings)) {
+								if (imp.startsWith('chunks/') && !bundle[imp] && output.code.includes(imp)) {
+									// This just creates an empty chunk module so that the main entry module
+									// that is importing it doesn't break.
+									const depChunk: OutputChunk = {
+										type: 'chunk',
+										fileName: imp,
+										name: imp,
+										facadeModuleId: imp,
+										code: `/* Pure CSS chunk ${imp} */ ${bindings.map(
+											(b) => `export const ${b} = {};`
+										)}`,
+										dynamicImports: [],
+										implicitlyLoadedBefore: [],
+										importedBindings: {},
+										imports: [],
+										referencedFiles: [],
+										exports: Array.from(bindings),
+										isDynamicEntry: false,
+										isEntry: false,
+										isImplicitEntry: false,
+										modules: {},
+									};
+									bundle[imp] = depChunk;
 								}
 							}
 						}
 					}
 				}
-
-				if (chunk.type === 'chunk') {
-					// This simply replaces single quotes with double quotes because the vite:css-post
-					// plugin only works with single for some reason. This code can be removed
-					// When the Vite bug is fixed: https://github.com/vitejs/vite/issues/8330
-					const exp = new RegExp(
-						`(\\bimport\\s*)[']([^']*(?:[a-z]+\.[0-9a-z]+\.m?js))['](;\n?)`,
-						'g'
-					);
-					chunk.code = chunk.code.replace(exp, (_match, begin, chunkPath, end) => {
-						return begin + '"' + chunkPath + '"' + end;
-					});
-				}
-			}
+			},
 		},
-	};
+	];
 }

@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { writeJson, getVercelOutput } from '../lib/fs.js';
+import { getVercelOutput, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 

@@ -1,6 +1,6 @@
-import { visit } from 'unist-util-visit';
-import { toHtml } from 'hast-util-to-html';
 import Slugger from 'github-slugger';
+import { toHtml } from 'hast-util-to-html';
+import { visit } from 'unist-util-visit';
 
 import type { MarkdownHeader, RehypePlugin } from './types.js';
 

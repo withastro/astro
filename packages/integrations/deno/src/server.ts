@@ -1,4 +1,9 @@
+// NOTE(fks): Side-effect -- shim.js must run first. This isn't guaranteed by
+// the language, but it is a Node.js behavior that we rely on here. Keep this
+// separate from the other imports so that it doesn't get organized & reordered.
 import './shim.js';
+
+// Normal Imports
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 // @ts-ignore
@@ -32,13 +37,15 @@ export function start(manifest: SSRManifest, options: Options) {
 		return fetch(localPath.toString());
 	};
 
+	const port = options.port ?? 8085;
 	_server = new Server({
-		port: options.port ?? 8085,
+		port,
 		hostname: options.hostname ?? '0.0.0.0',
 		handler,
 	});
 
-	_startPromise = _server.listenAndServe();
+	_startPromise = Promise.resolve(_server.listenAndServe());
+	console.error(`Server running on port ${port}`);
 }
 
 export function createExports(manifest: SSRManifest, options: Options) {
