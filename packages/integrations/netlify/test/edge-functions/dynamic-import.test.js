@@ -18,7 +18,7 @@ Deno.test({
 			assert(html, 'got some html');
 			const doc = new DOMParser().parseFromString(html, `text/html`);
 			const div = doc.querySelector('#thing');
-			assert(div, 'div exists')
+			assert(div, 'div exists');
 		} finally {
 			await close();
 			await stop();
