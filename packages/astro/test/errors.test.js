@@ -25,7 +25,7 @@ describe('Error display', () => {
 			await devServer.stop();
 		});
 
-		it('properly detect syntax errors in template', async () => {
+		it.skip('properly detect syntax errors in template', async () => {
 			let html = await fixture.fetch('/astro-syntax-error').then((res) => res.text());
 
 			// 1. Verify an error message is being shown.
