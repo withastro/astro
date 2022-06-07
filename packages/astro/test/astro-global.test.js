@@ -8,6 +8,8 @@ describe('Astro Global', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
+			site: 'https://mysite.dev/',
+			base: '/blog'
 		});
 	});
 
@@ -82,6 +84,77 @@ describe('Astro Global', () => {
 			const $ = cheerio.load(html);
 			expect($('[data-file]').length).to.equal(3);
 			expect($('.post-url[href]').length).to.equal(3);
+		});
+	});
+});
+
+describe('Astro Global Defaults', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/astro-global/'
+		});
+	});
+
+	describe('dev', () => {
+		let devServer;
+		let $;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+			const html = await fixture.fetch('/blog/?foo=42').then((res) => res.text());
+			$ = cheerio.load(html);
+		});
+
+		after(async () => {
+			await devServer.stop();
+		});
+
+		it('Astro.request.url', async () => {
+			expect($('#pathname').text()).to.equal('');
+			expect($('#searchparams').text()).to.equal('');
+			expect($('#child-pathname').text()).to.equal('');
+			expect($('#nested-child-pathname').text()).to.equal('');
+		});
+	});
+
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
+
+		it('Astro.request.url', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#pathname').text()).to.equal('/');
+			expect($('#searchparams').text()).to.equal('{}');
+			expect($('#child-pathname').text()).to.equal('/');
+			expect($('#nested-child-pathname').text()).to.equal('/');
+		});
+
+		it('Astro.canonicalURL', async () => {
+			// given a URL, expect the following canonical URL
+			const canonicalURLs = {
+				'/index.html': /http:\/\/localhost:\d+\//,
+				'/post/post/index.html': /http:\/\/localhost:\d+\/post\/post\//,
+				'/posts/1/index.html': /http:\/\/localhost:\d+\/posts\//,
+				'/posts/2/index.html': /http:\/\/localhost:\d+\/posts\/2\//,
+			};
+
+			for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
+				const html = await fixture.readFile(url);
+
+				const $ = cheerio.load(html);
+				expect($('link[rel="canonical"]').attr('href')).to.match(canonicalURL);
+			}
+		});
+
+		it('Astro.site', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+			expect($('#site').attr('href')).to.match(/http:\/\/localhost:\d+\//);
 		});
 	});
 });
