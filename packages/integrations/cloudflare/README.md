@@ -2,7 +2,7 @@
 
 Server-side rendered (SSR) [Astro](https://astro.build/) app for [Cloudflare Pages](https://pages.cloudflare.com/)
 
-## Adapter 🔌
+## Usage
 Set the adapter in your configuration file
 
 ```js
@@ -15,10 +15,10 @@ export default defineConfig({
 })
 ```
 
-## Deploy 🚀
+## Deploy
 Refer to Cloudflare's [Deploy an Astro site](https://developers.cloudflare.com/pages/framework-guides/astro/) documentation
 
-## Bonus ✨
+## Bonus
 
 ### withHeaders 👽
 
@@ -28,14 +28,12 @@ Set custom headers in your Astro component
 /** .astro file */
 ---
 export function withHeaders(headers: Headers) {
-	headers.set('X-Astro', ❤️);
+	headers.set('x-astro', 🚀);
 }
 ---
 ```
 
-`Watch the space` This isn't standard practice; things may change
-
-## Issues 😿
+## Issues
 - [_redirects](https://developers.cloudflare.com/pages/platform/redirects/) file isn't being read by Cloudflare Pages. 
 Redirects need to be handled withing an Astro component like this:
 ```js
