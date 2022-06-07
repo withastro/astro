@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 0.1.5
+
+### Patch Changes
+
+- [#3532](https://github.com/withastro/astro/pull/3532) [`c22a07db`](https://github.com/withastro/astro/commit/c22a07db134a9d0741a05123fb506595aabf145b) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using Astro.glob when using the Deno Deploy adapter
+
 ## 0.1.4
 
 ### Patch Changes

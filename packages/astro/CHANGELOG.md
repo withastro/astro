@@ -1,5 +1,16 @@
 # astro
 
+## 1.0.0-beta.42
+
+### Patch Changes
+
+- [#3537](https://github.com/withastro/astro/pull/3537) [`51c60de7`](https://github.com/withastro/astro/commit/51c60de76cf8dd8b589cb7ae61d43159a83ef03d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes imported CSS packages in frontmatter
+
+* [#3492](https://github.com/withastro/astro/pull/3492) [`a87ce441`](https://github.com/withastro/astro/commit/a87ce4412c583bce739e18b890e92a9bdaeff59d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - - Improvements to how Astro handles style updates in HMR
+  - Fixes a Svelte-specific HMR bug that caused Svelte component styles to be lost once a .astro file was hot reloaded
+
+- [#3533](https://github.com/withastro/astro/pull/3533) [`d7688f05`](https://github.com/withastro/astro/commit/d7688f05c216a706105854474ba1caa737594871) Thanks [@matthewp](https://github.com/matthewp)! - Prevent minifying server JS
+
 ## 1.0.0-beta.41
 
 ### Patch Changes
