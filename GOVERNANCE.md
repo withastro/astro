@@ -209,7 +209,7 @@ Besides our contributor levels described above, there are additional roles and t
 - `@i18n-gang` runs the `#docs-i18n` channel and organizes translations in several languages.
 - `@support-squad` runs the `#support-threads` channel and helps anyone who needs help using Astro.
 
-Many of these team roles can be be browsed and joined automatically by visiting the `#manage-roles` channel in our Discord. Getting involved with a team is a great way to start contributing to Astro!
+Many of these team roles can be browsed and joined automatically by visiting the `#manage-roles` channel in our Discord. Getting involved with a team is a great way to start contributing to Astro!
 
 ### Moderator
 
