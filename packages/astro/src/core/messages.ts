@@ -76,31 +76,29 @@ export function devStart({
 	const networkLogging = getNetworkLogging(config.server.host);
 	const toDisplayUrl = (hostname: string) =>
 		`${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
-	let addresses = [];
 
-	if (networkLogging === 'none') {
-		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`];
-	} else if (networkLogging === 'host-to-expose') {
-		addresses = [
-			`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`,
-			`${networkPrefix}${dim('use --host to expose')}`,
-		];
-	} else {
-		addresses = Object.values(os.networkInterfaces())
+	let local = `${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`;
+	let network = null;
+
+	if (networkLogging === 'host-to-expose') {
+		network = `${networkPrefix}${dim('use --host to expose')}`;
+	} else if (networkLogging === 'visible') {
+		const ipv4Networks = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
 			.filter(
 				(networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4'
-			)
-			.map(({ address }) => {
-				if (address.includes('127.0.0.1')) {
-					const displayAddress = address.replace('127.0.0.1', localAddress);
-					return `${localPrefix}${bold(cyan(toDisplayUrl(displayAddress)))}`;
-				} else {
-					return `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
-				}
-			})
-			// ensure Local logs come before Network
-			.sort((msg) => (msg.startsWith(localPrefix) ? -1 : 1));
+			);
+		for (let { address } of ipv4Networks) {
+			if (address.includes('127.0.0.1')) {
+				const displayAddress = address.replace('127.0.0.1', localAddress);
+				local = `${localPrefix}${bold(cyan(toDisplayUrl(displayAddress)))}`;
+			} else {
+				network = `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
+			}
+		}
+		if (!network) {
+			network = `${networkPrefix}${dim('unable to find network to expose')}`;
+		}
 	}
 
 	const messages = [
@@ -108,10 +106,11 @@ export function devStart({
 			`started in ${Math.round(startupTime)}ms`
 		)}`,
 		'',
-		...addresses,
+		local,
+		network,
 		'',
 	];
-	return messages.map((msg) => `  ${msg}`).join('\n');
+	return messages.filter((msg) => typeof msg === 'string').map((msg) => `  ${msg}`).join('\n');
 }
 
 export function telemetryNotice() {
