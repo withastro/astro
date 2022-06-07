@@ -110,7 +110,10 @@ export function devStart({
 		network,
 		'',
 	];
-	return messages.filter((msg) => typeof msg === 'string').map((msg) => `  ${msg}`).join('\n');
+	return messages
+		.filter((msg) => typeof msg === 'string')
+		.map((msg) => `  ${msg}`)
+		.join('\n');
 }
 
 export function telemetryNotice() {
