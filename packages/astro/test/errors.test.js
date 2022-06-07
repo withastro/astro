@@ -16,9 +16,6 @@ describe('Error display', () => {
 	});
 
 	describe('Astro', async () => {
-		// This test is skipped because it will hang on vite@2.8.x
-		// TODO: unskip test once vite@2.9.x lands
-		// See pre-integration system test: https://github.com/withastro/astro/blob/0f376a7c52d3a22ff32b33e0afc34dd306ed70c4/packages/astro/test/errors.test.js
 		it('properly detect syntax errors in template', async () => {
 			try {
 				devServer = await fixture.startDevServer();
@@ -31,7 +28,9 @@ describe('Error display', () => {
 			await devServer.stop();
 			expect(res.status).to.equal(500, `Successfully responded with 500 Error for invalid file`);
 		});
+	});
 
+	describe('Astro import not found', async () => {
 		it('shows useful error when frontmatter import is not found', async () => {
 			try {
 				devServer = await fixture.startDevServer();
