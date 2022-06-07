@@ -137,24 +137,24 @@ describe('Astro Global Defaults', () => {
 		it('Astro.canonicalURL', async () => {
 			// given a URL, expect the following canonical URL
 			const canonicalURLs = {
-				'/index.html': 'http://localhost:3000/',
-				'/post/post/index.html': 'http://localhost:3000/post/post/',
-				'/posts/1/index.html': 'http://localhost:3000/posts/',
-				'/posts/2/index.html': 'http://localhost:3000/posts/2/',
+				'/index.html': /http:\/\/localhost:\d+\//,
+				'/post/post/index.html': /http:\/\/localhost:\d+\/post\/post\//,
+				'/posts/1/index.html': /http:\/\/localhost:\d+\/posts\//,
+				'/posts/2/index.html': /http:\/\/localhost:\d+\/posts\/2\//,
 			};
 
 			for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
 				const html = await fixture.readFile(url);
 
 				const $ = cheerio.load(html);
-				expect($('link[rel="canonical"]').attr('href')).to.equal(canonicalURL);
+				expect($('link[rel="canonical"]').attr('href')).to.match(canonicalURL);
 			}
 		});
 
 		it('Astro.site', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#site').attr('href')).to.equal('http://localhost:3000/');
+			expect($('#site').attr('href')).to.match(/http:\/\/localhost:\d+\//);
 		});
 	});
 });
