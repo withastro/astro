@@ -63,7 +63,7 @@ If you're interested in reaching the next level and becoming a **Maintainer**, y
 
 #### Nomination Process
 
-You may self-nominate by sending the message `!contribute` in any Discord channel. If you do this, please share a second message with a link or description of your contribution so that people can recognize you for the contribution,
+You may self-nominate by sending the message `!contribute` in any Discord channel. If you do this, please share a second message with a link or description of your contribution so that people can recognize you for the contribution.
 
 You may also be granted this role automatically if you are active and helpful on Discord.
 
