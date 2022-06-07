@@ -7,7 +7,6 @@ describe('Error display', () => {
 
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
-	let devServer;
 
 	before(async () => {
 		fixture = await loadFixture({
@@ -16,35 +15,31 @@ describe('Error display', () => {
 	});
 
 	describe('Astro', async () => {
-		it('properly detect syntax errors in template', async () => {
-			try {
-				devServer = await fixture.startDevServer();
-			} catch (err) {
-				return;
-			}
+		let devServer;
 
-			// This is new behavior in vite@2.9.x, previously the server would throw on startup
-			const res = await fixture.fetch('/astro-syntax-error');
-			await devServer.stop();
-			expect(res.status).to.equal(500, `Successfully responded with 500 Error for invalid file`);
+		before(async () => {
+			devServer = await fixture.startDevServer();
 		});
-	});
 
-	describe('Astro import not found', async () => {
-		it('shows useful error when frontmatter import is not found', async () => {
-			try {
-				devServer = await fixture.startDevServer();
-			} catch (err) {
-				return;
-			}
-
-			// This is new behavior in vite@2.9.x, previously the server would throw on startup
-			const res = await fixture.fetch('/import-not-found');
+		after(async () => {
 			await devServer.stop();
-			expect(res.status).to.equal(500, `Successfully responded with 500 Error for invalid file`);
+		});
 
-			const resText = await res.text();
-			expect(resText).to.contain('failed to load module for ssr: ../abc.astro');
+		it('properly detect syntax errors in template', async () => {
+			let html = await fixture.fetch('/astro-syntax-error').then((res) => res.text());
+
+			// 1. Verify an error message is being shown.
+			let $ = cheerio.load(html);
+			expect($('.statusMessage').text()).to.equal('Internal Error');
+			expect($('.error-message').text()).to.contain('Unexpected "}"');
+		});
+
+		it('shows useful error when frontmatter import is not found', async () => {
+			const html = await fixture.fetch('/import-not-found').then((res) => res.text());
+
+			const $ = cheerio.load(html);
+			expect($('.statusMessage').text()).to.equal('Internal Error');
+			expect($('.error-message').text()).to.equal('failed to load module for ssr: ../abc.astro');
 		});
 	});
 
