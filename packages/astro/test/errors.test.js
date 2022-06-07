@@ -42,7 +42,7 @@ describe('Error display', () => {
 			expect($('h1').text()).to.equal('No syntax error');
 		});
 
-		it('shows useful error when frontmatter import is not found', async () => {
+		it.skip('shows useful error when frontmatter import is not found', async () => {
 			let html = await fixture.fetch('/import-not-found').then((res) => res.text());
 
 			// 1. Verify an error message is being shown.
