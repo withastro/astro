@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.4.3
+
+### Patch Changes
+
+- [#3535](https://github.com/withastro/astro/pull/3535) [`f3ab822e`](https://github.com/withastro/astro/commit/f3ab822e328725c3905b0adad9889ad37653c24a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Netlify Edge Function and Astro.glob
+
 ## 0.4.2
 
 ### Patch Changes
