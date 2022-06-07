@@ -1,9 +1,9 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig, RouteData, BuildConfig } from 'astro';
-import { createRedirects } from './shared.js';
+import type { AstroAdapter, AstroConfig, AstroIntegration, BuildConfig, RouteData } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
-import { fileURLToPath } from 'url';
 import * as npath from 'path';
+import { fileURLToPath } from 'url';
+import { createRedirects } from './shared.js';
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -76,12 +76,13 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		allowOverwrite: true,
 		format: 'esm',
 		bundle: true,
-		external: [ "@astrojs/markdown-remark"]
+		external: ['@astrojs/markdown-remark'],
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
 	try {
-		const chunkFileNames = vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+		const chunkFileNames =
+			vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
 		const chunkPath = npath.dirname(chunkFileNames);
 		const chunksDirUrl = new URL(chunkPath + '/', buildConfig.server);
 		await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });

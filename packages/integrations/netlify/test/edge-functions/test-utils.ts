@@ -13,17 +13,17 @@ export async function runBuild(fixturePath: string) {
 }
 
 export async function runApp(entryPath: string) {
-	const entryUrl = new URL(entryPath, dir)
+	const entryUrl = new URL(entryPath, dir);
 	let proc = Deno.run({
 		cmd: ['deno', 'run', '--allow-env', '--allow-net', fromFileUrl(entryUrl)],
 		//cwd: fromFileUrl(entryUrl),
-		stderr: 'piped'
+		stderr: 'piped',
 	});
 	const stderr = readableStreamFromReader(proc.stderr);
 	const dec = new TextDecoder();
-	for await(let bytes of stderr) {
+	for await (let bytes of stderr) {
 		let msg = dec.decode(bytes);
-		if(msg.includes(`Server running`)) {
+		if (msg.includes(`Server running`)) {
 			break;
 		}
 	}
