@@ -1,6 +1,6 @@
 import {
-	setTimeout as nodeSetTimeout,
 	clearTimeout as nodeClearTimeout,
+	setTimeout as nodeSetTimeout,
 } from 'node:timers'
 import * as _ from './utils.js'
 

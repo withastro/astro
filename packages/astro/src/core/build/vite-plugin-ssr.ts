@@ -1,17 +1,17 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
-import type { StaticBuildOptions } from './types';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
+import type { BuildInternals } from './internal.js';
+import type { StaticBuildOptions } from './types';
 
-import { serializeRouteData } from '../routing/index.js';
-import { eachPageData } from './internal.js';
-import { addRollupInput } from './add-rollup-input.js';
-import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
-import { pagesVirtualModuleId } from '../app/index.js';
-import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../integrations/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { pagesVirtualModuleId } from '../app/index.js';
+import { serializeRouteData } from '../routing/index.js';
+import { addRollupInput } from './add-rollup-input.js';
+import { eachPageData } from './internal.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;

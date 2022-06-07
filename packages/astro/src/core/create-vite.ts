@@ -1,20 +1,19 @@
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
+import fs from 'fs';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 import * as vite from 'vite';
-import { runHookServerSetup } from '../integrations/index.js';
-import astroVitePlugin from '../vite-plugin-astro/index.js';
-import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
+import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
+import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
-import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
+import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
@@ -96,11 +95,19 @@ export async function createVite(
 			postcss: astroConfig.style.postcss || {},
 		},
 		resolve: {
-			alias: {
-				// This is needed for Deno compatibility, as the non-browser version
-				// of this module depends on Node `crypto`
-				randombytes: 'randombytes/browser',
-			},
+			alias: [
+				{
+					// This is needed for Deno compatibility, as the non-browser version
+					// of this module depends on Node `crypto`
+					find: 'randombytes',
+					replacement: 'randombytes/browser',
+				},
+				{
+					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
+					find: /^astro$/,
+					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
+				},
+			],
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {

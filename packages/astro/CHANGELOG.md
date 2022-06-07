@@ -1,5 +1,52 @@
 # astro
 
+## 1.0.0-beta.42
+
+### Patch Changes
+
+- [#3537](https://github.com/withastro/astro/pull/3537) [`51c60de7`](https://github.com/withastro/astro/commit/51c60de76cf8dd8b589cb7ae61d43159a83ef03d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes imported CSS packages in frontmatter
+
+* [#3492](https://github.com/withastro/astro/pull/3492) [`a87ce441`](https://github.com/withastro/astro/commit/a87ce4412c583bce739e18b890e92a9bdaeff59d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - - Improvements to how Astro handles style updates in HMR
+  - Fixes a Svelte-specific HMR bug that caused Svelte component styles to be lost once a .astro file was hot reloaded
+
+- [#3533](https://github.com/withastro/astro/pull/3533) [`d7688f05`](https://github.com/withastro/astro/commit/d7688f05c216a706105854474ba1caa737594871) Thanks [@matthewp](https://github.com/matthewp)! - Prevent minifying server JS
+
+## 1.0.0-beta.41
+
+### Patch Changes
+
+- [#3518](https://github.com/withastro/astro/pull/3518) [`df7c43df`](https://github.com/withastro/astro/commit/df7c43df632f276dabb9bce0ca59eb93d2ebc021) Thanks [@matthewp](https://github.com/matthewp)! - Allow importing .ts files with .js extension
+
+* [#3521](https://github.com/withastro/astro/pull/3521) [`85b90549`](https://github.com/withastro/astro/commit/85b905495d4bc538686109e056a821e35139c111) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix isSelfAccepting errors when hydrating JSX components
+
+* Updated dependencies [[`6c955ca6`](https://github.com/withastro/astro/commit/6c955ca643a7a071609ce8a5258cc7faf5a636b2), [`30578015`](https://github.com/withastro/astro/commit/30578015919e019cd8dd354288a45c1fc63bd01f), [`939fe159`](https://github.com/withastro/astro/commit/939fe159255cecf1cab5c1b3da2670d30ac8e4a7)]:
+  - @astrojs/markdown-remark@0.11.0
+
+## 1.0.0-beta.40
+
+### Patch Changes
+
+- [#3507](https://github.com/withastro/astro/pull/3507) [`cf2fb300`](https://github.com/withastro/astro/commit/cf2fb3004ecea4e0343fdf9e3e84884c5870835b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Silence noisy build warnings about `optimizeDeps.include`
+
+* [#3506](https://github.com/withastro/astro/pull/3506) [`d41540cc`](https://github.com/withastro/astro/commit/d41540cc772c7003a73cc5971598e5dd1255cbc9) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where generated `link` tags would have an invalid closing tag
+
+- [#3498](https://github.com/withastro/astro/pull/3498) [`4a23b5aa`](https://github.com/withastro/astro/commit/4a23b5aaedd69043635711dfdd60dd0d69dd69a8) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of import.meta.env.SITE
+
+* [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
+## 1.0.0-beta.39
+
+### Patch Changes
+
+- [#3496](https://github.com/withastro/astro/pull/3496) [`d588bc4a`](https://github.com/withastro/astro/commit/d588bc4a9cc6baccf4d63ac74f2242735494391a) Thanks [@matthewp](https://github.com/matthewp)! - Update rollup to fix default param regression
+
+* [#3464](https://github.com/withastro/astro/pull/3464) [`9c2ba137`](https://github.com/withastro/astro/commit/9c2ba13748b975fb4b15b28b1b8ddc5ece3ccbb0) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add warning on startup when `vite.server.fs.strict` is disabled
+
+- [#3427](https://github.com/withastro/astro/pull/3427) [`10b25890`](https://github.com/withastro/astro/commit/10b2589093f23d5f92e0509f9d3eebfaae2d46a7) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes HMR support for inline scripts in Astro components on Linux and OSX
+
+* [#3505](https://github.com/withastro/astro/pull/3505) [`2b35650b`](https://github.com/withastro/astro/commit/2b35650b5dca28b5cd5dd7c9bb689d0eee6a2ddf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix newline characters in SolidJS JSX attributes (ex: multiline CSS classes)
+
 ## 1.0.0-beta.38
 
 ### Patch Changes

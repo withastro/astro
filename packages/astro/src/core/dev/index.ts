@@ -1,5 +1,7 @@
-import type { AddressInfo } from 'net';
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import glob from 'fast-glob';
+import type { AddressInfo } from 'net';
+import path from 'path';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
@@ -12,7 +14,6 @@ import {
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
 import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
-import { nodeLogOptions } from '../logger/node.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
@@ -34,10 +35,22 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	await options.telemetry.record([]);
 	config = await runHookConfigSetup({ config, command: 'dev' });
 	const { host, port } = config.server;
+
+	// load client runtime scripts ahead-of-time to fix "isSelfAccepting" bug during HMR
+	const clientRuntimeScripts = await glob(
+		new URL('../../runtime/client/*.js', import.meta.url).pathname
+	);
+	const clientRuntimeFilePaths = clientRuntimeScripts
+		.map((script) => `astro/client/${path.basename(script)}`)
+		// fixes duplicate dependency issue in monorepo when using astro: "workspace:*"
+		.filter((filePath) => filePath !== 'astro/client/hmr.js');
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
 			server: { host },
+			optimizeDeps: {
+				include: clientRuntimeFilePaths,
+			},
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);
@@ -64,6 +77,9 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
 		warn(options.logging, null, msg.prerelease({ currentVersion }));
+	}
+	if (viteConfig.server?.fs?.strict === false) {
+		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
 	await runHookServerStart({ config, address: devServerAddressInfo });

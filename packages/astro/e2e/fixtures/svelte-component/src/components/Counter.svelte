@@ -22,7 +22,7 @@
 </div>
 
 <style>
-  .counter{
+  .counter {
     display: grid;
     font-size: 2em;
     grid-template-columns: repeat(3, minmax(0, 1fr));

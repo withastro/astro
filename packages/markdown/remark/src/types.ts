@@ -1,7 +1,7 @@
-import type * as unified from 'unified';
-import type * as mdast from 'mdast';
 import type * as hast from 'hast';
+import type * as mdast from 'mdast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
+import type * as unified from 'unified';
 
 export type { Node } from 'unist';
 

@@ -11,11 +11,11 @@
   "devDependencies": {
     "@astrojs/node": "^0.1.2",
     "@astrojs/svelte": "^0.1.4",
-    "astro": "^1.0.0-beta.38",
+    "astro": "^1.0.0-beta.42",
     "concurrently": "^7.2.1",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
-    "vite-imagetools": "^4.0.3"
+    "vite-imagetools": "^4.0.4"
   },
   "dependencies": {
     "svelte": "^3.48.0"

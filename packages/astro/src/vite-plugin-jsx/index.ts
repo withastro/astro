@@ -4,9 +4,9 @@ import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 
 import babel from '@babel/core';
+import * as eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
-import * as eslexer from 'es-module-lexer';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
@@ -63,6 +63,7 @@ async function transformJSX({
 		sourceMaps: true,
 		configFile: false,
 		babelrc: false,
+		inputSourceMap: options.inputSourceMap,
 	});
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?

@@ -1,5 +1,18 @@
 # @astrojs/node
 
+## 0.1.5
+
+### Patch Changes
+
+- [#3532](https://github.com/withastro/astro/pull/3532) [`c22a07db`](https://github.com/withastro/astro/commit/c22a07db134a9d0741a05123fb506595aabf145b) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using Astro.glob when using the Deno Deploy adapter
+
+## 0.1.4
+
+### Patch Changes
+
+- [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,24 +1,24 @@
-import type { AddressInfo } from 'net';
-import type { AstroConfig } from '../@types/astro';
-import os from 'os';
+import boxen from 'boxen';
 import {
-	bold,
-	dim,
-	red,
-	green,
-	underline,
-	yellow,
-	bgYellow,
-	cyan,
+	bgCyan,
 	bgGreen,
-	black,
 	bgRed,
 	bgWhite,
-	bgCyan,
+	bgYellow,
+	black,
+	bold,
+	cyan,
+	dim,
+	green,
+	red,
+	underline,
+	yellow,
 } from 'kleur/colors';
-import boxen from 'boxen';
-import { collectErrorMetadata, cleanErrorStack } from './errors.js';
+import type { AddressInfo } from 'net';
+import os from 'os';
 import { ZodError } from 'zod';
+import type { AstroConfig } from '../@types/astro';
+import { cleanErrorStack, collectErrorMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -143,6 +143,12 @@ export function telemetryReset() {
 	return `\n  ${cyan('◆')} Anonymous telemetry has been ${bgCyan(
 		black(' reset ')
 	)}. You may be prompted again.\n`;
+}
+
+export function fsStrictWarning() {
+	return yellow(
+		'⚠️ Serving with vite.server.fs.strict: false. Note that all files on your machine will be accessible to anyone on your network!'
+	);
 }
 
 export function prerelease({ currentVersion }: { currentVersion: string }) {

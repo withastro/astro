@@ -1,9 +1,8 @@
-import type * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import type { TransformPluginContext } from 'rollup';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 import { loadEnv } from 'vite';
+import type { AstroConfig } from '../@types/astro';
 
 interface EnvPluginOptions {
 	config: AstroConfig;
@@ -78,6 +77,7 @@ export default function envVitePlugin({
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
+					privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
 					const entries = Object.entries(privateEnv).map(([key, value]) => [
 						`import.meta.env.${key}`,
 						value,

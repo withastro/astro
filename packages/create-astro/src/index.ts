@@ -1,14 +1,14 @@
-import fs from 'fs';
-import path from 'path';
-import { bgCyan, black, bold, cyan, gray, green, red, yellow } from 'kleur/colors';
-import prompts from 'prompts';
 import degit from 'degit';
-import yargs from 'yargs-parser';
-import ora from 'ora';
-import { TEMPLATES } from './templates.js';
-import { logger, defaultLogLevel } from './logger.js';
 import { execa, execaCommand } from 'execa';
+import fs from 'fs';
+import { bgCyan, black, bold, cyan, gray, green, red, yellow } from 'kleur/colors';
+import ora from 'ora';
+import path from 'path';
+import prompts from 'prompts';
+import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
+import { defaultLogLevel, logger } from './logger.js';
+import { TEMPLATES } from './templates.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This

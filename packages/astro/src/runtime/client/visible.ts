@@ -1,5 +1,5 @@
 import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
-import { notify, listen } from './events';
+import { listen, notify } from './events';
 
 /**
  * Hydrate this component when one of it's children becomes visible

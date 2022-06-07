@@ -1,4 +1,4 @@
-import type { RouteData, SerializedRouteData, AstroConfig } from '../../../@types/astro';
+import type { AstroConfig, RouteData, SerializedRouteData } from '../../../@types/astro';
 
 import { getRouteGenerator } from './generator.js';
 

@@ -1,4 +1,4 @@
-import { visit as _visit, SKIP } from 'unist-util-visit';
+import { SKIP, visit as _visit } from 'unist-util-visit';
 
 // This is a workaround.
 // It fixes a compatibility issue between different, incompatible ASTs given by plugins to Unist

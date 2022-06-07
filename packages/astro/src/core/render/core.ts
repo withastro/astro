@@ -1,18 +1,18 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
 	Params,
 	Props,
-	SSRLoadedRenderer,
 	RouteData,
 	SSRElement,
+	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type { LogOptions } from '../logger/core.js';
 
 import { renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
-import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -68,6 +68,7 @@ export async function getParamsAndProps(
 export interface RenderOptions {
 	logging: LogOptions;
 	links: Set<SSRElement>;
+	styles?: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
 	origin: string;
@@ -89,6 +90,7 @@ export async function render(
 > {
 	const {
 		links,
+		styles,
 		logging,
 		origin,
 		markdown,
@@ -129,6 +131,7 @@ export async function render(
 
 	const result = createResult({
 		links,
+		styles,
 		logging,
 		markdown,
 		origin,

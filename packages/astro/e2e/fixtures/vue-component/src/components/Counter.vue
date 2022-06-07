@@ -45,3 +45,13 @@ export default {
   },
 };
 </script>
+
+<style>
+.counter {
+	display: grid;
+	font-size: 2em;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin-top: 2em;
+	place-items: center;
+}
+</style>

@@ -112,7 +112,8 @@ test.describe('Preact components', () => {
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const count = page.locator('#client-idle pre');
+		const counter = page.locator('#client-idle');
+		const count = counter.locator('pre');
 		await expect(count, 'initial count is 0').toHaveText('0');
 
 		// Edit the component's initial count prop
@@ -121,6 +122,7 @@ test.describe('Preact components', () => {
 		);
 
 		await expect(count, 'count prop updated').toHaveText('5');
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid');
 
 		// Edit the component's slot text
 		await astro.editFile('./src/components/JSXComponent.jsx', (original) =>

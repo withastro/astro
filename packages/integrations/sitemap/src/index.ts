@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import fs from 'node:fs';
 const STATUS_CODE_PAGE_REGEXP = /\/[0-9]{3}\/?$/;
 
 type SitemapOptions =
