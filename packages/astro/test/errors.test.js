@@ -1,9 +1,13 @@
-import { isWindows, loadFixture } from './test-utils.js';
+import { isWindows, isLinux, loadFixture } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
 describe('Error display', () => {
 	if (isWindows) return;
+
+	// TODO: Ubuntu CI runs hit a reliability problem with more than one test in this suite.
+	// Re-enable this suite once that issue is tracked down.
+	if (isLinux) return;
 
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -14,7 +18,7 @@ describe('Error display', () => {
 		});
 	});
 
-	describe.skip('Astro', async () => {
+	describe('Astro', async () => {
 		let devServer;
 
 		before(async () => {
