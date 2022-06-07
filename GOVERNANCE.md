@@ -10,27 +10,27 @@ Scroll down to [Playbook](#governance-playbook).
 
 ## Get Involved
 
-**Anything that supports the Astro community is a valuable contribution!** 
+**Anything that supports the Astro community is a valuable contribution!**
 
 All types of contribution are meaningful. This can include code changes, type fixes, Discord activity, and even posting about Astro to your personal blog. No contribution is too small!
 
-Anyone can become an Astro contributor (yes, even you!). Engineering ability is not required. Our goal is to recognize all contributors to the project regardless of skill, experience or background. 
+Anyone can become an Astro contributor (yes, even you!). Engineering ability is not required. Our goal is to recognize all contributors to the project regardless of skill, experience or background.
 
 ## Contributor Levels
 
-We recognize different levels of contribution as four different **Contributor Levels.** Because each level comes with a new set of privileges and responsibilities, you may also see these levels referred to as **Contributor Roles**. 
+We recognize different levels of contribution as four different **Contributor Levels.** Because each level comes with a new set of privileges and responsibilities, you may also see these levels referred to as **Contributor Roles**.
 
-Contributor levels are available to **all members** of the Astro community, regardless of coding skill or experience. 
+Contributor levels are available to **all members** of the Astro community, regardless of coding skill or experience.
 
 Two important things that we look for in a contributor are:
 
 - **Being here** - Everyone's time is valuable, and the fact that you're here and contributing to Astro is amazing! Thank you for being a part of this project with us.
 - **Being a positive member of our community** - Go above and beyond our [Code of Conduct](CODE_OF_CONDUCT.md) and commit to healthy communication across pull requests, issue discussions, Discord conversations, and any interactions outside of our community (ex: no Twitter bullies allowed :)
 
-All Contributor roles are granted for as long as the individual wishes to engage with the project. 
+All Contributor roles are granted for as long as the individual wishes to engage with the project.
 
 Contributors can voluntarily leave the project at any time. See [Retiring a Role](#retiring-a-role-alumni) below for more information.
- 
+
 In extreme cases -- such as a Code of Conduct violation -- a role may be revoked by a project Steward at their discretion.
 
 Each new Contributor level unlocks new privileges and responsibilities both on Discord and on GitHub. Below is a summary of each level.
@@ -116,17 +116,15 @@ There is no strict minimum number of contributions needed to reach this level, a
 #### Nomination
 
 - To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer.
-- You can be nominated by any existing Maintainer (L2 or above). 
-- Once nominated, there will be a vote by existing Maintainers. 
+- You can be nominated by any existing Maintainer (L2 or above).
+- Once nominated, there will be a vote by existing Maintainers.
 - See [vote rules & requirements](#voting) for info on how the vote works.
-
 
 ### Level 3 (L3) - Core
 
-The **Core** role is available to community members who have a larger-than-usual impact on the Astro project and community. They are seen as leaders in the project and are listened to by the wider Astro community, often before they have even reached this level. A Core member is recognized for contributing a significant amount of time and energy to the project through issues, pull requests, bug fixes, implementing advanced enhancements/features, and/or actively posting on Discord. 
+The **Core** role is available to community members who have a larger-than-usual impact on the Astro project and community. They are seen as leaders in the project and are listened to by the wider Astro community, often before they have even reached this level. A Core member is recognized for contributing a significant amount of time and energy to the project through issues, pull requests, bug fixes, implementing advanced enhancements/features, and/or actively posting on Discord.
 
 Not every contributor will reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges within our community.
-
 
 #### Privileges
 
@@ -147,8 +145,8 @@ Not every contributor will reach this level, and that's okay! L2 Maintainers sti
 #### Nomination
 
 - To be nominated, a nominee is expected to already be performing some of the responsibilities of a Core member.
-- You can be nominated by any existing Core member (L3 or above). 
-- Once nominated, there will be a vote by existing Core members. 
+- You can be nominated by any existing Core member (L3 or above).
+- Once nominated, there will be a vote by existing Core members.
 - See [vote rules & requirements](#voting) for info on how the vote works.
 
 #### Special Membership Type: Core Residency
@@ -163,16 +161,15 @@ Because of these limitations, this type of Core membership is useful for anyone 
 
 A Core Residency nomination must still be approved through the normal Core nomination and voting process. During the nomination, the Project Steward will state that the nomination is for the Core Residency designation. The project Steward is the only one who can officially make this designation during the nomination process.
 
-A Core Residency member can become a full Core member (with all limitations removed) through the normal Core nomination and voting procedure. 
+A Core Residency member can become a full Core member (with all limitations removed) through the normal Core nomination and voting procedure.
 
 If a Core Residency member has their membership revoked, the project Steward may choose to impose a waiting period of some number of days, during which the member can not be re-nominated to become a full Core member.
 
 ### Level 4 - Project Steward
 
-The **Steward** is an additional role bestowed to 1 (or more) Core member of the project. 
+The **Steward** is an additional role bestowed to 1 (or more) Core member of the project.
 
 The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, assist in resolving conflicts, and act as tiebreakers in the event of disagreements.
-
 
 In extremely rare cases, a Steward can act unilaterally when they believe it is in the project's best interest and can prove that the issue cannot be resolved through normal governance procedure. The steward must publicly state their reason for unilateral action before taking it.
 
@@ -229,9 +226,9 @@ Any Maintainer (L2 and above) can self-nominate by messaging the project Steward
 
 ### Technical Steering Committee (TSC)
 
-The **TSC** is a special role available to Core members (L3 and above). TSC members are responsible for the growth and maintenance of the Astro codebase. 
+The **TSC** is a special role available to Core members (L3 and above). TSC members are responsible for the growth and maintenance of the Astro codebase.
 
-TSC members are guardians over the Astro codebase. Their duty is to ensure code quality, correctness and security. 
+TSC members are guardians over the Astro codebase. Their duty is to ensure code quality, correctness and security.
 
 A TSC member guides the direction of the project and ensures a healthy future for the Astro codebase. TSC members are ultimately responsible for technical decision making when it comes to any changes to the Astro codebase.
 
@@ -245,7 +242,7 @@ A TSC member has significant sway in software design decisions. For this reason,
 - Ability to merge all GitHub PRs.
 - Ability to vote on RFCs and technical initiatives (see [Voting](#voting) below).
 
-#### Responsibilities 
+#### Responsibilities
 
 - Participating in RFC discussions and technical meetings.
 - Assisting with design and implementation of non-trivial GitHub PRs.
@@ -261,10 +258,9 @@ A TSC member has significant sway in software design decisions. For this reason,
 - Once nominated, there will be a vote by existing Core members.
 - See [vote rules & requirements](#voting) for info on how this vote works.
 
-
 ### Staff
 
-**Staff** is a special designation for employees of [The Astro Technology Company](https://astro.build/company). 
+**Staff** is a special designation for employees of [The Astro Technology Company](https://astro.build/company).
 
 #### Privileges
 
@@ -284,7 +280,6 @@ Staff membership does not grant any additional abilities when it comes to voting
 - `@alumni` role on [Discord](https://astro.build/chat)
 - New name color on Discord: **light blue**.
 - Invitation to the private `#alumni` channel on Discord.
-
 
 ## Retiring a Role (Alumni)
 
