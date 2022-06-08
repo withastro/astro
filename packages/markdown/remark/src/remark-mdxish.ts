@@ -1,6 +1,6 @@
 import type * as fromMarkdown from 'mdast-util-from-markdown';
 import type { Tag } from 'mdast-util-mdx-jsx';
-import { mdxjs } from 'micromark-extension-mdxjs';
+import { mdxjs } from './mdxjs.js';
 import { mdxFromMarkdown, mdxToMarkdown } from './mdast-util-mdxish.js';
 
 export default function remarkMdxish(this: any, options = {}) {
