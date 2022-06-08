@@ -1,5 +1,4 @@
 import { test as base, expect } from '@playwright/test';
-import os from 'os';
 import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
@@ -178,6 +177,11 @@ test.describe('Multiple frameworks', () => {
 		test('Svelte component', async ({ astro, page }) => {
 			await page.goto('/');
 
+			function log(message) {
+				console.log('console::', message.text());
+			}
+			page.on('console', log);
+
 			const count = page.locator('#svelte-counter pre');
 			await expect(count, 'initial count is 0').toHaveText('0');
 
@@ -185,7 +189,9 @@ test.describe('Multiple frameworks', () => {
 				content.replace('let count = 0;', 'let count = 5;')
 			);
 
-			await expect(count, 'initail count updated to 5').toHaveText('5');
+			await expect(count, 'initial count updated to 5').toHaveText('5');
+
+			page.off('console', log);
 		});
 	});
 });
