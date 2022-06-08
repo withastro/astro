@@ -19,7 +19,7 @@ export default {
 		}
   },
 	setup(props) {
-		const count = ref(5);
+		const count = ref(0);
 		const add = () => (count.value = count.value + 1);
 		const subtract = () => (count.value = count.value - 1);
 
