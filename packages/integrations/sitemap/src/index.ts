@@ -74,8 +74,8 @@ export default function createPlugin({
 					return;
 				}
 				let pageUrls = pages.map((p) => {
-					const path = finalSiteUrl.pathname + p.pathname
-					return new URL(path, finalSiteUrl).href
+					const path = finalSiteUrl.pathname + p.pathname;
+					return new URL(path, finalSiteUrl).href;
 				});
 				if (filter) {
 					pageUrls = pageUrls.filter((page: string) => filter(page));
