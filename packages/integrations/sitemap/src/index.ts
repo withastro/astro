@@ -61,14 +61,22 @@ export default function createPlugin({
 				config = _config;
 			},
 			'astro:build:done': async ({ pages, dir }) => {
-				const finalSiteUrl = canonicalURL || config.site;
-				if (!finalSiteUrl) {
+				let finalSiteUrl: URL;
+				if (canonicalURL) {
+					finalSiteUrl = new URL(canonicalURL);
+					finalSiteUrl.pathname += finalSiteUrl.pathname.endsWith('/') ? '' : '/'; // normalizes the final url since it's provided by user
+				} else if (config.site) {
+					finalSiteUrl = new URL(config.base, config.site);
+				} else {
 					console.warn(
 						'The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.'
 					);
 					return;
 				}
-				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
+				let pageUrls = pages.map((p) => {
+					const path = finalSiteUrl.pathname + p.pathname
+					return new URL(path, finalSiteUrl).href
+				});
 				if (filter) {
 					pageUrls = pageUrls.filter((page: string) => filter(page));
 				}
