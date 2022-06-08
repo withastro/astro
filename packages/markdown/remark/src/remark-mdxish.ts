@@ -1,7 +1,7 @@
 import type * as fromMarkdown from 'mdast-util-from-markdown';
 import type { Tag } from 'mdast-util-mdx-jsx';
-import { mdxjs } from './mdxjs.js';
 import { mdxFromMarkdown, mdxToMarkdown } from './mdast-util-mdxish.js';
+import { mdxjs } from './mdxjs.js';
 
 export default function remarkMdxish(this: any, options = {}) {
 	const data = this.data();
