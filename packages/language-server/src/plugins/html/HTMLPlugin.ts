@@ -92,8 +92,8 @@ export class HTMLPlugin implements Plugin {
 		};
 
 		const emmetConfig = await this.configManager.getEmmetConfig(document);
-		const extensionConfig = await this.configManager.getConfig<LSConfig>('astro', document.uri);
-		if (extensionConfig.html.completions.emmet) {
+		const extensionConfig = (await this.configManager.getConfig<LSConfig>('astro', document.uri)) ?? {};
+		if (extensionConfig?.html?.completions?.emmet) {
 			this.lang.setCompletionParticipants([
 				{
 					onHtmlContent: () =>

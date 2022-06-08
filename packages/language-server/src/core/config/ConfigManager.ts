@@ -188,9 +188,16 @@ export class ConfigManager {
 		plugin: keyof LSConfig,
 		feature?: keyof LSTypescriptConfig | keyof LSCSSConfig | keyof LSHTMLConfig
 	): Promise<boolean> {
-		const config = await this.getConfig<any>('astro', document.uri);
+		const config = (await this.getConfig<any>('astro', document.uri)) ?? {};
 
-		return feature ? config[plugin].enabled && config[plugin][feature].enabled : config[plugin].enabled;
+		if (config[plugin]) {
+			let res = config[plugin].enabled;
+			if (feature && config[plugin][feature]) {
+				res = res && config[plugin][feature].enabled;
+			}
+			return res;
+		}
+		return false;
 	}
 
 	/**
