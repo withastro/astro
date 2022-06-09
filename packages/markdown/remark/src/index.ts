@@ -99,14 +99,13 @@ export async function renderMarkdown(
 	parser
 		.use(isMDX ? [rehypeJsx, rehypeExpressions] : [rehypeRaw])
 		.use(rehypeEscape)
-		.use(rehypeIslands);
+		.use(rehypeIslands)
+		.use([rehypeCollectHeaders])
+		.use(rehypeStringify, { allowDangerousHtml: true })
 
 	let result: string;
 	try {
-		const vfile = await parser
-			.use([rehypeCollectHeaders])
-			.use(rehypeStringify, { allowDangerousHtml: true })
-			.process(input);
+		const vfile = await parser.process(input);
 		result = vfile.toString();
 	} catch (err) {
 		// Ensure that the error message contains the input filename
