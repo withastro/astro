@@ -27,7 +27,6 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "sitemap": "^7.1.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
