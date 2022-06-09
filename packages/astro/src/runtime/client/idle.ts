@@ -6,7 +6,7 @@ import { listen, notify } from './events';
  * (or after a short delay, if `requestIdleCallback`) isn't supported
  */
 export default async function onIdle(
-	astroId: string,
+	root: HTMLElement,
 	options: HydrateOptions,
 	getHydrateCallback: GetHydrateCallback
 ) {
@@ -16,14 +16,12 @@ export default async function onIdle(
 	async function idle() {
 		listen(idle);
 		const cb = async () => {
-			const roots = document.querySelectorAll(`astro-root[ssr][uid="${astroId}"]`);
-			if (roots.length === 0) return;
 			if (typeof innerHTML !== 'string') {
-				let fragment = roots[0].querySelector(`astro-fragment`);
-				if (fragment == null && roots[0].hasAttribute('tmpl')) {
+				let fragment = root.querySelector(`astro-fragment`);
+				if (fragment == null && root.hasAttribute('tmpl')) {
 					// If there is no child fragment, check to see if there is a template.
 					// This happens if children were passed but the client component did not render any.
-					let template = roots[0].querySelector(`template[data-astro-template]`);
+					let template = root.querySelector(`template[data-astro-template]`);
 					if (template) {
 						innerHTML = template.innerHTML;
 						template.remove();
@@ -35,8 +33,7 @@ export default async function onIdle(
 			if (!hydrate) {
 				hydrate = await getHydrateCallback();
 			}
-			for (const root of roots) {
-				if (root.parentElement?.closest('astro-root[ssr]')) continue;
+			if (!root.parentElement?.closest('astro-root[ssr]')) {
 				await hydrate(root, innerHTML);
 				root.removeAttribute('ssr');
 			}
