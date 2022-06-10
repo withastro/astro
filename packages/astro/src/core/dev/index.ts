@@ -1,7 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import glob from 'fast-glob';
 import type { AddressInfo } from 'net';
-import path from 'path';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
@@ -38,7 +36,9 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
-	const rendererClientEntries = config._ctx.renderers.map(r => r.clientEntrypoint).filter(Boolean) as string[];
+	const rendererClientEntries = config._ctx.renderers
+		.map((r) => r.clientEntrypoint)
+		.filter(Boolean) as string[];
 
 	const viteConfig = await createVite(
 		{
@@ -51,7 +51,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 					'astro/client/visible.js',
 					'astro/client/media.js',
 					'astro/client/only.js',
-					...rendererClientEntries
+					...rendererClientEntries,
 				],
 			},
 		},
