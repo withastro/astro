@@ -12,7 +12,7 @@ import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
-import { islandScript } from './astro-island.js';
+import islandScript from './astro-island.prebuilt.js';
 import { serializeProps } from './serialize.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';

@@ -1,4 +1,3 @@
-import serializeJavaScript from 'serialize-javascript';
 import type {
 	AstroComponentMetadata,
 	SSRElement,
