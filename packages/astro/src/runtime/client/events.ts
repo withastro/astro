@@ -9,7 +9,7 @@ function debounce<T extends (...args: any[]) => any>(cb: T, wait = 20) {
 }
 
 export const notify = debounce(() => {
-	if (document.querySelector('astro-root[ssr]')) {
+	if (document.querySelector('astro-island[ssr]')) {
 		window.dispatchEvent(new CustomEvent(HYDRATE_KEY));
 	}
 });

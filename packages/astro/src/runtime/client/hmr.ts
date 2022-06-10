@@ -9,9 +9,9 @@ if (import.meta.hot) {
 			doc.head.appendChild(style);
 		}
 		// Match incoming islands to current state
-		for (const root of doc.querySelectorAll('astro-root')) {
+		for (const root of doc.querySelectorAll('astro-island')) {
 			const uid = root.getAttribute('uid');
-			const current = document.querySelector(`astro-root[uid="${uid}"]`);
+			const current = document.querySelector(`astro-island[uid="${uid}"]`);
 			if (current) {
 				current.setAttribute('data-persist', '');
 				root.replaceWith(current);
@@ -26,7 +26,7 @@ if (import.meta.hot) {
 		}
 		return diff(document, doc).then(() => {
 			// clean up data-persist attributes added before diffing
-			for (const root of document.querySelectorAll('astro-root[data-persist]')) {
+			for (const root of document.querySelectorAll('astro-island[data-persist]')) {
 				root.removeAttribute('data-persist');
 			}
 			for (const style of document.querySelectorAll("style[type='text/css'][data-persist]")) {

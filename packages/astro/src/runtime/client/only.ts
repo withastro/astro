@@ -31,7 +31,7 @@ export default async function onOnly(
 		if (!hydrate) {
 			hydrate = await getHydrateCallback();
 		}
-		if (!root.parentElement?.closest('astro-root[ssr]')) {
+		if (!root.parentElement?.closest('astro-island[ssr]')) {
 			await hydrate(root, innerHTML);
 			root.removeAttribute('ssr');
 		}
