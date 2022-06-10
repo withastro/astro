@@ -15,7 +15,7 @@ type SitemapOptions =
 			 * filter: (page) => page !== 'http://example.com/secret-page'
 			 * ```
 			 */
-			filter?(page: string): string;
+			filter?(page: string): boolean;
 
 			/**
 			 * If you have any URL, not rendered by Astro, that you want to include in your sitemap,

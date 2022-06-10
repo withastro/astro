@@ -1800,9 +1800,6 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
-      sitemap: ^7.1.1
-    dependencies:
-      sitemap: 7.1.1
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -6821,12 +6818,6 @@ packages:
 
   /@types/sass/1.43.1:
     resolution: {integrity: sha512-BPdoIt1lfJ6B7rw35ncdwBZrAssjcwzI5LByIrYs+tpXlj/CAkuVdRsgZDdP4lq5EjyWzwxZCqAoFyHKFwp32g==}
-    dependencies:
-      '@types/node': 17.0.41
-    dev: false
-
-  /@types/sax/1.2.4:
-    resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
     dependencies:
       '@types/node': 17.0.41
     dev: false
@@ -12443,17 +12434,6 @@ packages:
 
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
-    dev: false
-
-  /sitemap/7.1.1:
-    resolution: {integrity: sha512-mK3aFtjz4VdJN0igpIJrinf3EO8U8mxOPsTBzSsy06UtjZQJ3YY3o3Xa7zSc5nMqcMrRwlChHZ18Kxg0caiPBg==}
-    engines: {node: '>=12.0.0', npm: '>=5.6.0'}
-    hasBin: true
-    dependencies:
-      '@types/node': 17.0.41
-      '@types/sax': 1.2.4
-      arg: 5.0.2
-      sax: 1.2.4
     dev: false
 
   /slash/2.0.0:
