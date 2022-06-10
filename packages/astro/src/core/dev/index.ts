@@ -36,20 +36,23 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	config = await runHookConfigSetup({ config, command: 'dev' });
 	const { host, port } = config.server;
 
-	// load client runtime scripts ahead-of-time to fix "isSelfAccepting" bug during HMR
-	const clientRuntimeScripts = await glob(
-		new URL('../../runtime/client/*.js', import.meta.url).pathname
-	);
-	const clientRuntimeFilePaths = clientRuntimeScripts
-		.map((script) => `astro/client/${path.basename(script)}`)
-		// fixes duplicate dependency issue in monorepo when using astro: "workspace:*"
-		.filter((filePath) => filePath !== 'astro/client/hmr.js');
+	// The client entrypoint for renderers. Since these are imported dynamically
+	// we need to tell Vite to preoptimize them.
+	const rendererClientEntries = config._ctx.renderers.map(r => r.clientEntrypoint).filter(Boolean) as string[];
+
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
 			server: { host },
 			optimizeDeps: {
-				include: clientRuntimeFilePaths,
+				include: [
+					'astro/client/idle.js',
+					'astro/client/load.js',
+					'astro/client/visible.js',
+					'astro/client/media.js',
+					'astro/client/only.js',
+					...rendererClientEntries
+				],
 			},
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
