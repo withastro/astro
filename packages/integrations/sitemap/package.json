@@ -26,8 +26,7 @@
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"

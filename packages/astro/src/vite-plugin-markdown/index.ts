@@ -8,9 +8,9 @@ import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
+import { collectErrorMetadata } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
-import { collectErrorMetadata } from '../core/errors.js';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -26,7 +26,7 @@ function safeMatter(source: string, id: string) {
 		return matter(source);
 	} catch (e) {
 		(e as any).id = id;
-		throw collectErrorMetadata(e)
+		throw collectErrorMetadata(e);
 	}
 }
 
