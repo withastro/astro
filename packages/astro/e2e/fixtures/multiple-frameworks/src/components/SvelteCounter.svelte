@@ -1,7 +1,6 @@
 
 <script>
 	export let id;
-  let children;
   let count = 0;
 
   function add() {
