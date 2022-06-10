@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 0.1.2
+
+### Patch Changes
+
+- [#3563](https://github.com/withastro/astro/pull/3563) [`09803129`](https://github.com/withastro/astro/commit/098031294f4e25619d0ae5a6ffc871c7401d98ae) Thanks [@alextim](https://github.com/alextim)! - Remove unused dependency
+
 ## 0.1.1
 
 ### Patch Changes

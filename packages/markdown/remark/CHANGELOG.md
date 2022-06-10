@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.11.2
+
+### Patch Changes
+
+- [#3572](https://github.com/withastro/astro/pull/3572) [`5c73f614`](https://github.com/withastro/astro/commit/5c73f614e8f579e04fe61c948b69be7bc6d81d5d) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix remarkMdxish performance issue on huge sites
+
 ## 0.11.1
 
 ### Patch Changes
