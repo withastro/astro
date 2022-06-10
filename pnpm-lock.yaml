@@ -546,7 +546,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: ^2.9.14
+      vite: ^3.0.0-alpha.10
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -604,7 +604,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      vite: 2.9.14_sass@1.53.0
+      vite: 3.0.0-alpha.10_sass@1.53.0
       yargs-parser: 21.0.1
       zod: 3.17.3
     devDependencies:
@@ -14908,20 +14908,23 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vite/2.9.14_sass@1.53.0:
-    resolution: {integrity: sha512-P/UCjSpSMcE54r4mPak55hWAZPlyfS369svib/gpmz8/01L822lMPOJ/RYW6tLCe1RPvMvOsJ17erf55bKp4Hw==}
-    engines: {node: '>=12.2.0'}
+  /vite/3.0.0-alpha.10_sass@1.53.0:
+    resolution: {integrity: sha512-ihF4TE3+xvgmGaSIYrfxBfJqqXESAehkIBv8L/xG9OzNaUiGrOF2CUqsmnVQOJ/pFBAAMmLNgG75Mqbdzo7W6A==}
+    engines: {node: '>=14.6.0'}
     hasBin: true
     peerDependencies:
       less: '*'
       sass: '*'
       stylus: '*'
+      terser: ^5.4.0
     peerDependenciesMeta:
       less:
         optional: true
       sass:
         optional: true
       stylus:
+        optional: true
+      terser:
         optional: true
     dependencies:
       esbuild: 0.14.48
