@@ -101,7 +101,7 @@ export async function renderMarkdown(
 		.use(rehypeEscape)
 		.use(rehypeIslands)
 		.use([rehypeCollectHeaders])
-		.use(rehypeStringify, { allowDangerousHtml: true })
+		.use(rehypeStringify, { allowDangerousHtml: true });
 
 	let result: string;
 	try {

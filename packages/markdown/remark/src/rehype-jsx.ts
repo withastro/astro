@@ -1,5 +1,5 @@
-import type { RehypePlugin } from './types.js';
 import { visit } from 'unist-util-visit';
+import type { RehypePlugin } from './types.js';
 
 const MDX_ELEMENTS = ['mdxJsxFlowElement', 'mdxJsxTextElement'];
 
@@ -36,12 +36,11 @@ export default function rehypeJsx(): ReturnType<RehypePlugin> {
 			// from creating a nested link to `www.example.com`
 			if (node.name === 'a') {
 				visit(node, 'element', (el, elIndex, elParent) => {
-					const isAutolink = (
+					const isAutolink =
 						el.tagName === 'a' &&
 						el.children.length === 1 &&
 						el.children[0].type === 'text' &&
-						el.children[0].value.match(/^(https?:\/\/|www\.)/i)
-					);
+						el.children[0].value.match(/^(https?:\/\/|www\.)/i);
 
 					// If we found an autolink, remove it by replacing it with its text-only child
 					if (isAutolink) {
