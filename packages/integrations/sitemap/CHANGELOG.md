@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 0.1.1
+
+### Patch Changes
+
+- [#3553](https://github.com/withastro/astro/pull/3553) [`c601ce59`](https://github.com/withastro/astro/commit/c601ce59b5740e7ff48c6575a6168d6a2408f7a3) Thanks [@caioferrarezi](https://github.com/caioferrarezi)! - Prevent sitemap URLs with trimmed paths
+
 ## 0.1.0
 
 ### Minor Changes
