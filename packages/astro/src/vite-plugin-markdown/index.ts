@@ -10,6 +10,7 @@ import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
+import { collectErrorMetadata } from '../core/errors.js';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -19,6 +20,15 @@ interface AstroPluginOptions {
 
 const MARKDOWN_IMPORT_FLAG = '?mdImport';
 const MARKDOWN_CONTENT_FLAG = '?content';
+
+function safeMatter(source: string, id: string) {
+	try {
+		return matter(source);
+	} catch (e) {
+		(e as any).id = id;
+		throw collectErrorMetadata(e)
+	}
+}
 
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
@@ -82,7 +92,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
-				const { data: frontmatter, content: rawContent } = matter(source);
+				const { data: frontmatter, content: rawContent } = safeMatter(source, fileId);
 				return {
 					code: `
 						// Static
@@ -127,7 +137,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
-				let { data: frontmatter, content: markdownContent } = matter(source);
+				let { data: frontmatter, content: markdownContent } = safeMatter(source, filename);
 
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
