@@ -97,7 +97,7 @@
     "diff": "^5.1.0",
     "eol": "^0.9.1",
     "es-module-lexer": "^0.10.5",
-    "esbuild": "^0.14.42",
+    "esbuild": "^0.14.43",
     "estree-walker": "^3.0.1",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
@@ -119,7 +119,7 @@
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
     "resolve": "^1.22.0",
-    "rollup": "^2.75.5",
+    "rollup": "^2.75.6",
     "semver": "^7.3.7",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
@@ -130,7 +130,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
-    "vite": "^2.9.10",
+    "vite": "^2.9.11",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },
@@ -161,7 +161,7 @@
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.11",
     "mocha": "^9.2.2",
-    "sass": "^1.52.2",
+    "sass": "^1.52.3",
     "srcset-parse": "^1.1.0"
   },
   "engines": {

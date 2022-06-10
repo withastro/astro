@@ -25,7 +25,7 @@
     "test": "deno test --allow-run --allow-env --allow-read --allow-net ./test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.43"
   },
   "devDependencies": {
     "astro": "workspace:*",

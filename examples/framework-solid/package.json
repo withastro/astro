@@ -13,6 +13,6 @@
     "astro": "^1.0.0-beta.42"
   },
   "dependencies": {
-    "solid-js": "^1.4.3"
+    "solid-js": "^1.4.4"
   }
 }
