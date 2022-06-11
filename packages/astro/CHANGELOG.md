@@ -1,5 +1,16 @@
 # astro
 
+## 1.0.0-beta.44
+
+### Patch Changes
+
+- [#3568](https://github.com/withastro/astro/pull/3568) [`614769a3`](https://github.com/withastro/astro/commit/614769a39b4976dc292d1ed7fa1735811c0bdb8c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes race condition causing the "self accepting" error message
+
+* [#3557](https://github.com/withastro/astro/pull/3557) [`3ec41f28`](https://github.com/withastro/astro/commit/3ec41f284c7c6e7abfb75704ffbf19cdf3e3eaa0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve the way YAML errors are surfaced
+
+* Updated dependencies [[`5c73f614`](https://github.com/withastro/astro/commit/5c73f614e8f579e04fe61c948b69be7bc6d81d5d)]:
+  - @astrojs/markdown-remark@0.11.2
+
 ## 1.0.0-beta.43
 
 ### Patch Changes
