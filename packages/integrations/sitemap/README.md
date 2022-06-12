@@ -218,7 +218,14 @@ export default {
 
 ### serialize
 
-Async or sync function called for each SiteMap item just before writing to disk. 
+Async or sync function called for each sitemap entry just before writing to disk.  
+
+It receives as parameter `SitemapItem` object which consists of `url` (required, absolute URL of page) and optional `changefreq`, `lastmod`, `priority` and `links` properties.  
+
+Optional `links` property contains a `LinkItem` list of alternate pages including a parent page.  
+`LinkItem` type has two required fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `hreflang` (a supported language code targeted by this version of the page).
+
+`serialize` function should return `SitemapItem`, touched or not.
 
 __astro.config.mjs__
 
@@ -244,12 +251,13 @@ export default {
 
 ### i18n
 
-To localize sitemap, please, supply the integration config with the `i18n` options. The integration will check generated page paths on presence of locale keys in paths.
+To localize sitemap you should supply the integration config with the `i18n` option. The integration will check generated page paths on presence of locale keys in paths.
 
-`i18n` oject should have two required properties:
+`i18n` object has two required properties:
 
-- `defaultLocale`: `String`.  Its value must exist as one of `locales` keys.
-- `locales`:  `Record<String, String>`, key/value - pairs. The key is used to look for a locale part in a page path. The value is a language attribute, only English alphabet and hyphen allowed. See more on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang).
+- `defaultLocale`: `String`. Its value must exist as one of `locales` keys.
+- `locales`:  `Record<String, String>`, key/value - pairs. The key is used to look for a locale part in a page path. The value is a language attribute, only English alphabet and hyphen allowed. See more about language attribute on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang).
+
 
 Read more about localization on Google in [Advanced SEO](https://developers.google.com/search/docs/advanced/crawling/localized-versions#all-method-guidelines).
 
