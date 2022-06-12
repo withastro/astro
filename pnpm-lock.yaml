@@ -246,7 +246,7 @@ importers:
       '@astrojs/lit': ^0.1.5
       '@astrojs/partytown': ^0.1.4
       '@astrojs/react': ^0.1.3
-      '@astrojs/sitemap': ^0.1.2
+      '@astrojs/sitemap': workspace:*
       '@astrojs/solid-js': 0.1.4
       '@astrojs/tailwind': ^0.2.1
       '@astrojs/turbolinks': ^0.1.3
@@ -303,6 +303,30 @@ importers:
       astro: link:../../packages/astro
       sass: 1.52.2
 
+  examples/sitemap/advanced:
+    specifiers:
+      '@astrojs/sitemap': workspace:*
+      astro: workspace:*
+    devDependencies:
+      '@astrojs/sitemap': link:../../../packages/integrations/sitemap
+      astro: link:../../../packages/astro
+
+  examples/sitemap/basic:
+    specifiers:
+      '@astrojs/sitemap': workspace:*
+      astro: workspace:*
+    devDependencies:
+      '@astrojs/sitemap': link:../../../packages/integrations/sitemap
+      astro: link:../../../packages/astro
+
+  examples/sitemap/i18n:
+    specifiers:
+      '@astrojs/sitemap': workspace:*
+      astro: workspace:*
+    devDependencies:
+      '@astrojs/sitemap': link:../../../packages/integrations/sitemap
+      astro: link:../../../packages/astro
+
   examples/ssr:
     specifiers:
       '@astrojs/node': ^0.1.2
@@ -326,8 +350,10 @@ importers:
 
   examples/starter:
     specifiers:
+      '@astrojs/markdown-remark': ^0.11.2
       astro: ^1.0.0-beta.44
     devDependencies:
+      '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
 
   examples/subpath:
@@ -1800,6 +1826,13 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
+      node-html-parser: ^5.3.3
+      sitemap: ^7.1.1
+      zod: ^3.17.3
+    dependencies:
+      node-html-parser: 5.3.3
+      sitemap: 7.1.1
+      zod: 3.17.3
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -6822,6 +6855,12 @@ packages:
       '@types/node': 17.0.41
     dev: false
 
+  /@types/sax/1.2.4:
+    resolution: {integrity: sha512-pSAff4IAxJjfAXUG6tFkO7dsSbTmf8CtUpfhhZ5VhkRpC4628tJhh3+V6H1E+/Gs9piSzYKT5yzHO5M4GG9jkw==}
+    dependencies:
+      '@types/node': 17.0.41
+    dev: false
+
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
 
@@ -8062,6 +8101,16 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /css-select/4.3.0:
+    resolution: {integrity: sha512-wPpOYtnsVontu2mODhA19JrqWxNsfdatRKd64kmpRbQgh1KtItko5sTnEpPdpSaJszTOhEMlF/RPz28qj4HqhQ==}
+    dependencies:
+      boolbase: 1.0.0
+      css-what: 6.1.0
+      domhandler: 4.3.1
+      domutils: 2.8.0
+      nth-check: 2.1.1
+    dev: false
+
   /css-select/5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}
     dependencies:
@@ -8078,7 +8127,6 @@ packages:
   /css-what/6.1.0:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
-    dev: true
 
   /cssesc/3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -8134,6 +8182,11 @@ packages:
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -9585,7 +9638,6 @@ packages:
   /he/1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
-    dev: true
 
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
@@ -11027,6 +11079,8 @@ packages:
       debug: 3.2.7
       iconv-lite: 0.4.24
       sax: 1.2.4
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /netmask/2.0.2:
@@ -11095,6 +11149,13 @@ packages:
     hasBin: true
     dev: false
 
+  /node-html-parser/5.3.3:
+    resolution: {integrity: sha512-ncg1033CaX9UexbyA7e1N0aAoAYRDiV8jkTvzEnfd1GDvzFdrsXLzR4p4ik8mwLgnaKP/jyUFWDy9q3jvRT2Jw==}
+    dependencies:
+      css-select: 4.3.0
+      he: 1.2.0
+    dev: false
+
   /node-pre-gyp/0.13.0:
     resolution: {integrity: sha512-Md1D3xnEne8b/HGVQkZZwV27WUi1ZRuZBij24TNaZwUPU3ZAFtvT6xxJGaUVillfmMKnn5oD1HoGsp2Ftik7SQ==}
     deprecated: 'Please upgrade to @mapbox/node-pre-gyp: the non-scoped node-pre-gyp package is deprecated and only the @mapbox scoped package will recieve updates in the future'
@@ -11110,6 +11171,8 @@ packages:
       rimraf: 2.7.1
       semver: 5.7.1
       tar: 4.4.19
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /node-releases/2.0.5:
@@ -12434,6 +12497,17 @@ packages:
 
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+    dev: false
+
+  /sitemap/7.1.1:
+    resolution: {integrity: sha512-mK3aFtjz4VdJN0igpIJrinf3EO8U8mxOPsTBzSsy06UtjZQJ3YY3o3Xa7zSc5nMqcMrRwlChHZ18Kxg0caiPBg==}
+    engines: {node: '>=12.0.0', npm: '>=5.6.0'}
+    hasBin: true
+    dependencies:
+      '@types/node': 17.0.41
+      '@types/sax': 1.2.4
+      arg: 5.0.2
+      sax: 1.2.4
     dev: false
 
   /slash/2.0.0:

@@ -1,0 +1,38 @@
+---
+import i18n from '../../i18n';
+import LanguageSwitch from '../../components/LanguageSwitch.astro';
+
+export async function getStaticPaths() {
+  const items = Object.entries(i18n.locales).filter(([locale]) => locale !== i18n.defaultLocale);
+
+  const paths = items.map(([locale, { name, lang }]) => ({
+    params: { locale },
+    props: { name, lang },
+  }));
+
+  return paths;
+}
+
+export interface Props {
+  name: string;
+  description: string;
+  lang: string;
+}
+
+const { locale } = Astro.params;
+const { name, description, lang } = Astro.props as Props;
+---
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro {locale}</title>
+	</head>
+	<body>
+		<h1>Astro {locale}</h1>
+    <p>{name}</p>
+    <p>{description}</p>
+    <a href={'/' + locale + '/second-page'}>#2</a>
+    <LanguageSwitch currentLocale={locale + ''} />
+	</body>
+</html>

@@ -1,0 +1,45 @@
+---
+import i18n from '../i18n';
+
+export interface Props {
+  currentLocale: string;
+}
+
+const { currentLocale } = Astro.props as Props;
+const pathname = new URL(Astro.request.url).pathname;
+
+const getLink = (locale: string) => {
+  let path: string;
+  if (pathname === '/') {
+    path = '/';
+  } else {
+    const a = pathname.split('/');
+    if (i18n.locales[a[1]]) {
+      path = a.slice(2).join('/');
+    } else {
+      path = pathname;
+    }
+  }
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+  return locale === i18n.defaultLocale ? path : `/${locale}${path}`;
+};
+---
+<ul>
+{
+  Object.keys(i18n.locales).map((locale) => (
+    <li>
+      {locale === currentLocale ? (
+        <span>
+          {locale}
+        </span>
+        ) : (
+        <a href={getLink(locale)}>
+          {locale}
+        </a>
+      )}
+    </li>
+  ))
+}
+</ul>

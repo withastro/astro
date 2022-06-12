@@ -1,0 +1,32 @@
+---
+import i18n from '../../i18n';
+
+export async function getStaticPaths() {
+  const items = Object.entries(i18n.locales).filter(([locale]) => locale !== i18n.defaultLocale);
+
+  const paths = items.map(([locale, { lang }]) => ({
+    params: { locale },
+    props: { lang },
+  }));
+
+  return paths;
+}
+
+export interface Props {
+  lang: string;
+}
+
+const { locale } = Astro.params;
+const { lang } = Astro.props as Props;
+---
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>404</title>
+	</head>
+	<body>
+		<h1>404</h1>
+    <a href={`/${locale}`}>&#x2302;</a>
+	</body>
+</html>
