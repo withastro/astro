@@ -4,7 +4,7 @@
 npm init astro -- --template subpath
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/subpath)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/subpath?initialPath=/blog/)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 

@@ -4,7 +4,7 @@
 npm init astro -- --template with-vite-plugin-pwa
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-vite-plugin-pwa)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
