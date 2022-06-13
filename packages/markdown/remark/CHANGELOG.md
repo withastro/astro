@@ -1,5 +1,19 @@
 # @astrojs/markdown-remark
 
+## 0.11.2
+
+### Patch Changes
+
+- [#3572](https://github.com/withastro/astro/pull/3572) [`5c73f614`](https://github.com/withastro/astro/commit/5c73f614e8f579e04fe61c948b69be7bc6d81d5d) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix remarkMdxish performance issue on huge sites
+
+## 0.11.1
+
+### Patch Changes
+
+- [#3564](https://github.com/withastro/astro/pull/3564) [`76fb01cf`](https://github.com/withastro/astro/commit/76fb01cff1002f2a37e93869378802156c4eca7c) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix autolinking of URLs inside links
+
+* [#3554](https://github.com/withastro/astro/pull/3554) [`c549f161`](https://github.com/withastro/astro/commit/c549f161cadd76a666672556f2c2d63b5f97f00d) Thanks [@hippotastic](https://github.com/hippotastic)! - Allow AlpineJS syntax extensions in Markdown
+
 ## 0.11.0
 
 ### Minor Changes

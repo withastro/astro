@@ -1,5 +1,4 @@
 import { test as base, expect } from '@playwright/test';
-import os from 'os';
 import { loadFixture } from './test-utils.js';
 
 const test = base.extend({
@@ -111,49 +110,83 @@ test.describe('Multiple frameworks', () => {
 		test('Page template', async ({ astro, page }) => {
 			await page.goto('/');
 
-			// 1: updating the page template
-			const preactSlot = page.locator('#preact-counter + .counter-message');
-			await expect(preactSlot, 'initial slot content').toHaveText('Hello Preact!');
+			const slot = page.locator('#preact-counter + .counter-message');
+			await expect(slot, 'initial slot content').toHaveText('Hello Preact!');
 
 			await astro.editFile('./src/pages/index.astro', (content) =>
 				content.replace('Hello Preact!', 'Hello Preact, updated!')
 			);
 
-			await expect(preactSlot, 'slot content updated').toHaveText('Hello Preact, updated!');
+			await expect(slot, 'slot content updated').toHaveText('Hello Preact, updated!');
 		});
 
 		test('React component', async ({ astro, page }) => {
 			await page.goto('/');
 
-			// Edit the react component
+			const count = await page.locator('#react-counter pre');
+			await expect(count, 'initial count updated to 0').toHaveText('0');
+
 			await astro.editFile('./src/components/ReactCounter.jsx', (content) =>
 				content.replace('useState(0)', 'useState(5)')
 			);
 
-			const reactCount = await page.locator('#react-counter pre');
-			await expect(reactCount, 'initial count updated to 5').toHaveText('5');
+			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 
-		// TODO: HMR works on Ubuntu, why is this specific test failing in CI?
-		const it = os.platform() === 'linux' ? test.skip : test;
-		it('Svelte component', async ({ astro, page }) => {
+		test('Preact component', async ({ astro, page }) => {
 			await page.goto('/');
 
-			// Edit the svelte component's style
-			const svelteCounter = page.locator('#svelte-counter');
-			await expect(svelteCounter, 'initial background is white').toHaveCSS(
-				'background-color',
-				'rgb(255, 255, 255)'
+			const count = await page.locator('#preact-counter pre');
+			await expect(count, 'initial count updated to 0').toHaveText('0');
+
+			await astro.editFile('./src/components/PreactCounter.tsx', (content) =>
+				content.replace('useState(0)', 'useState(5)')
 			);
+
+			await expect(count, 'initial count updated to 5').toHaveText('5');
+		});
+
+		test('Solid component', async ({ astro, page }) => {
+			await page.goto('/');
+
+			const count = await page.locator('#solid-counter pre');
+			await expect(count, 'initial count updated to 0').toHaveText('0');
+
+			await astro.editFile('./src/components/SolidCounter.tsx', (content) =>
+				content.replace('createSignal(0)', 'createSignal(5)')
+			);
+
+			await expect(count, 'initial count updated to 5').toHaveText('5');
+		});
+
+		// TODO: re-enable this test when #3559 is fixed
+		// https://github.com/withastro/astro/issues/3559
+		test.skip('Vue component', async ({ astro, page }) => {
+			await page.goto('/');
+
+			const count = await page.locator('#vue-counter pre');
+			await expect(count, 'initial count updated to 0').toHaveText('0');
+
+			await astro.editFile('./src/components/VueCounter.vue', (content) =>
+				content.replace('ref(0)', 'ref(5)')
+			);
+
+			await expect(count, 'initial count updated to 5').toHaveText('5');
+		});
+
+		// TODO: track down a reliability issue in this test
+		// It seems to lost connection to the vite server in CI
+		test.skip('Svelte component', async ({ astro, page }) => {
+			await page.goto('/');
+
+			const count = page.locator('#svelte-counter pre');
+			await expect(count, 'initial count is 0').toHaveText('0');
 
 			await astro.editFile('./src/components/SvelteCounter.svelte', (content) =>
-				content.replace('background: white', 'background: rgb(230, 230, 230)')
+				content.replace('let count = 0;', 'let count = 5;')
 			);
 
-			await expect(svelteCounter, 'background color updated').toHaveCSS(
-				'background-color',
-				'rgb(230, 230, 230)'
-			);
+			await expect(count, 'initial count updated to 5').toHaveText('5');
 		});
 	});
 });

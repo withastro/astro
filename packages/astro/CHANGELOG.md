@@ -1,5 +1,29 @@
 # astro
 
+## 1.0.0-beta.44
+
+### Patch Changes
+
+- [#3568](https://github.com/withastro/astro/pull/3568) [`614769a3`](https://github.com/withastro/astro/commit/614769a39b4976dc292d1ed7fa1735811c0bdb8c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes race condition causing the "self accepting" error message
+
+* [#3557](https://github.com/withastro/astro/pull/3557) [`3ec41f28`](https://github.com/withastro/astro/commit/3ec41f284c7c6e7abfb75704ffbf19cdf3e3eaa0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve the way YAML errors are surfaced
+
+* Updated dependencies [[`5c73f614`](https://github.com/withastro/astro/commit/5c73f614e8f579e04fe61c948b69be7bc6d81d5d)]:
+  - @astrojs/markdown-remark@0.11.2
+
+## 1.0.0-beta.43
+
+### Patch Changes
+
+- [#3552](https://github.com/withastro/astro/pull/3552) [`3eb96a7a`](https://github.com/withastro/astro/commit/3eb96a7ab768a807d2b665dfa692ca9d6ae18d20) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix: Astro.site should default to localhost when not provided in a project's config
+
+* [#3540](https://github.com/withastro/astro/pull/3540) [`78164033`](https://github.com/withastro/astro/commit/78164033060d22d45ef89f9d8b87b649aa350e66) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix: showing a more helpful error message when an import in an Astro component could not be resolved
+
+- [#3547](https://github.com/withastro/astro/pull/3547) [`a83d5817`](https://github.com/withastro/astro/commit/a83d5817141081ac28f84a436c177af63decd831) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: show "unable to find network to expose" with local network log when using --host without suitable networks
+
+- Updated dependencies [[`76fb01cf`](https://github.com/withastro/astro/commit/76fb01cff1002f2a37e93869378802156c4eca7c), [`c549f161`](https://github.com/withastro/astro/commit/c549f161cadd76a666672556f2c2d63b5f97f00d)]:
+  - @astrojs/markdown-remark@0.11.1
+
 ## 1.0.0-beta.42
 
 ### Patch Changes
