@@ -34,12 +34,13 @@
 				const props = this.hasAttribute('props') ? JSON.parse(this.getAttribute('props')!, reviver) : {};
 				const rendererUrl = this.getAttribute('renderer-url');
 				const [
-					{ default: Component },
+					componentModule,
 					{ default: hydrate }
 				] = await Promise.all([
 					import(this.getAttribute('component-url')!),
 					rendererUrl ? import(rendererUrl) : () => () => {}
 				]);
+				const Component = componentModule[this.getAttribute('component-export') || 'default'];
 				return (el: HTMLElement, children: string) => hydrate(el)(Component, props, children, { client: this.getAttribute('client') });
 			});
 		}
