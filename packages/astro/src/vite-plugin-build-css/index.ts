@@ -175,7 +175,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										facadeModuleId: imp,
 										code: `/* Pure CSS chunk ${imp} */ ${bindings.map(
 											(b) => `export const ${b} = {};`
-										)}`,
+										).join('')}`,
 										dynamicImports: [],
 										implicitlyLoadedBefore: [],
 										importedBindings: {},

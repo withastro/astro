@@ -1369,9 +1369,11 @@ importers:
 
   packages/astro/test/fixtures/fontsource-package:
     specifiers:
+      '@fontsource/monofett': 4.5.7
       '@fontsource/montserrat': 4.5.11
       astro: workspace:*
     dependencies:
+      '@fontsource/monofett': 4.5.7
       '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
@@ -3933,6 +3935,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@fontsource/monofett/4.5.7:
+    resolution: {integrity: sha512-30KS+Sn2NxN+I7kzmHyPEJIpunILmtk4wIMz8WdlFlFgrookmdcnetRyOgyR22LRMnzQuWYuQnFfvARo1Qo2nA==}
+    dev: false
 
   /@fontsource/montserrat/4.5.11:
     resolution: {integrity: sha512-XAYZmprnZDVSLIeEiB3evVG2JD+yoR9aT+I6LCOcwZFQ6ro9UPpopDncqoqwv+j5M0/UjyAP6ov70+L/fmP8Gg==}
@@ -8134,6 +8140,11 @@ packages:
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -11027,6 +11038,8 @@ packages:
       debug: 3.2.7
       iconv-lite: 0.4.24
       sax: 1.2.4
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /netmask/2.0.2:
@@ -11110,6 +11123,8 @@ packages:
       rimraf: 2.7.1
       semver: 5.7.1
       tar: 4.4.19
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /node-releases/2.0.5:
