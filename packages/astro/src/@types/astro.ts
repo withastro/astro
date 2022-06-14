@@ -760,7 +760,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent;
+		frontmatter: MarkdownContent<T>;
 		$$metadata: Metadata;
 		default: AstroComponentFactory;
 	}>;
@@ -817,10 +817,9 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
  * The `content` prop given to a Layout
  * https://docs.astro.build/guides/markdown-content/#markdown-layouts
  */
-export interface MarkdownContent {
-	[key: string]: any;
+export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
-}
+};
 
 /**
  * paginate() Options
