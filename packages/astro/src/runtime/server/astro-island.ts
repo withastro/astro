@@ -34,6 +34,8 @@
 					import(this.getAttribute('directive-url')!),
 					import(this.getAttribute('before-hydration-url')!)
 				]);
+				window.addEventListener('astro:hydrate', this.hydrate);
+
 				const opts = JSON.parse(this.getAttribute('opts')!);
 				setup(this, opts, async () => {
 					const rendererUrl = this.getAttribute('renderer-url');
@@ -49,31 +51,38 @@
 					return this.hydrate;
 				});
 			}
-			hydrate = () => {
-				if(this.parentElement?.closest('astro-island[ssr]')) {
-					window.addEventListener('astro:hydrate', this.hydrate, { once: true });
-				} else {
-					let innerHTML: string | null = null;
-					let fragment = this.querySelector('astro-fragment');
-					if (fragment == null && this.hasAttribute('tmpl')) {
-						// If there is no child fragment, check to see if there is a template.
-						// This happens if children were passed but the client component did not render any.
-						let template = this.querySelector('template[data-astro-template]');
-						if (template) {
-							innerHTML = template.innerHTML;
-							template.remove();
-						}
-					} else if (fragment) {
-						innerHTML = fragment.innerHTML;
-					}
-					const props = this.hasAttribute('props') ? JSON.parse(this.getAttribute('props')!, reviver) : {};
-					this.hydrator(this)(this.Component, props, innerHTML, {
-						client: this.getAttribute('client')
-					});
+		hydrate = () => {
+				if(!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
+					return;
 				}
+				let innerHTML: string | null = null;
+				let fragment = this.querySelector('astro-fragment');
+				if (fragment == null && this.hasAttribute('tmpl')) {
+					// If there is no child fragment, check to see if there is a template.
+					// This happens if children were passed but the client component did not render any.
+					let template = this.querySelector('template[data-astro-template]');
+					if (template) {
+						innerHTML = template.innerHTML;
+						template.remove();
+					}
+				} else if (fragment) {
+					innerHTML = fragment.innerHTML;
+				}
+				const props = this.hasAttribute('props') ? JSON.parse(this.getAttribute('props')!, reviver) : {};
+				this.hydrator(this)(this.Component, props, innerHTML, {
+					client: this.getAttribute('client')
+				});
+				this.removeAttribute('ssr');
+				window.removeEventListener('astro:hydrate', this.hydrate);
+				window.dispatchEvent(new CustomEvent('astro:hydrate'));
 			}
 			attributeChangedCallback() {
-				if(this.hydrator) this.hydrate();
+				try {
+					if(this.hydrator) this.hydrate();
+				} catch( err) {
+					debugger;
+				}
+				
 			}
 		});
 	}
