@@ -1,5 +1,25 @@
 # astro
 
+## 1.0.0-beta.45
+
+### Patch Changes
+
+- [#3593](https://github.com/withastro/astro/pull/3593) [`0e2314d8`](https://github.com/withastro/astro/commit/0e2314d8e5b01f7b2184a243c6d7e53e14b0cd0f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes uses of inline hoisted scripts in SSR
+
+* [#3590](https://github.com/withastro/astro/pull/3590) [`d46f8fb1`](https://github.com/withastro/astro/commit/d46f8fb14d3c702d62cc327de23562078fca0088) Thanks [@okikio](https://github.com/okikio)! - Add support for optional integrations
+
+  By making integration optional, Astro can now ignore null, undefined or other [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) "Integration" values instead of giving an internal error most devs can't and/or won't understand.
+
+  This also enables conditional integrations,
+  e.g.
+
+  ```ts
+  integration: [
+    // Only run `compress` integration when in production environments, etc...
+    import.meta.env.production ? compress() : null,
+  ];
+  ```
+
 ## 1.0.0-beta.44
 
 ### Patch Changes
