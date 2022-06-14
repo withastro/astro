@@ -1,5 +1,15 @@
 # astro
 
+## 1.0.0-beta.46
+
+### Patch Changes
+
+- [`d1f3406d`](https://github.com/withastro/astro/commit/d1f3406d85aea6e121f20d1d054140f05aea4424) - Add support for the `injectRoute` hook proposed in [RFC0023](https://github.com/withastro/rfcs/blob/main/proposals/0023-inject-route.md). Feature documentation is available in [#704](https://github.com/withastro/docs/pull/704)
+
+* [#3397](https://github.com/withastro/astro/pull/3397) [`48161b77`](https://github.com/withastro/astro/commit/48161b77caf35a9f3c285c0c7fbb9d8a937241c9) Thanks [@happycollision](https://github.com/happycollision)! - MarkdownInstance: Persist frontmatter type into the return of `.default()`
+
+- [#3595](https://github.com/withastro/astro/pull/3595) [`330fef44`](https://github.com/withastro/astro/commit/330fef448e9be257bb3a740387222935e3656c8a) Thanks [@matthewp](https://github.com/matthewp)! - Handle importing multiple CSS packages in same bundle
+
 ## 1.0.0-beta.45
 
 ### Patch Changes
