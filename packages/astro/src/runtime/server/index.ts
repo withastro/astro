@@ -32,6 +32,14 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // object corresponds to one page request, we are using it as a key to know.
 const resultsWithHydrationScript = new WeakSet<SSRResult>();
 
+function determineIfNeedsHydrationScript(result: SSRResult): boolean {
+	if(resultsWithHydrationScript.has(result)) {
+		return false;
+	}
+	resultsWithHydrationScript.add(result);
+	return true;
+}
+
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
 
@@ -182,6 +190,7 @@ export async function renderComponent(
 
 	const { hydration, props } = extractDirectives(_props);
 	let html = '';
+	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
 
 	if (hydration) {
 		metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
@@ -345,8 +354,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// is scoped to a page renderer we can use it as a key to know if the script
 	// has been rendered or not.
 	let script = '';
-	if(!resultsWithHydrationScript.has(result)) {
-		resultsWithHydrationScript.add(result);
+	if(needsHydrationScript) {
 		// Note that this is a class script, not a module script.
 		// This is so that it executes immediate, and when the browser encounters
 		// an astro-island element the callbacks will fire immediately, causing the JS

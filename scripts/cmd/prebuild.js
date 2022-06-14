@@ -32,7 +32,8 @@ export default async function prebuild(...args) {
 	async function prebuildFile(filepath) {
 		const tscode = await fs.promises.readFile(filepath, 'utf-8');
 		const esbuildresult = await esbuild.transform(tscode, {
-			loader: 'ts', minify: true
+			loader: 'ts',
+			minify: true
 		});
 		const rootURL = new URL('../../', import.meta.url);
 		const rel = path.relative(fileURLToPath(rootURL), filepath)

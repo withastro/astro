@@ -767,7 +767,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 }
 
 export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
+	() => void | Promise<void>
 >;
 
 /**

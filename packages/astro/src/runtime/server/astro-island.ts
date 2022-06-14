@@ -1,5 +1,6 @@
 // Note that this file is prebuilt to astro-island.prebuilt.ts
 // Do not import this file directly, instead import the prebuilt one instead.
+// pnpm --filter astro run prebuild
 
 {
 	interface PropTypeSelector {
@@ -23,26 +24,57 @@
 		return (type in propTypes) ? propTypes[type](value) : undefined;
 	};
 
-	customElements.define('astro-island', class extends HTMLElement {
-		async connectedCallback(){
-			const [ { default: setup } ] = await Promise.all([
-				import(this.getAttribute('directive-url')!),
-				import(this.getAttribute('before-hydration-url')!)
-			]);
-			const opts = JSON.parse(this.getAttribute('opts')!);
-			setup(this, opts, async () => {
-				const props = this.hasAttribute('props') ? JSON.parse(this.getAttribute('props')!, reviver) : {};
-				const rendererUrl = this.getAttribute('renderer-url');
-				const [
-					componentModule,
-					{ default: hydrate }
-				] = await Promise.all([
-					import(this.getAttribute('component-url')!),
-					rendererUrl ? import(rendererUrl) : () => () => {}
+	if(!customElements.get('astro-island')) {
+		customElements.define('astro-island', class extends HTMLElement {
+			public Component: any;
+			public hydrator: any;
+			static observedAttributes = ['props'];
+			async connectedCallback(){
+				const [ { default: setup } ] = await Promise.all([
+					import(this.getAttribute('directive-url')!),
+					import(this.getAttribute('before-hydration-url')!)
 				]);
-				const Component = componentModule[this.getAttribute('component-export') || 'default'];
-				return (el: HTMLElement, children: string) => hydrate(el)(Component, props, children, { client: this.getAttribute('client') });
-			});
-		}
-	});
+				const opts = JSON.parse(this.getAttribute('opts')!);
+				setup(this, opts, async () => {
+					const rendererUrl = this.getAttribute('renderer-url');
+					const [
+						componentModule,
+						{ default: hydrator }
+					] = await Promise.all([
+						import(this.getAttribute('component-url')!),
+						rendererUrl ? import(rendererUrl) : () => () => {}
+					]);
+					this.Component = componentModule[this.getAttribute('component-export') || 'default'];
+					this.hydrator = hydrator;
+					return this.hydrate;
+				});
+			}
+			hydrate = () => {
+				if(this.parentElement?.closest('astro-island[ssr]')) {
+					window.addEventListener('astro:hydrate', this.hydrate, { once: true });
+				} else {
+					let innerHTML: string | null = null;
+					let fragment = this.querySelector('astro-fragment');
+					if (fragment == null && this.hasAttribute('tmpl')) {
+						// If there is no child fragment, check to see if there is a template.
+						// This happens if children were passed but the client component did not render any.
+						let template = this.querySelector('template[data-astro-template]');
+						if (template) {
+							innerHTML = template.innerHTML;
+							template.remove();
+						}
+					} else if (fragment) {
+						innerHTML = fragment.innerHTML;
+					}
+					const props = this.hasAttribute('props') ? JSON.parse(this.getAttribute('props')!, reviver) : {};
+					this.hydrator(this)(this.Component, props, innerHTML, {
+						client: this.getAttribute('client')
+					});
+				}
+			}
+			attributeChangedCallback() {
+				if(this.hydrator) this.hydrate();
+			}
+		});
+	}
 }
