@@ -46,6 +46,9 @@ export async function runHookConfigSetup({
 				updateConfig: (newConfig) => {
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
 				},
+				injectRoute: (injectRoute) => {
+					updatedConfig._ctx.injectedRoutes.push(injectRoute);
+				},
 			});
 		}
 	}

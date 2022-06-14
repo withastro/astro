@@ -710,6 +710,11 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
+
+export interface InjectedRoute {
+	pattern: string,
+	entryPoint: string
+}
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -721,6 +726,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		injectedRoutes: InjectedRoute[],
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
@@ -929,6 +935,7 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
+			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -966,6 +973,7 @@ export interface RoutePart {
 }
 
 export interface RouteData {
+	route: string,
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];

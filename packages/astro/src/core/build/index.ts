@@ -55,7 +55,7 @@ class AstroBuilder {
 		this.origin = config.site
 			? new URL(config.site).origin
 			: `http://localhost:${config.server.port}`;
-		this.manifest = createRouteManifest({ config }, this.logging);
+		this.manifest = {routes: []};
 		this.timer = {};
 	}
 
@@ -66,6 +66,8 @@ class AstroBuilder {
 		this.timer.init = performance.now();
 		this.timer.viteStart = performance.now();
 		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
+		this.manifest = createRouteManifest({ config: this.config }, this.logging);
+
 		const viteConfig = await createVite(
 			{
 				mode: this.mode,

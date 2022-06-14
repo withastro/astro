@@ -4,10 +4,12 @@ import type { LogOptions } from '../../logger/core';
 import fs from 'fs';
 import path from 'path';
 import slash from 'slash';
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+const require = createRequire(import.meta.url);
 
 interface Item {
 	basename: string;
@@ -93,6 +95,23 @@ function isSpread(str: string) {
 	return spreadPattern.test(str);
 }
 
+function validateSegment(segment: string, file = '') {
+  if(!file) file = segment;
+
+  if (/^\$/.test(segment)) {
+    throw new Error(`Invalid route ${file} \u2014 Astro's Collections API has been replaced by dynamic route params.`);
+  }
+  if (/\]\[/.test(segment)) {
+    throw new Error(`Invalid route ${file} \u2014 parameters must be separated`);
+  }
+  if (countOccurrences("[", segment) !== countOccurrences("]", segment)) {
+    throw new Error(`Invalid route ${file} \u2014 brackets are unbalanced`);
+  }
+  if (/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) {
+    throw new Error(`Invalid route ${file} \u2014 rest parameter must be a standalone segment`);
+  }
+}
+
 function comparator(a: Item, b: Item) {
 	if (a.isIndex !== b.isIndex) {
 		if (a.isIndex) return isSpread(a.file) ? 1 : -1;
@@ -168,20 +187,7 @@ export function createRouteManifest(
 				return;
 			}
 			const segment = isDir ? basename : name;
-			if (/^\$/.test(segment)) {
-				throw new Error(
-					`Invalid route ${file} — Astro's Collections API has been replaced by dynamic route params.`
-				);
-			}
-			if (/\]\[/.test(segment)) {
-				throw new Error(`Invalid route ${file} — parameters must be separated`);
-			}
-			if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
-				throw new Error(`Invalid route ${file} — brackets are unbalanced`);
-			}
-			if (/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) {
-				throw new Error(`Invalid route ${file} — rest parameter must be a standalone segment`);
-			}
+			validateSegment(segment, file);
 
 			const parts = getParts(segment, file);
 			const isIndex = isDir ? false : basename.startsWith('index.');
@@ -247,8 +253,10 @@ export function createRouteManifest(
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
 					? `/${segments.map((segment) => segment[0].content).join('/')}`
 					: null;
+				const route = `/${segments.map(([{dynamic, content}]) => dynamic ? `[${content}]` : content).join('/')}`.toLowerCase();
 
 				routes.push({
+					route,
 					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
 					segments,
@@ -265,11 +273,50 @@ export function createRouteManifest(
 
 	if (fs.existsSync(pages)) {
 		walk(fileURLToPath(pages), [], []);
-	} else {
+	} else if (config?._ctx?.injectedRoutes?.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(config.root.href.length);
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
+
+	config?._ctx?.injectedRoutes?.forEach(({pattern: name, entryPoint}) => {
+		const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+
+		const isDynamic = (str: string) => str?.[0] === '[';
+		const normalize = (str: string) => str?.substring(1, str?.length - 1);
+
+		const segments = name.split(path.sep)
+			.filter(Boolean)
+			.map((s: string) => {
+				validateSegment(s);
+
+				const dynamic = isDynamic(s);
+				const content = dynamic ? normalize(s) : s;
+				return [{
+					content,
+					dynamic,
+					spread: isSpread(s)
+				}]
+			});
+
+		const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
+		const isPage = type === 'page';
+		const trailingSlash = isPage ? config.trailingSlash : "never";
+
+		const pattern = getPattern(segments, trailingSlash);
+		const generate = getRouteGenerator(segments, trailingSlash);
+		const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join("/")}` : null;
+		const params = segments.flat().filter((p) => p.dynamic).map((p) => p.content);
+		const route = `/${segments.map(([{dynamic, content}]) => dynamic ? `[${content}]` : content).join('/')}`.toLowerCase();
+
+		const collision = routes.find(({route: r}) => r === route);
+		if(collision) {
+			throw new Error(`An integration attempted to inject a route that is already used in your project: "${route}" at "${component}". \nThis route collides with: "${collision.component}".`);
+		}
+
+		routes.push({type, route, pattern, segments, params, component, generate, pathname: pathname || void 0})
+	});
 
 	return {
 		routes,
