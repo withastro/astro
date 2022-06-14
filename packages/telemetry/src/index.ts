@@ -12,7 +12,6 @@ import * as KEY from './keys.js';
 import { post } from './post.js';
 import { getRawProjectId } from './project-id.js';
 
-
 export interface AstroTelemetryOptions {
 	version: string;
 }
@@ -103,7 +102,7 @@ export class AstroTelemetry {
 		return this.oneWayHash(this.rawProjectId);
 	}
 
-	private get projectMetadata(): undefined | { owner: string, name: string } {
+	private get projectMetadata(): undefined | { owner: string; name: string } {
 		const projectId = this.rawProjectId;
 		if (projectId === process.cwd()) {
 			return;
