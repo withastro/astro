@@ -3,12 +3,15 @@ import { createHash, randomBytes } from 'node:crypto';
 
 import { isCI } from 'ci-info';
 import debug from 'debug';
+// @ts-ignore
+import gitUp from 'git-up';
 
 import { getAnonymousMeta } from './anonymous-meta.js';
 import { Config } from './config.js';
 import * as KEY from './keys.js';
 import { post } from './post.js';
 import { getRawProjectId } from './project-id.js';
+
 
 export interface AstroTelemetryOptions {
 	version: string;
@@ -19,6 +22,7 @@ export type TelemetryEvent = { eventName: string; payload: Record<string, any> }
 interface EventContext {
 	anonymousId: string;
 	projectId: string;
+	projectMetadata: any;
 	sessionId: string;
 }
 
@@ -77,6 +81,12 @@ export class AstroTelemetry {
 		return this.getWithFallback(KEY.TELEMETRY_NOTIFY_DATE, '');
 	}
 
+	private hash(payload: BinaryLike): string {
+		const hash = createHash('sha256');
+		hash.update(payload);
+		return hash.digest('hex');
+	}
+
 	// Create a ONE-WAY hash so there is no way for Astro to decode the value later.
 	private oneWayHash(payload: BinaryLike): string {
 		const hash = createHash('sha256');
@@ -91,6 +101,18 @@ export class AstroTelemetry {
 	// be reversed from the hashed value.
 	private get projectId(): string {
 		return this.oneWayHash(this.rawProjectId);
+	}
+
+	private get projectMetadata(): undefined | { owner: string, name: string } {
+		const projectId = this.rawProjectId;
+		if (projectId === process.cwd()) {
+			return;
+		}
+		const { pathname, resource } = gitUp(projectId);
+		const parts = pathname.split('/').slice(1);
+		const owner = `${resource}${parts[0]}`;
+		const name = parts[1].replace('.git', '');
+		return { owner: this.hash(owner), name: this.hash(name) };
 	}
 
 	private get isDisabled(): boolean {
@@ -154,6 +176,7 @@ export class AstroTelemetry {
 		const context: EventContext = {
 			anonymousId: this.anonymousId,
 			projectId: this.projectId,
+			projectMetadata: this.projectMetadata,
 			sessionId: this.sessionId,
 		};
 		const meta = getAnonymousMeta(this.astroVersion);
