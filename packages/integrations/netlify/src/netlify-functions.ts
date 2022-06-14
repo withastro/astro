@@ -12,6 +12,8 @@ interface Args {}
 export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
 
+	const base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+
 	const handler: Handler = async (event) => {
 		const { httpMethod, headers, rawUrl, body: requestBody, isBase64Encoded } = event;
 		const init: RequestInit = {
@@ -35,12 +37,14 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 
 		const response: Response = await app.render(request);
 		const responseBody = await response.text();
+		const responseIsBase64 = base64Regex.test(responseBody);
 
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 		const fnResponse: any = {
 			statusCode: response.status,
 			headers: responseHeaders,
 			body: responseBody,
+			isBase64Encoded: responseIsBase64,
 		};
 
 		// Special-case set-cookie which has to be set an different way :/
