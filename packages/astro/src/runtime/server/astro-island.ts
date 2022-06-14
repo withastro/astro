@@ -77,12 +77,7 @@
 				window.dispatchEvent(new CustomEvent('astro:hydrate'));
 			}
 			attributeChangedCallback() {
-				try {
-					if(this.hydrator) this.hydrate();
-				} catch( err) {
-					debugger;
-				}
-				
+				if(this.hydrator) this.hydrate();
 			}
 		});
 	}
