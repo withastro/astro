@@ -80,7 +80,7 @@ export class App {
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 
 		const filteredScripts = info.scripts.filter(
-			(script) => typeof script !== 'string' && script?.stage !== 'head-inline'
+			(script) => typeof script === 'string' || script?.stage !== 'head-inline'
 		) as string[];
 		const scripts = createModuleScriptElementWithSrcSet(filteredScripts, manifest.site);
 
