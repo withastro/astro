@@ -21,18 +21,18 @@ export async function runHookConfigSetup({
 
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
-		/** 
+		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read
-		 * 
-		 * This also enables optional integrations, e.g. 
+		 *
+		 * This also enables optional integrations, e.g.
 		 * ```ts
-		 * integration: [ 
+		 * integration: [
 		 *   // Only run `compress` integration in production environments, etc...
 		 *   import.meta.env.production ? compress() : null
 		 * ]
 		 * ```
-		*/ 
+		 */
 		if (integration?.hooks?.['astro:config:setup']) {
 			await integration.hooks['astro:config:setup']({
 				config: updatedConfig,
