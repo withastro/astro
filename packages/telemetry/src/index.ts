@@ -178,7 +178,6 @@ export class AstroTelemetry {
 			projectMetadata: this.projectMetadata,
 			sessionId: this.sessionId,
 		};
-		console.log({ context });
 		const meta = getAnonymousMeta(this.astroVersion);
 
 		const req = post({
