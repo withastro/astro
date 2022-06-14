@@ -712,8 +712,8 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  */
 
 export interface InjectedRoute {
-	pattern: string,
-	entryPoint: string
+	pattern: string;
+	entryPoint: string;
 }
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
@@ -726,7 +726,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
-		injectedRoutes: InjectedRoute[],
+		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
@@ -973,7 +973,7 @@ export interface RoutePart {
 }
 
 export interface RouteData {
-	route: string,
+	route: string;
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
