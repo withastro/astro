@@ -1,5 +1,5 @@
-import { validateGetStaticPathsParameter } from './validation.js';
 import type { Params } from '../../@types/astro';
+import { validateGetStaticPathsParameter } from './validation.js';
 
 /**
  * given an array of params like `['x', 'y', 'z']` for

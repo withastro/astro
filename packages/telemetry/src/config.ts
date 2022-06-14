@@ -1,9 +1,9 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-import process from 'node:process';
-import { dset } from 'dset';
 import dget from 'dlv';
+import { dset } from 'dset';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
 
 export interface ConfigOptions {
 	name: string;

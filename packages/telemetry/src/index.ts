@@ -3,14 +3,15 @@ import { createHash, randomBytes } from 'node:crypto';
 
 import { isCI } from 'ci-info';
 import debug from 'debug';
-
-import * as KEY from './keys.js';
-import { post } from './post.js';
-import { getAnonymousMeta } from './anonymous-meta.js';
-import { getRawProjectId } from './project-id.js';
 // @ts-ignore
 import gitUp from 'git-up';
+
+import { getAnonymousMeta } from './anonymous-meta.js';
 import { Config } from './config.js';
+import * as KEY from './keys.js';
+import { post } from './post.js';
+import { getRawProjectId } from './project-id.js';
+
 
 export interface AstroTelemetryOptions {
 	version: string;

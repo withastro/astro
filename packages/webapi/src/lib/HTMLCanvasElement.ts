@@ -1,7 +1,7 @@
 import type { CanvasRenderingContext2D } from './CanvasRenderingContext2D'
 
-import * as _ from './utils'
 import { __createCanvasRenderingContext2D } from './CanvasRenderingContext2D'
+import * as _ from './utils'
 
 export class HTMLCanvasElement extends HTMLElement {
 	get height(): number {

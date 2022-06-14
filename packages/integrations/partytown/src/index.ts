@@ -1,10 +1,10 @@
-import type { AstroConfig, AstroIntegration } from 'astro';
-import sirv from './sirv.js';
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles } from '@builder.io/partytown/utils';
-import { fileURLToPath } from 'url';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { createRequire } from 'module';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
 
 type PartytownOptions =

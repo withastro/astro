@@ -1,10 +1,10 @@
-import { bold, cyan, dim, red, yellow, reset } from 'kleur/colors';
-import stringWidth from 'string-width';
 import debugPackage from 'debug';
-import { format as utilFormat } from 'util';
+import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
 import * as readline from 'readline';
 import { Writable } from 'stream';
-import { info, warn, error, dateTimeFormat } from './core.js';
+import stringWidth from 'string-width';
+import { format as utilFormat } from 'util';
+import { dateTimeFormat, error, info, warn } from './core.js';
 
 type ConsoleStream = Writable & {
 	fd: 1 | 2;

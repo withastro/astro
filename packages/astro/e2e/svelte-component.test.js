@@ -108,7 +108,10 @@ test.describe('Svelte components', () => {
 			original.replace('Hello, client:idle!', 'Hello, updated client:idle!')
 		);
 
+		const counter = page.locator('#client-idle');
 		const label = page.locator('#client-idle-message');
+
 		await expect(label, 'slot text updated').toHaveText('Hello, updated client:idle!');
+		await expect(counter, 'component styles persisted').toHaveCSS('display', 'grid');
 	});
 });

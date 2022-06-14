@@ -253,6 +253,8 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	return { local, network };
 }
 
+export const isLinux = os.platform() === 'linux';
+export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
 
 export function fixLineEndings(str) {

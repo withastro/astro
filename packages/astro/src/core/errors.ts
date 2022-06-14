@@ -1,8 +1,8 @@
+import eol from 'eol';
 import type { BuildResult } from 'esbuild';
+import fs from 'fs';
 import type { ViteDevServer } from 'vite';
 import type { SSRError } from '../@types/astro';
-import eol from 'eol';
-import fs from 'fs';
 import { codeFrame, createSafeError } from './util.js';
 
 export interface ErrorWithMetadata {
@@ -67,6 +67,19 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 	// normalize error stack line-endings to \n
 	if ((e as any).stack) {
 		(e as any).stack = eol.lf((e as any).stack);
+	}
+
+	if (e.name === 'YAMLException') {
+		const err = e as SSRError;
+		err.loc = { file: (e as any).id, line: (e as any).mark.line, column: (e as any).mark.column };
+		err.message = (e as any).reason;
+
+		if (!err.frame) {
+			try {
+				const fileContents = fs.readFileSync(err.loc.file!, 'utf8');
+				err.frame = codeFrame(fileContents, err.loc);
+			} catch {}
+		}
 	}
 
 	// Astro error (thrown by esbuild so it needs to be formatted for Vite)

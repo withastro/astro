@@ -9,15 +9,15 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import { LogOptions } from '../../logger/core.js';
-import { render as coreRender } from '../core.js';
 import { prependForwardSlash } from '../../../core/path.js';
+import { LogOptions } from '../../logger/core.js';
+import { isBuildingToSSR } from '../../util.js';
+import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
+import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
-import { isBuildingToSSR } from '../../util.js';
-import { collectMdMetadata } from '../util.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -140,28 +140,35 @@ export async function render(
 		}
 	}
 
-	// Pass framework CSS in as link tags to be appended to the page.
+	// Pass framework CSS in as style tags to be appended to the page.
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, viteServer, mode);
 	let links = new Set<SSRElement>();
-	[...(await getStylesForURL(filePath, viteServer))].forEach((href) => {
-		if (mode === 'development' && svelteStylesRE.test(href)) {
-			scripts.add({
-				props: { type: 'module', src: href },
-				children: '',
-			});
-		} else {
-			links.add({
-				props: {
-					rel: 'stylesheet',
-					href,
-					'data-astro-injected': true,
-				},
-				children: '',
-			});
-		}
+	[...styleUrls].forEach((href) => {
+		links.add({
+			props: {
+				rel: 'stylesheet',
+				href,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
+	});
+
+	let styles = new Set<SSRElement>();
+	[...stylesMap].forEach(([url, content]) => {
+		// The URL is only used by HMR for Svelte components
+		// See src/runtime/client/hmr.ts for more details
+		styles.add({
+			props: {
+				'data-astro-injected': svelteStylesRE.test(url) ? url : true,
+			},
+			children: content,
+		});
 	});
 
 	let content = await coreRender({
 		links,
+		styles,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

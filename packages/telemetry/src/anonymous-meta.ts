@@ -1,7 +1,7 @@
-import os from 'node:os';
+import { isCI, name as ciName } from 'ci-info';
 import isDocker from 'is-docker';
 import isWSL from 'is-wsl';
-import { isCI, name as ciName } from 'ci-info';
+import os from 'node:os';
 
 type AnonymousMeta = {
 	systemPlatform: NodeJS.Platform;

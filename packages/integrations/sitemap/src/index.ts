@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import fs from 'node:fs';
 const STATUS_CODE_PAGE_REGEXP = /\/[0-9]{3}\/?$/;
 
 type SitemapOptions =
@@ -15,7 +15,7 @@ type SitemapOptions =
 			 * filter: (page) => page !== 'http://example.com/secret-page'
 			 * ```
 			 */
-			filter?(page: string): string;
+			filter?(page: string): boolean;
 
 			/**
 			 * If you have any URL, not rendered by Astro, that you want to include in your sitemap,
@@ -61,14 +61,22 @@ export default function createPlugin({
 				config = _config;
 			},
 			'astro:build:done': async ({ pages, dir }) => {
-				const finalSiteUrl = canonicalURL || config.site;
-				if (!finalSiteUrl) {
+				let finalSiteUrl: URL;
+				if (canonicalURL) {
+					finalSiteUrl = new URL(canonicalURL);
+					finalSiteUrl.pathname += finalSiteUrl.pathname.endsWith('/') ? '' : '/'; // normalizes the final url since it's provided by user
+				} else if (config.site) {
+					finalSiteUrl = new URL(config.base, config.site);
+				} else {
 					console.warn(
 						'The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.'
 					);
 					return;
 				}
-				let pageUrls = pages.map((p) => new URL(p.pathname, finalSiteUrl).href);
+				let pageUrls = pages.map((p) => {
+					const path = finalSiteUrl.pathname + p.pathname;
+					return new URL(path, finalSiteUrl).href;
+				});
 				if (filter) {
 					pageUrls = pageUrls.filter((page: string) => filter(page));
 				}

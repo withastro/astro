@@ -17,7 +17,8 @@ export const ALIASES = new Map([
 	['tailwindcss', 'tailwind'],
 ]);
 export const CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
-export const TAILWIND_CONFIG_STUB = `module.exports = {
+export const TAILWIND_CONFIG_STUB = `/** @type {import('tailwindcss').Config} */
+module.exports = {
 	content: ['./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}'],
 	theme: {
 		extend: {},

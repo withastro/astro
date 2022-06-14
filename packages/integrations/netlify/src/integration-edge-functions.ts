@@ -1,6 +1,9 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig, RouteData } from 'astro';
-import { createRedirects } from './shared.js';
+import type { AstroAdapter, AstroConfig, AstroIntegration, BuildConfig, RouteData } from 'astro';
+import esbuild from 'esbuild';
 import * as fs from 'fs';
+import * as npath from 'path';
+import { fileURLToPath } from 'url';
+import { createRedirects } from './shared.js';
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -62,9 +65,35 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 	await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
 }
 
+async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
+	const entryUrl = new URL(buildConfig.serverEntry, buildConfig.server);
+	const pth = fileURLToPath(entryUrl);
+	await esbuild.build({
+		target: 'es2020',
+		platform: 'browser',
+		entryPoints: [pth],
+		outfile: pth,
+		allowOverwrite: true,
+		format: 'esm',
+		bundle: true,
+		external: ['@astrojs/markdown-remark'],
+	});
+
+	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
+	try {
+		const chunkFileNames =
+			vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+		const chunkPath = npath.dirname(chunkFileNames);
+		const chunksDirUrl = new URL(chunkPath + '/', buildConfig.server);
+		await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
+	} catch {}
+}
+
 export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let entryFile: string;
+	let _buildConfig: BuildConfig;
+	let _vite: any;
 	return {
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
@@ -80,6 +109,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
+				_buildConfig = buildConfig;
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
 				buildConfig.client = _config.outDir;
 				buildConfig.server = new URL('./.netlify/edge-functions/', _config.root);
@@ -87,6 +117,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
+					_vite = vite;
 					vite.resolve = vite.resolve || {};
 					vite.resolve.alias = vite.resolve.alias || {};
 
@@ -106,6 +137,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				}
 			},
 			'astro:build:done': async ({ routes, dir }) => {
+				await bundleServerEntry(_buildConfig, _vite);
 				await createEdgeManifest(routes, entryFile, _config.root);
 				await createRedirects(routes, dir, entryFile, true);
 			},

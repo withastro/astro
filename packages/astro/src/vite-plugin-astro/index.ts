@@ -1,21 +1,21 @@
-import type * as vite from 'vite';
 import type { PluginContext } from 'rollup';
+import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 
-import esbuild from 'esbuild';
-import { fileURLToPath } from 'url';
-import slash from 'slash';
-import fs from 'fs';
-import { getViteTransform, TransformHook } from './styles.js';
-import { parseAstroRequest } from './query.js';
-import { cachedCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
-import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
+import esbuild from 'esbuild';
+import fs from 'fs';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
+import { resolvePages } from '../core/util.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { resolvePages } from '../core/util.js';
+import { cachedCompilation } from './compile.js';
+import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
+import { parseAstroRequest } from './query.js';
+import { getViteTransform, TransformHook } from './styles.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -91,6 +91,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!id.endsWith('.astro') && !query.astro) {
+				return null;
+			}
+			// if we still get a relative path here, vite couldn't resolve the import
+			if (isRelativePath(parsedId.filename)) {
 				return null;
 			}
 

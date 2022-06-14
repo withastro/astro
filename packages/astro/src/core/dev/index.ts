@@ -1,5 +1,5 @@
-import type { AddressInfo } from 'net';
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
@@ -33,10 +33,27 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	await options.telemetry.record([]);
 	config = await runHookConfigSetup({ config, command: 'dev' });
 	const { host, port } = config.server;
+
+	// The client entrypoint for renderers. Since these are imported dynamically
+	// we need to tell Vite to preoptimize them.
+	const rendererClientEntries = config._ctx.renderers
+		.map((r) => r.clientEntrypoint)
+		.filter(Boolean) as string[];
+
 	const viteConfig = await createVite(
 		{
 			mode: 'development',
 			server: { host },
+			optimizeDeps: {
+				include: [
+					'astro/client/idle.js',
+					'astro/client/load.js',
+					'astro/client/visible.js',
+					'astro/client/media.js',
+					'astro/client/only.js',
+					...rendererClientEntries,
+				],
+			},
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);

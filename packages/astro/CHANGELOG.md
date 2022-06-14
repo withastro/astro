@@ -1,5 +1,71 @@
 # astro
 
+## 1.0.0-beta.45
+
+### Patch Changes
+
+- [#3593](https://github.com/withastro/astro/pull/3593) [`0e2314d8`](https://github.com/withastro/astro/commit/0e2314d8e5b01f7b2184a243c6d7e53e14b0cd0f) Thanks [@matthewp](https://github.com/matthewp)! - Fixes uses of inline hoisted scripts in SSR
+
+* [#3590](https://github.com/withastro/astro/pull/3590) [`d46f8fb1`](https://github.com/withastro/astro/commit/d46f8fb14d3c702d62cc327de23562078fca0088) Thanks [@okikio](https://github.com/okikio)! - Add support for optional integrations
+
+  By making integration optional, Astro can now ignore null, undefined or other [falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) "Integration" values instead of giving an internal error most devs can't and/or won't understand.
+
+  This also enables conditional integrations,
+  e.g.
+
+  ```ts
+  integration: [
+    // Only run `compress` integration when in production environments, etc...
+    import.meta.env.production ? compress() : null,
+  ];
+  ```
+
+## 1.0.0-beta.44
+
+### Patch Changes
+
+- [#3568](https://github.com/withastro/astro/pull/3568) [`614769a3`](https://github.com/withastro/astro/commit/614769a39b4976dc292d1ed7fa1735811c0bdb8c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes race condition causing the "self accepting" error message
+
+* [#3557](https://github.com/withastro/astro/pull/3557) [`3ec41f28`](https://github.com/withastro/astro/commit/3ec41f284c7c6e7abfb75704ffbf19cdf3e3eaa0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve the way YAML errors are surfaced
+
+* Updated dependencies [[`5c73f614`](https://github.com/withastro/astro/commit/5c73f614e8f579e04fe61c948b69be7bc6d81d5d)]:
+  - @astrojs/markdown-remark@0.11.2
+
+## 1.0.0-beta.43
+
+### Patch Changes
+
+- [#3552](https://github.com/withastro/astro/pull/3552) [`3eb96a7a`](https://github.com/withastro/astro/commit/3eb96a7ab768a807d2b665dfa692ca9d6ae18d20) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix: Astro.site should default to localhost when not provided in a project's config
+
+* [#3540](https://github.com/withastro/astro/pull/3540) [`78164033`](https://github.com/withastro/astro/commit/78164033060d22d45ef89f9d8b87b649aa350e66) Thanks [@tony-sull](https://github.com/tony-sull)! - Fix: showing a more helpful error message when an import in an Astro component could not be resolved
+
+- [#3547](https://github.com/withastro/astro/pull/3547) [`a83d5817`](https://github.com/withastro/astro/commit/a83d5817141081ac28f84a436c177af63decd831) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: show "unable to find network to expose" with local network log when using --host without suitable networks
+
+- Updated dependencies [[`76fb01cf`](https://github.com/withastro/astro/commit/76fb01cff1002f2a37e93869378802156c4eca7c), [`c549f161`](https://github.com/withastro/astro/commit/c549f161cadd76a666672556f2c2d63b5f97f00d)]:
+  - @astrojs/markdown-remark@0.11.1
+
+## 1.0.0-beta.42
+
+### Patch Changes
+
+- [#3537](https://github.com/withastro/astro/pull/3537) [`51c60de7`](https://github.com/withastro/astro/commit/51c60de76cf8dd8b589cb7ae61d43159a83ef03d) Thanks [@matthewp](https://github.com/matthewp)! - Fixes imported CSS packages in frontmatter
+
+* [#3492](https://github.com/withastro/astro/pull/3492) [`a87ce441`](https://github.com/withastro/astro/commit/a87ce4412c583bce739e18b890e92a9bdaeff59d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - - Improvements to how Astro handles style updates in HMR
+  - Fixes a Svelte-specific HMR bug that caused Svelte component styles to be lost once a .astro file was hot reloaded
+
+- [#3533](https://github.com/withastro/astro/pull/3533) [`d7688f05`](https://github.com/withastro/astro/commit/d7688f05c216a706105854474ba1caa737594871) Thanks [@matthewp](https://github.com/matthewp)! - Prevent minifying server JS
+
+## 1.0.0-beta.41
+
+### Patch Changes
+
+- [#3518](https://github.com/withastro/astro/pull/3518) [`df7c43df`](https://github.com/withastro/astro/commit/df7c43df632f276dabb9bce0ca59eb93d2ebc021) Thanks [@matthewp](https://github.com/matthewp)! - Allow importing .ts files with .js extension
+
+* [#3521](https://github.com/withastro/astro/pull/3521) [`85b90549`](https://github.com/withastro/astro/commit/85b905495d4bc538686109e056a821e35139c111) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix isSelfAccepting errors when hydrating JSX components
+
+* Updated dependencies [[`6c955ca6`](https://github.com/withastro/astro/commit/6c955ca643a7a071609ce8a5258cc7faf5a636b2), [`30578015`](https://github.com/withastro/astro/commit/30578015919e019cd8dd354288a45c1fc63bd01f), [`939fe159`](https://github.com/withastro/astro/commit/939fe159255cecf1cab5c1b3da2670d30ac8e4a7)]:
+  - @astrojs/markdown-remark@0.11.0
+
 ## 1.0.0-beta.40
 
 ### Patch Changes

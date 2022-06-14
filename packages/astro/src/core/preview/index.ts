@@ -1,15 +1,15 @@
+import type { AstroTelemetry } from '@astrojs/telemetry';
+import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
-import type { AddressInfo } from 'net';
-import type { AstroTelemetry } from '@astrojs/telemetry';
 
 import http from 'http';
-import sirv from 'sirv';
 import { performance } from 'perf_hooks';
+import sirv from 'sirv';
 import { fileURLToPath } from 'url';
-import * as msg from '../messages.js';
+import { notFoundTemplate, subpathNotUsedTemplate } from '../../template/4xx.js';
 import { error, info } from '../logger/core.js';
-import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
+import * as msg from '../messages.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {

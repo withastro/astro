@@ -1,10 +1,10 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
+import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
+import ssgAdapter from '../adapter-ssg/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
 import { isBuildingToSSR } from '../core/util.js';
 
@@ -21,7 +21,19 @@ export async function runHookConfigSetup({
 
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
-		if (integration.hooks['astro:config:setup']) {
+		/**
+		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
+		 * instead of giving an internal error most people can't read
+		 *
+		 * This also enables optional integrations, e.g.
+		 * ```ts
+		 * integration: [
+		 *   // Only run `compress` integration in production environments, etc...
+		 *   import.meta.env.production ? compress() : null
+		 * ]
+		 * ```
+		 */
+		if (integration?.hooks?.['astro:config:setup']) {
 			await integration.hooks['astro:config:setup']({
 				config: updatedConfig,
 				command,
@@ -42,7 +54,7 @@ export async function runHookConfigSetup({
 
 export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:config:done']) {
+		if (integration?.hooks?.['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
@@ -60,7 +72,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 	if (!config._ctx.adapter) {
 		const integration = ssgAdapter();
 		config.integrations.push(integration);
-		if (integration.hooks['astro:config:done']) {
+		if (integration?.hooks?.['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
@@ -79,7 +91,7 @@ export async function runHookServerSetup({
 	server: ViteDevServer;
 }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:server:setup']) {
+		if (integration?.hooks?.['astro:server:setup']) {
 			await integration.hooks['astro:server:setup']({ server });
 		}
 	}
@@ -93,7 +105,7 @@ export async function runHookServerStart({
 	address: AddressInfo;
 }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:server:start']) {
+		if (integration?.hooks?.['astro:server:start']) {
 			await integration.hooks['astro:server:start']({ address });
 		}
 	}
@@ -101,7 +113,7 @@ export async function runHookServerStart({
 
 export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:server:done']) {
+		if (integration?.hooks?.['astro:server:done']) {
 			await integration.hooks['astro:server:done']();
 		}
 	}
@@ -115,7 +127,7 @@ export async function runHookBuildStart({
 	buildConfig: BuildConfig;
 }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:build:start']) {
+		if (integration?.hooks?.['astro:build:start']) {
 			await integration.hooks['astro:build:start']({ buildConfig });
 		}
 	}
@@ -133,7 +145,7 @@ export async function runHookBuildSetup({
 	target: 'server' | 'client';
 }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:build:setup']) {
+		if (integration?.hooks?.['astro:build:setup']) {
 			await integration.hooks['astro:build:setup']({
 				vite,
 				pages,
@@ -154,7 +166,7 @@ export async function runHookBuildSsr({
 	manifest: SerializedSSRManifest;
 }) {
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:build:ssr']) {
+		if (integration?.hooks?.['astro:build:ssr']) {
 			await integration.hooks['astro:build:ssr']({ manifest });
 		}
 	}
@@ -174,7 +186,7 @@ export async function runHookBuildDone({
 	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
-		if (integration.hooks['astro:build:done']) {
+		if (integration?.hooks?.['astro:build:done']) {
 			await integration.hooks['astro:build:done']({
 				pages: pages.map((p) => ({ pathname: p })),
 				dir,

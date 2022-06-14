@@ -1,10 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types';
-import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData } from './internal.js';
+import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
 import { isBuildingToSSR } from '../util.js';
-import { resolvedPagesVirtualModuleId, pagesVirtualModuleId } from '../app/index.js';
+import { addRollupInput } from './add-rollup-input.js';
+import type { BuildInternals } from './internal.js';
+import { eachPageData } from './internal.js';
+import type { StaticBuildOptions } from './types';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {

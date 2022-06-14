@@ -1,25 +1,24 @@
 /* eslint-disable no-console */
 
-import type { AstroConfig } from '../@types/astro';
 import { LogOptions } from '../core/logger/core.js';
 
+import { AstroTelemetry } from '@astrojs/telemetry';
+import * as event from '@astrojs/telemetry/events';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { AstroTelemetry } from '@astrojs/telemetry';
-import * as event from '@astrojs/telemetry/events';
 
-import { nodeLogDestination, enableVerboseLogging } from '../core/logger/node.js';
-import build from '../core/build/index.js';
 import add from '../core/add/index.js';
+import build from '../core/build/index.js';
+import { openConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
+import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
+import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
+import { createSafeError } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
-import { openConfig } from '../core/config.js';
-import { printHelp, formatErrorMessage, formatConfigErrorMessage } from '../core/messages.js';
-import { createSafeError } from '../core/util.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =

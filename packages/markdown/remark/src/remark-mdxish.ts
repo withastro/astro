@@ -1,14 +1,19 @@
-import { mdxjs } from 'micromark-extension-mdxjs';
-import { mdxFromMarkdown, mdxToMarkdown } from './mdast-util-mdxish.js';
 import type * as fromMarkdown from 'mdast-util-from-markdown';
 import type { Tag } from 'mdast-util-mdx-jsx';
+import { mdxFromMarkdown, mdxToMarkdown } from './mdast-util-mdxish.js';
+import { mdxjs } from './mdxjs.js';
 
-export default function remarkMdxish(this: any, options = {}) {
+// Prepare markdown extensions once to prevent performance issues
+const extMdxJs = mdxjs({});
+const extMdxFromMarkdown = makeFromMarkdownLessStrict(mdxFromMarkdown());
+const extMdxToMarkdown = mdxToMarkdown();
+
+export default function remarkMdxish(this: any) {
 	const data = this.data();
 
-	add('micromarkExtensions', mdxjs(options));
-	add('fromMarkdownExtensions', makeFromMarkdownLessStrict(mdxFromMarkdown()));
-	add('toMarkdownExtensions', mdxToMarkdown());
+	add('micromarkExtensions', extMdxJs);
+	add('fromMarkdownExtensions', extMdxFromMarkdown);
+	add('toMarkdownExtensions', extMdxToMarkdown);
 
 	function add(field: string, value: unknown) {
 		const list = data[field] ? data[field] : (data[field] = []);
