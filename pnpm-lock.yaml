@@ -1664,6 +1664,17 @@ importers:
       mocha: 9.2.2
       uvu: 0.5.3
 
+  packages/integrations/cloudflare:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      esbuild: ^0.14.42
+    dependencies:
+      esbuild: 0.14.43
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/deno:
     specifiers:
       astro: workspace:*
