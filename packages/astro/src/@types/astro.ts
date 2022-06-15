@@ -710,6 +710,11 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
+
+export interface InjectedRoute {
+	pattern: string;
+	entryPoint: string;
+}
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -721,6 +726,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
@@ -760,15 +766,13 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent;
+		frontmatter: MarkdownContent<T>;
 		$$metadata: Metadata;
 		default: AstroComponentFactory;
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
@@ -817,10 +821,9 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
  * The `content` prop given to a Layout
  * https://docs.astro.build/guides/markdown-content/#markdown-layouts
  */
-export interface MarkdownContent {
-	[key: string]: any;
+export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
-}
+};
 
 /**
  * paginate() Options
@@ -930,6 +933,7 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
+			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
@@ -967,6 +971,7 @@ export interface RoutePart {
 }
 
 export interface RouteData {
+	route: string;
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
@@ -998,6 +1003,7 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	needsHydrationStyles: boolean;
 }
 
 export interface SSRResult {

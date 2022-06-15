@@ -9,13 +9,8 @@ function debounce<T extends (...args: any[]) => any>(cb: T, wait = 20) {
 }
 
 export const notify = debounce(() => {
-	if (document.querySelector('astro-root[ssr]')) {
-		window.dispatchEvent(new CustomEvent(HYDRATE_KEY));
-	}
+	window.dispatchEvent(new CustomEvent(HYDRATE_KEY));
 });
-
-export const listen = (cb: (...args: any[]) => any) =>
-	window.addEventListener(HYDRATE_KEY, cb, { once: true });
 
 if (!(window as any)[HYDRATE_KEY]) {
 	if ('MutationObserver' in window) {

@@ -8,8 +8,10 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import islandScript from './astro-island.prebuilt.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
-import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
+import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
@@ -24,6 +26,19 @@ const htmlBooleanAttributes =
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+
+// This is used to keep track of which requests (pages) have had the hydration script
+// appended. We only add the hydration script once per page, and since the SSRResult
+// object corresponds to one page request, we are using it as a key to know.
+const resultsWithHydrationScript = new WeakSet<SSRResult>();
+
+function determineIfNeedsHydrationScript(result: SSRResult): boolean {
+	if (resultsWithHydrationScript.has(result)) {
+		return false;
+	}
+	resultsWithHydrationScript.add(result);
+	return true;
+}
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
@@ -175,6 +190,7 @@ export async function renderComponent(
 
 	const { hydration, props } = extractDirectives(_props);
 	let html = '';
+	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
 
 	if (hydration) {
 		metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
@@ -316,24 +332,35 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		)}`
 	);
 
-	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
-	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-	result.scripts.add(
-		await generateHydrateScript(
-			{ renderer: renderer!, result, astroId, props },
-			metadata as Required<AstroComponentMetadata>
-		)
+	const island = await generateHydrateScript(
+		{ renderer: renderer!, result, astroId, props },
+		metadata as Required<AstroComponentMetadata>
 	);
+	result._metadata.needsHydrationStyles = true;
 
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
-	return markHTMLString(
-		`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
-			html ?? ''
-		}${template}</astro-root>`
-	);
+	if (needsAstroTemplate) {
+		island.props.tmpl = '';
+	}
+
+	island.children = `${html ?? ''}${template}`;
+
+	// Add the astro-island definition only once. Since the SSRResult object
+	// is scoped to a page renderer we can use it as a key to know if the script
+	// has been rendered or not.
+	let script = '';
+	if (needsHydrationScript) {
+		// Note that this is a class script, not a module script.
+		// This is so that it executes immediate, and when the browser encounters
+		// an astro-island element the callbacks will fire immediately, causing the JS
+		// deps to be loaded immediately.
+		script = `<script>${islandScript}</script>`;
+	}
+
+	return markHTMLString(script + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -619,7 +646,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
-	let needsHydrationStyles = false;
+	let needsHydrationStyles = result._metadata.needsHydrationStyles;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
@@ -632,7 +659,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 		styles.push(
 			renderElement('style', {
 				props: {},
-				children: 'astro-root, astro-fragment { display: contents; }',
+				children: 'astro-island, astro-fragment { display: contents; }',
 			})
 		);
 	}

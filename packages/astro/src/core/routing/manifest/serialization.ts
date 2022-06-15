@@ -16,6 +16,7 @@ export function serializeRouteData(
 
 export function deserializeRouteData(rawRouteData: SerializedRouteData): RouteData {
 	return {
+		route: rawRouteData.route,
 		type: rawRouteData.type,
 		pattern: new RegExp(rawRouteData.pattern),
 		params: rawRouteData.params,
