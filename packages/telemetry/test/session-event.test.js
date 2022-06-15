@@ -411,7 +411,7 @@ describe('Session event', () => {
 		});
 	});
 
-	describe('config.integrations', () => {
+	describe('config.integrations + optionalIntegrations + totalNumOfIntegrations', () => {
 		it('optional/conditional integrations', () => {
 			const config = {
 				srcDir: 1,
@@ -429,6 +429,8 @@ describe('Session event', () => {
 				config
 			);
 			expect(payload.config.integrations).deep.equal(["example-integration"]);
+			expect(payload.optionalIntegrations).to.equal(2);
+			expect(payload.totalNumOfIntegrations).to.equal(config.integrations.length);
 		});
 	});
 
