@@ -7,12 +7,48 @@ polyfill(globalThis, {
 	exclude: 'window document',
 });
 
-interface Args {}
+export interface Args {
+	binaryMediaTypes?: string[];
+}
+
+function parseContentType(header?: string) {
+	return header?.split(';')[0] ?? '';
+}
 
 export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
 
-	const base64Regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+	const binaryMediaTypes = args.binaryMediaTypes ?? [];
+	const knownBinaryMediaTypes = new Set([
+		'audio/3gpp',
+		'audio/3gpp2',
+		'audio/aac',
+		'audio/midi',
+		'audio/mpeg',
+		'audio/ogg',
+		'audio/opus',
+		'audio/wav',
+		'audio/webm',
+		'audio/x-midi',
+		'image/avif',
+		'image/bmp',
+		'image/gif',
+		'image/vnd.microsoft.icon',
+		'image/jpeg',
+		'image/png',
+		'image/svg+xml',
+		'image/tiff',
+		'image/webp',
+		'video/3gpp',
+		'video/3gpp2',
+		'video/mp2t',
+		'video/mp4',
+		'video/mpeg',
+		'video/ogg',
+		'video/x-msvideo',
+		'video/webm',
+		...binaryMediaTypes,
+	]);
 
 	const handler: Handler = async (event) => {
 		const { httpMethod, headers, rawUrl, body: requestBody, isBase64Encoded } = event;
@@ -36,15 +72,20 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		}
 
 		const response: Response = await app.render(request);
-		const responseBody = await response.text();
-		const responseIsBase64 = base64Regex.test(responseBody);
-
 		const responseHeaders = Object.fromEntries(response.headers.entries());
+		
+		const responseContentType = parseContentType(responseHeaders['content-type']);
+		const responseIsBase64Encoded = knownBinaryMediaTypes.has(responseContentType);
+
+		const responseBody = responseIsBase64Encoded
+			? Buffer.from(await response.text(), 'binary').toString('base64')
+			: await response.text();
+		
 		const fnResponse: any = {
 			statusCode: response.status,
 			headers: responseHeaders,
 			body: responseBody,
-			isBase64Encoded: responseIsBase64,
+			isBase64Encoded: responseIsBase64Encoded,
 		};
 
 		// Special-case set-cookie which has to be set an different way :/
