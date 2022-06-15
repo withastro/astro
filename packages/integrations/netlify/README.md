@@ -58,3 +58,27 @@ And then point to the dist in your `netlify.toml`:
 [functions]
   directory = "dist/functions"
 ```
+
+### binaryMediaTypes
+
+> This option is only needed for the Functions adapter and is not needed for Edge Functions.
+
+Netlify Functions sending binary data in the `body` need to be base64 encoded. The `@astrojs/netlify/functions` adapter handles this automatically based on the `Content-Type` header.
+
+We check for common mime types for audio, image, and video files. To include specific mime types that should be treated as binary data, include the `binaryMediaTypes` option with a list of binary mime types.
+
+```js
+import fs from 'node:fs';
+
+export function get() {
+	const buffer = fs.readFileSync('../image.jpg');
+
+  // Return the buffer directly, @astrojs/netlify will base64 encode the body
+  return new Response(buffer, {
+    status: 200,
+		headers: {
+			'content-type': 'image/jpeg'
+		}
+  });
+}
+```
