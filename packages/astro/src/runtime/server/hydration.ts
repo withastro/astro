@@ -5,8 +5,8 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { escapeHTML } from './escape.js';
-import { hydrationSpecifier, serializeListValue } from './util.js';
 import { serializeProps } from './serialize.js';
+import { hydrationSpecifier, serializeListValue } from './util.js';
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
@@ -95,11 +95,6 @@ interface HydrateScriptOptions {
 	props: Record<string | number, any>;
 }
 
-
-
-
-
-
 /** For hydrated components, generate a <script type="module"> to load the component */
 export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
@@ -118,15 +113,15 @@ export async function generateHydrateScript(
 		children: '',
 		props: {
 			// This is for HMR, probably can avoid it in prod
-			uid: astroId
-		}
+			uid: astroId,
+		},
 	};
 
 	// Add component url
 	island.props['component-url'] = await result.resolve(componentUrl);
 
 	// Add renderer url
-	if(renderer.clientEntrypoint) {
+	if (renderer.clientEntrypoint) {
 		island.props['component-export'] = componentExport.value;
 		island.props['renderer-url'] = await result.resolve(renderer.clientEntrypoint);
 		island.props['props'] = escapeHTML(serializeProps(props));
@@ -136,10 +131,12 @@ export async function generateHydrateScript(
 	island.props['client'] = hydrate;
 	island.props['directive-url'] = await result.resolve(hydrationSpecifier(hydrate));
 	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
-	island.props['opts'] = escapeHTML(JSON.stringify({
-		name: metadata.displayName,
-		value: metadata.hydrateArgs || ''
-	}))
+	island.props['opts'] = escapeHTML(
+		JSON.stringify({
+			name: metadata.displayName,
+			value: metadata.hydrateArgs || '',
+		})
+	);
 
 	return island;
 }

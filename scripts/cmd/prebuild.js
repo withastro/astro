@@ -7,7 +7,7 @@ import { pathToFileURL, fileURLToPath } from 'url';
 
 export default async function prebuild(...args) {
 	let buildToString = args.indexOf('--to-string');
-	if(buildToString !== -1) {
+	if (buildToString !== -1) {
 		args.splice(buildToString, 1);
 		buildToString = true;
 	}
@@ -33,10 +33,10 @@ export default async function prebuild(...args) {
 		const tscode = await fs.promises.readFile(filepath, 'utf-8');
 		const esbuildresult = await esbuild.transform(tscode, {
 			loader: 'ts',
-			minify: true
+			minify: true,
 		});
 		const rootURL = new URL('../../', import.meta.url);
-		const rel = path.relative(fileURLToPath(rootURL), filepath)
+		const rel = path.relative(fileURLToPath(rootURL), filepath);
 		const mod = `/**
  * This file is prebuilt from ${rel}
  * Do not edit this directly, but instead edit that file and rerun the prebuild

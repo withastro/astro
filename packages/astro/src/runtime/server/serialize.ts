@@ -16,14 +16,16 @@ function serializeArray(value: any[]): any[] {
 }
 
 function serializeObject(value: Record<any, any>): Record<any, any> {
-	return Object.fromEntries(Object.entries(value).map(([k, v]) => {
-		return [k, convertToSerializedForm(v)];
-	}));
+	return Object.fromEntries(
+		Object.entries(value).map(([k, v]) => {
+			return [k, convertToSerializedForm(v)];
+		})
+	);
 }
 
 function convertToSerializedForm(value: any): [ValueOf<typeof PROP_TYPE>, any] {
 	const tag = Object.prototype.toString.call(value);
-	switch(tag) {
+	switch (tag) {
 		case '[object Date]': {
 			return [PROP_TYPE.Date, (value as Date).toISOString()];
 		}
@@ -46,7 +48,7 @@ function convertToSerializedForm(value: any): [ValueOf<typeof PROP_TYPE>, any] {
 			return [PROP_TYPE.JSON, JSON.stringify(serializeArray(value))];
 		}
 		default: {
-			if(typeof value === 'object') {
+			if (typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value)];
 			} else {
 				return [PROP_TYPE.Value, value];

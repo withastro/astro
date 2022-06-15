@@ -772,9 +772,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	() => void | Promise<void>
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options

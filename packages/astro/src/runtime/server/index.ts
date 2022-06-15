@@ -8,12 +8,12 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import islandScript from './astro-island.prebuilt.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
-import islandScript from './astro-island.prebuilt.js';
-import { serializeProps } from './serialize.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
@@ -33,7 +33,7 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 const resultsWithHydrationScript = new WeakSet<SSRResult>();
 
 function determineIfNeedsHydrationScript(result: SSRResult): boolean {
-	if(resultsWithHydrationScript.has(result)) {
+	if (resultsWithHydrationScript.has(result)) {
 		return false;
 	}
 	resultsWithHydrationScript.add(result);
@@ -342,19 +342,17 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
-	if(needsAstroTemplate) {
+	if (needsAstroTemplate) {
 		island.props.tmpl = '';
 	}
 
-	island.children = `${
-		html ?? ''
-	}${template}`;
+	island.children = `${html ?? ''}${template}`;
 
 	// Add the astro-island definition only once. Since the SSRResult object
 	// is scoped to a page renderer we can use it as a key to know if the script
 	// has been rendered or not.
 	let script = '';
-	if(needsHydrationScript) {
+	if (needsHydrationScript) {
 		// Note that this is a class script, not a module script.
 		// This is so that it executes immediate, and when the browser encounters
 		// an astro-island element the callbacks will fire immediately, causing the JS
@@ -362,10 +360,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		script = `<script>${islandScript}</script>`;
 	}
 
-	return markHTMLString(
-		script +
-		renderElement('astro-island', island, false)
-	);
+	return markHTMLString(script + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
