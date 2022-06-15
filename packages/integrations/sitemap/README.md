@@ -94,12 +94,6 @@ Generated sitemap content for two pages website:
 </urlset>
 ```
 
-All pages generated during build will contain in `<head>` section a link to sitemap:
-
-```html
-<link rel="sitemap" type="application/xml" href="/sitemap-index.xml">
-```
-
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 ## Configuration
@@ -164,26 +158,6 @@ export default {
 }
 ```
 
-### createLinkInHead
-
-`Boolean`, default is `true`, create a link on sitemap in `<head>` section of generated pages.  
-
-__astro.config.mjs__
-
-```js
-import sitemap from '@astrojs/sitemap';
-
-export default {
-  site: 'https://stargazers.club',
-  integrations: [
-    sitemap({
-      // disable create links to sitemap in <head>
-      createLinkInHead: false,
-    }),
-  ],
-}
-```
-
 ### changefreq, lastmod, priority
 
 `changefreq` - How frequently the page is likely to change. Available values: `always` \| `hourly` \| `daily` \| `weekly` \| `monthly` \| `yearly` \| `never`.    
@@ -197,7 +171,7 @@ export default {
 See detailed explanation of sitemap specific options on [sitemap.org](https://www.sitemaps.org/protocol.html).  
 
 
-:exclamation: This integration uses 'astro:build:done' hook. The hook exposes only generated page paths. So with present version of Astro the integration has no abilities to analyze a page source, frontmatter etc. The integration can add `changefreq`, `lastmod` and `priority` attributes only in a batch or nothing.
+:exclamation: This integration uses 'astro:build:done' hook. The hook exposes generated page paths only. So with present version of Astro the integration has no abilities to analyze a page source, frontmatter etc. The integration can add `changefreq`, `lastmod` and `priority` attributes only in a batch or nothing.
 
 __astro.config.mjs__
 
@@ -210,7 +184,7 @@ export default {
     sitemap({
       changefreq: 'weekly',
       priority: 0.7,
-      lastmod: new Date('2022-05-28'),
+      lastmod: new Date('2022-02-24'),
     }),
   ],
 }
@@ -218,14 +192,16 @@ export default {
 
 ### serialize
 
-Async or sync function called for each sitemap entry just before writing to disk.  
+Async or sync function called for each sitemap entry just before writing to a disk.  
 
-It receives as parameter `SitemapItem` object which consists of `url` (required, absolute URL of page) and optional `changefreq`, `lastmod`, `priority` and `links` properties.  
+It receives as parameter `SitemapItem` object which consists of `url` (required, absolute page URL) and optional `changefreq`, `lastmod`, `priority` and `links` properties.  
 
 Optional `links` property contains a `LinkItem` list of alternate pages including a parent page.  
 `LinkItem` type has two required fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `hreflang` (a supported language code targeted by this version of the page).
 
 `serialize` function should return `SitemapItem`, touched or not.
+
+The example below shows the ability to add the sitemap specific properties individually.
 
 __astro.config.mjs__
 
@@ -237,7 +213,7 @@ export default {
   integrations: [
     sitemap({
       serialize(item) {
-        if (/special-page/.test(item.url)) {
+        if (/your-special-page/.test(item.url)) {
           item.changefreq = 'daily';
           item.lastmod = new Date();
           item.priority = 0.9;
@@ -251,7 +227,7 @@ export default {
 
 ### i18n
 
-To localize sitemap you should supply the integration config with the `i18n` option. The integration will check generated page paths on presence of locale keys in paths.
+To localize a sitemap you should supply the integration config with the `i18n` option. The integration will check generated page paths on presence of locale keys in paths.
 
 `i18n` object has two required properties:
 
