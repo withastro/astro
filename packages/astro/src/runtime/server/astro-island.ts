@@ -2,7 +2,7 @@
 // Do not import this file directly, instead import the prebuilt one instead.
 // pnpm --filter astro run prebuild
 
-type directiveAstroKeys = string;
+type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
 declare const Astro: {
 	[k in directiveAstroKeys]: (
