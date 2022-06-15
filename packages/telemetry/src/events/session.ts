@@ -36,8 +36,8 @@ interface EventCliSessionInternal extends EventCliSession {
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
+	totalIntegrations?: number;
 	optionalIntegrations?: number;
-	totalNumOfIntegrations?: number;
 }
 
 function getViteVersion() {
@@ -91,7 +91,8 @@ export function eventCliSession(
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
-	let optionalIntegrations = 0;
+	// Filter out falsy integrations
+	const integrations = userConfig?.integrations?.filter?.(Boolean) ?? [];
 	const configValues = userConfig
 		? {
 				markdownPlugins: [
@@ -99,25 +100,17 @@ export function eventCliSession(
 					userConfig?.markdown?.rehypePlugins ?? [],
 				].flat(1),
 				adapter: userConfig?.adapter?.name ?? null,
-				// Filter out falsy integrations
-				integrations: userConfig?.integrations?.filter((i: any) => {
-					// If Truthy don't count it as a optional integration
-					if (i) return i;
-
-					// If Falsy count it as an optional integration
-					optionalIntegrations ++;
-					return i; 
-				})?.map((i: any) => i.name) ?? [],
+				integrations: integrations?.map?.((i: any) => i?.name) ?? [],
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
-							format: userConfig?.build?.format,
+						format: userConfig?.build?.format,
 					  }
 					: undefined,
 				markdown: userConfig?.markdown
 					? {
-							mode: userConfig?.markdown?.mode,
-							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
+						mode: userConfig?.markdown?.mode,
+						syntaxHighlight: userConfig.markdown?.syntaxHighlight,
 					  }
 					: undefined,
 		  }
@@ -136,11 +129,10 @@ export function eventCliSession(
 		// Config Values
 		config: configValues,
 		flags: cliFlags,
-		// Optional integrations
-		optionalIntegrations,
 		// Total Number of Integrations
-		totalNumOfIntegrations: userConfig?.integrations?.length,
-
+		totalIntegrations: userConfig?.integrations?.length,
+		// Optional integrations
+		optionalIntegrations: userConfig?.integrations?.length - integrations?.length
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }

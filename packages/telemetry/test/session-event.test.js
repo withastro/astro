@@ -411,7 +411,7 @@ describe('Session event', () => {
 		});
 	});
 
-	describe('config.integrations + optionalIntegrations + totalNumOfIntegrations', () => {
+	describe('config.integrations + optionalIntegrations + totalIntegrations', () => {
 		it('optional/conditional integrations', () => {
 			const config = {
 				srcDir: 1,
@@ -430,7 +430,28 @@ describe('Session event', () => {
 			);
 			expect(payload.config.integrations).deep.equal(["example-integration"]);
 			expect(payload.optionalIntegrations).to.equal(2);
-			expect(payload.totalNumOfIntegrations).to.equal(config.integrations.length);
+			expect(payload.totalIntegrations).to.equal(3);
+		}); 
+		
+		it('falsy integrations', () => {
+			const config = {
+				srcDir: 1,
+				integrations: [
+					null,
+					undefined,
+					false
+				]
+			};
+			const [{ payload }] = events.eventCliSession(
+				{
+					cliCommand: 'dev',
+					astroVersion: '0.0.0',
+				},
+				config
+			);
+			expect(payload.config.integrations.length).to.equal(0);
+			expect(payload.optionalIntegrations).to.equal(3);
+			expect(payload.totalIntegrations).to.equal(3);
 		});
 	});
 
