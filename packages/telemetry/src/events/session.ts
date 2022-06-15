@@ -96,7 +96,8 @@ export function eventCliSession(
 					userConfig?.markdown?.rehypePlugins ?? [],
 				].flat(1),
 				adapter: userConfig?.adapter?.name ?? null,
-				integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
+				// Filter out falsy integrations
+				integrations: userConfig?.integrations?.filter((i: any) => i)?.map((i: any) => i.name) ?? [],
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
