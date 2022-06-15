@@ -14,7 +14,7 @@ describe('Base64 Responses', () => {
 			},
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/base64-response/dist/', import.meta.url),
-				binaryMediaTypes: ['font/otf']
+				binaryMediaTypes: ['font/otf'],
 			}),
 			site: `http://example.com`,
 			integrations: [testIntegration()],
