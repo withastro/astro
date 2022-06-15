@@ -8,7 +8,6 @@
 - Ability to add sitemap specific attributes such as `lastmod` etc.
 - Final output customization via JS function.
 - Localization support.
-- Automatically creates a link to sitemap in `<head>` section of generated pages.
 - Reliability: all config options are validated.
 
 ## Important changes
