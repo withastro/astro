@@ -66,6 +66,7 @@
     "vendor"
   ],
   "scripts": {
+    "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\"",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
@@ -121,7 +122,6 @@
     "resolve": "^1.22.0",
     "rollup": "^2.75.5",
     "semver": "^7.3.7",
-    "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
     "sirv": "^2.0.2",
     "slash": "^4.0.0",

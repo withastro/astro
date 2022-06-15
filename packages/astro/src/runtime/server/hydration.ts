@@ -1,17 +1,12 @@
-import serializeJavaScript from 'serialize-javascript';
 import type {
 	AstroComponentMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+import { escapeHTML } from './escape.js';
 import { hydrationSpecifier, serializeListValue } from './util.js';
-
-// Serializes props passed into a component so that they can be reused during hydration.
-// The value is any
-export function serializeProps(value: any) {
-	return serializeJavaScript(value);
-}
+import { serializeProps } from './serialize.js';
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
@@ -100,6 +95,11 @@ interface HydrateScriptOptions {
 	props: Record<string | number, any>;
 }
 
+
+
+
+
+
 /** For hydrated components, generate a <script type="module"> to load the component */
 export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
@@ -114,32 +114,32 @@ export async function generateHydrateScript(
 		);
 	}
 
-	const hydrationSource = renderer.clientEntrypoint
-		? `const [{ ${
-				componentExport.value
-		  }: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(
-				componentUrl
-		  )}"), import("${await result.resolve(renderer.clientEntrypoint)}")]);
-  return (el, children) => hydrate(el)(Component, ${serializeProps(
-		props
-	)}, children, ${JSON.stringify({ client: hydrate })});
-`
-		: `await import("${await result.resolve(componentUrl)}");
-  return () => {};
-`;
-	// TODO: If we can figure out tree-shaking in the final SSR build, we could safely
-	// use BEFORE_HYDRATION_SCRIPT_ID instead of 'astro:scripts/before-hydration.js'.
-	const hydrationScript = {
-		props: { type: 'module', 'data-astro-component-hydration': true },
-		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
-${`import '${await result.resolve('astro:scripts/before-hydration.js')}';`}
-setup("${astroId}", {name:"${metadata.displayName}",${
-			metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''
-		}}, async () => {
-  ${hydrationSource}
-});
-`,
+	const island: SSRElement = {
+		children: '',
+		props: {
+			// This is for HMR, probably can avoid it in prod
+			uid: astroId
+		}
 	};
 
-	return hydrationScript;
+	// Add component url
+	island.props['component-url'] = await result.resolve(componentUrl);
+
+	// Add renderer url
+	if(renderer.clientEntrypoint) {
+		island.props['component-export'] = componentExport.value;
+		island.props['renderer-url'] = await result.resolve(renderer.clientEntrypoint);
+		island.props['props'] = escapeHTML(serializeProps(props));
+	}
+
+	island.props['ssr'] = '';
+	island.props['client'] = hydrate;
+	island.props['directive-url'] = await result.resolve(hydrationSpecifier(hydrate));
+	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
+	island.props['opts'] = escapeHTML(JSON.stringify({
+		name: metadata.displayName,
+		value: metadata.hydrateArgs || ''
+	}))
+
+	return island;
 }

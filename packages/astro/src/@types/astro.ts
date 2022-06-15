@@ -773,7 +773,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 }
 
 export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
+	() => void | Promise<void>
 >;
 
 /**
@@ -1005,6 +1005,7 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	needsHydrationStyles: boolean;
 }
 
 export interface SSRResult {
