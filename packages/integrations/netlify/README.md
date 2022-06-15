@@ -61,7 +61,9 @@ And then point to the dist in your `netlify.toml`:
 
 ### binaryMediaTypes
 
-Responses sending binary data in the `body` will be base64 encoded. The `@astrojs/netlify` adapter handles this automatically based on the `Content-Type` header.
+> This option is only needed for the Functions adapter and is not needed for Edge Functions.
+
+Netlify Functions sending binary data in the `body` need to be base64 encoded. The `@astrojs/netlify/functions` adapter handles this automatically based on the `Content-Type` header.
 
 We check for common mime types for audio, image, and video files. To include specific mime types that should be treated as binary data, include the `binaryMediaTypes` option with a list of binary mime types.
 
