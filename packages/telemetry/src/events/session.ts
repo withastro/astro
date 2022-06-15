@@ -36,6 +36,8 @@ interface EventCliSessionInternal extends EventCliSession {
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
+	optionalIntegrations?: number;
+	totalNumOfIntegrations?: number;
 }
 
 function getViteVersion() {
@@ -89,6 +91,7 @@ export function eventCliSession(
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
+	let optionalIntegrations = 0;
 	const configValues = userConfig
 		? {
 				markdownPlugins: [
@@ -97,7 +100,14 @@ export function eventCliSession(
 				].flat(1),
 				adapter: userConfig?.adapter?.name ?? null,
 				// Filter out falsy integrations
-				integrations: userConfig?.integrations?.filter((i: any) => i)?.map((i: any) => i.name) ?? [],
+				integrations: userConfig?.integrations?.filter((i: any) => {
+					// If Truthy don't count it as a optional integration
+					if (i) return i;
+
+					// If Falsy count it as an optional integration
+					optionalIntegrations ++;
+					return i; 
+				})?.map((i: any) => i.name) ?? [],
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
@@ -126,6 +136,11 @@ export function eventCliSession(
 		// Config Values
 		config: configValues,
 		flags: cliFlags,
+		// Optional integrations
+		optionalIntegrations,
+		// Total Number of Integrations
+		totalNumOfIntegrations: userConfig?.integrations?.length,
+
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }
