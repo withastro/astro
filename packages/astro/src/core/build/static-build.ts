@@ -68,8 +68,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 				...metadata.hydratedComponentPaths(),
 				// Client-only components
 				...clientOnlys,
-				// Any hydration directive like astro/client/idle.js
-				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
 				...renderers
 					.filter((renderer) => !!renderer.clientEntrypoint)

@@ -34,12 +34,3 @@ export function serializeListValue(value: any) {
 		}
 	}
 }
-
-/**
- * Get the import specifier for a given hydration directive.
- * @param hydrate The hydration directive such as `idle` or `visible`
- * @returns
- */
-export function hydrationSpecifier(hydrate: string) {
-	return `astro/client/${hydrate}.js`;
-}
