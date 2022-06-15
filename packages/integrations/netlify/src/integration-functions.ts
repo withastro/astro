@@ -1,20 +1,22 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { createRedirects } from './shared.js';
+import type { Args } from './netlify-functions.js';
 
-export function getAdapter(): AstroAdapter {
+export function getAdapter(args: Args = {}): AstroAdapter {
 	return {
 		name: '@astrojs/netlify/functions',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
-		args: {},
+		args,
 	};
 }
 
 interface NetlifyFunctionsOptions {
 	dist?: URL;
+	binaryMediaTypes?: string[];
 }
 
-function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegration {
+function netlifyFunctions({ dist, binaryMediaTypes }: NetlifyFunctionsOptions = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let entryFile: string;
 	return {
@@ -28,7 +30,7 @@ function netlifyFunctions({ dist }: NetlifyFunctionsOptions = {}): AstroIntegrat
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter());
+				setAdapter(getAdapter({ binaryMediaTypes }));
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
