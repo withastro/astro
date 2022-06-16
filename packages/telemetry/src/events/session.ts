@@ -36,7 +36,6 @@ interface EventCliSessionInternal extends EventCliSession {
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
-	totalIntegrations?: number;
 	optionalIntegrations?: number;
 }
 

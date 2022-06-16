@@ -411,7 +411,7 @@ describe('Session event', () => {
 		});
 	});
 
-	describe('config.integrations + optionalIntegrations + totalIntegrations', () => {
+	describe('config.integrations + optionalIntegrations', () => {
 		it('optional/conditional integrations', () => {
 			const config = {
 				srcDir: 1,
