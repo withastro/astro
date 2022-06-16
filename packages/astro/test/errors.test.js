@@ -5,10 +5,6 @@ import * as cheerio from 'cheerio';
 describe('Error display', () => {
 	if (isWindows) return;
 
-	// TODO: Ubuntu CI runs hit a reliability problem with more than one test in this suite.
-	// Re-enable this suite once that issue is tracked down.
-	if (isLinux) return;
-
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
