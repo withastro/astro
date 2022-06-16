@@ -36,8 +36,6 @@ interface EventCliSessionInternal extends EventCliSession {
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
-	totalIntegrations?: number;
-	optionalIntegrations?: number;
 }
 
 function getViteVersion() {
@@ -128,9 +126,7 @@ export function eventCliSession(
 		configKeys: userConfig ? configKeys(userConfig, '') : undefined,
 		// Config Values
 		config: configValues,
-		flags: cliFlags,
-		// Optional integrations
-		optionalIntegrations: userConfig?.integrations?.length - integrations?.length
+		flags: cliFlags
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }
