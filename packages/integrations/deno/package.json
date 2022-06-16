@@ -22,9 +22,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test:import": "deno test --allow-run --allow-env --allow-read --allow-net --ignore=test/dynamic-import.test.js ./test/",
-    "test:subprocess": "deno test --allow-run --allow-env --allow-net ./test/dynamic-import.test.js",
-    "test": "npm run test:import && npm run test:subprocess"
+    "test": "deno test --allow-run --allow-env --allow-read --allow-net ./test/"
   },
   "dependencies": {
     "esbuild": "^0.14.42"
