@@ -430,7 +430,6 @@ describe('Session event', () => {
 			);
 			expect(payload.config.integrations).deep.equal(["example-integration"]);
 			expect(payload.optionalIntegrations).to.equal(2);
-			expect(payload.totalIntegrations).to.equal(3);
 		}); 
 		
 		it('falsy integrations', () => {
@@ -451,7 +450,6 @@ describe('Session event', () => {
 			);
 			expect(payload.config.integrations.length).to.equal(0);
 			expect(payload.optionalIntegrations).to.equal(3);
-			expect(payload.totalIntegrations).to.equal(3);
 		});
 	});
 

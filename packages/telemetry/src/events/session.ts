@@ -129,8 +129,6 @@ export function eventCliSession(
 		// Config Values
 		config: configValues,
 		flags: cliFlags,
-		// Total Number of Integrations
-		totalIntegrations: userConfig?.integrations?.length,
 		// Optional integrations
 		optionalIntegrations: userConfig?.integrations?.length - integrations?.length
 	};
