@@ -9,5 +9,6 @@ import solid from '@astrojs/solid-js';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://example.com',
 	integrations: [lit(), react(), tailwind(), turbolinks(), partytown(), sitemap(), solid()],
 });
