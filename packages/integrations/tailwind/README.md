@@ -142,24 +142,8 @@ export default {
 </details>
 
 ## Examples
-
-- The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
-- Astro's homepage uses Tailwind. Check out its [Tailwind configuration file](https://github.com/withastro/astro.build/blob/main/tailwind.config.js) or an [example component](https://github.com/withastro/astro.build/blob/main/src/components/integrations/IntegrationCard.astro)
-- The [Astro Ink](https://github.com/one-aalam/astro-ink), [Sarissa Blog](https://github.com/iozcelik/SarissaBlogAstroStarter), and [Creek](https://github.com/robertguss/Astro-Theme-Creek) themes use Tailwind for styling
-- [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22+filename%3Apackage.json&type=Code) for more examples!
-
+ 
 ## Troubleshooting
-- If your installation doesn't seem to be working, make sure to restart the dev server.
-- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
-- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
-- If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
-
-For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
-
-You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
-
-[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
 
 ## Contributing
 
