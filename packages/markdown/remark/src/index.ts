@@ -13,7 +13,6 @@ import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
 
-import Slugger from 'github-slugger';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
@@ -25,11 +24,6 @@ export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = [];
-
-const slugger = new Slugger();
-export function slug(value: string): string {
-	return slugger.slug(value);
-}
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
