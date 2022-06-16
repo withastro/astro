@@ -26,12 +26,6 @@ type SitemapOptions =
 			 * ```
 			 */
 			customPages?: Array<string>;
-
-			/**
-			 * If present, we use the `site` config option as the base for all sitemap URLs
-			 * Use `canonicalURL` to override this
-			 */
-			canonicalURL?: string;
 	  }
 	| undefined;
 
@@ -51,7 +45,6 @@ function generateSitemap(pages: string[]) {
 export default function createPlugin({
 	filter,
 	customPages,
-	canonicalURL,
 }: SitemapOptions = {}): AstroIntegration {
 	let config: AstroConfig;
 	return {
@@ -62,14 +55,11 @@ export default function createPlugin({
 			},
 			'astro:build:done': async ({ pages, dir }) => {
 				let finalSiteUrl: URL;
-				if (canonicalURL) {
-					finalSiteUrl = new URL(canonicalURL);
-					finalSiteUrl.pathname += finalSiteUrl.pathname.endsWith('/') ? '' : '/'; // normalizes the final url since it's provided by user
-				} else if (config.site) {
+				if (config.site) {
 					finalSiteUrl = new URL(config.base, config.site);
 				} else {
 					console.warn(
-						'The Sitemap integration requires either the `site` astro.config option or `canonicalURL` integration option. Skipping.'
+						'The Sitemap integration requires either the `site` astro.config option. Skipping.'
 					);
 					return;
 				}
