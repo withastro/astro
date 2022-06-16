@@ -77,6 +77,14 @@ export default function envVitePlugin({
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
+					// Built-in env variables
+					// See https://vitejs.dev/guide/env-and-mode.html#env-variables
+					privateEnv.MODE = `'${config.mode}'`;
+					privateEnv.PROD = config.mode === 'production' ? 'true' : 'false';
+					privateEnv.DEV = config.mode !== 'production' ? 'true' : 'false';
+					privateEnv.BASE_URL = astroConfig.base ? `'${astroConfig.base}'` : 'undefined';
+
+					// Astro built-in env variables
 					privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
 					privateEnv.SSR = JSON.stringify(true);
 					const entries = Object.entries(privateEnv).map(([key, value]) => [

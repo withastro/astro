@@ -64,6 +64,7 @@ export interface AstroComponentMetadata {
 
 /** The flags supported by the Astro CLI */
 export interface CLIFlags {
+	mode?: string;
 	root?: string;
 	site?: string;
 	host?: string | boolean;

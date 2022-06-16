@@ -3,7 +3,7 @@
 import { fileURLToPath } from 'url';
 import { performance } from 'perf_hooks';
 import { build as astroBuild } from '#astro/build';
-import { loadConfig } from '#astro/config';
+import { openConfig } from '#astro/config';
 import { Benchmark } from './benchmark.js';
 import del from 'del';
 import { Writable } from 'stream';
@@ -24,7 +24,7 @@ export const errorWritable = new Writable({
 
 let build;
 async function setupBuild() {
-	const astroConfig = await loadConfig(fileURLToPath(snowpackExampleRoot));
+	const { astroConfig } = await openConfig({ cwd: fileURLToPath(snowpackExampleRoot) });
 
 	const logging = {
 		level: 'error',

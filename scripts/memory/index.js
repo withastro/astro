@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import v8 from 'v8';
 import dev from '../../packages/astro/dist/core/dev/index.js';
-import { loadConfig } from '../../packages/astro/dist/core/config.js';
+import { openConfig } from '../../packages/astro/dist/core/config.js';
 import prettyBytes from 'pretty-bytes';
 
 if (!global.gc) {
@@ -14,7 +14,7 @@ const isCI = process.argv.includes('--ci');
 /** URL directory containing the entire project. */
 const projDir = new URL('./project/', import.meta.url);
 
-let config = await loadConfig({
+let { astroConfig: config } = await openConfig({
 	cwd: fileURLToPath(projDir),
 });
 

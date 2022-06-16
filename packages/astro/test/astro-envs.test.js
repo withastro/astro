@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Environment Variables', () => {
@@ -21,6 +22,7 @@ describe('Environment Variables', () => {
 
 		expect(indexHtml).to.include('CLUB_33');
 		expect(indexHtml).to.include('BLUE_BAYOU');
+		expect(indexHtml).to.include('production');
 	});
 
 	it('does render destructured public env and private env', async () => {
@@ -28,6 +30,7 @@ describe('Environment Variables', () => {
 
 		expect(indexHtml).to.include('CLUB_33');
 		expect(indexHtml).to.include('BLUE_BAYOU');
+		expect(indexHtml).to.include('production');
 	});
 
 	it('does render builtin SITE env', async () => {
@@ -53,6 +56,27 @@ describe('Environment Variables', () => {
 				if (path.endsWith('.js')) {
 					let js = await fixture.readFile(`/${path}`);
 					if (js.includes('BLUE_BAYOU')) {
+						found = true;
+					}
+				}
+			})
+		);
+
+		expect(found).to.equal(true, 'found the public env variable in the JS build');
+	});
+
+	it('includes built-in MODE in client-side JS', async () => {
+		let dirs = await fixture.readdir('/');
+		let found = false;
+
+		// Look in all of the .js files to see if the public env is inlined.
+		// Testing this way prevents hardcoding expected js files.
+		// If we find it in any of them that's good enough to know its working.
+		await Promise.all(
+			dirs.map(async (path) => {
+				if (path.endsWith('.js')) {
+					let js = await fixture.readFile(`/${path}`);
+					if (js.includes('production')) {
 						found = true;
 					}
 				}

@@ -2,7 +2,7 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { resolveConfig, loadConfig } from '../dist/core/config.js';
+import { openConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -35,11 +35,15 @@ polyfill(globalThis, {
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
+ *
+ * @typedef {Object} FixtureOpts
+ * @property {'dev'|'build'|undefined} cmd
  */
 
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
+ * @param {FixtureOpts|undefined} opts Additional options for fixture
  * @returns {Promise<Fixture>} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
@@ -57,7 +61,7 @@ polyfill(globalThis, {
  *   Clean-up
  *   .clean()          - Async. Removes the project’s dist folder.
  */
-export async function loadFixture(inlineConfig) {
+export async function loadFixture(inlineConfig, opts) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
 
@@ -72,7 +76,7 @@ export async function loadFixture(inlineConfig) {
 		}
 	}
 	// Load the config.
-	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
+	let { astroConfig: config } = await openConfig({ cwd: fileURLToPath(cwd), cmd: opts?.cmd });
 	config = merge(config, { ...inlineConfig, root: cwd });
 
 	// Note: the inline config doesn't run through config validation where these normalizations usually occur

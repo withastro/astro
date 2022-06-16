@@ -382,6 +382,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		site: typeof flags.site === 'string' ? flags.site : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
+		mode: typeof flags.mode === 'string' ? flags.mode : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
@@ -459,6 +460,14 @@ interface OpenConfigResult {
 	root: string;
 }
 
+const PRODUCTION_COMMANDS = new Set(['build', 'preview']);
+function resolveMode({ cmd, flags }: Omit<LoadConfigOptions, 'flags'> & { flags: CLIFlags }): string {
+	const { mode } = flags;
+	if (mode) return mode;
+	if (PRODUCTION_COMMANDS.has(cmd)) return 'production';
+	return 'development';
+}
+
 /** Load a configuration file, returning both the userConfig and astroConfig */
 export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
@@ -472,6 +481,14 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
 		);
 	}
+
+	// Assign built-in env variables to process.env so they're available when using `loadEnv`
+	// see https://vitejs.dev/guide/env-and-mode.html#env-variables
+	const mode = resolveMode({ ...configOptions, flags });
+	const PROD = mode === 'production';
+	const DEV = !PROD;
+	Object.assign(process.env, { MODE: mode, PROD: PROD || undefined, DEV: DEV || undefined })
+	
 
 	// Automatically load config file using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
@@ -499,44 +516,6 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		flags,
 		root,
 	};
-}
-
-/**
- * Attempt to load an `astro.config.mjs` file
- * @deprecated
- */
-export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
-	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
-	let userConfigPath: string | undefined;
-
-	if (flags?.config) {
-		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(
-			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
-		);
-	}
-
-	// Automatically load config file using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	let config;
-	try {
-		config = await load('astro', {
-			mustExist: !!userConfigPath,
-			cwd: root,
-			filePath: userConfigPath,
-		});
-	} catch (err) {
-		if (err instanceof ProloadError && flags.config) {
-			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
-		}
-		throw err;
-	}
-	if (config) {
-		userConfig = config.value;
-	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
