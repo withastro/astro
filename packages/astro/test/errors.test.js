@@ -5,10 +5,6 @@ import * as cheerio from 'cheerio';
 describe('Error display', () => {
 	if (isWindows) return;
 
-	// TODO: Ubuntu CI runs hit a reliability problem with more than one test in this suite.
-	// Re-enable this suite once that issue is tracked down.
-	if (isLinux) return;
-
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -18,14 +14,24 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Astro', async () => {
+	/**
+	 * TODO: Track down reliability issue
+	 * 
+	 * After fixing a syntax error on one page, the dev server hangs on the hmr.js request.
+	 * This is specific to a project that has other framework component errors,
+	 * in this case the fixture has multiple broken pages and components.
+	 * 
+	 * The issue could be internal to vite, the hmr.js request triggers connect:dispatcher
+	 * events but vite:load is never actually called.
+	 */
+	describe.skip('Astro template syntax', async () => {
 		let devServer;
 
-		before(async () => {
+		beforeEach(async () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async () => {
+		afterEach(async () => {
 			await devServer.stop();
 		});
 
