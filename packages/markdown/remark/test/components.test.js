@@ -49,7 +49,7 @@ describe('components', () => {
 	it('should normalize children', async () => {
 		const { code } = await renderMarkdown(`<Component bool={true}>Hello world!</Component>`, {});
 
-		chai.expect(code).to.equal(`\n<Component bool={true}>Hello world!</Component>\n`);
+		chai.expect(code).to.equal(`<Component bool={true}>Hello world!</Component>`);
 	});
 
 	it('should be able to nest components', async () => {
@@ -60,7 +60,7 @@ describe('components', () => {
 
 		chai
 			.expect(code)
-			.to.equal(`\n<Component bool={true}>\n<Component>Hello world!</Component>\n</Component>\n`);
+			.to.equal(`<Component bool={true}><Component>Hello world!</Component></Component>`);
 	});
 
 	it('should allow markdown without many spaces', async () => {
@@ -71,6 +71,6 @@ describe('components', () => {
 			{}
 		);
 
-		chai.expect(code).to.equal(`\n<Component><h1 id="hello-world">Hello world!</h1></Component>\n`);
+		chai.expect(code).to.equal(`<Component><h1 id="hello-world">Hello world!</h1></Component>`);
 	});
 });
