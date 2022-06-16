@@ -126,6 +126,24 @@ The function will be called for every page on your site. The `page` function par
   
 </details>
 
+<details>
+  <summary><strong>customPages</strong></summary>
+  
+  <br/>
+  
+  In some cases, a page might be part of your deployed site but not part of your Astro project.
+  If you'd like to include a page in your sitemap that _isn't_ created by Astro, you can use this option.
+
+__astro.config.mjs__
+
+```js
+...
+    sitemap({
+      customPages: ['https://stargazers.club/external-page', 'https://stargazers.club/external-page2']
+    }),
+```
+</details>
+
 ## Examples
 
 ## Troubleshooting
