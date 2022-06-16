@@ -14,14 +14,14 @@ describe('Error display', () => {
 		});
 	});
 
-	describe('Astro', async () => {
+	describe('Astro template syntax', async () => {
 		let devServer;
 
-		beforeEach(async () => {
+		before(async () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		afterEach(async () => {
+		after(async () => {
 			await devServer.stop();
 		});
 
@@ -40,6 +40,18 @@ describe('Error display', () => {
 			html = await fixture.fetch('/astro-syntax-error').then((res) => res.text());
 			$ = cheerio.load(html);
 			expect($('h1').text()).to.equal('No syntax error');
+		});
+	});
+
+	describe('Astro frontmatter', async () => {
+		let devServer;
+
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 
 		it('shows useful error when frontmatter import is not found', async () => {
