@@ -103,13 +103,13 @@ export function eventCliSession(
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
-						format: userConfig?.build?.format,
+							format: userConfig?.build?.format,
 					  }
 					: undefined,
 				markdown: userConfig?.markdown
 					? {
-						mode: userConfig?.markdown?.mode,
-						syntaxHighlight: userConfig.markdown?.syntaxHighlight,
+							mode: userConfig?.markdown?.mode,
+							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
 					  }
 					: undefined,
 		  }
@@ -129,7 +129,7 @@ export function eventCliSession(
 		config: configValues,
 		flags: cliFlags,
 		// Optional integrations
-		optionalIntegrations: userConfig?.integrations?.length - integrations?.length
+		optionalIntegrations: userConfig?.integrations?.length - integrations?.length,
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }

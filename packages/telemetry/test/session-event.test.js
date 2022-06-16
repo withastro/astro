@@ -415,11 +415,7 @@ describe('Session event', () => {
 		it('optional/conditional integrations', () => {
 			const config = {
 				srcDir: 1,
-				integrations: [
-					null,
-					undefined,
-					{ name: "example-integration" }
-				]
+				integrations: [null, undefined, { name: 'example-integration' }],
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
@@ -428,18 +424,14 @@ describe('Session event', () => {
 				},
 				config
 			);
-			expect(payload.config.integrations).deep.equal(["example-integration"]);
+			expect(payload.config.integrations).deep.equal(['example-integration']);
 			expect(payload.optionalIntegrations).to.equal(2);
-		}); 
-		
+		});
+
 		it('falsy integrations', () => {
 			const config = {
 				srcDir: 1,
-				integrations: [
-					null,
-					undefined,
-					false
-				]
+				integrations: [null, undefined, false],
 			};
 			const [{ payload }] = events.eventCliSession(
 				{
