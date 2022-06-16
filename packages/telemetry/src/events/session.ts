@@ -36,6 +36,7 @@ interface EventCliSessionInternal extends EventCliSession {
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
+	optionalIntegrations?: number;
 }
 
 function getViteVersion() {
@@ -89,6 +90,8 @@ export function eventCliSession(
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
+	// Filter out falsy integrations
+	const integrations = userConfig?.integrations?.filter?.(Boolean) ?? [];
 	const configValues = userConfig
 		? {
 				markdownPlugins: [
@@ -96,17 +99,17 @@ export function eventCliSession(
 					userConfig?.markdown?.rehypePlugins ?? [],
 				].flat(1),
 				adapter: userConfig?.adapter?.name ?? null,
-				integrations: userConfig?.integrations?.map((i: any) => i.name) ?? [],
+				integrations: integrations?.map?.((i: any) => i?.name) ?? [],
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
-							format: userConfig?.build?.format,
+						format: userConfig?.build?.format,
 					  }
 					: undefined,
 				markdown: userConfig?.markdown
 					? {
-							mode: userConfig?.markdown?.mode,
-							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
+						mode: userConfig?.markdown?.mode,
+						syntaxHighlight: userConfig.markdown?.syntaxHighlight,
 					  }
 					: undefined,
 		  }
@@ -125,6 +128,8 @@ export function eventCliSession(
 		// Config Values
 		config: configValues,
 		flags: cliFlags,
+		// Optional integrations
+		optionalIntegrations: userConfig?.integrations?.length - integrations?.length
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }

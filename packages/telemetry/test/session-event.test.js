@@ -411,6 +411,48 @@ describe('Session event', () => {
 		});
 	});
 
+	describe('config.integrations + optionalIntegrations', () => {
+		it('optional/conditional integrations', () => {
+			const config = {
+				srcDir: 1,
+				integrations: [
+					null,
+					undefined,
+					{ name: "example-integration" }
+				]
+			};
+			const [{ payload }] = events.eventCliSession(
+				{
+					cliCommand: 'dev',
+					astroVersion: '0.0.0',
+				},
+				config
+			);
+			expect(payload.config.integrations).deep.equal(["example-integration"]);
+			expect(payload.optionalIntegrations).to.equal(2);
+		}); 
+		
+		it('falsy integrations', () => {
+			const config = {
+				srcDir: 1,
+				integrations: [
+					null,
+					undefined,
+					false
+				]
+			};
+			const [{ payload }] = events.eventCliSession(
+				{
+					cliCommand: 'dev',
+					astroVersion: '0.0.0',
+				},
+				config
+			);
+			expect(payload.config.integrations.length).to.equal(0);
+			expect(payload.optionalIntegrations).to.equal(3);
+		});
+	});
+
 	describe('flags', () => {
 		it('includes cli flags in payload', () => {
 			const config = {};
