@@ -11,14 +11,14 @@ import type {
 
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
-import { serializeProps } from './serialize.js';
-import { shorthash } from './shorthash.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
+	getPrescripts,
 	PrescriptType,
-	getPrescripts
 } from './scripts.js';
+import { serializeProps } from './serialize.js';
+import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
 export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
@@ -32,7 +32,6 @@ const htmlBooleanAttributes =
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
-
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
@@ -152,7 +151,6 @@ function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
-
 export async function renderComponent(
 	result: SSRResult,
 	displayName: string,
@@ -186,7 +184,8 @@ export async function renderComponent(
 	const { hydration, props } = extractDirectives(_props);
 	let html = '';
 	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-	let needsDirectiveScript = hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
+	let needsDirectiveScript =
+		hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 	if (hydration) {
 		metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
@@ -344,10 +343,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	island.children = `${html ?? ''}${template}`;
 
-	let prescriptType: PrescriptType = needsHydrationScript ? 'both' : needsDirectiveScript ?
-		'directive' : null;
+	let prescriptType: PrescriptType = needsHydrationScript
+		? 'both'
+		: needsDirectiveScript
+		? 'directive'
+		: null;
 	let prescripts = getPrescripts(prescriptType, hydration.directive);
-	
+
 	return markHTMLString(prescripts + renderElement('astro-island', island, false));
 }
 

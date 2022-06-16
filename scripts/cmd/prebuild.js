@@ -13,7 +13,7 @@ export default async function prebuild(...args) {
 	}
 	let minify = true;
 	let minifyIdx = args.indexOf('--no-minify');
-	if(minifyIdx !== -1) {
+	if (minifyIdx !== -1) {
 		minify = false;
 		args.splice(minifyIdx, 1);
 	}

@@ -4,5 +4,3 @@
 		await hydrate();
 	})();
 };
-
-

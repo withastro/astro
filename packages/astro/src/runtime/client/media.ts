@@ -1,7 +1,7 @@
 /**
  * Hydrate this component when a matching media query is found
  */
- (self.Astro = self.Astro || {}).media = (getHydrateCallback, options) => {
+(self.Astro = self.Astro || {}).media = (getHydrateCallback, options) => {
 	const cb = async () => {
 		let hydrate = await getHydrateCallback();
 		await hydrate();
@@ -15,8 +15,4 @@
 			mql.addEventListener('change', cb, { once: true });
 		}
 	}
- };
-
-
-
- 
+};

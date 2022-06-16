@@ -10,7 +10,7 @@ declare const Astro: {
 		opts: Record<string, any>,
 		root: HTMLElement
 	) => void;
-}
+};
 
 {
 	interface PropTypeSelector {
@@ -45,16 +45,20 @@ declare const Astro: {
 					window.addEventListener('astro:hydrate', this.hydrate);
 					await import(this.getAttribute('before-hydration-url')!);
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
-					Astro[this.getAttribute('client') as directiveAstroKeys](async () => {
-						const rendererUrl = this.getAttribute('renderer-url');
-						const [componentModule, { default: hydrator }] = await Promise.all([
-							import(this.getAttribute('component-url')!),
-							rendererUrl ? import(rendererUrl) : () => () => {},
-						]);
-						this.Component = componentModule[this.getAttribute('component-export') || 'default'];
-						this.hydrator = hydrator;
-						return this.hydrate;
-					}, opts, this);
+					Astro[this.getAttribute('client') as directiveAstroKeys](
+						async () => {
+							const rendererUrl = this.getAttribute('renderer-url');
+							const [componentModule, { default: hydrator }] = await Promise.all([
+								import(this.getAttribute('component-url')!),
+								rendererUrl ? import(rendererUrl) : () => () => {},
+							]);
+							this.Component = componentModule[this.getAttribute('component-export') || 'default'];
+							this.hydrator = hydrator;
+							return this.hydrate;
+						},
+						opts,
+						this
+					);
 				}
 				hydrate = () => {
 					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {

@@ -10,7 +10,7 @@ declare global {
 			media: DirectiveLoader;
 			only: DirectiveLoader;
 			visible: DirectiveLoader;
-		}
+		};
 	}
 }
 

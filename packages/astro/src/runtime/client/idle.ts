@@ -9,4 +9,4 @@
 	} else {
 		setTimeout(cb, 200);
 	}
-}
+};
