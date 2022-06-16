@@ -1,6 +1,6 @@
 # @astrojs/sitemap 🗺
 
-This **[Astro integration][astro-integration]** generates a sitemap for your Astro project.
+This Astro integration generates a sitemap based on your routes when you build your Astro project.
 
 
 - <strong>[Why Astro Sitemap](#why-astro-sitemap)</strong>
@@ -145,9 +145,14 @@ __astro.config.mjs__
 </details>
 
 ## Examples
+- The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap.xml).
+- The [https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github](integrations playground template) comes with Astro Sitemap installed. Try adding a route and building the project!
+- [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples! 
 
 ## Troubleshooting
 
 ## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
