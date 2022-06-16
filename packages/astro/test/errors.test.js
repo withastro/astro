@@ -21,11 +21,11 @@ describe('Error display', () => {
 	describe('Astro', async () => {
 		let devServer;
 
-		before(async () => {
+		beforeEach(async () => {
 			devServer = await fixture.startDevServer();
 		});
 
-		after(async () => {
+		afterEach(async () => {
 			await devServer.stop();
 		});
 
