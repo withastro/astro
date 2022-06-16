@@ -6,7 +6,7 @@ import type {
 } from '../../@types/astro';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
-import { hydrationSpecifier, serializeListValue } from './util.js';
+import { serializeListValue } from './util.js';
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
@@ -129,7 +129,6 @@ export async function generateHydrateScript(
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
-	island.props['directive-url'] = await result.resolve(hydrationSpecifier(hydrate));
 	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
 	island.props['opts'] = escapeHTML(
 		JSON.stringify({

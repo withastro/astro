@@ -66,10 +66,10 @@
     "vendor"
   ],
   "scripts": {
-    "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\"",
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
-    "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "prebuild": "astro-scripts prebuild --to-string \"src/runtime/server/astro-island.ts\" \"src/runtime/client/{idle,load,media,only,visible}.ts\"",
+    "build": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\" && tsc",
+    "build:ci": "pnpm run prebuild && astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
     "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js --ignore **/errors.test.js && mocha --timeout 20000 **/lit-element.test.js && mocha --timeout 20000 **/errors.test.js",

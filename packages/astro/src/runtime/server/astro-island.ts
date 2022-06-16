@@ -2,6 +2,16 @@
 // Do not import this file directly, instead import the prebuilt one instead.
 // pnpm --filter astro run prebuild
 
+type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
+
+declare const Astro: {
+	[k in directiveAstroKeys]: (
+		fn: () => Promise<() => void>,
+		opts: Record<string, any>,
+		root: HTMLElement
+	) => void;
+}
+
 {
 	interface PropTypeSelector {
 		[k: string]: (value: any) => any;
@@ -32,14 +42,10 @@
 				public hydrator: any;
 				static observedAttributes = ['props'];
 				async connectedCallback() {
-					const [{ default: setup }] = await Promise.all([
-						import(this.getAttribute('directive-url')!),
-						import(this.getAttribute('before-hydration-url')!),
-					]);
 					window.addEventListener('astro:hydrate', this.hydrate);
-
-					const opts = JSON.parse(this.getAttribute('opts')!);
-					setup(this, opts, async () => {
+					await import(this.getAttribute('before-hydration-url')!);
+					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
+					Astro[this.getAttribute('client') as directiveAstroKeys](async () => {
 						const rendererUrl = this.getAttribute('renderer-url');
 						const [componentModule, { default: hydrator }] = await Promise.all([
 							import(this.getAttribute('component-url')!),
@@ -48,7 +54,7 @@
 						this.Component = componentModule[this.getAttribute('component-export') || 'default'];
 						this.hydrator = hydrator;
 						return this.hydrate;
-					});
+					}, opts, this);
 				}
 				hydrate = () => {
 					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
