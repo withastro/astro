@@ -4,17 +4,9 @@ import { SITEMAP_CONFIG_DEFAULTS } from './config-defaults';
 
 const localeKeySchema = () => z.string().min(1);
 
-const isFunction = (fn: any) => fn instanceof Function;
-
-const fnSchema = () =>
-	z
-		.any()
-		.refine((val) => !val || isFunction(val), { message: 'Not a function' })
-		.optional();
-
 export const SitemapOptionsSchema = z
 	.object({
-		filter: fnSchema(),
+		filter: z.function().optional(),
 		customPages: z.string().url().array().optional(),
 		canonicalURL: z.string().url().optional(),
 
@@ -32,12 +24,12 @@ export const SitemapOptionsSchema = z
 				),
 			})
 			.refine((val) => !val || val.locales[val.defaultLocale], {
-				message: '`defaultLocale` must exists in `locales` keys',
+				message: '`defaultLocale` must exist in `locales` keys',
 			})
 			.optional(),
 
-		entryLimit: z.number().nonnegative().default(SITEMAP_CONFIG_DEFAULTS.entryLimit),
-		serialize: fnSchema(),
+		entryLimit: z.number().nonnegative().optional().default(SITEMAP_CONFIG_DEFAULTS.entryLimit),
+		serialize: z.function().optional(),
 
 		changefreq: z.enum(changefreqValues).optional(),
 		lastmod: z.date().optional(),
