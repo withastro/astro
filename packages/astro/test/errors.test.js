@@ -16,11 +16,11 @@ describe('Error display', () => {
 
 	/**
 	 * TODO: Track down reliability issue
-	 * 
+	 *
 	 * After fixing a syntax error on one page, the dev server hangs on the hmr.js request.
 	 * This is specific to a project that has other framework component errors,
 	 * in this case the fixture has multiple broken pages and components.
-	 * 
+	 *
 	 * The issue could be internal to vite, the hmr.js request triggers connect:dispatcher
 	 * events but vite:load is never actually called.
 	 */
