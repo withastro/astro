@@ -1,5 +1,5 @@
 // @ts-ignore
-import { fromFileUrl, readableStreamFromReader } from './deps.ts';
+import { fromFileUrl } from './deps.ts';
 const dir = new URL('./', import.meta.url);
 
 export async function runBuild(fixturePath: string) {
