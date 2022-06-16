@@ -1,7 +1,7 @@
 import './edge-shim.js';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
-console.log('worked!')
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
