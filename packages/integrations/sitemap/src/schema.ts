@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { changefreqValues } from './constants';
 import { SITEMAP_CONFIG_DEFAULTS } from './config-defaults';
+import { changefreqValues } from './constants';
 
 const localeKeySchema = () => z.string().min(1);
 
