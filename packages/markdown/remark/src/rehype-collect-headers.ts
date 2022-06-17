@@ -25,7 +25,7 @@ export default function createCollectHeaders() {
 						return;
 					}
 					if (child.type === 'raw') {
-						if (child.value.startsWith('\n<') || child.value.endsWith('>\n')) {
+						if (child.value.match(/^\n?<.*>\n?$/)) {
 							return;
 						}
 					}

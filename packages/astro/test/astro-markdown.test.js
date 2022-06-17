@@ -291,12 +291,16 @@ describe('Astro Markdown', () => {
 		expect(slots.find('> .fragmentSlot > div').text()).to.contain('1:');
 		expect(slots.find('> .fragmentSlot > div + p').text()).to.contain('2:');
 		expect(slots.find('> .pSlot > p[title="hello"]').text()).to.contain('3:');
-		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(
-			`
-			4: Div in default slot
-			5: Paragraph in fragment in default slot
-			6: Regular text in default slot
-		`.replace(/\s+/g, ' ')
+		expect(slots.find('> .defaultSlot').html()).to.match(
+			new RegExp(
+				`<div>4: Div in default slot</div>` +
+					// Optional extra paragraph due to the line breaks between components
+					`(<p></p>)?` +
+					`<p>5: Paragraph in fragment in default slot</p>` +
+					// Optional whitespace due to the line breaks between components
+					`[\s\n]*` +
+					`6: Regular text in default slot`
+			)
 		);
 
 		const nestedSlots = $('article').eq(1);
