@@ -18,25 +18,41 @@ export function vitePluginAnalyzer(
 
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
-		return function(
-			this: PluginContext,
-			scripts: AstroPluginMetadata['astro']['scripts'],
-			from: string
-		) {
-			const hoistedScripts = new Set<string>();
-			for(let i = 0; i < scripts.length; i++) {
-				const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}`;
-				hoistedScripts.add(hid);
-			}
+		const pageScripts = new Map<string, Set<string>>();
 
-			for(const pageId of getTopLevelPages(from, this)) {
-				const pageData = getPageDataByViteID(internals, pageId);
-				if(!pageData) continue;
-
-				const { component } = pageData;
-				const astroModuleId = prependForwardSlash(component);
+		return {
+			scan(
+				this: PluginContext,
+				scripts: AstroPluginMetadata['astro']['scripts'],
+				from: string
+			) {
+				const hoistedScripts = new Set<string>();
+				for(let i = 0; i < scripts.length; i++) {
+					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}`;
+					hoistedScripts.add(hid);
+				}
 
 				if (hoistedScripts.size) {
+					for(const pageId of getTopLevelPages(from, this)) {
+						for(const hid of hoistedScripts) {
+							if(pageScripts.has(pageId)) {
+								pageScripts.get(pageId)?.add(hid);
+							} else {
+								pageScripts.set(pageId, new Set([hid]));
+							}
+						}
+					}
+				}
+			},
+
+			finalize() {
+				for(const [pageId, hoistedScripts] of pageScripts) {
+					const pageData = getPageDataByViteID(internals, pageId);
+					if(!pageData) continue;
+
+					const { component } = pageData;
+					const astroModuleId = prependForwardSlash(component);
+
 					const uniqueHoistedId = JSON.stringify(Array.from(hoistedScripts).sort());
 					let moduleId: string;
 	
@@ -60,13 +76,13 @@ export function vitePluginAnalyzer(
 					}
 				}
 			}
-		}
+		};
 	}
 	
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
 		generateBundle() {
-			const scanHoisted = hoistedScriptScanner();
+			const hoistScanner = hoistedScriptScanner();
 
 			const ids = this.getModuleIds();
 			for(const id of ids) {
@@ -80,7 +96,7 @@ export function vitePluginAnalyzer(
 				}
 
 				// Scan hoisted scripts
-				scanHoisted.call(this, astro.scripts, id);
+				hoistScanner.scan.call(this, astro.scripts, id);
 
 				if(astro.clientOnlyComponents.length) {
 					const clientOnlys: string[] = [];
@@ -99,6 +115,9 @@ export function vitePluginAnalyzer(
 					}
 				}
 			}
+
+			// Finalize hoisting
+			hoistScanner.finalize();
 		}
 	};
 }
