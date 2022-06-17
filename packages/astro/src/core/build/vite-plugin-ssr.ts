@@ -96,31 +96,23 @@ if(_start in adapter) {
 	};
 }
 
-export function vitePluginSSRInject(
-	buildOpts: StaticBuildOptions,
-	internals: BuildInternals,
-): VitePlugin {
-	return {
-		name: '@astrojs/vite-plugin-astro-ssr-inject',
-		async writeBundle(opts, bundle) {
-			if(!internals.ssrEntryChunk) {
-				throw new Error(`Did not generate an entry chunk for SSR`);
-			}
-
-			const staticFiles = internals.staticFiles;
-			const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-			await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
-
-			const chunk = internals.ssrEntryChunk;
-			const code = chunk.code;
-			chunk.code = code.replace(replaceExp, () => {
-				return JSON.stringify(manifest);
-			});
-			const serverEntryURL = new URL(buildOpts.buildConfig.serverEntry, buildOpts.buildConfig.server);
-			await fs.promises.mkdir(new URL('./', serverEntryURL), { recursive: true });
-			await fs.promises.writeFile(serverEntryURL, chunk.code, 'utf-8');
-		},
+export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
+	if(!internals.ssrEntryChunk) {
+		throw new Error(`Did not generate an entry chunk for SSR`);
 	}
+
+	const staticFiles = internals.staticFiles;
+	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
+	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
+
+	const chunk = internals.ssrEntryChunk;
+	const code = chunk.code;
+	chunk.code = code.replace(replaceExp, () => {
+		return JSON.stringify(manifest);
+	});
+	const serverEntryURL = new URL(buildOpts.buildConfig.serverEntry, buildOpts.buildConfig.server);
+	await fs.promises.mkdir(new URL('./', serverEntryURL), { recursive: true });
+	await fs.promises.writeFile(serverEntryURL, chunk.code, 'utf-8');
 }
 
 function buildManifest(

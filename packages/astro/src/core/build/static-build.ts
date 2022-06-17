@@ -22,7 +22,7 @@ import { getTimeStat } from './util.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
-import { vitePluginSSR, vitePluginSSRInject } from './vite-plugin-ssr.js';
+import { vitePluginSSR, injectManifest } from './vite-plugin-ssr.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -89,6 +89,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			await cleanSsrOutput(opts);
 		}
 	} else {
+		// Inject the manifest
+		await injectManifest(opts, internals)
+
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 	}
@@ -219,8 +222,6 @@ async function clientBuild(
 				target: 'client',
 			}),
 			...(viteConfig.plugins || []),
-			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) && vitePluginSSRInject(opts, internals),
 		],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,
