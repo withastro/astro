@@ -1,5 +1,5 @@
 import type {
-	MarkdownHeader,
+	MarkdownHeading,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
 	RehypePlugins,
@@ -783,7 +783,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
 	compiledContent(): Promise<string>;
-	getHeaders(): Promise<MarkdownHeader[]>;
+	getHeadings(): Promise<MarkdownHeading[]>;
+	/** @deprecated Renamed to `getHeadings()` */
+	getHeaders(): void;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
 		frontmatter: MarkdownContent<T>;
