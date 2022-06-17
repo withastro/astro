@@ -13,7 +13,8 @@
   },
   "keywords": [
     "astro-component",
-    "seo"
+    "seo",
+    "sitemap"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
@@ -21,12 +22,18 @@
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
-  "dependencies": {},
+  "dependencies": {
+    "sitemap": "^7.1.1",
+    "zod": "^3.17.3"
+  },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
