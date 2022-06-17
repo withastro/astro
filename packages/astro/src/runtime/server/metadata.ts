@@ -1,5 +1,3 @@
-import { hydrationSpecifier } from './util.js';
-
 interface ModuleInfo {
 	module: Record<string, any>;
 	specifier: string;
@@ -77,21 +75,6 @@ export class Metadata {
 				if (path && !found.has(path)) {
 					found.add(path);
 					yield path;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Gets all of the hydration specifiers used within this component.
-	 */
-	*hydrationDirectiveSpecifiers() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const directive of metadata.hydrationDirectives) {
-				if (!found.has(directive)) {
-					found.add(directive);
-					yield hydrationSpecifier(directive);
 				}
 			}
 		}

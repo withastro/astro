@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.47
+
+### Patch Changes
+
+- [#3599](https://github.com/withastro/astro/pull/3599) [`0ffc350c`](https://github.com/withastro/astro/commit/0ffc350c8d6bcf7fe4f6bde7ce1c10c014d7b4a1) Thanks [@arimgibson](https://github.com/arimgibson)! - Fix: find a hosting network differently based on Node version
+
+* [#3605](https://github.com/withastro/astro/pull/3605) [`4916b733`](https://github.com/withastro/astro/commit/4916b733c2b8265ab46762bbbc85aa4171296515) Thanks [@matthewp](https://github.com/matthewp)! - Inlines hydration scripts
+
 ## 1.0.0-beta.46
 
 ### Patch Changes
