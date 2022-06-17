@@ -29,8 +29,9 @@ export default function (): AstroIntegration {
 	return {
 		name: '@astrojs/jsx',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig, addPageExtensions }) => {
 				addRenderer(getRenderer());
+				addPageExtensions(['.jsx', '.tsx']);
 				updateConfig({
 					vite: getViteConfiguration(),
 				});

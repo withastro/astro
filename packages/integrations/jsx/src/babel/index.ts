@@ -1,5 +1,5 @@
 import * as t from "@babel/types";
-import type { PluginObj, NodePath } from '@babel/core';
+import type { PluginObj } from '@babel/core';
 
 function isComponent(tagName: string) {
   return (
@@ -33,23 +33,35 @@ function jsxElementNameToString(node: t.JSXOpeningElement['name']): string {
   return `${node.namespace.name}:${node.name.name}`;
 }
 
+function jsxAttributeToString(attr: t.JSXAttribute): string {
+	if (t.isJSXNamespacedName(attr.name)) {
+		return `${attr.name.namespace.name}:${attr.name.name.name}`
+	}
+	return `${attr.name.name}`;
+}
+
 function addClientMetadata(node: t.JSXElement, meta: { path: string, name: string }) {
-	const componentPath = t.jsxAttribute(
-		t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
-		!meta.path.startsWith('.') ? t.stringLiteral(meta.path) : t.jsxExpressionContainer(t.memberExpression(t.newExpression(t.identifier('URL'), [t.stringLiteral(meta.path), t.identifier('import.meta.url')]), t.identifier('pathname'))),
-	);
-	const componentExport = t.jsxAttribute(
-		t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
-		t.stringLiteral(meta.name),
-	);
-	const staticMarker = t.jsxAttribute(
-		t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration')),
-	)
-	node.openingElement.attributes.push(
-		componentPath,
-		componentExport,
-		staticMarker
-	)
+	const existingAttributes = node.openingElement.attributes.map(attr => t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null);
+	if (!existingAttributes.find(attr => attr === 'client:component-path')) {
+		const componentPath = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
+			!meta.path.startsWith('.') ? t.stringLiteral(meta.path) : t.jsxExpressionContainer(t.binaryExpression("+", t.stringLiteral('/@fs'), t.memberExpression(t.newExpression(t.identifier('URL'), [t.stringLiteral(meta.path), t.identifier('import.meta.url')]), t.identifier('pathname')))),
+		);
+		node.openingElement.attributes.push(componentPath);
+	}
+	if (!existingAttributes.find(attr => attr === 'client:component-export')) {
+		const componentExport = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
+			t.stringLiteral(meta.name),
+		);
+		node.openingElement.attributes.push(componentExport);
+	}
+	if (!existingAttributes.find(attr => attr === 'client:component-hydration')) {
+		const staticMarker = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration')),
+		)
+		node.openingElement.attributes.push(staticMarker);
+	}
 }
 
 export default function astroJSX(): PluginObj {

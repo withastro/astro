@@ -2,18 +2,14 @@ import { Fragment } from 'astro/server';
 
 const AstroJSX = Symbol('@astrojs/jsx');
 
-function createVNode(type: any, props: Record<string, any>, key?: string, __self?: string, __source?: string) {
-	const vnode = {
+function createVNode(type: any, props: Record<string, any>) {
+ 	const vnode = {
 		[AstroJSX]: true,
 		type,
 		props: props ?? {},
-		key,
-		__source,
-		__self,
 	};
 	return vnode;
 }
-
 
 export {
 	AstroJSX,
