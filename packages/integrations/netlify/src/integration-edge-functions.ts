@@ -131,6 +131,18 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 						}
 					}
 
+					// Add a plugin that shims the global environment.
+					vite.plugins.unshift({
+						name: '@astrojs/netlify/plugin-inject',
+						generateBundle(options, bundle) {
+							if(_buildConfig.serverEntry in bundle) {
+								const chunk = bundle[_buildConfig.serverEntry];
+								chunk.code = `globalThis.process = { argv: [], env: {}, };` +
+									chunk.code;
+							}
+						}
+					});
+
 					vite.ssr = {
 						noExternal: true,
 					};
