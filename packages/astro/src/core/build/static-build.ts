@@ -57,46 +57,54 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const [renderers, mod] = pageData.preload;
 			const metadata = mod.$$metadata;
 
-			// Track client:only usage so we can map their CSS back to the Page they are used in.
-			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
-			trackClientOnlyPageDatas(internals, pageData, clientOnlys);
-
 			const topLevelImports = new Set([
-				// Any component that gets hydrated
-				// 'components/Counter.jsx'
-				// { 'components/Counter.jsx': 'counter.hash.js' }
-				...metadata.hydratedComponentPaths(),
-				// Client-only components
-				...clientOnlys,
 				// The client path for each renderer
 				...renderers
 					.filter((renderer) => !!renderer.clientEntrypoint)
 					.map((renderer) => renderer.clientEntrypoint!),
 			]);
 
-			// Add hoisted scripts
-			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
-			if (hoistedScripts.size) {
-				const uniqueHoistedId = JSON.stringify(Array.from(hoistedScripts).sort());
-				let moduleId: string;
-
-				// If we're already tracking this set of hoisted scripts, get the unique id
-				if (uniqueHoistedIds.has(uniqueHoistedId)) {
-					moduleId = uniqueHoistedIds.get(uniqueHoistedId)!;
-				} else {
-					// Otherwise, create a unique id for this set of hoisted scripts
-					moduleId = `/astro/hoisted.js?q=${uniqueHoistedIds.size}`;
-					uniqueHoistedIds.set(uniqueHoistedId, moduleId);
+			if (metadata) {
+				// Any component that gets hydrated
+				// 'components/Counter.jsx'
+				// { 'components/Counter.jsx': 'counter.hash.js' }
+				for (const hydratedComponentPath of metadata.hydratedComponentPaths()) {
+					topLevelImports.add(hydratedComponentPath);
 				}
-				topLevelImports.add(moduleId);
 
-				// Make sure to track that this page uses this set of hoisted scripts
-				if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
-					const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
-					pages!.add(astroModuleId);
-				} else {
-					internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]));
-					internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+				// Track client:only usage so we can map their CSS back to the Page they are used in.
+				const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
+				trackClientOnlyPageDatas(internals, pageData, clientOnlys);
+				
+				// Client-only components
+				for (const clientOnly of clientOnlys) {
+					topLevelImports.add(clientOnly)
+				}
+
+				// Add hoisted scripts
+				const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+				if (hoistedScripts.size) {
+					const uniqueHoistedId = JSON.stringify(Array.from(hoistedScripts).sort());
+					let moduleId: string;
+
+					// If we're already tracking this set of hoisted scripts, get the unique id
+					if (uniqueHoistedIds.has(uniqueHoistedId)) {
+						moduleId = uniqueHoistedIds.get(uniqueHoistedId)!;
+					} else {
+						// Otherwise, create a unique id for this set of hoisted scripts
+						moduleId = `/astro/hoisted.js?q=${uniqueHoistedIds.size}`;
+						uniqueHoistedIds.set(uniqueHoistedId, moduleId);
+					}
+					topLevelImports.add(moduleId);
+
+					// Make sure to track that this page uses this set of hoisted scripts
+					if (internals.hoistedScriptIdToPagesMap.has(moduleId)) {
+						const pages = internals.hoistedScriptIdToPagesMap.get(moduleId);
+						pages!.add(astroModuleId);
+					} else {
+						internals.hoistedScriptIdToPagesMap.set(moduleId, new Set([astroModuleId]));
+						internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+					}
 				}
 			}
 

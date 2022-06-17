@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderHead, renderPage } from '../../runtime/server/index.js';
+import { renderHead, renderPage, renderComponent } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -126,8 +126,6 @@ export async function render(
 	const Component = await mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-	if (!Component.isAstroComponentFactory)
-		throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({
 		links,
@@ -146,7 +144,17 @@ export async function render(
 		ssr,
 	});
 
-	let page = await renderPage(result, Component, pageProps, null);
+	let page: Awaited<ReturnType<typeof renderPage>>;
+	if (!Component.isAstroComponentFactory) {
+		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
+		const html = await renderComponent(result, Component.name, Component, props, null);
+		page = {
+			type: 'html',
+			html: html.toString()
+		}
+	} else {
+		page = await renderPage(result, Component, pageProps, null);
+	}
 
 	if (page.type === 'response') {
 		return page;

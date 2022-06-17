@@ -1,12 +1,14 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
+import { AstroConfig, AstroIntegration, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
 import { isBuildingToSSR } from '../core/util.js';
+
+type Hooks<Hook extends keyof AstroIntegration['hooks'], Fn = AstroIntegration['hooks'][Hook]> = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export async function runHookConfigSetup({
 	config: _config,
@@ -34,7 +36,7 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 		if (integration?.hooks?.['astro:config:setup']) {
-			await integration.hooks['astro:config:setup']({
+			const hooks: Hooks<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
 				addRenderer(renderer: AstroRenderer) {
@@ -49,7 +51,17 @@ export async function runHookConfigSetup({
 				injectRoute: (injectRoute) => {
 					updatedConfig._ctx.injectedRoutes.push(injectRoute);
 				},
-			});
+			}
+			// Semi-private `addPageExtension` hook
+			Object.defineProperty(hooks, 'addPageExtension', {
+				value: (...input: (string|string[])[]) => {
+					const exts = (input.flat(Infinity) as string[]).map(ext => `.${ext.replace(/^\./, '')}`);
+					updatedConfig._ctx.pageExtensions.push(...exts);
+				},
+				writable: false,
+				enumerable: false
+			})
+			await integration.hooks['astro:config:setup'](hooks);
 		}
 	}
 	return updatedConfig;

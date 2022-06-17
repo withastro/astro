@@ -181,7 +181,7 @@ export async function renderComponent(
 	const { renderers } = result._metadata;
 	const metadata: AstroComponentMetadata = { displayName };
 
-	const { hydration, props } = extractDirectives(_props);
+	const { hydration, isPage, props } = extractDirectives(_props);
 	let html = '';
 	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
 	let needsDirectiveScript =
@@ -215,7 +215,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		let error;
 		for (const r of renderers) {
 			try {
-				if (await r.ssr.check(Component, props, children)) {
+				if (await r.ssr.check.call({ result }, Component, props, children)) {
 					renderer = r;
 					break;
 				}
@@ -281,7 +281,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+				({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -300,7 +300,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+			({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 		}
 	}
 
@@ -317,6 +317,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
+		if (isPage) {
+			return html;
+		}
 		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
 
