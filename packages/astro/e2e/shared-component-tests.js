@@ -19,12 +19,7 @@ export function prepareTestFactory({ root }) {
 		await devServer.stop();
 	});
 
-	const createTests = ({
-		pageUrl,
-		pageSourceFilePath,
-		componentFilePath,
-		counterCssFilePath,
-	}) => {
+	const createTests = ({ pageUrl, pageSourceFilePath, componentFilePath, counterCssFilePath }) => {
 		test('server only', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl(pageUrl));
 
@@ -132,7 +127,10 @@ export function prepareTestFactory({ root }) {
 
 			// Edit the client:only component's slot text
 			await astro.editFile(componentFilePath, (original) =>
-				original.replace('Framework client:only component', 'Updated framework client:only component')
+				original.replace(
+					'Framework client:only component',
+					'Updated framework client:only component'
+				)
 			);
 
 			const label = page.locator('#client-only');
@@ -147,11 +145,11 @@ export function prepareTestFactory({ root }) {
 			);
 
 			await expect(count, 'imported CSS updated').toHaveCSS('font-size', '24px');
-			
+
 			// Revert our edits
 			astro.resetAllFiles();
 		});
-	}
+	};
 
 	return {
 		test,
