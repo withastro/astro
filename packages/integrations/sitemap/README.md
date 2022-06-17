@@ -1,6 +1,6 @@
 # @astrojs/sitemap 🗺
 
-This Astro integration generates a sitemap based on your routes when you build your Astro project.
+This **[Astro integration][astro-integration]** generates a sitemap based on your routes when you build your Astro project.
 
 
 - <strong>[Why Astro Sitemap](#why-astro-sitemap)</strong>
