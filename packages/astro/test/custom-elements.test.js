@@ -37,7 +37,7 @@ describe('Custom Elements', () => {
 		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 	});
 
-	it('Hydration works with exported tagName', async () => {
+	it.skip('Hydration works with exported tagName', async () => {
 		const html = await fixture.readFile('/load/index.html');
 		const $ = cheerioLoad(html);
 
