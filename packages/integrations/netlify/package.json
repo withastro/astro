@@ -27,7 +27,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test-fn": "mocha --exit --timeout 20000 test/functions/",
     "test-edge": "deno test --allow-run --allow-read --allow-net ./test/edge-functions/",
-    "test": "npm run test-fn"
+    "test": "npm run test-fn && npm run test-edge"
   },
   "dependencies": {
     "@astrojs/webapi": "^0.12.0",
