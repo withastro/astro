@@ -89,6 +89,16 @@ export async function preload({
 	return [renderers, mod];
 }
 
+function isPage(filePath: URL, astroConfig: AstroConfig): boolean {
+	const relativeURL = filePath.toString().replace(astroConfig.srcDir.toString().slice(0, -1), '');
+	if (!relativeURL.startsWith('/pages/')) return false;
+	const ext = '.' + relativeURL.split('.').at(-1);
+	for (const _ext of astroConfig._ctx.pageExtensions) {
+		if (ext === _ext) return true;
+	}
+	return false;
+}
+
 /** use Vite to SSR */
 export async function render(
 	renderers: SSRLoadedRenderer[],
@@ -113,7 +123,7 @@ export async function render(
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
+	if (isPage(filePath, astroConfig) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',

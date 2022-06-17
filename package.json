@@ -50,6 +50,7 @@
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
+        "rollup",
         "@babel/core",
         "@babel/plugin-transform-react-jsx",
         "vite"

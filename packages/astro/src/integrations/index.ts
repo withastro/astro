@@ -51,6 +51,10 @@ export async function runHookConfigSetup({
 				addRenderer(renderer: AstroRenderer) {
 					updatedConfig._ctx.renderers.push(renderer);
 				},
+				addPageExtensions: (exts: string|string[]) => {
+					const ext = Array.isArray(exts) ? exts : [exts];
+					updatedConfig._ctx.pageExtensions.push(...ext);
+				},
 				injectScript: (stage, content) => {
 					updatedConfig._ctx.scripts.push({ stage, content });
 				},

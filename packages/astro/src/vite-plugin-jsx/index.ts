@@ -12,7 +12,7 @@ import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
-const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);
+const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
@@ -26,6 +26,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
 function getEsbuildLoader(fileExt: string): string {
+	if (fileExt === '.mdx') return 'jsx';
 	return fileExt.slice(1);
 }
 
@@ -166,7 +167,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 
 			// if no imports were found, look for @jsxImportSource comment
 			if (!importSource) {
-				const multiline = code.match(/\/\*\*[\S\s]*\*\//gm) || [];
+				const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
 				for (const comment of multiline) {
 					const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
 					if (lib) {
@@ -174,6 +175,10 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 						break;
 					}
 				}
+			}
+
+			if (!importSource && jsxRenderers.has('@astrojs/jsx')) {
+				importSource = '@astrojs/jsx';
 			}
 
 			// if JSX renderer found, then use that
