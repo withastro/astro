@@ -492,6 +492,9 @@ const toAttributeString = (value: any, shouldEscape = true) =>
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
+const kebab = (k: string) => k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+const toStyleString = (obj: Record<string, any>) => Object.entries(obj).map(([k, v]) => `${kebab(k)}:${v}`).join(';')
+
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string, shouldEscape = true) {
 	if (value == null) {
@@ -517,6 +520,10 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
 		return markHTMLString(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
+	}
+
+	if (key === 'style' && typeof value === 'object') {
+		return markHTMLString(` ${key}="${toStyleString(value)}"`);
 	}
 
 	// Boolean values only need the key

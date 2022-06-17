@@ -730,6 +730,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
+		pageExtensions: string[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
 	};
 }
@@ -933,6 +934,7 @@ export interface AstroIntegration {
 			command: 'dev' | 'build';
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
+			addPageExtensions: (extensions: string|string[]) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.

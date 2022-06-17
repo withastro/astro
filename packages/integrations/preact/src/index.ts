@@ -20,6 +20,9 @@ function getRenderer() {
 
 function getViteConfiguration() {
 	return {
+		resolve: {
+			dedupe: ['preact', 'preact/hooks', 'preact/jsx-runtime']
+		},
 		optimizeDeps: {
 			include: [
 				'@astrojs/preact/client.js',
