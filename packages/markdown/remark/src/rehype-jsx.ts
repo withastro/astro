@@ -53,11 +53,11 @@ export default function rehypeJsx(): ReturnType<RehypePlugin> {
 			// wrapped by raw opening and closing tags
 			const openingTag = {
 				type: 'raw',
-				value: `\n<${node.name}${attrs}>`,
+				value: `<${node.name}${attrs}>`,
 			};
 			const closingTag = {
 				type: 'raw',
-				value: `</${node.name}>\n`,
+				value: `</${node.name}>`,
 			};
 			parent.children.splice(index, 1, openingTag, ...node.children, closingTag);
 		});
