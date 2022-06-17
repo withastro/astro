@@ -2,6 +2,7 @@ import type { PluginContext } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -217,10 +218,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts
+				};
+
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							// Setting this vite metadata to `ts` causes Vite to resolve .js
 							// extensions to .ts files.

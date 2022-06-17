@@ -31,6 +31,22 @@ export interface BuildInternals {
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
+
+	/**
+	 * A list of hydrated components that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredHydratedComponents: Set<string>;
+	/**
+	 * A list of client:only components that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredClientOnlyComponents: Set<string>;
+	/**
+	 * A list of hoisted scripts that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredScripts: Set<string>;
 }
 
 /**
@@ -64,6 +80,10 @@ export function createBuildInternals(): BuildInternals {
 		pagesByComponent: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+
+		discoveredHydratedComponents: new Set(),
+		discoveredClientOnlyComponents: new Set(),
+		discoveredScripts: new Set(),
 	};
 }
 

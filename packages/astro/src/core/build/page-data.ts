@@ -71,30 +71,18 @@ export async function collectPagesData(
 				css: new Set(),
 				hoistedScript: undefined,
 				scripts: new Set(),
-				preload: await ssrPreload({
-					astroConfig,
-					filePath: new URL(`./${route.component}`, astroConfig.root),
-					viteServer,
-				})
-					.then((routes) => {
-						clearInterval(routeCollectionLogTimeout);
-						if (buildMode === 'static') {
-							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-							debug(
-								'build',
-								`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`
-							);
-						} else {
-							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
-						}
-						return routes;
-					})
-					.catch((err) => {
-						clearInterval(routeCollectionLogTimeout);
-						debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
-						throw err;
-					}),
 			};
+
+			clearInterval(routeCollectionLogTimeout);
+			if (buildMode === 'static') {
+				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+				debug(
+					'build',
+					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`
+				);
+			} else {
+				debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
+			}
 			continue;
 		}
 		// dynamic route:
@@ -144,12 +132,7 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
-			scripts: new Set(),
-			preload: await ssrPreload({
-				astroConfig,
-				filePath: new URL(`./${route.component}`, astroConfig.root),
-				viteServer,
-			}),
+			scripts: new Set()
 		};
 	}
 
