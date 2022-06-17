@@ -84,7 +84,7 @@ describe('expressions', () => {
 			)
 	});
 
-	it('should be able to encode ampersand characters in pre-code blocks.', async () => {
+	it('should be able to encode ampersand characters in fenced code blocks', async () => {
 		const { code } = await renderMarkdown(`
 		\`\`\`md
 			The ampersand in \`&nbsp;\` must be encoded in code blocks.
