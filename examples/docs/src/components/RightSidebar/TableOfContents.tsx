@@ -2,7 +2,7 @@ import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 
-const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({ headers = [] }) => {
+const TableOfContents: FunctionalComponent<{ headings: any[] }> = ({ headings = [] }) => {
 	const itemOffsets = useRef([]);
 	const [activeId, setActiveId] = useState<string>(undefined);
 
@@ -27,18 +27,18 @@ const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({ headers = []
 		<>
 			<h2 class="heading">On this page</h2>
 			<ul>
-				<li class={`header-link depth-2 ${activeId === 'overview' ? 'active' : ''}`.trim()}>
+				<li class={`heading-link depth-2 ${activeId === 'overview' ? 'active' : ''}`.trim()}>
 					<a href="#overview">Overview</a>
 				</li>
-				{headers
+				{headings
 					.filter(({ depth }) => depth > 1 && depth < 4)
-					.map((header) => (
+					.map((heading) => (
 						<li
-							class={`header-link depth-${header.depth} ${
-								activeId === header.slug ? 'active' : ''
+							class={`heading-link depth-${heading.depth} ${
+								activeId === heading.slug ? 'active' : ''
 							}`.trim()}
 						>
-							<a href={`#${header.slug}`}>{header.text}</a>
+							<a href={`#${heading.slug}`}>{heading.text}</a>
 						</li>
 					))}
 			</ul>
