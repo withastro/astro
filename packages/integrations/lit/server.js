@@ -9,6 +9,8 @@ function isCustomElementTag(name) {
 function getCustomElementConstructor(name) {
 	if (typeof customElements !== 'undefined' && isCustomElementTag(name)) {
 		return customElements.get(name) || null;
+	} else if(typeof name === 'function') {
+		return name;
 	}
 	return null;
 }
@@ -24,7 +26,11 @@ async function check(Component, _props, _children) {
 	return !!(await isLitElement(Component));
 }
 
-function* render(tagName, attrs, children) {
+function* render(Component, attrs, children) {
+	let tagName = Component;
+	if(typeof tagName !== 'string') {
+		tagName = Component[Symbol.for('tagName')];
+	}
 	const instance = new LitElementRenderer(tagName);
 
 	// LitElementRenderer creates a new element instance, so copy over.
