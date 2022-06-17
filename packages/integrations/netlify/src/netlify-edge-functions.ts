@@ -1,6 +1,6 @@
-import './edge-shim.js';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
+import './edge-shim.js';
 
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
