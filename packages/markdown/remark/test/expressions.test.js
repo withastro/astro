@@ -11,7 +11,7 @@ describe('expressions', () => {
 	it('should be able to serialize expression inside component', async () => {
 		const { code } = await renderMarkdown(`<Component>{a}</Component>`, {});
 
-		chai.expect(code).to.equal(`\n<Component>{a}</Component>\n`);
+		chai.expect(code).to.equal(`<Component>{a}</Component>`);
 	});
 
 	it('should be able to serialize expression inside markdown', async () => {
