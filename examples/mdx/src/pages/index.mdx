@@ -1,10 +1,27 @@
-# Hello world!
-
+import Heading from '../components/MyHeading.astro'
 export const authors = [
   {name: 'Jane', email: 'hi@jane.com'},
   {name: 'John', twitter: '@john2002'}
 ]
 export const published = new Date('2022-02-01')
+export const components = { h1: Heading }
+
+# Hello world!
+
+Text that is not a quote
+
+> Text that is a quote
+
+Use `git status` to list all new or modified files that haven't yet been committed.
+
+Some basic Git commands are:
+```
+git status
+git add
+git commit
+```
+
+This site was built using [GitHub Pages](https://pages.github.com/).
 
 Written by: {new Intl.ListFormat('en').format(authors.map(d => d.name))}.
 

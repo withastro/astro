@@ -17,7 +17,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
 	'solid-js': "import 'solid-js/web'",
-	astro: "import '@astrojs/jsx'",
+	astro: "import 'astro'",
 };
 
 // A code snippet to inject into JS files to prevent esbuild reference bugs.
@@ -177,8 +177,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 			}
 
-			if (!importSource && jsxRenderers.has('@astrojs/jsx')) {
-				importSource = '@astrojs/jsx';
+			if (!importSource && jsxRenderers.has('astro')) {
+				importSource = 'astro';
 			}
 
 			// if JSX renderer found, then use that

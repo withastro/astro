@@ -5,12 +5,12 @@ function getRenderer() {
 		name: '@astrojs/jsx',
 		clientEntrypoint: '@astrojs/jsx/client.js',
 		serverEntrypoint: '@astrojs/jsx/server.js',
-		jsxImportSource: '@astrojs/jsx',
+		jsxImportSource: 'astro',
 		jsxTransformOptions: async () => {
 			const { default: { default: jsx } } = await import('@babel/plugin-transform-react-jsx');
 			const { default: astroJSX } = await import('./babel/index.js');
 			return {
-				plugins: [astroJSX(), jsx({ }, { throwIfNamespace: false, runtime: 'automatic', importSource: '@astrojs/jsx' })],
+				plugins: [astroJSX(), jsx({ }, { throwIfNamespace: false, runtime: 'automatic', importSource: 'astro' })],
 			};
 		},
 	};

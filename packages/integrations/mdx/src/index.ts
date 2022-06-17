@@ -10,7 +10,7 @@ export default function (): AstroIntegration {
 				'astro:config:setup': ({ updateConfig, addPageExtensions }) => {
 					const mdxPlugin = mdx({
 						jsx: true,
-						'jsxImportSource': '@astrojs/jsx'
+						'jsxImportSource': 'astro'
 					})
 
 					addPageExtensions(['.mdx']);

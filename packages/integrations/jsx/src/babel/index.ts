@@ -69,7 +69,7 @@ export default function astroJSX(): PluginObj {
     visitor: {
 			ImportDeclaration(path, state) {
 				const source = path.node.source.value;
-				if (source.startsWith('@astrojs/jsx')) return;
+				if (source.startsWith('astro/jsx-runtime')) return;
 				const specs = path.node.specifiers.map(spec => {
 					if (t.isImportDefaultSpecifier(spec)) return { local: spec.local.name, imported: 'default' }
 					if (t.isImportNamespaceSpecifier(spec)) return { local: spec.local.name, imported: '*' }
@@ -110,6 +110,8 @@ export default function astroJSX(): PluginObj {
 				const meta = path.getData('import');
 				if (meta) {
 					addClientMetadata(parentNode, meta)
+				} else {
+					console.warn(getTagName(parentNode))
 				}
 			},
     }

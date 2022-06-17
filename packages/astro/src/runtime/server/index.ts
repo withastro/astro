@@ -464,7 +464,7 @@ function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true)
 // Adds support for `<Component {...value} />
 export function spreadAttributes(
 	values: Record<any, any>,
-	name: string,
+	name?: string,
 	{ class: scopedClassName }: { class?: string } = {}
 ) {
 	let output = '';

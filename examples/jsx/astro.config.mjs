@@ -5,7 +5,7 @@ import jsx from '@astrojs/jsx';
 // https://astro.build/config
 export default defineConfig({
 	integrations: [
+		jsx(),
 		preact(),
-		jsx()
 	]
 });

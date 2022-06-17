@@ -1,5 +1,9 @@
 import Counter from '../components/Counter';
 
+const Component = () => {
+	return <div>It works!</div>
+}
+
 export default async function Home() {
 	return (
 		<html lang="en">
@@ -10,14 +14,17 @@ export default async function Home() {
 			</head>
 			<body>
 				<h1>Astro</h1>
-				<Counter client:load>
+				{/* <Counter client:load>
 					<div>
-						<h1>Hello!</h1>
-						<Counter client:load>
-							<h2>No</h2>
+						<h1>Hello!</h1> */}
+
+						<Component client:idle />
+
+						{/* <Counter client:load>
+							<h2>AHHHHHHHHHH</h2>
 						</Counter>
 					</div>
-				</Counter>
+				</Counter> */}
 			</body>
 		</html>
 	)

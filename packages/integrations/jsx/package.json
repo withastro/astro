@@ -21,7 +21,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./babel": "./dist/babel/index.js",
-    "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./client.js": "./dist/client.js",
     "./server.js": "./dist/server.js",
     "./package.json": "./package.json"

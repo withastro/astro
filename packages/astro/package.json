@@ -30,6 +30,7 @@
     ".": "./astro.js",
     "./env": "./env.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
+    "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",

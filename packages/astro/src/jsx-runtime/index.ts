@@ -1,4 +1,4 @@
-import { Fragment } from 'astro/server';
+import { Fragment } from '../runtime/server/index.js';
 
 const AstroJSX = Symbol('@astrojs/jsx');
 
