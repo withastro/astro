@@ -7,7 +7,6 @@ import * as vite from 'vite';
 import {
 	BuildInternals,
 	createBuildInternals,
-	trackClientOnlyPageDatas,
 } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
@@ -23,7 +22,7 @@ import { getTimeStat } from './util.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
-import { vitePluginSSR } from './vite-plugin-ssr.js';
+import { vitePluginSSR, vitePluginSSRInject } from './vite-plugin-ssr.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -220,6 +219,8 @@ async function clientBuild(
 				target: 'client',
 			}),
 			...(viteConfig.plugins || []),
+			// SSR needs to be last
+			isBuildingToSSR(opts.astroConfig) && vitePluginSSRInject(opts, internals),
 		],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,

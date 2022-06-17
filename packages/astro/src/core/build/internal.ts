@@ -1,4 +1,4 @@
-import type { RenderedChunk } from 'rollup';
+import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
 import { prependForwardSlash } from '../path.js';
@@ -47,6 +47,11 @@ export interface BuildInternals {
 	 * These will be used as the top-level entrypoints for the client build.
 	 */
 	discoveredScripts: Set<string>;
+
+	// A list of all static files created during the build. Used for SSR.
+	staticFiles: Set<string>;
+	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
+	ssrEntryChunk?: OutputChunk;
 }
 
 /**
@@ -84,6 +89,7 @@ export function createBuildInternals(): BuildInternals {
 		discoveredHydratedComponents: new Set(),
 		discoveredClientOnlyComponents: new Set(),
 		discoveredScripts: new Set(),
+		staticFiles: new Set(),
 	};
 }
 
