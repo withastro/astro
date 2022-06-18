@@ -141,6 +141,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
+				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
 				markdownContent = markdownContent.replace(
 					/<\s*!--([^-->]*)(.*?)-->/gs,
 					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`

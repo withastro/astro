@@ -79,4 +79,24 @@ describe('expressions', () => {
 
 		chai.expect(code).to.equal(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`);
 	});
+
+	it('should unwrap HTML comments in inline code blocks', async () => {
+		const { code } = await renderMarkdown(
+		`\`{/*<!-- HTML comment -->*/}\``
+		);
+
+		chai.expect(code).to.equal('<p><code is:raw>&lt;!-- HTML comment --&gt;</code></p>');
+	});
+
+	it('should unwrap HTML comments in code fences', async () => {
+		const { code } = await renderMarkdown(
+			`
+			  \`\`\`
+				<!-- HTML comment -->
+				\`\`\`
+			`
+		);
+
+	 chai.expect(code).to.match(/(?<!{\/\*)&lt;!-- HTML comment --&gt;(?!\*\/})/);
+	});
 });

@@ -79,6 +79,20 @@ describe('Astro Markdown', () => {
 		expect($('h1').text()).to.equal('It still works!');
 	});
 
+	it.only('Can handle HTML comments in inline code', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+		
+		expect($('p code').text()).to.equal('<!-- HTML comments in code -->');
+	});
+
+	it('Can handle HTML comments in code fences', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('body > code').text()).to.equal('<!-- HTML comments in code fence -->')
+	});
+
 	// https://github.com/withastro/astro/issues/3254
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
