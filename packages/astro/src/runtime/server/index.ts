@@ -22,11 +22,11 @@ import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
-export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
+export { markHTMLString, markHTMLString as unescapeHTML, HTMLString, escapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 
-const voidElementNames =
+export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
 	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
@@ -496,7 +496,7 @@ function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true)
 // Adds support for `<Component {...value} />
 export function spreadAttributes(
 	values: Record<any, any>,
-	name: string,
+	name?: string,
 	{ class: scopedClassName }: { class?: string } = {}
 ) {
 	let output = '';

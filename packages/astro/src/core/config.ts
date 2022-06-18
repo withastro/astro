@@ -52,6 +52,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	experimental: {
 		ssr: false,
 		integrations: false,
+		jsx: false,
 	},
 };
 
@@ -224,6 +225,7 @@ export const AstroConfigSchema = z.object({
 		.object({
 			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
 			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
+			jsx: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.jsx),
 		})
 		.optional()
 		.default({}),
@@ -346,6 +348,14 @@ export async function validateConfig(
 			adapter: undefined,
 		},
 	};
+	if (
+		result.experimental?.jsx === true
+	) {
+		// Enable default JSX integration
+		(result._ctx.pageExtensions as string[]).push('.jsx', '.tsx');
+		const { default: jsxRenderer } = await import('../jsx/renderer.js');
+		(result._ctx.renderers as any[]).push(jsxRenderer);
+	}
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (
 		!result.experimental?.integrations &&
@@ -394,6 +404,8 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 		astroConfig.experimental.ssr = flags.experimentalSsr;
 	if (typeof flags.experimentalIntegrations === 'boolean')
 		astroConfig.experimental.integrations = flags.experimentalIntegrations;
+	if (typeof flags.experimentalJsx === 'boolean')
+		astroConfig.experimental.jsx = flags.experimentalJsx;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.

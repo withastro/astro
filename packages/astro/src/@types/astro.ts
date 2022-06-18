@@ -71,6 +71,7 @@ export interface CLIFlags {
 	config?: string;
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
+	experimentalJsx?: boolean;
 	drafts?: boolean;
 }
 
@@ -660,6 +661,12 @@ export interface AstroUserConfig {
 		 * Default: false
 		 */
 		ssr?: boolean;
+
+		/**
+		 * Enable built-in JSX support.
+		 * Default: false
+		 */
+		jsx?: boolean;
 	};
 
 	// Legacy options to be removed
