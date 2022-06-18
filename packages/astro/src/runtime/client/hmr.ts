@@ -34,12 +34,24 @@ if (import.meta.hot) {
 			}
 		});
 	}
+	function isPage(path: string) {
+		if (!path.includes('/pages/')) return false;
+		const parts = path.split('/pages/').slice(1);
+		let isPrivate = false;
+		for (const part of parts) {
+			if (part.startsWith('_')) {
+				isPrivate = true;
+				break;
+			}
+		}
+		return !isPrivate;
+	}
 	async function updateAll(files: any[]) {
-		let hasAstroUpdate = false;
+		let hasPageUpdate = false;
 		let styles = [];
 		for (const file of files) {
-			if (file.acceptedPath.endsWith('.astro')) {
-				hasAstroUpdate = true;
+			if (isPage(file.acceptedPath)) {
+				hasPageUpdate = true;
 				continue;
 			}
 			if (file.acceptedPath.includes('svelte&type=style')) {
@@ -72,7 +84,7 @@ if (import.meta.hot) {
 				updateStyle(id, content);
 			}
 		}
-		if (hasAstroUpdate) {
+		if (hasPageUpdate) {
 			return await updatePage();
 		}
 	}
