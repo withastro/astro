@@ -141,7 +141,7 @@ export default {
 
 ### entryLimit
 
-Non-negative `Number` of entries per sitemap file. Default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See explanation on [Google](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
+Non-negative `Number` of entries per sitemap file. Default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See explanation about large sitemaps on [Google](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
 
 __astro.config.mjs__
 
@@ -166,7 +166,7 @@ export default {
 
 `lastmod` - The date of page last modification.  
 
-`changefreq` and `priority` are ignored by Google.  
+The `changefreq` and `priority` are ignored by Google.  
 
 See detailed explanation of sitemap specific options on [sitemap.org](https://www.sitemaps.org/protocol.html).  
 
@@ -194,12 +194,12 @@ export default {
 
 Async or sync function called for each sitemap entry just before writing to a disk.  
 
-It receives as parameter `SitemapItem` object which consists of `url` (required, absolute page URL) and optional `changefreq`, `lastmod`, `priority` and `links` properties.  
+It receives as parameter a `SitemapItem` object which consists of `url` (required, absolute page URL) and optional `changefreq`, `lastmod` (ISO formatted date, `String` type), `priority` and `links` properties.  
 
-Optional `links` property contains a `LinkItem` list of alternate pages including a parent page.  
-`LinkItem` type has two required fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `hreflang` (a supported language code targeted by this version of the page).
+Optional `links` property contains the `LinkItem` list of alternate pages including a parent page.  
+The `LinkItem` type has two required fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `lang` (a supported language code targeted by this version of the page).
 
-`serialize` function should return `SitemapItem`, touched or not.
+The `serialize` function should return `SitemapItem`, touched or not.  
 
 The example below shows the ability to add the sitemap specific properties individually.
 
