@@ -1,3 +1,11 @@
+export function isOutputFormat(value: string): value is OutputFormat {
+	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
+}
+
+export function isAspectRatioString(value: string): value is `${number}:${number}` {
+	return /^\d*:\d*$/.test(value);
+}
+
 export type OutputFormat =
 	| 'avif'
 	| 'jpeg'
@@ -25,8 +33,11 @@ export interface ImageProps {
 
 export type ImageAttributes = Pick<HTMLImageElement, 'src'|'width'|'height'>;
 
-export interface ImageService {
-	getImageAttributes: (props: ImageProps) => Promise<ImageAttributes>;
-	parseImageSrc: (src: ImageAttributes['src']) => ImageAttributes;
-	toBuffer?: (props: ImageProps) => Promise<Buffer>;
+export interface RemoteImageService {
+	toImageSrc(props: ImageProps): Promise<ImageAttributes['src']>;
+	parseImageSrc(src: ImageAttributes['src']): ImageProps | undefined;
+}
+
+export interface LocalImageService extends RemoteImageService {
+	toBuffer(inputBuffer: Buffer, props: ImageProps): Promise<Buffer>;
 }

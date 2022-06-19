@@ -24,9 +24,11 @@
     "test": "mocha --exit --timeout 2000 test"
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.42",
+    "sharp": "^0.30.6"
   },
   "devDependencies": {
+    "@types/sharp": "^0.30.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   }
