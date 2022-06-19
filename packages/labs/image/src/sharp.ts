@@ -6,31 +6,31 @@ type CreateServiceProps = Required<Pick<IntegrationOptions, 'routePattern'>>;
 
 export default function createService({ routePattern }: CreateServiceProps): LocalImageService {
 	async function toImageSrc(props: ImageProps) {
-		const url = new URL(routePattern);
+		const searchParams = new URLSearchParams();
 		
 		if (props.quality) {
-			url.searchParams.append('q', props.quality.toString());
+			searchParams.append('q', props.quality.toString());
 		}
 
 		if (props.format) {
-			url.searchParams.append('f', props.format);
+			searchParams.append('f', props.format);
 		}
 
 		if (props.width) {
-			url.searchParams.append('w', props.width.toString());
+			searchParams.append('w', props.width.toString());
 		}
 
 		if (props.height) {
-			url.searchParams.append('h', props.height.toString());
+			searchParams.append('h', props.height.toString());
 		}
 
 		if (props.aspectRatio) {
-			url.searchParams.append('ratio', props.aspectRatio.toString());
+			searchParams.append('ratio', props.aspectRatio.toString());
 		}
 		
-		url.searchParams.append('href', props.src);
+		searchParams.append('href', props.src);
 
-		return url.toString();
+		return `${routePattern}?${searchParams.toString()}`;
 	}
 
 	 function parseImageSrc(src: ImageAttributes['src']) {
