@@ -21,13 +21,7 @@ export function getLocalService() {
 }
 
 export async function getImage(props: ImageProps) {
-	const src = await getLocalService().toImageSrc(props);
-
-	if ((globalThis as any).addStaticImage) {
-		(globalThis as any).addStaticImage(props);
-	}
-
-	return { src };
+  return await getLocalService().getImage(props);
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
@@ -43,8 +37,8 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 	return {
 		name: PKG_NAME,
 		hooks: {
-			'astro:config:setup': ({ injectRoute }) => {
-				(globalThis as any).imageService = createSharp({ routePattern });
+			'astro:config:setup': ({ config, injectRoute }) => {
+				(globalThis as any).imageService = createSharp({ routePattern, root: new URL(config.base, config.site).toString() });
 
 				// TODO: add /_images GET endpoint
 				injectRoute({

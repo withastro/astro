@@ -2,10 +2,47 @@ import sharp from 'sharp';
 import { isAspectRatioString, isOutputFormat } from './types.js';
 import type { ImageAttributes, ImageProps, IntegrationOptions, LocalImageService } from './types.js';
 
-type CreateServiceProps = Required<Pick<IntegrationOptions, 'routePattern'>>;
+type CreateServiceProps = Required<Pick<IntegrationOptions, 'routePattern'>> & {
+	root: string;
+};
 
-export default function createService({ routePattern }: CreateServiceProps): LocalImageService {
-	async function toImageSrc(props: ImageProps) {
+function calculateSize(props: ImageProps, metadata: sharp.Metadata) {
+	if (props.width && props.height) {
+		return {
+			width: props.width,
+			height: props.height
+		};
+	}
+
+	const metaAspect = metadata.width! / metadata.height!;
+	console.log('metaAspect', metaAspect);
+
+	if (props.width) {
+		return {
+			width: props.width!,
+			height: props.width! / metaAspect
+		};
+	}
+
+	return {
+		width: props.height! * metaAspect,
+		height: props.height!
+	}
+}
+
+export default function createService({ routePattern, root }: CreateServiceProps): LocalImageService {
+	async function getImage(props: ImageProps) {
+		const href = props.src.startsWith('http') ? new URL(props.src) : new URL(props.src, root);
+		const inputRes = await fetch(href.toString());
+
+		if (!inputRes.ok) {
+			throw new Error(`"${props.src}" not found`);
+		};
+
+		const inputBuffer = await Buffer.from(await inputRes.arrayBuffer());
+		const sharpImage = sharp(inputBuffer);
+		const metadata = await sharpImage.metadata();
+
 		const searchParams = new URLSearchParams();
 		
 		if (props.quality) {
@@ -30,7 +67,9 @@ export default function createService({ routePattern }: CreateServiceProps): Loc
 		
 		searchParams.append('href', props.src);
 
-		return `${routePattern}?${searchParams.toString()}`;
+		const src = `${routePattern}?${searchParams.toString()}`;
+
+		return { src, ...calculateSize(props, metadata) };
 	}
 
 	 function parseImageSrc(src: ImageAttributes['src']) {
@@ -91,7 +130,7 @@ export default function createService({ routePattern }: CreateServiceProps): Loc
 	}
 
 	return {
-		toImageSrc,
+		getImage,
 		parseImageSrc,
 		toBuffer,
 	}
