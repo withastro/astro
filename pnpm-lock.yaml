@@ -1939,6 +1939,17 @@ importers:
       astro-scripts: link:../../../scripts
       vue: 3.2.37
 
+  packages/labs/image:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      esbuild: ^0.14.42
+    dependencies:
+      esbuild: 0.14.43
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/markdown/remark:
     specifiers:
       '@astrojs/micromark-extension-mdx-jsx': ^1.0.3
