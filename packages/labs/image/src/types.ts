@@ -35,9 +35,9 @@ export type ImageAttributes = Pick<HTMLImageElement, 'src'|'width'|'height'>;
 
 export interface RemoteImageService {
 	toImageSrc(props: ImageProps): Promise<ImageAttributes['src']>;
-	parseImageSrc(src: ImageAttributes['src']): ImageProps | undefined;
 }
 
 export interface LocalImageService extends RemoteImageService {
+	parseImageSrc(src: ImageAttributes['src']): ImageProps | undefined;
 	toBuffer(inputBuffer: Buffer, props: ImageProps): Promise<Buffer>;
 }

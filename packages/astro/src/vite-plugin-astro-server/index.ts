@@ -205,7 +205,8 @@ async function handleRequest(
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
-	if (!buildingToSSR) {
+	if (!buildingToSSR && viteServer.config.mode === 'production') {
+		console.log('stripping search params');
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.

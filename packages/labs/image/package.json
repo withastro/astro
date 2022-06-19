@@ -15,6 +15,7 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./endpoint.js": "./dist/endpoint.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -25,6 +26,7 @@
   },
   "dependencies": {
     "esbuild": "^0.14.42",
+    "mime-types": "^2.1.35",
     "sharp": "^0.30.6"
   },
   "devDependencies": {

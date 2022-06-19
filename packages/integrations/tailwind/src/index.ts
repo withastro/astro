@@ -71,7 +71,7 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 				const tailwindConfig: TailwindConfig =
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
 
-				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));
+				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig as any));
 				config.style.postcss.plugins.push(autoprefixerPlugin);
 
 				if (applyBaseStyles) {

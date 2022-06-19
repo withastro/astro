@@ -1,0 +1,16 @@
+---
+import { getImage } from '@astrojs/image';
+
+const blog = await getImage({ src: '/assets/blog/introducing-astro.jpg', width: 414 });
+const social = await getImage({ src: '/social.jpg', width: 400 });
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+    <img {...social} />
+		<img {...blog} />
+  </body>
+</html>
