@@ -1959,11 +1959,11 @@ importers:
   packages/labs/image/test/fixtures/sharp:
     specifiers:
       '@astrojs/image': workspace:*
-      '@astrojs/netlify': workspace:*
+      '@astrojs/node': workspace:*
       astro: workspace:*
     dependencies:
       '@astrojs/image': link:../../..
-      '@astrojs/netlify': link:../../../../../integrations/netlify
+      '@astrojs/node': link:../../../../../integrations/node
       astro: link:../../../../../astro
 
   packages/markdown/remark:

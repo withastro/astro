@@ -1,5 +1,5 @@
 import { extname } from 'path';
-import { getLocalService } from './index.js';
+import sharp from './sharp.js';
 import type { APIRoute } from 'astro';
 
 const MimeTypes: Record<string, string> = {
@@ -13,7 +13,7 @@ export const get: APIRoute = async ({ request }) => {
 	try {
 		const mode: 'ssr' | 'ssg' = (globalThis as any).imageMode;
 		const url = new URL(request.url);
-		const imageService = getLocalService();
+		const imageService = sharp;
 
 		const props = imageService.parseImageSrc(request.url);
 

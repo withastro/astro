@@ -1,8 +1,9 @@
-import createSharp from './sharp.js';
+import sharp from './sharp.js';
 import type { AstroIntegration } from 'astro';
 import type { ImageProps, IntegrationOptions, LocalImageService } from './types.js';
 
 const PKG_NAME = '@astrojs/image';
+const ROUTE_PATTERN = '/_image';
 
 function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
 	if (width && height) {
@@ -16,12 +17,12 @@ function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
 	return `${src}.${format}`;
 }
 
-export function getLocalService() {
-	return (globalThis as any).imageService as LocalImageService;
-}
-
 export async function getImage(props: ImageProps) {
-  return await getLocalService().getImage(props);
+  const { searchParams, ...rest } = await sharp.getImage(props);
+	return {
+		...rest,
+		src: `${ROUTE_PATTERN}?${searchParams.toString()}`
+	}
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
@@ -29,20 +30,17 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		inputDir = '/src/images/',
 		outputDir = '/images/',
 		formats = ['webp', 'jpeg'],
-		filenameFormat = defaultFilenameFormat,
-		routePattern = '/_image'
+		filenameFormat = defaultFilenameFormat
 	} = options;
 
 
 	return {
 		name: PKG_NAME,
 		hooks: {
-			'astro:config:setup': ({ config, injectRoute }) => {
-				(globalThis as any).imageService = createSharp({ routePattern, root: new URL(config.base, config.site).toString() });
-
+			'astro:config:setup': ({ injectRoute }) => {
 				// TODO: add /_images GET endpoint
 				injectRoute({
-					pattern: routePattern,
+					pattern: ROUTE_PATTERN,
 					entryPoint: '@astrojs/image/endpoint.js'
 				});
 			},

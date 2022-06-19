@@ -34,7 +34,7 @@ export interface ImageProps {
 export type ImageAttributes = Pick<HTMLImageElement, 'src'|'width'|'height'>;
 
 export interface RemoteImageService {
-	getImage(props: ImageProps): Promise<ImageAttributes>;
+	getImage(props: ImageProps): Promise<ImageAttributes & { searchParams: URLSearchParams }>;
 }
 
 export interface LocalImageService extends RemoteImageService {
