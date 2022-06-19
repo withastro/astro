@@ -1,32 +1,27 @@
 import type { AstroIntegration } from 'astro';
-
-export type ImageFormat =
-	| 'avif'
-	| 'jpeg'
-	| 'png'
-	| 'webp';
-
-export type FilenameFormatter = (src: string, width: string, format: ImageFormat) => string;
-
-export interface IntegrationOptions {
-	inputDirectory?: string;
-	outputDirectory?: string;
-	formats?: ImageFormat[];
-	filenameFormat?: FilenameFormatter;
-}
+import type { ImageProps, IntegrationOptions } from './types.js';
 
 const PKG_NAME = '@astrojs/image';
 
-function defaultFilenameFormat(src: string, width: string, format: string) {
-	return `${src}-${width}w.${format}`;
+function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
+	if (width && height) {
+		return `${src}-${width}x${height}.${format}`;
+	} else if (width) {
+		return `${src}-${width}w.${format}`;
+	} else if (height) {
+		return `${src}-${height}h.${format}`;
+	}
+
+	return `${src}.${format}`;
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
 	const {
-		inputDirectory = '/src/images/',
-		outputDirectory = '/images/',
+		inputDir = '/src/images/',
+		outputDir = '/images/',
 		formats = ['webp', 'jpeg'],
-		filenameFormat = defaultFilenameFormat
+		filenameFormat = defaultFilenameFormat,
+		routePattern = '/_image'
 	} = options;
 
 	return {
