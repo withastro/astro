@@ -34,35 +34,37 @@ export default function createService({ routePattern }: CreateServiceProps): Loc
 	}
 
 	 function parseImageSrc(src: ImageAttributes['src']) {
-		const url = new URL(src);
+		const [_, search] = src.split('?');
 
-		if (!url.searchParams.has('href')) {
+		const searchParams = new URLSearchParams(search);
+
+		if (!searchParams.has('href')) {
 			return undefined;
 		}
 
-		let props: ImageProps = { src: url.searchParams.get('href')! };
+		let props: ImageProps = { src: searchParams.get('href')! };
 
-		if (url.searchParams.has('q')) {
-			props.quality = parseInt(url.searchParams.get('q')!);
+		if (searchParams.has('q')) {
+			props.quality = parseInt(searchParams.get('q')!);
 		}
 
-		if (url.searchParams.has('f')) {
-			const format = url.searchParams.get('f')!;
+		if (searchParams.has('f')) {
+			const format = searchParams.get('f')!;
 			if (isOutputFormat(format)) {
 				props.format = format;
 			}
 		}
 
-		if (url.searchParams.has('w')) {
-			props.width = parseInt(url.searchParams.get('w')!);
+		if (searchParams.has('w')) {
+			props.width = parseInt(searchParams.get('w')!);
 		}
 
-		if (url.searchParams.has('h')) {
-			props.height = parseInt(url.searchParams.get('h')!);
+		if (searchParams.has('h')) {
+			props.height = parseInt(searchParams.get('h')!);
 		}
 
-		if (url.searchParams.has('ratio')) {
-			const ratio = url.searchParams.get('ratio')!;
+		if (searchParams.has('ratio')) {
+			const ratio = searchParams.get('ratio')!;
 
 			if (isAspectRatioString(ratio)) {
 				props.aspectRatio = ratio;
