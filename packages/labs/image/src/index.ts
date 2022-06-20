@@ -1,12 +1,42 @@
 import fs from 'fs/promises';
 import path from 'path';
-import sharp from './sharp.js';
+import sharp from './loaders/sharp.js';
 import { ensureDir } from './utils.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { ImageProps, IntegrationOptions } from './types.js';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
+
+function calculateSize(props: ImageProps) {
+	if ((props.width && props.height) || !props.aspectRatio) {
+		return {
+			width: props.width,
+			height: props.height
+		};
+	}
+
+	let aspectRatio: number;
+
+	if (typeof props.aspectRatio === 'number') {
+		aspectRatio = props.aspectRatio;
+	} else {
+		const [width, height] = props.aspectRatio.split(':');
+		aspectRatio = parseInt(width) / parseInt(height);
+	}
+
+	if (props.width) {
+		return {
+			width: props.width,
+			height: props.width / aspectRatio
+		};
+	}
+
+	return {
+		width: props.height! * aspectRatio,
+		height: props.height!
+	}
+}
 
 function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
 	const ext = path.extname(src);
@@ -24,13 +54,15 @@ function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
 }
 
 export async function getImage(props: ImageProps) {
-  const { searchParams, ...rest } = await sharp.getImage(props);
+	const computedProps = { ...props, ...calculateSize(props) };
+
+  const { searchParams, ...rest } = await sharp.getImage(computedProps);
 
 	if (globalThis && (globalThis as any).addStaticImage) {
-		(globalThis as any)?.addStaticImage(props);
+		(globalThis as any)?.addStaticImage(computedProps);
 	}
 	const src = globalThis && (globalThis as any).filenameFormat
-		? (globalThis as any).filenameFormat(props, searchParams)
+		? (globalThis as any).filenameFormat(computedProps, searchParams)
 		: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
 	return {
@@ -41,7 +73,6 @@ export async function getImage(props: ImageProps) {
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
 	const {
-		outputDir = '/images/',
 		filenameFormat = defaultFilenameFormat
 	} = options;
 
@@ -63,7 +94,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				(globalThis as any).filenameFormat = (props: ImageProps, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
-						return path.join(outputDir, path.dirname(props.src), path.basename(filenameFormat(props)));
+						return path.join(ROUTE_PATTERN, path.dirname(props.src), path.basename(filenameFormat(props)));
 					} else {
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
@@ -77,10 +108,10 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				}
 			},
 			'astro:build:done': async ({ dir }) => {
-				for await (const [filename, props] of staticImages) {
+				for await (const [_, props] of staticImages) {
 					const inputBuffer = await fs.readFile(path.join(_config.publicDir.pathname, props.src));
 					const { data } = await sharp.toBuffer(inputBuffer, props);
-					const outputFile = path.join(dir.pathname, outputDir, filenameFormat(props));
+					const outputFile = path.join(dir.pathname, ROUTE_PATTERN, filenameFormat(props));
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}

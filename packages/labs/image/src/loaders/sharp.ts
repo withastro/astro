@@ -1,36 +1,6 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat, OutputFormat } from './types.js';
-import type { ImageAttributes, ImageProps, LocalImageService } from './types.js';
-
-function calculateSize(props: ImageProps) {
-	if ((props.width && props.height) || !props.aspectRatio) {
-		return {
-			width: props.width,
-			height: props.height
-		};
-	}
-
-	let aspectRatio: number;
-
-	if (typeof props.aspectRatio === 'number') {
-		aspectRatio = props.aspectRatio;
-	} else {
-		const [width, height] = props.aspectRatio.split(':');
-		aspectRatio = parseInt(width) / parseInt(height);
-	}
-
-	if (props.width) {
-		return {
-			width: props.width,
-			height: props.width / aspectRatio
-		};
-	}
-
-	return {
-		width: props.height! * aspectRatio,
-		height: props.height!
-	}
-}
+import { isAspectRatioString, isOutputFormat } from '../types.js';
+import type { ImageAttributes, ImageProps, SSRImageService } from '../types.js';
 
 async function getImage(props: ImageProps) {
 	const searchParams = new URLSearchParams();
@@ -57,7 +27,7 @@ async function getImage(props: ImageProps) {
 	
 	searchParams.append('href', props.src);
 
-	return { searchParams, ...calculateSize(props) };
+	return { searchParams };
 }
 
 	function parseImageSrc(src: ImageAttributes['src']) {
@@ -127,4 +97,4 @@ export default {
 	getImage,
 	parseImageSrc,
 	toBuffer,
-} as LocalImageService;
+} as SSRImageService;

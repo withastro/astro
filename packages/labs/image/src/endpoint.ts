@@ -1,5 +1,5 @@
 import { extname } from 'path';
-import sharp from './sharp.js';
+import sharp from './loaders/sharp.js';
 import type { APIRoute } from 'astro';
 
 const MimeTypes: Record<string, string> = {
