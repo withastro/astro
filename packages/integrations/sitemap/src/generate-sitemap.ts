@@ -1,4 +1,4 @@
-import type { SitemapOptions, SitemapItem } from './index';
+import type { SitemapItem, SitemapOptions } from './index';
 import { parseUrl } from './utils/parse-url';
 
 const STATUS_CODE_PAGE_REGEXP = /\/[0-9]{3}\/?$/;

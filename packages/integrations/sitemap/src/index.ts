@@ -1,5 +1,10 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { LinkItem as LinkItemBase, simpleSitemapAndIndex, SitemapItemLoose, EnumChangefreq } from 'sitemap';
+import {
+	EnumChangefreq,
+	LinkItem as LinkItemBase,
+	simpleSitemapAndIndex,
+	SitemapItemLoose,
+} from 'sitemap';
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
