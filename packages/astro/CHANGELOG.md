@@ -34,7 +34,8 @@
   ```ts
   integration: [
     // Only run `compress` integration when in production environments, etc...
-    import.meta.env.production ? compress() : null,
+    // Note that `import.meta.env` is not available inside the `astro.config.mjs` file!
+    process.env.production ? compress() : null,
   ];
   ```
 

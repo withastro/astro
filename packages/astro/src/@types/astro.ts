@@ -726,6 +726,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		pageExtensions: string[];
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];

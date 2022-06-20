@@ -1388,6 +1388,12 @@ importers:
       '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
+  packages/astro/test/fixtures/integration-add-page-extension:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/legacy-build:
     specifiers:
       '@astrojs/vue': workspace:*
