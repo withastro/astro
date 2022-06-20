@@ -1732,6 +1732,7 @@ importers:
       '@astrojs/webapi': ^0.12.0
       '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
+      '@types/node': ^14.18.20
       astro: workspace:*
       astro-scripts: workspace:*
       esbuild: ^0.14.42
@@ -1741,6 +1742,7 @@ importers:
     devDependencies:
       '@netlify/edge-handler-types': 0.34.1
       '@netlify/functions': 1.0.0
+      '@types/node': 14.18.21
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
