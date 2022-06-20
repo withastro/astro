@@ -21,4 +21,10 @@ describe('Slots: React', () => {
 		expect($('#string').text().trim()).to.equal('');
 		expect($('#content').text().trim()).to.equal('Hello world!');
 	});
+
+	it('Renders named slot', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('#named').text().trim()).to.equal('Fallback / Named');
+	})
 });

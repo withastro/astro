@@ -213,9 +213,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		const promises: Promise<void>[] = []
 		for (const [key, value] of Object.entries(slots)) {
 			promises.push(renderSlot(result, value as string).then((output) => {
-				if (output?.trim() !== '') {
-					children[key] = output;
-				}
+				children[key] = output;
 			}))
 		}
 		await Promise.all(promises);

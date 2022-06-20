@@ -8,4 +8,5 @@ import Counter from '../components/Counter.jsx'
   <Counter case="false" client:visible>{false}</Counter>
   <Counter case="string" client:visible>{''}</Counter>
   <Counter case="content" client:visible><h1 id="slotted">Hello world!</h1></Counter>
+	<Counter case="named" client:visible><h1 slot="named"> / Named</h1></Counter>
 </main>
