@@ -90,7 +90,7 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/comment-with-js/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('body > code').text()).to.equal('<!-- HTML comments in code fence -->');
+		expect($('pre > code').text()).to.equal('<!-- HTML comments in code fence -->');
 	});
 
 	// https://github.com/withastro/astro/issues/3254
