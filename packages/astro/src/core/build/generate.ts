@@ -56,6 +56,15 @@ function* throttle(max: number, inPaths: string[]) {
 	}
 }
 
+function shouldSkipDraft(pageModule: ComponentInstance, astroConfig: AstroConfig): boolean {
+	return (
+		// Drafts are disabled
+		!astroConfig.markdown.drafts &&
+		// This is a draft post
+		('frontmatter' in pageModule && (pageModule as any).frontmatter.draft === true)
+	);
+}
+
 // Gives back a facadeId that is relative to the root.
 // ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
 export function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig): string {
@@ -122,6 +131,11 @@ async function generatePage(
 		throw new Error(
 			`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`
 		);
+	}
+
+	if(shouldSkipDraft(pageModule, opts.astroConfig)) {
+		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
+		return;
 	}
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
