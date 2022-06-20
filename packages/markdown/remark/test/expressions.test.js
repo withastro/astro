@@ -81,7 +81,7 @@ describe('expressions', () => {
 			.expect(code)
 			.to.equal(
 				'<p>The ampersand in <code is:raw>&amp;nbsp;</code> must be encoded in code blocks.</p>'
-			)
+			);
 	});
 
 	it('should be able to encode ampersand characters in fenced code blocks', async () => {
@@ -91,12 +91,8 @@ describe('expressions', () => {
 		\`\`\`
 		`);
 
-		chai
-			.expect(code)
-			.to.match(
-				/^<pre is:raw.*<code>.*The ampersand in `&amp;nbsp;`/
-			);
-	})
+		chai.expect(code).to.match(/^<pre is:raw.*<code>.*The ampersand in `&amp;nbsp;`/);
+	});
 
 	it('should be able to serialize function expression', async () => {
 		const { code } = await renderMarkdown(
