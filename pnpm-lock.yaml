@@ -461,7 +461,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.16.0
+      '@astrojs/compiler': ^0.16.1
       '@astrojs/language-server': ^0.13.4
       '@astrojs/markdown-remark': ^0.11.2
       '@astrojs/prism': 0.4.1
@@ -545,7 +545,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.16.0
+      '@astrojs/compiler': 0.16.1
       '@astrojs/language-server': 0.13.4
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -2317,8 +2317,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.16.0:
-    resolution: {integrity: sha512-JkqJ9GBiT+DXvf06ON/n9/qHa7UE/f6iyM5MkFHquU7U6Z7kAdEgE0SObkaxxpNIl+WamHoDdnnS8qgK1C8ytA==}
+  /@astrojs/compiler/0.16.1:
+    resolution: {integrity: sha512-6l5j9b/sEdyqRUvwJpp+SmlAkNO5WeISuNEXnyH9aGwzIAdqgLB2boAJef9lWadlOjG8rSPO29WHRa3qS2Okew==}
     dev: false
 
   /@astrojs/language-server/0.13.4:
