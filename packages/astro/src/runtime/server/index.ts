@@ -172,7 +172,7 @@ export async function renderComponent(
 		return markHTMLString(output);
 	}
 
-	if (Component === null && !_props['client:only']) {
+	if (!Component && !_props['client:only']) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
 		);
