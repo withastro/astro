@@ -37,15 +37,16 @@ describe('Scripts (hoisted and not)', () => {
 		// Inline page
 		let inline = await fixture.readFile('/inline/index.html');
 		let $ = cheerio.load(inline);
+		let $el = $('script');
 
 		// test 1: Just one entry module
-		expect($('script')).to.have.lengthOf(1);
+		expect($el).to.have.lengthOf(1);
 
 		// test 2: attr removed
-		expect($('script').attr('data-astro')).to.equal(undefined);
+		expect($el.attr('data-astro')).to.equal(undefined);
 
-		const entryURL = $('script').attr('src');
-		const inlineEntryJS = await fixture.readFile(entryURL);
+		expect($el.attr('src')).to.equal(undefined);
+		const inlineEntryJS = $el.text();
 
 		// test 3: the JS exists
 		expect(inlineEntryJS).to.be.ok;
@@ -65,8 +66,8 @@ describe('Scripts (hoisted and not)', () => {
 		expect($('script')).to.have.lengthOf(2);
 
 		let el = $('script').get(1);
-		let entryURL = $(el).attr('src');
-		let externalEntryJS = await fixture.readFile(entryURL);
+		expect($(el).attr('src')).to.equal(undefined, 'This should have been inlined');
+		let externalEntryJS = $(el).text();
 
 		// test 2: the JS exists
 		expect(externalEntryJS).to.be.ok;
