@@ -11,7 +11,6 @@ const MimeTypes: Record<string, string> = {
 
 export const get: APIRoute = async ({ request }) => {
 	try {
-		const mode: 'ssr' | 'ssg' = (globalThis as any).imageMode;
 		const url = new URL(request.url);
 		const imageService = sharp;
 
@@ -32,16 +31,14 @@ export const get: APIRoute = async ({ request }) => {
 
 		const inputBuffer = Buffer.from(await inputRes.arrayBuffer());
 
-		const outputBuffer = await imageService.toBuffer(inputBuffer, props);
+		const { data, format } = await imageService.toBuffer(inputBuffer, props);
 
-		return mode === 'ssg'
-			? { body: await outputBuffer.toString('binary') }
-			: new Response(outputBuffer, {
-				status: 200,
-				headers: {
-					'content-type': MimeTypes[props.format || extname(props.src)],
-				}
-			});
+		return new Response(data, {
+			status: 200,
+			headers: {
+				'content-type': MimeTypes[format],
+			}
+		});
 	} catch (err: unknown) {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}

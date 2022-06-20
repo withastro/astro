@@ -15,16 +15,14 @@ export type OutputFormat =
 export type FilenameFormatter = (props: ImageProps) => string;
 
 export interface IntegrationOptions {
-	inputDir?: string;
 	outputDir?: string;
-	formats?: OutputFormat[];
 	filenameFormat?: FilenameFormatter;
 	routePattern?: string;
 }
 
 export interface ImageProps {
 	src: string;
-	format?: OutputFormat;
+	format: OutputFormat;
 	quality?: number;
 	width?: number;
 	height?: number;
@@ -39,5 +37,5 @@ export interface RemoteImageService {
 
 export interface LocalImageService extends RemoteImageService {
 	parseImageSrc(src: ImageAttributes['src']): ImageProps | undefined;
-	toBuffer(inputBuffer: Buffer, props: ImageProps): Promise<Buffer>;
+	toBuffer(inputBuffer: Buffer, props: ImageProps): Promise<{ data: Buffer, format: OutputFormat }>;
 }

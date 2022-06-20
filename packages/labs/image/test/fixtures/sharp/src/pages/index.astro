@@ -1,8 +1,8 @@
 ---
 import { getImage } from '@astrojs/image';
 
-const blog = await getImage({ src: '/assets/blog/introducing-astro.jpg', width: 414, height: 414 });
-const social = await getImage({ src: '/social.jpg', width: 400 });
+const blog = await getImage({ src: '/assets/blog/introducing-astro.jpg', format: 'jpeg', width: 414, height: 414 });
+const social = await getImage({ src: '/social.jpg', format: 'webp', width: 400 });
 ---
 
 <html>

@@ -1,6 +1,6 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from './types.js';
-import type { ImageAttributes, ImageProps } from './types.js';
+import { isAspectRatioString, isOutputFormat, OutputFormat } from './types.js';
+import type { ImageAttributes, ImageProps, LocalImageService } from './types.js';
 
 function calculateSize(props: ImageProps) {
 	if ((props.width && props.height) || !props.aspectRatio) {
@@ -69,11 +69,12 @@ async function getImage(props: ImageProps) {
 		return undefined;
 	}
 
-	let props: ImageProps = { src: searchParams.get('href')! };
-
-	if (searchParams.has('q')) {
-		props.quality = parseInt(searchParams.get('q')!);
+	const format = searchParams.get('f');
+	if (!format || !isOutputFormat(format)) {
+		return undefined;
 	}
+
+	let props: ImageProps = { src: searchParams.get('href')!, format };
 
 	if (searchParams.has('f')) {
 		const format = searchParams.get('f')!;
@@ -114,11 +115,16 @@ async function getImage(props: ImageProps) {
 		sharpImage.toFormat(props.format, { quality: props.quality });
 	}
 
-	return sharpImage.toBuffer();
+	const { data, info } = await sharpImage.toBuffer({ resolveWithObject: true });
+
+	return {
+		data,
+		format: info.format
+	};
 }
 
 export default {
 	getImage,
 	parseImageSrc,
 	toBuffer,
-}
+} as LocalImageService;
