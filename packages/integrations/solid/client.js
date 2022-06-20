@@ -11,41 +11,30 @@ export default (element) =>
 
 		const fn = client === 'only' ? render : hydrate;
 
-		let slots;
-		function getSlots() {
-			if (!slots && Object.keys(slotted).length > 0) {
-				// hydrating
-				if (sharedConfig.context) {
-					slots = {};
-					element.querySelectorAll('astro-slot').forEach(slot => {
-						slots[slot.getAttribute('name') || 'default'] = slot;
-					})
+		let _slots = {};
+		if (Object.keys(slotted).length > 0) {
+			// hydrating
+			if (sharedConfig.context) {
+				element.querySelectorAll('astro-slot').forEach((slot) => {
+					_slots[slot.getAttribute('name') || 'default'] = slot.cloneNode(true);
+				});
+			} else {
+				for (const [key, value] of Object.entries(slotted)) {
+					_slots[key] = document.createElement('astro-slot');
+					if (key !== 'default') _slots[key].setAttribute('name', key);
+					_slots[key].innerHTML = value;
 				}
-
-				if (!slots) {
-						slots = {};
-						for (const [key, value] of Object.entries(slotted)) {
-							slots[key] = document.createElement('astro-slot');
-							if (key !== 'default') slots[key].setAttribute('name', key);
-							slots[key].innerHTML = value;
-						}
-					}
 			}
-			return slots;
 		}
+
+		const { default: children, ...slots } = _slots;
 
 		fn(
 			() =>
 				createComponent(Component, {
 					...props,
-					get slots() {
-						const { default: _, ...slots } = getSlots();
-						return slots;
-					},
-					get children() {
-						const { default: children } = getSlots();
-						return children;
-					},
+					...slots,
+					children
 				}),
 			element
 		);

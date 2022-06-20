@@ -29,8 +29,10 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 	for (const [key, value] of Object.entries(slotted)) {
 		slots[key] = h(StaticHtml, { value, name: key });
 	}
+	// Note: create newProps to avoid mutating `props` before they are serialized
+	const newProps = { ...props, ...slots }
 	const html = render(
-		h(Component, { ...props, slots }, children != null ? h(StaticHtml, { value: children }) : children)
+		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
 	);
 	return { html };
 }

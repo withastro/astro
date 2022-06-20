@@ -11,14 +11,14 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 	for (const [key, value] of Object.entries(slotted)) {
 		slots[key] = ssr(`<astro-slot name="${key}">${value}</astro-slot>`);
 	}
-	const html = renderToString(() =>
-		createComponent(Component, {
-			...props,
-			slots,
-			// In Solid SSR mode, `ssr` creates the expected structure for `children`.
-			children: children != null ? ssr(`<astro-slot>${children}</astro-slot>`) : children,
-		})
-	);
+	// Note: create newProps to avoid mutating `props` before they are serialized
+	const newProps = { 
+		...props,
+		...slots,
+		// In Solid SSR mode, `ssr` creates the expected structure for `children`.
+		children: children != null ? ssr(`<astro-slot>${children}</astro-slot>`) : children,
+	}
+	const html = renderToString(() => createComponent(Component, newProps));
 	return { html }
 }
 

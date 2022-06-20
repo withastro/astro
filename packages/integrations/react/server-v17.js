@@ -56,11 +56,13 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 	for (const [key, value] of Object.entries(slotted)) {
 		slots[key] = React.createElement(StaticHtml, { value, name: key });
 	}
-	const vnode = React.createElement(Component, {
+	// Note: create newProps to avoid mutating `props` before they are serialized
+	const newProps = { 
 		...props,
-		slots,
+		...slots,
 		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
-	});
+	}
+	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {
 		html = ReactDOM.renderToString(vnode);
