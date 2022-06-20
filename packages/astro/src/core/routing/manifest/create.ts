@@ -165,7 +165,11 @@ export function createRouteManifest(
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set(['.astro', '.md', ...config._ctx.pageExtensions]);
+	const validPageExtensions: Set<string> = new Set([
+		'.astro',
+		'.md',
+		...config._ctx.pageExtensions,
+	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
 	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {

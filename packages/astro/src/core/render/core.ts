@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderHead, renderPage, renderComponent } from '../../runtime/server/index.js';
+import { renderComponent, renderHead, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -150,8 +150,8 @@ export async function render(
 		const html = await renderComponent(result, Component.name, Component, props, null);
 		page = {
 			type: 'html',
-			html: html.toString()
-		}
+			html: html.toString(),
+		};
 	} else {
 		page = await renderPage(result, Component, pageProps, null);
 	}

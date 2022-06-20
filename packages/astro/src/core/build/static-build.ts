@@ -75,10 +75,10 @@ export async function staticBuild(opts: StaticBuildOptions) {
 				// Track client:only usage so we can map their CSS back to the Page they are used in.
 				const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
 				trackClientOnlyPageDatas(internals, pageData, clientOnlys);
-				
+
 				// Client-only components
 				for (const clientOnly of clientOnlys) {
-					topLevelImports.add(clientOnly)
+					topLevelImports.add(clientOnly);
 				}
 
 				// Add hoisted scripts
