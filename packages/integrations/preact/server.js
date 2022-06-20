@@ -24,9 +24,13 @@ function check(Component, props, children) {
 	}
 }
 
-function renderToStaticMarkup(Component, props, children) {
+function renderToStaticMarkup(Component, props, { default: children, ...slotted }) {
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = h(StaticHtml, { value, name: key });
+	}
 	const html = render(
-		h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
+		h(Component, { ...props, slots }, children != null ? h(StaticHtml, { value: children }) : children)
 	);
 	return { html };
 }

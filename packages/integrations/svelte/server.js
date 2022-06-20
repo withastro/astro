@@ -1,15 +1,13 @@
-import SvelteWrapper from './Wrapper.svelte.ssr.js';
-
 function check(Component) {
 	return Component['render'] && Component['$$render'];
 }
 
-async function renderToStaticMarkup(Component, props, children) {
-	const { html } = SvelteWrapper.render({
-		__astro_component: Component,
-		__astro_children: children,
-		...props,
-	});
+async function renderToStaticMarkup(Component, props, slotted) {
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = () => `<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${value}</astro-slot>`;
+	}
+	const { html } = Component.render(props, { $$slots: slots });
 	return { html };
 }
 

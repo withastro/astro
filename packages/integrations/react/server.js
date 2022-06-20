@@ -56,10 +56,15 @@ async function getNodeWritable() {
 	return Writable;
 }
 
-async function renderToStaticMarkup(Component, props, children, metadata) {
+async function renderToStaticMarkup(Component, props, { default: children, ...slotted }, metadata) {
 	delete props['class'];
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = React.createElement(StaticHtml, { value, name: key });
+	}
 	const vnode = React.createElement(Component, {
 		...props,
+		slots,
 		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
 	});
 	let html;

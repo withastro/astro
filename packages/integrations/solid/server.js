@@ -6,18 +6,20 @@ function check(Component, props, children) {
 	return typeof html === 'string';
 }
 
-function renderToStaticMarkup(Component, props, children) {
+function renderToStaticMarkup(Component, props, { default: children, ...slotted }) {
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = ssr(`<astro-slot name="${key}">${value}</astro-slot>`);
+	}
 	const html = renderToString(() =>
 		createComponent(Component, {
 			...props,
+			slots,
 			// In Solid SSR mode, `ssr` creates the expected structure for `children`.
-			// In Solid client mode, `ssr` is just a stub.
-			children: children != null ? ssr(`<astro-fragment>${children}</astro-fragment>`) : children,
+			children: children != null ? ssr(`<astro-slot>${children}</astro-slot>`) : children,
 		})
 	);
-	return {
-		html: html,
-	};
+	return { html }
 }
 
 export default {

@@ -208,7 +208,18 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		throw new Error(message);
 	}
 
-	const children = await renderSlot(result, slots?.default);
+	const children: Record<string, string> = {};
+	if (slots) {
+		const promises: Promise<void>[] = []
+		for (const [key, value] of Object.entries(slots)) {
+			promises.push(renderSlot(result, value as string).then((output) => {
+				if (output?.trim() !== '') {
+					children[key] = output;
+				}
+			}))
+		}
+		await Promise.all(promises);
+	}
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
@@ -309,7 +320,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	if (!html && typeof Component === 'string') {
 		html = await renderAstroComponent(
 			await render`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
-				(children == null || children == '') && voidElementNames.test(Component)
+				(children == null || children?.default == '') && voidElementNames.test(Component)
 					? `/>`
 					: `>${children == null ? '' : children}</${Component}>`
 			)}`
@@ -320,7 +331,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (isPage) {
 			return html;
 		}
-		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
+		return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
@@ -337,8 +348,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	result._metadata.needsHydrationStyles = true;
 
 	// Render a template if no fragment is provided.
-	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
-	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+	const needsAstroTemplate = Object.keys(children).length > 0 && !/\<\/?astro-slot[^>]*\>/.test(html);
+	const template = needsAstroTemplate ? Object.entries(children).map(([key, child]) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${child}</template>`).join('') : '';
 
 	if (needsAstroTemplate) {
 		island.props.tmpl = '';
@@ -652,7 +663,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 		styles.push(
 			renderElement('style', {
 				props: {},
-				children: 'astro-island, astro-fragment { display: contents; }',
+				children: 'astro-island, astro-slot { display: contents; }',
 			})
 		);
 	}
