@@ -81,9 +81,7 @@ describe('expressions', () => {
 	});
 
 	it('should unwrap HTML comments in inline code blocks', async () => {
-		const { code } = await renderMarkdown(
-		`\`{/*<!-- HTML comment -->*/}\``
-		);
+		const { code } = await renderMarkdown(`\`{/*<!-- HTML comment -->*/}\``);
 
 		chai.expect(code).to.equal('<p><code is:raw>&lt;!-- HTML comment --&gt;</code></p>');
 	});
@@ -97,6 +95,6 @@ describe('expressions', () => {
 			`
 		);
 
-	 chai.expect(code).to.match(/(?<!{\/\*)&lt;!-- HTML comment --&gt;(?!\*\/})/);
+		chai.expect(code).to.match(/(?<!{\/\*)&lt;!-- HTML comment --&gt;(?!\*\/})/);
 	});
 });

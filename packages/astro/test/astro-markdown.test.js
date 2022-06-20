@@ -82,7 +82,7 @@ describe('Astro Markdown', () => {
 	it.only('Can handle HTML comments in inline code', async () => {
 		const html = await fixture.readFile('/comment-with-js/index.html');
 		const $ = cheerio.load(html);
-		
+
 		expect($('p code').text()).to.equal('<!-- HTML comments in code -->');
 	});
 
@@ -90,7 +90,7 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/comment-with-js/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('body > code').text()).to.equal('<!-- HTML comments in code fence -->')
+		expect($('body > code').text()).to.equal('<!-- HTML comments in code fence -->');
 	});
 
 	// https://github.com/withastro/astro/issues/3254
