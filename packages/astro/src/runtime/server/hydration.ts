@@ -11,6 +11,7 @@ import { serializeListValue } from './util.js';
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
 interface ExtractedProps {
+	isPage: boolean;
 	hydration: {
 		directive: string;
 		value: string;
@@ -24,10 +25,16 @@ interface ExtractedProps {
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(inputProps: Record<string | number, any>): ExtractedProps {
 	let extracted: ExtractedProps = {
+		isPage: false,
 		hydration: null,
 		props: {},
 	};
 	for (const [key, value] of Object.entries(inputProps)) {
+		if (key.startsWith('server:')) {
+			if (key === 'server:root') {
+				extracted.isPage = true;
+			}
+		}
 		if (key.startsWith('client:')) {
 			if (!extracted.hydration) {
 				extracted.hydration = {

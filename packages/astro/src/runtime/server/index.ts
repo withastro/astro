@@ -181,7 +181,7 @@ export async function renderComponent(
 	const { renderers } = result._metadata;
 	const metadata: AstroComponentMetadata = { displayName };
 
-	const { hydration, props } = extractDirectives(_props);
+	const { hydration, isPage, props } = extractDirectives(_props);
 	let html = '';
 	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
 	let needsDirectiveScript =
@@ -317,6 +317,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
+		if (isPage) {
+			return html;
+		}
 		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
 
