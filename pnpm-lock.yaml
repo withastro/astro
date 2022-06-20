@@ -94,8 +94,10 @@ importers:
 
   examples/deno:
     specifiers:
+      '@astrojs/deno': ^0.1.5
       astro: ^1.0.0-beta.47
     devDependencies:
+      '@astrojs/deno': link:../../packages/integrations/deno
       astro: link:../../packages/astro
 
   examples/docs:
