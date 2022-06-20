@@ -1,3 +1,5 @@
+import os from 'os';
+import { fileURLToPath } from 'url';
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
 import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
@@ -187,6 +189,10 @@ export async function runHookBuildDone({
 	routes: RouteData[];
 }) {
 	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
+
+	if (os.type() === 'Windows_NT') {
+		dir.pathname = fileURLToPath(dir.href);
+	}
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
