@@ -1,5 +1,5 @@
 import { renderMarkdown } from '../dist/index.js';
-import chai from 'chai';
+import chai, { expect } from 'chai';
 
 describe('expressions', () => {
 	it('should be able to serialize bare expression', async () => {
@@ -70,6 +70,33 @@ describe('expressions', () => {
 				`<h6 id={$$slug(\`{} is equivalent to Record&lt;never, never&gt; (at TypeScript v\${frontmatter.version})\`)}><code is:raw>{}</code> is equivalent to <code is:raw>Record&lt;never, never&gt;</code> <small>(at TypeScript v{frontmatter.version})</small></h6>`
 			);
 	});
+
+	it('should be able to encode ampersand characters in code blocks', async () => {
+		const { code } = await renderMarkdown(
+			'The ampersand in `&nbsp;` must be encoded in code blocks.',
+			{}
+		);
+
+		chai
+			.expect(code)
+			.to.equal(
+				'<p>The ampersand in <code is:raw>&amp;nbsp;</code> must be encoded in code blocks.</p>'
+			)
+	});
+
+	it('should be able to encode ampersand characters in fenced code blocks', async () => {
+		const { code } = await renderMarkdown(`
+		\`\`\`md
+			The ampersand in \`&nbsp;\` must be encoded in code blocks.
+		\`\`\`
+		`);
+
+		chai
+			.expect(code)
+			.to.match(
+				/^<pre is:raw.*<code>.*The ampersand in `&amp;nbsp;`/
+			);
+	})
 
 	it('should be able to serialize function expression', async () => {
 		const { code } = await renderMarkdown(
