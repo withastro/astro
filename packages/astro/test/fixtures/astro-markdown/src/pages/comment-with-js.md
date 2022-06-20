@@ -14,4 +14,10 @@ function test() {
 ```
 -->
 
+```
+<!-- HTML comments in code fence -->
+```
+
+`<!-- HTML comments in code -->`
+
 # It still works!
