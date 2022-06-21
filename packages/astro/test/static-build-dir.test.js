@@ -1,5 +1,3 @@
-import url from 'url';
-import path from 'path';
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
