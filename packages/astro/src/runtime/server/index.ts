@@ -316,11 +316,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
+		const childSlots = Object.values(children).join('');
 		html = await renderAstroComponent(
 			await render`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
-				(children == null || children?.default == '') && voidElementNames.test(Component)
+				childSlots === '' && voidElementNames.test(Component)
 					? `/>`
-					: `>${children == null ? '' : children}</${Component}>`
+					: `>${childSlots}</${Component}>`
 			)}`
 		);
 	}
@@ -346,7 +347,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	result._metadata.needsHydrationStyles = true;
 
 	// Render template if not all astro fragments are provided.
-	const unrenderedSlots: string[] = [];
+	let unrenderedSlots: string[] = [];
 	if (Object.keys(children).length > 0) {
 		for (const key of Object.keys(children)) {
 				if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
