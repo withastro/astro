@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import sharp from './loaders/sharp.js';
 import type { APIRoute } from 'astro';
 
@@ -8,9 +9,34 @@ const MimeTypes: Record<string, string> = {
 	'webp': 'image/webp'
 };
 
+async function loadLocalImage(src: string) {
+	try {
+		return await fs.readFile(src);
+	} catch {
+		return undefined;
+	}
+}
+
+async function loadRemoteImage(src: string) {
+	try {
+		const res = await fetch(src);
+
+		if (!res.ok) {
+			return undefined;
+		}
+
+		return Buffer.from(await res.arrayBuffer());
+	} catch {
+		return undefined;
+	}
+}
+
+function isRemoteImage(src: string) {
+	return /^http(s?):\/\//.test(src);
+}
+
 export const get: APIRoute = async ({ request }) => {
 	try {
-		const url = new URL(request.url);
 		const imageService = sharp;
 
 		const props = imageService.parseImageSrc(request.url);
@@ -20,15 +46,13 @@ export const get: APIRoute = async ({ request }) => {
 			return new Response('Bad Request', { status: 400 });
 		}
 
-		const href = !props.src.startsWith('http') ? new URL(props.src, url.origin) : new URL(props.src);
+		const inputBuffer = isRemoteImage(props.src)
+			? await loadRemoteImage(props.src)
+			: await loadLocalImage(props.src);
 
-		const inputRes = await fetch(href.toString());
-
-		if (!inputRes.ok) {
+		if (!inputBuffer) {
 			return new Response(`"${props.src} not found`, { status: 404 });
 		}
-
-		const inputBuffer = Buffer.from(await inputRes.arrayBuffer());
 
 		const { data, format } = await imageService.toBuffer(inputBuffer, props);
 

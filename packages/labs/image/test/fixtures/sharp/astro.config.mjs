@@ -6,4 +6,5 @@ import node from '@astrojs/node';
 export default defineConfig({
 	site: 'http://localhost:3000',
 	integrations: [image()],
+	// adapter: node()
 });

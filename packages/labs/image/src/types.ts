@@ -133,3 +133,11 @@ export interface SSRImageService {
 	 */
 	toBuffer(inputBuffer: Buffer, props: ImageProps): Promise<{ data: Buffer, format: OutputFormat }>;
 }
+
+export interface ImageMetadata {
+	src: string;
+	width: number;
+	height: number;
+	aspectRatio: number;
+	format: OutputFormat;
+}

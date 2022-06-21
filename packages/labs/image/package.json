@@ -15,9 +15,15 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./dev-endpoint.js": "./dist/dev-endpoint.js",
     "./endpoint.js": "./dist/endpoint.js",
+    "./Image.astro": "./src/Image.astro",
     "./package.json": "./package.json"
   },
+  "files": [
+    "components",
+    "dist"
+  ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",

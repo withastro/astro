@@ -2,11 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import sharp from './loaders/sharp.js';
 import { ensureDir } from './utils.js';
+import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { ImageProps, IntegrationOptions } from './types.js';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
+const OUTPUT_DIR = '/_image';
 
 function calculateSize(props: ImageProps) {
 	if ((props.width && props.height) || !props.aspectRatio) {
@@ -72,29 +74,35 @@ export async function getImage(props: ImageProps) {
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
-	const {
-		filenameFormat = defaultFilenameFormat
-	} = options;
+	const resolvedOptions = { filenameFormat: defaultFilenameFormat, ...options };
 
 	const staticImages = new Map<string, ImageProps>();
 	let _config: AstroConfig;
 
+	function getViteConfiguration() {
+		return {
+			plugins: [
+				createPlugin(_config, resolvedOptions)
+			]
+		}
+	}
+
 	return {
 		name: PKG_NAME,
 		hooks: {
-			'astro:config:setup': ({ command, config, injectRoute }) => {
+			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
 
+				updateConfig({ vite: getViteConfiguration() });
+
 				(globalThis as any).addStaticImage = (props: ImageProps) => {
-					if (mode === 'ssg') {
-						staticImages.set(filenameFormat(props), props);
-					}
+					staticImages.set(resolvedOptions.filenameFormat(props), props);
 				}
 
 				(globalThis as any).filenameFormat = (props: ImageProps, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
-						return path.join(ROUTE_PATTERN, path.dirname(props.src), path.basename(filenameFormat(props)));
+						return path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(resolvedOptions.filenameFormat(props)));
 					} else {
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
@@ -103,15 +111,19 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				if (mode === 'ssr') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
-						entryPoint: '@astrojs/image/endpoint.js'
+						entryPoint: command === 'dev' ? '@astrojs/image/dev-endpoint.js' : '@astrojs/image/endpoint.js'
 					});
 				}
 			},
 			'astro:build:done': async ({ dir }) => {
+				console.log('build:done');
 				for await (const [_, props] of staticImages) {
-					const inputBuffer = await fs.readFile(path.join(_config.publicDir.pathname, props.src));
+					const pathname = path.join(_config.srcDir.pathname, props.src.replace(/^\/image/, ''));
+					console.log(pathname);
+					const inputBuffer = await fs.readFile(pathname);
 					const { data } = await sharp.toBuffer(inputBuffer, props);
-					const outputFile = path.join(dir.pathname, ROUTE_PATTERN, filenameFormat(props));
+					const outputFile = path.join(dir.pathname, OUTPUT_DIR, resolvedOptions.filenameFormat(props));
+					console.log('writing to', outputFile);
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}

@@ -1,8 +1,8 @@
 ---
-import { getImage } from '@astrojs/image';
+import socialJpg from '../assets/social.jpg';
+import Image from '../../../../../components/Image.astro';
 
-const blog = await getImage({ src: '/assets/blog/introducing-astro.jpg', format: 'jpeg', width: 414, height: 414 });
-const social = await getImage({ src: '/social.jpg', format: 'webp', width: 400 });
+console.log('social...', socialJpg);
 ---
 
 <html>
@@ -10,7 +10,6 @@ const social = await getImage({ src: '/social.jpg', format: 'webp', width: 400 }
     <!-- Head Stuff -->
   </head>
   <body>
-    <img {...social} />
-		<img {...blog} />
+		<Image src={socialJpg} width={506} height={253} />
   </body>
 </html>

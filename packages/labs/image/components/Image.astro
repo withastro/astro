@@ -1,0 +1,39 @@
+---
+import { getImage } from '..';
+import type { ImageMetadata, ImageProps, OutputFormat } from '../dist/types.js';
+
+export interface LocalImageProps {
+	src: ImageMetadata;
+	format?: OutputFormat;
+	width?: number;
+	height?: number;
+}
+
+export interface RemoteImageProps {
+	src: string;
+	format: OutputFormat;
+	width: number;
+	height: number;
+}
+
+export type Props = LocalImageProps | RemoteImageProps;
+
+function isLocalImage(props: Props): props is LocalImageProps {
+	return typeof props.src !== 'string';
+}
+
+const props = Astro.props as Props;
+
+// TODO: handle cases where aspect ratio needs to be recalculated
+const imageProps: ImageProps = isLocalImage(props)
+	? {
+		...props.src,
+		...props,
+		src: props.src.src 
+	}
+	: props;
+
+const attrs = await getImage(imageProps);
+---
+
+<img {...attrs} />
