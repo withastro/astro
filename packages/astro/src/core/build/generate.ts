@@ -61,7 +61,8 @@ function shouldSkipDraft(pageModule: ComponentInstance, astroConfig: AstroConfig
 		// Drafts are disabled
 		!astroConfig.markdown.drafts &&
 		// This is a draft post
-		('frontmatter' in pageModule && (pageModule as any).frontmatter.draft === true)
+		'frontmatter' in pageModule &&
+		(pageModule as any).frontmatter.draft === true
 	);
 }
 
@@ -133,7 +134,7 @@ async function generatePage(
 		);
 	}
 
-	if(shouldSkipDraft(pageModule, opts.astroConfig)) {
+	if (shouldSkipDraft(pageModule, opts.astroConfig)) {
 		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
 		return;
 	}

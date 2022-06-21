@@ -8,7 +8,6 @@ import * as colors from 'kleur/colors';
 import { fileURLToPath } from 'url';
 import { debug } from '../logger/core.js';
 import { removeTrailingForwardSlash } from '../path.js';
-import { preload as ssrPreload } from '../render/dev/index.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
 import { matchRoute } from '../routing/match.js';
 import { isBuildingToSSR } from '../util.js';
@@ -132,7 +131,7 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
-			scripts: new Set()
+			scripts: new Set(),
 		};
 	}
 

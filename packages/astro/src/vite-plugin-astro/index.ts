@@ -113,7 +113,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				source,
 				ssr: Boolean(opts?.ssr),
 				viteTransform,
-				pluginContext: this
+				pluginContext: this,
 			};
 			if (query.astro) {
 				if (query.type === 'style') {
@@ -222,7 +222,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const astroMetadata: AstroPluginMetadata['astro'] = {
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
-					scripts: transformResult.scripts
+					scripts: transformResult.scripts,
 				};
 
 				return {

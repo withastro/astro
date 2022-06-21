@@ -5,6 +5,7 @@ import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types';
 
 import glob from 'fast-glob';
+import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
@@ -12,7 +13,6 @@ import { pagesVirtualModuleId } from '../app/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData } from './internal.js';
-import * as fs from 'fs';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -82,7 +82,7 @@ if(_start in adapter) {
 					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-		
+
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
@@ -97,7 +97,7 @@ if(_start in adapter) {
 }
 
 export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
-	if(!internals.ssrEntryChunk) {
+	if (!internals.ssrEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
 	}
 

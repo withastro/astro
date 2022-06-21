@@ -52,7 +52,8 @@ export class Metadata {
 
 	*hoistedScriptPaths() {
 		for (const metadata of this.deepMetadata()) {
-			let i = 0, pathname = metadata.mockURL.pathname;
+			let i = 0,
+				pathname = metadata.mockURL.pathname;
 
 			while (i < metadata.hoisted.length) {
 				// Strip off the leading "/@fs" added during compilation.

@@ -4,10 +4,7 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import type { RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import {
-	BuildInternals,
-	createBuildInternals,
-} from '../../core/build/internal.js';
+import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
@@ -19,11 +16,11 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
-import { vitePluginSSR, injectManifest } from './vite-plugin-ssr.js';
-import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
+import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
@@ -73,7 +70,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const clientInput = new Set<string>([
 		...internals.discoveredHydratedComponents,
 		...internals.discoveredClientOnlyComponents,
-		...astroConfig._ctx.renderers.map(r => r.clientEntrypoint).filter(a => a) as string[],
+		...(astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter((a) => a) as string[]),
 		...internals.discoveredScripts,
 	]);
 
@@ -90,7 +87,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		}
 	} else {
 		// Inject the manifest
-		await injectManifest(opts, internals)
+		await injectManifest(opts, internals);
 
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
@@ -144,7 +141,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			// SSR needs to be last
 			isBuildingToSSR(opts.astroConfig) &&
 				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
-			vitePluginAnalyzer(opts.astroConfig, internals)
+			vitePluginAnalyzer(opts.astroConfig, internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,

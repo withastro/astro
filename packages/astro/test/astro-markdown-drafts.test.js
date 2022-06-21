@@ -19,7 +19,7 @@ describe('Astro Markdown with draft posts disabled', () => {
 		} catch (err) {
 			expect(err.code).to.equal('ENOENT');
 		}
-		expect(renderedDraft).to.equal(false,'Rendered a draft post');
+		expect(renderedDraft).to.equal(false, 'Rendered a draft post');
 	});
 });
 
