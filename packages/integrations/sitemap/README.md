@@ -156,3 +156,5 @@ __astro.config.mjs__
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
