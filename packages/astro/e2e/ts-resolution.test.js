@@ -8,8 +8,8 @@ const test = base.extend({
 	},
 });
 
-function runTest(test) {
-	test('client:idle', async ({ page, astro }) => {
+function runTest(it) {
+	it('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');
