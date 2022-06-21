@@ -1,5 +1,5 @@
 import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
+import type { PluginContext, SourceMapInput } from 'rollup';
 import type { AstroConfig } from '../@types/astro';
 import type { TransformHook } from './styles';
 
@@ -33,13 +33,14 @@ function safelyReplaceImportPlaceholder(code: string) {
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
-interface CompileProps {
+export interface CompileProps {
 	config: AstroConfig;
 	filename: string;
 	moduleId: string;
 	source: string;
 	ssr: boolean;
 	viteTransform: TransformHook;
+	pluginContext: PluginContext;
 }
 
 async function compile({
@@ -49,6 +50,7 @@ async function compile({
 	source,
 	ssr,
 	viteTransform,
+	pluginContext,
 }: CompileProps): Promise<CompileResult> {
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
@@ -98,6 +100,7 @@ async function compile({
 					id: normalizedID,
 					transformHook: viteTransform,
 					ssr,
+					pluginContext,
 				});
 
 				let map: SourceMapInput | undefined;

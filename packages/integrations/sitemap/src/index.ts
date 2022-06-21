@@ -1,14 +1,18 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import { LinkItem as LinkItemBase, simpleSitemapAndIndex, SitemapItemLoose } from 'sitemap';
+import {
+	EnumChangefreq,
+	LinkItem as LinkItemBase,
+	simpleSitemapAndIndex,
+	SitemapItemLoose,
+} from 'sitemap';
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
-import { changefreqValues } from './constants';
-import { generateSitemap } from './generate-sitemap';
-import { Logger } from './utils/logger';
-import { validateOptions } from './validate-options';
+import { generateSitemap } from './generate-sitemap.js';
+import { Logger } from './utils/logger.js';
+import { validateOptions } from './validate-options.js';
 
-export type ChangeFreq = typeof changefreqValues[number];
+export type ChangeFreq = EnumChangefreq;
 export type SitemapItem = Pick<
 	SitemapItemLoose,
 	'url' | 'lastmod' | 'changefreq' | 'priority' | 'links'
@@ -34,7 +38,7 @@ export type SitemapOptions =
 			priority?: number;
 
 			// called for each sitemap item just before to save them on disk, sync or async
-			serialize?(item: SitemapItemLoose): SitemapItemLoose;
+			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem>;
 	  }
 	| undefined;
 
@@ -103,7 +107,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 
 					if (serialize) {
 						try {
-							const serializedUrls: SitemapItemLoose[] = [];
+							const serializedUrls: SitemapItem[] = [];
 							for (const item of urlData) {
 								const serialized = await Promise.resolve(serialize(item));
 								serializedUrls.push(serialized);

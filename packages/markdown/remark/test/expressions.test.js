@@ -1,5 +1,5 @@
 import { renderMarkdown } from '../dist/index.js';
-import chai from 'chai';
+import chai, { expect } from 'chai';
 
 describe('expressions', () => {
 	it('should be able to serialize bare expression', async () => {
@@ -71,6 +71,29 @@ describe('expressions', () => {
 			);
 	});
 
+	it('should be able to encode ampersand characters in code blocks', async () => {
+		const { code } = await renderMarkdown(
+			'The ampersand in `&nbsp;` must be encoded in code blocks.',
+			{}
+		);
+
+		chai
+			.expect(code)
+			.to.equal(
+				'<p>The ampersand in <code is:raw>&amp;nbsp;</code> must be encoded in code blocks.</p>'
+			);
+	});
+
+	it('should be able to encode ampersand characters in fenced code blocks', async () => {
+		const { code } = await renderMarkdown(`
+		\`\`\`md
+			The ampersand in \`&nbsp;\` must be encoded in code blocks.
+		\`\`\`
+		`);
+
+		chai.expect(code).to.match(/^<pre is:raw.*<code>.*The ampersand in `&amp;nbsp;`/);
+	});
+
 	it('should be able to serialize function expression', async () => {
 		const { code } = await renderMarkdown(
 			`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`,
@@ -78,5 +101,23 @@ describe('expressions', () => {
 		);
 
 		chai.expect(code).to.equal(`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`);
+	});
+
+	it('should unwrap HTML comments in inline code blocks', async () => {
+		const { code } = await renderMarkdown(`\`{/*<!-- HTML comment -->*/}\``);
+
+		chai.expect(code).to.equal('<p><code is:raw>&lt;!-- HTML comment --&gt;</code></p>');
+	});
+
+	it('should unwrap HTML comments in code fences', async () => {
+		const { code } = await renderMarkdown(
+			`
+			  \`\`\`
+				<!-- HTML comment -->
+				\`\`\`
+			`
+		);
+
+		chai.expect(code).to.match(/(?<!{\/\*)&lt;!-- HTML comment --&gt;(?!\*\/})/);
 	});
 });
