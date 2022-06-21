@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { SitemapOptions } from './index';
-import { SitemapOptionsSchema } from './schema';
+import type { SitemapOptions } from './index.js';
+import { SitemapOptionsSchema } from './schema.js';
 
 // @internal
 export const validateOptions = (site: string | undefined, opts: SitemapOptions) => {

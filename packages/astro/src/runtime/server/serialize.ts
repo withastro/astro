@@ -48,7 +48,7 @@ function convertToSerializedForm(value: any): [ValueOf<typeof PROP_TYPE>, any] {
 			return [PROP_TYPE.JSON, JSON.stringify(serializeArray(value))];
 		}
 		default: {
-			if (typeof value === 'object') {
+			if (value !== null && typeof value === 'object') {
 				return [PROP_TYPE.Value, serializeObject(value)];
 			} else {
 				return [PROP_TYPE.Value, value];
