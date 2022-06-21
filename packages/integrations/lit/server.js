@@ -57,11 +57,13 @@ function* render(Component, attrs, slots) {
 		yield* shadowContents;
 		yield '</template>';
 	}
-	for (const [slot, value] of Object.entries(slots)) {
-		if (slot === 'default') {
-			yield `<astro-slot>${value || ''}</astro-slot>`;
-		} else {
-			yield `<astro-slot slot="${slot}">${value || ''}</astro-slot>`;
+	if (slots) {
+		for (const [slot, value] of Object.entries(slots)) {
+			if (slot === 'default') {
+				yield `<astro-slot>${value || ''}</astro-slot>`;
+			} else {
+				yield `<astro-slot slot="${slot}">${value || ''}</astro-slot>`;
+			}
 		}
 	}
 	yield `</${tagName}>`;
