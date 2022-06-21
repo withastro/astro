@@ -109,19 +109,19 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				const injectPlugin: VitePlugin = {
 					name: '@astrojs/netlify/plugin-inject',
 					generateBundle(_options, bundle) {
-						if(_buildConfig.serverEntry in bundle) {
+						if (_buildConfig.serverEntry in bundle) {
 							const chunk = bundle[_buildConfig.serverEntry];
-							if(chunk && chunk.type === 'chunk') {
+							if (chunk && chunk.type === 'chunk') {
 								chunk.code = `globalThis.process = { argv: [], env: {}, };${chunk.code}`;
 							}
 						}
-					}
+					},
 				};
 
 				updateConfig({
 					vite: {
-						plugins: [injectPlugin]
-					}
+						plugins: [injectPlugin],
+					},
 				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {

@@ -1,5 +1,24 @@
 # @astrojs/sitemap
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3579](https://github.com/withastro/astro/pull/3579) [`1031c06f`](https://github.com/withastro/astro/commit/1031c06f9c6794d9ee6fb18c145ca5614e6f0583) Thanks [@alextim](https://github.com/alextim)! - # Key features
+
+  - Split up your large sitemap into multiple sitemaps by custom limit.
+  - Ability to add sitemap specific attributes such as `lastmod` etc.
+  - Final output customization via JS function.
+  - Localization support.
+  - Reliability: all config options are validated.
+
+  ## Important changes
+
+  The integration always generates at least two files instead of one:
+
+  - `sitemap-index.xml` - index file;
+  - `sitemap-{i}.xml` - actual sitemap.
+
 ## 0.1.2
 
 ### Patch Changes

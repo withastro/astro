@@ -82,7 +82,7 @@ if(_start in adapter) {
 					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-		
+
 			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
@@ -97,7 +97,7 @@ if(_start in adapter) {
 }
 
 export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
-	if(!internals.ssrEntryChunk) {
+	if (!internals.ssrEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
 	}
 

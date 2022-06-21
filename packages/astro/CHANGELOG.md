@@ -1,5 +1,29 @@
 # astro
 
+## 1.0.0-beta.48
+
+### Patch Changes
+
+- [#3625](https://github.com/withastro/astro/pull/3625) [`f5afaf24`](https://github.com/withastro/astro/commit/f5afaf24984ee7d4d6e908a7eeed17f5ca18c61e) Thanks [@matthewp](https://github.com/matthewp)! - Significantly improved build performance
+
+  This change reflects in a significantly improved build performance, especially on larger sites.
+
+  With this change Astro is not building everything by statically analyzing `.astro` files. This means it no longer needs to dynamically _run_ your code in order to know what JavaScript needs to be built.
+
+  With one particular large site we found it to build **32%** faster.
+
+* [#3612](https://github.com/withastro/astro/pull/3612) [`fca58cfd`](https://github.com/withastro/astro/commit/fca58cfd91b68501ec82350ab023170b208d8ce7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: "vpath" import error when building for netlify edge
+
+- [#3650](https://github.com/withastro/astro/pull/3650) [`d9f6dcf6`](https://github.com/withastro/astro/commit/d9f6dcf6ea05f78a33606509de0714f8b0625f96) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly catch falsy components
+
+* [#3610](https://github.com/withastro/astro/pull/3610) [`6ab749be`](https://github.com/withastro/astro/commit/6ab749be5c60c4b57aae8a0ba6083d010fe3b791) Thanks [@hippotastic](https://github.com/hippotastic)! - Add component hydration in Markdown E2E tests
+
+- [#3620](https://github.com/withastro/astro/pull/3620) [`05aa7244`](https://github.com/withastro/astro/commit/05aa72442cd4512b94abdb39623e8caa2c1839b0) Thanks [@hippotastic](https://github.com/hippotastic)! - Remove extra newlines around Markdown components
+
+- Updated dependencies [[`80c71c7c`](https://github.com/withastro/astro/commit/80c71c7c56d15dc05ec0c5a848130aad222d7d51), [`fca58cfd`](https://github.com/withastro/astro/commit/fca58cfd91b68501ec82350ab023170b208d8ce7), [`9c8a7c0b`](https://github.com/withastro/astro/commit/9c8a7c0b09db2fb6925929d4efe01d5ececbf08e), [`9c8a7c0b`](https://github.com/withastro/astro/commit/9c8a7c0b09db2fb6925929d4efe01d5ececbf08e), [`48e67fe0`](https://github.com/withastro/astro/commit/48e67fe05398dc4b1fca12db36c1b37bb341277a), [`05aa7244`](https://github.com/withastro/astro/commit/05aa72442cd4512b94abdb39623e8caa2c1839b0)]:
+  - @astrojs/markdown-remark@0.11.3
+  - @astrojs/telemetry@0.1.3
+
 ## 1.0.0-beta.47
 
 ### Patch Changes

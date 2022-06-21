@@ -15,7 +15,6 @@ import { resolvePages, viteID } from '../core/util.js';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
-
 interface AstroPluginOptions {
 	config: AstroConfig;
 }
@@ -212,7 +211,7 @@ ${tsResult}`;
 				const astroMetadata: AstroPluginMetadata['astro'] = {
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
-					scripts: transformResult.scripts
+					scripts: transformResult.scripts,
 				};
 
 				return {

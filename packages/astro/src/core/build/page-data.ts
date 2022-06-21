@@ -132,7 +132,7 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
-			scripts: new Set()
+			scripts: new Set(),
 		};
 	}
 
