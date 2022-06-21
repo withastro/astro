@@ -345,11 +345,18 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	);
 	result._metadata.needsHydrationStyles = true;
 
-	// Render a template if no fragment is provided.
-	const needsAstroTemplate = Object.keys(children).length > 0 && !/\<\/?astro-slot[^>]*\>/.test(html);
-	const template = needsAstroTemplate ? Object.entries(children).map(([key, child]) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${child}</template>`).join('') : '';
+	// Render template if not all astro fragments are provided.
+	const unrenderedSlots: string[] = [];
+	if (Object.keys(children).length > 0) {
+		for (const key of Object.keys(children)) {
+				if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
+					unrenderedSlots.push(key);
+				}
+		}
+	}
+	const template = unrenderedSlots.length > 0 ? unrenderedSlots.map((key) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]}</template>`).join('') : '';
 
-	if (needsAstroTemplate) {
+	if (unrenderedSlots.length > 0) {
 		island.props.tmpl = '';
 	}
 
