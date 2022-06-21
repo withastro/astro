@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix dir in astro:build:done to the correct value
+Added dir notes in astro:build:done documentation
