@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.50
+
+### Patch Changes
+
+- [#3663](https://github.com/withastro/astro/pull/3663) [`c20b93c4`](https://github.com/withastro/astro/commit/c20b93c48448861f2b5c324d81dc30b601a0be0d) Thanks [@matthewp](https://github.com/matthewp)! - Resolve .jsx -> .tsx in hydrated components
+
 ## 1.0.0-beta.49
 
 ### Patch Changes
