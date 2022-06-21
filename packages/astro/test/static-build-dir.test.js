@@ -22,8 +22,8 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 	});
 	it('dir takes the URL path to the output directory', async () => {
 		const removeTrailingSlash = (str) => str.replace(/\/$/);
-		expect(removeTrailingSlash(checkDir)).to.be.equal(
-			removeTrailingSlash(new URL('./fixtures/static-build-dir/dist', import.meta.url))
+		expect(removeTrailingSlash(checkDir.toString())).to.be.equal(
+			removeTrailingSlash(new URL('./fixtures/static-build-dir/dist', import.meta.url).toString())
 		);
 	});
 });
