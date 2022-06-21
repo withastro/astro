@@ -13,7 +13,7 @@ describe('Aliases', () => {
 
 	if (isWindows) return;
 
-	describe.only('dev', () => {
+	describe('dev', () => {
 		let devServer;
 
 		before(async () => {
