@@ -348,12 +348,16 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];
-	if (Object.keys(children).length > 0) {
-		for (const key of Object.keys(children)) {
-				if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
-					unrenderedSlots.push(key);
-				}
+	if (html) {
+		if (Object.keys(children).length > 0) {
+			for (const key of Object.keys(children)) {
+					if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
+						unrenderedSlots.push(key);
+					}
+			}
 		}
+	} else {
+		unrenderedSlots = Object.keys(children);
 	}
 	const template = unrenderedSlots.length > 0 ? unrenderedSlots.map((key) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]}</template>`).join('') : '';
 
