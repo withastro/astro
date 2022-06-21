@@ -1,4 +1,5 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration, BuildConfig, RouteData } from 'astro';
+import type { Plugin as VitePlugin } from 'vite';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as npath from 'path';
@@ -97,12 +98,31 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 	return {
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
-			'astro:config:setup': ({ config }) => {
+			'astro:config:setup': ({ config, updateConfig }) => {
 				if (dist) {
 					config.outDir = dist;
 				} else {
 					config.outDir = new URL('./dist/', config.root);
 				}
+
+				// Add a plugin that shims the global environment.
+				const injectPlugin: VitePlugin = {
+					name: '@astrojs/netlify/plugin-inject',
+					generateBundle(_options, bundle) {
+						if(_buildConfig.serverEntry in bundle) {
+							const chunk = bundle[_buildConfig.serverEntry];
+							if(chunk && chunk.type === 'chunk') {
+								chunk.code = `globalThis.process = { argv: [], env: {}, };${chunk.code}`;
+							}
+						}
+					}
+				};
+
+				updateConfig({
+					vite: {
+						plugins: [injectPlugin]
+					}
+				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());

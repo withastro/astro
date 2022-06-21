@@ -8,6 +8,7 @@ Deno.test({
 	// TODO: debug why build cannot be found in "await import"
 	ignore: true,
 	name: 'Edge Basics',
+	skip: true,
 	async fn() {
 		let close = await runBuild('./fixtures/edge-basic/');
 		const { default: handler } = await import(

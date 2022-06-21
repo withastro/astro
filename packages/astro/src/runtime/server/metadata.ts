@@ -50,40 +50,10 @@ export class Metadata {
 		return metadata?.componentExport || null;
 	}
 
-	/**
-	 * Gets the paths of all hydrated components within this component
-	 * and children components.
-	 */
-	*hydratedComponentPaths() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const component of metadata.hydratedComponents) {
-				const path = metadata.getPath(component);
-				if (path && !found.has(path)) {
-					found.add(path);
-					yield path;
-				}
-			}
-		}
-	}
-
-	*clientOnlyComponentPaths() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const component of metadata.clientOnlyComponents) {
-				const path = metadata.resolvePath(component);
-				if (path && !found.has(path)) {
-					found.add(path);
-					yield path;
-				}
-			}
-		}
-	}
-
 	*hoistedScriptPaths() {
 		for (const metadata of this.deepMetadata()) {
-			let i = 0,
-				pathname = metadata.mockURL.pathname;
+			let i = 0, pathname = metadata.mockURL.pathname;
+
 			while (i < metadata.hoisted.length) {
 				// Strip off the leading "/@fs" added during compilation.
 				yield `${pathname.replace('/@fs', '')}?astro&type=script&index=${i}`;

@@ -7,12 +7,14 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
+import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -173,7 +175,7 @@ ${setup}`.trim();
 				}
 
 				// Transform from `.astro` to valid `.ts`
-				let { code: tsResult } = await transform(astroResult, {
+				let transformResult = await transform(astroResult, {
 					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
 					projectRoot: config.root.toString(),
 					site: config.site
@@ -187,6 +189,8 @@ ${setup}`.trim();
 						viteID(new URL('../runtime/server/index.js', import.meta.url))
 					)}`,
 				});
+
+				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
@@ -204,10 +208,18 @@ ${tsResult}`;
 					sourcemap: false,
 					sourcefile: id,
 				});
+
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts
+				};
+
 				return {
 					code: escapeViteEnvReferences(code),
 					map: null,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							lang: 'ts',
 						},

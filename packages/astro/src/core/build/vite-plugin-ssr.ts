@@ -12,6 +12,7 @@ import { pagesVirtualModuleId } from '../app/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData } from './internal.js';
+import * as fs from 'fs';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -69,7 +70,7 @@ if(_start in adapter) {
 			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
-			const staticFiles = new Set(
+			internals.staticFiles = new Set(
 				await glob('**/*', {
 					cwd: fileURLToPath(buildOpts.buildConfig.client),
 				})
@@ -78,26 +79,40 @@ if(_start in adapter) {
 			// Add assets from this SSR chunk as well.
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
-					staticFiles.add(chunk.fileName);
+					internals.staticFiles.add(chunk.fileName);
 				}
 			}
-
-			const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-			await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
-
-			for (const [_chunkName, chunk] of Object.entries(bundle)) {
+		
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
 					continue;
 				}
 				if (chunk.modules[resolvedVirtualModuleId]) {
-					const code = chunk.code;
-					chunk.code = code.replace(replaceExp, () => {
-						return JSON.stringify(manifest);
-					});
+					internals.ssrEntryChunk = chunk;
+					delete bundle[chunkName];
 				}
 			}
 		},
 	};
+}
+
+export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
+	if(!internals.ssrEntryChunk) {
+		throw new Error(`Did not generate an entry chunk for SSR`);
+	}
+
+	const staticFiles = internals.staticFiles;
+	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
+	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
+
+	const chunk = internals.ssrEntryChunk;
+	const code = chunk.code;
+	chunk.code = code.replace(replaceExp, () => {
+		return JSON.stringify(manifest);
+	});
+	const serverEntryURL = new URL(buildOpts.buildConfig.serverEntry, buildOpts.buildConfig.server);
+	await fs.promises.mkdir(new URL('./', serverEntryURL), { recursive: true });
+	await fs.promises.writeFile(serverEntryURL, chunk.code, 'utf-8');
 }
 
 function buildManifest(

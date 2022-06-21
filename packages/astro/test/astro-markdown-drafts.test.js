@@ -12,11 +12,14 @@ describe('Astro Markdown with draft posts disabled', () => {
 		await fixture.build();
 	});
 	it('Does not render the draft post', async () => {
+		let renderedDraft = false;
 		try {
 			await fixture.readFile('/wip/index.html');
+			renderedDraft = true;
 		} catch (err) {
 			expect(err.code).to.equal('ENOENT');
 		}
+		expect(renderedDraft).to.equal(false,'Rendered a draft post');
 	});
 });
 

@@ -461,7 +461,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.15.2
+      '@astrojs/compiler': ^0.16.1
       '@astrojs/language-server': ^0.13.4
       '@astrojs/markdown-remark': ^0.11.2
       '@astrojs/prism': 0.4.1
@@ -545,7 +545,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.15.2
+      '@astrojs/compiler': 0.16.1
       '@astrojs/language-server': 0.13.4
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -1460,6 +1460,14 @@ importers:
       react-dom: 18.1.0_react@18.1.0
       vue: 3.2.37
 
+  packages/astro/test/fixtures/reexport-astro-containing-client-component:
+    specifiers:
+      '@astrojs/preact': 'workspace:'
+      astro: 'workspace:'
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/test/fixtures/remote-css:
     specifiers:
       astro: workspace:*
@@ -1730,6 +1738,7 @@ importers:
       '@astrojs/webapi': ^0.12.0
       '@netlify/edge-handler-types': ^0.34.1
       '@netlify/functions': ^1.0.0
+      '@types/node': ^14.18.20
       astro: workspace:*
       astro-scripts: workspace:*
       esbuild: ^0.14.42
@@ -1739,6 +1748,7 @@ importers:
     devDependencies:
       '@netlify/edge-handler-types': 0.34.1
       '@netlify/functions': 1.0.0
+      '@types/node': 14.18.21
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
@@ -2313,11 +2323,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.15.2:
-    resolution: {integrity: sha512-YsxIyx026zPWbxv3wYrudr1jh8u6oSnhP6MW+9OAgiFuICHjSX4Rw+qm8wJj1D5IkJ3HsDtE+kFMMYIozZ5bvQ==}
-    dependencies:
-      tsm: 2.2.1
-      uvu: 0.5.3
+  /@astrojs/compiler/0.16.1:
+    resolution: {integrity: sha512-6l5j9b/sEdyqRUvwJpp+SmlAkNO5WeISuNEXnyH9aGwzIAdqgLB2boAJef9lWadlOjG8rSPO29WHRa3qS2Okew==}
     dev: false
 
   /@astrojs/language-server/0.13.4:

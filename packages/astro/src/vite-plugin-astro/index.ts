@@ -2,6 +2,7 @@ import type { PluginContext } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -12,7 +13,7 @@ import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation } from './compile.js';
+import { cachedCompilation, CompileProps } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
 import { parseAstroRequest } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
@@ -105,13 +106,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}
-			const compileProps = {
+			const compileProps: CompileProps = {
 				config,
 				filename,
 				moduleId: id,
 				source,
 				ssr: Boolean(opts?.ssr),
 				viteTransform,
+				pluginContext: this
 			};
 			if (query.astro) {
 				if (query.type === 'style') {
@@ -217,10 +219,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts
+				};
+
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							// Setting this vite metadata to `ts` causes Vite to resolve .js
 							// extensions to .ts files.
