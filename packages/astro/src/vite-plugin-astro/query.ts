@@ -7,13 +7,15 @@ export interface AstroQuery {
 	raw?: boolean;
 }
 
+export interface ParsedRequestResult {
+	filename: string;
+	query: AstroQuery;
+};
+
 // Parses an id to check if its an Astro request.
 // CSS is imported like `import '/src/pages/index.astro?astro&type=style&index=0&lang.css';
 // This parses those ids and returns an object representing what it found.
-export function parseAstroRequest(id: string): {
-	filename: string;
-	query: AstroQuery;
-} {
+export function parseAstroRequest(id: string): ParsedRequestResult {
 	const [filename, rawQuery] = id.split(`?`, 2);
 	const query = Object.fromEntries(new URLSearchParams(rawQuery).entries()) as AstroQuery;
 	if (query.astro != null) {
