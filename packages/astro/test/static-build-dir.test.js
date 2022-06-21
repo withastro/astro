@@ -24,7 +24,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 	});
 	it('dir takes the URL path to the output directory', async () => {
 		const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-		const relativeDirPath = checkDir.pathname.replace(__dirname, '');
+		const relativeDirPath = url.fileURLToPath(checkDir).replace(__dirname, '');
 
 		expect(relativeDirPath).to.be.equal('/fixtures/static-build-dir/dist/');
 	});
