@@ -17,7 +17,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		};
 	}
 
-	it('provide completion for frontmatter', async () => {
+	it('provide completion for frontmatter - frontmatter is null', async () => {
 		const { provider, document } = setup('frontmatter.astro');
 
 		const completions = await provider.getCompletions(document, Position.create(0, 1), <CompletionContext>{
@@ -28,7 +28,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		expect(completions.items).to.deep.equal([
 			{
 				commitCharacters: [],
-				detail: 'Component script',
+				detail: 'Create component script block',
 				insertText: '---\n$0\n---',
 				insertTextFormat: 2,
 				kind: 15,
@@ -38,6 +38,58 @@ describe('Astro Plugin#CompletionsProvider', () => {
 				textEdit: {
 					newText: '---\n$0\n---',
 					range: Range.create(0, 0, 0, 1),
+				},
+			},
+		]);
+	});
+
+	it('provide completion for frontmatter - frontmatter is open', async () => {
+		const { provider, document } = setup('closeFrontmatter.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(2, 1), <CompletionContext>{
+			triggerKind: CompletionTriggerKind.TriggerCharacter,
+			triggerCharacter: '-',
+		});
+
+		expect(completions.items).to.deep.equal([
+			{
+				commitCharacters: [],
+				detail: 'Close component script block',
+				insertText: '---',
+				insertTextFormat: 2,
+				kind: 15,
+				label: '---',
+				preselect: true,
+				sortText: '\u0000',
+				textEdit: {
+					newText: '---',
+					range: Range.create(2, 0, 2, 1),
+				},
+			},
+		]);
+	});
+
+	it('provide completion for frontmatter - triple dashes already inputted', async () => {
+		const { provider, document } = setup('tripledashesFrontmatter.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(0, 2), <CompletionContext>{
+			triggerKind: CompletionTriggerKind.TriggerCharacter,
+			triggerCharacter: '-',
+		});
+
+		expect(completions.items).to.deep.equal([
+			{
+				commitCharacters: [],
+				detail: 'Create component script block',
+				insertText: '---\n$0\n---',
+				insertTextFormat: 2,
+				kind: 15,
+				label: '---',
+				preselect: true,
+				sortText: '\u0000',
+				textEdit: {
+					newText: '---\n$0\n---',
+					range: Range.create(0, 0, 0, 2),
 				},
 			},
 		]);

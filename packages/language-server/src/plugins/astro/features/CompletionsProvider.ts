@@ -48,16 +48,18 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 	): Promise<AppCompletionList | null> {
 		let items: CompletionItem[] = [];
 
-		if (completionContext?.triggerCharacter === '-') {
-			const frontmatter = this.getComponentScriptCompletion(document, position);
-			if (frontmatter) items.push(frontmatter);
-		}
-
 		const html = document.html;
 		const offset = document.offsetAt(position);
 		const node = html.findNodeAt(offset);
 
-		if (isInComponentStartTag(html, offset) && !isInsideExpression(document.getText(), node.start, offset)) {
+		const insideExpression = isInsideExpression(document.getText(), node.start, offset);
+
+		if (completionContext?.triggerCharacter === '-' && node.parent === undefined && !insideExpression) {
+			const frontmatter = this.getComponentScriptCompletion(document, position);
+			if (frontmatter) items.push(frontmatter);
+		}
+
+		if (isInComponentStartTag(html, offset) && !insideExpression) {
 			const { completions: props, componentFilePath } = await this.getPropCompletionsAndFilePath(
 				document,
 				position,
@@ -84,7 +86,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			label: '---',
 			sortText: '\0',
 			preselect: true,
-			detail: 'Component script',
+			detail: 'Create component script block',
 			insertTextFormat: InsertTextFormat.Snippet,
 			commitCharacters: [],
 		};
@@ -102,11 +104,20 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		}
 
 		if (document.astroMeta.frontmatter.state === 'open') {
+			let insertText = '---';
+
+			// If the current line is a full component script starter/ender, the user expects a full frontmatter
+			// completion and not just a completion for "---"  on the same line (which result in, well, nothing)
+			if (prefix === '---') {
+				insertText = '---\n$0\n---';
+			}
+
 			return {
 				...base,
-				insertText: '---',
+				insertText,
+				detail: insertText === '---' ? 'Close component script block' : 'Create component script block',
 				textEdit: prefix.match(/^\s*\-+/)
-					? TextEdit.replace({ start: { ...position, character: 0 }, end: position }, '---')
+					? TextEdit.replace({ start: { ...position, character: 0 }, end: position }, insertText)
 					: undefined,
 			};
 		}
