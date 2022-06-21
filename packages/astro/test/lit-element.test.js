@@ -61,4 +61,23 @@ describe('LitElement test', function () {
 		expect($('my-element').attr('reflected-str')).to.equal('default reflected string');
 		expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
 	});
+
+	it('Correctly passes child slots', async () => {
+		// @lit-labs/ssr/ requires Node 13.9 or higher
+		if (NODE_VERSION < 13.9) {
+			return;
+		}
+		const html = await fixture.readFile('/slots/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('my-element').length).to.equal(1);
+
+		const [defaultSlot, namedSlot] = $('template').siblings().toArray();
+		
+		// has default slot content in lightdom
+		expect($(defaultSlot).text()).to.equal('default');
+
+		// has named slot content in lightdom
+		expect($(namedSlot).text()).to.equal('named');
+	});
 });
