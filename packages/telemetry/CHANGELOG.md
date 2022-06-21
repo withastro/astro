@@ -1,5 +1,15 @@
 # @astrojs/telemetry
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3614](https://github.com/withastro/astro/pull/3614) [`9c8a7c0b`](https://github.com/withastro/astro/commit/9c8a7c0b09db2fb6925929d4efe01d5ececbf08e) Thanks [@okikio](https://github.com/okikio)! - Fix telemetry crashing astro build/dev when using optional integrations
+
+  Telemetry will now ignore falsy integration values but will gather a count of how many integrations out of the total are now optional integrations
+
+* [#3614](https://github.com/withastro/astro/pull/3614) [`9c8a7c0b`](https://github.com/withastro/astro/commit/9c8a7c0b09db2fb6925929d4efe01d5ececbf08e) Thanks [@okikio](https://github.com/okikio)! - Add's optional integrations field to `@astrojs/telemetry`'s payload
+
 ## 0.1.2
 
 ### Patch Changes
