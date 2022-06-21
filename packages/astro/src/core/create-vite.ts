@@ -31,7 +31,7 @@ const ALWAYS_NOEXTERNAL = new Set([
 	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
 	'astro',
 	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
-	// Related issue on Preact-as-subdependency with Vite bundling - https://github.com/withastro/astro/issues/3449
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
 	'@nanostores/preact', 
 ]);
 
