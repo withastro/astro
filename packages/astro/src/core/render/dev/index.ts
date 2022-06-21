@@ -18,6 +18,7 @@ import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
+import { resolveClientDevPath } from './resolve.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -178,7 +179,7 @@ export async function render(
 		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
 		async resolve(s: string) {
 			if (s.startsWith('/@fs')) {
-				return s;
+				return resolveClientDevPath(s);
 			}
 			return '/@id' + prependForwardSlash(s);
 		},
