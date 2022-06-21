@@ -1,4 +1,4 @@
-import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
+import type { GetModuleInfo, ModuleInfo } from 'rollup';
 import { resolvedPagesVirtualModuleId } from '../app/index.js';
 
 // This walks up the dependency graph and yields out each ModuleInfo object.

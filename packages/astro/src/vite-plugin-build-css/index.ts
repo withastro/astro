@@ -1,13 +1,12 @@
-import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
+import type { GetModuleInfo, OutputChunk } from 'rollup';
 import { BuildInternals } from '../core/build/internal';
 import type { PageBuildData } from '../core/build/types';
 
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
-import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { isCSSRequest } from '../core/render/util.js';
 
 interface PluginOptions {

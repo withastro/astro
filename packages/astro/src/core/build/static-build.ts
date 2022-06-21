@@ -16,11 +16,11 @@ import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
-import { vitePluginSSR, injectManifest } from './vite-plugin-ssr.js';
-import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
+import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;

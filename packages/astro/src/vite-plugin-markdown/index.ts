@@ -7,11 +7,11 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
+import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
