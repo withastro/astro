@@ -21,7 +21,7 @@ describe('Static build: dir takes the URL path to the output directory', () => {
 		await fixture.build();
 	});
 	it('dir takes the URL path to the output directory', async () => {
-		const removeTrailingSlash = (str) => str.replace(/\/$/);
+		const removeTrailingSlash = (str) => str.replace(/\/$/, '');
 		expect(removeTrailingSlash(checkDir.toString())).to.be.equal(
 			removeTrailingSlash(new URL('./fixtures/static-build-dir/dist', import.meta.url).toString())
 		);
