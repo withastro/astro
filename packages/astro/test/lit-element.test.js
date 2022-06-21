@@ -21,7 +21,7 @@ describe('LitElement test', function () {
 		await fixture.build();
 	});
 
-	it('Renders a custom element by tag name', async () => {
+	it('Renders a custom element by Constructor', async () => {
 		// @lit-labs/ssr/ requires Node 13.9 or higher
 		if (NODE_VERSION < 13.9) {
 			return;
@@ -60,17 +60,5 @@ describe('LitElement test', function () {
 		expect($('my-element').attr('reflectedbool')).to.equal('');
 		expect($('my-element').attr('reflected-str')).to.equal('default reflected string');
 		expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
-	});
-
-	// Skipped because not supported by Lit
-	it.skip('Renders a custom element by the constructor', async () => {
-		const html = await fixture.fetch('/ctr/index.html');
-		const $ = cheerio.load(html);
-
-		// test 1: attributes rendered
-		expect($('my-element').attr('foo')).to.equal('bar');
-
-		// test 2: shadow rendered
-		expect($('my-element').html()).to.include(`<div>Testing...</div>`);
 	});
 });

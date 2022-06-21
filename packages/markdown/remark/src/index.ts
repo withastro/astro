@@ -6,6 +6,7 @@ import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
+import remarkEscape from './remark-escape.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';
@@ -46,7 +47,7 @@ export async function renderMarkdown(
 	let parser = unified()
 		.use(markdown)
 		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel] : [])
-		.use([remarkUnwrap]);
+		.use([remarkUnwrap, remarkEscape]);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
