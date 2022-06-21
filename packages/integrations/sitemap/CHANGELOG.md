@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3661](https://github.com/withastro/astro/pull/3661) [`2ff11df4`](https://github.com/withastro/astro/commit/2ff11df438a6a901e72d1f1979c79deb0ad199f2) Thanks [@matthewp](https://github.com/matthewp)! - Fixes the last build
+
 ## 0.2.0
 
 ### Minor Changes

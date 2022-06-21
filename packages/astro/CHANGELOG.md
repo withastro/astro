@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.49
+
+### Patch Changes
+
+- [#3657](https://github.com/withastro/astro/pull/3657) [`7d4699b8`](https://github.com/withastro/astro/commit/7d4699b8f99ca4835e597a28d4f85b58133ff9ce) Thanks [@leader22](https://github.com/leader22)! - Check null for props serialization
+
 ## 1.0.0-beta.48
 
 ### Patch Changes
