@@ -1,19 +1,56 @@
-# @astrojs/node
+# @astrojs/deno 🦖
 
-An experimental server-side rendering adapter for use with Node.js servers.
+This adapter allows Astro to deploy your site to Node targets.
 
-In your astro.config.mjs use:
+- <strong>[Why Astro Deno](#why-astro-partytown)</strong>
+- <strong>[Installation](#installation)</strong>
+- <strong>[Usage](#usage)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
+- <strong>[Troubleshooting](#troubleshooting)</strong>
+- <strong>[Contributing](#contributing)</strong>
+- <strong>[Changelog](#changelog)</strong>
+
+## Why Astro Deno
+
+If you're using Astro as a static site builder—its behavior out of the box—you don't need an adapter.
+
+If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
+
+[Node](https://deno.land/) is a JavaScript runtime for server-side code. This adapter provides access to Node's API and creates a script to run your project on a Node server.
+
+## Installation
+
+First, install the `@astrojs/node` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+```sh
+npm install @astrojs/node
+```
+
+Then, install this adapter in your `astro.config.*` file using the `adapter` property:
+
+__astro.config.mjs__
 
 ```js
 import { defineConfig } from 'astro/config';
-import nodejs from '@astrojs/node';
+import deno from '@astrojs/node';
 
 export default defineConfig({
-  adapter: nodejs()
+  // ...
+  adapter: node()
 })
 ```
+  
+</details>
 
-After performing a build there will be a `dist/server/entry.mjs` module that works like a middleware function. You can use with any framework that supports the Node `request` and `response` objects. For example, with Express you can do:
+## Usage
+
+After [performing a build](https://docs.astro.build/en/guides/deploy/#building-the-app) there will be a `dist/server/entry.mjs` module that exposes a `handler` function. This works like a [middleware](https://expressjs.com/en/guide/using-middleware.html) function: it can handle incoming requests and respond accordingly. 
+
+
+### Using a middleware framework
+You can use this `handler` with any framework that supports the Node `request` and `response` objects.
+
+For example, with Express:
 
 ```js
 import express from 'express';
@@ -25,9 +62,10 @@ app.use(ssrHandler);
 app.listen(8080);
 ```
 
-# Using `http`
 
-This adapter does not require you use Express and can work with even the `http` and `https` modules. The adapter does following the Expression convention of calling a function when either
+### Using `http`
+
+This output script does not require you use Express and can work with even the built-in `http` and `https` node modules. The handler does follow the convention calling an error function when either
 
 - A route is not found for the request.
 - There was an error rendering.
@@ -52,3 +90,22 @@ http.createServer(function(req, res) {
   });
 }).listen(8080);
 ```
+
+
+
+
+## Configuration
+
+This adapter does not expose any configuration options.
+
+## Examples
+
+## Troubleshooting
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+## Changelog
+
+[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
