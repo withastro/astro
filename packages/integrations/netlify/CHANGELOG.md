@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.4.5
+
+### Patch Changes
+
+- [#3612](https://github.com/withastro/astro/pull/3612) [`fca58cfd`](https://github.com/withastro/astro/commit/fca58cfd91b68501ec82350ab023170b208d8ce7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: "vpath" import error when building for netlify edge
+
 ## 0.4.4
 
 ### Patch Changes
