@@ -1,0 +1,16 @@
+{
+  "name": "@example/deno",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preview:deno": "deno run --allow-net --allow-read ./dist/server/entry.mjs"
+  },
+  "devDependencies": {
+    "@astrojs/deno": "^0.1.5",
+    "astro": "^1.0.0-beta.47"
+  }
+}
