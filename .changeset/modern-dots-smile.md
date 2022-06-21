@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Added dir notes in astro:build:done documentation
+Added test for dir parameter in astro:build:done
