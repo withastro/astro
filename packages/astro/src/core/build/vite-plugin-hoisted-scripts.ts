@@ -50,6 +50,8 @@ export function vitePluginHoistedScripts(
 					output.facadeModuleId &&
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
+					const canBeInlined = output.imports.length === 0 && output.dynamicImports.length === 0 &&
+						Buffer.byteLength(output.code) <= assetInlineLimit;
 					let removeFromBundle = false;
 					const facadeId = output.facadeModuleId!;
 					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
@@ -57,7 +59,7 @@ export function vitePluginHoistedScripts(
 						const vid = viteID(new URL('.' + pathname, astroConfig.root));
 						const pageInfo = getPageDataByViteID(internals, vid);
 						if (pageInfo) {
-							if(Buffer.byteLength(output.code) <= assetInlineLimit) {
+							if(canBeInlined) {
 								pageInfo.hoistedScript = {
 									type: 'inline',
 									value: output.code
