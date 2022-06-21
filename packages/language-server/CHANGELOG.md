@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.19.3
+
+### Patch Changes
+
+- 49ff4ef: Fixed more bugs where nonexistent server settings would result in a crash
+- 14cbf05: Fix frontmatter completion not working when three dashes were already present
+
 ## 0.19.2
 
 ### Patch Changes
