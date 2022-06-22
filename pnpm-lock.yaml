@@ -1944,11 +1944,9 @@ importers:
       '@types/sharp': ^0.30.4
       astro: workspace:*
       astro-scripts: workspace:*
-      esbuild: ^0.14.42
       mime-types: ^2.1.35
       sharp: ^0.30.6
     dependencies:
-      esbuild: 0.14.43
       mime-types: 2.1.35
       sharp: 0.30.6
     devDependencies:
