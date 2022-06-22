@@ -19,8 +19,7 @@ export interface PageBuildData {
 	route: RouteData;
 	moduleSpecifier: string;
 	css: Set<string>;
-	hoistedScript: string | undefined;
-	scripts: Set<string>;
+	hoistedScript: { type: 'inline' | 'external', value: string } | undefined;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 

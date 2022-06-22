@@ -40,6 +40,8 @@ export function vitePluginHoistedScripts(
 		},
 
 		async generateBundle(_options, bundle) {
+			let assetInlineLimit = astroConfig.vite?.build?.assetsInlineLimit || 4096;
+
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.
 			for (const [id, output] of Object.entries(bundle)) {
@@ -48,14 +50,33 @@ export function vitePluginHoistedScripts(
 					output.facadeModuleId &&
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
+					const canBeInlined = output.imports.length === 0 && output.dynamicImports.length === 0 &&
+						Buffer.byteLength(output.code) <= assetInlineLimit;
+					let removeFromBundle = false;
 					const facadeId = output.facadeModuleId!;
 					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
 					for (const pathname of pages) {
 						const vid = viteID(new URL('.' + pathname, astroConfig.root));
 						const pageInfo = getPageDataByViteID(internals, vid);
 						if (pageInfo) {
-							pageInfo.hoistedScript = id;
+							if(canBeInlined) {
+								pageInfo.hoistedScript = {
+									type: 'inline',
+									value: output.code
+								};
+								removeFromBundle = true;
+							} else {
+								pageInfo.hoistedScript = {
+									type: 'external',
+									value: id
+								};
+							}
 						}
+					}
+
+					// Remove the bundle if it was inlined
+					if(removeFromBundle) {
+						delete bundle[id];
 					}
 				}
 			}

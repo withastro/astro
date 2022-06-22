@@ -129,7 +129,7 @@ function buildManifest(
 	const routes: SerializedRouteInfo[] = [];
 
 	for (const pageData of eachPageData(internals)) {
-		const scripts = Array.from(pageData.scripts);
+		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			scripts.unshift(pageData.hoistedScript);
 		}

@@ -3,6 +3,7 @@ import type {
 	EndpointHandler,
 	ManifestData,
 	RouteData,
+	SSRElement,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
@@ -16,6 +17,7 @@ import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,
 	createModuleScriptElementWithSrcSet,
+	createModuleScriptElement,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
@@ -79,18 +81,17 @@ export class App {
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 
-		const filteredScripts = info.scripts.filter(
-			(script) => typeof script === 'string' || script?.stage !== 'head-inline'
-		) as string[];
-		const scripts = createModuleScriptElementWithSrcSet(filteredScripts, manifest.site);
-
-		// Add all injected scripts to the page.
+		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
-			if (typeof script !== 'string' && script.stage === 'head-inline') {
-				scripts.add({
-					props: {},
-					children: script.children,
-				});
+			if (('stage' in script)) {
+				if(script.stage === 'head-inline') {
+					scripts.add({
+						props: {},
+						children: script.children,
+					});
+				}
+			} else {
+				scripts.add(createModuleScriptElement(script, manifest.site));
 			}
 		}
 
