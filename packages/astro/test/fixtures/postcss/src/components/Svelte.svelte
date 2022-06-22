@@ -1,9 +1,11 @@
 <style>
 .svelte {
-  appearance: none;
+	&.nested {
+		color: red;
+	}
 }
 </style>
 
-<div class="svelte">
-  Svelte
+<div class="svelte nested">
+	Svelte
 </div>

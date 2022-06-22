@@ -23,24 +23,25 @@ describe('PostCSS', () => {
 			.replace('/n', '');
 	});
 
+	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */
 	it('works in Astro page styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`.astro-page.astro-[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.astro-page(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Astro component styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`.astro-component.astro-[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.astro-component(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in JSX', () => {
-		expect(bundledCSS).to.match(new RegExp(`.solid[^{]*${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.solid(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Vue', () => {
-		expect(bundledCSS).to.match(new RegExp(`.vue[^{]*${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.vue(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Svelte', () => {
-		expect(bundledCSS).to.match(new RegExp(`.svelte.s[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.svelte(\.(\w|-)*)*\.nested`));
 	});
 
 	it('ignores CSS in public/', async () => {
