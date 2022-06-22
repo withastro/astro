@@ -50,7 +50,7 @@ Answer 2 took more effort, but it made a significant difference. Answer 2
 - welcomed the new member into the community
 - used explanation points (conveying willingness to help) and friendly word choices
 - made them feel validated for asking the question ("You're on the right track")
-- provided an explanation that fit the person who asked the question. They specified that they were a beginner, so _Answer 2_ sought to explain things to someone who might not understand the implications of "static site builder".
+- provided an explanation that fit the person who asked the question: _Answer 2_ sought to explain things to a self-described beginner, who might not understand the implications of "static site builder"
 - made it clear that the community is willing to help, and asking is not a burden ("let me know if you need any more help!")
 
 Our community prides itself on being _positive_, _helpful_, and _inclusive_. If you have these goals in mind when interacting in the community, you're on the right track!
