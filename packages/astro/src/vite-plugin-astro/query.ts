@@ -10,7 +10,7 @@ export interface AstroQuery {
 export interface ParsedRequestResult {
 	filename: string;
 	query: AstroQuery;
-};
+}
 
 // Parses an id to check if its an Astro request.
 // CSS is imported like `import '/src/pages/index.astro?astro&type=style&index=0&lang.css';

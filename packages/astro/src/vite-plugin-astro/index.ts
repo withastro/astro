@@ -182,7 +182,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							vite: {
 								lang: 'ts',
 							},
-						}
+						},
 					};
 				}
 			}
