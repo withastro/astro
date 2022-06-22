@@ -59,6 +59,7 @@ export async function createVite(
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
+			force: true,
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
 			exclude: ['node-fetch'],
 		},
@@ -82,7 +83,6 @@ export async function createVite(
 			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
 		},
 		server: {
-			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
 			hmr:
 				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
 					? false
