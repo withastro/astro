@@ -224,7 +224,8 @@ export default function (dir, opts = {}) {
 		}
 
 		let data =
-		fileLookup(pathname, extns) || (isSPA && !isMatch(pathname, ignores) && fileLookup(fallback, extns));
+			fileLookup(pathname, extns) ||
+			(isSPA && !isMatch(pathname, ignores) && fileLookup(fallback, extns));
 		if (!data) return next ? next() : isNotFound(req, res);
 
 		if (isEtag && req.headers['if-none-match'] === data.headers['ETag']) {

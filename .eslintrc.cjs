@@ -17,6 +17,6 @@ module.exports = {
     'prefer-const': 'off',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],
-    'no-only-tests/no-only-tests': 'error'
+    'no-only-tests/no-only-tests': 'error',
   },
 };
