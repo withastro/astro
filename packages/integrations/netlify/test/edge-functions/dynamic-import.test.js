@@ -20,6 +20,7 @@ Deno.test({
 			const div = doc.querySelector('#thing');
 			assert(div, 'div exists');
 		} catch (err) {
+			// eslint-disable-next-line no-console
 			console.error(err);
 		} finally {
 			await close();

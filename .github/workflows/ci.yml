@@ -54,9 +54,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
-          eslint_args: --ignore-pattern test --ignore-pattern vendor
-          eslint_dir: packages/astro
-          eslint_extensions: ts
           prettier: false
           auto_fix: true
           git_name: github-actions[bot]
