@@ -1,5 +1,7 @@
 import { renderToString, ssr, createComponent } from 'solid-js/web';
 
+const slotName = str => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+
 function check(Component, props, children) {
 	if (typeof Component !== 'function') return false;
 	const { html } = renderToStaticMarkup(Component, props, children);
@@ -9,7 +11,8 @@ function check(Component, props, children) {
 function renderToStaticMarkup(Component, props, { default: children, ...slotted }) {
 	const slots = {};
 	for (const [key, value] of Object.entries(slotted)) {
-		slots[key] = ssr(`<astro-slot name="${key}">${value}</astro-slot>`);
+		const name = slotName(key);
+		slots[name] = ssr(`<astro-slot name="${name}">${value}</astro-slot>`);
 	}
 	// Note: create newProps to avoid mutating `props` before they are serialized
 	const newProps = { 

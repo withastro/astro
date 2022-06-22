@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Counter({ named, children, count: initialCount, case: id }) {
+export default function Counter({ named, dashCase, children, count: initialCount, case: id }) {
   const [count, setCount] = useState(initialCount);
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
@@ -15,6 +15,7 @@ export default function Counter({ named, children, count: initialCount, case: id
       <div id={id} className="counter-message">
         {children || <h1>Fallback</h1>}
 				{named}
+				{dashCase}
       </div>
     </>
   );

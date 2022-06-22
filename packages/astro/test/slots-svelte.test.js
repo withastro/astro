@@ -27,4 +27,10 @@ describe('Slots: Svelte', () => {
 		const $ = cheerio.load(html);
 		expect($('#named').text().trim()).to.equal('Fallback / Named');
 	})
+
+	it('Preserves dash-case slot', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+	})
 });
