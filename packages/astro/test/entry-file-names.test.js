@@ -22,5 +22,5 @@ describe('vite.build.rollupOptions.entryFileNames', () => {
 		const js = await fixture.readFile('/assets/js/Hello.js');
 		expect(js).to.be.a('string');
 		expect(js.length).to.be.greaterThan(0);
-	})
+	});
 });
