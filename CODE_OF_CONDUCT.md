@@ -58,7 +58,7 @@ Our community prides itself on being _positive_, _helpful_, and _inclusive_. If 
 - To stay positive:
 
   - Make it clear that you appreciate the other person's message
-  - Use exclamation points and emojis when friendly intention wouldn't be clear otherwise
+ - Look for alternate interpretations of your message before sending, and consider clarifying your intent if you're unsure how your words might come across (using exclamation points and emojis to convey friendliness is generally 👍 !)
   - During conflict: maintain respect, avoid aggression, and avoid involving personal personal pronouns ("you").
   - Set boundaries. Feel free to step away from a conversation when you feel frustrated.
 
