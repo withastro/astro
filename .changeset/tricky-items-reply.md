@@ -1,5 +1,4 @@
 ---
-'@example/docs': patch
 'astro': patch
 '@astrojs/deno': patch
 '@astrojs/netlify': patch
