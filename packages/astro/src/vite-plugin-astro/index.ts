@@ -15,7 +15,7 @@ import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
-import { parseAstroRequest } from './query.js';
+import { parseAstroRequest, ParsedRequestResult } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
@@ -48,6 +48,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
+	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
+		const filename = normalizeFilename(parsedFrom.filename);
+		const resolvedURL = new URL(id, `file://${filename}`);
+		const resolved = resolvedURL.pathname;
+		if (isBrowserPath(resolved)) {
+			return relativeToRoot(resolved + resolvedURL.search);
+		}
+		return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
+	}
+
 	return {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
@@ -59,19 +69,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-		async resolveId(id, from) {
+		async resolveId(id, from, opts) {
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
 			if (from) {
 				const parsedFrom = parseAstroRequest(from);
-				if (parsedFrom.query.astro && isRelativePath(id) && parsedFrom.query.type === 'script') {
-					const filename = normalizeFilename(parsedFrom.filename);
-					const resolvedURL = new URL(id, `file://${filename}`);
-					const resolved = resolvedURL.pathname;
-					if (isBrowserPath(resolved)) {
-						return relativeToRoot(resolved + resolvedURL.search);
-					}
-					return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
+				const isAstroScript = parsedFrom.query.astro && parsedFrom.query.type === 'script';
+				if (isAstroScript && isRelativePath(id)) {
+					return this.resolve(resolveRelativeFromAstroParent(id, parsedFrom), from, {
+						custom: opts.custom,
+						skipSelf: true,
+					});
 				}
 			}
 
@@ -170,6 +178,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							hoistedScript.type === 'inline'
 								? hoistedScript.code!
 								: `import "${hoistedScript.src!}";`,
+						meta: {
+							vite: {
+								lang: 'ts',
+							},
+						}
 					};
 				}
 			}
@@ -205,8 +218,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}`);
-						SUFFIX += `import "${id}?astro&type=script&index=${i}";`;
+						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
+						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
 

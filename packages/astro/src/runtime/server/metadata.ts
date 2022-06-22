@@ -65,7 +65,7 @@ export class Metadata {
 
 			while (i < metadata.hoisted.length) {
 				// Strip off the leading "/@fs" added during compilation.
-				yield `${pathname.replace('/@fs', '')}?astro&type=script&index=${i}`;
+				yield `${pathname.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
 				i++;
 			}
 		}
