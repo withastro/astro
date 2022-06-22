@@ -48,7 +48,6 @@ _Question:_ Hey, I'm beginning with Astro. I tried to use `document` in my Astro
 Answer 2 took more effort, but it made a significant difference. This response:
 
 - welcomed the new member into the community
-- used explanation points (conveying willingness to help) and friendly word choices
 - made them feel validated for asking the question ("You're on the right track")
 - provided an explanation that fit the person who asked the question: _Answer 2_ sought to explain things to a self-described beginner, who might not understand the implications of "static site builder"
 - made it clear that the community is willing to help, and asking is not a burden ("let me know if you need any more help!")
