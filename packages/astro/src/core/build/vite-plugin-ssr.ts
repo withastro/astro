@@ -70,12 +70,6 @@ if(_start in adapter) {
 			return void 0;
 		},
 		async generateBundle(_opts, bundle) {
-			internals.staticFiles = new Set(
-				await glob('**/*', {
-					cwd: fileURLToPath(buildOpts.buildConfig.client),
-				})
-			);
-
 			// Add assets from this SSR chunk as well.
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'asset') {
@@ -99,6 +93,16 @@ if(_start in adapter) {
 export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
 	if (!internals.ssrEntryChunk) {
 		throw new Error(`Did not generate an entry chunk for SSR`);
+	}
+
+	// Add assets from the client build.
+	const clientStatics = new Set(
+		await glob('**/*', {
+			cwd: fileURLToPath(buildOpts.buildConfig.client),
+		})
+	);
+	for(const file of clientStatics) {
+		internals.staticFiles.add(file);
 	}
 
 	const staticFiles = internals.staticFiles;
