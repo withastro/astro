@@ -200,7 +200,7 @@ export default function (dir, opts = {}) {
 		});
 	}
 
-	let lookup = opts.dev ? viaLocal.bind(0, dir, isEtag) : viaCache.bind(0, FILES);
+	let fileLookup = opts.dev ? viaLocal.bind(0, dir, isEtag) : viaCache.bind(0, FILES);
 
 	return function (req, res, next) {
 		let extns = [''];
@@ -224,7 +224,7 @@ export default function (dir, opts = {}) {
 		}
 
 		let data =
-			lookup(pathname, extns) || (isSPA && !isMatch(pathname, ignores) && lookup(fallback, extns));
+		fileLookup(pathname, extns) || (isSPA && !isMatch(pathname, ignores) && fileLookup(fallback, extns));
 		if (!data) return next ? next() : isNotFound(req, res);
 
 		if (isEtag && req.headers['if-none-match'] === data.headers['ETag']) {

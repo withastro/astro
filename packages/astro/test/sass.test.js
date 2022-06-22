@@ -20,7 +20,7 @@ describe('Sass', () => {
 	// TODO: Sass cannot be found on macOS for some reason... Vite issue?
 	const test = os.platform() === 'darwin' ? it.skip : it;
 	test('shows helpful error on failure', async () => {
-		const res = await fixture.fetch('/error').then((res) => res.text());
-		expect(res).to.include('Undefined variable');
+		const text = await fixture.fetch('/error').then((res) => res.text());
+		expect(text).to.include('Undefined variable');
 	});
 });

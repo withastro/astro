@@ -1,3 +1,4 @@
+/* eslint no-console: 'off' */
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
