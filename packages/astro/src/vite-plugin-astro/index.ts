@@ -76,7 +76,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const parsedFrom = parseAstroRequest(from);
 				const isAstroScript = parsedFrom.query.astro && parsedFrom.query.type === 'script';
 				if (isAstroScript && isRelativePath(id)) {
-					return this.resolve(resolveRelativeFromAstroParent(id, parsedFrom), from, opts);
+					return this.resolve(resolveRelativeFromAstroParent(id, parsedFrom), from, {
+						custom: opts.custom,
+						skipSelf: true,
+					});
 				}
 			}
 
