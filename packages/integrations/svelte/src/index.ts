@@ -1,8 +1,8 @@
 import type { Options } from '@sveltejs/vite-plugin-svelte';
-import type { AstroIntegration, AstroRenderer, AstroConfig } from 'astro';
-import type { UserConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import type { AstroConfig, AstroIntegration, AstroRenderer } from 'astro';
 import preprocess from 'svelte-preprocess';
+import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -16,9 +16,13 @@ type ViteConfigurationArgs = {
 	isDev: boolean;
 	options?: Options | OptionsCallback;
 	postcssConfig: AstroConfig['style']['postcss'];
-}
+};
 
-function getViteConfiguration({ options, postcssConfig, isDev }: ViteConfigurationArgs): UserConfig {
+function getViteConfiguration({
+	options,
+	postcssConfig,
+	isDev,
+}: ViteConfigurationArgs): UserConfig {
 	const defaultOptions: Partial<Options> = {
 		emitCss: true,
 		compilerOptions: { dev: isDev, hydratable: true },
@@ -76,7 +80,7 @@ export default function (options?: Options | OptionsCallback): AstroIntegration 
 						options,
 						isDev: command === 'dev',
 						postcssConfig: config.style.postcss,
-					})
+					}),
 				});
 			},
 		},
