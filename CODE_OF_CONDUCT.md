@@ -41,8 +41,8 @@ Compare these two responses:
 
 _Question:_ Hey, I'm beginning with Astro. I tried to use `document` in my Astro page, but it says that the object doesn't exist. How can I manipulate the DOM?
 
-| Answer 1                                                                         | Answer 2                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Answer 1 | Answer 2 |
+| -- | -- |
 | You can't manipulate the DOM from an Astro file. Astro is a static site builder. | Hey, welcome to the community! <br/> Astro pages and components run on the server. Because of that, you won't have access to everything you're used to when writing JavaScript for the web. You're on the right track, though - you can access `document` from a `<script>` tag in your Astro file. <br/> Check out the docs here, and let me know if you need any more help! https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts |
 
 - welcomed the new member into the community
