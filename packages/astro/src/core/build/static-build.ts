@@ -116,10 +116,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					entryFileNames: opts.buildConfig.serverEntry,
 					chunkFileNames: 'chunks/[name].[hash].mjs',
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
+					entryFileNames: opts.buildConfig.serverEntry,
 				},
 			},
 			ssr: true,

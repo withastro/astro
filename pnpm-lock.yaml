@@ -1370,6 +1370,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/entry-file-names:
+    specifiers:
+      '@astrojs/preact': 'workspace:'
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/test/fixtures/error-react-spectrum:
     specifiers:
       '@adobe/react-spectrum': ^3.18.0
