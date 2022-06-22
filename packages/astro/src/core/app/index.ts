@@ -83,8 +83,8 @@ export class App {
 
 		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
-			if (('stage' in script)) {
-				if(script.stage === 'head-inline') {
+			if ('stage' in script) {
+				if (script.stage === 'head-inline') {
 					scripts.add({
 						props: {},
 						children: script.children,

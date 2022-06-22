@@ -16,10 +16,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
-import {
-	createLinkStylesheetElementSet,
-	createModuleScriptsSet,
-} from '../render/ssr-element.js';
+import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
@@ -167,7 +164,7 @@ interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
-	scripts: { type: 'inline' | 'external', value: string } | null;
+	scripts: { type: 'inline' | 'external'; value: string } | null;
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }

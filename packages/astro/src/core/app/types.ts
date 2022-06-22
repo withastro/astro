@@ -12,13 +12,11 @@ export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
 	links: string[];
-	scripts:
-		(
-			// Integration injected
-			{ children: string; stage: string } |
-			// Hoisted
-			{ type: 'inline' | 'external'; value: string; }
-		)[];
+	scripts: // Integration injected
+	(| { children: string; stage: string }
+		// Hoisted
+		| { type: 'inline' | 'external'; value: string }
+	)[];
 }
 
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
