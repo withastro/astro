@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.4.6
+
+### Patch Changes
+
+- [#3673](https://github.com/withastro/astro/pull/3673) [`ba5ad785`](https://github.com/withastro/astro/commit/ba5ad7855c4252e10e76b41b88fd4c74b4b7295b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix react dependencies to improve test reliability
+
 ## 0.4.5
 
 ### Patch Changes
