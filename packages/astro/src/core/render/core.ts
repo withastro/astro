@@ -161,12 +161,6 @@ export async function render(
 	}
 
 	let html = page.html;
-	// handle final head injection if it hasn't happened already
-	if (html.indexOf('<!--astro:head:injected-->') == -1) {
-		html = (await renderHead(result)) + html;
-	}
-	// cleanup internal state flags
-	html = html.replace('<!--astro:head:injected-->', '');
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!/<!doctype html/i.test(html)) {

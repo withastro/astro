@@ -221,7 +221,6 @@ ${extra}`
 		},
 		resolve,
 		_metadata: {
-			needsHydrationStyles: false,
 			renderers,
 			pathname,
 		},

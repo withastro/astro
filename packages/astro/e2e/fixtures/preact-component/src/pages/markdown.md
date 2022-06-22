@@ -1,4 +1,5 @@
 ---
+layout: ../components/Layout.astro
 setup: |
   import Counter from '../components/Counter.jsx';
   import PreactComponent from '../components/JSXComponent.jsx';

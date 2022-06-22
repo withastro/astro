@@ -344,7 +344,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		{ renderer: renderer!, result, astroId, props },
 		metadata as Required<AstroComponentMetadata>
 	);
-	result._metadata.needsHydrationStyles = true;
 
 	// Render template if not all astro fragments are provided.
 	let unrenderedSlots: string[] = [];
@@ -590,16 +589,6 @@ Update your code to remove this warning.`);
 	return handler.call(mod, proxy, request);
 }
 
-async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {
-	let template = html;
-	// <!--astro:head--> injected by compiler
-	// Must be handled at the end of the rendering process
-	if (template.indexOf('<!--astro:head-->') > -1) {
-		template = template.replace('<!--astro:head-->', await renderHead(result));
-	}
-	return template;
-}
-
 // Calls a component and renders it into a string of HTML
 export async function renderToString(
 	result: SSRResult,
@@ -627,8 +616,7 @@ export async function renderPage(
 		const response = await componentFactory(result, props, children);
 
 		if (isAstroComponent(response)) {
-			let template = await renderAstroComponent(response);
-			const html = await replaceHeadInjection(result, template);
+			let html = await renderAstroComponent(response);
 			return {
 				type: 'html',
 				html,
@@ -660,35 +648,34 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	);
 };
 
-// Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
-// styles and scripts into the head.
+const alreadyHeadRenderedResults = new WeakSet<SSRResult>();
 export async function renderHead(result: SSRResult): Promise<string> {
+	alreadyHeadRenderedResults.add(result);
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
-	let needsHydrationStyles = result._metadata.needsHydrationStyles;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
-			if ('data-astro-component-hydration' in script.props) {
-				needsHydrationStyles = true;
-			}
 			return renderElement('script', script);
 		});
-	if (needsHydrationStyles) {
-		styles.push(
-			renderElement('style', {
-				props: {},
-				children: 'astro-island, astro-slot { display: contents; }',
-			})
-		);
-	}
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
 	return markHTMLString(
-		links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->'
+		links.join('\n') + styles.join('\n') + scripts.join('\n')
 	);
+}
+
+// This function is called by Astro components that do not contain a <head> component
+// This accomodates the fact that using a <head> is optional in Astro, so this
+// is called before a component's first non-head HTML element. If the head was 
+// already injected it is a noop. 
+export function maybeRenderHead(result: SSRResult): string | Promise<string> {
+	if(alreadyHeadRenderedResults.has(result)) {
+		return '';
+	}
+	return renderHead(result);
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
