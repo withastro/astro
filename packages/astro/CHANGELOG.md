@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.51
+
+### Patch Changes
+
+- [#3675](https://github.com/withastro/astro/pull/3675) [`ef6282d5`](https://github.com/withastro/astro/commit/ef6282d5d99a428f7084f7174c9290cb5ad0fa31) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix `import.meta.env` also without trailing dot
+
+* [#3673](https://github.com/withastro/astro/pull/3673) [`ba5ad785`](https://github.com/withastro/astro/commit/ba5ad7855c4252e10e76b41b88fd4c74b4b7295b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix react dependencies to improve test reliability
+
 ## 1.0.0-beta.50
 
 ### Patch Changes
