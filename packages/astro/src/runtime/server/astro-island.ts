@@ -66,15 +66,13 @@ declare const Astro: {
 					}
 					const slotted = this.querySelectorAll('astro-slot');
 					const slots: Record<string, string> = {};
-					if (this.hasAttribute('tmpl')) {
-						// Always check to see if there are templates when the `tmpl` flag is present.
-						// This happens if slots were passed but the client component did not render them.
-						const templates = this.querySelectorAll('template[data-astro-template]');
-						for (const template of templates) {
-							if (!template.closest(this.tagName)?.isSameNode(this)) continue;
-							slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
-							template.remove();
-						}
+					// Always check to see if there are templates.
+					// This happens if slots were passed but the client component did not render them.
+					const templates = this.querySelectorAll('template[data-astro-template]');
+					for (const template of templates) {
+						if (!template.closest(this.tagName)?.isSameNode(this)) continue;
+						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
+						template.remove();
 					}
 					for (const slot of slotted) {
 						if (!slot.closest(this.tagName)?.isSameNode(this)) continue;

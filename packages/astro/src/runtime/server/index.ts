@@ -361,10 +361,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 	const template = unrenderedSlots.length > 0 ? unrenderedSlots.map((key) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]}</template>`).join('') : '';
 
-	if (unrenderedSlots.length > 0) {
-		island.props.tmpl = '';
-	}
-
 	island.children = `${html ?? ''}${template}`;
 
 	let prescriptType: PrescriptType = needsHydrationScript
