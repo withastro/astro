@@ -14,10 +14,10 @@ appearance, race, religion, or sexual identity and orientation.
 Examples of behavior that contributes to creating a positive environment
 include:
 
-- Using welcoming and inclusive language
+- Using welcoming and [inclusive language](https://developers.google.com/style/inclusive-documentation)
 - Being respectful of differing viewpoints and experiences
 - Gracefully accepting constructive criticism
-- Focusing on what is best for the community
+- Focusing on the bigger picture: what is best for the community?
 - Showing empathy towards other community members
 
 Examples of unacceptable behavior by participants include:
@@ -30,6 +30,48 @@ Examples of unacceptable behavior by participants include:
   address, without explicit permission
 - Other conduct which could reasonably be considered inappropriate in a
   professional setting
+
+### Guide to Maintaining these Standards
+
+When interacting in our community, strive to maintain a friendly, empathetic tone. This includes, but is not limited to, interactions on Discord, GitHub, and Twitter.
+
+"Tone" refers to word, punctuation, and conversational choices that determine how your message _feels_ to others.
+
+Compare these two responses:
+
+_Question:_ Hey, I'm beginning with Astro. I tried to use `document` in my Astro page, but it says that the object doesn't exist. How can I manipulate the DOM?
+
+| Answer 1                                                                         | Answer 2                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| You can't manipulate the DOM from an Astro file. Astro is a static site builder. | Hey, welcome to the community! <br/> Astro pages and components run on the server. Because of that, you won't have access to everything you're used to when writing JavaScript for the web. You're on the right track, though - you can access `document` from a `<script>` tag in your Astro file. <br/> Check out the docs here, and let me know if you need any more help! https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts |
+
+- welcomed the new member into the community
+- used explanation points (conveying willingness to help) and friendly word choices
+- made them feel validated for asking the question ("You're on the right track")
+- provided an explanation that fit the person who asked the question. They specified that they were a beginner, so _Answer 2_ sought to explain things to someone who might not understand the implications of "static site builder".
+- made it clear that the community is willing to help, and asking is not a burden ("let me know if you need any more help!")
+
+Our community prides itself on being _positive_, _helpful_, and _inclusive_. If you have these goals in mind when interacting in the community, you're on the right track!
+
+- To stay positive:
+
+  - Make it clear that you appreciate the other person's message
+  - Use exclamation points and emojis when friendly intention wouldn't be clear otherwise
+  - During conflict: maintain respect, avoid aggression, and avoid involving personal personal pronouns ("you").
+  - Set boundaries. Feel free to step away from a conversation when you feel frustrated.
+
+- To stay helpful:
+
+  - Seek to understand the expectations of others. How do they seem to _want_ you to respond?
+  - When explaining something, first establish the knowledge level of the person you're responding to. Match your explanation to that level.
+  - Ask clarifying questions. If you're not sure what the person meant, ask them if you're understanding is correct. If you're not sure what they already know, ask them if they're aware of a concept.
+
+- To stay inclusive:
+
+  - Refer to someone by their expressed name. Do not use your own nicknames.
+  - Refer to someone by their expressed pronouns. If this wasn't expressed, use `they/them`.
+  - If you sense hesitancy in someone's participation, make it clear that you're happy they're participating.
+  - Advocate for someone if you see that they're being dismissed.
 
 ## Our Responsibilities
 
