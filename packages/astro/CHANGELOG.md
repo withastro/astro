@@ -1,5 +1,25 @@
 # astro
 
+## 1.0.0-beta.52
+
+### Patch Changes
+
+- [#3667](https://github.com/withastro/astro/pull/3667) [`df02fad1`](https://github.com/withastro/astro/commit/df02fad13ef7c8a8a563ee3720513d437090ee2e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: add @nanostores/preact to ALWAYS_NOEXTERNAL list for easier onboarding
+
+* [#3678](https://github.com/withastro/astro/pull/3678) [`89884540`](https://github.com/withastro/astro/commit/898845402cd82995bd4878c93d3ccfcce89ebf27) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression with SSRManifest and client assets
+
+- [#3658](https://github.com/withastro/astro/pull/3658) [`aeab8909`](https://github.com/withastro/astro/commit/aeab890971e5f425f877545c674d1cb532cee754) Thanks [@matthewp](https://github.com/matthewp)! - Inlines small hoisted scripts
+
+  This enables a perf improvement, whereby small hoisted scripts without dependencies are inlined into the HTML, rather than loaded externally. This uses `vite.build.assetInlineLimit` to determine if the script should be inlined.
+
+## 1.0.0-beta.51
+
+### Patch Changes
+
+- [#3675](https://github.com/withastro/astro/pull/3675) [`ef6282d5`](https://github.com/withastro/astro/commit/ef6282d5d99a428f7084f7174c9290cb5ad0fa31) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix `import.meta.env` also without trailing dot
+
+* [#3673](https://github.com/withastro/astro/pull/3673) [`ba5ad785`](https://github.com/withastro/astro/commit/ba5ad7855c4252e10e76b41b88fd4c74b4b7295b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix react dependencies to improve test reliability
+
 ## 1.0.0-beta.50
 
 ### Patch Changes

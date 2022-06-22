@@ -231,9 +231,9 @@ ${tsResult}`;
 	};
 }
 
-// Converts the first dot in `import.meta.env.` to its Unicode escape sequence,
+// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
 // which prevents Vite from replacing strings like `import.meta.env.SITE`
 // in our JS representation of loaded Markdown files
 function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env\./g, 'import\\u002Emeta.env.');
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

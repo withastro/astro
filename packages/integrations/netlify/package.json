@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
