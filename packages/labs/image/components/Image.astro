@@ -1,5 +1,6 @@
 ---
 import { getImage } from '..';
+import loader from 'virtual:image-loader';
 import type { ImageMetadata, ImageProps, OutputFormat } from '../dist/types.js';
 
 export interface LocalImageProps {
@@ -33,7 +34,7 @@ const imageProps: ImageProps = isLocalImage(props)
 	}
 	: props;
 
-const attrs = await getImage(imageProps);
+const attrs = await getImage(loader, imageProps);
 ---
 
 <img {...attrs} />

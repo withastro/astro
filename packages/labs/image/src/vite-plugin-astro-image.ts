@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import sharp from 'sharp';
-import loader from './loaders/sharp.js';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
 import type { IntegrationOptions } from './types.js';
@@ -9,13 +8,17 @@ export function createPlugin(config: AstroConfig, options: IntegrationOptions): 
 	const filter = (id: string) => /^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
 
 	let resolvedConfig: ResolvedConfig;
-	console.log('createPlugin');
 
 	return {
 		name: '@astrojs/image',
 		enforce: 'pre',
 		configResolved(config) {
 			resolvedConfig = config;
+		},
+		async resolveId(id) {
+			if (id === 'virtual:image-loader') {
+				return (await this.resolve('@astrojs/image/sharp'))!.id;
+			}
 		},
 		async load(id) {
 			if (!filter(id)) { return null; }
@@ -47,5 +50,5 @@ export function createPlugin(config: AstroConfig, options: IntegrationOptions): 
 
 			return `export default ${JSON.stringify(output)}`;
 		}
-	}
+	};
 }

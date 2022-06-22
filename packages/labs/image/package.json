@@ -15,6 +15,7 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./sharp": "./dist/loaders/sharp.js",
     "./dev-endpoint.js": "./dist/dev-endpoint.js",
     "./endpoint.js": "./dist/endpoint.js",
     "./Image.astro": "./src/Image.astro",
@@ -31,7 +32,6 @@
     "test": "mocha --exit --timeout 2000 test"
   },
   "dependencies": {
-    "esbuild": "^0.14.42",
     "mime-types": "^2.1.35",
     "sharp": "^0.30.6"
   },

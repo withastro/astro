@@ -4,7 +4,7 @@ import sharp from './loaders/sharp.js';
 import { ensureDir } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import type { ImageProps, IntegrationOptions } from './types.js';
+import type { ImageProps, IntegrationOptions, SSRImageService } from './types.js';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
@@ -55,10 +55,12 @@ function defaultFilenameFormat({ src, width, height, format }: ImageProps) {
 	return src.replace(ext, format);
 }
 
-export async function getImage(props: ImageProps) {
+export async function getImage(loader: SSRImageService, props: ImageProps) {
+	(globalThis as any).loader = loader;
+
 	const computedProps = { ...props, ...calculateSize(props) };
 
-  const { searchParams, ...rest } = await sharp.getImage(computedProps);
+  const { searchParams, ...rest } = await loader.getImage(computedProps);
 
 	if (globalThis && (globalThis as any).addStaticImage) {
 		(globalThis as any)?.addStaticImage(computedProps);
@@ -74,7 +76,11 @@ export async function getImage(props: ImageProps) {
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
-	const resolvedOptions = { filenameFormat: defaultFilenameFormat, ...options };
+	const resolvedOptions = {
+		filenameFormat: defaultFilenameFormat,
+		loaderEntryPoint: '@astrojs/image/sharp',
+		...options
+	};
 
 	const staticImages = new Map<string, ImageProps>();
 	let _config: AstroConfig;
@@ -116,14 +122,14 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				}
 			},
 			'astro:build:done': async ({ dir }) => {
-				console.log('build:done');
 				for await (const [_, props] of staticImages) {
+					// load and transform the input file
 					const pathname = path.join(_config.srcDir.pathname, props.src.replace(/^\/image/, ''));
-					console.log(pathname);
 					const inputBuffer = await fs.readFile(pathname);
 					const { data } = await sharp.toBuffer(inputBuffer, props);
+
+					// output to dist
 					const outputFile = path.join(dir.pathname, OUTPUT_DIR, resolvedOptions.filenameFormat(props));
-					console.log('writing to', outputFile);
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}
