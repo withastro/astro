@@ -1,8 +1,8 @@
-# @astrojs/deno 🦖
+# @astrojs/node 🔲
 
-This adapter allows Astro to deploy your site to Node targets.
+This adapter allows Astro to deploy your SSR site to Node targets.
 
-- <strong>[Why Astro Deno](#why-astro-partytown)</strong>
+- <strong>[Why Astro Node](#why-astro-node)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
@@ -11,13 +11,13 @@ This adapter allows Astro to deploy your site to Node targets.
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong>
 
-## Why Astro Deno
+## Why Astro Node
 
 If you're using Astro as a static site builder—its behavior out of the box—you don't need an adapter.
 
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
-[Node](https://deno.land/) is a JavaScript runtime for server-side code. This adapter provides access to Node's API and creates a script to run your project on a Node server.
+[Node](https://nodejs.org/en/) is a JavaScript runtime for server-side code. Frameworks like [Express](https://expressjs.com/) are built on top of it and make it easier to write server applications in Node. This adapter provides access to Node's API and creates a script to run your Astro project that can be utilized in Node applications.
 
 ## Installation
 
@@ -39,8 +39,6 @@ export default defineConfig({
   adapter: node()
 })
 ```
-  
-</details>
 
 ## Usage
 
@@ -90,7 +88,6 @@ http.createServer(function(req, res) {
   });
 }).listen(8080);
 ```
-
 
 
 

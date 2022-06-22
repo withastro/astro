@@ -1,8 +1,8 @@
 # @astrojs/deno 🦖
 
-This adapter allows Astro to deploy your site to Deno targets.
+This adapter allows Astro to deploy your SSR site to Deno targets.
 
-- <strong>[Why Astro Deno](#why-astro-partytown)</strong>
+- <strong>[Why Astro Deno](#why-astro-deno)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
@@ -41,8 +41,6 @@ export default defineConfig({
 })
 ```
   
-</details>
-
 ## Usage
 
 After [performing a build](https://docs.astro.build/en/guides/deploy/#building-the-app) there will be a `dist/server/entry.mjs` module. You can start a server by importing this module in your Deno app:
