@@ -50,13 +50,14 @@ Answer 2 took more effort, but it made a significant difference. This response:
 - welcomed the new member into the community
 - made them feel validated for asking the question ("You're on the right track")
 - provided an explanation that fit the person who asked the question: _Answer 2_ sought to explain things to a self-described beginner, who might not understand the implications of "static site builder"
-- made it clear that the community is willing to help, and asking is not a burden ("let me know if you need any more help!")
+- made it clear that the community is willing to help and that asking is not a burden ("let me know if you need any more help!")
 
 Our community prides itself on being _positive_, _helpful_, and _inclusive_. If you have these goals in mind when interacting in the community, you're on the right track!
 
 - To stay positive:
 
-  - Make it clear that you appreciate the other person's message
+ - Make it clear that you appreciate the other person's contributions.
+ - Aim to learn: even complaints can be valuable feedback.
  - Look for alternate interpretations of your message before sending, and consider clarifying your intent if you're unsure how your words might come across (using exclamation points and emojis to convey friendliness is generally 👍 !)
   - During conflict: maintain respect, avoid aggression, and avoid involving personal personal pronouns ("you").
   - Set boundaries. Feel free to step away from a conversation when you feel frustrated.
@@ -65,11 +66,11 @@ Our community prides itself on being _positive_, _helpful_, and _inclusive_. If 
 
   - Seek to understand the the other person's desired outcomes. Are they looking for assistance? Just wanting to vent?
   - When explaining something, first establish the knowledge level of the person you're responding to. Match your explanation to that level.
-  - Ask clarifying questions. If you're not sure what the person meant, ask them if you're understanding is correct. If you're not sure what they already know, ask them if they're aware of a concept.
+  - Ask clarifying questions. If you're not sure what the person meant, ask them if your understanding is correct. If you're not sure what they already know, ask them if they're aware of a concept.
 
 - To stay inclusive:
 
-  - Refer to someone by their expressed name. Do not use your own nicknames.
+  - Refer to someone by their expressed name. Do not use your own nicknames for someone.
   - Refer to someone by their expressed pronouns. If this wasn't expressed, use `they/them`.
   - If you sense hesitancy in someone's participation, make it clear that you're happy they're participating.
   - Advocate for someone if you see that they're being dismissed.
