@@ -25,8 +25,11 @@ export function createLinkStylesheetElementSet(hrefs: string[], site?: string) {
 	return new Set<SSRElement>(hrefs.map((href) => createLinkStylesheetElement(href, site)));
 }
 
-export function createModuleScriptElement(script: { type: 'inline' | 'external'; value: string; }, site?: string): SSRElement {
-	if(script.type === 'external') {
+export function createModuleScriptElement(
+	script: { type: 'inline' | 'external'; value: string },
+	site?: string
+): SSRElement {
+	if (script.type === 'external') {
 		return createModuleScriptElementWithSrc(script.value, site);
 	} else {
 		return {
@@ -56,8 +59,8 @@ export function createModuleScriptElementWithSrcSet(
 }
 
 export function createModuleScriptsSet(
-	scripts: { type: 'inline' | 'external'; value: string; }[],
+	scripts: { type: 'inline' | 'external'; value: string }[],
 	site?: string
 ): Set<SSRElement> {
-	return new Set<SSRElement>(scripts.map(script => createModuleScriptElement(script, site)));
+	return new Set<SSRElement>(scripts.map((script) => createModuleScriptElement(script, site)));
 }

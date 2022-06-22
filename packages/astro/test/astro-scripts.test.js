@@ -58,7 +58,7 @@ describe('Scripts (hoisted and not)', () => {
 		);
 	});
 
-	it('Inline scripts that are shared by multiple pages create chunks, and aren\'t inlined into the HTML', async () => {
+	it("Inline scripts that are shared by multiple pages create chunks, and aren't inlined into the HTML", async () => {
 		let html = await fixture.readFile('/inline-shared-one/index.html');
 		let $ = cheerio.load(html);
 

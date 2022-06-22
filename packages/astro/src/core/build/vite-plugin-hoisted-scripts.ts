@@ -50,7 +50,9 @@ export function vitePluginHoistedScripts(
 					output.facadeModuleId &&
 					virtualHoistedEntry(output.facadeModuleId)
 				) {
-					const canBeInlined = output.imports.length === 0 && output.dynamicImports.length === 0 &&
+					const canBeInlined =
+						output.imports.length === 0 &&
+						output.dynamicImports.length === 0 &&
 						Buffer.byteLength(output.code) <= assetInlineLimit;
 					let removeFromBundle = false;
 					const facadeId = output.facadeModuleId!;
@@ -59,23 +61,23 @@ export function vitePluginHoistedScripts(
 						const vid = viteID(new URL('.' + pathname, astroConfig.root));
 						const pageInfo = getPageDataByViteID(internals, vid);
 						if (pageInfo) {
-							if(canBeInlined) {
+							if (canBeInlined) {
 								pageInfo.hoistedScript = {
 									type: 'inline',
-									value: output.code
+									value: output.code,
 								};
 								removeFromBundle = true;
 							} else {
 								pageInfo.hoistedScript = {
 									type: 'external',
-									value: id
+									value: id,
 								};
 							}
 						}
 					}
 
 					// Remove the bundle if it was inlined
-					if(removeFromBundle) {
+					if (removeFromBundle) {
 						delete bundle[id];
 					}
 				}
