@@ -1,4 +1,5 @@
 ---
+layout: ../components/Layout.astro
 setup: |
   import Counter from '../components/Counter.svelte';
   import SvelteComponent from '../components/SvelteComponent.svelte';
