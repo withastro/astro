@@ -407,7 +407,7 @@ async function getInstallIntegrationsCommand({
 		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
-		.map(([name, version]) => (version === null ? name : `${name}@${version}`))
+		.map(([name, version]) => (version === null ? name : `${name}@${version.split(/\s*\|\|\s*/).pop()}`))
 		.sort();
 
 	switch (pm.name) {
