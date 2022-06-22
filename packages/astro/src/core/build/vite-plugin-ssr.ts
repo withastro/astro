@@ -101,7 +101,7 @@ export async function injectManifest(buildOpts: StaticBuildOptions, internals: B
 			cwd: fileURLToPath(buildOpts.buildConfig.client),
 		})
 	);
-	for(const file of clientStatics) {
+	for (const file of clientStatics) {
 		internals.staticFiles.add(file);
 	}
 
