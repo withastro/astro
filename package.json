@@ -25,7 +25,7 @@
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "turbo run benchmark --scope=astro",
-    "lint": "eslint \"packages/**/*.ts\"",
+    "lint": "eslint .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
@@ -69,6 +69,7 @@
     "esbuild": "^0.14.42",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",

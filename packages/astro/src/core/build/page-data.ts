@@ -69,7 +69,6 @@ export async function collectPagesData(
 				moduleSpecifier: '',
 				css: new Set(),
 				hoistedScript: undefined,
-				scripts: new Set(),
 			};
 
 			clearInterval(routeCollectionLogTimeout);
@@ -131,7 +130,6 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
-			scripts: new Set(),
 		};
 	}
 

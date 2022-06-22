@@ -16,10 +16,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
-import {
-	createLinkStylesheetElementSet,
-	createModuleScriptElementWithSrcSet,
-} from '../render/ssr-element.js';
+import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
@@ -124,7 +121,7 @@ async function generatePage(
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
-	const hoistedId = pageInfo?.hoistedScript ?? null;
+	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
 
@@ -143,7 +140,7 @@ async function generatePage(
 		pageData,
 		internals,
 		linkIds,
-		hoistedId,
+		scripts,
 		mod: pageModule,
 		renderers,
 	};
@@ -167,7 +164,7 @@ interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
-	hoistedId: string | null;
+	scripts: { type: 'inline' | 'external'; value: string } | null;
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
@@ -182,7 +179,7 @@ async function generatePath(
 	gopts: GeneratePathOptions
 ) {
 	const { astroConfig, logging, origin, routeCache } = opts;
-	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
+	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -198,7 +195,7 @@ async function generatePath(
 			? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
 			: astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
-	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
+	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
 
 	// Add all injected scripts to the page.
 	for (const script of astroConfig._ctx.scripts) {

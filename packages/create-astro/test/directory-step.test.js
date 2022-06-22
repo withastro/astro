@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import path from 'path';
 import { promises, existsSync } from 'fs';
 import { PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeout } from './utils.js';
 
@@ -31,7 +31,7 @@ describe('[create-astro] select directory', function () {
 		});
 	});
 	it('should proceed on an empty directory', async function () {
-		const resolvedEmptyDirPath = resolve(testDir, inputs.emptyDir);
+		const resolvedEmptyDirPath = path.resolve(testDir, inputs.emptyDir);
 		if (!existsSync(resolvedEmptyDirPath)) {
 			await promises.mkdir(resolvedEmptyDirPath);
 		}
