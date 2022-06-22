@@ -28,7 +28,11 @@ const ALWAYS_EXTERNAL = new Set([
 	'whatwg-url',
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
-	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	'astro',
+	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
+	'@nanostores/preact', 
 ]);
 
 // note: ssr is still an experimental API hence the type omission from `vite`
