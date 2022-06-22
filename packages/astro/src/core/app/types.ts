@@ -13,7 +13,8 @@ export interface RouteInfo {
 	file: string;
 	links: string[];
 	scripts: // Integration injected
-	(| { children: string; stage: string }
+	(
+		| { children: string; stage: string }
 		// Hoisted
 		| { type: 'inline' | 'external'; value: string }
 	)[];
