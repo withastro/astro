@@ -52,8 +52,8 @@ describe('CSS Bundling', function () {
 
 			// test 3: assert all bundled CSS was built and contains CSS
 			for (const url of builtCSS.keys()) {
-				const css = await fixture.readFile(url);
-				expect(css).to.be.ok;
+				const bundledCss = await fixture.readFile(url);
+				expect(bundledCss).to.be.ok;
 			}
 		}
 	});
