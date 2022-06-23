@@ -1,12 +1,14 @@
 <style>
 .vue {
-  appearance: none;
+	&.nested {
+		color: red;
+	}
 }
 </style>
 
 <template>
-  <div class="vue">
-    Vue
+  <div class="vue nested">
+		Vue
   </div>
 </template>
 

@@ -277,14 +277,20 @@ describe('Astro Markdown', () => {
 		// test 1: referencing an existing var name
 		expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
 		expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
-		expect($('code').eq(2).text()).to.contain('site: import.meta.env.SITE');
+		expect($('code').eq(3).text()).to.contain('site: import.meta.env.SITE');
 		expect($('blockquote').text()).to.contain('import.meta.env.SITE');
 
 		// test 2: referencing a non-existing var name
 		expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
 		expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
-		expect($('code').eq(2).text()).to.contain('title: import.meta.env.TITLE');
+		expect($('code').eq(3).text()).to.contain('title: import.meta.env.TITLE');
 		expect($('blockquote').text()).to.contain('import.meta.env.TITLE');
+
+		// test 3: referencing `import.meta.env` itself (without any var name)
+		expect($('code').eq(2).text()).to.equal('import.meta.env');
+		expect($('li').eq(2).text()).to.equal('import.meta.env');
+		expect($('code').eq(3).text()).to.contain('// Use Vite env vars with import.meta.env');
+		expect($('blockquote').text()).to.match(/import\.meta\.env\s*$/);
 	});
 
 	it('Escapes HTML tags in code blocks', async () => {

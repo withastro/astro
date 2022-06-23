@@ -45,6 +45,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	});
 
 	_startPromise = Promise.resolve(_server.listenAndServe());
+	// eslint-disable-next-line no-console
 	console.error(`Server running on port ${port}`);
 }
 

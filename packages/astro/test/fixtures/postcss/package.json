@@ -9,5 +9,8 @@
     "astro": "workspace:*",
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.14"
+  },
+  "devDependencies": {
+    "postcss-preset-env": "^7.7.1"
   }
 }

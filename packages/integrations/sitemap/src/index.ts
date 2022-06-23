@@ -8,9 +8,9 @@ import {
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
-import { generateSitemap } from './generate-sitemap';
-import { Logger } from './utils/logger';
-import { validateOptions } from './validate-options';
+import { generateSitemap } from './generate-sitemap.js';
+import { Logger } from './utils/logger.js';
+import { validateOptions } from './validate-options.js';
 
 export type ChangeFreq = EnumChangefreq;
 export type SitemapItem = Pick<
@@ -99,7 +99,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						logger.warn(`No data for sitemap.\n\`${OUTFILE}\` is not created.`);
+						// offer suggestion for SSR users
+						if (typeof config.adapter !== 'undefined') {
+							logger.warn(
+								`No pages found! We can only detect sitemap routes for "static" projects. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
+							);
+						} else {
+							logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+						}
 						return;
 					}
 

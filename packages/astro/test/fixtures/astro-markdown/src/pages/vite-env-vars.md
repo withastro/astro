@@ -1,5 +1,5 @@
 ---
-title: Referencing Vite Env Vars like import.meta.env.SITE and import.meta.env.TITLE
+title: Referencing Vite Env Vars like import.meta.env.SITE, import.meta.env.TITLE and import.meta.env
 layout: ../layouts/content.astro
 ---
 
@@ -9,9 +9,12 @@ You can get the configured site URL with `import.meta.env.SITE`.
 
 The variable `import.meta.env.TITLE` is not configured.
 
+You can reference all env vars through `import.meta.env`.
+
 This should also work outside of code blocks:
 - import.meta.env.SITE
 - import.meta.env.TITLE
+- import.meta.env
 
 ## Usage in fenced code blocks with syntax highlighting
 
@@ -20,6 +23,7 @@ This should also work outside of code blocks:
 import rss from '@astrojs/rss';
 
 export const get = () => rss({
+	// Use Vite env vars with import.meta.env
 	site: import.meta.env.SITE,
 	title: import.meta.env.TITLE,
 	items: import.meta.glob('./**/*.md'),

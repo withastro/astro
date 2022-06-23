@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 0.1.5
+
+### Patch Changes
+
+- [#3686](https://github.com/withastro/astro/pull/3686) [`b36ecb71`](https://github.com/withastro/astro/commit/b36ecb717e2cb623501c6d9a60471ac4daba43a8) Thanks [@matthewp](https://github.com/matthewp)! - Include partytown scripts in SSR manifest
+
 ## 0.1.4
 
 ### Patch Changes

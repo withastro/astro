@@ -5,6 +5,7 @@ import type { BuildInternals } from '../../core/build/internal.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../../vite-plugin-astro/types';
 
 import { prependForwardSlash } from '../../core/path.js';
+import { resolveClientDevPath } from '../../core/render/dev/resolve.js';
 import { getTopLevelPages } from './graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
 
@@ -20,7 +21,7 @@ export function vitePluginAnalyzer(
 			scan(this: PluginContext, scripts: AstroPluginMetadata['astro']['scripts'], from: string) {
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
-					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}`;
+					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
 					hoistedScripts.add(hid);
 				}
 
@@ -84,7 +85,8 @@ export function vitePluginAnalyzer(
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
 				for (const c of astro.hydratedComponents) {
-					internals.discoveredHydratedComponents.add(c.resolvedPath || c.specifier);
+					const rid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
+					internals.discoveredHydratedComponents.add(rid);
 				}
 
 				// Scan hoisted scripts
@@ -94,7 +96,7 @@ export function vitePluginAnalyzer(
 					const clientOnlys: string[] = [];
 
 					for (const c of astro.clientOnlyComponents) {
-						const cid = c.resolvedPath || c.specifier;
+						const cid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
 						internals.discoveredClientOnlyComponents.add(cid);
 						clientOnlys.push(cid);
 					}

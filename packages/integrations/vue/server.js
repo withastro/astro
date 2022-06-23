@@ -6,10 +6,10 @@ function check(Component) {
 	return !!Component['ssrRender'];
 }
 
-async function renderToStaticMarkup(Component, props, children) {
+async function renderToStaticMarkup(Component, props, slotted) {
 	const slots = {};
-	if (children != null) {
-		slots.default = () => h(StaticHtml, { value: children });
+	for (const [key, value] of Object.entries(slotted)) {
+		slots[key] = () => h(StaticHtml, { value, name: key === 'default' ? undefined : key });
 	}
 	const app = createSSRApp({ render: () => h(Component, props, slots) });
 	const html = await renderToString(app);

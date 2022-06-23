@@ -57,8 +57,8 @@ export async function renderMarkdown(
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
 	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
-	loadedRemarkPlugins.forEach(([plugin, opts]) => {
-		parser.use([[plugin, opts]]);
+	loadedRemarkPlugins.forEach(([plugin, pluginOpts]) => {
+		parser.use([[plugin, pluginOpts]]);
 	});
 
 	if (scopedClassName) {
@@ -87,8 +87,8 @@ export async function renderMarkdown(
 		],
 	]);
 
-	loadedRehypePlugins.forEach(([plugin, opts]) => {
-		parser.use([[plugin, opts]]);
+	loadedRehypePlugins.forEach(([plugin, pluginOpts]) => {
+		parser.use([[plugin, pluginOpts]]);
 	});
 
 	parser
@@ -106,6 +106,7 @@ export async function renderMarkdown(
 		// Ensure that the error message contains the input filename
 		// to make it easier for the user to fix the issue
 		err = prefixError(err, `Failed to parse Markdown file "${input.path}"`);
+		// eslint-disable-next-line no-console
 		console.error(err);
 		throw err;
 	}
