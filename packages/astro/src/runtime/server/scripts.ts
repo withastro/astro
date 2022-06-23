@@ -59,7 +59,9 @@ export function getPrescripts(type: PrescriptType, directive: string): string {
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `<style>astro-island,astro-slot{display:contents}</style><script>${getDirectiveScriptText(directive) + islandScript}</script>`;
+			return `<style>astro-island,astro-slot{display:contents}</style><script>${
+				getDirectiveScriptText(directive) + islandScript
+			}</script>`;
 		case 'directive':
 			return `<script>${getDirectiveScriptText(directive)}</script>`;
 	}

@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderComponent, renderHead, renderPage } from '../../runtime/server/index.js';
+import { renderComponent, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';

@@ -662,17 +662,15 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
-	return markHTMLString(
-		links.join('\n') + styles.join('\n') + scripts.join('\n')
-	);
+	return markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n'));
 }
 
 // This function is called by Astro components that do not contain a <head> component
 // This accomodates the fact that using a <head> is optional in Astro, so this
-// is called before a component's first non-head HTML element. If the head was 
-// already injected it is a noop. 
+// is called before a component's first non-head HTML element. If the head was
+// already injected it is a noop.
 export function maybeRenderHead(result: SSRResult): string | Promise<string> {
-	if(alreadyHeadRenderedResults.has(result)) {
+	if (alreadyHeadRenderedResults.has(result)) {
 		return '';
 	}
 	return renderHead(result);
