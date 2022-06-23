@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 0.1.5
+
+### Patch Changes
+
+- [#3685](https://github.com/withastro/astro/pull/3685) [`3d554fdb`](https://github.com/withastro/astro/commit/3d554fdbfb49d85d2945b7775825f7d9ace959ce) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix PostCSS config not applied to Svelte component by default
+
 ## 0.1.4
 
 ### Patch Changes

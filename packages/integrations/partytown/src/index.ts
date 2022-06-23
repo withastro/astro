@@ -54,11 +54,11 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 			'astro:build:ssr': async ({ manifest }) => {
 				const dirpath = libDirPath({ debugDir: false });
 				const files = await fs.promises.readdir(dirpath);
-				for(const file of files) {
-					if(file === 'debug') continue;
-					manifest.assets.push(`/~partytown/${file}`)
+				for (const file of files) {
+					if (file === 'debug') continue;
+					manifest.assets.push(`/~partytown/${file}`);
 				}
-			}
+			},
 		},
 	};
 }

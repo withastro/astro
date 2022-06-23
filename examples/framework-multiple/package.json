@@ -13,9 +13,9 @@
     "@astrojs/preact": "^0.1.3",
     "@astrojs/react": "^0.1.3",
     "@astrojs/solid-js": "^0.1.4",
-    "@astrojs/svelte": "^0.1.4",
+    "@astrojs/svelte": "^0.1.5",
     "@astrojs/vue": "^0.1.5",
-    "astro": "^1.0.0-beta.52"
+    "astro": "^1.0.0-beta.53"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
