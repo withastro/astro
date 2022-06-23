@@ -322,6 +322,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	}
 
+	if (renderer && !renderer.clientEntrypoint && metadata.hydrate) {
+		throw new Error(`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`);
+	}
+
 	// This is a custom element without a renderer. Because of that, render it
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
