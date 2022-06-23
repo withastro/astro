@@ -2055,9 +2055,11 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       mime-types: ^2.1.35
+      mrmime: ^1.0.0
       sharp: ^0.30.6
     dependencies:
       mime-types: 2.1.35
+      mrmime: 1.0.1
       sharp: 0.30.6
     devDependencies:
       '@types/sharp': 0.30.4

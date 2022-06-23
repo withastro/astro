@@ -1,11 +1,13 @@
 import fs from 'fs/promises';
-import sharp from 'sharp';
+import { metadata } from './metadata.js';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
 import type { IntegrationOptions } from './types.js';
 
-export function createPlugin(config: AstroConfig, options: IntegrationOptions): Plugin {
+export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) => /^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
+
+	const virtualModuleId = 'virtual:image-loader';
 
 	let resolvedConfig: ResolvedConfig;
 
@@ -16,28 +18,26 @@ export function createPlugin(config: AstroConfig, options: IntegrationOptions): 
 			resolvedConfig = config;
 		},
 		async resolveId(id) {
-			if (id === 'virtual:image-loader') {
-				return (await this.resolve('@astrojs/image/sharp'))!.id;
+			// The virtual model redirects imports to the ImageService being used
+			// This ensures the module is available in `astro dev` and is included
+			// in the SSR server bundle.
+			if (id === virtualModuleId) {
+				return (await this.resolve(options.serviceEntryPoint))!.id;
 			}
 		},
 		async load(id) {
+			// only claim image ESM imports
 			if (!filter(id)) { return null; }
 
-			const sharpImage = sharp(id);
-			const metadata = await sharpImage.metadata();
-
-			const aspectRatio = metadata.width && metadata.height && metadata.width / metadata.height;
+			const meta = await metadata(id);
 
 			const src = resolvedConfig.isProduction
 				?  id.replace(config.srcDir.pathname, '/')
 				: id;
 
 			const output = {
+				...meta,
 				src,
-				width: metadata.width,
-				height: metadata.height,
-				aspectRatio,
-				format: metadata.format
 			};
 
 			if (resolvedConfig.isProduction) {

@@ -16,8 +16,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./sharp": "./dist/loaders/sharp.js",
-    "./dev-endpoint.js": "./dist/dev-endpoint.js",
-    "./endpoint.js": "./dist/endpoint.js",
+    "./endpoints/dev": "./dist/endpoints/dev.js",
+    "./endpoints/prod": "./dist/endpoints/prod.js",
     "./Image.astro": "./src/Image.astro",
     "./package.json": "./package.json"
   },
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "mime-types": "^2.1.35",
+    "mrmime": "^1.0.0",
     "sharp": "^0.30.6"
   },
   "devDependencies": {
