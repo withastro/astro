@@ -40,4 +40,10 @@ describe('Partial HTML', async () => {
 		const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
 		expect(allInjectedStyles).to.match(/h1{color:red;}/);
 	});
+
+	it('pages with a head, injection happens inside', async () => {
+		const html = await fixture.fetch('/with-head').then((res) => res.text());
+		const $ = cheerio.load(html);
+		expect($('style')).to.have.lengthOf(1);
+	});
 });
