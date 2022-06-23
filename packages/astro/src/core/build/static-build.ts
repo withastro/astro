@@ -67,22 +67,18 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
+	const rendererClientEntrypoints = opts.astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter(a => typeof a === 'string') as string[]
+
 	const clientInput = new Set([
 		...internals.discoveredHydratedComponents,
 		...internals.discoveredClientOnlyComponents,
-		...opts.astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter(a => typeof a === 'string') as string[],
+		...rendererClientEntrypoints,
 		...internals.discoveredScripts,
 	]);
 
-	// Resolve any npm package paths with resolveDependency
-	// before passing to Vite input
-	const resolvedClientInput = new Set([...clientInput]
-		.map(input => new URL(resolveDependency(input, opts.astroConfig.root)).pathname)
-	);
-
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	timer.clientBuild = performance.now();
-	await clientBuild(opts, internals, resolvedClientInput);
+	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
@@ -173,7 +169,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function clientBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	input: Set<string>
+	input: Set<string>,
 ) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
