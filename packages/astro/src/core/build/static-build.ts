@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir } from '../../core/util.js';
+import { emptyDir, removeDir, resolveDependency } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -67,16 +67,22 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
-	const clientInput = new Set<string>([
+	const clientInput = new Set([
 		...internals.discoveredHydratedComponents,
 		...internals.discoveredClientOnlyComponents,
-		...(astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter((a) => a) as string[]),
+		...opts.astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter(a => typeof a === 'string') as string[],
 		...internals.discoveredScripts,
 	]);
 
+	// Resolve any npm package paths with resolveDependency
+	// before passing to Vite input
+	const resolvedClientInput = new Set([...clientInput]
+		.map(input => new URL(resolveDependency(input, opts.astroConfig.root)).pathname)
+	);
+
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	timer.clientBuild = performance.now();
-	await clientBuild(opts, internals, clientInput);
+	await clientBuild(opts, internals, resolvedClientInput);
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
