@@ -1,9 +1,9 @@
 import { partytownSnippet } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import * as fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
-import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import sirv from './sirv.js';
 const resolve = createRequire(import.meta.url).resolve;
@@ -54,11 +54,11 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 			'astro:build:ssr': async ({ manifest }) => {
 				const dirpath = libDirPath({ debugDir: false });
 				const files = await fs.promises.readdir(dirpath);
-				for(const file of files) {
-					if(file === 'debug') continue;
-					manifest.assets.push(`/~partytown/${file}`)
+				for (const file of files) {
+					if (file === 'debug') continue;
+					manifest.assets.push(`/~partytown/${file}`);
 				}
-			}
+			},
 		},
 	};
 }
