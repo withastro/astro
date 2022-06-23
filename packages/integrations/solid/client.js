@@ -2,7 +2,7 @@ import { sharedConfig } from 'solid-js';
 import { hydrate, render, createComponent } from 'solid-js/web';
 
 export default (element) =>
-	(Component, props, childHTML, { client }) => {
+	(Component, props, slotted, { client }) => {
 		// Prepare global object expected by Solid's hydration logic
 		if (!window._$HY) {
 			window._$HY = { events: [], completed: new WeakSet(), r: {} };
@@ -11,26 +11,30 @@ export default (element) =>
 
 		const fn = client === 'only' ? render : hydrate;
 
-		// Perform actual hydration
-		let children;
+		let _slots = {};
+		if (Object.keys(slotted).length > 0) {
+			// hydrating
+			if (sharedConfig.context) {
+				element.querySelectorAll('astro-slot').forEach((slot) => {
+					_slots[slot.getAttribute('name') || 'default'] = slot.cloneNode(true);
+				});
+			} else {
+				for (const [key, value] of Object.entries(slotted)) {
+					_slots[key] = document.createElement('astro-slot');
+					if (key !== 'default') _slots[key].setAttribute('name', key);
+					_slots[key].innerHTML = value;
+				}
+			}
+		}
+
+		const { default: children, ...slots } = _slots;
+
 		fn(
 			() =>
 				createComponent(Component, {
 					...props,
-					get children() {
-						if (childHTML != null) {
-							// hydrating
-							if (sharedConfig.context) {
-								children = element.querySelector('astro-fragment');
-							}
-
-							if (children == null) {
-								children = document.createElement('astro-fragment');
-								children.innerHTML = childHTML;
-							}
-						}
-						return children;
-					},
+					...slots,
+					children
 				}),
 			element
 		);

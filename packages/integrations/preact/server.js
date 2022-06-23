@@ -2,6 +2,8 @@ import { h, Component as BaseComponent } from 'preact';
 import render from 'preact-render-to-string';
 import StaticHtml from './static-html.js';
 
+const slotName = str => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+
 function check(Component, props, children) {
 	if (typeof Component !== 'function') return false;
 
@@ -24,9 +26,16 @@ function check(Component, props, children) {
 	}
 }
 
-function renderToStaticMarkup(Component, props, children) {
+function renderToStaticMarkup(Component, props, { default: children, ...slotted }) {
+	const slots = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		const name = slotName(key);
+		slots[name] = h(StaticHtml, { value, name });
+	}
+	// Note: create newProps to avoid mutating `props` before they are serialized
+	const newProps = { ...props, ...slots }
 	const html = render(
-		h(Component, props, children != null ? h(StaticHtml, { value: children }) : children)
+		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
 	);
 	return { html };
 }

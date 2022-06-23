@@ -888,6 +888,35 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/nested-recursive:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      preact: ^10.7.3
+      react: ^18.1.0
+      react-dom: ^18.1.0
+      solid-js: ^1.4.3
+      svelte: ^3.48.0
+      vue: ^3.2.36
+    dependencies:
+      preact: 10.7.3
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+      solid-js: 1.4.3
+      svelte: 3.48.0
+      vue: 3.2.37
+    devDependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/nested-styles:
     specifiers:
       astro: workspace:*

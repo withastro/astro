@@ -3,7 +3,10 @@ import { render, hydrate } from 'react-dom';
 import StaticHtml from './static-html.js';
 
 export default (element) =>
-	(Component, props, children, { client }) => {
+	(Component, props, { default: children, ...slotted }, { client }) => {
+		for (const [key, value] of Object.entries(slotted)) {
+			props[key] = createElement(StaticHtml, { value, name: key });
+		}
 		const componentEl = createElement(
 			Component,
 			props,

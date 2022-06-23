@@ -11,8 +11,11 @@ function isAlreadyHydrated(element) {
 }
 
 export default (element) =>
-	(Component, props, children, { client }) => {
+	(Component, props, { default: children, ...slotted }, { client }) => {
 		if (!element.hasAttribute('ssr')) return;
+		for (const [key, value] of Object.entries(slotted)) {
+			props[key] = createElement(StaticHtml, { value, name: key });
+		}
 		const componentEl = createElement(
 			Component,
 			props,
