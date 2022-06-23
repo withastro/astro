@@ -11,6 +11,26 @@ function createService(): SSRImageService {
 			height
 		}
 	}
+
+	const getImageMetadata: SSRImageService['getImageMetadata'] = async (pathname) => {
+		try {
+			const image = sharp(pathname);
+			const metadata = await image.metadata();
+
+			if (!metadata || !metadata.width || !metadata.height || !metadata.format) {
+				return undefined;
+			}
+
+			return {
+				width: metadata.width!,
+				height: metadata.height!,
+				format: metadata.format!
+			}
+		} catch (err) {
+			console.error(err);
+			return undefined;
+		}
+	}
 	
 	const serializeImageProps: SSRImageService['serializeImageProps'] = (props) => {
 		const searchParams = new URLSearchParams();
@@ -100,6 +120,7 @@ function createService(): SSRImageService {
 
 	return {
 		getImageAttributes,
+		getImageMetadata,
 		serializeImageProps,
 		parseImageProps,
 		toBuffer
