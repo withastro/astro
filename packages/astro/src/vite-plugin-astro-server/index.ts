@@ -1,15 +1,16 @@
 import type http from 'http';
-import { Readable } from 'stream';
-import stripAnsi from 'strip-ansi';
 import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
+import type { SSROptions } from '../core/render/dev/index';
+
+import { Readable } from 'stream';
+import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { fixViteErrorMessage } from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
-import type { RenderResponse, SSROptions } from '../core/render/dev/index';
 import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
@@ -75,7 +76,12 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 
 	res.writeHead(status, _headers);
 	if (body) {
-		if (body instanceof Readable) {
+		if(Symbol.for('astro.responseBody') in webResponse) {
+			let stream = (webResponse as any)[Symbol.for('astro.responseBody')];
+			for await(const chunk of stream) {
+				res.write(chunk.toString());
+			}
+		} else if (body instanceof Readable) {
 			body.pipe(res);
 			return;
 		} else {
@@ -93,23 +99,10 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 }
 
 async function writeSSRResult(
-	result: RenderResponse,
-	res: http.ServerResponse,
-	statusCode: 200 | 404
+	webResponse: Response,
+	res: http.ServerResponse
 ) {
-	if (result.type === 'response') {
-		const { response } = result;
-		await writeWebResponse(res, response);
-		return;
-	}
-
-	const { html, response: init } = result;
-	const headers = init.headers as Headers;
-
-	headers.set('Content-Type', 'text/html; charset=utf-8');
-	headers.set('Content-Length', Buffer.byteLength(html, 'utf-8').toString());
-
-	return writeWebResponse(res, new Response(html, init));
+	return writeWebResponse(res, webResponse);
 }
 
 async function handle404Response(
@@ -296,7 +289,7 @@ async function handleRequest(
 					routeCache,
 					viteServer,
 				});
-				return await writeSSRResult(result, res, statusCode);
+				return await writeSSRResult(result, res);
 			} else {
 				return handle404Response(origin, config, req, res);
 			}
@@ -326,7 +319,7 @@ async function handleRequest(
 			}
 		} else {
 			const result = await ssr(preloadedComponent, options);
-			return await writeSSRResult(result, res, statusCode);
+			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
