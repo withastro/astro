@@ -71,7 +71,7 @@ Our community prides itself on being _positive_, _helpful_, and _inclusive_. If 
 - To stay inclusive:
 
   - Refer to someone by their expressed name. Don't use your own nicknames for someone (unless you're friends with established trust).
-  - Refer to someone by their expressed pronouns. If this wasn't expressed, use [`they/them`](http://pronoun.is/they/them), which in English can be used to refer to people of any gender.
+  - Refer to someone by their expressed pronouns. If this wasn't expressed, use [`they/them`](http://pronoun.is/they/them), which in English can be used to refer to individuals of any gender.
   - If you sense hesitancy in someone's participation, make it clear that you're happy they're participating.
   - Advocate for someone if you see that they're being dismissed.
 
