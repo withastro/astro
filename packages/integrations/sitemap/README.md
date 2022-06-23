@@ -119,6 +119,27 @@ export default {
 
 The `page` function parameter is the full URL of your rendered page, including your `site` domain. Return `true` to include a page in your sitemap, and `false` to remove it.
 
+### customPages
+
+You may have custom routes to add to your sitemap. To append these to your sitemap, pass an array of valid URLs including the base origin:
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      customPages: ['https://stargazers.biz/careers'],
+    }),
+  ],
+}
+```
+
+💡 You should also use `customPages` to manually list sitemap pages when using an SSR adapter. Currently, we cannot detect your site's pages unless you are building statically. To avoid an empty sitemap, list all pages (including the base origin) with this configuration option!
+
 ### canonicalURL
 
 If present, we use the `site` config option as the base for all sitemap URLs. Use `canonicalURL` to override this.
