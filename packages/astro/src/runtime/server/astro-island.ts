@@ -64,23 +64,24 @@ declare const Astro: {
 					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
 						return;
 					}
-					let innerHTML: string | null = null;
-					let fragment = this.querySelector('astro-fragment');
-					if (fragment == null && this.hasAttribute('tmpl')) {
-						// If there is no child fragment, check to see if there is a template.
-						// This happens if children were passed but the client component did not render any.
-						let template = this.querySelector('template[data-astro-template]');
-						if (template) {
-							innerHTML = template.innerHTML;
-							template.remove();
-						}
-					} else if (fragment) {
-						innerHTML = fragment.innerHTML;
+					const slotted = this.querySelectorAll('astro-slot');
+					const slots: Record<string, string> = {};
+					// Always check to see if there are templates.
+					// This happens if slots were passed but the client component did not render them.
+					const templates = this.querySelectorAll('template[data-astro-template]');
+					for (const template of templates) {
+						if (!template.closest(this.tagName)?.isSameNode(this)) continue;
+						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
+						template.remove();
+					}
+					for (const slot of slotted) {
+						if (!slot.closest(this.tagName)?.isSameNode(this)) continue;
+						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
 					const props = this.hasAttribute('props')
 						? JSON.parse(this.getAttribute('props')!, reviver)
 						: {};
-					this.hydrator(this)(this.Component, props, innerHTML, {
+					this.hydrator(this)(this.Component, props, slots, {
 						client: this.getAttribute('client'),
 					});
 					this.removeAttribute('ssr');

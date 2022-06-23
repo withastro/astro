@@ -1,13 +1,8 @@
-import { test as base, expect } from '@playwright/test';
-import { loadFixture } from './test-utils.js';
+import { expect } from '@playwright/test';
+import { testFactory } from './test-utils.js';
 
-export function prepareTestFactory({ root }) {
-	const test = base.extend({
-		astro: async ({}, use) => {
-			const fixture = await loadFixture({ root });
-			await use(fixture);
-		},
-	});
+export function prepareTestFactory(opts) {
+	const test = testFactory(opts);
 
 	let devServer;
 
