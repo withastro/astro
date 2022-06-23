@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import createSharp from '../dist/sharp.js';
+import createSharp from '../dist/loaders/sharp.js';
 
 describe('Sharp service', async () => {
 	const sharp = createSharp({ routePattern: '/_image' });
