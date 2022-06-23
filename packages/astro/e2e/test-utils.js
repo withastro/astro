@@ -1,4 +1,4 @@
-import { test as testBase } from '@playwright/test'; 
+import { test as testBase } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export function loadFixture(inlineConfig) {
@@ -20,7 +20,7 @@ export function testFactory(inlineConfig) {
 		astro: async ({}, use) => {
 			fixture = await loadFixture(inlineConfig);
 			await use(fixture);
-		}
+		},
 	});
 
 	test.afterEach(() => {
