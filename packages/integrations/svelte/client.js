@@ -11,10 +11,10 @@ export default (target) => {
 		try {
 			new Component({
 				target,
-				props: { 
+				props: {
 					...props,
 					$$slots: slots,
-					$$scope: { ctx: [] }
+					$$scope: { ctx: [] },
 				},
 				hydrate: client !== 'only',
 				$$inline: true,
@@ -24,11 +24,14 @@ export default (target) => {
 };
 
 function createSlotDefinition(key, children) {
-  return [
-    () => ({
+	return [
+		() => ({
 			// mount
 			m(target) {
-				target.insertAdjacentHTML('beforeend', `<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${children}</astro-slot>`)
+				target.insertAdjacentHTML(
+					'beforeend',
+					`<astro-slot${key === 'default' ? '' : ` name="${key}"`}>${children}</astro-slot>`
+				);
 			},
 			// create
 			c: noop,
@@ -37,7 +40,7 @@ function createSlotDefinition(key, children) {
 			// destroy
 			d: noop,
 		}),
-    noop,
-    noop,
-  ]
+		noop,
+		noop,
+	];
 }

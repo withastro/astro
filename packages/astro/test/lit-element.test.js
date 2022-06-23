@@ -73,7 +73,7 @@ describe('LitElement test', function () {
 		expect($('my-element').length).to.equal(1);
 
 		const [defaultSlot, namedSlot] = $('template').siblings().toArray();
-		
+
 		// has default slot content in lightdom
 		expect($(defaultSlot).text()).to.equal('default');
 

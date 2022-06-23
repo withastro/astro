@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import StaticHtml from './static-html.js';
 
-const slotName = str => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 const reactTypeof = Symbol.for('react.element');
 
 function errorIsComingFromPreactComponent(err) {
@@ -65,11 +65,11 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 		slots[name] = React.createElement(StaticHtml, { value, name });
 	}
 	// Note: create newProps to avoid mutating `props` before they are serialized
-	const newProps = { 
+	const newProps = {
 		...props,
 		...slots,
 		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
-	}
+	};
 	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {

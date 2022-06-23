@@ -34,7 +34,7 @@ export default (element) =>
 				createComponent(Component, {
 					...props,
 					...slots,
-					children
+					children,
 				}),
 			element
 		);

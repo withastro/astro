@@ -26,13 +26,13 @@ describe('Slots: Solid', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('#named').text().trim()).to.equal('Fallback / Named');
-	})
-	
+	});
+
 	it('Converts dash-case slot to camelCase', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
-	})
+	});
 
 	describe('For Markdown Pages', () => {
 		it('Renders default slot', async () => {
@@ -45,12 +45,12 @@ describe('Slots: Solid', () => {
 			const html = await fixture.readFile('/markdown/index.html');
 			const $ = cheerio.load(html);
 			expect($('#named').text().trim()).to.equal('Fallback / Named');
-		})
+		});
 
 		it('Converts dash-case slot to camelCase', async () => {
 			const html = await fixture.readFile('/markdown/index.html');
 			const $ = cheerio.load(html);
 			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
-		})
-	})
+		});
+	});
 });
