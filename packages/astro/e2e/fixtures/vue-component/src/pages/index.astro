@@ -1,33 +1,37 @@
 ---
-import Counter from '../components/Counter.vue'
+import Counter from '../components/Counter.vue';
+import VueComponent from '../components/VueComponent.vue';
+
+const someProps = {
+	count: 0,
+};
 ---
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width"
-    />
-    <title>Vue component</title>
-    <style>
-      :global(:root) {
-        font-family: system-ui;
-        padding: 1em;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <Counter id="server-only" start="0">No Client</Counter>
-      <Counter id="client-load" start="0" client:load>Hello, client:load!</Counter>
-      <!-- Test island deduplication, i.e. same UID as the component above. -->
-      <Counter id="client-load-dup" start="0" client:load>Hello, client:load!</Counter>
-      <!-- Test island deduplication account for non-render affecting props. -->
-      <Counter id="client-load-step" start="0" step-size="2" client:load>Hello, client:load!</Counter>
-      <Counter id="client-idle" start="0" client:idle>Hello, client:idle!</Counter>
-      <!-- Test that two client:visibles have unique uids -->
-      <Counter id="client-visible" start="0" client:visible>Hello, client:visible!</Counter>
-      <Counter id="client-media" start="0" client:media="(max-width: 50rem)">Hello, client:media!</Counter>
-    </main>
-  </body>
+
+<html>
+	<head>
+		<!-- Head Stuff -->
+	</head>
+	<body>
+		<Counter id="server-only" {...someProps}>
+			<h1>Hello, server!</h1>
+		</Counter>
+
+		<Counter id="client-idle" {...someProps} client:idle>
+			<h1>Hello, client:idle!</h1>
+		</Counter>
+
+		<Counter id="client-load" {...someProps} client:load>
+			<h1>Hello, client:load!</h1>
+		</Counter>
+
+		<Counter id="client-visible" {...someProps} client:visible>
+			<h1>Hello, client:visible!</h1>
+		</Counter>
+
+		<Counter id="client-media" {...someProps} client:media="(max-width: 50em)">
+			<h1>Hello, client:media!</h1>
+		</Counter>
+
+		<VueComponent id="client-only" client:only="vue" />
+	</body>
 </html>

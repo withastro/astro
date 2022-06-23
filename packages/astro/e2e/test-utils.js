@@ -1,3 +1,4 @@
+import { test as testBase } from '@playwright/test'; 
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export function loadFixture(inlineConfig) {
@@ -10,4 +11,21 @@ export function loadFixture(inlineConfig) {
 		...inlineConfig,
 		root: new URL(inlineConfig.root, import.meta.url).toString(),
 	});
+}
+
+export function testFactory(inlineConfig) {
+	let fixture;
+
+	const test = testBase.extend({
+		astro: async ({}, use) => {
+			fixture = await loadFixture(inlineConfig);
+			await use(fixture);
+		}
+	});
+
+	test.afterEach(() => {
+		fixture.resetAllFiles();
+	});
+
+	return test;
 }
