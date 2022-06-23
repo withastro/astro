@@ -1662,6 +1662,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/static-build-dir:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/static-build-frameworks:
     specifiers:
       '@astrojs/preact': workspace:*
