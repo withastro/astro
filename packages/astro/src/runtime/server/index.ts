@@ -210,13 +210,13 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 
 	const children: Record<string, string> = {};
 	if (slots) {
-		const promises: Promise<void>[] = []
-		for (const [key, value] of Object.entries(slots)) {
-			promises.push(renderSlot(result, value as string).then((output) => {
-				children[key] = output;
-			}))
-		}
-		await Promise.all(promises);
+		await Promise.all(
+			Object.entries(slots).map(([key, value]) =>
+				renderSlot(result, value as string).then((output) => {
+					children[key] = output;
+				})
+			)
+		);
 	}
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
@@ -351,15 +351,25 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	if (html) {
 		if (Object.keys(children).length > 0) {
 			for (const key of Object.keys(children)) {
-					if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
-						unrenderedSlots.push(key);
-					}
+				if (!html.includes(key === 'default' ? `<astro-slot>` : `<astro-slot name="${key}">`)) {
+					unrenderedSlots.push(key);
+				}
 			}
 		}
 	} else {
 		unrenderedSlots = Object.keys(children);
 	}
-	const template = unrenderedSlots.length > 0 ? unrenderedSlots.map((key) => `<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${children[key]}</template>`).join('') : '';
+	const template =
+		unrenderedSlots.length > 0
+			? unrenderedSlots
+					.map(
+						(key) =>
+							`<template data-astro-template${key !== 'default' ? `="${key}"` : ''}>${
+								children[key]
+							}</template>`
+					)
+					.join('')
+			: '';
 
 	island.children = `${html ?? ''}${template}`;
 
