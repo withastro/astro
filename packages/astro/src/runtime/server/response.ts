@@ -1,10 +1,10 @@
 
-const isNodeJS = typeof process === 'object' && Object.prototype.toString.call(process);
+const isNodeJS = typeof process === 'object' && Object.prototype.toString.call(process) === '[object process]';
 
-let RuntimeResponse: typeof Response | undefined;
+let StreamingCompatibleResponse: typeof Response | undefined;
 
 function createResponseClass() {
-	RuntimeResponse = class extends Response {
+	StreamingCompatibleResponse = class extends Response {
 		#isStream: boolean;
 		#body: any;
 		constructor(body?: BodyInit | null, init?: ResponseInit) {
@@ -20,33 +20,33 @@ function createResponseClass() {
 	
 		async text(): Promise<string> {
 				if(this.#isStream && isNodeJS) {
-					let body = this.#body as ReadableStream<string>;
+					let decoder = new TextDecoder();
+					let body = this.#body as ReadableStream<Uint8Array>;
 					let reader = body.getReader();
-					let text = '';
+					let buffer: number[] = [];
 					while(true) {
 						let r = await reader.read();
 						if(r.value) {
-							text += r.value.toString();
+							buffer.push(...r.value);
 						}
 						if(r.done) {
 							break;
 						}
 					}
-					return text;
+					return decoder.decode(Uint8Array.from(buffer));
 				}
 				return super.text();
 		}
 	
 		async arrayBuffer(): Promise<ArrayBuffer> {
 				if(this.#isStream && isNodeJS) {
-					let body = this.#body as ReadableStream<string>;
+					let body = this.#body as ReadableStream<Uint8Array>;
 					let reader = body.getReader();
-					let encoder = new TextEncoder();
 					let chunks: number[] = [];
 					while(true) {
 						let r = await reader.read();
 						if(r.value) {
-							chunks.push(...encoder.encode(r.value));
+							chunks.push(...r.value);
 						}
 						if(r.done) {
 							break;
@@ -58,12 +58,14 @@ function createResponseClass() {
 		}
 	}
 	
-	return RuntimeResponse;
+	return StreamingCompatibleResponse;
 }
 
-export function createResponse(body?: BodyInit | null, init?: ResponseInit) {
-	if(typeof RuntimeResponse === 'undefined') {
+type CreateResponseFn = (body?: BodyInit | null, init?: ResponseInit) => Response;
+
+export const createResponse: CreateResponseFn = isNodeJS ? (body, init) => {
+	if(typeof StreamingCompatibleResponse === 'undefined') {
 		return new (createResponseClass())(body, init);
 	}
-	return new RuntimeResponse(body, init);
-}
+	return new StreamingCompatibleResponse(body, init);
+} : (body, init) => new Response(body, init);

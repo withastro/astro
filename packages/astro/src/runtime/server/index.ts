@@ -623,6 +623,8 @@ export async function renderToString(
 	return html;
 }
 
+const encoder = new TextEncoder();
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
@@ -642,10 +644,10 @@ export async function renderPage(
 							let html = chunk.toString();
 							if(i === 0) {
 								if (!/<!doctype html/i.test(html)) {
-									controller.enqueue('<!DOCTYPE html>\n');
+									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 								}
 							}
-							controller.enqueue(html);
+							controller.enqueue(encoder.encode(html));
 							i++;
 						}
 						controller.close();
