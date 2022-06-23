@@ -611,6 +611,7 @@ export async function renderToString(
 	children: any
 ): Promise<string> {
 	const Component = await componentFactory(result, props, children);
+
 	if (!isAstroComponent(Component)) {
 		const response: Response = Component;
 		throw response;
@@ -631,42 +632,34 @@ export async function renderPage(
 	props: any,
 	children: any
 ): Promise<Response> {
-	try {
-		const factoryReturnValue = await componentFactory(result, props, children);
+	const factoryReturnValue = await componentFactory(result, props, children);
 
-		if (isAstroComponent(factoryReturnValue)) {
-			let iterable = renderAstroComponent(factoryReturnValue);
-			let stream = new ReadableStream({
-				start(controller) {
-					async function read() {
-						let i = 0;
-						for await(const chunk of iterable) {
-							let html = chunk.toString();
-							if(i === 0) {
-								if (!/<!doctype html/i.test(html)) {
-									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
-								}
+	if (isAstroComponent(factoryReturnValue)) {
+		let iterable = renderAstroComponent(factoryReturnValue);
+		let stream = new ReadableStream({
+			start(controller) {
+				async function read() {
+					let i = 0;
+					for await(const chunk of iterable) {
+						let html = chunk.toString();
+						if(i === 0) {
+							if (!/<!doctype html/i.test(html)) {
+								controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 							}
-							controller.enqueue(encoder.encode(html));
-							i++;
 						}
-						controller.close();
+						controller.enqueue(encoder.encode(html));
+						i++;
 					}
-					read();
+					controller.close();
 				}
-			});
-			let init = result.response;
-			let response = createResponse(stream, init);
-			return response;
-		} else {
-			return factoryReturnValue;
-		}
-	} catch (err) {
-		if (err instanceof Response) {
-			return err;
-		} else {
-			throw err;
-		}
+				read();
+			}
+		});
+		let init = result.response;
+		let response = createResponse(stream, init);
+		return response;
+	} else {
+		return factoryReturnValue;
 	}
 }
 

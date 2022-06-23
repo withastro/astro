@@ -24,9 +24,4 @@ describe('Returning responses', () => {
 		let response = await fixture.fetch('/not-found');
 		expect(response.status).to.equal(404);
 	});
-
-	it('Works from a component', async () => {
-		let response = await fixture.fetch('/not-found-component');
-		expect(response.status).to.equal(404);
-	});
 });
