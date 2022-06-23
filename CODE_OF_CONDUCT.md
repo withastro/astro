@@ -31,7 +31,7 @@ Examples of unacceptable behavior by participants include:
 - Other conduct which could reasonably be considered inappropriate in a
   professional setting
 
-### Guide to Maintaining these Standards
+### Guide to Maintaining These Standards
 
 When interacting in our community, strive to maintain a friendly, empathetic tone. This includes, but is not limited to, interactions on Discord, GitHub, and Twitter.
 
