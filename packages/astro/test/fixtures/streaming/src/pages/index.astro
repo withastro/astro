@@ -1,0 +1,28 @@
+---
+import Header from '../components/Header.astro';
+import { wait } from '../wait';
+
+async function * list(callback: (num: number) => any) {
+	const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+	for(const num of nums) {
+		await wait(20);
+		yield callback(num);
+	}
+}
+---
+
+<html>
+<head><title>Testing</title></head>
+<body>
+<h1>Title</h1>
+<section>
+	<Header />
+</section>
+
+<ul>
+	{list(num => (
+		<li>Number {num}</li>
+	))}
+</ul>
+</body>
+</html>

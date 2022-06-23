@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { HtmlTagDescriptor, ViteDevServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -17,7 +17,6 @@ import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
-import { injectTags } from './html.js';
 import { resolveClientDevPath } from './resolve.js';
 
 export interface SSROptions {
@@ -44,10 +43,6 @@ export interface SSROptions {
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
-
-export type RenderResponse =
-	| { type: 'html'; html: string; response: ResponseInit }
-	| { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -99,7 +94,7 @@ export async function render(
 	renderers: SSRLoadedRenderer[],
 	mod: ComponentInstance,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const {
 		astroConfig,
 		filePath,
@@ -167,7 +162,7 @@ export async function render(
 		});
 	});
 
-	let content = await coreRender({
+	let response = await coreRender({
 		links,
 		styles,
 		logging,
@@ -191,32 +186,13 @@ export async function render(
 		ssr: isBuildingToSSR(astroConfig),
 	});
 
-	if (route?.type === 'endpoint' || content.type === 'response') {
-		return content;
-	}
-
-	// inject tags
-	const tags: HtmlTagDescriptor[] = [];
-
-	// add injected tags
-	let html = injectTags(content.html, tags);
-
-	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + content;
-	}
-
-	return {
-		type: 'html',
-		html,
-		response: content.response,
-	};
+	return response;
 }
 
 export async function ssr(
 	preloadedComponent: ComponentPreload,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const [renderers, mod] = preloadedComponent;
 	return await render(renderers, mod, ssrOpts); // NOTE: without "await", errors won’t get caught below
 }
