@@ -125,9 +125,14 @@ export function createComponent(cb: AstroComponentFactory) {
 	return cb;
 }
 
-export async function renderSlot(_result: any, slotted: string, fallback?: any) {
+export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {
 	if (slotted) {
-		return _render(slotted);
+		let iterator = _render(slotted);
+		let content = '';
+		for await(const chunk of iterator) {
+			content += chunk;
+		}
+		return markHTMLString(content);
 	}
 	return fallback;
 }
