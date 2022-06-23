@@ -1,14 +1,13 @@
 <template>
-  <pre>{{ value }}</pre>
-  <my-button>Click Me</my-button>
+  <div :id="id">Framework client:only component</div>
 </template>
 
 <script>
 
 export default {
   props: {
-    value: {
-      type: Number,
+    id: {
+      type: String,
       required: true
     }
   }
