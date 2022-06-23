@@ -1,11 +1,10 @@
+import path from 'path';
 import { expect } from 'chai';
-import createSharp from '../dist/loaders/sharp.js';
+import sharp from '../dist/loaders/sharp.js';
 
-describe('Sharp service', async () => {
-	const sharp = createSharp({ routePattern: '/_image' });
-
-	describe('toImageSrc', async () => {
-		const src = '/assets/hero/bg.png';
+describe('Sharp service', () => {
+	describe('serializeImageProps', () => {
+		const src = '/assets/image.png';
 
 		[
 			['only requires src', { src }],
@@ -18,19 +17,13 @@ describe('Sharp service', async () => {
 			['aspect ratio float', { src, aspectRatio: 1.7 }]
 		].forEach(([description, props]) => {
 			it(description, async () => {
-				const result = await sharp.toImageSrc(props);
+				const { searchParams } = await sharp.serializeImageProps(props);
 
-				const [route, search] = result.split('?');
-				
-				expect(route).to.equal('/_image');
-
-				const params = new URLSearchParams(search);
-
-				function verifyProp(expected, searchParam) {
+				function verifyProp(expected, search) {
 					if (expected) {
-						expect(params.get(searchParam)).to.equal(expected.toString());
+						expect(searchParams.get(search)).to.equal(expected.toString());
 					} else {
-						expect(params.has(search)).to.be.false;
+						expect(searchParams.has(search)).to.be.false;
 					}
 				}
 
@@ -39,12 +32,12 @@ describe('Sharp service', async () => {
 				verifyProp(props.format, 'f');
 				verifyProp(props.width, 'w');
 				verifyProp(props.height, 'h');
-				verifyProp(props.ratio, 'ratio');
+				verifyProp(props.aspectRatio, 'ratio');
 			});
 		});
 	});
 
-	describe('parseImageSrc', async () => {
+	describe('parseImageProps', async () => {
 		const src = '/assets/image.png';
 		const href = encodeURIComponent(src);
 
@@ -59,7 +52,8 @@ describe('Sharp service', async () => {
 			['aspect ratio float', `/_image?ratio=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
 		].forEach(([description, url, expected]) => {
 			it(description, async () => {
-				const props = sharp.parseImageSrc(url);
+				const props = sharp.parseImageProps(url);
+
 				expect(props).to.deep.equal(expected);
 			});
 		});

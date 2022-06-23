@@ -70,6 +70,10 @@ function createService(): SSRImageService {
 		}
 	
 		let props: ImageProps = { src: searchParams.get('href')! };
+
+		if (searchParams.has('q')) {
+			props.quality = parseInt(searchParams.get('q')!);
+		}
 	
 		if (searchParams.has('f')) {
 			const format = searchParams.get('f')!;
