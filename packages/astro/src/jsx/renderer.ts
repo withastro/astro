@@ -1,6 +1,5 @@
 const renderer = {
 	name: 'astro:jsx',
-	clientEntrypoint: 'astro/jsx/client.js',
 	serverEntrypoint: 'astro/jsx/server.js',
 	jsxImportSource: 'astro',
 	jsxTransformOptions: async () => {
