@@ -10,13 +10,13 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.2.0",
-    "@astrojs/partytown": "^0.1.4",
+    "@astrojs/partytown": "^0.1.5",
     "@astrojs/react": "^0.1.3",
     "@astrojs/sitemap": "^0.2.1",
     "@astrojs/solid-js": "0.1.4",
     "@astrojs/tailwind": "^0.2.1",
     "@astrojs/turbolinks": "^0.1.3",
-    "astro": "^1.0.0-beta.52",
+    "astro": "^1.0.0-beta.53",
     "solid-js": "^1.4.3"
   },
   "dependencies": {
