@@ -12,7 +12,7 @@ interface AstroVNode {
 const toSlotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
 export function isVNode(vnode: any): vnode is AstroVNode {
-	return typeof vnode === 'object' && vnode[AstroJSX];
+	return vnode && typeof vnode === 'object' && vnode[AstroJSX];
 }
 
 export function transformSlots(vnode: AstroVNode) {
