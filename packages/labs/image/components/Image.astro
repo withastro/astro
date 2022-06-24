@@ -20,19 +20,71 @@ export interface RemoteImageProps {
 export type Props = LocalImageProps | RemoteImageProps;
 
 function isLocalImage(props: Props): props is LocalImageProps {
+	// vite-plugin-astro-image resolves ESM imported images
+	// to a metadata object
 	return typeof props.src !== 'string';
+}
+
+function resolveProps(props: ImageProps): ImageProps {
+	if (isLocalImage(props)) {
+		const { src, ...metadata } = props.src;
+		
+		return {
+			...metadata, // default to metadata from vite-plugin-astro-image
+			...props, // allow users to override metadata props
+			src // return the resolved src from the metadata object
+		}
+	}
+
+	return props;
+}
+
+function calculateSize(props: ImageProps): ImageProps {
+	// keep width & height as provided
+	if (props.width && props.height) {
+		return props;
+	}
+
+	if (!props.width && !props.height) {
+		throw new Error(`"width" and "height" cannot both be undefined`);
+	}
+
+	if (!props.aspectRatio) {
+		throw new Error(`"aspectRatio" must be included if only "${props.width ? "width": "height"}" is provided`)
+	}
+
+	let aspectRatio: number;
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof props.aspectRatio === 'number') {
+		aspectRatio = props.aspectRatio;
+	} else {
+		const [width, height] = props.aspectRatio.split(':');
+		aspectRatio = parseInt(width) / parseInt(height);
+	}
+
+	if (props.width) {
+	// only width was provided, calculate height
+		return {
+			...props,
+			width: props.width,
+			height: props.width / aspectRatio
+		};
+	} else if (props.height) {
+	// only height was provided, calculate width
+		return {
+			...props,
+		width: props.height * aspectRatio,
+		height: props.height
+		}
+	}
+
+	return props;
 }
 
 const props = Astro.props as Props;
 
-// TODO: handle cases where aspect ratio needs to be recalculated
-const imageProps: ImageProps = isLocalImage(props)
-	? {
-		...props.src,
-		...props,
-		src: props.src.src 
-	}
-	: props;
+const imageProps = calculateSize(resolveProps(props));
 
 const attrs = await getImage(loader, imageProps);
 ---
