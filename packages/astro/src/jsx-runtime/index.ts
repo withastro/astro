@@ -5,7 +5,7 @@ const Empty = Symbol('empty');
 
 interface AstroVNode {
 	[AstroJSX]: boolean;
-	type: string|((...args: any) => any)|typeof Fragment;
+	type: string | ((...args: any) => any) | typeof Fragment;
 	props: Record<string, any>;
 }
 
@@ -19,24 +19,26 @@ export function transformSlots(vnode: AstroVNode) {
 	if (typeof vnode.type === 'string') return vnode;
 	if (!Array.isArray(vnode.props.children)) return;
 	const slots: Record<string, any> = {};
-	vnode.props.children = vnode.props.children.map(child => {
-		if (!isVNode(child)) return child;
-		if (!('slot' in child.props)) return child;
-		const name = toSlotName(child.props.slot)
-		if (Array.isArray(slots[name])) {
-			slots[name].push(child);
-		} else {
-			slots[name] = [child];
-		}
-		delete child.props.slot;
-		return Empty;
-	}).filter(v => v !== Empty);
+	vnode.props.children = vnode.props.children
+		.map((child) => {
+			if (!isVNode(child)) return child;
+			if (!('slot' in child.props)) return child;
+			const name = toSlotName(child.props.slot);
+			if (Array.isArray(slots[name])) {
+				slots[name].push(child);
+			} else {
+				slots[name] = [child];
+			}
+			delete child.props.slot;
+			return Empty;
+		})
+		.filter((v) => v !== Empty);
 	Object.assign(vnode.props, slots);
 }
 
 function markRawChildren(child: any): any {
 	if (typeof child === 'string') return markHTMLString(child);
-	if (Array.isArray(child)) return child.map(c => markRawChildren(c));
+	if (Array.isArray(child)) return child.map((c) => markRawChildren(c));
 	return child;
 }
 
@@ -57,7 +59,7 @@ function transformSetDirectives(vnode: AstroVNode) {
 }
 
 function createVNode(type: any, props: Record<string, any>) {
- 	const vnode: AstroVNode = {
+	const vnode: AstroVNode = {
 		[AstroJSX]: true,
 		type,
 		props: props ?? {},
@@ -67,10 +69,4 @@ function createVNode(type: any, props: Record<string, any>) {
 	return vnode;
 }
 
-export {
-	AstroJSX,
-	createVNode as jsx,
-	createVNode as jsxs,
-	createVNode as jsxDEV,
-	Fragment
-}
+export { AstroJSX, createVNode as jsx, createVNode as jsxs, createVNode as jsxDEV, Fragment };

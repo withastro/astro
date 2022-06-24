@@ -22,7 +22,12 @@ import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
-export { markHTMLString, markHTMLString as unescapeHTML, HTMLString, escapeHTML } from './escape.js';
+export {
+	escapeHTML,
+	HTMLString,
+	markHTMLString,
+	markHTMLString as unescapeHTML,
+} from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 
@@ -299,7 +304,13 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
+				({ html } = await renderer.ssr.renderToStaticMarkup.call(
+					{ result },
+					Component,
+					props,
+					children,
+					metadata
+				));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -318,12 +329,20 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
+			({ html } = await renderer.ssr.renderToStaticMarkup.call(
+				{ result },
+				Component,
+				props,
+				children,
+				metadata
+			));
 		}
 	}
 
 	if (renderer && !renderer.clientEntrypoint && metadata.hydrate) {
-		throw new Error(`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`);
+		throw new Error(
+			`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`
+		);
 	}
 
 	// This is a custom element without a renderer. Because of that, render it
