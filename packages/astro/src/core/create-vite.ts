@@ -24,6 +24,13 @@ interface CreateViteOptions {
 	mode: 'dev' | 'build';
 }
 
+const ALWAYS_NOEXTERNAL = new Set([
+	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	'astro',
+	// Vite fails on nested `.astro` imports without bundling
+	'astro/components',
+]);
+
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: ViteConfigWithSSR,
@@ -97,7 +104,7 @@ export async function createVite(
 			conditions: ['astro'],
 		},
 		ssr: {
-			noExternal: ['astro', 'astro/components'],
+			noExternal: [...ALWAYS_NOEXTERNAL],
 		}
 	};
 
