@@ -352,7 +352,7 @@ export async function validateConfig(
 	) {
 		// Enable default JSX integration
 		const { default: jsxRenderer } = await import('../jsx/renderer.js');
-		(result._ctx.renderers as any[]).push(jsxRenderer);
+		(result._ctx.renderers as any[]).splice(0, 0, jsxRenderer);
 	}
 
 	// Final-Pass Validation (perform checks that require the full config object)
