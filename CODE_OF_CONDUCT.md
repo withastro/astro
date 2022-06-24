@@ -66,7 +66,7 @@ Our community prides itself on being _positive_, _helpful_, and _inclusive_. If 
 
   - Seek to understand the the other person's desired outcomes. Are they looking for assistance? Just wanting to vent?
   - When explaining something, first establish the knowledge level of the person you're responding to. Match your explanation to that level.
-  - Ask clarifying questions. If you're not sure what the person meant, ask them if your understanding is correct. If you're not sure what they already know, ask them if they're aware of a concept.
+  - Ask clarifying questions. If you're not sure what the person meant, ask them if your understanding is correct. If you're not sure what they already know, ask them if they're familiar with a concept.
 
 - To stay inclusive:
 
