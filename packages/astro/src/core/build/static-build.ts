@@ -151,9 +151,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		base: astroConfig.base,
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
-		define: {
-			'import.meta.env.SSR': JSON.stringify(true),
-		},
 	};
 
 	await runHookBuildSetup({
