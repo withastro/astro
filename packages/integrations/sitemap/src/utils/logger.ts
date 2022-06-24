@@ -23,7 +23,7 @@ export class Logger implements ILogger {
 		this.packageName = packageName;
 	}
 
-	private log(msg: string, prefix: string = '') {
+	private log(msg: string, prefix = '') {
 		// eslint-disable-next-line no-console
 		console.log(`%s${this.packageName}:%s ${msg}\n`, prefix, prefix ? this.colors.reset : '');
 	}

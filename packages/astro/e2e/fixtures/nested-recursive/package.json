@@ -1,0 +1,24 @@
+{
+  "name": "@e2e/nested-recursive",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*"
+  },
+  "dependencies": {
+    "preact": "^10.7.3",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "solid-js": "^1.4.3",
+    "svelte": "^3.48.0",
+    "vue": "^3.2.36"
+  },
+  "scripts": {
+    "dev": "astro dev"
+  }
+}

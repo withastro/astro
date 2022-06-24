@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderComponent, renderHead, renderPage } from '../../runtime/server/index.js';
+import { renderComponent, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -161,12 +161,6 @@ export async function render(
 	}
 
 	let html = page.html;
-	// handle final head injection if it hasn't happened already
-	if (html.indexOf('<!--astro:head:injected-->') == -1) {
-		html = (await renderHead(result)) + html;
-	}
-	// cleanup internal state flags
-	html = html.replace('<!--astro:head:injected-->', '');
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!/<!doctype html/i.test(html)) {

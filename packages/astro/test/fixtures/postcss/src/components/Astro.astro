@@ -1,9 +1,11 @@
 <style>
 .astro-component {
-  appearance: none;
+  &.nested {
+		color: red;
+	}
 }
 </style>
 
-<div class="astro-component">
-  Astro
+<div class="astro-component nested">
+	Astro
 </div>

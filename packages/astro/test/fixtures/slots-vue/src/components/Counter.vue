@@ -8,6 +8,8 @@
     <slot>
       <h1>Fallback</h1>
     </slot>
+		<slot name="named" />
+		<slot name="dash-case"></slot>
   </div>
 </template>
 
