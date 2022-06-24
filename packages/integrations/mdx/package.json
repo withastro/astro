@@ -30,7 +30,6 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/jsx": "^0.0.1",
     "@mdx-js/rollup": "^2.1.1"
   },
   "devDependencies": {

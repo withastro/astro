@@ -1,16 +1,14 @@
 import type { AstroIntegration } from 'astro';
-import jsx from '@astrojs/jsx';
 import mdx from '@mdx-js/rollup';
 
 export default function (): AstroIntegration {
-	return [
-		{
+	return {
 			name: '@astrojs/mdx',
 			hooks: {
 				'astro:config:setup': ({ updateConfig, addPageExtensions }) => {
 					const mdxPlugin = mdx({
 						jsx: true,
-						'jsxImportSource': '@astrojs/jsx'
+						'jsxImportSource': 'astro'
 					})
 
 					addPageExtensions(['.mdx']);
@@ -26,7 +24,7 @@ export default function (): AstroIntegration {
 									transform(code, id) {
 										if (!id.endsWith('.mdx')) return;
 										return `${code}\nif (import.meta.hot) {
-											import.meta.hot.accept();
+											import.meta.hot.decline();
 										}`
 									}
 								}
@@ -35,7 +33,5 @@ export default function (): AstroIntegration {
 					})
 				}
 			}
-		},
-		jsx(),
-	];
+		}
 }
