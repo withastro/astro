@@ -1653,6 +1653,14 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
+  packages/astro/test/fixtures/ssr-env:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/test/fixtures/ssr-markdown:
     specifiers:
       astro: workspace:*
