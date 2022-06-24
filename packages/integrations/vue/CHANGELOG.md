@@ -1,5 +1,13 @@
 # @astrojs/vue
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => framework components.
+
+  Inside your components, use the built-in `slot` API as you normally would.
+
 ## 0.1.5
 
 ### Patch Changes

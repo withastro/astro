@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3689](https://github.com/withastro/astro/pull/3689) [`3f8ee70e`](https://github.com/withastro/astro/commit/3f8ee70e2bc5b49c65a0444d9606232dadbc2fca) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add warning log for sitemap + SSR adapter, with suggestion to use customPages configuration option
+
 ## 0.2.1
 
 ### Patch Changes

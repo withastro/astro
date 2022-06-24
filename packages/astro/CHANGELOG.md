@@ -1,5 +1,23 @@
 # astro
 
+## 1.0.0-beta.54
+
+### Patch Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add renderer support for passing named slots to framework components.
+
+  **BREAKING**: integrations using the `addRenderer()` API are now passed all named slots via `Record<string, string>` rather than `string`. Previously only the default slot was passed.
+
+* [#3649](https://github.com/withastro/astro/pull/3649) [`446f8c4f`](https://github.com/withastro/astro/commit/446f8c4f13de04324697e958af027ac8943a039b) Thanks [@dc7290](https://github.com/dc7290)! - Added test for dir parameter in astro:build:done
+
+- [#3679](https://github.com/withastro/astro/pull/3679) [`fa7ed3f3`](https://github.com/withastro/astro/commit/fa7ed3f3a9ce89c1c46e637b584271a6e199d211) Thanks [@matthewp](https://github.com/matthewp)! - Moves head injection to happen during rendering
+
+  This change makes it so that head injection; to insert component stylesheets, hoisted scripts, for example, to happen during rendering than as a post-rendering step.
+
+  This is to enable streaming. This change will only be noticeable if you are rendering your `<head>` element inside of a framework component. If that is the case then the head items will be injected before the first non-head element in an Astro file instead.
+
+  In the future we may offer a `<Astro.Head>` component as a way to control where these scripts/styles are inserted.
+
 ## 1.0.0-beta.53
 
 ### Patch Changes
