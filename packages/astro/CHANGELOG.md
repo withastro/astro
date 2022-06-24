@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.56
+
+### Patch Changes
+
+- [#3705](https://github.com/withastro/astro/pull/3705) [`b5e3403f`](https://github.com/withastro/astro/commit/b5e3403fa151710be4837f6ad265d836adb08025) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build some times breaking in large sites
+
+* [#3702](https://github.com/withastro/astro/pull/3702) [`b11e3b38`](https://github.com/withastro/astro/commit/b11e3b38ebb59ceec3479cbf580276d3b3bd657c) Thanks [@matthewp](https://github.com/matthewp)! - Ensure import.meta.env.SSR is true in SSR mode
+
 ## 1.0.0-beta.55
 
 ### Patch Changes

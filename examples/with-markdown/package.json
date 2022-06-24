@@ -14,7 +14,7 @@
     "@astrojs/react": "^0.2.0",
     "@astrojs/svelte": "^0.2.0",
     "@astrojs/vue": "^0.2.0",
-    "astro": "^1.0.0-beta.55"
+    "astro": "^1.0.0-beta.56"
   },
   "dependencies": {
     "preact": "^10.7.3",
