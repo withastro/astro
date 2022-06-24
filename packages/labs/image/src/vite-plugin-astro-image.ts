@@ -53,7 +53,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 			const loader = await importLoader(this);
 
-			const meta = loader.getImageMetadata(id);
+			const meta = loader.getImageMetadata ? loader.getImageMetadata(id) : { };
 
 			const src = resolvedConfig.isProduction
 				?  id.replace(config.srcDir.pathname, '/')

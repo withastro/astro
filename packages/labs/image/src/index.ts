@@ -20,19 +20,28 @@ export async function getImage(loader: SSRImageService, props: ImageProps): Prom
 	(globalThis as any).loader = loader;
 
   const attributes = await loader.getImageAttributes(props);
-	const { searchParams } = loader.serializeImageProps(props);
 
-	if (globalThis && (globalThis as any).addStaticImage) {
-		(globalThis as any)?.addStaticImage(props);
-	}
-	const src = globalThis && (globalThis as any).filenameFormat
-		? (globalThis as any).filenameFormat(props, searchParams)
-		: `${ROUTE_PATTERN}?${searchParams.toString()}`;
+	// For SSR services, build URLs for the injected route
+	if (typeof loader.transform === 'function') {
+		const { searchParams } = loader.serializeImageProps(props);
 
-	return {
-		...attributes,
-		src
+		// cache all images rendered to HTML
+		if (globalThis && (globalThis as any).addStaticImage) {
+			(globalThis as any)?.addStaticImage(props);
+		}
+
+		const src = globalThis && (globalThis as any).filenameFormat
+			? (globalThis as any).filenameFormat(props, searchParams)
+			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
+
+			return {
+				...attributes,
+				src
+			}
 	}
+
+	// For hosted services, return the <img /> attributes as-is
+	return attributes;
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
@@ -59,14 +68,19 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		hooks: {
 			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
+
+				// Always treat `astro dev` as SSR mode, even without an adapter
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
 
 				updateConfig({ vite: getViteConfiguration() });
 
+				// Used to cache all images rendered to HTML
+				// Added to globalThis to share the same map in Node and Vite
 				(globalThis as any).addStaticImage = (props: ImageProps) => {
 					staticImages.set(propsToFilename(props), props);
 				}
 
+				// TODO: Add support for custom, user-provided filename format functions
 				(globalThis as any).filenameFormat = (props: ImageProps, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
 						return path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(propsToFilename(props)));
@@ -96,6 +110,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 						console.warn(`"${props.src}" image not found`);
 						continue;
 					}
+					
 					const { data } = await loader.transform(inputBuffer, props);
 
 					// output to dist folder

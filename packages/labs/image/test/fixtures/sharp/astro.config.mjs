@@ -5,8 +5,6 @@ import node from '@astrojs/node';
 // https://astro.build/config
 export default defineConfig({
 	site: 'http://localhost:3000',
-	integrations: [image({
-		loaderEntryPoint: '@cloudinary/entry.js'
-	})],
+	integrations: [image()],
 	adapter: node()
 });

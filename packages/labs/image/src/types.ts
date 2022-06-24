@@ -89,6 +89,9 @@ export interface HostedImageService<T extends ImageProps = ImageProps> {
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
 	getImageAttributes(props: T): Promise<ImageAttributes>;
+}
+
+export interface SSRImageService<T extends ImageProps = ImageProps> extends HostedImageService<T> {
 	/**
 	 * Gets image metadata for a local image file, if found.
 	 * 
@@ -96,9 +99,6 @@ export interface HostedImageService<T extends ImageProps = ImageProps> {
 	 * @returns @type {ImageMetadata} for the original image file, if found.
 	 */
 	getImageMetadata(pathname: string): Promise<ImageMetadata | undefined>;
-}
-
-export interface SSRImageService<T extends ImageProps = ImageProps> extends HostedImageService<T> {
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
