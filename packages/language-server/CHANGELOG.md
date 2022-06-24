@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.19.4
+
+### Patch Changes
+
+- 1033856: Enable support for TypeScript inside hoisted script tags
+
 ## 0.19.3
 
 ### Patch Changes
