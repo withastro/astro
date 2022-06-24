@@ -3,9 +3,9 @@ const renderer = {
 	serverEntrypoint: 'astro/jsx/server.js',
 	jsxImportSource: 'astro',
 	jsxTransformOptions: async () => {
-		// @ts-ignore
 		const {
 			default: { default: jsx },
+			// @ts-ignore
 		} = await import('@babel/plugin-transform-react-jsx');
 		const { default: astroJSX } = await import('./babel.js');
 		return {
