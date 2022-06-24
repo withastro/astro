@@ -60,7 +60,7 @@ Our community prides itself on being _positive_, _helpful_, and _inclusive_. If 
   - Aim to learn: even complaints can be valuable feedback.
   - Look for alternate interpretations of your message before sending, and consider clarifying your intent if you're unsure how your words might come across (using exclamation points and emojis to convey friendliness is generally 👍 !)
   - During conflict: maintain respect, avoid aggression, and avoid making it personal ("you").
-  - Set boundaries. Feel free to step away from a conversation when you feel frustrated.
+  - Set boundaries. Feel free to step away from a conversation when you feel frustrated. Reach out to community leaders who can step in and de-escalate the situation. We are in this together!
 
 - To stay helpful:
 
