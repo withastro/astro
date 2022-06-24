@@ -43,7 +43,7 @@ _Question:_ Hey, I'm beginning with Astro. I tried to use `document` in my Astro
 
 | Answer 1 | Answer 2 |
 | -- | -- |
-| You can't manipulate the DOM from an Astro file. Astro is a static site builder. | Hey, welcome to the community! <br/> Astro pages and components run on the server. Because of that, you won't have access to everything you're used to when writing JavaScript for the web. You're on the right track, though - you can access `document` from a `<script>` tag in your Astro file. <br/> Check out the docs here, and let me know if you need any more help! https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts |
+| You can't manipulate the DOM from an Astro file 😂 Astro is a static site builder. | Hey, welcome to the community! <br/> Astro pages and components run on the server. Because of that, you won't have access to everything you're used to when writing JavaScript for the web. You're on the right track, though - you can access `document` from a `<script>` tag in your Astro file. <br/> Check out the docs here, and let me know if you need any more help! https://docs.astro.build/en/core-concepts/astro-components/#client-side-scripts |
 
 Answer 2 took more effort, but it made a significant difference. This response:
 
