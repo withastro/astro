@@ -43,7 +43,7 @@ export default defineConfig({
 
 You can deploy to different targes:
 
-- `edge`: SSR inside a [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
+- `edge`: SSR inside an [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `static`: generates a static website following Vercel's output formats, redirects, etc.
 
