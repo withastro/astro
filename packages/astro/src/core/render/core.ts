@@ -83,9 +83,7 @@ export interface RenderOptions {
 	request: Request;
 }
 
-export async function render(
-	opts: RenderOptions
-): Promise<Response> {
+export async function render(opts: RenderOptions): Promise<Response> {
 	const {
 		links,
 		styles,

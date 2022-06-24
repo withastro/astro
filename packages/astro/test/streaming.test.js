@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import testAdapter from './test-adapter.js';
 import * as cheerio from 'cheerio';
 
-
 describe('Streaming', () => {
 	if (isWindows) return;
 
@@ -35,7 +34,7 @@ describe('Streaming', () => {
 		it('Body is chunked', async () => {
 			let res = await fixture.fetch('/');
 			let chunks = [];
-			for await(const bytes of res.body) {
+			for await (const bytes of res.body) {
 				let chunk = bytes.toString('utf-8');
 				chunks.push(chunk);
 			}
@@ -64,7 +63,7 @@ describe('Streaming', () => {
 			const response = await app.render(request);
 			let chunks = [];
 			let decoder = new TextDecoder();
-			for await(const bytes of response.body) {
+			for await (const bytes of response.body) {
 				let chunk = decoder.decode(bytes);
 				chunks.push(chunk);
 			}

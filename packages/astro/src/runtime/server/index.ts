@@ -41,19 +41,19 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // INVESTIGATE: Can we have more specific types both for the argument and output?
 // If these are intentional, add comments that these are intention and why.
 // Or maybe type UserValue = any; ?
-async function * _render(child: any): AsyncIterable<any> {
+async function* _render(child: any): AsyncIterable<any> {
 	child = await child;
 	if (child instanceof HTMLString) {
 		yield child;
 	} else if (Array.isArray(child)) {
-		for(const value of child) {
+		for (const value of child) {
 			yield markHTMLString(await _render(value));
 		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
-		yield * _render(child());
+		yield* _render(child());
 	} else if (typeof child === 'string') {
 		yield markHTMLString(escapeHTML(child));
 	} else if (!child && child !== 0) {
@@ -65,9 +65,9 @@ async function * _render(child: any): AsyncIterable<any> {
 		child instanceof AstroComponent ||
 		Object.prototype.toString.call(child) === '[object AstroComponent]'
 	) {
-		yield * renderAstroComponent(child);
-	} else if(typeof child === 'object' && Symbol.asyncIterator in child) {
-		yield * child;
+		yield* renderAstroComponent(child);
+	} else if (typeof child === 'object' && Symbol.asyncIterator in child) {
+		yield* child;
 	} else {
 		yield child;
 	}
@@ -96,7 +96,7 @@ export class AstroComponent {
 			const expression = expressions[i];
 
 			yield markHTMLString(html);
-			yield * _render(expression);
+			yield* _render(expression);
 		}
 	}
 }
@@ -129,7 +129,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 	if (slotted) {
 		let iterator = _render(slotted);
 		let content = '';
-		for await(const chunk of iterator) {
+		for await (const chunk of iterator) {
 			content += chunk;
 		}
 		return markHTMLString(content);
@@ -334,7 +334,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 			)}`
 		);
 		html = '';
-		for await(const chunk of iterable) {
+		for await (const chunk of iterable) {
 			html += chunk;
 		}
 	}
@@ -617,7 +617,7 @@ export async function renderToString(
 	}
 
 	let html = '';
-	for await(const chunk of renderAstroComponent(Component)) {
+	for await (const chunk of renderAstroComponent(Component)) {
 		html += chunk;
 	}
 	return html;
@@ -632,7 +632,9 @@ export async function renderToIterable(
 	const Component = await componentFactory(result, props, children);
 
 	if (!isAstroComponent(Component)) {
-		console.warn(`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`);
+		console.warn(
+			`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`
+		);
 		const response: Response = Component;
 		throw response;
 	}
@@ -656,9 +658,9 @@ export async function renderPage(
 			start(controller) {
 				async function read() {
 					let i = 0;
-					for await(const chunk of iterable) {
+					for await (const chunk of iterable) {
 						let html = chunk.toString();
-						if(i === 0) {
+						if (i === 0) {
 							if (!/<!doctype html/i.test(html)) {
 								controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 							}
@@ -669,7 +671,7 @@ export async function renderPage(
 					controller.close();
 				}
 				read();
-			}
+			},
 		});
 		let init = result.response;
 		let response = createResponse(stream, init);
@@ -716,10 +718,12 @@ export function maybeRenderHead(result: SSRResult): string | Promise<string> {
 	return renderHead(result);
 }
 
-export async function * renderAstroComponent(component: InstanceType<typeof AstroComponent>): AsyncIterable<string> {
+export async function* renderAstroComponent(
+	component: InstanceType<typeof AstroComponent>
+): AsyncIterable<string> {
 	for await (const value of component) {
 		if (value || value === 0) {
-			for await(const chunk of _render(value)) {
+			for await (const chunk of _render(value)) {
 				yield markHTMLString(chunk);
 			}
 		}

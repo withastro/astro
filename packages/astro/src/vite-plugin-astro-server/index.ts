@@ -76,9 +76,9 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 
 	res.writeHead(status, _headers);
 	if (body) {
-		if(Symbol.for('astro.responseBody') in webResponse) {
+		if (Symbol.for('astro.responseBody') in webResponse) {
 			let stream = (webResponse as any)[Symbol.for('astro.responseBody')];
-			for await(const chunk of stream) {
+			for await (const chunk of stream) {
 				res.write(chunk.toString());
 			}
 		} else if (body instanceof Readable) {
@@ -98,10 +98,7 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	res.end();
 }
 
-async function writeSSRResult(
-	webResponse: Response,
-	res: http.ServerResponse
-) {
+async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
 	return writeWebResponse(res, webResponse);
 }
 
