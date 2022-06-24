@@ -1,5 +1,5 @@
 import { HTMLString, markHTMLString, escapeHTML, Fragment, renderComponent, spreadAttributes, voidElementNames } from './index.js';
-import { jsx, AstroJSX } from '../../jsx-runtime/index.js';
+import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 
 export async function renderJSX(result: any, vnode: any): Promise<any> {
 	switch (true) {
@@ -26,9 +26,26 @@ export async function renderJSX(result: any, vnode: any): Promise<any> {
 			} catch (e) {}
 
 			const { children = null, ...props } = vnode.props ?? {};
-			const slots: Record<string, any> = {}
-			if (children) {
-				slots.default = () => renderJSX(result, jsx(Fragment, { children }))
+			const slots: Record<string, any> = {
+				default: []
+			}
+			function extractSlots(child: any): any {
+				if (Array.isArray(child)) {
+					return child.map(c => extractSlots(c));
+				}
+				if (!isVNode(child)) {
+					return slots.default.push(child);
+				}
+				if ('slot' in child.props) {
+					slots[child.props.slot] = [...(slots[child.props.slot] ?? []), child]
+					delete child.props.slot;
+					return;
+				}
+				slots.default.push(child);
+			}
+			extractSlots(children);
+			for (const [key, value] of Object.entries(slots)) {
+				slots[key] = () => renderJSX(result, value);
 			}
 			return markHTMLString(await renderComponent(result, vnode.type.name, vnode.type, props, slots));
 		}
