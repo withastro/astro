@@ -281,7 +281,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 			});
 
 			const item = codeActions.find((action) => action.title.startsWith('Add import'));
-			delete item.diagnostics;
+			delete item?.diagnostics;
 
 			expect(item).to.deep.equal({
 				title: 'Add import from "./components/imports"',

@@ -1,2 +1,5 @@
 .github
 .changeset
+**/dist
+**/fixtures
+scripts/

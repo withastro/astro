@@ -25,7 +25,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			triggerCharacter: '-',
 		});
 
-		expect(completions.items).to.deep.equal([
+		expect(completions?.items).to.deep.equal([
 			{
 				commitCharacters: [],
 				detail: 'Create component script block',
@@ -51,7 +51,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			triggerCharacter: '-',
 		});
 
-		expect(completions.items).to.deep.equal([
+		expect(completions?.items).to.deep.equal([
 			{
 				commitCharacters: [],
 				detail: 'Close component script block',
@@ -77,7 +77,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 			triggerCharacter: '-',
 		});
 
-		expect(completions.items).to.deep.equal([
+		expect(completions?.items).to.deep.equal([
 			{
 				commitCharacters: [],
 				detail: 'Create component script block',
@@ -100,7 +100,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(10, 20));
 
-		expect(completions.items).to.deep.equal([
+		expect(completions?.items).to.deep.equal([
 			{
 				label: 'name',
 				detail: 'string',
@@ -117,7 +117,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(11, 14));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name?',
 			detail: 'string',
 			insertText: 'name="$1"',
@@ -133,7 +133,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(12, 16));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name',
 			detail: 'string',
 			insertText: 'name="$1"',
@@ -148,7 +148,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(13, 26));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name',
 			detail: 'any',
 			insertText: 'name={$1}',
@@ -163,7 +163,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(14, 14));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name',
 			detail: 'any',
 			insertText: 'name={$1}',
@@ -178,7 +178,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(15, 17));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name',
 			detail: 'string',
 			insertText: 'name="$1"',
@@ -193,7 +193,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(16, 14));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'name',
 			detail: 'string',
 			insertText: 'name="$1"',
@@ -208,7 +208,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(13, 26));
 
-		expect(completions.items).to.deep.contain({
+		expect(completions?.items).to.deep.contain({
 			label: 'client:load',
 			kind: 12,
 			documentation: {
@@ -226,7 +226,7 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		const { provider, document } = setup('optional.astro');
 
 		const completions = await provider.getCompletions(document, Position.create(4, 15));
-		const item = completions.items.find((completion) => completion.filterText === 'name');
+		const item = completions?.items.find((completion) => completion.filterText === 'name');
 
 		expect(item).to.deep.equal({
 			label: 'name?',
@@ -244,6 +244,6 @@ describe('Astro Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(7, 22));
 
-		expect(completions.items).to.be.empty;
+		expect(completions?.items).to.be.empty;
 	});
 });

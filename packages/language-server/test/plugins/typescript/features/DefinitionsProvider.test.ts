@@ -2,7 +2,7 @@ import { LanguageServiceManager } from '../../../../src/plugins/typescript/Langu
 import { createEnvironment } from '../../../utils';
 import { DefinitionsProviderImpl } from '../../../../src/plugins/typescript/features/DefinitionsProvider';
 import { Position, Range } from 'vscode-languageserver-types';
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { pathToUrl, urlToPath } from '../../../../src/utils';
 import {
 	AstroSnapshot,
@@ -65,6 +65,11 @@ describe('TypeScript Plugin#DefinitionsProvider', () => {
 		const insideExpression = await provider.getDefinitions(document, Position.create(6, 2));
 
 		const otherFilePath = urlToPath(functionImport[0].targetUri);
+
+		if (!otherFilePath) {
+			assert.fail(`Couldn't transform url to path for ${functionImport[0].targetUri}`);
+		}
+
 		const otherFileSnapshot = (await languageServiceManager.getSnapshot(otherFilePath)) as TypeScriptDocumentSnapshot;
 
 		expect(functionImport).to.deep.equal([
@@ -102,6 +107,11 @@ describe('TypeScript Plugin#DefinitionsProvider', () => {
 		const componentUsage = await provider.getDefinitions(document, Position.create(5, 3));
 
 		const componentPath = urlToPath(componentImport[0].targetUri);
+
+		if (!componentPath) {
+			assert.fail(`Couldn't transform url to path for ${componentImport[0].targetUri}`);
+		}
+
 		const componentSnapshot = (await languageServiceManager.getSnapshot(componentPath)) as AstroSnapshot;
 
 		expect(componentImport).to.deep.equal([

@@ -6,12 +6,12 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const dummyGrammarDir = resolve(__dirname, './dummy');
-const dummyGrammars = readdirSync(dummyGrammarDir).map(file => join(dummyGrammarDir, file));
+const dummyGrammars = readdirSync(dummyGrammarDir).map((file) => join(dummyGrammarDir, file));
 
 const grammarDir = resolve(__dirname, '../../syntaxes');
 const grammars = readdirSync(grammarDir)
-	.filter(file => file.endsWith('.json'))
-	.map(file => join(grammarDir, file));
+	.filter((file) => file.endsWith('.json'))
+	.map((file) => join(grammarDir, file));
 
 const allGrammars = [...grammars, ...dummyGrammars];
 
@@ -20,14 +20,14 @@ const allGrammars = [...grammars, ...dummyGrammars];
  */
 function promisifySpawn(...arg) {
 	const childProcess = spawn(...arg);
-	return new Promise(resolve => {
-		childProcess.on('exit', code => {
-			resolve(code);
+	return new Promise((cb) => {
+		childProcess.on('exit', (code) => {
+			cb(code);
 		});
 
-		childProcess.on('error', err => {
+		childProcess.on('error', (err) => {
 			console.error(err);
-			resolve(1);
+			cb(1);
 		});
 	});
 }

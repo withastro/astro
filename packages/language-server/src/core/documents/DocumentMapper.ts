@@ -143,6 +143,7 @@ export class SourceMapDocumentMapper implements DocumentMapper {
 		}
 
 		if (mapped.line === 0) {
+			// eslint-disable-next-line no-console
 			console.log('Got 0 mapped line from', generatedPosition, 'col was', mapped.column);
 		}
 

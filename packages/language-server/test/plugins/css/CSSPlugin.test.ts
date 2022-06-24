@@ -23,7 +23,7 @@ describe('CSS Plugin', () => {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
-			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
+			expect(completions?.items, 'Expected completions to be an array').to.be.an('array');
 			expect(completions, 'Expected completions to not be empty').to.not.be.null;
 		});
 
@@ -37,9 +37,9 @@ describe('CSS Plugin', () => {
 				triggerCharacter: '.',
 			} as CompletionContext);
 
-			expect(completions1.items, 'Expected completions1 to be an array').to.be.an('array');
+			expect(completions1?.items, 'Expected completions1 to be an array').to.be.an('array');
 			expect(completions1, 'Expected completions1 to not be empty').to.not.be.null;
-			expect(completions2.items, 'Expected completions2 to be an array').to.be.an('array');
+			expect(completions2?.items, 'Expected completions2 to be an array').to.be.an('array');
 			expect(completions2, 'Expected completions2 to not be empty').to.not.be.null;
 		});
 
@@ -48,7 +48,7 @@ describe('CSS Plugin', () => {
 
 			const completions = await plugin.getCompletions(document, Position.create(0, 12));
 
-			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
+			expect(completions?.items, 'Expected completions to be an array').to.be.an('array');
 			expect(completions, 'Expected completions to not be empty').to.not.be.null;
 		});
 

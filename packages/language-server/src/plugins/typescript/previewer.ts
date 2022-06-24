@@ -16,13 +16,13 @@ function replaceLinks(text: string): string {
 			// Http(s) links
 			.replace(
 				/\{@(link|linkplain|linkcode) (https?:\/\/[^ |}]+?)(?:[| ]([^{}\n]+?))?\}/gi,
-				(_, tag: string, link: string, text?: string) => {
+				(_, tag: string, link: string, label?: string) => {
 					switch (tag) {
 						case 'linkcode':
-							return `[\`${text ? text.trim() : link}\`](${link})`;
+							return `[\`${label ? label.trim() : link}\`](${link})`;
 
 						default:
-							return `[${text ? text.trim() : link}](${link})`;
+							return `[${label ? label.trim() : link}](${link})`;
 					}
 				}
 			)

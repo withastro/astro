@@ -117,6 +117,6 @@ describe('TypeScript Plugin#SemanticTokenProvider', () => {
 			},
 		]);
 
-		expect(semanticTokens.data).to.deep.equal(expectedTokens.data);
+		expect(semanticTokens?.data).to.deep.equal(expectedTokens.data);
 	});
 });

@@ -25,7 +25,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 		const completions = await provider.getCompletions(document, Position.create(1, 8));
 
-		expect(completions.items).to.not.be.empty;
+		expect(completions?.items).to.not.be.empty;
 	});
 
 	it('provide completions inside JSX expressions', async () => {
@@ -36,7 +36,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 			triggerCharacter: '.',
 		});
 
-		expect(completions.items).to.not.be.empty;
+		expect(completions?.items).to.not.be.empty;
 	});
 
 	it('does not provide completions at root', async () => {
@@ -55,7 +55,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
 
 		expect(detail).to.equal('./imports/component.astro');
-		expect(additionalTextEdits[0].newText).to.equal(
+		expect(additionalTextEdits?.[0].newText).to.equal(
 			`---${newLine}import Component from "./imports/component.astro"${newLine}---${newLine}${newLine}`
 		);
 	});
@@ -69,7 +69,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const { additionalTextEdits, detail } = await provider.resolveCompletion(document, item!);
 
 		expect(detail).to.equal('./imports/component.astro');
-		expect(additionalTextEdits[0].newText).to.equal(`import Component from "./imports/component.astro";${newLine}`);
+		expect(additionalTextEdits?.[0].newText).to.equal(`import Component from "./imports/component.astro";${newLine}`);
 	});
 
 	it('resolve completion without auto import if component import already exists', async () => {
@@ -88,7 +88,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const { provider, document } = setup('importSupportedFormats.astro');
 
 		const completions = await provider.getCompletions(document, Position.create(1, 35));
-		const foundFiles = completions.items.map((completion) => completion.label);
+		const foundFiles = completions?.items.map((completion) => completion.label);
 
 		expect(foundFiles).to.deep.equal(['Astro.astro', 'JSX', 'Svelte.svelte', 'Vue.vue', 'js', 'json.json', 'ts']);
 	});
@@ -112,7 +112,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 			const completions = await provider.getCompletions(document, Position.create(1, 11));
 
-			expect(completions.items).to.not.be.empty;
+			expect(completions?.items).to.not.be.empty;
 		});
 
 		it('provide auto imports completion mapped inside script tag', async () => {
@@ -123,7 +123,7 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 
 			const { additionalTextEdits } = await provider.resolveCompletion(document, item!);
 
-			expect(additionalTextEdits[0].range.start.line).to.equal(4);
+			expect(additionalTextEdits?.[0].range.start.line).to.equal(4);
 			expect(item).to.not.be.undefined;
 		});
 	});

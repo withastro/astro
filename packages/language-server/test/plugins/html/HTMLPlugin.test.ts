@@ -19,7 +19,7 @@ describe('HTML Plugin', () => {
 			const { plugin, document } = setup('<');
 
 			const completions = await plugin.getCompletions(document, Position.create(0, 1));
-			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
+			expect(completions?.items, 'Expected completions to be an array').to.be.an('array');
 			expect(completions, 'Expected completions to not be empty').to.not.be.undefined;
 		});
 
@@ -27,7 +27,7 @@ describe('HTML Plugin', () => {
 			const { plugin, document } = setup('<sty');
 
 			const completions = await plugin.getCompletions(document, Position.create(0, 4));
-			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
+			expect(completions?.items, 'Expected completions to be an array').to.be.an('array');
 			expect(completions!.items.find((item) => item.label === 'style (lang="less")')).to.not.be.undefined;
 		});
 
@@ -136,7 +136,7 @@ describe('HTML Plugin', () => {
 
 			const linkedEditingRanges = plugin.getLinkedEditingRanges(document, Position.create(0, 2));
 
-			expect(linkedEditingRanges.ranges).to.deep.equal([
+			expect(linkedEditingRanges?.ranges).to.deep.equal([
 				{
 					start: Position.create(0, 1),
 					end: Position.create(0, 4),

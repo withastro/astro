@@ -25,14 +25,15 @@ export function createEnvironment(filePath: string, baseDir: string, pathPrefix?
 function openDocument(filePath: string, baseDir: string, docManager: DocumentManager) {
 	const path = join(baseDir, filePath);
 
-	if (!ts.sys.fileExists(path)) {
-		return null;
+	if (!ts.sys.fileExists(path) || !path) {
+		throw new Error(`File ${path} doesn't exist`);
 	}
 
 	const document = docManager.openDocument({
 		uri: pathToUrl(path),
-		text: harmonizeNewLines(ts.sys.readFile(path)) || '',
+		text: harmonizeNewLines(ts.sys.readFile(path) || ''),
 	});
+
 	return document;
 }
 
