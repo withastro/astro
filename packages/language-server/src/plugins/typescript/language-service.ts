@@ -5,7 +5,7 @@ import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { AstroVersion, getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
-import { ensureRealFilePath, findTsConfigPath, isAstroFilePath } from './utils';
+import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
 import { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
 import * as DocumentSnapshotUtils from './snapshots/utils';
 
@@ -184,12 +184,11 @@ async function createLanguageService(
 
 		snapshotManager.set(filePath, newSnapshot);
 
-		document.scriptTags.forEach((scriptTag, index) => {
-			const scriptFilePath = filePath + `.__script${index}.js`;
-			const scriptSnapshot = new ScriptTagDocumentSnapshot(scriptTag, document, scriptFilePath);
-			snapshotManager.set(scriptFilePath, scriptSnapshot);
+		const scriptTagSnapshots = createScriptTagsSnapshots(filePath, document);
 
-			newSnapshot.scriptTagSnapshots?.push(scriptSnapshot);
+		scriptTagSnapshots.forEach((snapshot) => {
+			snapshotManager.set(snapshot.filePath, snapshot);
+			newSnapshot.scriptTagSnapshots?.push(snapshot);
 		});
 
 		if (prevSnapshot && prevSnapshot.scriptKind !== newSnapshot.scriptKind) {
@@ -230,12 +229,11 @@ async function createLanguageService(
 		if (isAstroFilePath(fileName)) {
 			const document = (doc as AstroSnapshot).parent;
 
-			document.scriptTags.forEach((scriptTag, index) => {
-				const scriptFilePath = fileName + `.__script${index}.js`;
-				const scriptSnapshot = new ScriptTagDocumentSnapshot(scriptTag, document, scriptFilePath);
-				snapshotManager.set(scriptFilePath, scriptSnapshot);
+			const scriptTagSnapshots = createScriptTagsSnapshots(fileName, document);
 
-				(doc as AstroSnapshot).scriptTagSnapshots?.push(scriptSnapshot);
+			scriptTagSnapshots.forEach((snapshot) => {
+				snapshotManager.set(snapshot.filePath, snapshot);
+				(doc as AstroSnapshot).scriptTagSnapshots?.push(snapshot);
 			});
 		}
 
@@ -261,6 +259,16 @@ async function createLanguageService(
 			astroModuleLoader.deleteUnresolvedResolutionsFromCache(fileName);
 		}
 		snapshotManager.updateNonAstroFile(fileName, changes);
+	}
+
+	function createScriptTagsSnapshots(fileName: string, document: AstroDocument): ScriptTagDocumentSnapshot[] {
+		return document.scriptTags.map((scriptTag, index) => {
+			const scriptTagLanguage = getScriptTagLanguage(scriptTag);
+			const scriptFilePath = fileName + `.__script${index}.${scriptTagLanguage}`;
+			const scriptSnapshot = new ScriptTagDocumentSnapshot(scriptTag, document, scriptFilePath);
+
+			return scriptSnapshot;
+		});
 	}
 
 	function getParsedTSConfig() {

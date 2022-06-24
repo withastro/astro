@@ -83,6 +83,22 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		expect(diagnostics).to.not.be.empty;
 	});
 
+	it('properly support TypeScript script tags', async () => {
+		const { provider, document } = setup('scriptTagTypeScript.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+		expect(diagnostics).to.deep.equal([
+			{
+				code: 8010,
+				message: 'Type annotations can only be used in TypeScript files.',
+				range: Range.create(6, 14, 6, 20),
+				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+				tags: [],
+			},
+		]);
+	});
+
 	it('provide diagnostics for invalid framework components', async () => {
 		const { provider, document } = setup('frameworkComponentError.astro');
 

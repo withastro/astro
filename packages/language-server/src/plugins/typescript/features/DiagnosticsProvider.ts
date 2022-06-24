@@ -20,7 +20,6 @@ export enum DiagnosticCodes {
 	SPREAD_EXPECTED = 1005, // '{0}' expected.
 	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
 	MUST_HAVE_PARENT_ELEMENT = 2657, // JSX expressions must have one parent element.
-	CANNOT_IMPORT_TS_EXT = 2691, // An import path cannot end with a '{0}' extension. Consider importing '{1}' instead.
 	CANT_RETURN_OUTSIDE_FUNC = 1108, // A 'return' statement can only be used within a function body.
 	ISOLATED_MODULE_COMPILE_ERR = 1208, // '{0}' cannot be compiled under '--isolatedModules' because it is considered a global script file.
 	TYPE_NOT_ASSIGNABLE = 2322, // Type '{0}' is not assignable to type '{1}'.
@@ -68,7 +67,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					code: diagnostic.code,
 					tags: getDiagnosticTag(diagnostic),
 				}))
-				.filter(isNoCantEndWithTS)
 				.map(mapRange(scriptTagSnapshot, document));
 
 			scriptDiagnostics.push(...scriptDiagnostic);
@@ -232,11 +230,6 @@ function isNoSpreadExpected(diagnostic: Diagnostic, document: AstroDocument) {
 	return true;
 }
 
-/** Inside script tags, Astro currently require the `.ts` file extension for imports */
-function isNoCantEndWithTS(diagnostic: Diagnostic) {
-	return diagnostic.code !== DiagnosticCodes.CANNOT_IMPORT_TS_EXT;
-}
-
 /**
  * Ignore "Can't return outside of function body"
  * Since the frontmatter is at the top level, users trying to return a Response  for SSR mode run into this
@@ -286,15 +279,6 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 				message: 'Client directives are only available on framework components',
 			};
 		}
-	}
-
-	// An import path cannot end with '.ts(x)' consider importing with no extension
-	// TODO: Remove this when https://github.com/withastro/astro/issues/3415 is fixed
-	if (diagnostic.code === DiagnosticCodes.CANNOT_IMPORT_TS_EXT) {
-		return {
-			...diagnostic,
-			message: diagnostic.message.replace(/\.jsx?/, ''),
-		};
 	}
 
 	return diagnostic;

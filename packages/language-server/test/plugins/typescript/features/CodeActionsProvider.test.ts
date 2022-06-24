@@ -249,7 +249,7 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 								edits: [
 									{
 										newText: '// @ts-nocheck\n',
-										range: Range.create(0, 8, 0, 8),
+										range: Range.create(0, 18, 0, 18),
 									},
 								],
 								textDocument: {

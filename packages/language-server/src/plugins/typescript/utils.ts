@@ -11,7 +11,7 @@ import {
 	SemanticTokenTypes,
 	SemanticTokensLegend,
 } from 'vscode-languageserver';
-import { AstroDocument, mapRangeToOriginal } from '../../core/documents';
+import { AstroDocument, mapRangeToOriginal, TagInformation } from '../../core/documents';
 import { AstroSnapshot, ScriptTagDocumentSnapshot, SnapshotFragment } from './snapshots/DocumentSnapshot';
 import { Node } from 'vscode-html-languageservice';
 
@@ -397,6 +397,18 @@ export function ensureRealFilePath(filePath: string) {
 	}
 }
 
+/**
+ * Return if a script tag is TypeScript or JavaScript
+ */
+export function getScriptTagLanguage(scriptTag: TagInformation): 'js' | 'ts' {
+	// Using any kind of attributes on the script tag will disable hoisting, so we can just check if there's any
+	if (Object.entries(scriptTag.attributes).length === 0) {
+		return 'ts';
+	}
+
+	return 'js';
+}
+
 export function getScriptTagSnapshot(
 	snapshot: AstroSnapshot,
 	document: AstroDocument,
@@ -409,7 +421,9 @@ export function getScriptTagSnapshot(
 	offset: number;
 } {
 	const index = document.scriptTags.findIndex((value) => value.container.start == tagInfo.start);
-	const scriptFilePath = snapshot.filePath + `.__script${index}.js`;
+
+	const scriptTagLanguage = getScriptTagLanguage(document.scriptTags[index]);
+	const scriptFilePath = snapshot.filePath + `.__script${index}.${scriptTagLanguage}`;
 	const scriptTagSnapshot = snapshot.scriptTagSnapshots[index];
 
 	let offset = 0;
