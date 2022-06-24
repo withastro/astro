@@ -21,36 +21,22 @@ function createResponseClass() {
 		async text(): Promise<string> {
 			if (this.#isStream && isNodeJS) {
 				let decoder = new TextDecoder();
-				let body = this.#body as ReadableStream<Uint8Array>;
-				let reader = body.getReader();
-				let buffer: number[] = [];
-				while (true) {
-					let r = await reader.read();
-					if (r.value) {
-						buffer.push(...r.value);
-					}
-					if (r.done) {
-						break;
-					}
+				let body = this.#body as AsyncIterable<Uint8Array>;
+				let out = '';
+				for await(let chunk of body) {
+					out += decoder.decode(chunk);
 				}
-				return decoder.decode(Uint8Array.from(buffer));
+				return out;
 			}
 			return super.text();
 		}
 
 		async arrayBuffer(): Promise<ArrayBuffer> {
 			if (this.#isStream && isNodeJS) {
-				let body = this.#body as ReadableStream<Uint8Array>;
-				let reader = body.getReader();
+				let body = this.#body as AsyncIterable<Uint8Array>;
 				let chunks: number[] = [];
-				while (true) {
-					let r = await reader.read();
-					if (r.value) {
-						chunks.push(...r.value);
-					}
-					if (r.done) {
-						break;
-					}
+				for await(let chunk of body) {
+					chunks.push(...chunk);
 				}
 				return Uint8Array.from(chunks);
 			}
