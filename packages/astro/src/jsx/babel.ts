@@ -50,6 +50,9 @@ function addClientMetadata(node: t.JSXElement, meta: { path: string, name: strin
 		node.openingElement.attributes.push(componentPath);
 	}
 	if (!existingAttributes.find(attr => attr === 'client:component-export')) {
+		if (meta.name === '*') {
+			meta.name = getTagName(node).split('.').at(1)!;
+		}
 		const componentExport = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
 			t.stringLiteral(meta.name),
@@ -99,11 +102,17 @@ export default function astroJSX(): PluginObj {
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;
-				
-				for (const [source, specs] of state.get('imports')) {
-					for (const { imported } of specs) {
+
+				const imports = state.get('imports') ?? new Map();
+				const namespace = getTagName(parentNode).split('.');
+				for (const [source, specs] of imports) {
+					for (const { imported, local } of specs) {
 						const reference = path.referencesImport(source, imported);
 						if (reference) {
+							path.setData('import', { name: imported, path: source });
+							break;
+						}
+						if (namespace.at(0) === local) {
 							path.setData('import', { name: imported, path: source });
 							break;
 						}
@@ -114,7 +123,7 @@ export default function astroJSX(): PluginObj {
 				if (meta) {
 					addClientMetadata(parentNode, meta)
 				} else {
-					console.warn(getTagName(parentNode))
+					throw new Error(`Unable to match <${getTagName(parentNode)}> with client:* directive to an import statement!`);
 				}
 			},
     }
