@@ -2,16 +2,7 @@ if (import.meta.hot) {
 	import.meta.hot.accept((mod) => mod);
 	const parser = new DOMParser();
 	function isPage(path: string) {
-		if (!path.includes('/pages/')) return false;
-		const parts = path.split('/pages/').slice(1);
-		let isPrivate = false;
-		for (const part of parts) {
-			if (part.startsWith('_')) {
-				isPrivate = true;
-				break;
-			}
-		}
-		return !isPrivate;
+		return path.endsWith('.astro') || path.endsWith('.md') || path.endsWith('.mdx')
 	}
 	async function updatePage() {
 		const { default: diff } = await import('micromorph');
