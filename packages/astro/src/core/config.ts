@@ -51,7 +51,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	vite: {},
 	experimental: {
 		ssr: false,
-		integrations: false,
+		integrations: false
 	},
 };
 
@@ -346,6 +346,15 @@ export async function validateConfig(
 			adapter: undefined,
 		},
 	};
+	if (
+		// TODO: expose @astrojs/mdx package
+		result.integrations.find(integration => integration.name === '@astrojs/mdx')
+	) {
+		// Enable default JSX integration
+		const { default: jsxRenderer } = await import('../jsx/renderer.js');
+		(result._ctx.renderers as any[]).push(jsxRenderer);
+	}
+
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (
 		!result.experimental?.integrations &&

@@ -22,11 +22,11 @@ import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
-export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
+export { markHTMLString, markHTMLString as unescapeHTML, HTMLString, escapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 
-const voidElementNames =
+export const voidElementNames =
 	/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
 	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
@@ -233,7 +233,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		let error;
 		for (const r of renderers) {
 			try {
-				if (await r.ssr.check(Component, props, children)) {
+				if (await r.ssr.check.call({ result }, Component, props, children)) {
 					renderer = r;
 					break;
 				}
@@ -299,7 +299,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+				({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -318,8 +318,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+			({ html } = await renderer.ssr.renderToStaticMarkup.call({ result }, Component, props, children, metadata));
 		}
+	}
+
+	if (renderer && !renderer.clientEntrypoint && metadata.hydrate) {
+		throw new Error(`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`);
 	}
 
 	// This is a custom element without a renderer. Because of that, render it
@@ -340,7 +344,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		if (isPage) {
+		if (isPage || renderer?.name === 'astro:jsx') {
 			return html;
 		}
 		return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
@@ -496,7 +500,7 @@ function internalSpreadAttributes(values: Record<any, any>, shouldEscape = true)
 // Adds support for `<Component {...value} />
 export function spreadAttributes(
 	values: Record<any, any>,
-	name: string,
+	name?: string,
 	{ class: scopedClassName }: { class?: string } = {}
 ) {
 	let output = '';
