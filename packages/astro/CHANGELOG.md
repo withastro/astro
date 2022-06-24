@@ -1,5 +1,48 @@
 # astro
 
+## 1.0.0-beta.55
+
+### Patch Changes
+
+- [#3696](https://github.com/withastro/astro/pull/3696) [`3daaf510`](https://github.com/withastro/astro/commit/3daaf510ea767fba47ef52d2253b6221967f3b53) Thanks [@matthewp](https://github.com/matthewp)! - Support for streaming responses
+
+  Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
+
+  ```astro
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
+  <html>
+  <head>
+  <title>App</title>
+  </head>
+  <body>
+    <LoadTodos />
+  </body>
+  </html>
+  ```
+
+  In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
+
+  As part of this Astro also now supports async iterables within its templates. This means you can do this:
+
+  ```astro
+  <ul>
+    {(async function * () {
+      for(const number of numbers) {
+        await wait(1000);
+
+        yield <li>Number: {number}</li>
+        yield '\n'
+      }
+    })()}
+  </ul>
+  ```
+
+  Which will stream out `<li>`s one at a time, waiting a second between each.
+
+* [#3700](https://github.com/withastro/astro/pull/3700) [`47c81eff`](https://github.com/withastro/astro/commit/47c81effa69fb5d7f1e576f88c27d5071f1888e3) Thanks [@matthewp](https://github.com/matthewp)! - Make Astro.redirect use a 302 status code
+
 ## 1.0.0-beta.54
 
 ### Patch Changes
