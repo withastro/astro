@@ -152,7 +152,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
-								status: 301,
+								status: 302,
 								headers: {
 									Location: path,
 								},
