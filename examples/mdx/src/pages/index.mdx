@@ -1,3 +1,5 @@
+import Counter from '../components/Counter.jsx'
+
 # Hello world!
 
 export const authors = [
@@ -9,3 +11,7 @@ export const published = new Date('2022-02-01')
 Written by: {new Intl.ListFormat('en').format(authors.map(d => d.name))}.
 
 Published on: {new Intl.DateTimeFormat('en', {dateStyle: 'long'}).format(published)}.
+
+<Counter client:idle>
+## Counter
+</Counter>
