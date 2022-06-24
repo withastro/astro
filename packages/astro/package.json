@@ -105,7 +105,6 @@
     "gray-matter": "^4.0.3",
     "html-entities": "^2.3.3",
     "html-escaper": "^3.0.3",
-    "htmlparser2": "^7.2.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.9",
     "micromorph": "^0.1.2",

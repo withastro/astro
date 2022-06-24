@@ -11,6 +11,7 @@ import type {
 
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { createResponse } from './response.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -40,19 +41,21 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // INVESTIGATE: Can we have more specific types both for the argument and output?
 // If these are intentional, add comments that these are intention and why.
 // Or maybe type UserValue = any; ?
-async function _render(child: any): Promise<any> {
+async function * _render(child: any): AsyncIterable<any> {
 	child = await child;
 	if (child instanceof HTMLString) {
-		return child;
+		yield child;
 	} else if (Array.isArray(child)) {
-		return markHTMLString((await Promise.all(child.map((value) => _render(value)))).join(''));
+		for(const value of child) {
+			yield markHTMLString(await _render(value));
+		}
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
-		return _render(child());
+		yield * _render(child());
 	} else if (typeof child === 'string') {
-		return markHTMLString(escapeHTML(child));
+		yield markHTMLString(escapeHTML(child));
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
@@ -62,9 +65,11 @@ async function _render(child: any): Promise<any> {
 		child instanceof AstroComponent ||
 		Object.prototype.toString.call(child) === '[object AstroComponent]'
 	) {
-		return markHTMLString(await renderAstroComponent(child));
+		yield * renderAstroComponent(child);
+	} else if(typeof child === 'object' && Symbol.asyncIterator in child) {
+		yield * child;
 	} else {
-		return child;
+		yield child;
 	}
 }
 
@@ -83,7 +88,7 @@ export class AstroComponent {
 		return 'AstroComponent';
 	}
 
-	*[Symbol.iterator]() {
+	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
 		for (let i = 0; i < htmlParts.length; i++) {
@@ -91,7 +96,7 @@ export class AstroComponent {
 			const expression = expressions[i];
 
 			yield markHTMLString(html);
-			yield _render(expression);
+			yield * _render(expression);
 		}
 	}
 }
@@ -120,9 +125,14 @@ export function createComponent(cb: AstroComponentFactory) {
 	return cb;
 }
 
-export async function renderSlot(_result: any, slotted: string, fallback?: any) {
+export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {
 	if (slotted) {
-		return await _render(slotted);
+		let iterator = _render(slotted);
+		let content = '';
+		for await(const chunk of iterator) {
+			content += chunk;
+		}
+		return markHTMLString(content);
 	}
 	return fallback;
 }
@@ -157,7 +167,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-) {
+): Promise<string | AsyncIterable<string>> {
 	Component = await Component;
 	if (Component === Fragment) {
 		const children = await renderSlot(result, slots?.default);
@@ -168,8 +178,7 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		const output = await renderToString(result, Component as any, _props, slots);
-		return markHTMLString(output);
+		return renderToIterable(result, Component as any, _props, slots);
 	}
 
 	if (!Component && !_props['client:only']) {
@@ -317,13 +326,17 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		const childSlots = Object.values(children).join('');
-		html = await renderAstroComponent(
+		const iterable = renderAstroComponent(
 			await render`<${Component}${internalSpreadAttributes(props)}${markHTMLString(
 				childSlots === '' && voidElementNames.test(Component)
 					? `/>`
 					: `>${childSlots}</${Component}>`
 			)}`
 		);
+		html = '';
+		for await(const chunk of iterable) {
+			html += chunk;
+		}
 	}
 
 	if (!hydration) {
@@ -597,45 +610,72 @@ export async function renderToString(
 	children: any
 ): Promise<string> {
 	const Component = await componentFactory(result, props, children);
+
 	if (!isAstroComponent(Component)) {
 		const response: Response = Component;
 		throw response;
 	}
 
-	let template = await renderAstroComponent(Component);
-	return template;
+	let html = '';
+	for await(const chunk of renderAstroComponent(Component)) {
+		html += chunk;
+	}
+	return html;
 }
+
+export async function renderToIterable(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any
+): Promise<AsyncIterable<string>> {
+	const Component = await componentFactory(result, props, children);
+
+	if (!isAstroComponent(Component)) {
+		console.warn(`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`);
+		const response: Response = Component;
+		throw response;
+	}
+
+	return renderAstroComponent(Component);
+}
+
+const encoder = new TextEncoder();
 
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any
-): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
-	try {
-		const response = await componentFactory(result, props, children);
+): Promise<Response> {
+	const factoryReturnValue = await componentFactory(result, props, children);
 
-		if (isAstroComponent(response)) {
-			let html = await renderAstroComponent(response);
-			return {
-				type: 'html',
-				html,
-			};
-		} else {
-			return {
-				type: 'response',
-				response,
-			};
-		}
-	} catch (err) {
-		if (err instanceof Response) {
-			return {
-				type: 'response',
-				response: err,
-			};
-		} else {
-			throw err;
-		}
+	if (isAstroComponent(factoryReturnValue)) {
+		let iterable = renderAstroComponent(factoryReturnValue);
+		let stream = new ReadableStream({
+			start(controller) {
+				async function read() {
+					let i = 0;
+					for await(const chunk of iterable) {
+						let html = chunk.toString();
+						if(i === 0) {
+							if (!/<!doctype html/i.test(html)) {
+								controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+							}
+						}
+						controller.enqueue(encoder.encode(html));
+						i++;
+					}
+					controller.close();
+				}
+				read();
+			}
+		});
+		let init = result.response;
+		let response = createResponse(stream, init);
+		return response;
+	} else {
+		return factoryReturnValue;
 	}
 }
 
@@ -676,16 +716,14 @@ export function maybeRenderHead(result: SSRResult): string | Promise<string> {
 	return renderHead(result);
 }
 
-export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
-	let template = [];
-
+export async function * renderAstroComponent(component: InstanceType<typeof AstroComponent>): AsyncIterable<string> {
 	for await (const value of component) {
 		if (value || value === 0) {
-			template.push(value);
+			for await(const chunk of _render(value)) {
+				yield markHTMLString(chunk);
+			}
 		}
 	}
-
-	return markHTMLString(await _render(template));
 }
 
 function componentIsHTMLElement(Component: unknown) {

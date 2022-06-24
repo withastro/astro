@@ -85,9 +85,7 @@ export interface RenderOptions {
 
 export async function render(
 	opts: RenderOptions
-): Promise<
-	{ type: 'html'; html: string; response: ResponseInit } | { type: 'response'; response: Response }
-> {
+): Promise<Response> {
 	const {
 		links,
 		styles,
@@ -144,32 +142,11 @@ export async function render(
 		ssr,
 	});
 
-	let page: Awaited<ReturnType<typeof renderPage>>;
 	if (!Component.isAstroComponentFactory) {
 		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
 		const html = await renderComponent(result, Component.name, Component, props, null);
-		page = {
-			type: 'html',
-			html: html.toString(),
-		};
+		return new Response(html.toString(), result.response);
 	} else {
-		page = await renderPage(result, Component, pageProps, null);
+		return await renderPage(result, Component, pageProps, null);
 	}
-
-	if (page.type === 'response') {
-		return page;
-	}
-
-	let html = page.html;
-
-	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + html;
-	}
-
-	return {
-		type: 'html',
-		html,
-		response: result.response,
-	};
 }

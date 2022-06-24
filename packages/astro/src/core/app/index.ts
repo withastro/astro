@@ -94,7 +94,7 @@ export class App {
 			}
 		}
 
-		const result = await render({
+		const response = await render({
 			links,
 			logging: this.#logging,
 			markdown: manifest.markdown,
@@ -119,17 +119,7 @@ export class App {
 			request,
 		});
 
-		if (result.type === 'response') {
-			return result.response;
-		}
-
-		let html = result.html;
-		let init = result.response;
-		let headers = init.headers as Headers;
-		let bytes = this.#encoder.encode(html);
-		headers.set('Content-Type', 'text/html');
-		headers.set('Content-Length', bytes.byteLength.toString());
-		return new Response(bytes, init);
+		return response;
 	}
 
 	async #callEndpoint(
