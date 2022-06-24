@@ -1699,6 +1699,12 @@ importers:
   packages/astro/test/fixtures/static-build/pkg:
     specifiers: {}
 
+  packages/astro/test/fixtures/streaming:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/svelte-component:
     specifiers:
       '@astrojs/svelte': workspace:*

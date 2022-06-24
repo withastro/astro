@@ -167,7 +167,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-) {
+): Promise<string | AsyncIterable<string>> {
 	Component = await Component;
 	if (Component === Fragment) {
 		const children = await renderSlot(result, slots?.default);
@@ -178,8 +178,7 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		const output = await renderToString(result, Component as any, _props, slots);
-		return markHTMLString(output);
+		return renderToIterable(result, Component as any, _props, slots);
 	}
 
 	if (!Component && !_props['client:only']) {
@@ -622,6 +621,23 @@ export async function renderToString(
 		html += chunk;
 	}
 	return html;
+}
+
+export async function renderToIterable(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any
+): Promise<AsyncIterable<string>> {
+	const Component = await componentFactory(result, props, children);
+
+	if (!isAstroComponent(Component)) {
+		console.warn(`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`);
+		const response: Response = Component;
+		throw response;
+	}
+
+	return renderAstroComponent(Component);
 }
 
 const encoder = new TextEncoder();
