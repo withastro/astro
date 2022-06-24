@@ -23,7 +23,7 @@ function createResponseClass() {
 				let decoder = new TextDecoder();
 				let body = this.#body as AsyncIterable<Uint8Array>;
 				let out = '';
-				for await(let chunk of body) {
+				for await (let chunk of body) {
 					out += decoder.decode(chunk);
 				}
 				return out;
@@ -35,7 +35,7 @@ function createResponseClass() {
 			if (this.#isStream && isNodeJS) {
 				let body = this.#body as AsyncIterable<Uint8Array>;
 				let chunks: number[] = [];
-				for await(let chunk of body) {
+				for await (let chunk of body) {
 					chunks.push(...chunk);
 				}
 				return Uint8Array.from(chunks);
