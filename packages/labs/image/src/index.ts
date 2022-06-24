@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import path from 'path';
-import sharp from './loaders/sharp.js';
 import { ensureDir, isRemoteImage, loadImage, propsToFilename } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
@@ -85,6 +84,8 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			},
 			'astro:build:done': async ({ dir }) => {
 				for await (const [_, props] of staticImages) {
+					const loader = (globalThis as any).loader;
+
 					// load and transform the input file
 					const src = isRemoteImage(props.src)
 						? props.src
@@ -95,7 +96,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 						console.warn(`"${props.src}" image not found`);
 						continue;
 					}
-					const { data } = await sharp.toBuffer(inputBuffer, props);
+					const { data } = await loader.transform(inputBuffer, props);
 
 					// output to dist folder
 					const outputFile = path.join(dir.pathname, OUTPUT_DIR, propsToFilename(props));

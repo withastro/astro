@@ -1,18 +1,9 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from '../types.js';
+import { ImageMetadata, isAspectRatioString, isOutputFormat } from '../types.js';
 import type { ImageProps, OutputFormat, SSRImageService } from '../types.js';
 
-function createService(): SSRImageService {
-	const getImageAttributes: SSRImageService['getImageAttributes'] = async (props) => {
-		const { width, height } = props;
-	
-		return {
-			width,
-			height
-		}
-	}
-
-	const getImageMetadata: SSRImageService['getImageMetadata'] = async (pathname) => {
+class SharpService implements SSRImageService {
+	async getImageMetadata(pathname: string) {
 		try {
 			const image = sharp(pathname);
 			const metadata = await image.metadata();
@@ -32,7 +23,16 @@ function createService(): SSRImageService {
 		}
 	}
 	
-	const serializeImageProps: SSRImageService['serializeImageProps'] = (props) => {
+	async getImageAttributes(props: ImageProps) {
+		const { width, height } = props;
+	
+		return {
+			width: width,
+			height: height
+		}
+	}
+
+	serializeImageProps(props: ImageProps) {
 		const searchParams = new URLSearchParams();
 	
 		if (props.quality) {
@@ -59,12 +59,8 @@ function createService(): SSRImageService {
 	
 		return { searchParams };
 	}
-	
-	const parseImageProps: SSRImageService['parseImageProps'] = (src) => {
-		const [_, search] = src.split('?');
-	
-		const searchParams = new URLSearchParams(search);
-	
+
+	parseImageProps(searchParams: URLSearchParams) {
 		if (!searchParams.has('href')) {
 			return undefined;
 		}
@@ -102,8 +98,8 @@ function createService(): SSRImageService {
 	
 		return props;
 	}
-	
-	const toBuffer: SSRImageService['toBuffer'] = async (inputBuffer, props) => {
+
+	async transform(inputBuffer: Buffer, props: ImageProps) {
 		const sharpImage = sharp(inputBuffer, { failOnError: false });
 	
 		if (props.width || props.height) {
@@ -121,16 +117,8 @@ function createService(): SSRImageService {
 			format: info.format as OutputFormat,
 		};
 	}
-
-	return {
-		getImageAttributes,
-		getImageMetadata,
-		serializeImageProps,
-		parseImageProps,
-		toBuffer
-	};
 }
 
-const service = createService();
+const service = new SharpService();
 
 export default service;

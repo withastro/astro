@@ -113,10 +113,10 @@ export interface SSRImageService<T extends ImageProps = ImageProps> extends Host
 	/**
 	 * The reverse of `serializeImageProps(props)`, this parsed the @type {ImageProps} back out of a given URL.
 	 * 
-	 * @param src Request URL
+	 * @param searchParams @type {URLSearchParams}
 	 * @returns @type {ImageProps} used to generate the URL, or undefined if the URL isn't valid.
 	 */
-	parseImageProps(src: string): T | undefined;
+	parseImageProps(searchParams: URLSearchParams): T | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.
@@ -124,7 +124,7 @@ export interface SSRImageService<T extends ImageProps = ImageProps> extends Host
 	 * @param inputBuffer Binary buffer containing the original image.
 	 * @param props @type {ImageProps} defining the requested transformations.
 	 */
-	toBuffer(inputBuffer: Buffer, props: T): Promise<{ data: Buffer, format: OutputFormat }>;
+	transform(inputBuffer: Buffer, props: T): Promise<{ data: Buffer, format: OutputFormat }>;
 }
 
 export type ImageService<T extends ImageProps = ImageProps> = HostedImageService<T> | SSRImageService<T>;
