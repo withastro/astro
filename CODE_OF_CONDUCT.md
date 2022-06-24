@@ -33,7 +33,7 @@ Examples of unacceptable behavior by participants include:
 
 ### Guide to Maintaining These Standards
 
-When interacting in our community, strive to maintain a friendly, empathetic tone. This includes, but is not limited to, interactions on Discord, GitHub, and Twitter.
+When interacting, strive to maintain a friendly, empathetic tone. This includes, but is not limited to, interactions on Discord, GitHub, and Twitter.
 
 "Tone" refers to word, punctuation, and conversational choices that determine how your message _feels_ to others.
 
