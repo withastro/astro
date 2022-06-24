@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-
+import type { PluginContext } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
 import type { ImageService, IntegrationOptions } from './types.js';
@@ -11,12 +11,32 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 	let resolvedConfig: ResolvedConfig;
 	let loaderModuleId: string;
-	let loader: ImageService;
+
+	async function resolveLoader(context: PluginContext) {
+		if (!loaderModuleId) {
+			const module = await context.resolve(options.serviceEntryPoint);
+			if (!module) {
+				throw new Error(`"${options.serviceEntryPoint}" could not be found`);
+			}
+			loaderModuleId = module.id;
+		}
+
+		return loaderModuleId;
+	}
+
+	async function importLoader(context: PluginContext) {
+			const moduleId = await resolveLoader(context);
+			const module = await import(moduleId);
+			if (!module) {
+				throw new Error(`"${options.serviceEntryPoint}" could not be found`);
+			}
+			return module.default;
+	}
 
 	return {
 		name: '@astrojs/image',
 		enforce: 'pre',
-		async configResolved(config) {
+		configResolved(config) {
 			resolvedConfig = config;
 		},
 		async resolveId(id) {
@@ -24,26 +44,16 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// This ensures the module is available in `astro dev` and is included
 			// in the SSR server bundle.
 			if (id === virtualModuleId) {
-				if (!loaderModuleId) {
-					const module = await this.resolve(options.serviceEntryPoint);
-					if (!module) {
-						throw new Error(`"${options.serviceEntryPoint}" could not be found`);
-					}
-					loaderModuleId = module.id;
-				}
-				return loaderModuleId;
+				return await resolveLoader(this);
 			}
 		},
 		async load(id) {
 			// only claim image ESM imports
 			if (!filter(id)) { return null; }
 
-			if (!loader) {
-				const module = await import(loaderModuleId);
-				loader = module.default;
-			}
+			const loader = await importLoader(this);
 
-			const meta = await loader.getImageMetadata(id);
+			const meta = loader.getImageMetadata(id);
 
 			const src = resolvedConfig.isProduction
 				?  id.replace(config.srcDir.pathname, '/')
