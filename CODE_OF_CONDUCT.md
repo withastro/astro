@@ -51,6 +51,7 @@ Answer 2 centered the user's feelings and as such, took more effort. However, it
 - made them feel validated for asking the question ("You're on the right track")
 - provided an explanation that fit the person who asked the question: _Answer 2_ sought to explain things to a self-described beginner, who might not understand the implications of "static site builder"
 - made it clear that the community is willing to help and that asking is not a burden ("let me know if you need any more help!")
+- equipped them with a next step ("Check out the docs here"), while at the same time familiarized them onto our docs page
 
 Our community prides itself on being _positive_, _helpful_, and _inclusive_. If you have these goals in mind when interacting in the community, you're on the right track!
 
