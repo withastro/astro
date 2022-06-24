@@ -16,6 +16,7 @@ export function isVNode(vnode: any): vnode is AstroVNode {
 }
 
 export function transformSlots(vnode: AstroVNode) {
+	if (typeof vnode.type === 'string') return vnode;
 	if (!Array.isArray(vnode.props.children)) return;
 	const slots: Record<string, any> = {};
 	vnode.props.children = vnode.props.children.map(child => {
