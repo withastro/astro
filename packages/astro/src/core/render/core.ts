@@ -140,11 +140,5 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		ssr,
 	});
 
-	if (!Component.isAstroComponentFactory) {
-		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
-		const html = await renderComponent(result, Component.name, Component, props, null);
-		return new Response(html.toString(), result.response);
-	} else {
-		return await renderPage(result, Component, pageProps, null);
-	}
+	return await renderPage(result, Component, pageProps, null);
 }
