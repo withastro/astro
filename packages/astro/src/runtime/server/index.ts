@@ -344,7 +344,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		if (isPage) {
+		if (isPage || renderer?.name === 'astro:jsx') {
 			return html;
 		}
 		return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
