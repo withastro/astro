@@ -1,5 +1,13 @@
 # @astrojs/lit
 
+## 0.3.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => Lit components.
+
+  All slots are treated as Light DOM content.
+
 ## 0.2.0
 
 ### Minor Changes

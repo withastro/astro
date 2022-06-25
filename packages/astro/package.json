@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-beta.53",
+  "version": "1.0.0-beta.56",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -27,6 +27,8 @@
     ".": "./astro.js",
     "./env": "./env.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
+    "./jsx/*": "./dist/jsx/*",
+    "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
     "./internal": "./internal.js",
     "./app": "./dist/core/app/index.js",
@@ -78,7 +80,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.16.1",
+    "@astrojs/compiler": "^0.17.0",
     "@astrojs/language-server": "^0.13.4",
     "@astrojs/markdown-remark": "^0.11.3",
     "@astrojs/prism": "0.4.1",
@@ -87,6 +89,7 @@
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",
+    "@babel/plugin-transform-react-jsx": "^7.17.12",
     "@babel/traverse": "^7.18.2",
     "@proload/core": "^0.3.2",
     "@proload/plugin-tsm": "^0.2.1",
@@ -105,7 +108,6 @@
     "gray-matter": "^4.0.3",
     "html-entities": "^2.3.3",
     "html-escaper": "^3.0.3",
-    "htmlparser2": "^7.2.0",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.9",
     "micromorph": "^0.1.2",

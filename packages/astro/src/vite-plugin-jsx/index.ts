@@ -17,6 +17,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
 	'solid-js': "import 'solid-js/web'",
+	astro: "import 'astro/jsx-runtime'",
 };
 
 // A code snippet to inject into JS files to prevent esbuild reference bugs.
@@ -167,9 +168,9 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			if (!importSource) {
 				const multiline = code.match(/\/\*\*[\S\s]*\*\//gm) || [];
 				for (const comment of multiline) {
-					const [_, lib] = comment.match(/@jsxImportSource\s*(\S+)/) || [];
+					const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
 					if (lib) {
-						importSource = lib;
+						importSource = lib.trim();
 						break;
 					}
 				}

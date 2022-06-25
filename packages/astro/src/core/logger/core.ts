@@ -137,7 +137,7 @@ export function warnIfUsingExperimentalSSR(opts: LogOptions, config: AstroConfig
 			opts,
 			'warning',
 			bold(`Warning:`),
-			`SSR support is still experimental and subject to API changes. If using in production pin your dependencies to prevent accidental breakage.`
+			`SSR support is still experimental and subject to API changes. If using in production, pin your dependencies to prevent accidental breakage.`
 		);
 	}
 }

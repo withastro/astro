@@ -1,5 +1,74 @@
 # astro
 
+## 1.0.0-beta.56
+
+### Patch Changes
+
+- [#3705](https://github.com/withastro/astro/pull/3705) [`b5e3403f`](https://github.com/withastro/astro/commit/b5e3403fa151710be4837f6ad265d836adb08025) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build some times breaking in large sites
+
+* [#3702](https://github.com/withastro/astro/pull/3702) [`b11e3b38`](https://github.com/withastro/astro/commit/b11e3b38ebb59ceec3479cbf580276d3b3bd657c) Thanks [@matthewp](https://github.com/matthewp)! - Ensure import.meta.env.SSR is true in SSR mode
+
+## 1.0.0-beta.55
+
+### Patch Changes
+
+- [#3696](https://github.com/withastro/astro/pull/3696) [`3daaf510`](https://github.com/withastro/astro/commit/3daaf510ea767fba47ef52d2253b6221967f3b53) Thanks [@matthewp](https://github.com/matthewp)! - Support for streaming responses
+
+  Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
+
+  ```astro
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
+  <html>
+  <head>
+  <title>App</title>
+  </head>
+  <body>
+    <LoadTodos />
+  </body>
+  </html>
+  ```
+
+  In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
+
+  As part of this Astro also now supports async iterables within its templates. This means you can do this:
+
+  ```astro
+  <ul>
+    {(async function * () {
+      for(const number of numbers) {
+        await wait(1000);
+
+        yield <li>Number: {number}</li>
+        yield '\n'
+      }
+    })()}
+  </ul>
+  ```
+
+  Which will stream out `<li>`s one at a time, waiting a second between each.
+
+* [#3700](https://github.com/withastro/astro/pull/3700) [`47c81eff`](https://github.com/withastro/astro/commit/47c81effa69fb5d7f1e576f88c27d5071f1888e3) Thanks [@matthewp](https://github.com/matthewp)! - Make Astro.redirect use a 302 status code
+
+## 1.0.0-beta.54
+
+### Patch Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add renderer support for passing named slots to framework components.
+
+  **BREAKING**: integrations using the `addRenderer()` API are now passed all named slots via `Record<string, string>` rather than `string`. Previously only the default slot was passed.
+
+* [#3649](https://github.com/withastro/astro/pull/3649) [`446f8c4f`](https://github.com/withastro/astro/commit/446f8c4f13de04324697e958af027ac8943a039b) Thanks [@dc7290](https://github.com/dc7290)! - Added test for dir parameter in astro:build:done
+
+- [#3679](https://github.com/withastro/astro/pull/3679) [`fa7ed3f3`](https://github.com/withastro/astro/commit/fa7ed3f3a9ce89c1c46e637b584271a6e199d211) Thanks [@matthewp](https://github.com/matthewp)! - Moves head injection to happen during rendering
+
+  This change makes it so that head injection; to insert component stylesheets, hoisted scripts, for example, to happen during rendering than as a post-rendering step.
+
+  This is to enable streaming. This change will only be noticeable if you are rendering your `<head>` element inside of a framework component. If that is the case then the head items will be injected before the first non-head element in an Astro file instead.
+
+  In the future we may offer a `<Astro.Head>` component as a way to control where these scripts/styles are inserted.
+
 ## 1.0.0-beta.53
 
 ### Patch Changes

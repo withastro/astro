@@ -113,10 +113,12 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
+	const headers = new Headers();
+	headers.set('Transfer-Encoding', 'chunked');
 	const response: ResponseInit = {
 		status: 200,
 		statusText: 'OK',
-		headers: new Headers(),
+		headers,
 	};
 
 	// Make headers be read-only
@@ -150,7 +152,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
-								status: 301,
+								status: 302,
 								headers: {
 									Location: path,
 								},
@@ -221,7 +223,6 @@ ${extra}`
 		},
 		resolve,
 		_metadata: {
-			needsHydrationStyles: false,
 			renderers,
 			pathname,
 		},

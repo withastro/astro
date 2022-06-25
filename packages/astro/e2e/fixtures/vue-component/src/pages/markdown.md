@@ -1,4 +1,5 @@
 ---
+layout: ../components/Layout.astro
 setup: |
   import Counter from '../components/Counter.vue';
   import VueComponent from '../components/VueComponent.vue';

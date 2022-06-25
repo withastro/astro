@@ -65,7 +65,7 @@ describe('CSS', function () {
 
 			it('Using hydrated components adds astro-island styles', async () => {
 				const inline = $('style').html();
-				expect(inline).to.include('display: contents');
+				expect(inline).to.include('display:contents');
 			});
 
 			it('<style lang="sass">', async () => {
