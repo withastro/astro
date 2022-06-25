@@ -3,7 +3,7 @@ import { metadata } from './metadata.js';
 import type { PluginContext } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
-import type { IntegrationOptions } from './types.js';
+import type { IntegrationOptions } from './types';
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) => /^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);

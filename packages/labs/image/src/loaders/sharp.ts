@@ -1,9 +1,9 @@
 import sharp from 'sharp';
-import { ImageMetadata, isAspectRatioString, isOutputFormat } from '../types.js';
-import type { ImageProps, OutputFormat, SSRImageService } from '../types.js';
+import { isAspectRatioString, isOutputFormat } from '../utils.js';
+import type { TransformOptions, OutputFormat, SSRImageService } from '../types';
 
 class SharpService implements SSRImageService {	
-	async getImageAttributes(props: ImageProps) {
+	async getImageAttributes(props: TransformOptions) {
 		const { width, height } = props;
 	
 		return {
@@ -12,7 +12,7 @@ class SharpService implements SSRImageService {
 		}
 	}
 
-	serializeImageProps(props: ImageProps) {
+	serializeImageProps(props: TransformOptions) {
 		const searchParams = new URLSearchParams();
 	
 		if (props.quality) {
@@ -45,7 +45,7 @@ class SharpService implements SSRImageService {
 			return undefined;
 		}
 	
-		let props: ImageProps = { src: searchParams.get('href')! };
+		let props: TransformOptions = { src: searchParams.get('href')! };
 
 		if (searchParams.has('q')) {
 			props.quality = parseInt(searchParams.get('q')!);
@@ -79,7 +79,7 @@ class SharpService implements SSRImageService {
 		return props;
 	}
 
-	async transform(inputBuffer: Buffer, props: ImageProps) {
+	async transform(inputBuffer: Buffer, props: TransformOptions) {
 		const sharpImage = sharp(inputBuffer, { failOnError: false });
 	
 		if (props.width || props.height) {

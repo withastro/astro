@@ -1,16 +1,14 @@
 ---
-import { getImage } from '..';
+// @ts-ignore
 import loader from 'virtual:image-loader';
-import type { ImageMetadata, ImageProps, OutputFormat } from '../dist/types.js';
+import { getImage } from '../src';
+import type { ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
 
-export interface LocalImageProps {
-	src: ImageMetadata;
-	format?: OutputFormat;
-	width?: number;
-	height?: number;
+export interface LocalImageProps extends Omit<TransformOptions, 'src'> {
+	src: ImageMetadata;	
 }
 
-export interface RemoteImageProps {
+export interface RemoteImageProps extends TransformOptions {
 	src: string;
 	format: OutputFormat;
 	width: number;
@@ -25,24 +23,31 @@ function isLocalImage(props: Props): props is LocalImageProps {
 	return typeof props.src !== 'string';
 }
 
-function resolveProps(props: ImageProps): ImageProps {
+function resolveProps(props: Props): TransformOptions {
 	if (!isLocalImage(props)) {
 		return props;
 	}
 
+	let { width, height, aspectRatio, format } = props;
 	const { src, ...metadata } = props.src;
 
-	// TODO: need to handle users overriding dimensions with width + aspectRatio
-	// metadata should really be ignored
+	if (!width && !height) {
+		width = metadata.width;
+		height = metadata.height;
+	} else if (height || width) {
+		aspectRatio = aspectRatio || metadata.width / metadata.height;
+	}
 	
 	return {
-		...metadata, // default to metadata from vite-plugin-astro-image
-		...props, // allow users to override metadata props
-		src, // return the resolved src from the metadata object
+		width,
+		height,
+		aspectRatio,
+		src,
+		format,
 	}
 }
 
-function calculateSize(props: ImageProps): ImageProps {
+function calculateSize(props: TransformOptions): TransformOptions {
 	// keep width & height as provided
 	if (props.width && props.height) {
 		return props;

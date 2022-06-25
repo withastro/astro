@@ -1,22 +1,15 @@
-/**
- * Checks if a string is a supported output image format.
- * 
- * @param value Value to be validated.
- * @returns {Boolean} true if the string is a supported output format, false otherwise.
- */
-export function isOutputFormat(value: string): value is OutputFormat {
-	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
-}
+export * from './index';
 
-/**
- * Checks if a string is a valid aspect ratio, ex: "16:9" or "3:4".
- * 
- * @param value Value to be validated.
- * @returns {Boolean} true if the string is a valid aspect ratio, false otherwise.
- */
-export function isAspectRatioString(value: string): value is `${number}:${number}` {
-	return /^\d*:\d*$/.test(value);
-}
+export type InputFormat =
+  | 'heic'
+	| 'heif'
+	| 'avif'
+	| 'jpeg'
+	| 'jpg'
+	| 'png'
+	| 'tiff'
+	| 'webp'
+	| 'gif';
 
 export type OutputFormat =
 	| 'avif'
@@ -30,7 +23,7 @@ export type OutputFormat =
  * This is only used for static production builds and ignored when an SSR adapter is used,
  * or in `astro dev` for static builds.
  */
-export type FilenameFormatter = (props: ImageProps) => string;
+export type FilenameFormatter = (props: TransformOptions) => string;
 
 export interface IntegrationOptions {
 	/**
@@ -42,7 +35,7 @@ export interface IntegrationOptions {
 /**
  * Defines the original image and transforms that need to be applied to it.
  */
-export interface ImageProps {
+export interface TransformOptions {
 	/**
 	 * Source for the original image file.
 	 * 
@@ -84,14 +77,14 @@ export interface ImageProps {
 
 export type ImageAttributes = Partial<HTMLImageElement>;
 
-export interface HostedImageService<T extends ImageProps = ImageProps> {
+export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
 	getImageAttributes(props: T): Promise<ImageAttributes>;
 }
 
-export interface SSRImageService<T extends ImageProps = ImageProps> extends HostedImageService<T> {
+export interface SSRImageService<T extends TransformOptions = TransformOptions> extends HostedImageService<T> {
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
@@ -100,14 +93,14 @@ export interface SSRImageService<T extends ImageProps = ImageProps> extends Host
 	 * Serializes image transformation properties to URLSearchParams, used to build
 	 * the final `src` that points to the self-hosted SSR endpoint.
 	 * 
-	 * @param props @type {ImageProps} defining the requested image transformation.
+	 * @param props @type {TransformOptions} defining the requested image transformation.
 	 */
 	serializeImageProps(props: T): { searchParams: URLSearchParams };
 	/**
 	 * The reverse of `serializeImageProps(props)`, this parsed the @type {ImageProps} back out of a given URL.
 	 * 
 	 * @param searchParams @type {URLSearchParams}
-	 * @returns @type {ImageProps} used to generate the URL, or undefined if the URL isn't valid.
+	 * @returns @type {TransformOptions} used to generate the URL, or undefined if the URL isn't valid.
 	 */
 	parseImageProps(searchParams: URLSearchParams): T | undefined;
 	/**
@@ -115,15 +108,16 @@ export interface SSRImageService<T extends ImageProps = ImageProps> extends Host
 	 * final image format of the optimized image.
 	 * 
 	 * @param inputBuffer Binary buffer containing the original image.
-	 * @param props @type {ImageProps} defining the requested transformations.
+	 * @param props @type {TransformOptions} defining the requested transformations.
 	 */
 	transform(inputBuffer: Buffer, props: T): Promise<{ data: Buffer, format: OutputFormat }>;
 }
 
-export type ImageService<T extends ImageProps = ImageProps> = HostedImageService<T> | SSRImageService<T>;
+export type ImageService<T extends TransformOptions = TransformOptions> = HostedImageService<T> | SSRImageService<T>;
 
 export interface ImageMetadata {
+	src: string;
 	width: number;
 	height: number;
-	format: string;
+	format: InputFormat;
 }

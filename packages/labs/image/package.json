@@ -3,7 +3,7 @@
   "description": "Load and transform images in your site.",
   "version": "0.0.1",
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/types.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {

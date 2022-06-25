@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import sizeOf from 'image-size';
-import { ImageMetadata } from './types';
+import { ImageMetadata, InputFormat } from './types';
 
 export async function metadata(src: string): Promise<ImageMetadata | undefined> {
 	const file = await fs.readFile(src);
@@ -12,8 +12,9 @@ export async function metadata(src: string): Promise<ImageMetadata | undefined> 
 	}
 
 	return {
+		src,
 		width,
 		height,
-		format: type
+		format: type as InputFormat
 	}
 }

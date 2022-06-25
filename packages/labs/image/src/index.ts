@@ -3,7 +3,7 @@ import path from 'path';
 import { ensureDir, isRemoteImage, loadImage, propsToFilename } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
-import type { ImageAttributes, ImageProps, IntegrationOptions, SSRImageService } from './types.js';
+import type { ImageAttributes, IntegrationOptions, SSRImageService, TransformOptions } from './types';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
@@ -13,10 +13,10 @@ const OUTPUT_DIR = '/_image';
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  * 
  * @param loader @type {ImageService} The image service used for transforming images.
- * @param props @type {ImageProps} The transformations requested for the optimized image.
+ * @param props @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
-export async function getImage(loader: SSRImageService, props: ImageProps): Promise<ImageAttributes> {
+export async function getImage(loader: SSRImageService, props: TransformOptions): Promise<ImageAttributes> {
 	(globalThis as any).loader = loader;
 
   const attributes = await loader.getImageAttributes(props);
@@ -51,7 +51,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 	};
 
 	// During SSG builds, this is used to track all transformed images required.
-	const staticImages = new Map<string, ImageProps>();
+	const staticImages = new Map<string, TransformOptions>();
 
 	let _config: AstroConfig;
 
@@ -76,12 +76,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any).addStaticImage = (props: ImageProps) => {
+				(globalThis as any).addStaticImage = (props: TransformOptions) => {
 					staticImages.set(propsToFilename(props), props);
 				}
 
 				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any).filenameFormat = (props: ImageProps, searchParams: URLSearchParams) => {
+				(globalThis as any).filenameFormat = (props: TransformOptions, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
 						return path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(propsToFilename(props)));
 					} else {

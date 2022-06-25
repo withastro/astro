@@ -1,6 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import type { ImageProps } from './types.js';
+import type { OutputFormat, TransformOptions } from './types';
+
+ export function isOutputFormat(value: string): value is OutputFormat {
+	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
+}
+
+export function isAspectRatioString(value: string): value is `${number}:${number}` {
+	return /^\d*:\d*$/.test(value);
+}
 
 export function ensureDir(dir: string) {
 	fs.mkdirSync(dir, { recursive: true });
@@ -38,7 +46,7 @@ export async function loadImage(src: string) {
 		: await loadLocalImage(src);
 }
 
-export function propsToFilename({ src, width, height, format }: ImageProps) {
+export function propsToFilename({ src, width, height, format }: TransformOptions) {
 	const ext = path.extname(src);
 	let filename = src.replace(ext, '');
 
