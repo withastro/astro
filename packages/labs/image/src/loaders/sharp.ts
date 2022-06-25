@@ -52,7 +52,7 @@ class SharpService implements SSRImageService {
 		}
 	
 		if (props.aspectRatio) {
-			searchParams.append('ratio', props.aspectRatio.toString());
+			searchParams.append('ar', props.aspectRatio.toString());
 		}
 	
 		searchParams.append('href', props.src);
@@ -86,8 +86,8 @@ class SharpService implements SSRImageService {
 			props.height = parseInt(searchParams.get('h')!);
 		}
 	
-		if (searchParams.has('ratio')) {
-			const ratio = searchParams.get('ratio')!;
+		if (searchParams.has('ar')) {
+			const ratio = searchParams.get('ar')!;
 	
 			if (isAspectRatioString(ratio)) {
 				props.aspectRatio = ratio;

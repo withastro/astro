@@ -26,17 +26,20 @@ function isLocalImage(props: Props): props is LocalImageProps {
 }
 
 function resolveProps(props: ImageProps): ImageProps {
-	if (isLocalImage(props)) {
-		const { src, ...metadata } = props.src;
-		
-		return {
-			...metadata, // default to metadata from vite-plugin-astro-image
-			...props, // allow users to override metadata props
-			src // return the resolved src from the metadata object
-		}
+	if (!isLocalImage(props)) {
+		return props;
 	}
 
-	return props;
+	const { src, ...metadata } = props.src;
+
+	// TODO: need to handle users overriding dimensions with width + aspectRatio
+	// metadata should really be ignored
+	
+	return {
+		...metadata, // default to metadata from vite-plugin-astro-image
+		...props, // allow users to override metadata props
+		src, // return the resolved src from the metadata object
+	}
 }
 
 function calculateSize(props: ImageProps): ImageProps {
@@ -83,7 +86,6 @@ function calculateSize(props: ImageProps): ImageProps {
 }
 
 const props = Astro.props as Props;
-
 const imageProps = calculateSize(resolveProps(props));
 
 const attrs = await getImage(loader, imageProps);

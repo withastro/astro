@@ -32,7 +32,7 @@ describe('Sharp service', () => {
 				verifyProp(props.format, 'f');
 				verifyProp(props.width, 'w');
 				verifyProp(props.height, 'h');
-				verifyProp(props.aspectRatio, 'ratio');
+				verifyProp(props.aspectRatio, 'ar');
 			});
 		});
 	});
@@ -48,8 +48,8 @@ describe('Sharp service', () => {
 			['width', `/_image?w=1280&href=${href}`, { src, width: 1280 }],
 			['height', `/_image?h=414&href=${href}`, { src, height: 414 }],
 			['width & height', `/_image?w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
-			['aspect ratio string', `/_image?ratio=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
-			['aspect ratio float', `/_image?ratio=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
+			['aspect ratio string', `/_image?ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
+			['aspect ratio float', `/_image?ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
 		].forEach(([description, url, expected]) => {
 			it(description, async () => {
 				const props = sharp.parseImageProps(url);
