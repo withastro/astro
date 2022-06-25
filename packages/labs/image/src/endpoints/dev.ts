@@ -24,7 +24,7 @@ export const get: APIRoute = async ({ request }) => {
 		return new Response(data, {
 			status: 200,
 			headers: {
-				'content-type': lookup(format) || '',
+				'Content-Type': lookup(format) || ''
 			}
 		});
 	} catch (err: unknown) {

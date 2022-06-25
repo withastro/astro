@@ -32,6 +32,7 @@
     "test": "mocha --exit --timeout 2000 test"
   },
   "dependencies": {
+    "etag": "^1.8.1",
     "image-size": "^1.0.1",
     "image-type": "^4.1.0",
     "mime-types": "^2.1.35",
@@ -39,6 +40,7 @@
     "sharp": "^0.30.6"
   },
   "devDependencies": {
+    "@types/etag": "^1.8.1",
     "@types/sharp": "^0.30.4",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"

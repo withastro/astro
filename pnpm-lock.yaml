@@ -4,26 +4,36 @@ importers:
 
   packages/labs/image:
     specifiers:
+      '@types/etag': ^1.8.1
       '@types/sharp': ^0.30.4
       astro: workspace:*
       astro-scripts: workspace:*
+      etag: ^1.8.1
       image-size: ^1.0.1
       image-type: ^4.1.0
       mime-types: ^2.1.35
       mrmime: ^1.0.0
       sharp: ^0.30.6
     dependencies:
+      etag: 1.8.1
       image-size: 1.0.1
       image-type: 4.1.0
       mime-types: 2.1.35
       mrmime: 1.0.1
       sharp: 0.30.6
     devDependencies:
+      '@types/etag': 1.8.1
       '@types/sharp': 0.30.4
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
 packages:
+
+  /@types/etag/1.8.1:
+    resolution: {integrity: sha512-bsKkeSqN7HYyYntFRAmzcwx/dKW4Wa+KVMTInANlI72PWLQmOpZu96j0OqHZGArW4VQwCmJPteQlXaUDeOB0WQ==}
+    dependencies:
+      '@types/node': 17.0.41
+    dev: true
 
   /@types/node/17.0.41:
     resolution: {integrity: sha512-xA6drNNeqb5YyV5fO3OAEsnXLfO7uF0whiOfPTz5AeDo8KeZFmODKnvwPymMNO8qE/an8pVY/O50tig2SQCrGw==}
@@ -105,6 +115,11 @@ packages:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
     dependencies:
       once: 1.4.0
+    dev: false
+
+  /etag/1.8.1:
+    resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
+    engines: {node: '>= 0.6'}
     dev: false
 
   /expand-template/2.0.3:
