@@ -24,7 +24,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.47"
   },
   "devDependencies": {
     "astro": "workspace:*",

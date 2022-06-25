@@ -13,11 +13,11 @@
     "@nanostores/react": "^0.1.5",
     "@nanostores/vue": "^0.4.1",
     "nanostores": "^0.5.12",
-    "preact": "^10.7.3",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "preact": "^10.8.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "solid-nanostores": "0.0.6",
-    "vue": "^3.2.36"
+    "vue": "^3.2.37"
   },
   "devDependencies": {
     "@astrojs/preact": "^0.2.0",

@@ -6,6 +6,6 @@
     "@astrojs/lit": "workspace:*",
     "@webcomponents/template-shadowroot": "^0.1.0",
     "astro": "workspace:*",
-    "lit": "^2.2.5"
+    "lit": "^2.2.6"
   }
 }
