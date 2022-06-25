@@ -1,8 +1,10 @@
 import { AstroIntegration, AstroRenderer } from 'astro';
 
+const name = '@astrojs/preact/compat';
+
 function getRenderer(): AstroRenderer {
 	return {
-		name: '@astrojs/preact',
+		name,
 		clientEntrypoint: '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
@@ -43,7 +45,7 @@ function getViteConfiguration() {
 
 export default function (): AstroIntegration {
 	return {
-		name: '@astrojs/preact/compat',
+		name,
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig }) => {
 				addRenderer(getRenderer());
