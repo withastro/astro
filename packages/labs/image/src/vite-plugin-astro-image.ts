@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
+import { metadata } from './metadata.js';
 import type { PluginContext } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
-import type { ImageService, IntegrationOptions } from './types.js';
+import type { IntegrationOptions } from './types.js';
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) => /^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
@@ -24,15 +25,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 		return loaderModuleId;
 	}
 
-	async function importLoader(context: PluginContext) {
-			const moduleId = await resolveLoader(context);
-			const module = await import(moduleId);
-			if (!module) {
-				throw new Error(`"${options.serviceEntryPoint}" could not be found`);
-			}
-			return module.default;
-	}
-
 	return {
 		name: '@astrojs/image',
 		enforce: 'pre',
@@ -51,9 +43,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// only claim image ESM imports
 			if (!filter(id)) { return null; }
 
-			const loader = await importLoader(this);
-
-			const meta = loader.getImageMetadata ? await loader.getImageMetadata(id) : { };
+			const meta = await metadata(id);
 
 			const src = resolvedConfig.isProduction
 				?  id.replace(config.srcDir.pathname, '/')

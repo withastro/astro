@@ -1,13 +1,19 @@
-import sharp from 'sharp';
+import fs from 'fs/promises';
+import sizeOf from 'image-size';
 import { ImageMetadata } from './types';
 
-export async function metadata(src: string): Promise<ImageMetadata> {
-	const image = sharp(src);
-	const metadata = await image.metadata();
+export async function metadata(src: string): Promise<ImageMetadata | undefined> {
+	const file = await fs.readFile(src);
+
+	const { width, height, type } = await sizeOf(file);
+
+	if (!width || !height || !type) {
+		return undefined;
+	}
 
 	return {
-		width: metadata.width!,
-		height: metadata.height!,
-		format: metadata.format!
+		width,
+		height,
+		format: type
 	}
 }

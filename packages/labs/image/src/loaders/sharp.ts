@@ -2,27 +2,7 @@ import sharp from 'sharp';
 import { ImageMetadata, isAspectRatioString, isOutputFormat } from '../types.js';
 import type { ImageProps, OutputFormat, SSRImageService } from '../types.js';
 
-class SharpService implements SSRImageService {
-	async getImageMetadata(pathname: string) {
-		try {
-			const image = sharp(pathname);
-			const metadata = await image.metadata();
-
-			if (!metadata || !metadata.width || !metadata.height || !metadata.format) {
-				return undefined;
-			}
-
-			return {
-				width: metadata.width!,
-				height: metadata.height!,
-				format: metadata.format!
-			}
-		} catch (err) {
-			console.error(err);
-			return undefined;
-		}
-	}
-	
+class SharpService implements SSRImageService {	
 	async getImageAttributes(props: ImageProps) {
 		const { width, height } = props;
 	

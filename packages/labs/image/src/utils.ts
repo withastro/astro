@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import type { ImageProps } from './types.js';
@@ -51,4 +52,12 @@ export function propsToFilename({ src, width, height, format }: ImageProps) {
 	}
 
 	return format ? src.replace(ext, format) : src;
+}
+
+export function getHash(buffer: Buffer) {
+	const hash = createHash('sha256');
+	hash.update(buffer);
+
+	// See https://en.wikipedia.org/wiki/Base64#Filenames
+  return hash.digest('base64').replace(/\//g, '-');
 }

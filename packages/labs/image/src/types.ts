@@ -93,13 +93,6 @@ export interface HostedImageService<T extends ImageProps = ImageProps> {
 
 export interface SSRImageService<T extends ImageProps = ImageProps> extends HostedImageService<T> {
 	/**
-	 * Gets image metadata for a local image file, if found.
-	 * 
-	 * @param pathname Full path to the image file
-	 * @returns @type {ImageMetadata} for the original image file, if found.
-	 */
-	getImageMetadata(pathname: string): Promise<ImageMetadata | undefined>;
-	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
 	 getImageAttributes(props: T): Promise<Exclude<ImageAttributes, 'src'>>;

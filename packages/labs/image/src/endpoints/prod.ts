@@ -1,7 +1,7 @@
 // @ts-ignore
 import loader from 'virtual:image-loader';
 import { lookup } from 'mrmime';
-import { isRemoteImage, loadRemoteImage } from '../utils.js';
+import { getHash, isRemoteImage, loadRemoteImage } from '../utils.js';
 import type { APIRoute } from 'astro';
 
 export const get: APIRoute = async ({ request }) => {
@@ -24,11 +24,14 @@ export const get: APIRoute = async ({ request }) => {
 
 		const { data, format } = await loader.transform(inputBuffer, props);
 
+		const etag = getHash(inputBuffer);
+
 		return new Response(data, {
 			status: 200,
 			headers: {
 				'Content-Type': lookup(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
+				'ETag': etag,
 				'Date': (new Date()).toUTCString(),
 			}
 		});
