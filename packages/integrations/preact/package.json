@@ -20,7 +20,6 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
-    "./compat": "./dist/compat/index.js",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"
