@@ -37,26 +37,27 @@ type CLICommand =
 function printAstroHelp() {
 	printHelp({
 		commandName: 'astro',
+		usage: '[command] [...flags]',
 		headline: 'Futuristic web development tool.',
-		commands: [
-			['add', 'Add an integration to your configuration.'],
-			['docs', "Launch Astro's Doc site directly from the terminal. "],
-			['dev', 'Run Astro in development mode.'],
-			['build', 'Build a pre-compiled production-ready site.'],
-			['preview', 'Preview your build locally before deploying.'],
-			['check', 'Check your project for errors.'],
-			['telemetry', 'Enable/disable anonymous data collection.'],
-			['--version', 'Show the version number and exit.'],
-			['--help', 'Show this help message.'],
-		],
-		flags: [
-			['--host [optional IP]', 'Expose server on network'],
-			['--config <path>', 'Specify the path to the Astro config file.'],
-			['--root <path>', 'Specify the path to the project root folder.'],
-			['--drafts', 'Include markdown draft pages in the build.'],
-			['--verbose', 'Enable verbose logging'],
-			['--silent', 'Disable logging'],
-		],
+		tables: {
+			Commands: [
+				['add', 'Add an integration.'],
+				['build', 'Build your project and write it to disk.'],
+				['check', 'Check your project for errors.'],
+				['dev', 'Start the development server.'],
+				['docs', "Open documentation in your web browser."],
+				['preview', 'Preview your build locally.'],
+				['telemetry', 'Configure telemetry settings.'],
+			],
+			'Global Flags': [
+				['--config <path>', 'Specify your config file.'],
+				['--root <path>', 'Specify your project root folder.'],
+				['--verbose', 'Enable verbose logging.'],
+				['--silent', 'Disable all logging.'],
+				['--version', 'Show the version number and exit.'],
+				['--help', 'Show this help message.'],
+			],
+		},
 	});
 }
 

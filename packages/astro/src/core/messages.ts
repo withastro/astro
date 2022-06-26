@@ -248,29 +248,28 @@ export function printHelp({
 	commandName,
 	headline,
 	usage,
-	commands,
-	flags,
+	tables,
+	description,
 }: {
 	commandName: string;
 	headline?: string;
 	usage?: string;
-	commands?: [command: string, help: string][];
-	flags?: [flag: string, help: string][];
+	tables?: Record<string, [command: string, help: string][]>;
+	description?: string,
 }) {
 	const linebreak = () => '';
 	const title = (label: string) => `  ${bgWhite(black(` ${label} `))}`;
-	const table = (rows: [string, string][], opts: { padding: number; prefix: string }) => {
-		const split = rows.some((row) => {
-			const message = `${opts.prefix}${' '.repeat(opts.padding)}${row[1]}`;
-			return message.length > process.stdout.columns;
-		});
-
+	const table = (rows: [string, string][], { padding }: { padding: number }) => {
+		const split = process.stdout.columns < 60;
 		let raw = '';
 
 		for (const row of rows) {
-			raw += `${opts.prefix}${bold(`${row[0]}`.padStart(opts.padding - opts.prefix.length))}`;
-			if (split) raw += '\n    ';
-			raw += ' ' + dim(row[1]) + '\n';
+			if (split) {
+				raw += `    ${row[0]}\n    `;
+			} else {
+				raw += `${(`${row[0]}`.padStart(padding))}`;
+			}
+			raw += '  ' + dim(row[1]) + '\n';
 		}
 
 		return raw.slice(0, -1); // remove latest \n
@@ -291,18 +290,21 @@ export function printHelp({
 		message.push(linebreak(), `  ${green(commandName)} ${bold(usage)}`);
 	}
 
-	if (commands) {
-		message.push(
-			linebreak(),
-			title('Commands'),
-			table(commands, { padding: 28, prefix: `  ${commandName || 'astro'} ` })
-		);
+	if (tables) {
+		function calculateTablePadding(rows: [string, string][]) {
+			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
+		};
+		const tableEntries = Object.entries(tables);
+		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
+		for (const [tableTitle, tableRows] of tableEntries) {
+			message.push(linebreak(), title(tableTitle), table(tableRows, { padding }));
+		}
 	}
 
-	if (flags) {
-		message.push(linebreak(), title('Flags'), table(flags, { padding: 28, prefix: '  ' }));
+	if (description) {
+		message.push(linebreak(), `${description}`);
 	}
 
 	// eslint-disable-next-line no-console
-	console.log(message.join('\n'));
+	console.log(message.join('\n') + '\n');
 }
