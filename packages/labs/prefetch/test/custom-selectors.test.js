@@ -1,9 +1,17 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
+import prefetch from '../dist/index.js';
 
-const test = testFactory({ root: './fixtures/basic-prefetch/' });
+const test = testFactory({
+	root: './fixtures/basic-prefetch/',
+	integrations: [
+		prefetch({
+			selectors: 'a[href="/admin"]'
+		}),
+	]
+});
 
-test.describe('Basic prefetch', () => {
+test.describe('Custom prefetch selectors', () => {
 	test.describe('dev', () => {
 		let devServer;
 
@@ -15,8 +23,8 @@ test.describe('Basic prefetch', () => {
 			await devServer.stop();
 		});
 
-		test.describe('prefetches rel="prefetch" links', () => {
-			test('skips /admin', async ({ page, astro }) => {
+		test.describe('prefetches links by custom selector', () => {
+			test('only prefetches /contact', async ({ page, astro }) => {
 				const requests = new Set();
 
 				page.on('request', async (request) => requests.add(request.url()));
@@ -25,7 +33,7 @@ test.describe('Basic prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.has(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
+				await expect(requests.has(astro.resolveUrl('/about')), '/about was skipped').toBeFalsy();
 				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});
@@ -45,8 +53,8 @@ test.describe('Basic prefetch', () => {
 			await previewServer.stop();
 		});
 
-		test.describe('prefetches rel="prefetch" links', () => {
-			test('skips /admin', async ({ page, astro }) => {
+		test.describe('prefetches links by custom selector', () => {
+			test('only prefetches /contact', async ({ page, astro }) => {
 				const requests = new Set();
 
 				page.on('request', async (request) => requests.add(request.url()));
@@ -55,7 +63,7 @@ test.describe('Basic prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.has(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
+				await expect(requests.has(astro.resolveUrl('/about')), '/about was skipped').toBeFalsy();
 				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});

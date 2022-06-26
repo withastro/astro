@@ -58,11 +58,9 @@ async function preloadHref(link: HTMLAnchorElement) {
 
 export interface PrefetchOptions {
 	selectors?: string | HTMLAnchorElement[];
-	root?: ParentNode;
 }
 
 export default function prefetch({
-	root = document,
 	selectors = 'a[href][rel="prefetch"]',
 }: PrefetchOptions) {
 	const [toAdd, isDone] = throttle();
@@ -79,7 +77,7 @@ export default function prefetch({
 
 	requestIdleCallback(() => {
 		const links = Array.from(
-			typeof selectors === 'string' ? root.querySelectorAll<HTMLAnchorElement>(selectors) : selectors
+			typeof selectors === 'string' ? document.querySelectorAll<HTMLAnchorElement>(selectors) : selectors
 		).filter(shouldPreload);
 
 		for (const link of links) {
