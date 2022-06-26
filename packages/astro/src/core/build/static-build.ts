@@ -11,7 +11,6 @@ import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
-import { isBuildingToSSR } from '../util.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
@@ -60,9 +59,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	info(
 		opts.logging,
 		'build',
-		isBuildingToSSR(astroConfig)
-			? 'Building SSR entrypoints...'
-			: 'Building entrypoints for prerendering...'
+		`Building ${astroConfig.mode} entrypoints...`
 	);
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
@@ -79,7 +76,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
-	if (opts.buildConfig.staticMode) {
+	if (astroConfig.mode === 'static') {
 		try {
 			await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		} finally {
@@ -96,7 +93,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
-	const ssr = isBuildingToSSR(astroConfig);
+	const ssr = astroConfig.mode === 'server';
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
 	const viteBuildConfig: ViteConfigWithSSR = {
@@ -140,7 +137,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) &&
+			opts.astroConfig.mode === 'server' &&
 				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 			vitePluginAnalyzer(opts.astroConfig, internals),
 		],
@@ -171,7 +168,7 @@ async function clientBuild(
 ) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = isBuildingToSSR(astroConfig);
+	const ssr = astroConfig.mode === 'server';
 	const out = ssr ? opts.buildConfig.client : astroConfig.outDir;
 
 	// Nothing to do if there is no client-side JS.
@@ -272,7 +269,7 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const serverRoot = opts.buildConfig.staticMode
+	const serverRoot = opts.astroConfig.mode === 'static'
 		? opts.buildConfig.client
 		: opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;

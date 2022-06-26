@@ -15,7 +15,7 @@ import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
+import { createSafeError, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
 
@@ -188,7 +188,7 @@ async function handleRequest(
 	const site = config.site ? new URL(config.base, config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = isBuildingToSSR(config);
+	const buildingToSSR = config.mode === 'server';
 	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
 	// routing behavior matches production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
@@ -257,7 +257,7 @@ async function handleRequest(
 			routeCache,
 			pathname: rootRelativeUrl,
 			logging,
-			ssr: isBuildingToSSR(config),
+			ssr: config.mode === 'server',
 		});
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(

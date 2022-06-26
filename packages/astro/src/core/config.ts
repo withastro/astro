@@ -93,7 +93,6 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 ]);
 
 export const AstroConfigSchema = z.object({
-	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	root: z
 		.string()
 		.optional()
@@ -132,6 +131,10 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	mode: z
+	.union([z.literal('static'), z.literal('server')])
+	.optional()
+	.default('static'),
 	build: z
 		.object({
 			format: z
@@ -227,6 +230,9 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
+	// Deprecated: 
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+
 });
 
 /** Turn raw config values into normalized values */

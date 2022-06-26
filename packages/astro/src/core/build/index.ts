@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
+import type { AstroAdapter, AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -14,11 +14,11 @@ import {
 } from '../../integrations/index.js';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { fixViteErrorMessage } from '../errors.js';
-import { debug, info, levels, timerMessage, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
-import { createSafeError, isBuildingToSSR } from '../util.js';
+import { createSafeError } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
@@ -79,7 +79,6 @@ class AstroBuilder {
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		await runHookConfigDone({ config: this.config });
-		warnIfUsingExperimentalSSR(logging, this.config);
 		const viteServer = await vite.createServer(viteConfig);
 		debug('build', timerMessage('Vite started', this.timer.viteStart));
 		return { viteConfig, viteServer };
@@ -98,11 +97,21 @@ class AstroBuilder {
 			client: new URL('./client/', this.config.outDir),
 			server: new URL('./server/', this.config.outDir),
 			serverEntry: 'entry.mjs',
-			staticMode: undefined,
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
-		info(this.logging, 'build', 'Collecting build information...');
+		const getPrettyDeployTarget = (adapter: AstroAdapter | undefined) => {
+			if (adapter?.name === 'node') {
+				return 'node.js (generic)';
+			}
+			if (adapter?.name) {
+				return adapter?.name;
+			}
+			return 'unknown';
+		}
+		info(this.logging, 'build', `build target: ${colors.green(this.config.mode)}`);
+		info(this.logging, 'build', `deploy target: ${colors.green(getPrettyDeployTarget(this.config._ctx.adapter))}`);
+		info(this.logging, 'build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
 			astroConfig: this.config,
@@ -111,7 +120,7 @@ class AstroBuilder {
 			origin,
 			routeCache: this.routeCache,
 			viteServer,
-			ssr: isBuildingToSSR(this.config),
+			ssr: this.config.mode === 'server',
 		});
 
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
@@ -161,12 +170,11 @@ class AstroBuilder {
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {
-			const buildMode = isBuildingToSSR(this.config) ? 'ssr' : 'static';
 			await this.printStats({
 				logging: this.logging,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
-				buildMode,
+				buildMode: this.config.mode,
 			});
 		}
 	}
@@ -191,7 +199,7 @@ class AstroBuilder {
 		logging: LogOptions;
 		timeStart: number;
 		pageCount: number;
-		buildMode: 'static' | 'ssr';
+		buildMode: 'static' | 'server';
 	}) {
 		const total = getTimeStat(timeStart, performance.now());
 

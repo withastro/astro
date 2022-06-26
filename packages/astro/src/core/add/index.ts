@@ -65,6 +65,12 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['solid-js', 'astro add solid-js'],
 					['lit', 'astro add lit'],
 				],
+				'Recommended: Hosting': [
+					['netlify', 'astro add netlify'],
+					['vercel', 'astro add vercel'],
+					['cloudflare', 'astro add cloudflare'],
+					['deno', 'astro add deno'],
+				],
 				'Recommended: Integrations': [
 					['tailwind', 'astro add tailwind'],
 					['partytown', 'astro add partytown'],
