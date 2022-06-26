@@ -76,7 +76,6 @@ export interface BuildConfig {
 	client: URL;
 	server: URL;
 	serverEntry: string;
-	staticMode: boolean | undefined;
 }
 
 /**
@@ -637,7 +636,11 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	adapter?: AstroIntegration;
+	deploy?: AstroIntegration;
+
+	// TODO: Document
+	mode?: 'static' | 'server';
+
 
 	/**
 	 * @docs
@@ -750,7 +753,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
-	adapter?: AstroIntegration;
+
 	// Private:
 	// We have a need to pass context based on configured state,
 	// that is different from the user-exposed configuration.

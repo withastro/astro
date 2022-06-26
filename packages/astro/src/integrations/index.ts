@@ -7,12 +7,11 @@ import {
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
-import ssgAdapter from '../adapter-ssg/index.js';
+import { getGenericNodeAdapter } from '../adapter-node/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
-import { isBuildingToSSR } from '../core/util.js';
 
 export async function runHookConfigSetup({
 	config: _config,
@@ -21,9 +20,10 @@ export async function runHookConfigSetup({
 	config: AstroConfig;
 	command: 'dev' | 'build';
 }): Promise<AstroConfig> {
-	if (_config.adapter) {
-		_config.integrations.push(_config.adapter);
-	}
+	// DEPRECATED
+	// if (_config.adapter) {
+	// 	_config.integrations.push(_config.adapter);
+	// }
 
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
@@ -80,7 +80,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 				setAdapter(adapter) {
 					if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
 						throw new Error(
-							`Adapter already set to ${config._ctx.adapter.name}. You can only have one adapter.`
+							`Integration "${integration.name}" conflicts with "${config._ctx.adapter.name}". You can only configure one deployment integration.`
 						);
 					}
 					config._ctx.adapter = adapter;
@@ -88,22 +88,13 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 			});
 		}
 	}
-	// Call the default adapter
-	if (!config._ctx.adapter) {
-		const integration = ssgAdapter();
-		config.integrations.push(integration);
-		if (integration?.hooks?.['astro:config:done']) {
-			await integration.hooks['astro:config:done']({
-				config,
-				setAdapter(adapter) {
-					config._ctx.adapter = adapter;
-				},
-			});
-		}
-	}
+    // Call the default adapter
+    if (!config._ctx.adapter && config.mode === 'server') {
+		config._ctx.adapter = getGenericNodeAdapter();
+    }
 }
 
-export async function runHookServerSetup({
+export async function runHookServerSetup({ 
 	config,
 	server,
 }: {
@@ -203,7 +194,7 @@ export async function runHookBuildDone({
 	pages: string[];
 	routes: RouteData[];
 }) {
-	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
+	const dir = config.mode === 'server' ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {

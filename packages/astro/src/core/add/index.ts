@@ -66,7 +66,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['--yes', 'Accept all prompts.'],
 					['--help', 'Show this help message.'],
 				],
-				'Example: Add a UI Framework': [
+				'Recommended: UI Frameworks': [
 					['react', 'astro add react'],
 					['preact', 'astro add preact'],
 					['vue', 'astro add vue'],
@@ -74,7 +74,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['solid-js', 'astro add solid-js'],
 					['lit', 'astro add lit'],
 				],
-				'Example: Add an Integration': [
+				'Recommended: Hosting': [
+					['netlify', 'astro add netlify'],
+					['vercel', 'astro add vercel'],
+					['cloudflare', 'astro add cloudflare'],
+					['deno', 'astro add deno'],
+				],
+				'Recommended: Integrations': [
 					['tailwind', 'astro add tailwind'],
 					['partytown', 'astro add partytown'],
 					['sitemap', 'astro add sitemap'],
@@ -85,9 +91,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['deno', 'astro add deno'],
 				],
 			},
-			description: `Check out the full integration catalog: ${cyan(
-				'https://astro.build/integrations'
-			)}`,
+			description: `For more integrations, check out: ${cyan('https://astro.build/integrations')}`,
 		});
 		return;
 	}
