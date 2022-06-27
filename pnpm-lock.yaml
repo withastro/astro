@@ -546,7 +546,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: 3.0.0-beta.1
+      vite: 3.0.0-beta.4
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -604,7 +604,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      vite: 3.0.0-beta.1_sass@1.53.0
+      vite: 3.0.0-beta.4_sass@1.53.0
       yargs-parser: 21.0.1
       zod: 3.17.3
     devDependencies:
@@ -1882,12 +1882,6 @@ importers:
       postcss: 8.4.14
       tailwindcss: 3.1.5
 
-  packages/astro/test/fixtures/virtual-astro-file:
-    specifiers:
-      astro: workspace:*
-    dependencies:
-      astro: link:../../..
-
   packages/astro/test/fixtures/type-imports:
     specifiers:
       astro: workspace:*
@@ -1895,6 +1889,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/unused-slot:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/virtual-astro-file:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -14998,8 +14998,8 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vite/3.0.0-beta.1_sass@1.53.0:
-    resolution: {integrity: sha512-7p9hoj4vHQdPWbWIkP33Y1vxD8JbPRHUl5IhO9xs5uuwFwzUiYC27z9bVnmB9VAj170fmI9VNhAJIvC/Kb9unA==}
+  /vite/3.0.0-beta.4_sass@1.53.0:
+    resolution: {integrity: sha512-GAQwNdG0xqsxypUMHAQgxA91nhG0RLm28shBdqGGKgoUo6GHq1aZQM/8FLhq7RWkx8ItTTMWm0SWgG6CL01W4A==}
     engines: {node: '>=14.18.0'}
     hasBin: true
     peerDependencies:
