@@ -31,3 +31,5 @@ jobs:
         with:
           commit_message: '[ci] format'
           branch: ${{ github.head_ref }}
+          commit_user_name: fredkbot
+          commit_user_email: fred+astrobot@astro.build
