@@ -92,6 +92,28 @@ export default {
 ```
 </details>
 
+<details>
+  <summary><strong>config.throttle</strong></summary>
+  
+  <br/>
+  
+By default the prefetch script will only prefetch one link at a time. This behavior can be changed in your `astro.config.*` file to increase the limit for concurrent downloads.
+  
+  <br/>
+
+```js
+import prefetch from '@astrojs/prefetch';
+
+export default {
+  // ...
+  integrations: [prefetch({
+    // Allow up to three links to be prefetched concurrently
+    throttle: 3
+  })],
+}
+```
+</details>
+
 ## Examples
 
 > Coming soon!

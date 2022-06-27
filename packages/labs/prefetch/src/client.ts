@@ -1,4 +1,4 @@
-import throttle from 'throttles';
+import throttles from 'throttles';
 import requestIdleCallback from './requestIdleCallback.js';
 
 const events = ['mouseenter', 'touchstart', 'focus'];
@@ -63,10 +63,16 @@ export interface PrefetchOptions {
 	 * @default "a[href][rel='prefetch']"
 	 */
 	selector?: string;
+	/**
+	 * The number of pages that can be prefetched concurrently.
+	 * 
+	 * @default 1
+	 */
+	throttle?: number;
 }
 
-export default function prefetch({ selector = 'a[href][rel="prefetch"]' }: PrefetchOptions) {
-	const [toAdd, isDone] = throttle();
+export default function prefetch({ selector = 'a[href][rel="prefetch"]', throttle = 1 }: PrefetchOptions) {
+	const [toAdd, isDone] = throttles(throttle);
 
 	observer =
 		observer ||
