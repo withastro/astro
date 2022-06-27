@@ -1982,6 +1982,33 @@ importers:
       astro-scripts: link:../../../scripts
       preact: 10.7.3
 
+  packages/integrations/prefetch:
+    specifiers:
+      '@types/chai': ^4.3.1
+      '@types/chai-as-promised': ^7.1.5
+      '@types/mocha': ^9.1.1
+      astro: workspace:*
+      astro-scripts: workspace:*
+      playwright: ^1.22.2
+      throttles: ^1.0.1
+    dependencies:
+      throttles: 1.0.1
+    devDependencies:
+      '@types/chai': 4.3.1
+      '@types/chai-as-promised': 7.1.5
+      '@types/mocha': 9.1.1
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+      playwright: 1.22.2
+
+  packages/integrations/prefetch/test/fixtures/basic-prefetch:
+    specifiers:
+      '@astrojs/prefetch': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/prefetch': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/react:
     specifiers:
       '@babel/plugin-transform-react-jsx': ^7.17.12
@@ -11998,6 +12025,15 @@ packages:
     hasBin: true
     dev: true
 
+  /playwright/1.22.2:
+    resolution: {integrity: sha512-hUTpg7LytIl3/O4t0AQJS1V6hWsaSY5uZ7w1oCC8r3a1AQN5d6otIdCkiB3cbzgQkcMaRxisinjMFMVqZkybdQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.22.2
+    dev: true
+
   /postcss-attribute-case-insensitive/5.0.1_postcss@8.4.14:
     resolution: {integrity: sha512-wrt2VndqSLJpyBRNz9OmJcgnhI9MaongeWgapdBuUMu2a/KNJ8SENesG4SdiTnQwGO9b1VKbTWYAfCPeokLqZQ==}
     engines: {node: ^12 || ^14 || >=16}
@@ -13742,6 +13778,11 @@ packages:
     resolution: {integrity: sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=}
     dev: true
 
+  /throttles/1.0.1:
+    resolution: {integrity: sha512-fab7Xg+zELr9KOv4fkaBoe/b3L0GMGLd0IBSCn16GoE/Qx6/OfCr1eGNyEcDU2pUA79qQfZ8kPQWlRuok4YwTw==}
+    engines: {node: '>=6'}
+    dev: false
+
   /tiny-glob/0.2.9:
     resolution: {integrity: sha512-g/55ssRPUjShh+xkfx9UPDXqhckHEsHr4Vd9zX55oSdGZc/MD0m3sferOkwWtp98bv+kcVfEHtRJgBVJzelrzg==}
     dependencies:
@@ -14772,7 +14813,7 @@ packages:
     dev: false
 
   /wrappy/1.0.2:
-    resolution: {integrity: sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=}
+    resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
   /xregexp/2.0.0:
     resolution: {integrity: sha1-UqY+VsoLhKfzpfPWGHLxJq16WUM=}
