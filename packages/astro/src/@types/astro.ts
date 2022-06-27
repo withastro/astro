@@ -730,7 +730,6 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
-		pageExtensions: string[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
 	};
 }
