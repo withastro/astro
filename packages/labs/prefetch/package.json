@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prefetch",
-  "description": "⚡️ Faster subsequent page-loads by prefetching in-viewport links during idle time ",
+  "description": "Faster page navigations by prefetching links when the browser is idle.",
   "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
