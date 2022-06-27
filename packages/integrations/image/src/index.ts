@@ -23,7 +23,7 @@ export async function getImage(loader: SSRImageService, props: TransformOptions)
 
 	// For SSR services, build URLs for the injected route
 	if (typeof loader.transform === 'function') {
-		const { searchParams } = loader.serializeImageProps(props);
+		const { searchParams } = loader.serializeTransform(props);
 
 		// cache all images rendered to HTML
 		if (globalThis && (globalThis as any).addStaticImage) {

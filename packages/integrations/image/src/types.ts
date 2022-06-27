@@ -95,14 +95,14 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions> 
 	 * 
 	 * @param props @type {TransformOptions} defining the requested image transformation.
 	 */
-	serializeImageProps(props: T): { searchParams: URLSearchParams };
+	serializeTransform(props: T): { searchParams: URLSearchParams };
 	/**
 	 * The reverse of `serializeImageProps(props)`, this parsed the @type {ImageProps} back out of a given URL.
 	 * 
 	 * @param searchParams @type {URLSearchParams}
 	 * @returns @type {TransformOptions} used to generate the URL, or undefined if the URL isn't valid.
 	 */
-	parseImageProps(searchParams: URLSearchParams): T | undefined;
+	parseTransform(searchParams: URLSearchParams): T | undefined;
 	/**
 	 * Performs the image transformations on the input image and returns both the binary data and
 	 * final image format of the optimized image.

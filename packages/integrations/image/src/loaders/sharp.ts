@@ -4,15 +4,16 @@ import type { TransformOptions, OutputFormat, SSRImageService } from '../types';
 
 class SharpService implements SSRImageService {	
 	async getImageAttributes(props: TransformOptions) {
-		const { width, height } = props;
+		const { width, height, src, format, quality, aspectRatio, ...rest } = props;
 	
 		return {
+			...rest,
 			width: width,
 			height: height
 		}
 	}
 
-	serializeImageProps(props: TransformOptions) {
+	serializeTransform(props: TransformOptions) {
 		const searchParams = new URLSearchParams();
 	
 		if (props.quality) {
@@ -40,7 +41,7 @@ class SharpService implements SSRImageService {
 		return { searchParams };
 	}
 
-	parseImageProps(searchParams: URLSearchParams) {
+	parseTransform(searchParams: URLSearchParams) {
 		if (!searchParams.has('href')) {
 			return undefined;
 		}

@@ -1,9 +1,8 @@
-import path from 'path';
 import { expect } from 'chai';
 import sharp from '../dist/loaders/sharp.js';
 
 describe('Sharp service', () => {
-	describe('serializeImageProps', () => {
+	describe('serializeTransform', () => {
 		const src = '/assets/image.png';
 
 		[
@@ -17,7 +16,7 @@ describe('Sharp service', () => {
 			['aspect ratio float', { src, aspectRatio: 1.7 }]
 		].forEach(([description, props]) => {
 			it(description, async () => {
-				const { searchParams } = await sharp.serializeImageProps(props);
+				const { searchParams } = await sharp.serializeTransform(props);
 
 				function verifyProp(expected, search) {
 					if (expected) {
@@ -37,22 +36,23 @@ describe('Sharp service', () => {
 		});
 	});
 
-	describe('parseImageProps', async () => {
+	describe('parseTransform', async () => {
 		const src = '/assets/image.png';
 		const href = encodeURIComponent(src);
 
 		[
-			['only requires src', `/_image?href=${href}`, { src }],
-			['quality', `/_image?q=80&href=${href}`, { src, quality: 80 }],
-			['format', `/_image?f=jpeg&href=${href}`, { src, format: 'jpeg' }],
-			['width', `/_image?w=1280&href=${href}`, { src, width: 1280 }],
-			['height', `/_image?h=414&href=${href}`, { src, height: 414 }],
-			['width & height', `/_image?w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
-			['aspect ratio string', `/_image?ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
-			['aspect ratio float', `/_image?ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
-		].forEach(([description, url, expected]) => {
+			['only requires src', `href=${href}`, { src }],
+			['quality', `q=80&href=${href}`, { src, quality: 80 }],
+			['format', `f=jpeg&href=${href}`, { src, format: 'jpeg' }],
+			['width', `w=1280&href=${href}`, { src, width: 1280 }],
+			['height', `h=414&href=${href}`, { src, height: 414 }],
+			['width & height', `w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
+			['aspect ratio string', `ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
+			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
+		].forEach(([description, href, expected]) => {
 			it(description, async () => {
-				const props = sharp.parseImageProps(url);
+				const searchParams = new URLSearchParams(href);
+				const props = sharp.parseTransform(searchParams);
 
 				expect(props).to.deep.equal(expected);
 			});

@@ -7,7 +7,7 @@ import type { APIRoute } from 'astro';
 export const get: APIRoute = async ({ request }) => {
 	try {
 		const url = new URL(request.url);
-		const props = loader.parseImageProps(url.searchParams);
+		const props = loader.parseTransform(url.searchParams);
 
 		if (!props) {
 			return new Response('Bad Request', { status: 400 });
