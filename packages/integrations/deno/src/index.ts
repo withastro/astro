@@ -63,6 +63,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
+					banner: {
+						js: `globalThis.process = {
+									argv: [],
+									env: Deno.env.toObject(),
+								};`
+					}
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
