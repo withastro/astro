@@ -29,3 +29,5 @@ jobs:
         with:
           commit_message: '[ci] format'
           branch: ${{ github.head_ref }}
+          # Needs access to push to main
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
