@@ -99,7 +99,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				}
 			},
 			'astro:build:done': async ({ dir }) => {
-				for await (const [_, transform] of staticImages) {
+				for await (const [filename, transform] of staticImages) {
 					const loader = (globalThis as any).loader;
 
 					// load and transform the input file
@@ -117,8 +117,8 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 					// output to dist folder
 					const outputFile = isRemoteImage(transform.src)
-					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(propsToFilename(transform)))
-						: path.join(dir.pathname, OUTPUT_DIR, propsToFilename(transform));
+					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(filename))
+						: path.join(dir.pathname, OUTPUT_DIR, filename);
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}
