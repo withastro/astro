@@ -217,7 +217,7 @@ export async function main() {
 		await execaCommand('git init', { cwd });
 	} else {
 		ora().info(
-			dim(`Sounds good! You can come back and run ${cyan(`git init`)} in your project anytime.`)
+			dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`)
 		);
 	}
 
