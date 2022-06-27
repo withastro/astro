@@ -1,4 +1,5 @@
 ---
+import Title from "../components/Title.astro"
 let foo = 'bar'
 let bg = 'white'
 let fg = 'black'
@@ -17,5 +18,7 @@ let fg = 'black'
     <script id="inline" define:vars={{ foo }}>
 			console.log(foo);
 		</script>
+
+		<Title />
   </body>
 </html>
