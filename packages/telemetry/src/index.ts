@@ -1,44 +1,27 @@
-import type { BinaryLike } from 'node:crypto';
-import { createHash, randomBytes } from 'node:crypto';
-
 import { isCI } from 'ci-info';
 import debug from 'debug';
-// @ts-ignore
-import gitUp from 'git-up';
-
-import { getAnonymousMeta } from './anonymous-meta.js';
-import { Config } from './config.js';
-import * as KEY from './keys.js';
+import { randomBytes } from 'node:crypto';
+import * as KEY from './config-keys.js';
+import { GlobalConfig } from './config.js';
 import { post } from './post.js';
-import { getRawProjectId } from './project-id.js';
+import { getProjectInfo, ProjectInfo } from './project-info.js';
+import { getSystemInfo, SystemInfo } from './system-info.js';
 
-export interface AstroTelemetryOptions {
-	version: string;
-}
-
+export type AstroTelemetryOptions = { version: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
-
 interface EventContext {
 	anonymousId: string;
-	projectId: string;
-	projectMetadata: any;
-	sessionId: string;
+	anonymousProjectId: string;
+	anonymousSessionId: string;
 }
 
+interface EventMeta extends SystemInfo {
+	isGit: boolean;
+}
 export class AstroTelemetry {
-	private rawProjectId = getRawProjectId();
-	private sessionId = randomBytes(32).toString('hex');
-	private config = new Config({
-		name: 'astro',
-		// Use getter to defer generation of defaults unless needed
-		get defaults() {
-			return new Map<string, any>([
-				[KEY.TELEMETRY_ENABLED, true],
-				[KEY.TELEMETRY_SALT, randomBytes(16).toString('hex')],
-				[KEY.TELEMETRY_ID, randomBytes(32).toString('hex')],
-			]);
-		},
-	});
+	private _anonymousSessionId: string | undefined;
+	private _anonymousProjectInfo: ProjectInfo | undefined;
+	private config = new GlobalConfig({ name: 'astro' });
 	private debug = debug('astro:telemetry');
 
 	private get astroVersion() {
@@ -53,65 +36,47 @@ export class AstroTelemetry {
 
 	constructor(private opts: AstroTelemetryOptions) {
 		// TODO: When the process exits, flush any queued promises
-		// This line caused a "cannot exist astro" error, needs to be revisited.
+		// This caused a "cannot exist astro" error when it ran, so it was removed.
 		// process.on('SIGINT', () => this.flush());
 	}
 
-	// Util to get value from config or set it if missing
-	private getWithFallback<T>(key: string, value: T): T {
-		const val = this.config.get(key);
-		if (val) {
-			return val;
+	/**
+	 * Get value from either the global config or the provided fallback.
+	 * If value is not set, the fallback is saved to the global config,
+	 * persisted for later sessions.
+	 */
+	private getConfigWithFallback<T>(key: string, getValue: () => T): T {
+		const currentValue = this.config.get(key);
+		if (currentValue) {
+			return currentValue;
 		}
-		this.config.set(key, value);
-		return value;
+		const newValue = getValue();
+		this.config.set(key, newValue);
+		return newValue;
 	}
 
-	private get salt(): string {
-		return this.getWithFallback(KEY.TELEMETRY_SALT, randomBytes(16).toString('hex'));
-	}
 	private get enabled(): boolean {
-		return this.getWithFallback(KEY.TELEMETRY_ENABLED, true);
+		return this.getConfigWithFallback(KEY.TELEMETRY_ENABLED, () => true);
 	}
-	private get anonymousId(): string {
-		return this.getWithFallback(KEY.TELEMETRY_ID, randomBytes(32).toString('hex'));
-	}
+
 	private get notifyDate(): string {
-		return this.getWithFallback(KEY.TELEMETRY_NOTIFY_DATE, '');
+		return this.getConfigWithFallback(KEY.TELEMETRY_NOTIFY_DATE, () => '');
 	}
 
-	private hash(payload: BinaryLike): string {
-		const hash = createHash('sha256');
-		hash.update(payload);
-		return hash.digest('hex');
+	private get anonymousId(): string {
+		return this.getConfigWithFallback(KEY.TELEMETRY_ID, () => randomBytes(32).toString('hex'));
 	}
 
-	// Create a ONE-WAY hash so there is no way for Astro to decode the value later.
-	private oneWayHash(payload: BinaryLike): string {
-		const hash = createHash('sha256');
-		// Always prepend the payload value with salt! This ensures the hash is one-way.
-		hash.update(this.salt);
-		hash.update(payload);
-		return hash.digest('hex');
+	private get anonymousSessionId(): string {
+		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
+		this._anonymousSessionId = this._anonymousSessionId || randomBytes(32).toString('hex');
+		return this._anonymousSessionId;
 	}
 
-	// Instead of sending `rawProjectId`, we only ever reference a hashed value *derived*
-	// from `rawProjectId`. This ensures that `projectId` is ALWAYS anonymous and can't
-	// be reversed from the hashed value.
-	private get projectId(): string {
-		return this.oneWayHash(this.rawProjectId);
-	}
-
-	private get projectMetadata(): undefined | { owner: string; name: string } {
-		const projectId = this.rawProjectId;
-		if (projectId === process.cwd()) {
-			return;
-		}
-		const { pathname, resource } = gitUp(projectId);
-		const parts = pathname.split('/').slice(1);
-		const owner = `${resource}${parts[0]}`;
-		const name = parts[1].replace('.git', '');
-		return { owner: this.hash(owner), name: this.hash(name) };
+	private get anonymousProjectInfo(): ProjectInfo {
+		// NOTE(fks): this value isn't global, so it can't use getConfigWithFallback().
+		this._anonymousProjectInfo = this._anonymousProjectInfo || getProjectInfo(isCI);
+		return this._anonymousProjectInfo;
 	}
 
 	private get isDisabled(): boolean {
@@ -127,13 +92,6 @@ export class AstroTelemetry {
 
 	clear() {
 		return this.config.clear();
-	}
-
-	private queue: Promise<any>[] = [];
-
-	// Wait for any in-flight promises to resolve
-	private async flush() {
-		await Promise.all(this.queue);
 	}
 
 	async notify(callback: () => Promise<boolean>) {
@@ -172,22 +130,24 @@ export class AstroTelemetry {
 			return Promise.resolve();
 		}
 
+		const meta: EventMeta = {
+			...getSystemInfo(this.astroVersion),
+			isGit: this.anonymousProjectInfo.isGit,
+		};
+
 		const context: EventContext = {
 			anonymousId: this.anonymousId,
-			projectId: this.projectId,
-			projectMetadata: this.projectMetadata,
-			sessionId: this.sessionId,
+			anonymousProjectId: this.anonymousProjectInfo.anonymousProjectId,
+			anonymousSessionId: this.anonymousSessionId,
 		};
-		const meta = getAnonymousMeta(this.astroVersion);
 
-		const req = post({
+		return post({
 			context,
 			meta,
 			events,
-		}).then(() => {
-			this.queue = this.queue.filter((r) => r !== req);
+		}).catch((err) => {
+			// Log the error to the debugger, but otherwise do nothing.
+			this.debug(`Error sending event: ${err.message}`);
 		});
-		this.queue.push(req);
-		return req;
 	}
 }

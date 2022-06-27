@@ -44,7 +44,6 @@ describe('[create-astro] install', function () {
 		return promiseWithTimeout((resolve) => {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
-			const astroAddPrompt = PROMPT_MESSAGES.astroAdd();
 			stdout.on('data', (chunk) => {
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
@@ -54,10 +53,6 @@ describe('[create-astro] install', function () {
 				if (!seen.has(installPrompt) && chunk.includes(installPrompt)) {
 					seen.add(installPrompt);
 					// respond with "no, then enter key"
-					stdin.write('n\x0D');
-				}
-				if (!seen.has(astroAddPrompt) && chunk.includes(astroAddPrompt)) {
-					seen.add(astroAddPrompt);
 					stdin.write('n\x0D');
 				}
 				if (!seen.has(PROMPT_MESSAGES.git) && chunk.includes(PROMPT_MESSAGES.git)) {
