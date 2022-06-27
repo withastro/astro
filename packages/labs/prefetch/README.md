@@ -75,7 +75,7 @@ The Astro Prefetch integration handles which links on the stie are prefetched an
   
   <br/>
   
-By default the prefetch script searches the page for any links with the `rel="prefetch"` attribute. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch links. 
+By default the prefetch script searches the page for any links that include a `rel="prefetch"` attribute, ex: `<a rel="prefetch" />` or `<a rel="nofollow prefetch" />`. This behavior can be changed in your `astro.config.*` file to use a custom query selector when finding prefetch links. 
   
   <br/>
 

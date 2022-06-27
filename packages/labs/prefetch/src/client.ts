@@ -60,7 +60,7 @@ export interface PrefetchOptions {
 	/**
 	 * Element selector used to find all links on the page that should be prefetched.
 	 *
-	 * @default "a[href][rel='prefetch']"
+	 * @default 'a[href][rel~="prefetch"]'
 	 */
 	selector?: string;
 	/**
