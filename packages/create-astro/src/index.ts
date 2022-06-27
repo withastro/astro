@@ -207,7 +207,7 @@ export async function main() {
 	const gitResponse = await prompts({
 		type: 'confirm',
 		name: 'git',
-		message: 'Initialize a git repository?',
+		message: `Initialize a new git repository? ${dim('This can be useful to track changes.')}`,
 		initial: true,
 	});
 
