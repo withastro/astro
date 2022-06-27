@@ -29,12 +29,16 @@ jobs:
       - name: Collect stats
         run: node scripts/stats/index.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Needs access to collect stats from the GitHub API 
+          GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: '[ci] collect stats'
           branch: ${{ github.head_ref }}
+          # Needs access to push to main
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
 
   lockfile:
     if: github.repository_owner == 'withastro'
@@ -61,7 +65,8 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           branch: ci/lockfile
-          token: ${{ secrets.NIGHTLY_PERSONAL_GITHUB_TOKEN }}
+          # Access token is needed to trigger CI on this PR
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           commit-message: '[ci] update lockfile'
           title: '[ci] update lockfile'
           body: >

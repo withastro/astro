@@ -1,9 +1,0 @@
----
-let gotError = false;
-try {
-	Astro.response.headers = new Headers();
-} catch(err) {
-	gotError = true;
-}
----
-<div id="overwrite-error">{gotError}</div>
