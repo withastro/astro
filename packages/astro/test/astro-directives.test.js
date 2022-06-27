@@ -22,7 +22,7 @@ describe('Directives', async () => {
 		const html = await fixture.readFile('/define-vars/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('style')).to.have.lengthOf(1);
+		expect($('style')).to.have.lengthOf(2);
 		expect($('style').toString()).to.include('--bg: white;');
 		expect($('style').toString()).to.include('--fg: black;');
 
@@ -31,8 +31,17 @@ describe('Directives', async () => {
 			.split(' ')
 			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
 
-		expect($('style').toString().replace(/\s+/g, '')).to.equal(
+		expect($($('style').get(0)).toString().replace(/\s+/g, '')).to.equal(
 			`<style>.${scopedClass}{--bg:white;--fg:black;}body{background:var(--bg);color:var(--fg)}</style>`
+		);
+
+		const scopedTitleClass = $('.title')
+		.attr('class')
+		.split(' ')
+		.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
+
+		expect($($('style').get(1)).toString().replace(/\s+/g, '')).to.equal(
+			`<style>.${scopedTitleClass}{--textColor:red;}</style>`
 		);
 	});
 
