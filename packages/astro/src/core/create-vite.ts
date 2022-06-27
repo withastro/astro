@@ -14,6 +14,7 @@ import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-contai
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
+import { resolveDependency } from './util.js';
 
 // note: ssr is still an experimental API hence the type omission from `vite`
 export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
@@ -30,6 +31,20 @@ const ALWAYS_NOEXTERNAL = new Set([
 	// Vite fails on nested `.astro` imports without bundling
 	'astro/components',
 ]);
+
+function getSsrNoExternalDeps(projectRoot: URL): string[] {
+	let noExternalDeps = []
+	for (const dep of ALWAYS_NOEXTERNAL) {
+		try {
+			resolveDependency(dep, projectRoot)
+			noExternalDeps.push(dep)
+		} catch {
+			// ignore dependency if *not* installed / present in your project
+			// prevents hard error from Vite!
+		}
+	}
+	return noExternalDeps
+}
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(
@@ -103,7 +118,7 @@ export async function createVite(
 			conditions: ['astro'],
 		},
 		ssr: {
-			noExternal: [...ALWAYS_NOEXTERNAL],
+			noExternal: getSsrNoExternalDeps(astroConfig.root),
 		}
 	};
 
