@@ -65,11 +65,7 @@ function createAnonymousValue(payload: BinaryLike): string {
 
 function getProjectIdFromGit(): string | null {
 	try {
-		const originBuffer = execSync(`git rev-list --max-parents=0 HEAD`, {
-			timeout: 500,
-			stdio: `pipe`,
-		});
-
+		const originBuffer = execSync(`git rev-list --max-parents=0 HEAD`, {timeout: 500, stdio: [0, 'pipe', 0]});
 		return String(originBuffer).trim();
 	} catch (_) {
 		return null;
