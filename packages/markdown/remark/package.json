@@ -31,7 +31,7 @@
     "acorn-jsx": "^5.3.2",
     "assert": "^2.0.0",
     "github-slugger": "^1.4.0",
-    "mdast-util-mdx-expression": "^1.2.0",
+    "mdast-util-mdx-expression": "^1.2.1",
     "mdast-util-mdx-jsx": "^1.2.0",
     "mdast-util-to-string": "^3.1.0",
     "micromark-extension-mdx-expression": "^1.0.3",
@@ -48,7 +48,7 @@
     "unified": "^10.1.2",
     "unist-util-map": "^3.1.1",
     "unist-util-visit": "^4.1.0",
-    "vfile": "^5.3.2"
+    "vfile": "^5.3.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
