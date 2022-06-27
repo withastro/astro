@@ -48,47 +48,47 @@ function resolveProps(props: Props): TransformOptions {
 	}
 }
 
-function calculateSize(props: TransformOptions): TransformOptions {
+function calculateSize(transform: TransformOptions): TransformOptions {
 	// keep width & height as provided
-	if (props.width && props.height) {
-		return props;
+	if (transform.width && transform.height) {
+		return transform;
 	}
 
-	if (!props.width && !props.height) {
+	if (!transform.width && !transform.height) {
 		throw new Error(`"width" and "height" cannot both be undefined`);
 	}
 
-	if (!props.aspectRatio) {
-		throw new Error(`"aspectRatio" must be included if only "${props.width ? "width": "height"}" is provided`)
+	if (!transform.aspectRatio) {
+		throw new Error(`"aspectRatio" must be included if only "${transform.width ? "width": "height"}" is provided`)
 	}
 
 	let aspectRatio: number;
 
 	// parse aspect ratio strings, if required (ex: "16:9")
-	if (typeof props.aspectRatio === 'number') {
-		aspectRatio = props.aspectRatio;
+	if (typeof transform.aspectRatio === 'number') {
+		aspectRatio = transform.aspectRatio;
 	} else {
-		const [width, height] = props.aspectRatio.split(':');
+		const [width, height] = transform.aspectRatio.split(':');
 		aspectRatio = parseInt(width) / parseInt(height);
 	}
 
-	if (props.width) {
+	if (transform.width) {
 	// only width was provided, calculate height
 		return {
-			...props,
-			width: props.width,
-			height: props.width / aspectRatio
+			...transform,
+			width: transform.width,
+			height: transform.width / aspectRatio
 		};
-	} else if (props.height) {
+	} else if (transform.height) {
 	// only height was provided, calculate width
 		return {
-			...props,
-		width: props.height * aspectRatio,
-		height: props.height
+			...transform,
+		width: transform.height * aspectRatio,
+		height: transform.height
 		}
 	}
 
-	return props;
+	return transform;
 }
 
 const props = Astro.props as Props;

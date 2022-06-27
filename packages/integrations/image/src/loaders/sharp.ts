@@ -3,8 +3,8 @@ import { isAspectRatioString, isOutputFormat } from '../utils.js';
 import type { TransformOptions, OutputFormat, SSRImageService } from '../types';
 
 class SharpService implements SSRImageService {	
-	async getImageAttributes(props: TransformOptions) {
-		const { width, height, src, format, quality, aspectRatio, ...rest } = props;
+	async getImageAttributes(transform: TransformOptions) {
+		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
 	
 		return {
 			...rest,
@@ -13,30 +13,30 @@ class SharpService implements SSRImageService {
 		}
 	}
 
-	serializeTransform(props: TransformOptions) {
+	serializeTransform(transform: TransformOptions) {
 		const searchParams = new URLSearchParams();
 	
-		if (props.quality) {
-			searchParams.append('q', props.quality.toString());
+		if (transform.quality) {
+			searchParams.append('q', transform.quality.toString());
 		}
 	
-		if (props.format) {
-			searchParams.append('f', props.format);
+		if (transform.format) {
+			searchParams.append('f', transform.format);
 		}
 	
-		if (props.width) {
-			searchParams.append('w', props.width.toString());
+		if (transform.width) {
+			searchParams.append('w', transform.width.toString());
 		}
 	
-		if (props.height) {
-			searchParams.append('h', props.height.toString());
+		if (transform.height) {
+			searchParams.append('h', transform.height.toString());
 		}
 	
-		if (props.aspectRatio) {
-			searchParams.append('ar', props.aspectRatio.toString());
+		if (transform.aspectRatio) {
+			searchParams.append('ar', transform.aspectRatio.toString());
 		}
 	
-		searchParams.append('href', props.src);
+		searchParams.append('href', transform.src);
 	
 		return { searchParams };
 	}
@@ -46,49 +46,49 @@ class SharpService implements SSRImageService {
 			return undefined;
 		}
 	
-		let props: TransformOptions = { src: searchParams.get('href')! };
+		let transform: TransformOptions = { src: searchParams.get('href')! };
 
 		if (searchParams.has('q')) {
-			props.quality = parseInt(searchParams.get('q')!);
+			transform.quality = parseInt(searchParams.get('q')!);
 		}
 	
 		if (searchParams.has('f')) {
 			const format = searchParams.get('f')!;
 			if (isOutputFormat(format)) {
-				props.format = format;
+				transform.format = format;
 			}
 		}
 	
 		if (searchParams.has('w')) {
-			props.width = parseInt(searchParams.get('w')!);
+			transform.width = parseInt(searchParams.get('w')!);
 		}
 	
 		if (searchParams.has('h')) {
-			props.height = parseInt(searchParams.get('h')!);
+			transform.height = parseInt(searchParams.get('h')!);
 		}
 	
 		if (searchParams.has('ar')) {
 			const ratio = searchParams.get('ar')!;
 	
 			if (isAspectRatioString(ratio)) {
-				props.aspectRatio = ratio;
+				transform.aspectRatio = ratio;
 			} else {
-				props.aspectRatio = parseFloat(ratio);
+				transform.aspectRatio = parseFloat(ratio);
 			}
 		}
 	
-		return props;
+		return transform;
 	}
 
-	async transform(inputBuffer: Buffer, props: TransformOptions) {
+	async transform(inputBuffer: Buffer, transform: TransformOptions) {
 		const sharpImage = sharp(inputBuffer, { failOnError: false });
 	
-		if (props.width || props.height) {
-			sharpImage.resize(props.width, props.height);
+		if (transform.width || transform.height) {
+			sharpImage.resize(transform.width, transform.height);
 		}
 	
-		if (props.format) {
-			sharpImage.toFormat(props.format, { quality: props.quality });
+		if (transform.format) {
+			sharpImage.toFormat(transform.format, { quality: transform.quality });
 		}
 	
 		const { data, info } = await sharpImage.toBuffer({ resolveWithObject: true });

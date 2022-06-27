@@ -13,25 +13,25 @@ const OUTPUT_DIR = '/_image';
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  * 
  * @param loader @type {ImageService} The image service used for transforming images.
- * @param props @type {TransformOptions} The transformations requested for the optimized image.
+ * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
-export async function getImage(loader: SSRImageService, props: TransformOptions): Promise<ImageAttributes> {
+export async function getImage(loader: SSRImageService, transform: TransformOptions): Promise<ImageAttributes> {
 	(globalThis as any).loader = loader;
 
-  const attributes = await loader.getImageAttributes(props);
+  const attributes = await loader.getImageAttributes(transform);
 
 	// For SSR services, build URLs for the injected route
 	if (typeof loader.transform === 'function') {
-		const { searchParams } = loader.serializeTransform(props);
+		const { searchParams } = loader.serializeTransform(transform);
 
 		// cache all images rendered to HTML
 		if (globalThis && (globalThis as any).addStaticImage) {
-			(globalThis as any)?.addStaticImage(props);
+			(globalThis as any)?.addStaticImage(transform);
 		}
 
 		const src = globalThis && (globalThis as any).filenameFormat
-			? (globalThis as any).filenameFormat(props, searchParams)
+			? (globalThis as any).filenameFormat(transform, searchParams)
 			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
 			return {
@@ -76,16 +76,16 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any).addStaticImage = (props: TransformOptions) => {
-					staticImages.set(propsToFilename(props), props);
+				(globalThis as any).addStaticImage = (transform: TransformOptions) => {
+					staticImages.set(propsToFilename(transform), transform);
 				}
 
 				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any).filenameFormat = (props: TransformOptions, searchParams: URLSearchParams) => {
+				(globalThis as any).filenameFormat = (transform: TransformOptions, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
-						return isRemoteImage(props.src)
-							? path.join(OUTPUT_DIR, path.basename(propsToFilename(props)))
-							: path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(propsToFilename(props)));
+						return isRemoteImage(transform.src)
+							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
+							: path.join(OUTPUT_DIR, path.dirname(transform.src), path.basename(propsToFilename(transform)));
 					} else {
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
@@ -99,26 +99,26 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				}
 			},
 			'astro:build:done': async ({ dir }) => {
-				for await (const [_, props] of staticImages) {
+				for await (const [_, transform] of staticImages) {
 					const loader = (globalThis as any).loader;
 
 					// load and transform the input file
-					const src = isRemoteImage(props.src)
-						? props.src
-						: path.join(_config.srcDir.pathname, props.src.replace(/^\/image/, ''));
+					const src = isRemoteImage(transform.src)
+						? transform.src
+						: path.join(_config.srcDir.pathname, transform.src.replace(/^\/image/, ''));
 					const inputBuffer = await loadImage(src);
 
 					if (!inputBuffer) {
-						console.warn(`"${props.src}" image not found`);
+						console.warn(`"${transform.src}" image not found`);
 						continue;
 					}
 					
-					const { data } = await loader.transform(inputBuffer, props);
+					const { data } = await loader.transform(inputBuffer, transform);
 
 					// output to dist folder
-					const outputFile = isRemoteImage(props.src)
-					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(propsToFilename(props)))
-						: path.join(dir.pathname, OUTPUT_DIR, propsToFilename(props));
+					const outputFile = isRemoteImage(transform.src)
+					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(propsToFilename(transform)))
+						: path.join(dir.pathname, OUTPUT_DIR, propsToFilename(transform));
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}

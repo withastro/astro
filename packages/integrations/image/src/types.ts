@@ -18,12 +18,12 @@ export type OutputFormat =
 	| 'webp';
 
 /**
- * Converts a set of image props to the filename to use when building for static.
+ * Converts a set of image transforms to the filename to use when building for static.
  * 
  * This is only used for static production builds and ignored when an SSR adapter is used,
  * or in `astro dev` for static builds.
  */
-export type FilenameFormatter = (props: TransformOptions) => string;
+export type FilenameFormatter = (transform: TransformOptions) => string;
 
 export interface IntegrationOptions {
 	/**
@@ -81,23 +81,23 @@ export interface HostedImageService<T extends TransformOptions = TransformOption
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
-	getImageAttributes(props: T): Promise<ImageAttributes>;
+	getImageAttributes(transform: T): Promise<ImageAttributes>;
 }
 
 export interface SSRImageService<T extends TransformOptions = TransformOptions> extends HostedImageService<T> {
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
-	 getImageAttributes(props: T): Promise<Exclude<ImageAttributes, 'src'>>;
+	 getImageAttributes(transform: T): Promise<Exclude<ImageAttributes, 'src'>>;
 	/**
 	 * Serializes image transformation properties to URLSearchParams, used to build
 	 * the final `src` that points to the self-hosted SSR endpoint.
 	 * 
-	 * @param props @type {TransformOptions} defining the requested image transformation.
+	 * @param transform @type {TransformOptions} defining the requested image transformation.
 	 */
-	serializeTransform(props: T): { searchParams: URLSearchParams };
+	serializeTransform(transform: T): { searchParams: URLSearchParams };
 	/**
-	 * The reverse of `serializeImageProps(props)`, this parsed the @type {ImageProps} back out of a given URL.
+	 * The reverse of `serializeTransform(transform)`, this parsed the @type {TransformOptions} back out of a given URL.
 	 * 
 	 * @param searchParams @type {URLSearchParams}
 	 * @returns @type {TransformOptions} used to generate the URL, or undefined if the URL isn't valid.
@@ -108,9 +108,9 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions> 
 	 * final image format of the optimized image.
 	 * 
 	 * @param inputBuffer Binary buffer containing the original image.
-	 * @param props @type {TransformOptions} defining the requested transformations.
+	 * @param transform @type {TransformOptions} defining the requested transformations.
 	 */
-	transform(inputBuffer: Buffer, props: T): Promise<{ data: Buffer, format: OutputFormat }>;
+	transform(inputBuffer: Buffer, transform: T): Promise<{ data: Buffer, format: OutputFormat }>;
 }
 
 export type ImageService<T extends TransformOptions = TransformOptions> = HostedImageService<T> | SSRImageService<T>;
