@@ -9,6 +9,11 @@ interface Options {
 	hostname?: string;
 }
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: Deno.env.toObject(),
+};`
+
 export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/deno',
@@ -64,10 +69,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
 					banner: {
-						js: `globalThis.process = {
-									argv: [],
-									env: Deno.env.toObject(),
-								};`
+						js: SHIM,
 					}
 				});
 
