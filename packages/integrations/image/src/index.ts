@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { ensureDir, isRemoteImage, loadImage, propsToFilename } from './utils.js';
+import { fileURLToPath } from 'url';
+import { ensureDir, isRemoteImage, loadLocalImage, loadRemoteImage, propsToFilename } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import type { ImageAttributes, IntegrationOptions, SSRImageService, TransformOptions } from './types';
@@ -102,23 +103,30 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				for await (const [filename, transform] of staticImages) {
 					const loader = (globalThis as any).loader;
 
-					// load and transform the input file
-					const src = isRemoteImage(transform.src)
-						? transform.src
-						: path.join(_config.srcDir.pathname, transform.src.replace(/^\/image/, ''));
-					const inputBuffer = await loadImage(src);
+					let inputBuffer: Buffer | undefined = undefined;
+					let outputFile: string;
+
+					if (isRemoteImage(transform.src)) {
+						// try to load the remote image
+						inputBuffer = await loadRemoteImage(transform.src);
+
+						const outputFileURL = new URL(path.join('./', OUTPUT_DIR, path.basename(filename)), dir);
+						outputFile = fileURLToPath(outputFileURL);
+					} else {
+						const inputFileURL = new URL(`.${transform.src}`, _config.srcDir);
+						const inputFile = fileURLToPath(inputFileURL);
+						inputBuffer = await loadLocalImage(inputFile);
+
+						const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), dir);
+						outputFile = fileURLToPath(outputFileURL);
+					}
 
 					if (!inputBuffer) {
-						console.warn(`"${transform.src}" image not found`);
+						console.warn(`"${transform.src}" image could not be fetched`);
 						continue;
 					}
-					
-					const { data } = await loader.transform(inputBuffer, transform);
 
-					// output to dist folder
-					const outputFile = isRemoteImage(transform.src)
-					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(filename))
-						: path.join(dir.pathname, OUTPUT_DIR, filename);
+					const { data } = await loader.transform(inputBuffer, transform);
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}
