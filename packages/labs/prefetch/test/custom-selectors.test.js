@@ -6,7 +6,7 @@ const test = testFactory({
 	root: './fixtures/basic-prefetch/',
 	integrations: [
 		prefetch({
-			selectors: 'a[href="/contact"]'
+			selector: 'a[href="/contact"]'
 		}),
 	]
 });
