@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 import { metadata } from './metadata.js';
 import type { PluginContext } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
@@ -44,9 +45,10 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			if (!filter(id)) { return null; }
 
 			const meta = await metadata(id);
+		
 
 			const src = resolvedConfig.isProduction
-				?  id.replace(config.srcDir.pathname, '/')
+				? id.replace(fileURLToPath(config.srcDir), '/')
 				: id;
 
 			const output = {
