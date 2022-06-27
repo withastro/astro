@@ -36,9 +36,9 @@ describe('Directives', async () => {
 		);
 
 		const scopedTitleClass = $('.title')
-		.attr('class')
-		.split(' ')
-		.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
+			.attr('class')
+			.split(' ')
+			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
 
 		expect($($('style').get(1)).toString().replace(/\s+/g, '')).to.equal(
 			`<style>.${scopedTitleClass}{--textColor:red;}</style>`

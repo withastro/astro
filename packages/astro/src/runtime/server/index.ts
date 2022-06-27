@@ -183,15 +183,15 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		async function * renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
+		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
 			// If this component added any define:vars styles and the head has already been
 			// sent out, we need to include those inline.
-			if(result.styles.size && alreadyHeadRenderedResults.has(result)) {
+			if (result.styles.size && alreadyHeadRenderedResults.has(result)) {
 				let styles = Array.from(result.styles);
 				result.styles.clear();
-				for(const style of styles) {
-					if('define:vars' in style.props) {
+				for (const style of styles) {
+					if ('define:vars' in style.props) {
 						// We only want to render the property value and not the full stylesheet
 						// which is bundled in the head.
 						style.children = '';
@@ -199,7 +199,7 @@ export async function renderComponent(
 					}
 				}
 			}
-			yield * iterable;
+			yield* iterable;
 		}
 
 		return renderAstroComponentInline();
