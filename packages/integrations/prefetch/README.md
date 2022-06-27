@@ -68,7 +68,7 @@ When you install the integration, the prefetch script is automatically added to 
 
 ## Configuration
 
-The Astro Prefetch integration handles which links on the stie are prefetched and it has its own options. Change these in the `astro.config.mjs` file which is where your project's integration settings live.
+The Astro Prefetch integration handles which links on the site are prefetched and it has its own options. Change these in the `astro.config.mjs` file which is where your project's integration settings live.
 
 <details>
   <summary><strong>config.selector</strong></summary>
