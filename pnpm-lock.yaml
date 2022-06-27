@@ -1879,6 +1879,41 @@ importers:
       '@astrojs/deno': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/image:
+    specifiers:
+      '@types/etag': ^1.8.1
+      '@types/sharp': ^0.30.4
+      astro: workspace:*
+      astro-scripts: workspace:*
+      etag: ^1.8.1
+      image-size: ^1.0.1
+      image-type: ^4.1.0
+      mime-types: ^2.1.35
+      mrmime: ^1.0.0
+      sharp: ^0.30.6
+    dependencies:
+      etag: 1.8.1
+      image-size: 1.0.1
+      image-type: 4.1.0
+      mime-types: 2.1.35
+      mrmime: 1.0.0
+      sharp: 0.30.6
+    devDependencies:
+      '@types/etag': 1.8.1
+      '@types/sharp': 0.30.4
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/image/test/fixtures/sharp:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
   packages/integrations/lit:
     specifiers:
       '@lit-labs/ssr': ^2.2.0
@@ -2103,41 +2138,6 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       vue: 3.2.37
-
-  packages/labs/image:
-    specifiers:
-      '@types/etag': ^1.8.1
-      '@types/sharp': ^0.30.4
-      astro: workspace:*
-      astro-scripts: workspace:*
-      etag: ^1.8.1
-      image-size: ^1.0.1
-      image-type: ^4.1.0
-      mime-types: ^2.1.35
-      mrmime: ^1.0.0
-      sharp: ^0.30.6
-    dependencies:
-      etag: 1.8.1
-      image-size: 1.0.1
-      image-type: 4.1.0
-      mime-types: 2.1.35
-      mrmime: 1.0.0
-      sharp: 0.30.6
-    devDependencies:
-      '@types/etag': 1.8.1
-      '@types/sharp': 0.30.4
-      astro: link:../../astro
-      astro-scripts: link:../../../scripts
-
-  packages/labs/image/test/fixtures/sharp:
-    specifiers:
-      '@astrojs/image': workspace:*
-      '@astrojs/node': workspace:*
-      astro: workspace:*
-    dependencies:
-      '@astrojs/image': link:../../..
-      '@astrojs/node': link:../../../../../integrations/node
-      astro: link:../../../../../astro
 
   packages/markdown/remark:
     specifiers:
