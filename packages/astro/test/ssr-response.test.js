@@ -32,13 +32,6 @@ describe('Using Astro.response in SSR', () => {
 		expect(response.statusText).to.equal('Oops');
 	});
 
-	it('Child component can set status', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/child-set-status');
-		const response = await app.render(request);
-		expect(response.status).to.equal(403);
-	});
-
 	it('Can add headers', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/some-header');
@@ -46,17 +39,5 @@ describe('Using Astro.response in SSR', () => {
 		const headers = response.headers;
 		expect(headers.get('one-two')).to.equal('three');
 		expect(headers.get('four-five')).to.equal('six');
-		expect(headers.get('seven-eight')).to.equal('nine');
-	});
-
-	it('Child component cannot override headers object', async () => {
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/child-tries-to-overwrite');
-		const response = await app.render(request);
-		const headers = response.headers;
-		expect(headers.get('seven-eight')).to.equal('nine');
-		const html = await response.text();
-		const $ = cheerioLoad(html);
-		expect($('#overwrite-error').html()).to.equal('true');
 	});
 });
