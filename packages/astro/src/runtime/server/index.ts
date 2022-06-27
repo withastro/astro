@@ -435,7 +435,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		: null;
 	let prescripts = getPrescripts(prescriptType, hydration.directive);
 
-	return markHTMLString(prestyles + prescripts + renderElement('astro-island', island, false));
+	return markHTMLString(prescripts + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
