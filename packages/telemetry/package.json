@@ -14,7 +14,6 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
-    "./events": "./dist/events/index.js",
     "./package.json": "./package.json"
   },
   "scripts": {

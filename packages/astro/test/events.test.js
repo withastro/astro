@@ -18,7 +18,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -37,7 +36,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -54,7 +52,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -74,7 +71,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -88,7 +84,6 @@ describe('Session event', () => {
 				publicDir: 1,
 				markdown: {
 					drafts: true,
-					mode: 'mdx',
 					shikiConfig: {
 						lang: 1,
 						theme: 2,
@@ -102,7 +97,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -110,7 +104,6 @@ describe('Session event', () => {
 				'publicDir',
 				'markdown',
 				'markdown.drafts',
-				'markdown.mode',
 				'markdown.shikiConfig',
 				'markdown.shikiConfig.lang',
 				'markdown.shikiConfig.theme',
@@ -119,22 +112,6 @@ describe('Session event', () => {
 				'markdown.remarkPlugins',
 				'markdown.rehypePlugins',
 			]);
-		});
-
-		it('mode', () => {
-			const config = {
-				markdown: {
-					mode: 'mdx',
-				},
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-					astroVersion: '0.0.0',
-				},
-				config
-			);
-			expect(payload.config.markdown.mode).to.equal('mdx');
 		});
 
 		it('syntaxHighlight', () => {
@@ -146,7 +123,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -172,7 +148,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -203,7 +178,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -231,7 +205,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -262,7 +235,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -293,7 +265,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -322,7 +293,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -348,7 +318,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -373,7 +342,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -398,7 +366,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config
 			);
@@ -411,38 +378,18 @@ describe('Session event', () => {
 		});
 	});
 
-	describe('config.integrations + optionalIntegrations', () => {
-		it('optional/conditional integrations', () => {
-			const config = {
-				srcDir: 1,
-				integrations: [null, undefined, { name: 'example-integration' }],
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-					astroVersion: '0.0.0',
-				},
-				config
-			);
-			expect(payload.config.integrations).deep.equal(['example-integration']);
-			expect(payload.optionalIntegrations).to.equal(2);
-		});
-
-		it('falsy integrations', () => {
-			const config = {
-				srcDir: 1,
-				integrations: [null, undefined, false],
-			};
-			const [{ payload }] = events.eventCliSession(
-				{
-					cliCommand: 'dev',
-					astroVersion: '0.0.0',
-				},
-				config
-			);
-			expect(payload.config.integrations.length).to.equal(0);
-			expect(payload.optionalIntegrations).to.equal(3);
-		});
+	it('falsy integrations', () => {
+		const config = {
+			srcDir: 1,
+			integrations: [null, undefined, false],
+		};
+		const [{ payload }] = events.eventCliSession(
+			{
+				cliCommand: 'dev',
+			},
+			config
+		);
+		expect(payload.config.integrations.length).to.equal(0);
 	});
 
 	describe('flags', () => {
@@ -461,7 +408,6 @@ describe('Session event', () => {
 			const [{ payload }] = events.eventCliSession(
 				{
 					cliCommand: 'dev',
-					astroVersion: '0.0.0',
 				},
 				config,
 				flags

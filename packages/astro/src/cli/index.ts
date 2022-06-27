@@ -3,7 +3,7 @@
 import { LogOptions } from '../core/logger/core.js';
 
 import { AstroTelemetry } from '@astrojs/telemetry';
-import * as event from '@astrojs/telemetry/events';
+import * as event from '../events/index.js';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -19,6 +19,7 @@ import { createSafeError } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
+import { AstroUserConfig } from '../@types/astro.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -61,12 +62,13 @@ function printAstroHelp() {
 	});
 }
 
+// PACKAGE_VERSION is injected when we build and publish the astro package.
+const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+
 /** Display --version flag */
 async function printVersion() {
-	// PACKAGE_VERSION is injected at build time
-	const version = process.env.PACKAGE_VERSION ?? '';
 	console.log();
-	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${version}`)}`);
+	console.log(`  ${colors.bgGreen(colors.black(` astro `))} ${colors.green(`v${ASTRO_VERSION}`)}`);
 }
 
 /** Determine which command the user requested */
@@ -110,43 +112,51 @@ export async function cli(args: string[]) {
 	} else if (flags.silent) {
 		logging.level = 'silent';
 	}
-	const telemetry = new AstroTelemetry({ version: process.env.PACKAGE_VERSION ?? '' });
+	const telemetry = new AstroTelemetry({ version: ASTRO_VERSION });
 
-	if (cmd === 'telemetry') {
-		try {
-			const subcommand = flags._[3]?.toString();
-			return await telemetryHandler.update(subcommand, { flags, telemetry });
-		} catch (err) {
-			return throwAndExit(err);
-		}
-	}
-
+	// Special CLI Commands: "add", "docs", "telemetry"
+	// These commands run before the user's config is parsed, and may have other special
+	// conditions that should be handled here, before the others.
+	//
 	switch (cmd) {
 		case 'add': {
 			try {
+				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
 				const packages = flags._.slice(3) as string[];
-				telemetry.record(
-					event.eventCliSession({
-						astroVersion: process.env.PACKAGE_VERSION ?? '',
-						cliCommand: 'add',
-					})
-				);
 				return await add(packages, { cwd: root, flags, logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
 			}
 		}
+		case 'docs': {
+			try {
+				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
+				return await openInBrowser('https://docs.astro.build/');
+			} catch (err) {
+				return throwAndExit(err);
+			}
+		}
+		case 'telemetry': {
+			try {
+				// Do not track session start, since the user may be trying to enable,
+				// disable, or modify telemetry settings.
+				const subcommand = flags._[3]?.toString();
+				return await telemetryHandler.update(subcommand, { flags, telemetry });
+			} catch (err) {
+				return throwAndExit(err);
+			}
+		}
+	}
+
+	const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
+	telemetry.record(event.eventCliSession({ cliCommand: cmd }, userConfig, flags));
+
+	// Common CLI Commands:
+	// These commands run normally. All commands are assumed to have been handled
+	// by the end of this switch statement.
+	switch (cmd) {
 		case 'dev': {
 			try {
-				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-
-				telemetry.record(
-					event.eventCliSession(
-						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'dev' },
-						userConfig,
-						flags
-					)
-				);
 				await devServer(astroConfig, { logging, telemetry });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
@@ -156,14 +166,6 @@ export async function cli(args: string[]) {
 
 		case 'build': {
 			try {
-				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-				telemetry.record(
-					event.eventCliSession(
-						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'build' },
-						userConfig,
-						flags
-					)
-				);
 				return await build(astroConfig, { logging, telemetry });
 			} catch (err) {
 				return throwAndExit(err);
@@ -171,53 +173,22 @@ export async function cli(args: string[]) {
 		}
 
 		case 'check': {
-			const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-			telemetry.record(
-				event.eventCliSession(
-					{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'check' },
-					userConfig,
-					flags
-				)
-			);
 			const ret = await check(astroConfig);
 			return process.exit(ret);
 		}
 
 		case 'preview': {
 			try {
-				const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-				telemetry.record(
-					event.eventCliSession(
-						{ astroVersion: process.env.PACKAGE_VERSION ?? '', cliCommand: 'preview' },
-						userConfig,
-						flags
-					)
-				);
 				const server = await preview(astroConfig, { logging, telemetry });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
 				return throwAndExit(err);
 			}
 		}
-
-		case 'docs': {
-			try {
-				await telemetry.record(
-					event.eventCliSession({
-						astroVersion: process.env.PACKAGE_VERSION ?? '',
-						cliCommand: 'docs',
-					})
-				);
-				return await openInBrowser('https://docs.astro.build/');
-			} catch (err) {
-				return throwAndExit(err);
-			}
-		}
-
-		default: {
-			throw new Error(`Error running ${cmd}`);
-		}
 	}
+
+	// No command handler matched! This is unexpected.
+	throwAndExit(new Error(`Error running ${cmd} -- no command found.`));
 }
 
 /** Display error and exit */
