@@ -1,14 +1,10 @@
 import { createRequire } from 'node:module';
-
+import type { AstroUserConfig } from '../@types/astro';
 const require = createRequire(import.meta.url);
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
-// :( We can't import the type because of TurboRepo circular dep limitation
-type AstroUserConfig = Record<string, any>;
-
 interface EventCliSession {
-	astroVersion: string;
 	cliCommand: string;
 }
 
@@ -25,7 +21,7 @@ interface ConfigInfo {
 	markdown:
 		| undefined
 		| {
-				mode: undefined | 'md' | 'mdx';
+				drafts: undefined | boolean;
 				syntaxHighlight: undefined | 'shiki' | 'prism' | false;
 		  };
 }
@@ -91,15 +87,18 @@ export function eventCliSession(
 	flags?: Record<string, any>
 ): { eventName: string; payload: EventCliSessionInternal }[] {
 	// Filter out falsy integrations
-	const integrations = userConfig?.integrations?.filter?.(Boolean) ?? [];
 	const configValues = userConfig
 		? {
 				markdownPlugins: [
-					userConfig?.markdown?.remarkPlugins ?? [],
-					userConfig?.markdown?.rehypePlugins ?? [],
-				].flat(1),
+					...(userConfig?.markdown?.remarkPlugins?.map((p) =>
+						typeof p === 'string' ? p : typeof p
+					) ?? []),
+					...(userConfig?.markdown?.rehypePlugins?.map((p) =>
+						typeof p === 'string' ? p : typeof p
+					) ?? []),
+				] as string[],
 				adapter: userConfig?.adapter?.name ?? null,
-				integrations: integrations?.map?.((i: any) => i?.name) ?? [],
+				integrations: (userConfig?.integrations ?? []).filter(Boolean).map((i: any) => i?.name),
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
 					? {
@@ -108,7 +107,7 @@ export function eventCliSession(
 					: undefined,
 				markdown: userConfig?.markdown
 					? {
-							mode: userConfig?.markdown?.mode,
+							drafts: userConfig.markdown?.drafts,
 							syntaxHighlight: userConfig.markdown?.syntaxHighlight,
 					  }
 					: undefined,
@@ -121,15 +120,12 @@ export function eventCliSession(
 	const payload: EventCliSessionInternal = {
 		cliCommand: event.cliCommand,
 		// Versions
-		astroVersion: event.astroVersion,
 		viteVersion: getViteVersion(),
 		nodeVersion: process.version.replace(/^v?/, ''),
 		configKeys: userConfig ? configKeys(userConfig, '') : undefined,
 		// Config Values
 		config: configValues,
 		flags: cliFlags,
-		// Optional integrations
-		optionalIntegrations: userConfig?.integrations?.length - integrations?.length,
 	};
 	return [{ eventName: EVENT_SESSION, payload }];
 }
