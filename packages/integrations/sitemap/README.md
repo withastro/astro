@@ -222,7 +222,9 @@ The `LinkItem` type has two required fields: `url` (the fully-qualified URL for 
 
 The `serialize` function should return `SitemapItem`, touched or not.  
 
-The example below shows the ability to add the sitemap specific properties individually.
+To exclude the passed entry from sitemap it should return `undefined`.
+
+The example below shows the ability to exclude certain entries and add the sitemap specific properties individually.
 
 __astro.config.mjs__
 
@@ -234,6 +236,9 @@ export default {
   integrations: [
     sitemap({
       serialize(item) {
+        if (/exclude-from-sitemap/.test(item.url)) {
+          return undefined;
+        }
         if (/your-special-page/.test(item.url)) {
           item.changefreq = 'daily';
           item.lastmod = new Date();
