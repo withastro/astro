@@ -8,10 +8,10 @@ export default function (): AstroIntegration {
 				'astro:config:setup': ({ updateConfig, addPageExtensions }) => {
 					const mdxPlugin = mdx({
 						jsx: true,
-						'jsxImportSource': 'astro'
+						jsxImportSource: 'astro'
 					})
 
-					addPageExtensions(['.mdx']);
+					addPageExtensions('.mdx');
 					updateConfig({
 						vite: {
 							plugins: [
@@ -21,7 +21,7 @@ export default function (): AstroIntegration {
 								},
 								{
 									name: '@astrojs/mdx',
-									transform(code, id) {
+									transform(code: string, id: string) {
 										if (!id.endsWith('.mdx')) return;
 										return `${code}\nif (import.meta.hot) {
 											import.meta.hot.decline();
