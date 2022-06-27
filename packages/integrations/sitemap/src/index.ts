@@ -117,14 +117,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							const serializedUrls: SitemapItem[] = [];
 							for (const item of urlData) {
 								const serialized = await Promise.resolve(serialize(item));
-                if (serialized) {
-                  serializedUrls.push(serialized);
-                }
+								if (serialized) {
+									serializedUrls.push(serialized);
+								}
 							}
-              if (serializedUrls.length === 0) {
-                logger.warn('No pages found!');
-                return;
-              }							
+							if (serializedUrls.length === 0) {
+								logger.warn('No pages found!');
+								return;
+							}
 							urlData = serializedUrls;
 						} catch (err) {
 							logger.error(`Error serializing pages\n${(err as any).toString()}`);
