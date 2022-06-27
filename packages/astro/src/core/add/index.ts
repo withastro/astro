@@ -51,13 +51,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
-			usage: '[integration]',
+			usage: '[...integrations]',
 			tables: {
 				Flags: [
 					['--yes', 'Accept all prompts.'],
 					['--help', 'Show this help message.'],
 				],
-				'Recommended: UI Frameworks': [
+				'Example: Add a UI Framework': [
 					['react', 'astro add react'],
 					['preact', 'astro add preact'],
 					['vue', 'astro add vue'],
@@ -65,13 +65,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['solid-js', 'astro add solid-js'],
 					['lit', 'astro add lit'],
 				],
-				'Recommended: Integrations': [
+				'Example: Add an Integration': [
 					['tailwind', 'astro add tailwind'],
 					['partytown', 'astro add partytown'],
 					['sitemap', 'astro add sitemap'],
 				],
 			},
-			description: `For more integrations, check out: ${cyan('https://astro.build/integrations')}`,
+			description: `Check out the full integration catalog: ${cyan('https://astro.build/integrations')}`,
 		});
 		return;
 	}
