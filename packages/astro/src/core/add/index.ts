@@ -71,7 +71,9 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['sitemap', 'astro add sitemap'],
 				],
 			},
-			description: `Check out the full integration catalog: ${cyan('https://astro.build/integrations')}`,
+			description: `Check out the full integration catalog: ${cyan(
+				'https://astro.build/integrations'
+			)}`,
 		});
 		return;
 	}
@@ -79,7 +81,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
 	configURL = await resolveConfigURL({ cwd, flags });
 	applyPolyfill();
-	
+
 	if (configURL) {
 		debug('add', `Found config at ${configURL}`);
 	} else {

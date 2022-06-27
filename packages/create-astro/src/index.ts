@@ -216,9 +216,7 @@ export async function main() {
 	} else if (gitResponse.git) {
 		await execaCommand('git init', { cwd });
 	} else {
-		ora().info(
-			dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`)
-		);
+		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
 	}
 
 	ora().succeed('Setup complete.');

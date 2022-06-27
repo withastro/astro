@@ -255,7 +255,7 @@ export function printHelp({
 	headline?: string;
 	usage?: string;
 	tables?: Record<string, [command: string, help: string][]>;
-	description?: string,
+	description?: string;
 }) {
 	const linebreak = () => '';
 	const title = (label: string) => `  ${bgWhite(black(` ${label} `))}`;
@@ -267,7 +267,7 @@ export function printHelp({
 			if (split) {
 				raw += `    ${row[0]}\n    `;
 			} else {
-				raw += `${(`${row[0]}`.padStart(padding))}`;
+				raw += `${`${row[0]}`.padStart(padding)}`;
 			}
 			raw += '  ' + dim(row[1]) + '\n';
 		}
@@ -293,7 +293,7 @@ export function printHelp({
 	if (tables) {
 		function calculateTablePadding(rows: [string, string][]) {
 			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
-		};
+		}
 		const tableEntries = Object.entries(tables);
 		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
 		for (const [tableTitle, tableRows] of tableEntries) {

@@ -7,16 +7,16 @@ import os from 'node:os';
  * Astro Telemetry -- System Info
  *
  * To better understand our telemetry insights, Astro collects the following anonymous information
- * about the system that it runs on. This helps us prioritize fixes and new features based on a 
+ * about the system that it runs on. This helps us prioritize fixes and new features based on a
  * better understanding of our real-world system requirements.
- * 
+ *
  * ~~~
  *
  * Q: Can this system info be traced back to me?
  *
  * A: No personally identifiable information is contained in the system info that we collect. It could
- * be possible for someone with direct access to your machine to collect this information themselves 
- * and then attempt to match it all together with our collected telemetry data, however most users' 
+ * be possible for someone with direct access to your machine to collect this information themselves
+ * and then attempt to match it all together with our collected telemetry data, however most users'
  * systems are probably not uniquely identifiable via their system info alone.
  *
  * ~~~

@@ -3,10 +3,10 @@
 import { LogOptions } from '../core/logger/core.js';
 
 import { AstroTelemetry } from '@astrojs/telemetry';
-import * as event from '../events/index.js';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import * as event from '../events/index.js';
 
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
@@ -19,7 +19,6 @@ import { createSafeError } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
-import { AstroUserConfig } from '../@types/astro.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -46,7 +45,7 @@ function printAstroHelp() {
 				['build', 'Build your project and write it to disk.'],
 				['check', 'Check your project for errors.'],
 				['dev', 'Start the development server.'],
-				['docs', "Open documentation in your web browser."],
+				['docs', 'Open documentation in your web browser.'],
 				['preview', 'Preview your build locally.'],
 				['telemetry', 'Configure telemetry settings.'],
 			],
