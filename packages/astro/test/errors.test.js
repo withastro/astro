@@ -97,4 +97,5 @@ describe('Error display', () => {
 			expect($('h1').text()).to.equal('No mismatch');
 		});
 	});
+
 });

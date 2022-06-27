@@ -1,8 +1,10 @@
 import { expect } from 'chai';
+import { AstroErrorCodes } from '../dist/core/errors.js';
 import * as events from '../dist/events/index.js';
 
-describe('Session event', () => {
-	describe('top-level', () => {
+describe('Events', () => {
+
+	describe('eventCliSession()', () => {
 		it('All top-level keys added', () => {
 			const config = {
 				root: 1,
@@ -23,9 +25,7 @@ describe('Session event', () => {
 			);
 			expect(payload.configKeys).to.deep.equal(expected);
 		});
-	});
 
-	describe('config.build', () => {
 		it('configKeys includes format', () => {
 			const config = {
 				srcDir: 1,
@@ -57,9 +57,7 @@ describe('Session event', () => {
 			);
 			expect(payload.config.build.format).to.equal('file');
 		});
-	});
 
-	describe('config.server', () => {
 		it('configKeys includes server props', () => {
 			const config = {
 				srcDir: 1,
@@ -76,9 +74,7 @@ describe('Session event', () => {
 			);
 			expect(payload.configKeys).to.deep.equal(['srcDir', 'server', 'server.host', 'server.port']);
 		});
-	});
 
-	describe('config.markdown', () => {
 		it('configKeys is deep', () => {
 			const config = {
 				publicDir: 1,
@@ -128,10 +124,8 @@ describe('Session event', () => {
 			);
 			expect(payload.config.markdown.syntaxHighlight).to.equal('shiki');
 		});
-	});
 
-	describe('config.vite', () => {
-		it('top-level keys are captured', async () => {
+		it('top-level vite keys are captured', async () => {
 			const config = {
 				root: 'some/thing',
 				vite: {
@@ -376,23 +370,21 @@ describe('Session event', () => {
 				'vite.worker.plugins',
 			]);
 		});
-	});
 
-	it('falsy integrations', () => {
-		const config = {
-			srcDir: 1,
-			integrations: [null, undefined, false],
-		};
-		const [{ payload }] = events.eventCliSession(
-			{
-				cliCommand: 'dev',
-			},
-			config
-		);
-		expect(payload.config.integrations.length).to.equal(0);
-	});
+		it('falsy integrations', () => {
+			const config = {
+				srcDir: 1,
+				integrations: [null, undefined, false],
+			};
+			const [{ payload }] = events.eventCliSession(
+				{
+					cliCommand: 'dev',
+				},
+				config
+			);
+			expect(payload.config.integrations.length).to.equal(0);
+		});
 
-	describe('flags', () => {
 		it('includes cli flags in payload', () => {
 			const config = {};
 			const flags = {
@@ -423,5 +415,76 @@ describe('Session event', () => {
 				'drafts',
 			]);
 		});
+	});
+
+	describe('eventConfigError()', () => {
+		it('returns the expected event and payload', () => {
+			const [event] = events.eventConfigError({
+				err: { issues: [{ path: ['a', 'b', 'c'] }, { path: ['d', 'e', 'f'] }] },
+				cmd: 'COMMAND_NAME',
+				isFatal: true
+			});
+			expect(event).to.deep.equal({
+				eventName: 'ASTRO_CLI_ERROR',
+				payload: {
+					code: AstroErrorCodes.ConfigError,
+					isFatal: true,
+					isConfig: true,
+					cliCommand: 'COMMAND_NAME',
+					configErrorPaths: ['a.b.c', 'd.e.f'],
+				}
+			});
+		});
+	});
+
+	describe('eventError()', () => {
+		it('returns the expected event payload with a detailed error object', () => {
+			const errorWithFullMetadata = new Error('TEST ERROR MESSAGE');
+			errorWithFullMetadata.code = 1234;
+			errorWithFullMetadata.plugin = 'TEST PLUGIN';
+			const [event] = events.eventError({
+				err: errorWithFullMetadata,
+				cmd: 'COMMAND_NAME',
+				isFatal: true
+			});
+			expect(event).to.deep.equal({
+				eventName: 'ASTRO_CLI_ERROR',
+				payload: {
+					code: 1234,
+					plugin: 'TEST PLUGIN',
+					isFatal: true,
+					cliCommand: 'COMMAND_NAME',
+					anonymousMessageHint: 'TEST ERROR MESSAGE',
+				}
+			});
+		});
+
+		it('returns the expected event payload with a generic error', () => {
+			const [event] = events.eventError({
+				err: new Error('TEST ERROR MESSAGE'),
+				cmd: 'COMMAND_NAME',
+				isFatal: false
+			});
+			expect(event).to.deep.equal({
+				eventName: 'ASTRO_CLI_ERROR',
+				payload: {
+					code: AstroErrorCodes.UnknownError,
+					plugin: undefined,
+					isFatal: false,
+					cliCommand: 'COMMAND_NAME',
+					anonymousMessageHint: 'TEST ERROR MESSAGE',
+				}
+			});
+		});
+
+		it('properly creates anonymousMessageHint from a basic error message', () => {
+			const [event] = events.eventError({
+				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
+				cmd: 'COMMAND_NAME',
+				isFatal: true
+			});
+			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');
+		});
+
 	});
 });

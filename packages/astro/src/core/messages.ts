@@ -18,7 +18,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ZodError } from 'zod';
 import type { AstroConfig } from '../@types/astro';
-import { cleanErrorStack, collectErrorMetadata } from './errors.js';
+import { cleanErrorStack, collectErrorMetadata, ErrorWithMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -219,8 +219,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 	)}`;
 }
 
-export function formatErrorMessage(_err: Error, args: string[] = []): string {
-	const err = collectErrorMetadata(_err);
+export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
 	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
 	if (err.hint) {
 		args.push(`  ${bold('Hint:')}`);
