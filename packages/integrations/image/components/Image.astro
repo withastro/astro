@@ -2,13 +2,13 @@
 // @ts-ignore
 import loader from 'virtual:image-loader';
 import { getImage } from '../src';
-import type { ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
+import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
 
-export interface LocalImageProps extends Omit<TransformOptions, 'src'> {
+export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'> {
 	src: ImageMetadata;	
 }
 
-export interface RemoteImageProps extends TransformOptions {
+export interface RemoteImageProps extends TransformOptions, ImageAttributes {
 	src: string;
 	format: OutputFormat;
 	width: number;
@@ -28,7 +28,7 @@ function resolveProps(props: Props): TransformOptions {
 		return props;
 	}
 
-	let { width, height, aspectRatio, format } = props;
+	let { width, height, aspectRatio, format, ...rest } = props;
 	const { src, ...metadata } = props.src;
 
 	if (!width && !height) {
@@ -39,11 +39,12 @@ function resolveProps(props: Props): TransformOptions {
 	}
 	
 	return {
+		...rest,
 		width,
 		height,
 		aspectRatio,
 		src,
-		format,
+		format: format || metadata.format as OutputFormat,
 	}
 }
 

@@ -83,7 +83,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				// TODO: Add support for custom, user-provided filename format functions
 				(globalThis as any).filenameFormat = (props: TransformOptions, searchParams: URLSearchParams) => {
 					if (mode === 'ssg') {
-						return path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(propsToFilename(props)));
+						return isRemoteImage(props.src)
+							? path.join(OUTPUT_DIR, path.basename(propsToFilename(props)))
+							: path.join(OUTPUT_DIR, path.dirname(props.src), path.basename(propsToFilename(props)));
 					} else {
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
@@ -114,7 +116,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					const { data } = await loader.transform(inputBuffer, props);
 
 					// output to dist folder
-					const outputFile = path.join(dir.pathname, OUTPUT_DIR, propsToFilename(props));
+					const outputFile = isRemoteImage(props.src)
+					  ? path.join(dir.pathname, OUTPUT_DIR, path.basename(propsToFilename(props)))
+						: path.join(dir.pathname, OUTPUT_DIR, propsToFilename(props));
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
 				}
