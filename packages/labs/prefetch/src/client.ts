@@ -71,7 +71,7 @@ export interface PrefetchOptions {
 	throttle?: number;
 }
 
-export default function prefetch({ selector = 'a[href][rel="prefetch"]', throttle = 1 }: PrefetchOptions) {
+export default function prefetch({ selector = 'a[href][rel~="prefetch"]', throttle = 1 }: PrefetchOptions) {
 	const [toAdd, isDone] = throttles(throttle);
 
 	observer =
