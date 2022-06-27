@@ -183,7 +183,26 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		return renderToIterable(result, Component as any, _props, slots);
+		async function * renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
+			let iterable = await renderToIterable(result, Component as any, _props, slots);
+			// If this component added any define:vars styles and the head has already been
+			// sent out, we need to include those inline.
+			if(result.styles.size && alreadyHeadRenderedResults.has(result)) {
+				let styles = Array.from(result.styles);
+				result.styles.clear();
+				for(const style of styles) {
+					if('define:vars' in style.props) {
+						// We only want to render the property value and not the full stylesheet
+						// which is bundled in the head.
+						style.children = '';
+						yield markHTMLString(renderElement('style', style));
+					}
+				}
+			}
+			yield * iterable;
+		}
+
+		return renderAstroComponentInline();
 	}
 
 	if (!Component && !_props['client:only']) {
@@ -408,6 +427,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	island.children = `${html ?? ''}${template}`;
 
+	// Scripts to prepend
 	let prescriptType: PrescriptType = needsHydrationScript
 		? 'both'
 		: needsDirectiveScript
@@ -655,6 +675,7 @@ export async function renderToIterable(
 	const Component = await componentFactory(result, props, children);
 
 	if (!isAstroComponent(Component)) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`
 		);
@@ -719,6 +740,8 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
+	// Clear result.styles so that any new styles added will be inlined.
+	result.styles.clear();
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
