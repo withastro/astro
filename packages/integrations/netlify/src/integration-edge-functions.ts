@@ -85,7 +85,7 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		external: ['@astrojs/markdown-remark'],
 		banner: {
 			js: SHIM,
-		}
+		},
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
