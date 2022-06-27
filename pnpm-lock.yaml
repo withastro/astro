@@ -1904,7 +1904,7 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
-  packages/integrations/image/test/fixtures/sharp:
+  packages/integrations/image/test/fixtures/basic-image:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
