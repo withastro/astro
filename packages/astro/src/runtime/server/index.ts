@@ -704,15 +704,17 @@ export async function renderPage(
 	let iterable: AsyncIterable<any>;
 	if (!componentFactory.isAstroComponentFactory) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-		const html = await renderComponent(result, componentFactory.name, componentFactory, pageProps, null);
-		if (typeof html === 'string') {
-			return new Response(`<!DOCTYPE html>\n${html}`, {
-				headers: [
-					['Content-Type', 'text/html; charset=utf-8'],
-					['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`]
-				]
-			});
+		const output = await renderComponent(result, componentFactory.name, componentFactory, pageProps, null);
+		let html = output.toString()
+		if (!/<!doctype html/i.test(html)) {
+			html = `<!DOCTYPE html>\n${html}`;
 		}
+		return new Response(html, {
+			headers: new Headers([
+				['Content-Type', 'text/html; charset=utf-8'],
+				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`]
+			])
+		});
 	}
 	const factoryReturnValue = await componentFactory(result, props, children);
 
