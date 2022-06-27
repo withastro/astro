@@ -5,6 +5,6 @@
     "allowJs": true,
     "module": "ES2020",
     "outDir": "./dist",
-    "target": "ES2020",
+    "target": "ES2020"
   }
 }

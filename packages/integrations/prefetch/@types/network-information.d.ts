@@ -1,4 +1,4 @@
-export { };
+export {};
 
 declare global {
 	interface NetworkInformation {
@@ -9,7 +9,7 @@ declare global {
 	}
 
 	var NetworkInformation: {
-    prototype: NetworkInformation;
-    new(): NetworkInformation;
+		prototype: NetworkInformation;
+		new (): NetworkInformation;
 	};
 }

@@ -25,8 +25,14 @@ test.describe('Basic prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.has(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
-				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/about')),
+					'/about was prefetched'
+				).toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/contact')),
+					'/contact was prefetched'
+				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});
 		});
@@ -55,8 +61,14 @@ test.describe('Basic prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.has(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
-				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/about')),
+					'/about was prefetched'
+				).toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/contact')),
+					'/contact was prefetched'
+				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});
 		});
