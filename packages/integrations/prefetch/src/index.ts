@@ -9,9 +9,11 @@ export default function (options: PrefetchOptions = {}): AstroIntegration {
 				// Inject the necessary polyfills on every page (inlined for speed).
 				injectScript(
 					'page',
-					`import prefetch from "@astrojs/prefetch/client.js"; prefetch(${JSON.stringify(options)});`
+					`import prefetch from "@astrojs/prefetch/client.js"; prefetch(${JSON.stringify(
+						options
+					)});`
 				);
-			}
-		}
+			},
+		},
 	};
 }

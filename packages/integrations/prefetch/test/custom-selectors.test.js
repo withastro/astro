@@ -6,9 +6,9 @@ const test = testFactory({
 	root: './fixtures/basic-prefetch/',
 	integrations: [
 		prefetch({
-			selector: 'a[href="/contact"]'
+			selector: 'a[href="/contact"]',
 		}),
-	]
+	],
 });
 
 test.describe('Custom prefetch selectors', () => {
@@ -34,7 +34,10 @@ test.describe('Custom prefetch selectors', () => {
 				await page.waitForLoadState('networkidle');
 
 				await expect(requests.has(astro.resolveUrl('/about')), '/about was skipped').toBeFalsy();
-				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/contact')),
+					'/contact was prefetched'
+				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});
 		});
@@ -64,7 +67,10 @@ test.describe('Custom prefetch selectors', () => {
 				await page.waitForLoadState('networkidle');
 
 				await expect(requests.has(astro.resolveUrl('/about')), '/about was skipped').toBeFalsy();
-				await expect(requests.has(astro.resolveUrl('/contact')), '/contact was prefetched').toBeTruthy();
+				await expect(
+					requests.has(astro.resolveUrl('/contact')),
+					'/contact was prefetched'
+				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
 			});
 		});

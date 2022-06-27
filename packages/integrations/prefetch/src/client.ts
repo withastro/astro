@@ -66,24 +66,27 @@ export interface PrefetchOptions {
 	selector?: string;
 	/**
 	 * The number of pages that can be prefetched concurrently.
-	 * 
+	 *
 	 * @default 1
 	 */
 	throttle?: number;
 }
 
-export default function prefetch({ selector = 'a[href][rel~="prefetch"]', throttle = 1 }: PrefetchOptions) {
+export default function prefetch({
+	selector = 'a[href][rel~="prefetch"]',
+	throttle = 1,
+}: PrefetchOptions) {
 	const conn = navigator.connection;
 
 	if (typeof conn !== 'undefined') {
-    // Don't prefetch if using 2G or if Save-Data is enabled.
-    if (conn.saveData) {
-      return Promise.reject(new Error('Cannot prefetch, Save-Data is enabled'));
-    }
-    if (/2g/.test(conn.effectiveType)) {
-      return Promise.reject(new Error('Cannot prefetch, network conditions are poor'));
-    }
-  }
+		// Don't prefetch if using 2G or if Save-Data is enabled.
+		if (conn.saveData) {
+			return Promise.reject(new Error('Cannot prefetch, Save-Data is enabled'));
+		}
+		if (/2g/.test(conn.effectiveType)) {
+			return Promise.reject(new Error('Cannot prefetch, network conditions are poor'));
+		}
+	}
 
 	const [toAdd, isDone] = throttles(throttle);
 
