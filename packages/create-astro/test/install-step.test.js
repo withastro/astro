@@ -26,7 +26,6 @@ describe('[create-astro] install', function () {
 			const seen = new Set();
 			const installPrompt = PROMPT_MESSAGES.install(FAKE_PACKAGE_MANAGER);
 			stdout.on('data', (chunk) => {
-				console.log(chunk.toString());
 				if (!seen.has(PROMPT_MESSAGES.template) && chunk.includes(PROMPT_MESSAGES.template)) {
 					seen.add(PROMPT_MESSAGES.template);
 					// respond with "enter key"
