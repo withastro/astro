@@ -9,4 +9,4 @@ export function defineConfig(config: AstroUserConfig): AstroUserConfig;
 /**
  * Synchronously load environment variables from default location
  */
-export function loadEnv(): Record<string, any>;
+export function loadEnv(): Promise<Record<string, any>>;

@@ -1,6 +1,5 @@
-import { loadEnv as loadViteEnv } from 'vite';
-
-export function loadEnv() {
+export async function loadEnv() {
+	const { loadEnv: loadViteEnv } = await import('vite');
 	const { MODE } = process.env;
 	const PROD = MODE === 'production';
 	const env = loadViteEnv(MODE, process.cwd(), '');
