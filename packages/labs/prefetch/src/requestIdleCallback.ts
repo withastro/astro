@@ -1,4 +1,4 @@
-function shim(callback: IdleRequestCallback, options?: IdleRequestOptions): NodeJS.Timeout {
+function shim(callback: IdleRequestCallback, options?: IdleRequestOptions) {
 	const timeout = options?.timeout ?? 50;
 	const start = Date.now();
 
