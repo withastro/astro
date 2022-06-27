@@ -347,7 +347,6 @@ export async function validateConfig(
 		},
 	};
 	if (
-		// TODO: expose @astrojs/mdx package
 		result.integrations.find((integration) => integration.name === '@astrojs/mdx')
 	) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
