@@ -675,6 +675,7 @@ export async function renderToIterable(
 	const Component = await componentFactory(result, props, children);
 
 	if (!isAstroComponent(Component)) {
+		// eslint-disable-next-line no-console
 		console.warn(
 			`Returning a Response is only supported inside of page components. Consider refactoring this logic into something like a function that can be used in the page.`
 		);
