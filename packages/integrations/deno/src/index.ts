@@ -9,6 +9,11 @@ interface Options {
 	hostname?: string;
 }
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: Deno.env.toObject(),
+};`
+
 export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/deno',
@@ -63,6 +68,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
+					banner: {
+						js: SHIM,
+					}
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.

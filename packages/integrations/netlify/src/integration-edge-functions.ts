@@ -6,6 +6,11 @@ import { fileURLToPath } from 'url';
 import type { Plugin as VitePlugin } from 'vite';
 import { createRedirects } from './shared.js';
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: {},
+};`;
+
 export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/netlify/edge-functions',
@@ -78,6 +83,9 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		format: 'esm',
 		bundle: true,
 		external: ['@astrojs/markdown-remark'],
+		banner: {
+			js: SHIM,
+		}
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
