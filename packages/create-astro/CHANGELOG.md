@@ -1,5 +1,17 @@
 # create-astro
 
+## 0.12.4
+
+### Patch Changes
+
+- [#3756](https://github.com/withastro/astro/pull/3756) [`507cd5c8`](https://github.com/withastro/astro/commit/507cd5c868448971c6265d97f22e786263dd5a77) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Chore: remove create-astro install step test
+
+## 0.12.3
+
+### Patch Changes
+
+- [#3748](https://github.com/withastro/astro/pull/3748) [`012f093e`](https://github.com/withastro/astro/commit/012f093eeb771b42b4e9d1e0cbb0d9a9605e0514) Thanks [@delucis](https://github.com/delucis)! - Remove `astro add` step & tweak wording (PR #3715)
+
 ## 0.12.2
 
 ### Patch Changes
