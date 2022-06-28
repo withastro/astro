@@ -230,11 +230,6 @@ jobs:
       - name: Test
         run: pnpm run test:smoke
 
-      - name: Memory Leak Test
-        run: |
-          node ./scripts/memory/mk.js
-          node --expose-gc ./scripts/memory/index.js --ci
-
 
   # Changelog can only run _after_ build.
   # We download all `dist/` artifacts from GitHub to skip the build process.
