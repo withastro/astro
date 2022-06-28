@@ -21,7 +21,7 @@ function getRenderer(): AstroRenderer {
 function getCompatRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/preact/compat',
-		clientEntrypoint: '@astrojs/preact/client.js',
+		clientEntrypoint: '@astrojs/preact/client-compat.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
@@ -31,7 +31,7 @@ function getCompatRenderer(): AstroRenderer {
 			} = await import('@babel/plugin-transform-react-jsx');
 			return {
 				plugins: [
-					jsx({}, { runtime: 'automatic', importSource: 'react' }),
+					jsx({}, { runtime: 'automatic', importSource: 'preact/compat' }),
 					['babel-plugin-module-resolver', {
 						alias: {
 							'react': 'preact/compat',
@@ -63,7 +63,12 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 	};
 	
 	if (compat) {
-    viteConfig.optimizeDeps!.include!.push('preact/compat');
+    viteConfig.optimizeDeps!.include!.push(
+			'preact/compat',
+			'preact/test-utils',
+			'preact/compat/jsx-runtime',
+			'@astrojs/preact/client-compat.js',
+		);
     viteConfig.resolve = {
       alias: [
 				{ find: 'react', replacement: 'preact/compat' },
@@ -83,8 +88,8 @@ export default function ({ compat }: { compat?: boolean } = {}): AstroIntegratio
 		name: '@astrojs/preact',
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig }) => {
-				addRenderer(getRenderer());
 				if (compat) addRenderer(getCompatRenderer());
+				addRenderer(getRenderer());
 				updateConfig({
 					vite: getViteConfiguration(compat),
 				});
