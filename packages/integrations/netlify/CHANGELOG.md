@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 0.4.7
+
+### Patch Changes
+
+- [#3734](https://github.com/withastro/astro/pull/3734) [`4acd245d`](https://github.com/withastro/astro/commit/4acd245d8f59871eb9c0083ae1a0fe7aa70c84f5) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: append shim to top of built file to avoid "can't read process of undefined" issues
+
 ## 0.4.6
 
 ### Patch Changes
