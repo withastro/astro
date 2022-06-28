@@ -777,7 +777,8 @@ export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
- * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
 	/**
@@ -792,6 +793,18 @@ export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
 };
+
+/**
+ * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes). (**SSG Only**)
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ */
+export type GetStaticPaths = (
+	options: GetStaticPathsOptions
+) =>
+	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
+	| GetStaticPathsResult
+	| GetStaticPathsResult[];
 
 export interface HydrateOptions {
 	name: string;
@@ -820,7 +833,8 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
 
 /**
  * The `content` prop given to a Layout
- * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ *
+ * [Astro reference](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts)
  */
 export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
@@ -828,7 +842,8 @@ export type MarkdownContent<T extends Record<string, any> = Record<string, any>>
 
 /**
  * paginate() Options
- * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
 export interface PaginateOptions {
 	/** the number of items per-page (default: `10`) */
@@ -840,8 +855,9 @@ export interface PaginateOptions {
 }
 
 /**
- * Page Prop
- * Docs: https://docs.astro.build/guides/pagination/#using-the-page-prop
+ * Represents a single page of data in a paginated collection
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
  */
 export interface Page<T = any> {
 	/** result */
@@ -869,7 +885,7 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | number | undefined>;
 
