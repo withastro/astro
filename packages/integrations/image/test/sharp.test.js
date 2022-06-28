@@ -49,9 +49,9 @@ describe('Sharp service', () => {
 			['width & height', `w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
 			['aspect ratio string', `ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
 			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
-		].forEach(([description, href, expected]) => {
+		].forEach(([description, params, expected]) => {
 			it(description, async () => {
-				const searchParams = new URLSearchParams(href);
+				const searchParams = new URLSearchParams(params);
 				const props = sharp.parseTransform(searchParams);
 
 				expect(props).to.deep.equal(expected);
