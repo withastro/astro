@@ -72,7 +72,7 @@ export default defineConfig({
 });
 ```
 
-Then, restart the dev server.
+Finally, restart the dev server.
 </details>
 
 ## Usage
