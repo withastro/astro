@@ -8,11 +8,11 @@ importers:
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.22.0
       '@octokit/action': ^3.18.1
-      '@typescript-eslint/eslint-plugin': ^5.27.0
-      '@typescript-eslint/parser': ^5.27.0
+      '@typescript-eslint/eslint-plugin': ^5.27.1
+      '@typescript-eslint/parser': ^5.27.1
       del: ^6.1.1
-      esbuild: ^0.14.42
-      eslint: ^8.16.0
+      esbuild: ^0.14.43
+      eslint: ^8.17.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-no-only-tests: ^2.6.0
       eslint-plugin-prettier: ^4.0.0
@@ -23,7 +23,7 @@ importers:
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
       turbo: 1.2.5
-      typescript: ~4.7.2
+      typescript: ~4.7.3
     dependencies:
       '@astrojs/webapi': link:packages/webapi
     devDependencies:
@@ -163,7 +163,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.5
@@ -236,7 +236,7 @@ importers:
     specifiers:
       '@astrojs/vue': ^0.2.0
       astro: ^1.0.0-beta.57
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       vue: 3.2.37
     devDependencies:
@@ -260,7 +260,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.5
@@ -359,7 +359,7 @@ importers:
       react: ^18.1.0
       react-dom: ^18.1.0
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -416,7 +416,7 @@ importers:
       react: ^18.1.0
       react-dom: ^18.1.0
       solid-nanostores: 0.0.6
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       '@nanostores/preact': 0.1.3_xtkr2uyxt54wubcnyxiwramgs4
       '@nanostores/react': 0.1.5_ib7jseorxmnfrhevtrqzsp5cr4
@@ -509,7 +509,7 @@ importers:
       diff: ^5.1.0
       eol: ^0.9.1
       es-module-lexer: ^0.10.5
-      esbuild: ^0.14.42
+      esbuild: ^0.14.43
       estree-walker: ^3.0.1
       execa: ^6.1.0
       fast-glob: ^3.2.11
@@ -531,7 +531,7 @@ importers:
       prompts: ^2.4.2
       recast: ^0.20.5
       resolve: ^1.22.0
-      rollup: ^2.75.5
+      rollup: ^2.75.6
       sass: ^1.52.2
       semver: ^7.3.7
       shiki: ^0.10.1
@@ -680,7 +680,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -724,7 +724,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.5
@@ -756,7 +756,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -785,7 +785,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -814,7 +814,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -843,7 +843,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -872,7 +872,7 @@ importers:
       react-dom: ^18.1.0
       solid-js: ^1.4.3
       svelte: ^3.48.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       preact: 10.7.3
       react: 18.1.0
@@ -1558,7 +1558,7 @@ importers:
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
-      vue: ^3.2.36
+      vue: ^3.2.37
     dependencies:
       '@astrojs/react': link:../../../../integrations/react
       '@astrojs/vue': link:../../../../integrations/vue
@@ -1850,7 +1850,7 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
-      esbuild: ^0.14.42
+      esbuild: ^0.14.43
     dependencies:
       esbuild: 0.14.43
     devDependencies:
@@ -1902,7 +1902,7 @@ importers:
       '@types/node': ^14.18.20
       astro: workspace:*
       astro-scripts: workspace:*
-      esbuild: ^0.14.42
+      esbuild: ^0.14.43
     dependencies:
       '@astrojs/webapi': link:../../webapi
       esbuild: 0.14.43
@@ -2056,13 +2056,13 @@ importers:
 
   packages/integrations/svelte:
     specifiers:
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.47
+      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.48
       astro: workspace:*
       astro-scripts: workspace:*
       postcss-load-config: ^3.1.4
       svelte: ^3.48.0
-      svelte-preprocess: ^4.10.6
-      vite: ^2.9.9
+      svelte-preprocess: ^4.10.7
+      vite: ^2.9.10
     dependencies:
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.48_svelte@3.48.0+vite@2.9.10
       postcss-load-config: 3.1.4
@@ -2121,8 +2121,8 @@ importers:
       '@vitejs/plugin-vue': ^2.3.3
       astro: workspace:*
       astro-scripts: workspace:*
-      vite: ^2.9.9
-      vue: ^3.2.36
+      vite: ^2.9.10
+      vue: ^3.2.37
     dependencies:
       '@vitejs/plugin-vue': 2.3.3_vite@2.9.10+vue@3.2.37
       vite: 2.9.10
@@ -2148,7 +2148,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       github-slugger: ^1.4.0
-      mdast-util-mdx-expression: ^1.2.0
+      mdast-util-mdx-expression: ^1.2.1
       mdast-util-mdx-jsx: ^1.2.0
       mdast-util-to-string: ^3.1.0
       micromark-extension-mdx-expression: ^1.0.3
@@ -2175,7 +2175,7 @@ importers:
       acorn-jsx: 5.3.2_acorn@8.7.1
       assert: 2.0.0
       github-slugger: 1.4.0
-      mdast-util-mdx-expression: 1.2.0
+      mdast-util-mdx-expression: 1.2.1
       mdast-util-mdx-jsx: 1.2.0
       mdast-util-to-string: 3.1.0
       micromark-extension-mdx-expression: 1.0.3
@@ -2209,7 +2209,7 @@ importers:
   packages/telemetry:
     specifiers:
       '@types/dlv': ^1.1.2
-      '@types/node': ^14.18.20
+      '@types/node': ^14.18.21
       astro-scripts: workspace:*
       ci-info: ^3.3.1
       debug: ^4.3.4
@@ -2243,7 +2243,7 @@ importers:
       '@rollup/plugin-typescript': ^8.3.2
       '@types/chai': ^4.3.1
       '@types/mocha': ^9.1.1
-      '@types/node': ^14.18.20
+      '@types/node': ^14.18.21
       '@ungap/structured-clone': ^0.3.4
       abort-controller: ^3.0.0
       chai: ^4.3.6
@@ -2253,10 +2253,10 @@ importers:
       magic-string: ^0.25.9
       mocha: ^9.2.2
       node-fetch: ^3.2.5
-      rollup: ^2.75.5
+      rollup: ^2.75.6
       rollup-plugin-terser: ^7.0.2
       tslib: ^2.4.0
-      typescript: ~4.7.2
+      typescript: ~4.7.3
       urlpattern-polyfill: ^1.0.0-rc5
       web-streams-polyfill: ^3.2.1
     dependencies:
@@ -2288,8 +2288,8 @@ importers:
     specifiers:
       '@astrojs/webapi': workspace:*
       adm-zip: ^0.5.9
-      arg: ^5.0.1
-      esbuild: ^0.14.42
+      arg: ^5.0.2
+      esbuild: ^0.14.43
       globby: ^12.2.0
       kleur: ^4.1.4
       svelte: ^3.48.0
@@ -10901,8 +10901,8 @@ packages:
       - supports-color
     dev: false
 
-  /mdast-util-mdx-expression/1.2.0:
-    resolution: {integrity: sha512-wb36oi09XxqO9RVqgfD+xo8a7xaNgS+01+k3v0GKW0X0bYbeBmUZz22Z/IJ8SuphVlG+DNgNo9VoEaUJ3PKfJQ==}
+  /mdast-util-mdx-expression/1.2.1:
+    resolution: {integrity: sha512-BtQwyalaq6jRjx0pagtuAwGrmzL1yInrfA4EJv7GOoiPOUbR4gr6h65I+G3WTh1/Cag2Eda4ip400Ch6CFmWiA==}
     dependencies:
       '@types/estree-jsx': 0.0.1
       '@types/hast': 2.3.4

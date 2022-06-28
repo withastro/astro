@@ -10,8 +10,8 @@
   "dependencies": {
     "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
-    "arg": "^5.0.1",
-    "esbuild": "^0.14.42",
+    "arg": "^5.0.2",
+    "esbuild": "^0.14.43",
     "globby": "^12.2.0",
     "kleur": "^4.1.4",
     "svelte": "^3.48.0",
