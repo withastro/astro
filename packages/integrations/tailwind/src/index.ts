@@ -50,7 +50,7 @@ type TailwindOptions =
 	  }
 	| undefined;
 
-export default function tailwindIntegration(options: TailwindOptions): AstroIntegration {
+export default function tailwindIntegration(options?: TailwindOptions): AstroIntegration {
 	const applyBaseStyles = options?.config?.applyBaseStyles ?? true;
 	const customConfigPath = options?.config?.path;
 	return {
