@@ -1,5 +1,11 @@
 # @astrojs/sitemap
 
+## 0.2.3
+
+### Patch Changes
+
+- [#3723](https://github.com/withastro/astro/pull/3723) [`52f75369`](https://github.com/withastro/astro/commit/52f75369efe5a0a1b320478984c90b6727d52159) Thanks [@alextim](https://github.com/alextim)! - fix: if `serialize` function returns `undefined` for the passed entry, such entry will be excluded from sitemap
+
 ## 0.2.2
 
 ### Patch Changes
