@@ -20,8 +20,8 @@ function getRenderer(): AstroRenderer {
 
 function getCompatRenderer(): AstroRenderer {
 	return {
-		name: '@astrojs/preact/compat',
-		clientEntrypoint: '@astrojs/preact/client-compat.js',
+		name: '@astrojs/preact',
+		clientEntrypoint: '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
@@ -67,7 +67,6 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 			'preact/compat',
 			'preact/test-utils',
 			'preact/compat/jsx-runtime',
-			'@astrojs/preact/client-compat.js',
 		);
     viteConfig.resolve = {
       alias: [
