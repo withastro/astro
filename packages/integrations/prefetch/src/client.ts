@@ -1,5 +1,5 @@
-/// <reference path="../@types/network-information.d.ts" />
 import throttles from 'throttles';
+import '../@types/network-information.d.ts';
 import requestIdleCallback from './requestIdleCallback.js';
 
 const events = ['mouseenter', 'touchstart', 'focus'];
@@ -53,7 +53,7 @@ async function preloadHref(link: HTMLAnchorElement) {
 		const html = parser.parseFromString(contents, 'text/html');
 		const styles = Array.from(html.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
 
-		await Promise.all(styles.map(({ href }) => fetch(href)));
+		await Promise.all(styles.map((el) => fetch(el.href)));
 	} catch {}
 }
 

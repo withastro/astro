@@ -1,9 +1,12 @@
-import * as terser from 'terser';
 import esbuild from 'esbuild';
 import glob from 'tiny-glob';
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
+
+function escapeTemplateLiterals(str) {
+	return str.replace(/\`/g, '\\`').replace(/\$\{/g, '\\${');
+}
 
 export default async function prebuild(...args) {
 	let buildToString = args.indexOf('--to-string');
@@ -49,7 +52,7 @@ export default async function prebuild(...args) {
  * to generate this file.
  */
 
-export default \`${esbuildresult.code.trim()}\`;`;
+export default \`${escapeTemplateLiterals(esbuildresult.code.trim())}\`;`;
 		const url = getPrebuildURL(filepath);
 		await fs.promises.writeFile(url, mod, 'utf-8');
 	}
