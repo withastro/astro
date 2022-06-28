@@ -54,6 +54,11 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 					...rendererClientEntries,
 				],
 			},
+			define: {
+				// We didn't pass the `base` option to vite for fine routing control.
+				// So we need to define BASE_URL environment variable here manually.
+				'import.meta.env.BASE_URL': JSON.stringify(config.base)
+			}
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);

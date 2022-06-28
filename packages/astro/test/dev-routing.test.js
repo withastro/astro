@@ -112,6 +112,11 @@ describe('Development Routing', () => {
 		it('200 when loading subpath root', async () => {
 			const response = await fixture.fetch('/blog/');
 			expect(response.status).to.equal(200);
+
+			const html = await response.text();
+			const $ = cheerio.load(html);
+			const baseUrlDiv = $('#base-url')
+			expect(baseUrlDiv.text()).to.equal('/blog/')
 		});
 
 		it('404 when loading subpath root without trailing slash', async () => {
