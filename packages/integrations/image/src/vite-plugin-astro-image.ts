@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import { pathToFileURL } from 'url';
+import slash from 'slash';
 import { metadata } from './metadata.js';
 import type { PluginContext } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
@@ -53,7 +54,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 			const output = {
 				...meta,
-				src,
+				src: slash(src), // Windows compat
 			};
 
 			if (resolvedConfig.isProduction) {

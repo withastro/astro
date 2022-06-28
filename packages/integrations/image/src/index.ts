@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import slash from 'slash';
 import { ensureDir, isRemoteImage, loadLocalImage, loadRemoteImage, propsToFilename } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 import type { AstroConfig, AstroIntegration } from 'astro';
@@ -37,7 +38,7 @@ export async function getImage(loader: SSRImageService, transform: TransformOpti
 
 			return {
 				...attributes,
-				src
+				src: slash(src), // Windows compat
 			}
 	}
 

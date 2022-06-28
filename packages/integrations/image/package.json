@@ -37,7 +37,8 @@
     "image-type": "^4.1.0",
     "mime-types": "^2.1.35",
     "mrmime": "^1.0.0",
-    "sharp": "^0.30.6"
+    "sharp": "^0.30.6",
+    "slash": "^4.0.0"
   },
   "devDependencies": {
     "@types/etag": "^1.8.1",
