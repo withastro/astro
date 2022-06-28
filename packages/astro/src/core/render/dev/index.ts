@@ -91,7 +91,7 @@ export async function preload({
 
 function isPage(filePath: URL, astroConfig: AstroConfig): boolean {
 	const relativeURL = filePath.toString().replace(astroConfig.srcDir.toString().slice(0, -1), '');
-	if (!relativeURL.startsWith('/pages/')) return false;
+	if (!relativeURL.includes('/pages/')) return false;
 	const ext = '.' + relativeURL.split('.').at(-1);
 	for (const _ext of astroConfig._ctx.pageExtensions) {
 		if (ext === _ext) return true;

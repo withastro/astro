@@ -714,7 +714,7 @@ export async function renderPage(
 		const output = await renderComponent(result, componentFactory.name, componentFactory, pageProps, null);
 		let html = output.toString()
 		if (!/<!doctype html/i.test(html)) {
-			html = `<!DOCTYPE html>\n${html}`;
+			html = `<!DOCTYPE html>\n${await maybeRenderHead(result)}${html}`;
 		}
 		return new Response(html, {
 			headers: new Headers([
