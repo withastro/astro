@@ -45,6 +45,7 @@ const { version } = JSON.parse(
 
 const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
+// Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
 	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
 
