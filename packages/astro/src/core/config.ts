@@ -339,7 +339,7 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: [],
+			pageExtensions: ['.astro', '.md'],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
