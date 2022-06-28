@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3753](https://github.com/withastro/astro/pull/3753) [`cabd9dcc`](https://github.com/withastro/astro/commit/cabd9dcc8079b55bf16bf05da53bd36f41b7f766) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix issue where project id fallback was not getting hashed
+
 ## 0.2.0
 
 ### Minor Changes
