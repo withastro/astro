@@ -85,6 +85,6 @@ export function getProjectInfo(isCI: boolean): ProjectInfo {
 	}
 	return {
 		isGit: false,
-		anonymousProjectId: isCI ? '' : process.cwd(),
+		anonymousProjectId: isCI ? '' : createAnonymousValue(process.cwd()),
 	};
 }
