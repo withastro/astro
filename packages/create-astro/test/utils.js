@@ -24,12 +24,10 @@ export function promiseWithTimeout(testFn) {
 }
 
 export const PROMPT_MESSAGES = {
-	directory: 'Where would you like to create your app?',
-	template: 'Which app template would you like to use?',
+	directory: 'Where would you like to create your new project?',
+	template: 'Which template would you like to use?',
 	install: (pkgManager) => `Would you like us to run "${pkgManager} install?"`,
-	astroAdd: (astroAddCommand = 'npx astro@latest add --yes') =>
-		`Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
-	git: 'Initialize a git repository?',
+	git: 'Initialize a new git repository?',
 };
 
 export function setup(args = []) {

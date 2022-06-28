@@ -31,10 +31,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.47",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.48",
     "postcss-load-config": "^3.1.4",
-    "svelte-preprocess": "^4.10.6",
-    "vite": "^2.9.9"
+    "svelte-preprocess": "^4.10.7",
+    "vite": "^2.9.10"
   },
   "devDependencies": {
     "astro": "workspace:*",

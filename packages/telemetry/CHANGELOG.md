@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3713](https://github.com/withastro/astro/pull/3713) [`ebd7e7ad`](https://github.com/withastro/astro/commit/ebd7e7ad81e5245deffa331f11e5196ff1b21d84) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update telemetry to support a more anonymized project id. `anonymousProjectId` is now hashed based on anonymous git data instead of your git remote URL.
+
 ## 0.1.3
 
 ### Patch Changes

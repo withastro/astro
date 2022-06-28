@@ -12,7 +12,7 @@ const defaultConfig = {
 	format: 'esm',
 	platform: 'node',
 	target: 'node14',
-	sourcemap: 'inline',
+	sourcemap: false,
 	sourcesContent: false,
 };
 
@@ -61,7 +61,6 @@ export default async function build(...args) {
 	if (!isDev) {
 		await esbuild.build({
 			...config,
-			sourcemap: false,
 			bundle: false,
 			entryPoints,
 			outdir,
