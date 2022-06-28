@@ -10266,7 +10266,7 @@ packages:
       estree-util-attach-comments: 2.0.1
       estree-util-is-identifier-name: 2.0.0
       hast-util-whitespace: 2.0.0
-      mdast-util-mdx-expression: 1.2.0
+      mdast-util-mdx-expression: 1.2.1
       mdast-util-mdxjs-esm: 1.2.0
       property-information: 6.1.1
       space-separated-tokens: 2.0.1
@@ -11264,7 +11264,7 @@ packages:
   /mdast-util-mdx/2.0.0:
     resolution: {integrity: sha512-M09lW0CcBT1VrJUaF/PYxemxxHa7SLDHdSn94Q9FhxjCQfuW7nMAWKWimTmA3OyDMSTH981NN1csW1X+HPSluw==}
     dependencies:
-      mdast-util-mdx-expression: 1.2.0
+      mdast-util-mdx-expression: 1.2.1
       mdast-util-mdx-jsx: 2.0.1
       mdast-util-mdxjs-esm: 1.2.0
     transitivePeerDependencies:
