@@ -1,4 +1,4 @@
-import { partytownSnippet } from '@builder.io/partytown/integration';
+import { partytownSnippet, PartytownConfig } from '@builder.io/partytown/integration';
 import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import * as fs from 'fs';
@@ -10,10 +10,7 @@ const resolve = createRequire(import.meta.url).resolve;
 
 type PartytownOptions =
 	| {
-			config?: {
-				forward?: string[];
-				debug?: boolean;
-			};
+			config?: PartytownConfig;
 	  }
 	| undefined;
 
@@ -26,10 +23,13 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 		name: '@astrojs/partytown',
 		hooks: {
 			'astro:config:setup': ({ config: _config, command, injectScript }) => {
-				const lib = `${_config.base}~partytown/`;
-				const forward = options?.config?.forward || [];
-				const debug = options?.config?.debug || command === 'dev';
-				partytownSnippetHtml = partytownSnippet({ lib, debug, forward });
+				const partytownConfig: PartytownConfig = {
+					...options?.config,
+					lib: `${_config.base}~partytown/`,
+					forward: options?.config?.forward || [],
+					debug: options?.config?.debug || command === 'dev',
+				};
+				partytownSnippetHtml = partytownSnippet(partytownConfig);
 				injectScript('head-inline', partytownSnippetHtml);
 			},
 			'astro:config:done': ({ config: _config }) => {
