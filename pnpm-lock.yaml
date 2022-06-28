@@ -936,6 +936,16 @@ importers:
       '@astrojs/react': link:../../../../integrations/react
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/preact-compat-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      preact: ^10.7.3
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+      preact: 10.7.3
+
   packages/astro/e2e/fixtures/preact-component:
     specifiers:
       '@astrojs/preact': workspace:*
