@@ -22,7 +22,6 @@ describe('SSG images', function () {
 		let html;
 
 		before(async () => {
-			this.timeout(45000); // test needs a little more time in CI
 			await fixture.build();
 
 			html = await fixture.readFile('/index.html');
