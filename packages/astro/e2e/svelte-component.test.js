@@ -19,3 +19,12 @@ test.describe('Svelte components in Markdown files', () => {
 		counterCssFilePath: './src/components/Counter.svelte',
 	});
 });
+
+test.describe('Svelte components in MDX files', () => {
+	createTests({
+		pageUrl: '/mdx/',
+		pageSourceFilePath: './src/pages/mdx.mdx',
+		componentFilePath: './src/components/SvelteComponent.svelte',
+		counterCssFilePath: './src/components/Counter.svelte',
+	});
+});

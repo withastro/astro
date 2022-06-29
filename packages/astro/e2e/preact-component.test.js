@@ -17,3 +17,11 @@ test.describe('Preact components in Markdown files', () => {
 		componentFilePath: './src/components/JSXComponent.jsx',
 	});
 });
+
+test.describe('Preact components in MDX files', () => {
+	createTests({
+		pageUrl: '/mdx/',
+		pageSourceFilePath: './src/pages/mdx.md',
+		componentFilePath: './src/components/JSXComponent.jsx',
+	});
+});
