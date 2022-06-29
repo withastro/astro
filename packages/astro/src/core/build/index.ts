@@ -114,18 +114,6 @@ class AstroBuilder {
 			ssr: isBuildingToSSR(this.config),
 		});
 
-		// Filter pages by using conditions based on their frontmatter.
-		Object.entries(allPages).forEach(([page, data]) => {
-			if ('frontmatter' in data.preload[1]) {
-				// TODO: add better type inference to data.preload[1]
-				const frontmatter = (data.preload[1] as any).frontmatter;
-				if (Boolean(frontmatter.draft) && !this.config.markdown.drafts) {
-					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
-					delete allPages[page];
-				}
-			}
-		});
-
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
 		// The names of each pages

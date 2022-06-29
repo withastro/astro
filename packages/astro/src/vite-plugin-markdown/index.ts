@@ -11,6 +11,7 @@ import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
+import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -141,6 +142,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
+				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
 				markdownContent = markdownContent.replace(
 					/<\s*!--([^-->]*)(.*?)-->/gs,
 					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
@@ -154,7 +156,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
 				const prelude = `---
-import { slug as $$slug } from '@astrojs/markdown-remark';
+import { slug as $$slug } from '@astrojs/markdown-remark/ssr-utils';
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
@@ -172,7 +174,7 @@ ${setup}`.trim();
 				}
 
 				// Transform from `.astro` to valid `.ts`
-				let { code: tsResult } = await transform(astroResult, {
+				let transformResult = await transform(astroResult, {
 					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
 					projectRoot: config.root.toString(),
 					site: config.site
@@ -186,6 +188,8 @@ ${setup}`.trim();
 						viteID(new URL('../runtime/server/index.js', import.meta.url))
 					)}`,
 				});
+
+				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
@@ -203,10 +207,18 @@ ${tsResult}`;
 					sourcemap: false,
 					sourcefile: id,
 				});
+
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts,
+				};
+
 				return {
 					code: escapeViteEnvReferences(code),
 					map: null,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							lang: 'ts',
 						},
@@ -219,9 +231,9 @@ ${tsResult}`;
 	};
 }
 
-// Converts the first dot in `import.meta.env.` to its Unicode escape sequence,
+// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
 // which prevents Vite from replacing strings like `import.meta.env.SITE`
 // in our JS representation of loaded Markdown files
 function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env\./g, 'import\\u002Emeta.env.');
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

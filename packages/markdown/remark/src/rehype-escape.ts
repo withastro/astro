@@ -8,7 +8,7 @@ export default function rehypeEscape(): any {
 				// Visit all raw children and escape HTML tags to prevent Markdown code
 				// like "This is a `<script>` tag" from actually opening a script tag
 				visit(el, 'raw', (raw) => {
-					raw.value = raw.value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+					raw.value = raw.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 				});
 			}
 			return el;

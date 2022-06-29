@@ -8,8 +8,16 @@ import type {
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
+
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
-import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
+import { extractDirectives, generateHydrateScript } from './hydration.js';
+import {
+	determineIfNeedsHydrationScript,
+	determinesIfNeedsDirectiveScript,
+	getPrescripts,
+	PrescriptType,
+} from './scripts.js';
+import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
 import { serializeListValue } from './util.js';
 
@@ -164,7 +172,7 @@ export async function renderComponent(
 		return markHTMLString(output);
 	}
 
-	if (Component === null && !_props['client:only']) {
+	if (!Component && !_props['client:only']) {
 		throw new Error(
 			`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`
 		);
@@ -173,8 +181,11 @@ export async function renderComponent(
 	const { renderers } = result._metadata;
 	const metadata: AstroComponentMetadata = { displayName };
 
-	const { hydration, props } = extractDirectives(_props);
+	const { hydration, isPage, props } = extractDirectives(_props);
 	let html = '';
+	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+	let needsDirectiveScript =
+		hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 	if (hydration) {
 		metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
@@ -306,6 +317,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
+		if (isPage) {
+			return html;
+		}
 		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
 
@@ -316,24 +330,30 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		)}`
 	);
 
-	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
-	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-	result.scripts.add(
-		await generateHydrateScript(
-			{ renderer: renderer!, result, astroId, props },
-			metadata as Required<AstroComponentMetadata>
-		)
+	const island = await generateHydrateScript(
+		{ renderer: renderer!, result, astroId, props },
+		metadata as Required<AstroComponentMetadata>
 	);
+	result._metadata.needsHydrationStyles = true;
 
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
 
-	return markHTMLString(
-		`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${
-			html ?? ''
-		}${template}</astro-root>`
-	);
+	if (needsAstroTemplate) {
+		island.props.tmpl = '';
+	}
+
+	island.children = `${html ?? ''}${template}`;
+
+	let prescriptType: PrescriptType = needsHydrationScript
+		? 'both'
+		: needsDirectiveScript
+		? 'directive'
+		: null;
+	let prescripts = getPrescripts(prescriptType, hydration.directive);
+
+	return markHTMLString(prescripts + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -619,7 +639,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
-	let needsHydrationStyles = false;
+	let needsHydrationStyles = result._metadata.needsHydrationStyles;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
@@ -632,7 +652,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 		styles.push(
 			renderElement('style', {
 				props: {},
-				children: 'astro-root, astro-fragment { display: contents; }',
+				children: 'astro-island, astro-fragment { display: contents; }',
 			})
 		);
 	}

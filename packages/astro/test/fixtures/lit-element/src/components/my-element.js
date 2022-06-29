@@ -1,7 +1,5 @@
 import { LitElement, html } from 'lit';
 
-export const tagName = 'my-element';
-
 export class MyElement extends LitElement {
   static properties = {
     bool: {type: Boolean},

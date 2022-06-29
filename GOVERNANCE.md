@@ -329,17 +329,17 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 ```
 Hey ${NAME}!
 
-**I have some exciting news — you've been given the role of L2 Contributor (aka Maintainer/Moderator) in the Astro community!**
+**I have some exciting news — you have been awarded the role of Maintainer (L2 Contributor) in the Astro community!**
 
-Some background: I nominated you for the role in the (private) #maintainers channel, and the consensus was overwhelmingly positive. Some quotes from the nomination thread that sum up the impact you've already had on the project so far:
+Some background: ${PERSON} nominated you for the role in the (private) #maintainers channel, and the consensus was overwhelmingly positive. Some quotes from the nomination thread that sum up the impact you've had so far:
 
 - ...
 - ...
 - ...
 
-Thank you for ${1 SENTENCE DESCRIPTION OF CONTRIBUTIONS}. Your impact has definitely been felt and we would be thrilled to have your help building a healthy future for Astro! There is no required time commitment: you can continue to contribute as often or as little as you'd like. This is mainly a chance to recognize your contributions and give you more privileges in Discord and GitHub.
+We would be thrilled to have your help building the future of Astro. There is no required time commitment: you can continue to contribute as often or as little as you'd like. This is mainly a chance to recognize your contributions and give you more privileges in Discord and GitHub.
 
-Please let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles up to date. And if you have any questions, feel free to let me know.
+Let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles up to date. And if you have any questions, feel free to let me know.
 
 Best,
 ${MY_NAME}

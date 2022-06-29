@@ -74,7 +74,7 @@ describe('Component Libraries', () => {
 				'Rendered the client hydrated component'
 			);
 
-			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
 
 		it('Works with components hydrated internally', async () => {
@@ -87,7 +87,7 @@ describe('Component Libraries', () => {
 				"rendered the counter's slot"
 			);
 
-			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
 	});
 
@@ -152,7 +152,7 @@ describe('Component Libraries', () => {
 				'Rendered the client hydrated component'
 			);
 
-			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
 
 		it('Works with components hydrated internally', async () => {
@@ -165,7 +165,7 @@ describe('Component Libraries', () => {
 				"rendered the counter's slot"
 			);
 
-			expect($('astro-root[uid]')).to.have.lengthOf(1, 'Included one hydration island');
+			expect($('astro-island[uid]')).to.have.lengthOf(1, 'Included one hydration island');
 		});
 	});
 });

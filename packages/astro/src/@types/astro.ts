@@ -726,6 +726,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		pageExtensions: string[];
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
@@ -772,9 +773,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
@@ -1005,6 +1004,7 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	needsHydrationStyles: boolean;
 }
 
 export interface SSRResult {

@@ -92,6 +92,41 @@ Now, [build your site for production](https://docs.astro.build/en/reference/cli-
 > **Warning**
 > If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap.xml` file won't be generated.
 
+<details>
+<summary>
+Example of generated sitemap content for a two-page website:
+</summary>
+
+**sitemap-index.xml**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+  <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://stargazers.club/sitemap-0.xml</loc>
+  </sitemap>
+</sitemapindex>
+```
+
+**sitemap-0.xml**
+<?xml version="1.0" encoding="UTF-8"?>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://stargazers.club/</loc>
+  </url>
+  <url>
+    <loc>https://stargazers.club/second-page/</loc>
+  </url>
+</urlset>
+```
+</details>
+
+
+
+
 ## Configuration
 
 To configure this integration, pass an object to the `sitemap()` function call in `astro.config.mjs`.
@@ -144,6 +179,181 @@ __astro.config.mjs__
 ```
 </details>
 
+<details>
+  <summary>
+    entryLimit
+  </summary>
+
+The maximum number entries per sitemap file. The default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See this [explanation of splitting up a large sitemap](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      entryLimit: 10000,
+    }),
+  ],
+}
+```
+</details>
+
+
+<details>
+  <summary>
+    <strong>changefreq</strong>, <strong>lastmod</strong>, and <strong>priority</strong>
+  </summary>
+
+These options correspond to the `<changefreq>`, `<lastmod>`, and `<priortity>` tags in the [Sitemap XML specification.](https://www.sitemaps.org/protocol.html)
+
+Note that `changefreq` and `priority` are ignored by Google.  
+
+> **Note**
+> Due to limitations of Astro's [Integration API](https://docs.astro.build/en/reference/integrations-reference/), this integration can't analyze a given page's source code. This configuration option can set `changefreq`, `lastmod` and `priority` on a _site-wide_ basis; see the next option **serialize** for how you can set these values on a per-page basis.
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: new Date('2022-02-24'),
+    }),
+  ],
+}
+```
+
+</details>
+
+<details>
+  <summary>
+    <strong>serialize</strong>
+  </summary>
+
+A function called for each sitemap entry just before writing to a disk. This function can be asynchronous.
+
+It receives as its parameter a `SitemapItem` object that can have these properties:
+  - `url` (absolute page URL). This is the only property that is guaranteed to be on `SitemapItem`.
+  -  `changefreq` 
+  - `lastmod` (ISO formatted date, `String` type) 
+  - `priority` 
+  - `links`. 
+
+This `links` property contains a `LinkItem` list of alternate pages including a parent page.  
+
+The `LinkItem` type has two fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `lang` (a supported language code targeted by this version of the page).
+
+The `serialize` function should return `SitemapItem`, touched or not.  
+
+The example below shows the ability to add sitemap specific properties individually.
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({
+      serialize(item) {
+        if (/your-special-page/.test(item.url)) {
+          item.changefreq = 'daily';
+          item.lastmod = new Date();
+          item.priority = 0.9;
+        }
+        return item;
+      },
+    }),
+  ],
+}
+```
+
+
+</details>
+
+<details>
+  <summary>
+    <strong>i18n</strong>
+  </summary>
+
+To localize a sitemap, pass an object to this `i18n` option.
+
+This object has two required properties:
+
+- `defaultLocale`: `String`. Its value must exist as one of `locales` keys.
+- `locales`:  `Record<String, String>`, key/value - pairs. The key is used to look for a locale part in a page path. The value is a language attribute, only English alphabet and hyphen allowed. 
+
+[Read more about language attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang).
+
+[Read more about localization](https://developers.google.com/search/docs/advanced/crawling/localized-versions#all-method-guidelines).
+
+__astro.config.mjs__
+
+```js
+import sitemap from '@astrojs/sitemap';
+
+export default {
+  site: 'https://stargazers.club',
+  integrations: [
+    sitemap({  
+      i18n: {
+        defaultLocale: 'en',   // All urls that don't contain `es` or `fr` after `https://stargazers.club/` will be treated as default locale, i.e. `en`
+        locales: {
+          en: 'en-US',         // The `defaultLocale` value must present in `locales` keys
+          es: 'es-ES',
+          fr: 'fr-CA',
+        },
+      },
+    }),
+  ],
+};
+```
+
+<details>
+  <summary>The resulting sitemap looks like this</summary>
+
+```xml
+...
+  <url>
+    <loc>https://stargazers.club/</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://stargazers.club/"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://stargazers.club/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://stargazers.club/fr/"/>
+  </url>
+  <url>
+    <loc>https://stargazers.club/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://stargazers.club/"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://stargazers.club/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://stargazers.club/fr/"/>
+  </url>
+  <url>
+    <loc>https://stargazers.club/fr/</loc>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://stargazers.club/"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://stargazers.club/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://stargazers.club/fr/"/>
+  </url>
+  <url>
+    <loc>https://stargazers.club/es/second-page/</loc>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://stargazers.club/es/second-page/"/>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://stargazers.club/fr/second-page/"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://stargazers.club/second-page/"/>
+  </url>
+...
+```
+
+</details>
+</details>
+
 ## Examples
 - The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap.xml).
 - The [https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github](integrations playground template) comes with Astro Sitemap installed. Try adding a route and building the project!
@@ -156,5 +366,6 @@ __astro.config.mjs__
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

@@ -1,5 +1,5 @@
 import { h } from 'preact';
 
 export default function({ id }) {
-	return <div id={id}>Preact client:only component</div>
+	return <div id={id}>Framework client:only component</div>
 }

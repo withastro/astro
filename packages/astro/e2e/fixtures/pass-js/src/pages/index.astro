@@ -1,0 +1,28 @@
+---
+import Component from '../components/React';
+import { BigNestedObject } from '../types';
+
+const obj: BigNestedObject = {
+	nested: {
+		date: new Date('Thu, 09 Jun 2022 14:18:27 GMT')
+	},
+	more: {
+		another: {
+			exp: /ok/
+		}
+	}
+};
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	</head>
+	<body>
+		<main>
+			<Component client:load obj={obj} num={11n} arr={[0, "foo"]} />
+		</main>
+	</body>
+</html>
