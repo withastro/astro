@@ -47,7 +47,7 @@ You can deploy to different targes:
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
 - `static`: generates a static website following Vercel's output formats, redirects, etc.
 
-> **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations) — they can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
+> **Note**: deploying to the Edge has [its limitations](https://vercel.com/docs/concepts/functions/edge-functions#known-limitations). An edge function can't be more than 1 MB in size and they don't support native Node.js APIs, among others.
 
 You can change where to target by changing the import:
 
