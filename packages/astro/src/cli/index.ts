@@ -81,10 +81,12 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-/** The primary CLI action */
-export async function cli(args: string[]) {
-	const flags = yargs(args);
-	const cmd = resolveCommand(flags);
+/** 
+ * Run the given command with the given flags. 
+ * NOTE: This function provides no error handling, so be sure
+ * to present user-friendly error output where the fn is called.
+ **/
+async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
 
 	switch (cmd) {
@@ -114,31 +116,19 @@ export async function cli(args: string[]) {
 	//
 	switch (cmd) {
 		case 'add': {
-			try {
-				telemetry.record(event.eventCliSession(cmd));
-				const packages = flags._.slice(3) as string[];
-				return await add(packages, { cwd: root, flags, logging, telemetry });
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			telemetry.record(event.eventCliSession(cmd));
+			const packages = flags._.slice(3) as string[];
+			return await add(packages, { cwd: root, flags, logging, telemetry });
 		}
 		case 'docs': {
-			try {
-				telemetry.record(event.eventCliSession(cmd));
-				return await openInBrowser('https://docs.astro.build/');
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			telemetry.record(event.eventCliSession(cmd));
+			return await openInBrowser('https://docs.astro.build/');
 		}
 		case 'telemetry': {
-			try {
-				// Do not track session start, since the user may be trying to enable,
-				// disable, or modify telemetry settings.
-				const subcommand = flags._[3]?.toString();
-				return await telemetryHandler.update(subcommand, { flags, telemetry });
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			// Do not track session start, since the user may be trying to enable,
+			// disable, or modify telemetry settings.
+			const subcommand = flags._[3]?.toString();
+			return await telemetryHandler.update(subcommand, { flags, telemetry });
 		}
 	}
 
@@ -150,20 +140,12 @@ export async function cli(args: string[]) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			try {
-				await devServer(astroConfig, { logging, telemetry });
-				return await new Promise(() => {}); // lives forever
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			await devServer(astroConfig, { logging, telemetry });
+			return await new Promise(() => {}); // lives forever
 		}
 
 		case 'build': {
-			try {
-				return await build(astroConfig, { logging, telemetry });
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			return await build(astroConfig, { logging, telemetry });
 		}
 
 		case 'check': {
@@ -172,17 +154,24 @@ export async function cli(args: string[]) {
 		}
 
 		case 'preview': {
-			try {
-				const server = await preview(astroConfig, { logging, telemetry });
-				return await server.closed(); // keep alive until the server is closed
-			} catch (err) {
-				return throwAndExit(cmd, err);
-			}
+			const server = await preview(astroConfig, { logging, telemetry });
+			return await server.closed(); // keep alive until the server is closed
 		}
 	}
 
 	// No command handler matched! This is unexpected.
-	throwAndExit(cmd, new Error(`Error running ${cmd} -- no command found.`));
+	throw new Error(`Error running ${cmd} -- no command found.`);
+}
+
+/** The primary CLI action */
+export async function cli(args: string[]) {
+	const flags = yargs(args);
+	const cmd = resolveCommand(flags);
+	try {
+		await runCommand(cmd, flags);
+	} catch (err) {
+		return throwAndExit(cmd, err);
+	}
 }
 
 /** Display error and exit */
