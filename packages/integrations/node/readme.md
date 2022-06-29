@@ -9,7 +9,8 @@ This adapter allows Astro to deploy your SSR site to Node targets.
 - <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
-- <strong>[Changelog](#changelog)</strong>
+- <strong>[Changelog](#changelog)</strong> 
+
 
 ## Why Astro Node
 

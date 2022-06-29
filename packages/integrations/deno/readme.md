@@ -11,7 +11,6 @@ This adapter allows Astro to deploy your SSR site to Deno targets.
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong>
 
-
 ## Why Astro Deno
 
 If you're using Astro as a static site builder—its behavior out of the box—you don't need an adapter.
