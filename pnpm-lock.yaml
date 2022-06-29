@@ -1891,6 +1891,7 @@ importers:
       mime-types: ^2.1.35
       mrmime: ^1.0.0
       sharp: ^0.30.6
+      slash: ^4.0.0
     dependencies:
       etag: 1.8.1
       image-size: 1.0.1
@@ -1898,6 +1899,7 @@ importers:
       mime-types: 2.1.35
       mrmime: 1.0.0
       sharp: 0.30.6
+      slash: 4.0.0
     devDependencies:
       '@types/etag': 1.8.1
       '@types/sharp': 0.30.4
