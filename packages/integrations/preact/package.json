@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.17.12",
+    "babel-plugin-module-resolver": "^4.1.0",
     "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
