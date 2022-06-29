@@ -1,23 +1,21 @@
 import type { AstroIntegration } from 'astro';
-import mdx from '@mdx-js/rollup';
+import mdxPlugin from '@mdx-js/rollup';
 
-export default function (): AstroIntegration {
+export default function mdx(): AstroIntegration {
 	return {
 			name: '@astrojs/mdx',
 			hooks: {
-				'astro:config:setup': ({ updateConfig, addPageExtension }) => {
-					const mdxPlugin = mdx({
-						jsx: true,
-						jsxImportSource: 'astro'
-					})
-
+				'astro:config:setup': ({ updateConfig, addPageExtension }: any) => {
 					addPageExtension('.mdx');
 					updateConfig({
 						vite: {
 							plugins: [
 								{ 	
 									enforce: 'pre',
-									...mdxPlugin
+									...mdxPlugin({
+										jsx: true,
+										jsxImportSource: 'astro'
+									})
 								},
 								{
 									name: '@astrojs/mdx',
