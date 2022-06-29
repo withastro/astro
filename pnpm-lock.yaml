@@ -960,21 +960,25 @@ importers:
 
   packages/astro/e2e/fixtures/preact-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/preact': workspace:*
       astro: workspace:*
       preact: ^10.7.3
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
       preact: 10.8.2
 
   packages/astro/e2e/fixtures/react-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/react': workspace:*
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/react': link:../../../../integrations/react
       astro: link:../../..
       react: 18.2.0
@@ -982,10 +986,12 @@ importers:
 
   packages/astro/e2e/fixtures/solid-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/solid-js': workspace:*
       astro: workspace:*
       solid-js: ^1.4.3
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
     devDependencies:
@@ -993,10 +999,12 @@ importers:
 
   packages/astro/e2e/fixtures/svelte-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/svelte': workspace:*
       astro: workspace:*
       svelte: ^3.48.0
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
       svelte: 3.48.0
@@ -1023,9 +1031,11 @@ importers:
 
   packages/astro/e2e/fixtures/vue-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/vue': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
