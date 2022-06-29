@@ -166,6 +166,10 @@ function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
+const rendererAliases = new Map([
+	['solid', 'solid-js']
+])
+
 export async function renderComponent(
 	result: SSRResult,
 	displayName: string,
@@ -278,7 +282,8 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	} else {
 		// Attempt: use explicitly passed renderer name
 		if (metadata.hydrateArgs) {
-			const rendererName = metadata.hydrateArgs;
+			const passedName = metadata.hydrateArgs;
+			const rendererName = rendererAliases.has(passedName) ? rendererAliases.get(passedName) : passedName;
 			renderer = renderers.filter(
 				({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
 			)[0];

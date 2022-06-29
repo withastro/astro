@@ -16,7 +16,7 @@ const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
-	'solid-js': "import 'solid-js/web'",
+	'solid-js': "import 'solid-js'",
 	astro: "import 'astro/jsx-runtime'",
 };
 
@@ -164,6 +164,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					}
 				}
 			}
+
 
 			// if no imports were found, look for @jsxImportSource comment
 			if (!importSource) {
