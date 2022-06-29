@@ -140,5 +140,10 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		ssr,
 	});
 
+	// Support `export const components` for `MDX` pages
+	if (typeof (mod as any).components === 'object') {
+		Object.assign(pageProps, { components: (mod as any).components });
+	}
+
 	return await renderPage(result, Component, pageProps, null);
 }
