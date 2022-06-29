@@ -17,8 +17,8 @@ export default function () {
 									if (id === '@my-ssr') {
 										return id;
 									} else if (id === 'astro/app') {
-										const id = viteID(new URL('../dist/core/app/index.js', import.meta.url));
-										return id;
+										const viteId = viteID(new URL('../dist/core/app/index.js', import.meta.url));
+										return viteId;
 									}
 								},
 								load(id) {

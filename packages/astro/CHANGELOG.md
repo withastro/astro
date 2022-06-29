@@ -1,5 +1,143 @@
 # astro
 
+## 1.0.0-beta.58
+
+### Patch Changes
+
+- [#3715](https://github.com/withastro/astro/pull/3715) [`4d6d8644`](https://github.com/withastro/astro/commit/4d6d8644e623522ca6c19dbb2078865b17044c38) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update "astro add" output to remove confusing multi-select prompt.
+
+* [#3715](https://github.com/withastro/astro/pull/3715) [`4d6d8644`](https://github.com/withastro/astro/commit/4d6d8644e623522ca6c19dbb2078865b17044c38) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update the help output to improve formatting
+
+- [#3713](https://github.com/withastro/astro/pull/3713) [`ebd7e7ad`](https://github.com/withastro/astro/commit/ebd7e7ad81e5245deffa331f11e5196ff1b21d84) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update telemetry to support a more anonymized project id. `anonymousProjectId` is now hashed based on anonymous git data instead of your git remote URL.
+
+- Updated dependencies [[`ebd7e7ad`](https://github.com/withastro/astro/commit/ebd7e7ad81e5245deffa331f11e5196ff1b21d84)]:
+  - @astrojs/telemetry@0.2.0
+
+## 1.0.0-beta.57
+
+### Patch Changes
+
+- [#3724](https://github.com/withastro/astro/pull/3724) [`86635e03`](https://github.com/withastro/astro/commit/86635e035b209845b4e1cdf370a4c78451271b70) Thanks [@matthewp](https://github.com/matthewp)! - Fixes define:vars w/ styles used inside of components
+
+## 1.0.0-beta.56
+
+### Patch Changes
+
+- [#3705](https://github.com/withastro/astro/pull/3705) [`b5e3403f`](https://github.com/withastro/astro/commit/b5e3403fa151710be4837f6ad265d836adb08025) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build some times breaking in large sites
+
+* [#3702](https://github.com/withastro/astro/pull/3702) [`b11e3b38`](https://github.com/withastro/astro/commit/b11e3b38ebb59ceec3479cbf580276d3b3bd657c) Thanks [@matthewp](https://github.com/matthewp)! - Ensure import.meta.env.SSR is true in SSR mode
+
+## 1.0.0-beta.55
+
+### Patch Changes
+
+- [#3696](https://github.com/withastro/astro/pull/3696) [`3daaf510`](https://github.com/withastro/astro/commit/3daaf510ea767fba47ef52d2253b6221967f3b53) Thanks [@matthewp](https://github.com/matthewp)! - Support for streaming responses
+
+  Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
+
+  ```astro
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
+  <html>
+  <head>
+  <title>App</title>
+  </head>
+  <body>
+    <LoadTodos />
+  </body>
+  </html>
+  ```
+
+  In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
+
+  As part of this Astro also now supports async iterables within its templates. This means you can do this:
+
+  ```astro
+  <ul>
+    {(async function * () {
+      for(const number of numbers) {
+        await wait(1000);
+
+        yield <li>Number: {number}</li>
+        yield '\n'
+      }
+    })()}
+  </ul>
+  ```
+
+  Which will stream out `<li>`s one at a time, waiting a second between each.
+
+* [#3700](https://github.com/withastro/astro/pull/3700) [`47c81eff`](https://github.com/withastro/astro/commit/47c81effa69fb5d7f1e576f88c27d5071f1888e3) Thanks [@matthewp](https://github.com/matthewp)! - Make Astro.redirect use a 302 status code
+
+## 1.0.0-beta.54
+
+### Patch Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add renderer support for passing named slots to framework components.
+
+  **BREAKING**: integrations using the `addRenderer()` API are now passed all named slots via `Record<string, string>` rather than `string`. Previously only the default slot was passed.
+
+* [#3649](https://github.com/withastro/astro/pull/3649) [`446f8c4f`](https://github.com/withastro/astro/commit/446f8c4f13de04324697e958af027ac8943a039b) Thanks [@dc7290](https://github.com/dc7290)! - Added test for dir parameter in astro:build:done
+
+- [#3679](https://github.com/withastro/astro/pull/3679) [`fa7ed3f3`](https://github.com/withastro/astro/commit/fa7ed3f3a9ce89c1c46e637b584271a6e199d211) Thanks [@matthewp](https://github.com/matthewp)! - Moves head injection to happen during rendering
+
+  This change makes it so that head injection; to insert component stylesheets, hoisted scripts, for example, to happen during rendering than as a post-rendering step.
+
+  This is to enable streaming. This change will only be noticeable if you are rendering your `<head>` element inside of a framework component. If that is the case then the head items will be injected before the first non-head element in an Astro file instead.
+
+  In the future we may offer a `<Astro.Head>` component as a way to control where these scripts/styles are inserted.
+
+## 1.0.0-beta.53
+
+### Patch Changes
+
+- [#3685](https://github.com/withastro/astro/pull/3685) [`3d554fdb`](https://github.com/withastro/astro/commit/3d554fdbfb49d85d2945b7775825f7d9ace959ce) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix PostCSS config not applied to Svelte component by default
+
+* [#3665](https://github.com/withastro/astro/pull/3665) [`9a813268`](https://github.com/withastro/astro/commit/9a813268db2e3a7ed5644739b7a12e83e5d239b2) Thanks [@matthewp](https://github.com/matthewp)! - Allow TypeScript inside script tags
+
+  This makes it so that you can use TypeScript inside of script tags like so:
+
+  ```html
+  <script>
+    interface Person {
+      name: string;
+    }
+
+    const person: Person = {
+      name: 'Astro',
+    };
+
+    console.log(person);
+  </script>
+  ```
+
+  Note that the the VSCode extension does not currently support this, however.
+
+- [#3633](https://github.com/withastro/astro/pull/3633) [`921d9a27`](https://github.com/withastro/astro/commit/921d9a27e243c27e40e429a0a5c7d562d7b9633f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a bug with `astro add react` adding a too-complex semver to your package.json
+
+* [#3676](https://github.com/withastro/astro/pull/3676) [`85c33751`](https://github.com/withastro/astro/commit/85c33751c20002e29bd646325a6e39f83cbb1f4d) Thanks [@matthewp](https://github.com/matthewp)! - Allow specifying entryFileNames for client JS
+
+## 1.0.0-beta.52
+
+### Patch Changes
+
+- [#3667](https://github.com/withastro/astro/pull/3667) [`df02fad1`](https://github.com/withastro/astro/commit/df02fad13ef7c8a8a563ee3720513d437090ee2e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: add @nanostores/preact to ALWAYS_NOEXTERNAL list for easier onboarding
+
+* [#3678](https://github.com/withastro/astro/pull/3678) [`89884540`](https://github.com/withastro/astro/commit/898845402cd82995bd4878c93d3ccfcce89ebf27) Thanks [@matthewp](https://github.com/matthewp)! - Fix regression with SSRManifest and client assets
+
+- [#3658](https://github.com/withastro/astro/pull/3658) [`aeab8909`](https://github.com/withastro/astro/commit/aeab890971e5f425f877545c674d1cb532cee754) Thanks [@matthewp](https://github.com/matthewp)! - Inlines small hoisted scripts
+
+  This enables a perf improvement, whereby small hoisted scripts without dependencies are inlined into the HTML, rather than loaded externally. This uses `vite.build.assetInlineLimit` to determine if the script should be inlined.
+
+## 1.0.0-beta.51
+
+### Patch Changes
+
+- [#3675](https://github.com/withastro/astro/pull/3675) [`ef6282d5`](https://github.com/withastro/astro/commit/ef6282d5d99a428f7084f7174c9290cb5ad0fa31) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix `import.meta.env` also without trailing dot
+
+* [#3673](https://github.com/withastro/astro/pull/3673) [`ba5ad785`](https://github.com/withastro/astro/commit/ba5ad7855c4252e10e76b41b88fd4c74b4b7295b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix react dependencies to improve test reliability
+
 ## 1.0.0-beta.50
 
 ### Patch Changes

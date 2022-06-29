@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3732](https://github.com/withastro/astro/pull/3732) [`6360f474`](https://github.com/withastro/astro/commit/6360f474fb8cecaf4fe27e9184058b57da1df72a) Thanks [@inwardmovement](https://github.com/inwardmovement)! - Marks the Tailwind integration config as optional to fix TypeScript validation warnings
+
 ## 0.2.1
 
 ### Patch Changes

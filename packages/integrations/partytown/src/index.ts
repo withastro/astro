@@ -1,6 +1,7 @@
 import { partytownSnippet } from '@builder.io/partytown/integration';
-import { copyLibFiles } from '@builder.io/partytown/utils';
+import { copyLibFiles, libDirPath } from '@builder.io/partytown/utils';
 import type { AstroConfig, AstroIntegration } from 'astro';
+import * as fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -49,6 +50,14 @@ export default function createPlugin(options: PartytownOptions): AstroIntegratio
 				await copyLibFiles(fileURLToPath(new URL('~partytown', dir)), {
 					debugDir: false,
 				});
+			},
+			'astro:build:ssr': async ({ manifest }) => {
+				const dirpath = libDirPath({ debugDir: false });
+				const files = await fs.promises.readdir(dirpath);
+				for (const file of files) {
+					if (file === 'debug') continue;
+					manifest.assets.push(`/~partytown/${file}`);
+				}
 			},
 		},
 	};

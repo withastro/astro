@@ -54,9 +54,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
-          eslint_args: --ignore-pattern test --ignore-pattern vendor
-          eslint_dir: packages/astro
-          eslint_extensions: ts
           prettier: false
           auto_fix: true
           git_name: github-actions[bot]
@@ -233,11 +230,6 @@ jobs:
       - name: Test
         run: pnpm run test:smoke
 
-      - name: Memory Leak Test
-        run: |
-          node ./scripts/memory/mk.js
-          node --expose-gc ./scripts/memory/index.js --ci
-
 
   # Changelog can only run _after_ build.
   # We download all `dist/` artifacts from GitHub to skip the build process.
@@ -248,8 +240,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
@@ -279,7 +269,9 @@ jobs:
           commit: '[ci] release'
           title: '[ci] release'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Needs access to push to main
+          GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Generate Notification

@@ -1,5 +1,19 @@
 # @astrojs/svelte
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => framework components.
+
+  Inside your components, use the built-in `slot` API as you normally would.
+
+## 0.1.5
+
+### Patch Changes
+
+- [#3685](https://github.com/withastro/astro/pull/3685) [`3d554fdb`](https://github.com/withastro/astro/commit/3d554fdbfb49d85d2945b7775825f7d9ace959ce) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix PostCSS config not applied to Svelte component by default
+
 ## 0.1.4
 
 ### Patch Changes

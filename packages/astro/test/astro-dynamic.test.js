@@ -36,7 +36,7 @@ describe('Dynamic components', () => {
 		expect($('astro-island').html()).to.equal('');
 		// test 2: component url
 		const href = $('astro-island').attr('component-url');
-		expect(href).to.include(`/entry`);
+		expect(href).to.include(`/PersistentCounter`);
 	});
 });
 
@@ -75,6 +75,6 @@ describe('Dynamic components subpath', () => {
 		expect($('astro-island').html()).to.equal('');
 		// test 2: has component url
 		const attr = $('astro-island').attr('component-url');
-		expect(attr).to.include(`blog/entry`);
+		expect(attr).to.include(`blog/PersistentCounter`);
 	});
 });

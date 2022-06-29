@@ -1,7 +1,8 @@
+/* eslint no-console: 'off' */
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import { bgCyan, black, bold, cyan, gray, green, red, yellow } from 'kleur/colors';
+import { bgCyan, black, bold, cyan, dim, gray, green, red, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
@@ -10,6 +11,13 @@ import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
 import { TEMPLATES } from './templates.js';
 
+function wait(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+function logAndWait(message: string, ms = 100) {
+	console.log(message);
+	return wait(ms);
+}
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
@@ -37,11 +45,13 @@ const { version } = JSON.parse(
 
 const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
+// Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
 	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
+	console.log(`Lets walk through setting up your new Astro project.\n`);
 
 	let cwd = args['_'][2] as string;
 
@@ -63,7 +73,7 @@ export async function main() {
 		const dirResponse = await prompts({
 			type: 'text',
 			name: 'directory',
-			message: 'Where would you like to create your app?',
+			message: 'Where would you like to create your new project?',
 			initial: './my-astro-site',
 			validate(value) {
 				if (!isEmpty(value)) {
@@ -83,7 +93,7 @@ export async function main() {
 		{
 			type: 'select',
 			name: 'template',
-			message: 'Which app template would you like to use?',
+			message: 'Which template would you like to use?',
 			choices: TEMPLATES,
 		},
 	]);
@@ -111,7 +121,7 @@ export async function main() {
 	});
 
 	// Copy
-	if (!args.dryrun) {
+	if (!args.dryRun) {
 		try {
 			emitter.on('info', (info) => {
 				logger.debug(info.message);
@@ -174,11 +184,9 @@ export async function main() {
 		initial: true,
 	});
 
-	if (!installResponse) {
-		process.exit(0);
-	}
-
-	if (installResponse.install && !args.dryrun) {
+	if (args.dryRun) {
+		ora().info(dim(`--dry-run enabled, skipping.`));
+	} else if (installResponse.install) {
 		const installExec = execa(pkgManager, ['install'], { cwd });
 		const installingPackagesMsg = `Installing packages${emojiWithFallback(' 📦', '...')}`;
 		const installSpinner = await loadWithRocketGradient(installingPackagesMsg);
@@ -193,69 +201,49 @@ export async function main() {
 		});
 		installSpinner.text = green('Packages installed!');
 		installSpinner.succeed();
-	}
-
-	const astroAddCommand = installResponse.install
-		? 'astro add --yes'
-		: `${pkgManagerExecCommand(pkgManager)} astro@latest add --yes`;
-
-	const astroAddResponse = await prompts({
-		type: 'confirm',
-		name: 'astroAdd',
-		message: `Run "${astroAddCommand}?" This lets you optionally add component frameworks (ex. React), CSS frameworks (ex. Tailwind), and more.`,
-		initial: true,
-	});
-
-	if (!astroAddResponse) {
-		process.exit(0);
-	}
-
-	if (!astroAddResponse.astroAdd) {
-		ora().info(
-			`No problem. You can always run "${pkgManagerExecCommand(pkgManager)} astro add" later!`
-		);
-	}
-
-	if (astroAddResponse.astroAdd && !args.dryrun) {
-		await execaCommand(
-			astroAddCommand,
-			astroAddCommand === 'astro add --yes'
-				? { cwd, stdio: 'inherit', localDir: cwd, preferLocal: true }
-				: { cwd, stdio: 'inherit' }
-		);
+	} else {
+		ora().info(dim(`No problem! You can install dependencies yourself after setup.`));
 	}
 
 	const gitResponse = await prompts({
 		type: 'confirm',
 		name: 'git',
-		message: 'Initialize a git repository?',
+		message: `Initialize a new git repository? ${dim('This can be useful to track changes.')}`,
 		initial: true,
 	});
 
-	if (!gitResponse) {
-		process.exit(0);
-	}
-
-	if (gitResponse.git && !args.dryrun) {
+	if (args.dryRun) {
+		ora().info(dim(`--dry-run enabled, skipping.`));
+	} else if (gitResponse.git) {
 		await execaCommand('git init', { cwd });
+	} else {
+		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
 	}
 
-	ora({ text: green('Done. Ready for liftoff!') }).succeed();
+	ora().succeed('Setup complete.');
+	ora({ text: green('Ready for liftoff!') }).succeed();
+	await wait(300);
+
 	console.log(`\n${bgCyan(black(' Next steps '))}\n`);
 
-	const projectDir = path.relative(process.cwd(), cwd);
+	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 
-	console.log(
+	await logAndWait(
 		`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
 	);
-	console.log(
+	await logAndWait(
 		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
 	);
-	if (!installResponse.install) {
-		console.log(yellow(`Remember to install dependencies first!`));
-	}
-	console.log(`\nStuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`);
+	await logAndWait(
+		`Add frameworks like ${bold(cyan('react'))} and ${bold(
+			cyan('tailwind')
+		)} to your project using ${bold(cyan('astro add'))}`
+	);
+	await logAndWait('');
+	await logAndWait(`Stuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`, 1000);
+	await logAndWait(dim('Good luck out there, astronaut.'));
+	await logAndWait('', 300);
 }
 
 function emojiWithFallback(char: string, fallback: string) {

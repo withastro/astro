@@ -116,12 +116,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					entryFileNames: opts.buildConfig.serverEntry,
-					chunkFileNames: 'chunks/chunk.[hash].mjs',
-					assetFileNames: 'assets/asset.[hash][extname]',
+					chunkFileNames: 'chunks/[name].[hash].mjs',
+					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
+					entryFileNames: opts.buildConfig.serverEntry,
 				},
 			},
+
 			ssr: true,
 			// must match an esbuild target
 			target: 'esnext',
@@ -202,9 +203,9 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: 'entry.[hash].js',
-					chunkFileNames: 'chunks/chunk.[hash].js',
-					assetFileNames: 'assets/asset.[hash][extname]',
+					entryFileNames: '[name].[hash].js',
+					chunkFileNames: 'chunks/[name].[hash].js',
+					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',

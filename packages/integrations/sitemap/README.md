@@ -266,6 +266,9 @@ export default {
   integrations: [
     sitemap({
       serialize(item) {
+        if (/exclude-from-sitemap/.test(item.url)) {
+          return undefined;
+        }
         if (/your-special-page/.test(item.url)) {
           item.changefreq = 'daily';
           item.lastmod = new Date();

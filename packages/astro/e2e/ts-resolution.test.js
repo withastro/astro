@@ -1,15 +1,10 @@
-import { test as base, expect } from '@playwright/test';
-import { loadFixture } from './test-utils.js';
+import { expect } from '@playwright/test';
+import { testFactory } from './test-utils.js';
 
-const test = base.extend({
-	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/ts-resolution/' });
-		await use(fixture);
-	},
-});
+const test = testFactory({ root: './fixtures/ts-resolution/' });
 
-function runTest(test) {
-	test('client:idle', async ({ page, astro }) => {
+function runTest(it) {
+	it('client:idle', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const counter = page.locator('#client-idle');

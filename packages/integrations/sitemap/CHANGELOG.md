@@ -1,5 +1,17 @@
 # @astrojs/sitemap
 
+## 0.2.3
+
+### Patch Changes
+
+- [#3723](https://github.com/withastro/astro/pull/3723) [`52f75369`](https://github.com/withastro/astro/commit/52f75369efe5a0a1b320478984c90b6727d52159) Thanks [@alextim](https://github.com/alextim)! - fix: if `serialize` function returns `undefined` for the passed entry, such entry will be excluded from sitemap
+
+## 0.2.2
+
+### Patch Changes
+
+- [#3689](https://github.com/withastro/astro/pull/3689) [`3f8ee70e`](https://github.com/withastro/astro/commit/3f8ee70e2bc5b49c65a0444d9606232dadbc2fca) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add warning log for sitemap + SSR adapter, with suggestion to use customPages configuration option
+
 ## 0.2.1
 
 ### Patch Changes

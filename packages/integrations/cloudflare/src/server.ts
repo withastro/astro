@@ -24,6 +24,11 @@ export function createExports(manifest: SSRManifest) {
 		}
 
 		// 404
+		const _404Request = new Request(`${origin}/404`, request);
+		if (app.match(_404Request)) {
+			return app.render(_404Request);
+		}
+
 		return new Response(null, {
 			status: 404,
 			statusText: 'Not found',

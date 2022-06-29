@@ -1,7 +1,7 @@
 import type { PathLike } from 'node:fs';
 import * as fs from 'node:fs/promises';
 
-export async function writeJson<T extends any>(path: PathLike, data: T) {
+export async function writeJson<T>(path: PathLike, data: T) {
 	await fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
 }
 

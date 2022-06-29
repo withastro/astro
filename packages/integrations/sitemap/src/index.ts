@@ -37,7 +37,7 @@ export type SitemapOptions =
 			priority?: number;
 
 			// called for each sitemap item just before to save them on disk, sync or async
-			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem>;
+			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 	  }
 	| undefined;
 
@@ -96,7 +96,14 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					}
 
 					if (pageUrls.length === 0) {
-						logger.warn(`No data for sitemap.\n\`${OUTFILE}\` is not created.`);
+						// offer suggestion for SSR users
+						if (typeof config.adapter !== 'undefined') {
+							logger.warn(
+								`No pages found! We can only detect sitemap routes for "static" projects. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
+							);
+						} else {
+							logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+						}
 						return;
 					}
 
@@ -107,7 +114,13 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							const serializedUrls: SitemapItem[] = [];
 							for (const item of urlData) {
 								const serialized = await Promise.resolve(serialize(item));
-								serializedUrls.push(serialized);
+								if (serialized) {
+									serializedUrls.push(serialized);
+								}
+							}
+							if (serializedUrls.length === 0) {
+								logger.warn('No pages found!');
+								return;
 							}
 							urlData = serializedUrls;
 						} catch (err) {

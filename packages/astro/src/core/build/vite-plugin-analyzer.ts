@@ -21,7 +21,7 @@ export function vitePluginAnalyzer(
 			scan(this: PluginContext, scripts: AstroPluginMetadata['astro']['scripts'], from: string) {
 				const hoistedScripts = new Set<string>();
 				for (let i = 0; i < scripts.length; i++) {
-					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}`;
+					const hid = `${from.replace('/@fs', '')}?astro&type=script&index=${i}&lang.ts`;
 					hoistedScripts.add(hid);
 				}
 
