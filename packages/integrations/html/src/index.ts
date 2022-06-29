@@ -1,4 +1,6 @@
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import { readFileSync } from 'fs';
+import { transform } from './transform.js';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -12,13 +14,19 @@ function getViteConfiguration() {
 		optimizeDeps: {
 			exclude: ['@astrojs/html/server.js'],
 		},
-		plugins: [{
-			name: '@astrojs/html',
-			transform(code: string, id: string) {
-				if (!id.endsWith('.html')) return code;
-				return `export default { ['@astrojs/html']: true, code: ${JSON.stringify(code) }}`
+		plugins: [
+			{
+				name: '@astrojs/html',
+				options(options: any) {
+					options.plugins = options.plugins?.filter((p: any) => p.name !== 'vite:build-html');
+				},
+				transform(source: string, id: string) {
+					if (!id.endsWith('.html')) return;
+					const code = transform(source, id);
+					return { code };
+				}
 			}
-		}],
+		],
 	};
 }
 
@@ -27,12 +35,10 @@ export default function createIntegration(): AstroIntegration {
 		name: '@astrojs/html',
 		hooks: {
 			'astro:config:setup': ({ addRenderer, updateConfig, addPageExtension }) => {
-				addRenderer(
-					getRenderer()
-				)
+				addRenderer(getRenderer())
 				updateConfig({ vite: getViteConfiguration() });
 				addPageExtension('.html');
-			},
+			}
 		},
 	};
 }

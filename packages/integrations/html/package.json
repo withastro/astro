@@ -28,7 +28,6 @@
     "astro-scripts": "workspace:*"
   },
   "dependencies": {
-    "@web/rollup-plugin-html": "^1.10.3",
-    "install": "^0.13.0"
+    "linkedom": "^0.14.12"
   }
 }

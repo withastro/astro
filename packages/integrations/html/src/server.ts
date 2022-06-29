@@ -1,9 +1,9 @@
 function check(Component: any) {
-	return typeof Component === 'object' && Component['@astrojs/html'];
+	return Component && typeof Component === 'object' && Component['@astrojs/html'];
 }
 
-async function renderToStaticMarkup(Component: { code: string }) {
-	const html = Component.code;
+async function renderToStaticMarkup(Component: any, _: any, slots: Record<string, string>) {
+	const html = Component.render({ slots });
 	return { html };
 }
 
