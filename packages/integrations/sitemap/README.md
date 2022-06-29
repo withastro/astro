@@ -356,7 +356,7 @@ export default {
 
 ## Examples
 - The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap.xml).
-- The [https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github](integrations playground template) comes with Astro Sitemap installed. Try adding a route and building the project!
+- The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Sitemap installed. Try adding a route and building the project!
 - [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples! 
 
 ## Troubleshooting
