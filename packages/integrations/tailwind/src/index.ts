@@ -2,9 +2,8 @@ import load from '@proload/core';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import path from 'path';
-import tailwindPlugin from 'tailwindcss';
+import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
-import type { TailwindConfig } from 'tailwindcss/tailwind-config';
 import { fileURLToPath } from 'url';
 
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
@@ -15,7 +14,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 		plugins: [],
 		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
 		presets: undefined, // enable Tailwind's default preset
-	});
+	}) as TailwindConfig;
 }
 
 async function getUserConfig(root: URL, configPath?: string) {
@@ -70,7 +69,6 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 
 				const tailwindConfig: TailwindConfig =
 					(userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.srcDir);
-
 				config.style.postcss.plugins.push(tailwindPlugin(tailwindConfig));
 				config.style.postcss.plugins.push(autoprefixerPlugin);
 
