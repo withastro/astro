@@ -52,6 +52,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	experimental: {
 		ssr: false,
 		integrations: false,
+		jsx: false,
 	},
 };
 
@@ -224,6 +225,7 @@ export const AstroConfigSchema = z.object({
 		.object({
 			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
 			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
+			jsx: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.jsx),
 		})
 		.optional()
 		.default({}),
@@ -339,20 +341,22 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: [],
+			pageExtensions: [] as string[],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
 			adapter: undefined,
 		},
 	};
+	if (result.experimental.jsx) {
+		result._ctx.pageExtensions.push('.jsx', '.tsx');
+	}
 	if (
-		// TODO: expose @astrojs/mdx package
-		result.integrations.find((integration) => integration.name === '@astrojs/mdx')
+		result.experimental.jsx || result.integrations.find((integration) => integration.name === '@astrojs/mdx')
 	) {
 		// Enable default JSX integration
 		const { default: jsxRenderer } = await import('../jsx/renderer.js');
-		(result._ctx.renderers as any[]).push(jsxRenderer);
+		(result._ctx.renderers as any[]).unshift(jsxRenderer);
 	}
 
 	// Final-Pass Validation (perform checks that require the full config object)

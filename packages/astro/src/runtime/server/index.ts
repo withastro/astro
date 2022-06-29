@@ -694,10 +694,25 @@ export async function renderPage(
 	props: any,
 	children: any
 ): Promise<Response> {
+	let iterable: AsyncIterable<any>;
+	if (!componentFactory.isAstroComponentFactory) {
+		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
+		const output = await renderComponent(result, componentFactory.name, componentFactory, pageProps, null);
+		let html = output.toString()
+		if (!/<!doctype html/i.test(html)) {
+			html = `<!DOCTYPE html>\n${await maybeRenderHead(result)}${html}`;
+		}
+		return new Response(html, {
+			headers: new Headers([
+				['Content-Type', 'text/html; charset=utf-8'],
+				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`]
+			])
+		});
+	}
 	const factoryReturnValue = await componentFactory(result, props, children);
 
 	if (isAstroComponent(factoryReturnValue)) {
-		let iterable = renderAstroComponent(factoryReturnValue);
+		iterable = renderAstroComponent(factoryReturnValue);
 		let stream = new ReadableStream({
 			start(controller) {
 				async function read() {

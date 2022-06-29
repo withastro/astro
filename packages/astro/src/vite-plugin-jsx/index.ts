@@ -176,6 +176,10 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 			}
 
+			if (!importSource && config.experimental.jsx && jsxRenderers.has('astro')) {
+				importSource = 'astro';
+			}
+
 			// if JSX renderer found, then use that
 			if (importSource) {
 				const jsxRenderer = jsxRenderers.get(importSource);
