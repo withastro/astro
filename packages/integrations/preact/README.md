@@ -2,57 +2,80 @@
 
 This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Preact](https://preactjs.com/) components.
 
+- <strong>[Why Preact?](#why-preact)</strong>
+- <strong>[Installation](#installation)</strong>
+- <strong>[Usage](#usage)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
+- <strong>[Troubleshooting](#troubleshooting)</strong>
+- <strong>[Contributing](#contributing)</strong>
+- <strong>[Changelog](#changelog)</strong>
+
+## Why Preact?
+
+Preact is a library that lets you build interactive UI components for the web. If you want to build interactive features on your site using JavaScript, you may prefer using its component format instead of using browser APIs directly.
+
+Preact is also a great choice if you have previously used React. Preact provides the same API as React, but in a much smaller 3kB package. It even supports rendering many React components using the `compat` configuration option (see below).
+
+**Want to learn more about Preact before using this integration?**  
+Check out [“Learn Preact in 10 minutes”](https://preactjs.com/tutorial), an interactive tutorial on their website.
+
 ## Installation
 
-There are two ways to add integrations to your project. Let's try the most convenient option first!
+<details>
+  <summary>Quick Install</summary>
+  <br/>
 
-### `astro add` command
+The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
-Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
-1. (Optionally) Install all necessary dependencies and peer dependencies
-2. (Also optionally) Update your `astro.config.*` file to apply this integration
+  ```sh
+  # Using NPM
+  npx astro add preact
+  # Using Yarn
+  yarn astro add preact
+  # Using PNPM
+  pnpx astro add preact
+  ```
 
-To install `@astrojs/preact`, run the following from your project directory and follow the prompts:
+Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
 
-```sh
-# Using NPM
-npx astro add preact
-# Using Yarn
-yarn astro add preact
-# Using PNPM
-pnpx astro add preact
-```
+Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+</details>
 
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+<details>
+  <summary>Manual Install</summary>
+  <br/>
 
-### Install dependencies manually
+First, install the `@astrojs/preact` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
-First, install the `@astrojs/preact` integration like so:
-
-```
-npm install @astrojs/preact
-```
+  ```
+  npm install @astrojs/preact
+  ```
 
 Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'preact'" (or similar) warning when you start up Astro, you'll need to install Preact:
 
-```sh
-npm install preact
-```
+  ```sh
+  npm install preact
+  ```
 
-Now, apply this integration to your `astro.config.*` file using the `integrations` property:
+Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
 __astro.config.mjs__
 
 ```js
+import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [preact()],
-}
+});
 ```
 
-## Getting started
+Finally, restart the dev server.
+</details>
+
+## Usage
 
 To use your first Preact component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
@@ -60,6 +83,53 @@ To use your first Preact component in Astro, head to our [UI framework documenta
 - 🪆 opportunities to mix and nest frameworks together
 
 Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+## Configuration
+
+The Astro Preact integration handles how Preact components are rendered and it has its own options. Change these in the `astro.config.mjs` file which is where your project's integration settings live.
+
+For basic usage, you do not need to configure the Preact integration.
+
+<details>
+  <summary><strong>compat</strong></summary>
+
+You can enable `preact/compat`, Preact’s compatibility layer for rendering React components without needing to install or ship React’s larger libraries to your users’ web browsers.
+
+To do so, pass an object to the Preact integration and set `compat: true`.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import preact from '@astrojs/preact';
+
+export default defineConfig({
+  integrations: [
+    preact({ compat: true })
+  ],
+});
+```
+
+With the `compat` option enabled, the Preact integration will render React components as well as Preact components in your project and also allow you to import React components inside Preact components. Read more in [“Switching to Preact (from React)”](https://preactjs.com/guide/v10/switching-to-preact) on the Preact website.
+</details>
+
+## Examples
+
+- The [Astro Preact example](https://github.com/withastro/astro/tree/latest/examples/framework-preact) shows how to use an interactive Preact component in an Astro project.
+- The [Astro Nanostores example](https://github.com/withastro/astro/tree/latest/examples/with-nanostores) shows how to share state between different components — and even different frameworks! — in an Astro project.
+
+## Troubleshooting
+
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
