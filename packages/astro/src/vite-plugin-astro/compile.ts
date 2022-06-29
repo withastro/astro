@@ -5,10 +5,10 @@ import type { TransformHook } from './styles';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'url';
+import { AstroErrorCodes } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { transformWithVite } from './styles.js';
-import { AstroErrorCodes } from '../core/errors.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
@@ -121,18 +121,21 @@ async function compile({
 				return null;
 			}
 		},
-	}).catch((err) => {
-		// throw compiler errors here if encountered
-		err.code = err.code || AstroErrorCodes.UnknownCompilerError;
-		throw err;
-	}).then((result) => {
-		// throw CSS transform errors here if encountered
-		if (cssTransformError) {
-			(cssTransformError as any).code = (cssTransformError as any).code || AstroErrorCodes.UnknownCompilerCSSError;
-			throw cssTransformError;
-		}
-		return result;
-	});
+	})
+		.catch((err) => {
+			// throw compiler errors here if encountered
+			err.code = err.code || AstroErrorCodes.UnknownCompilerError;
+			throw err;
+		})
+		.then((result) => {
+			// throw CSS transform errors here if encountered
+			if (cssTransformError) {
+				(cssTransformError as any).code =
+					(cssTransformError as any).code || AstroErrorCodes.UnknownCompilerCSSError;
+				throw cssTransformError;
+			}
+			return result;
+		});
 
 	const compileResult: CompileResult = Object.create(transformResult, {
 		rawCSSDeps: {

@@ -1,24 +1,23 @@
 /* eslint-disable no-console */
 
-import { LogOptions } from '../core/logger/core.js';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { telemetry } from '../events/index.js';
-import * as event from '../events/index.js';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
+import { collectErrorMetadata } from '../core/errors.js';
+import { LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
-import { createSafeError, ASTRO_VERSION } from '../core/util.js';
+import { ASTRO_VERSION, createSafeError } from '../core/util.js';
+import * as event from '../events/index.js';
+import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
-import { collectErrorMetadata } from '../core/errors.js';
-import { eventError, eventConfigError } from '../events/index.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =

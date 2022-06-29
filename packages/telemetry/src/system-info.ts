@@ -46,7 +46,7 @@ export type SystemInfo = {
 
 let meta: SystemInfo | undefined;
 
-export function getSystemInfo(versions: {viteVersion: string, astroVersion: string}): SystemInfo {
+export function getSystemInfo(versions: { viteVersion: string; astroVersion: string }): SystemInfo {
 	if (meta) {
 		return meta;
 	}

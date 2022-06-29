@@ -3,7 +3,6 @@ import { AstroErrorCodes } from '../dist/core/errors.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
-
 	describe('eventCliSession()', () => {
 		it('All top-level keys added', () => {
 			const config = {
@@ -422,7 +421,7 @@ describe('Events', () => {
 			const [event] = events.eventConfigError({
 				err: { issues: [{ path: ['a', 'b', 'c'] }, { path: ['d', 'e', 'f'] }] },
 				cmd: 'COMMAND_NAME',
-				isFatal: true
+				isFatal: true,
 			});
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
@@ -432,7 +431,7 @@ describe('Events', () => {
 					isConfig: true,
 					cliCommand: 'COMMAND_NAME',
 					configErrorPaths: ['a.b.c', 'd.e.f'],
-				}
+				},
 			});
 		});
 	});
@@ -445,7 +444,7 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: errorWithFullMetadata,
 				cmd: 'COMMAND_NAME',
-				isFatal: true
+				isFatal: true,
 			});
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
@@ -455,7 +454,7 @@ describe('Events', () => {
 					isFatal: true,
 					cliCommand: 'COMMAND_NAME',
 					anonymousMessageHint: 'TEST ERROR MESSAGE',
-				}
+				},
 			});
 		});
 
@@ -463,7 +462,7 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: new Error('TEST ERROR MESSAGE'),
 				cmd: 'COMMAND_NAME',
-				isFatal: false
+				isFatal: false,
 			});
 			expect(event).to.deep.equal({
 				eventName: 'ASTRO_CLI_ERROR',
@@ -473,7 +472,7 @@ describe('Events', () => {
 					isFatal: false,
 					cliCommand: 'COMMAND_NAME',
 					anonymousMessageHint: 'TEST ERROR MESSAGE',
-				}
+				},
 			});
 		});
 
@@ -481,10 +480,9 @@ describe('Events', () => {
 			const [event] = events.eventError({
 				err: new Error('TEST ERROR MESSAGE: Sensitive data is "/Users/MYNAME/foo.astro"'),
 				cmd: 'COMMAND_NAME',
-				isFatal: true
+				isFatal: true,
 			});
 			expect(event.payload.anonymousMessageHint).to.equal('TEST ERROR MESSAGE');
 		});
-
 	});
 });

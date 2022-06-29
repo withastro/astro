@@ -18,7 +18,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ZodError } from 'zod';
 import type { AstroConfig } from '../@types/astro';
-import { cleanErrorStack, collectErrorMetadata, ErrorWithMetadata } from './errors.js';
+import { cleanErrorStack, ErrorWithMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
