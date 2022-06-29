@@ -127,7 +127,7 @@ export default defineConfig({
 
   To solve this, Partytown can "patch" variables to the global window object and forward them to the appropriate script.
 
-  You can specify these variables on the `config.forward` option. [Read more in Partytown's documentation.](https://partytown.builder.io/forwarding-events)
+  You can specify which variables to forward with the `config.forward` option. [Read more in Partytown's documentation.](https://partytown.builder.io/forwarding-events)
 
 
 __astro.config.mjs__
