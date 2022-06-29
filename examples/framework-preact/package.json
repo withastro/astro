@@ -13,6 +13,6 @@
     "astro": "^1.0.0-beta.58"
   },
   "dependencies": {
-    "preact": "^10.7.3"
+    "preact": "^10.8.2"
   }
 }

@@ -30,13 +30,13 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.17.12",
+    "@babel/plugin-transform-react-jsx": "^7.18.6",
     "preact-render-to-string": "^5.2.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "preact": "^10.7.3"
+    "preact": "^10.8.2"
   },
   "peerDependencies": {
     "preact": "^10.6.5"

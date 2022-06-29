@@ -48,7 +48,7 @@
     "unified": "^10.1.2",
     "unist-util-map": "^3.1.1",
     "unist-util-visit": "^4.1.0",
-    "vfile": "^5.3.2"
+    "vfile": "^5.3.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
