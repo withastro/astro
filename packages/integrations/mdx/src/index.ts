@@ -14,7 +14,10 @@ export default function mdx(): AstroIntegration {
 									enforce: 'pre',
 									...mdxPlugin({
 										jsx: true,
-										jsxImportSource: 'astro'
+										jsxImportSource: 'astro',
+										// Note: disable `.md` support
+										format: 'mdx',
+										mdExtensions: []
 									})
 								},
 								command === 'dev' && {
