@@ -51,10 +51,6 @@ export async function runHookConfigSetup({
 				addRenderer(renderer: AstroRenderer) {
 					updatedConfig._ctx.renderers.push(renderer);
 				},
-				addPageExtensions: (exts: string|string[]) => {
-					const ext = Array.isArray(exts) ? exts : [exts];
-					updatedConfig._ctx.pageExtensions.push(...ext);
-				},
 				injectScript: (stage, content) => {
 					updatedConfig._ctx.scripts.push({ stage, content });
 				},
@@ -66,13 +62,14 @@ export async function runHookConfigSetup({
 				},
 			};
 			// Semi-private `addPageExtension` hook
+			function addPageExtension(...input: (string | string[])[]) {
+				const exts = (input.flat(Infinity) as string[]).map(
+					(ext) => `.${ext.replace(/^\./, '')}`
+				);
+				updatedConfig._ctx.pageExtensions.push(...exts);
+			}
 			Object.defineProperty(hooks, 'addPageExtension', {
-				value: (...input: (string | string[])[]) => {
-					const exts = (input.flat(Infinity) as string[]).map(
-						(ext) => `.${ext.replace(/^\./, '')}`
-					);
-					updatedConfig._ctx.pageExtensions.push(...exts);
-				},
+				value: addPageExtension,
 				writable: false,
 				enumerable: false,
 			});

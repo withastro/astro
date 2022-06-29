@@ -5,13 +5,13 @@ export default function (): AstroIntegration {
 	return {
 			name: '@astrojs/mdx',
 			hooks: {
-				'astro:config:setup': ({ updateConfig, addPageExtensions }) => {
+				'astro:config:setup': ({ updateConfig, addPageExtension }) => {
 					const mdxPlugin = mdx({
 						jsx: true,
 						jsxImportSource: 'astro'
 					})
 
-					addPageExtensions('.mdx');
+					addPageExtension('.mdx');
 					updateConfig({
 						vite: {
 							plugins: [
