@@ -280,18 +280,6 @@ importers:
       astro: link:../../packages/astro
       solid-js: 1.4.5
 
-  examples/mdx:
-    specifiers:
-      '@astrojs/mdx': ^0.0.1
-      '@astrojs/preact': ^0.2.0
-      astro: ^1.0.0-beta.47
-      preact: ^10.6.5
-    devDependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
-      '@astrojs/preact': 0.2.0_preact@10.8.2
-      astro: link:../../packages/astro
-      preact: 10.8.2
-
   examples/minimal:
     specifiers:
       astro: ^1.0.0-beta.59
@@ -411,6 +399,18 @@ importers:
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
+
+  examples/with-mdx:
+    specifiers:
+      '@astrojs/mdx': ^0.0.1
+      '@astrojs/preact': ^0.2.0
+      astro: ^1.0.0-beta.58
+      preact: ^10.6.5
+    devDependencies:
+      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/preact': 0.2.0_preact@10.8.2
+      astro: link:../../packages/astro
+      preact: 10.8.2
 
   examples/with-nanostores:
     specifiers:
