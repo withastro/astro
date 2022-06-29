@@ -37,7 +37,7 @@ import deno from '@astrojs/deno';
 export default defineConfig({
   // ...
   adapter: deno()
-})
+});
 ```
   
 ## Usage
@@ -52,7 +52,7 @@ See the `start` option below for how you can have more control over starting the
 
 You can also run the script directly using deno:
 ```
-deno run --allow-net --allow-read ./dist/server/entry.mjs
+deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 ```
 
 
