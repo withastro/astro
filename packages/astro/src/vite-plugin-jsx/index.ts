@@ -177,8 +177,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 			}
 
-			if (!importSource && jsxRenderers.has('@astrojs/jsx')) {
-				importSource = '@astrojs/jsx';
+			if (!importSource && jsxRenderers.has('astro') && id.includes('.mdx')) {
+				importSource = 'astro';
 			}
 
 			// if JSX renderer found, then use that
