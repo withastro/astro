@@ -5,7 +5,7 @@ export default function mdx(): AstroIntegration {
 	return {
 			name: '@astrojs/mdx',
 			hooks: {
-				'astro:config:setup': ({ updateConfig, addPageExtension }: any) => {
+				'astro:config:setup': ({ updateConfig, addPageExtension, command }: any) => {
 					addPageExtension('.mdx');
 					updateConfig({
 						vite: {
@@ -17,7 +17,7 @@ export default function mdx(): AstroIntegration {
 										jsxImportSource: 'astro'
 									})
 								},
-								{
+								command === 'dev' && {
 									name: '@astrojs/mdx',
 									transform(code: string, id: string) {
 										if (!id.endsWith('.mdx')) return;
