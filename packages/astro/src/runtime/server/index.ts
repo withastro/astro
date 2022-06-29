@@ -358,7 +358,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	}
 
-	if (renderer && !renderer.clientEntrypoint && metadata.hydrate) {
+	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
+	// to render here until we find a better way to recognize when a client entrypoint isn't required.
+	if (renderer && !renderer.clientEntrypoint && renderer.name !== '@astrojs/lit' && metadata.hydrate) {
 		throw new Error(
 			`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`
 		);
