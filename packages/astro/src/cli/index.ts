@@ -1,13 +1,11 @@
 /* eslint-disable no-console */
 
 import { LogOptions } from '../core/logger/core.js';
-
-import { AstroTelemetry } from '@astrojs/telemetry';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import { telemetry } from '../events/index.js';
 import * as event from '../events/index.js';
-
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
@@ -15,10 +13,12 @@ import devServer from '../core/dev/index.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
-import { createSafeError } from '../core/util.js';
+import { createSafeError, ASTRO_VERSION } from '../core/util.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
+import { collectErrorMetadata } from '../core/errors.js';
+import { eventError, eventConfigError } from '../events/index.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -60,9 +60,6 @@ function printAstroHelp() {
 		},
 	});
 }
-
-// PACKAGE_VERSION is injected when we build and publish the astro package.
-const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 
 /** Display --version flag */
 async function printVersion() {
@@ -111,7 +108,6 @@ export async function cli(args: string[]) {
 	} else if (flags.silent) {
 		logging.level = 'silent';
 	}
-	const telemetry = new AstroTelemetry({ version: ASTRO_VERSION });
 
 	// Special CLI Commands: "add", "docs", "telemetry"
 	// These commands run before the user's config is parsed, and may have other special
@@ -120,19 +116,19 @@ export async function cli(args: string[]) {
 	switch (cmd) {
 		case 'add': {
 			try {
-				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
+				telemetry.record(event.eventCliSession(cmd));
 				const packages = flags._.slice(3) as string[];
 				return await add(packages, { cwd: root, flags, logging, telemetry });
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 		case 'docs': {
 			try {
-				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
+				telemetry.record(event.eventCliSession(cmd));
 				return await openInBrowser('https://docs.astro.build/');
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 		case 'telemetry': {
@@ -142,13 +138,13 @@ export async function cli(args: string[]) {
 				const subcommand = flags._[3]?.toString();
 				return await telemetryHandler.update(subcommand, { flags, telemetry });
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 	}
 
 	const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-	telemetry.record(event.eventCliSession({ cliCommand: cmd }, userConfig, flags));
+	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
@@ -159,7 +155,7 @@ export async function cli(args: string[]) {
 				await devServer(astroConfig, { logging, telemetry });
 				return await new Promise(() => {}); // lives forever
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 
@@ -167,7 +163,7 @@ export async function cli(args: string[]) {
 			try {
 				return await build(astroConfig, { logging, telemetry });
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 
@@ -181,21 +177,29 @@ export async function cli(args: string[]) {
 				const server = await preview(astroConfig, { logging, telemetry });
 				return await server.closed(); // keep alive until the server is closed
 			} catch (err) {
-				return throwAndExit(err);
+				return throwAndExit(cmd, err);
 			}
 		}
 	}
 
 	// No command handler matched! This is unexpected.
-	throwAndExit(new Error(`Error running ${cmd} -- no command found.`));
+	throwAndExit(cmd, new Error(`Error running ${cmd} -- no command found.`));
 }
 
 /** Display error and exit */
-function throwAndExit(err: unknown) {
+function throwAndExit(cmd: string, err: unknown) {
+	let telemetryPromise: Promise<any>;
 	if (err instanceof z.ZodError) {
 		console.error(formatConfigErrorMessage(err));
+		telemetryPromise = telemetry.record(eventConfigError({ cmd, err, isFatal: true }));
 	} else {
-		console.error(formatErrorMessage(createSafeError(err)));
+		const errorWithMetadata = collectErrorMetadata(createSafeError(err));
+		console.error(formatErrorMessage(errorWithMetadata));
+		telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
 	}
-	process.exit(1);
+	// Wait for the telemetry event to send, then exit. Ignore an error.
+	telemetryPromise.catch(() => undefined).then(() => process.exit(1));
+	// Don't wait too long. Timeout the request faster than usual because the user is waiting.
+	// TODO: Investigate using an AbortController once we drop Node v14 support.
+	setTimeout(() => process.exit(1), 300);
 }

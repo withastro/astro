@@ -31,6 +31,9 @@ export type SystemInfo = {
 	systemPlatform: NodeJS.Platform;
 	systemRelease: string;
 	systemArchitecture: string;
+	astroVersion: string;
+	nodeVersion: string;
+	viteVersion: string;
 	cpuCount: number;
 	cpuModel: string | null;
 	cpuSpeed: number | null;
@@ -39,18 +42,21 @@ export type SystemInfo = {
 	isWSL: boolean;
 	isCI: boolean;
 	ciName: string | null;
-	astroVersion: string;
 };
 
 let meta: SystemInfo | undefined;
 
-export function getSystemInfo(astroVersion: string): SystemInfo {
+export function getSystemInfo(versions: {viteVersion: string, astroVersion: string}): SystemInfo {
 	if (meta) {
 		return meta;
 	}
 
 	const cpus = os.cpus() || [];
 	meta = {
+		// Version information
+		nodeVersion: process.version.replace(/^v?/, ''),
+		viteVersion: versions.viteVersion,
+		astroVersion: versions.astroVersion,
 		// Software information
 		systemPlatform: os.platform(),
 		systemRelease: os.release(),
@@ -65,7 +71,6 @@ export function getSystemInfo(astroVersion: string): SystemInfo {
 		isWSL,
 		isCI,
 		ciName,
-		astroVersion,
 	};
 
 	return meta!;
