@@ -139,6 +139,7 @@ export const AstroConfigSchema = z.object({
 				.union([z.literal('file'), z.literal('directory')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.format),
+			streaming: z.boolean().optional().default(true),
 		})
 		.optional()
 		.default({}),
@@ -155,7 +156,6 @@ export const AstroConfigSchema = z.object({
 					.optional()
 					.default(ASTRO_CONFIG_DEFAULTS.server.host),
 				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
-				streaming: z.boolean().optional().default(true),
 			})
 			.optional()
 			.default({})

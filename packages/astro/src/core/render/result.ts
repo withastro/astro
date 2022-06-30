@@ -115,6 +115,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const headers = new Headers();
+	console.log('createResult', args.streaming);
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
 	} else {

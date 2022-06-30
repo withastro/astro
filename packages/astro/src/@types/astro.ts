@@ -428,6 +428,24 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		format?: 'file' | 'directory';
+		/**
+		 * @docs
+		 * @name build.streaming
+		 * @typeraw {boolean}
+		 * @default `true`
+		 * @description
+		 * Controls whether HTTP streaming is used in SSR production builds.
+		 * 
+		 * ```js
+		 * {
+		 *   build: {
+		 *     // Example: Disable HTTP streaming in production SSR builds.
+		 *     streaming: false
+		 *   }
+		 * }
+		 * ```
+		 */
+		streaming?: boolean;
 	};
 
 	/**

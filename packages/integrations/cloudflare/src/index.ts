@@ -20,7 +20,7 @@ export default function createIntegration(): AstroIntegration {
 		hooks: {
 			'astro:config:setup': ({ updateConfig }) => {
 				updateConfig({
-					server: {
+					build: {
 						streaming: false
 					}
 				});
