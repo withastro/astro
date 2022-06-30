@@ -23,7 +23,6 @@ env:
   TURBO_REMOTE_ONLY: true
 
 jobs:
-  # Lint can run in parallel with Build.
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -72,33 +71,6 @@ jobs:
       - name: Format Check
         run: pnpm run format --list
 
-  build:
-    name: Build Packages
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node_version: [14]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node_version }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build Packages
-        run: pnpm run build
-
-  # Test depends on Build's output, which allows us to skip any build process!
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
@@ -114,8 +86,6 @@ jobs:
           - os: macos-latest
             node_version: 14
       fail-fast: false
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -153,8 +123,6 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         node_version: [14]
       fail-fast: false
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -184,8 +152,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         node_version: [14]
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -213,13 +179,9 @@ jobs:
       - name: Test
         run: pnpm run test:smoke
 
-
-  # Changelog can only run _after_ build.
-  # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
     if: ${{ (github.ref_name == 'main' || github.head_ref == 'next') && github.repository_owner == 'withastro' }}
-    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
