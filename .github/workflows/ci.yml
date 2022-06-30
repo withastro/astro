@@ -94,8 +94,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          name: artifacts
-          key: cache-${{ github.job	}}
+          key: build-${{ github.job	}}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -141,8 +140,12 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          name: artifacts
-          key: cache-${{ github.job	}}
+          key: build-${{ github.job	}}
+          path: |
+            packages/*/dist/**
+            packages/*/*/dist/**
+            packages/webapi/mod.js
+            packages/webapi/mod.js.map
 
       - name: Install dependencies
         run: pnpm install
@@ -178,8 +181,12 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          name: artifacts
-          key: cache-${{ github.job	}}
+          key: build-${{ github.job	}}
+          path: |
+            packages/*/dist/**
+            packages/*/*/dist/**
+            packages/webapi/mod.js
+            packages/webapi/mod.js.map
 
       - name: Install dependencies
         run: pnpm install
@@ -217,8 +224,12 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          name: artifacts
-          key: cache-${{ github.job	}}
+          key: build-${{ github.job	}}
+          path: |
+            packages/*/dist/**
+            packages/*/*/dist/**
+            packages/webapi/mod.js
+            packages/webapi/mod.js.map
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -249,8 +260,12 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          name: artifacts
-          key: cache-${{ github.job	}}
+          key: build-${{ github.job	}}
+          path: |
+            packages/*/dist/**
+            packages/*/*/dist/**
+            packages/webapi/mod.js
+            packages/webapi/mod.js.map
 
       - name: Install dependencies
         run: pnpm install
