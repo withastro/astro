@@ -4,10 +4,6 @@ const require = createRequire(import.meta.url);
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
-interface EventCliSession {
-	cliCommand: string;
-}
-
 interface ConfigInfo {
 	markdownPlugins: string[];
 	adapter: string | null;
@@ -26,21 +22,12 @@ interface ConfigInfo {
 		  };
 }
 
-interface EventCliSessionInternal extends EventCliSession {
-	nodeVersion: string;
-	viteVersion: string;
+interface EventPayload {
+	cliCommand: string;
 	config?: ConfigInfo;
 	configKeys?: string[];
 	flags?: string[];
 	optionalIntegrations?: number;
-}
-
-function getViteVersion() {
-	try {
-		const { version } = require('vite/package.json');
-		return version;
-	} catch (e) {}
-	return undefined;
 }
 
 const multiLevelKeys = new Set([
@@ -82,10 +69,10 @@ function configKeys(obj: Record<string, any> | undefined, parentKey: string): st
 }
 
 export function eventCliSession(
-	event: EventCliSession,
+	cliCommand: string,
 	userConfig?: AstroUserConfig,
 	flags?: Record<string, any>
-): { eventName: string; payload: EventCliSessionInternal }[] {
+): { eventName: string; payload: EventPayload }[] {
 	// Filter out falsy integrations
 	const configValues = userConfig
 		? {
@@ -117,13 +104,9 @@ export function eventCliSession(
 	// Filter out yargs default `_` flag which is the cli command
 	const cliFlags = flags ? Object.keys(flags).filter((name) => name != '_') : undefined;
 
-	const payload: EventCliSessionInternal = {
-		cliCommand: event.cliCommand,
-		// Versions
-		viteVersion: getViteVersion(),
-		nodeVersion: process.version.replace(/^v?/, ''),
+	const payload: EventPayload = {
+		cliCommand,
 		configKeys: userConfig ? configKeys(userConfig, '') : undefined,
-		// Config Values
 		config: configValues,
 		flags: cliFlags,
 	};

@@ -23,7 +23,6 @@ export type SitemapOptions =
 	| {
 			filter?(page: string): boolean;
 			customPages?: string[];
-			canonicalURL?: string;
 
 			i18n?: {
 				defaultLocale: string;
@@ -66,18 +65,16 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				try {
 					const opts = validateOptions(config.site, options);
 
-					const { filter, customPages, canonicalURL, serialize, entryLimit } = opts;
+					const { filter, customPages, serialize, entryLimit } = opts;
 
 					let finalSiteUrl: URL;
-					if (canonicalURL) {
-						finalSiteUrl = new URL(canonicalURL);
-						if (!finalSiteUrl.pathname.endsWith('/')) {
-							finalSiteUrl.pathname += '/'; // normalizes the final url since it's provided by user
-						}
-					} else {
-						// `validateOptions` forces to provide `canonicalURL` or `config.site` at least.
-						// So step to check on empty values of `canonicalURL` and `config.site` is dropped.
+					if (config.site) {
 						finalSiteUrl = new URL(config.base, config.site);
+					} else {
+						console.warn(
+							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+						);
+						return;
 					}
 
 					let pageUrls = pages.map((p) => {

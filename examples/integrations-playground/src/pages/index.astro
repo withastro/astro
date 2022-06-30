@@ -2,8 +2,8 @@
 import Lorem from '../components/Lorem.astro';
 import Link from '../components/Link.jsx';
 import SolidCounter from '../components/SolidCounter.jsx';
-import '../components/Test.js';
-import '../components/Counter.js';
+import { CalcAdd } from '../components/calc-add.js';
+import { MyCounter } from '../components/my-counter.js';
 ---
 
 <!DOCTYPE html>
@@ -18,11 +18,11 @@ import '../components/Counter.js';
       <strong>Party Mode!</strong>
       Colors changing = partytown is enabled
     </h2>
-		<my-counter client:load></my-counter>
+		<MyCounter client:load></MyCounter>
     <SolidCounter client:load></SolidCounter>
     <Link to="/foo" text="Go to Page 2" />
 		<Lorem />
-		<calc-add num={33}></calc-add>
+		<CalcAdd num={33}></CalcAdd>
     <script type="text/partytown">
       // Remove `type="text/partytown"` to see this block the page
       // and cause the page to become unresponsive

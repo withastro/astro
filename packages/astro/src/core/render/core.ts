@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderComponent, renderPage } from '../../runtime/server/index.js';
+import { renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -143,11 +143,10 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		streaming,
 	});
 
-	if (!Component.isAstroComponentFactory) {
-		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
-		const html = await renderComponent(result, Component.name, Component, props, null);
-		return new Response(html.toString(), result.response);
-	} else {
-		return await renderPage(result, Component, pageProps, null, streaming);
+	// Support `export const components` for `MDX` pages
+	if (typeof (mod as any).components === 'object') {
+		Object.assign(pageProps, { components: (mod as any).components });
 	}
+
+	return await renderPage(result, Component, pageProps, null, streaming);
 }

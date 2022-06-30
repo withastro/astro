@@ -1,5 +1,25 @@
 # @astrojs/preact
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3769](https://github.com/withastro/astro/pull/3769) [`b934ab5d`](https://github.com/withastro/astro/commit/b934ab5d860aa3adeec56a9c395f629ee7252ca4) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix "Invalid hook call" warning
+
+## 0.3.0
+
+### Minor Changes
+
+- [#3712](https://github.com/withastro/astro/pull/3712) [`e3fdc9b4`](https://github.com/withastro/astro/commit/e3fdc9b4030b96e815c133a388a7625b7e8e4a2e) Thanks [@delucis](https://github.com/delucis)! - Add support for enabling `preact/compat` to Preact renderer
+
+  To use `preact/compat` to render React components, users can now set `compat` to `true` when using the Preact integration:
+
+  ```js
+  integrations: [
+    preact({ compat: true }),
+  ],
+  ```
+
 ## 0.2.0
 
 ### Minor Changes

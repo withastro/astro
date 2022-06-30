@@ -166,6 +166,8 @@ function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
+const rendererAliases = new Map([['solid', 'solid-js']]);
+
 export async function renderComponent(
 	result: SSRResult,
 	displayName: string,
@@ -278,7 +280,10 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	} else {
 		// Attempt: use explicitly passed renderer name
 		if (metadata.hydrateArgs) {
-			const rendererName = metadata.hydrateArgs;
+			const passedName = metadata.hydrateArgs;
+			const rendererName = rendererAliases.has(passedName)
+				? rendererAliases.get(passedName)
+				: passedName;
 			renderer = renderers.filter(
 				({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
 			)[0];
@@ -358,7 +363,14 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		}
 	}
 
-	if (renderer && !renderer.clientEntrypoint && metadata.hydrate) {
+	// HACK! The lit renderer doesn't include a clientEntrypoint for custom elements, allow it
+	// to render here until we find a better way to recognize when a client entrypoint isn't required.
+	if (
+		renderer &&
+		!renderer.clientEntrypoint &&
+		renderer.name !== '@astrojs/lit' &&
+		metadata.hydrate
+	) {
 		throw new Error(
 			`${metadata.displayName} component has a \`client:${metadata.hydrate}\` directive, but no client entrypoint was provided by ${renderer.name}!`
 		);
@@ -695,6 +707,27 @@ export async function renderPage(
 	children: any,
 	streaming: boolean,
 ): Promise<Response> {
+	let iterable: AsyncIterable<any>;
+	if (!componentFactory.isAstroComponentFactory) {
+		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
+		const output = await renderComponent(
+			result,
+			componentFactory.name,
+			componentFactory,
+			pageProps,
+			null
+		);
+		let html = output.toString();
+		if (!/<!doctype html/i.test(html)) {
+			html = `<!DOCTYPE html>\n${await maybeRenderHead(result)}${html}`;
+		}
+		return new Response(html, {
+			headers: new Headers([
+				['Content-Type', 'text/html; charset=utf-8'],
+				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`],
+			]),
+		});
+	}
 	const factoryReturnValue = await componentFactory(result, props, children);
 
 	if (isAstroComponent(factoryReturnValue)) {

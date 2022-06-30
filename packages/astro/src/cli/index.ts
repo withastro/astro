@@ -1,21 +1,20 @@
 /* eslint-disable no-console */
 
-import { LogOptions } from '../core/logger/core.js';
-
-import { AstroTelemetry } from '@astrojs/telemetry';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import * as event from '../events/index.js';
-
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
+import { collectErrorMetadata } from '../core/errors.js';
+import { debug, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
-import { createSafeError } from '../core/util.js';
+import { ASTRO_VERSION, createSafeError } from '../core/util.js';
+import * as event from '../events/index.js';
+import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
@@ -61,9 +60,6 @@ function printAstroHelp() {
 	});
 }
 
-// PACKAGE_VERSION is injected when we build and publish the astro package.
-const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
-
 /** Display --version flag */
 async function printVersion() {
 	console.log();
@@ -85,10 +81,12 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-/** The primary CLI action */
-export async function cli(args: string[]) {
-	const flags = yargs(args);
-	const cmd = resolveCommand(flags);
+/**
+ * Run the given command with the given flags.
+ * NOTE: This function provides no error handling, so be sure
+ * to present user-friendly error output where the fn is called.
+ **/
+async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
 
 	switch (cmd) {
@@ -111,7 +109,6 @@ export async function cli(args: string[]) {
 	} else if (flags.silent) {
 		logging.level = 'silent';
 	}
-	const telemetry = new AstroTelemetry({ version: ASTRO_VERSION });
 
 	// Special CLI Commands: "add", "docs", "telemetry"
 	// These commands run before the user's config is parsed, and may have other special
@@ -119,56 +116,36 @@ export async function cli(args: string[]) {
 	//
 	switch (cmd) {
 		case 'add': {
-			try {
-				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
-				const packages = flags._.slice(3) as string[];
-				return await add(packages, { cwd: root, flags, logging, telemetry });
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			telemetry.record(event.eventCliSession(cmd));
+			const packages = flags._.slice(3) as string[];
+			return await add(packages, { cwd: root, flags, logging, telemetry });
 		}
 		case 'docs': {
-			try {
-				telemetry.record(event.eventCliSession({ cliCommand: cmd }));
-				return await openInBrowser('https://docs.astro.build/');
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			telemetry.record(event.eventCliSession(cmd));
+			return await openInBrowser('https://docs.astro.build/');
 		}
 		case 'telemetry': {
-			try {
-				// Do not track session start, since the user may be trying to enable,
-				// disable, or modify telemetry settings.
-				const subcommand = flags._[3]?.toString();
-				return await telemetryHandler.update(subcommand, { flags, telemetry });
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			// Do not track session start, since the user may be trying to enable,
+			// disable, or modify telemetry settings.
+			const subcommand = flags._[3]?.toString();
+			return await telemetryHandler.update(subcommand, { flags, telemetry });
 		}
 	}
 
 	const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
-	telemetry.record(event.eventCliSession({ cliCommand: cmd }, userConfig, flags));
+	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			try {
-				await devServer(astroConfig, { logging, telemetry });
-				return await new Promise(() => {}); // lives forever
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			await devServer(astroConfig, { logging, telemetry });
+			return await new Promise(() => {}); // lives forever
 		}
 
 		case 'build': {
-			try {
-				return await build(astroConfig, { logging, telemetry });
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			return await build(astroConfig, { logging, telemetry });
 		}
 
 		case 'check': {
@@ -177,25 +154,50 @@ export async function cli(args: string[]) {
 		}
 
 		case 'preview': {
-			try {
-				const server = await preview(astroConfig, { logging, telemetry });
-				return await server.closed(); // keep alive until the server is closed
-			} catch (err) {
-				return throwAndExit(err);
-			}
+			const server = await preview(astroConfig, { logging, telemetry });
+			return await server.closed(); // keep alive until the server is closed
 		}
 	}
 
 	// No command handler matched! This is unexpected.
-	throwAndExit(new Error(`Error running ${cmd} -- no command found.`));
+	throw new Error(`Error running ${cmd} -- no command found.`);
+}
+
+/** The primary CLI action */
+export async function cli(args: string[]) {
+	const flags = yargs(args);
+	const cmd = resolveCommand(flags);
+	try {
+		await runCommand(cmd, flags);
+	} catch (err) {
+		await throwAndExit(cmd, err);
+	}
 }
 
 /** Display error and exit */
-function throwAndExit(err: unknown) {
-	if (err instanceof z.ZodError) {
-		console.error(formatConfigErrorMessage(err));
-	} else {
-		console.error(formatErrorMessage(createSafeError(err)));
+async function throwAndExit(cmd: string, err: unknown) {
+	let telemetryPromise: Promise<any>;
+	let errorMessage: string;
+	function exitWithErrorMessage() {
+		console.error(errorMessage);
+		process.exit(1);
 	}
-	process.exit(1);
+
+	if (err instanceof z.ZodError) {
+		telemetryPromise = telemetry.record(eventConfigError({ cmd, err, isFatal: true }));
+		errorMessage = formatConfigErrorMessage(err);
+	} else {
+		const errorWithMetadata = collectErrorMetadata(createSafeError(err));
+		telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
+		errorMessage = formatErrorMessage(errorWithMetadata);
+	}
+
+	// Timeout the error reporter (very short) because the user is waiting.
+	// NOTE(fks): It is better that we miss some events vs. holding too long.
+	// TODO(fks): Investigate using an AbortController once we drop Node v14.
+	setTimeout(exitWithErrorMessage, 400);
+	// Wait for the telemetry event to send, then exit. Ignore any error.
+	await telemetryPromise
+		.catch((err) => debug('telemetry', `record() error: ${err.message}`))
+		.then(exitWithErrorMessage);
 }

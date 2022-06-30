@@ -1,6 +1,16 @@
 if (import.meta.hot) {
 	import.meta.hot.accept((mod) => mod);
+
 	const parser = new DOMParser();
+
+	const KNOWN_MANUAL_HMR_EXTENSIONS = new Set(['.astro', '.md', '.mdx']);
+	function needsManualHMR(path: string) {
+		for (const ext of KNOWN_MANUAL_HMR_EXTENSIONS.values()) {
+			if (path.endsWith(ext)) return true;
+		}
+		return false;
+	}
+
 	async function updatePage() {
 		const { default: diff } = await import('micromorph');
 		const html = await fetch(`${window.location}`).then((res) => res.text());
@@ -35,11 +45,11 @@ if (import.meta.hot) {
 		});
 	}
 	async function updateAll(files: any[]) {
-		let hasAstroUpdate = false;
+		let hasManualUpdate = false;
 		let styles = [];
 		for (const file of files) {
-			if (file.acceptedPath.endsWith('.astro')) {
-				hasAstroUpdate = true;
+			if (needsManualHMR(file.acceptedPath)) {
+				hasManualUpdate = true;
 				continue;
 			}
 			if (file.acceptedPath.includes('svelte&type=style')) {
@@ -72,7 +82,7 @@ if (import.meta.hot) {
 				updateStyle(id, content);
 			}
 		}
-		if (hasAstroUpdate) {
+		if (hasManualUpdate) {
 			return await updatePage();
 		}
 	}
