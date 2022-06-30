@@ -36,7 +36,7 @@ export class App {
 	};
 	#streaming: boolean;
 
-	constructor(manifest: Manifest, streaming = false) {
+	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
