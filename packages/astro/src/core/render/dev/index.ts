@@ -11,7 +11,7 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR } from '../../util.js';
+import { isBuildingToSSR, isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
@@ -113,7 +113,7 @@ export async function render(
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
+	if (isPage(filePath, astroConfig) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',

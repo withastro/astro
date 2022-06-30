@@ -1,0 +1,19 @@
+import Counter from '../components/Counter.jsx'
+import Title from '../components/Title.astro'
+export const components = { h1: Title }
+
+# Hello world!
+
+export const authors = [
+  {name: 'Jane', email: 'hi@jane.com'},
+  {name: 'John', twitter: '@john2002'}
+]
+export const published = new Date('2022-02-01')
+
+Written by: {new Intl.ListFormat('en').format(authors.map(d => d.name))}.
+
+Published on: {new Intl.DateTimeFormat('en', {dateStyle: 'long'}).format(published)}.
+
+<Counter client:idle>
+## Counter
+</Counter>

@@ -939,6 +939,10 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
+export type HookParameters<Hook extends keyof AstroIntegration['hooks'], Fn = AstroIntegration['hooks'][Hook]> = Fn extends (...args: any) => any
+		? Parameters<Fn>[0]
+		: never;
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
@@ -955,7 +959,7 @@ export interface AstroIntegration {
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;

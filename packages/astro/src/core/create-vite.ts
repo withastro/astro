@@ -128,7 +128,24 @@ export async function createVite(
 	let result = commonConfig;
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
+	sortPlugins(result);
 	return result;
+}
+
+function getPluginName(plugin: vite.PluginOption) {
+	if (plugin && typeof plugin === 'object' && !Array.isArray(plugin)) {
+		return plugin.name;
+	}
+}
+
+function sortPlugins(result: ViteConfigWithSSR) {
+	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
+	const mdxPluginIndex = result.plugins?.findIndex(plugin => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
+	if (mdxPluginIndex === -1) return;
+	const jsxPluginIndex = result.plugins?.findIndex(plugin => getPluginName(plugin) === 'astro:jsx') ?? -1;
+	const mdxPlugin = result.plugins?.[mdxPluginIndex];
+	result.plugins?.splice(mdxPluginIndex, 1);
+	result.plugins?.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file

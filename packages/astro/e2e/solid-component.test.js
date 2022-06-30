@@ -17,3 +17,11 @@ test.describe('Solid components in Markdown files', () => {
 		componentFilePath: './src/components/SolidComponent.jsx',
 	});
 });
+
+test.describe('Solid components in MDX files', () => {
+	createTests({
+		pageUrl: '/mdx/',
+		pageSourceFilePath: './src/pages/mdx.mdx',
+		componentFilePath: './src/components/SolidComponent.jsx',
+	});
+});

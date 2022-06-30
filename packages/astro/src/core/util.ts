@@ -152,6 +152,33 @@ export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
 }
 
+function isInPagesDir(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	return file.toString().startsWith(pagesDir.toString());
+}
+
+function isPublicRoute(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
+	for (const part of parts) {
+		if (part.startsWith('_')) return false;
+	}
+	return true;
+}
+
+function endsWithPageExt(file: URL, config: AstroConfig): boolean {
+	for (const ext of config._ctx.pageExtensions) {
+		if (file.toString().endsWith(ext)) return true;
+	}
+	return false;
+}
+
+export function isPage(file: URL, config: AstroConfig): boolean {
+	if (!isInPagesDir(file, config)) return false;
+	if (!isPublicRoute(file, config)) return false;
+	return endsWithPageExt(file, config);
+}
+
 export function isBuildingToSSR(config: AstroConfig): boolean {
 	const adapter = config._ctx.adapter;
 	if (!adapter) return false;

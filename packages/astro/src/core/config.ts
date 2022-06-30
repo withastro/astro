@@ -339,7 +339,7 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: [],
+			pageExtensions: ['.astro', '.md'],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
@@ -347,12 +347,11 @@ export async function validateConfig(
 		},
 	};
 	if (
-		// TODO: expose @astrojs/mdx package
 		result.integrations.find((integration) => integration.name === '@astrojs/mdx')
 	) {
-		// Enable default JSX integration
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('../jsx/renderer.js');
-		(result._ctx.renderers as any[]).push(jsxRenderer);
+		(result._ctx.renderers as any[]).unshift(jsxRenderer);
 	}
 
 	// Final-Pass Validation (perform checks that require the full config object)
