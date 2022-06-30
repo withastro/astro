@@ -51,9 +51,9 @@ function renderToStaticMarkup(Component, props, { default: children, ...slotted 
 
 /**
  * Reduces console noise by filtering known non-problematic errors.
- * 
+ *
  * Performs reference counting to allow parallel usage from async code.
- * 
+ *
  * To stop filtering, please ensure that there always is a matching call
  * to `finishUsingConsoleFilter` afterwards.
  */
@@ -87,7 +87,7 @@ function finishUsingConsoleFilter() {
 
 /**
  * Hook/wrapper function for the global `console.error` function.
- * 
+ *
  * Ignores known non-problematic errors while any code is using the console filter.
  * Otherwise, simply forwards all arguments to the original function.
  */
@@ -99,8 +99,7 @@ function filteredConsoleError(msg, ...rest) {
 		const isKnownReactHookError =
 			msg.includes('Warning: Invalid hook call.') &&
 			msg.includes('https://reactjs.org/link/invalid-hook-call');
-		if (isKnownReactHookError)
-			return;
+		if (isKnownReactHookError) return;
 	}
 	originalConsoleError(msg, ...rest);
 }
