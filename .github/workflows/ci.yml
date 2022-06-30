@@ -114,9 +114,9 @@ jobs:
         node_version: [14, 16]
         include:
           - os: windows-latest
-            node_version: 16
+            node_version: 14
           - os: macos-latest
-            node_version: 16
+            node_version: 14
       fail-fast: false
     needs:
       - build
@@ -151,19 +151,14 @@ jobs:
         run: pnpm run test
 
   e2e:
-    name: 'E2E: ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
     env:
       ASTRO_TELEMETRY_DISABLED: true
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14, 16]
-        include:
-          - os: windows-latest
-            node_version: 16
-          - os: macos-latest
-            node_version: 16
+        os: [ubuntu-latest, windows-latest]
+        node_version: [14]
       fail-fast: false
     needs:
       - build
@@ -193,11 +188,12 @@ jobs:
         run: pnpm run test:e2e
 
   smoke:
-    name: 'Test (Smoke) ${{ matrix.os }}'
+    name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
+        node_version: [14]
     needs:
       - build
     steps:
@@ -212,10 +208,10 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup Node
+      - name: Setup node@${{ matrix.node_version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
       - name: Download Build Artifacts
