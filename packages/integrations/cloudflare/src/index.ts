@@ -18,6 +18,13 @@ export default function createIntegration(): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
+			'astro:config:setup': ({ updateConfig }) => {
+				updateConfig({
+					server: {
+						streaming: false
+					}
+				});
+			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;

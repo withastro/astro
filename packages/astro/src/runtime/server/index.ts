@@ -698,27 +698,43 @@ export async function renderPage(
 
 	if (isAstroComponent(factoryReturnValue)) {
 		let iterable = renderAstroComponent(factoryReturnValue);
-		let stream = new ReadableStream({
-			start(controller) {
-				async function read() {
-					let i = 0;
-					for await (const chunk of iterable) {
-						let html = chunk.toString();
-						if (i === 0) {
-							if (!/<!doctype html/i.test(html)) {
-								controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+		let body: BodyInit;
+		if (import.meta.env.STREAMING) {
+			body = new ReadableStream({
+				start(controller) {
+					async function read() {
+						let i = 0;
+						for await (const chunk of iterable) {
+							let html = chunk.toString();
+							if (i === 0) {
+								if (!/<!doctype html/i.test(html)) {
+									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+								}
 							}
+							controller.enqueue(encoder.encode(html));
+							i++;
 						}
-						controller.enqueue(encoder.encode(html));
-						i++;
+						controller.close();
 					}
-					controller.close();
+					read();
+				},
+			});
+		} else {
+		  body = '';
+			let i = 0;
+			for await (const chunk of iterable) {
+				let html = chunk.toString();
+				if (i === 0) {
+					if (!/<!doctype html/i.test(html)) {
+						body += '<!DOCTYPE html>\n';
+					}
 				}
-				read();
-			},
-		});
+				body += chunk;
+				i++;
+			}
+		}
 		let init = result.response;
-		let response = createResponse(stream, init);
+		let response = createResponse(body, init);
 		return response;
 	} else {
 		return factoryReturnValue;
