@@ -24,6 +24,7 @@ export default function mdx(): AstroIntegration {
 									name: '@astrojs/mdx',
 									transform(code: string, id: string) {
 										if (!id.endsWith('.mdx')) return;
+										// TODO: decline HMR updates until we have a stable approach
 										return `${code}\nif (import.meta.hot) {
 											import.meta.hot.decline();
 										}`
