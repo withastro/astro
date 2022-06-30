@@ -4,11 +4,11 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["**/dist/**", "!**/vendor/**"]
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"]
     },
     "build:ci": {
       "dependsOn": ["^build:ci"],
-      "outputs": ["**/dist/**", "!**/vendor/**"]
+      "outputs": ["dist/**/*", "!vendor/**", "mod.js", "mod.js.map"]
     },
     "dev": {
       "cache": false
