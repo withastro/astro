@@ -407,11 +407,6 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	if (typeof flags.experimentalIntegrations === 'boolean')
 		astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
-	if (typeof flags.streaming === 'boolean') {
-		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
-		// TODO: Come back here and refactor to remove this expected error.
-		astroConfig.server.streaming = flags.streaming;
-	}
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
 		// TODO: Come back here and refactor to remove this expected error.

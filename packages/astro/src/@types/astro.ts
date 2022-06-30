@@ -72,7 +72,6 @@ export interface CLIFlags {
 	experimentalSsr?: boolean;
 	experimentalIntegrations?: boolean;
 	drafts?: boolean;
-	streaming?: boolean;
 }
 
 export interface BuildConfig {
