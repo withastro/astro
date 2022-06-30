@@ -43,9 +43,9 @@
   ],
   "engines": {
     "node": "^14.15.0 || >=16.0.0",
-    "pnpm": ">=7.4.0"
+    "pnpm": ">=7.4.1"
   },
-  "packageManager": "pnpm@7.4.0",
+  "packageManager": "pnpm@7.4.1",
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
