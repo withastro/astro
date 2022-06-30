@@ -67,11 +67,13 @@ jobs:
       - name: Format Check
         run: pnpm run format --list
 
-  # Build installs all devDependencies and runs our full build pipeline.
-  # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
   build:
     name: Build Packages
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node_version: [14]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -94,7 +96,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
