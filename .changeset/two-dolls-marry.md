@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Adds a config option to disable HTTP streaming in production SSR builds
+Adds an option to disable HTTP streaming in Astro's production `App` server
