@@ -161,9 +161,9 @@ function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	const pagesDir = resolvePages(config);
 	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
 	for (const part of parts) {
-		if (part.startsWith('_')) return true;
+		if (part.startsWith('_')) return false;
 	}
-	return false;
+	return true;
 }
 
 function endsWithPageExt(file: URL, config: AstroConfig): boolean {
