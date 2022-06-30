@@ -240,8 +240,9 @@ async function generatePath(
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
 		ssr,
-		streaming: astroConfig.build.streaming,
+		streaming: true,
 	};
+	console.log('generatePath::');
 
 	let body: string;
 	if (pageData.route.type === 'endpoint') {
