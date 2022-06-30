@@ -108,6 +108,8 @@ describe('Streaming disabled', () => {
 			
 			expect(res.status).to.equal(200);
 			expect(res.headers.get('content-type')).to.equal('text/html');
+			expect(res.headers.has('content-length')).to.equal(true);
+			expect(parseInt(res.headers.get('content-length'))).to.be.greaterThan(0);
 			
 			let body = await res.text();
 			expect(body.startsWith('<!DOCTYPE html>')).to.equal(true);
