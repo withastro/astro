@@ -17,6 +17,11 @@ defaults:
   run:
     shell: bash
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  TURBO_REMOTE_ONLY: true
+
 jobs:
   # Lint can run in parallel with Build.
   lint:
