@@ -145,6 +145,7 @@ jobs:
   e2e:
     name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     needs: build
     strategy:
       matrix:
