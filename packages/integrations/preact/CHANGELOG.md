@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3769](https://github.com/withastro/astro/pull/3769) [`b934ab5d`](https://github.com/withastro/astro/commit/b934ab5d860aa3adeec56a9c395f629ee7252ca4) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix "Invalid hook call" warning
+
 ## 0.3.0
 
 ### Minor Changes

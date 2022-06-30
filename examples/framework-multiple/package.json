@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.3.0",
-    "@astrojs/preact": "^0.3.0",
+    "@astrojs/preact": "^0.3.1",
     "@astrojs/react": "^0.2.0",
     "@astrojs/solid-js": "^0.2.0",
     "@astrojs/svelte": "^0.2.0",

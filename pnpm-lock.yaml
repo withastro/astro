@@ -55,7 +55,7 @@ importers:
 
   examples/blog:
     specifiers:
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       astro: ^1.0.0-beta.59
       preact: ^10.7.3
     dependencies:
@@ -66,7 +66,7 @@ importers:
 
   examples/blog-multiple-authors:
     specifiers:
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       astro: ^1.0.0-beta.59
       preact: ^10.7.3
       sass: ^1.52.2
@@ -97,7 +97,7 @@ importers:
   examples/docs:
     specifiers:
       '@algolia/client-search': ^4.13.1
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       '@astrojs/react': ^0.2.0
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
@@ -150,7 +150,7 @@ importers:
   examples/framework-multiple:
     specifiers:
       '@astrojs/lit': ^0.3.0
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       '@astrojs/react': ^0.2.0
       '@astrojs/solid-js': ^0.2.0
       '@astrojs/svelte': ^0.2.0
@@ -184,7 +184,7 @@ importers:
 
   examples/framework-preact:
     specifiers:
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       astro: ^1.0.0-beta.59
       preact: ^10.7.3
     dependencies:
@@ -294,7 +294,7 @@ importers:
 
   examples/portfolio:
     specifiers:
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       astro: ^1.0.0-beta.59
       preact: ^10.7.3
       sass: ^1.52.2
@@ -350,7 +350,7 @@ importers:
   examples/with-markdown:
     specifiers:
       '@astrojs/markdown-remark': ^0.11.3
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       '@astrojs/react': ^0.2.0
       '@astrojs/svelte': ^0.2.0
       '@astrojs/vue': ^0.2.0
@@ -402,7 +402,7 @@ importers:
 
   examples/with-nanostores:
     specifiers:
-      '@astrojs/preact': ^0.3.0
+      '@astrojs/preact': ^0.3.1
       '@astrojs/react': ^0.2.0
       '@astrojs/solid-js': ^0.2.0
       '@astrojs/svelte': ^0.2.0
