@@ -94,7 +94,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.job	}}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -140,7 +140,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.job	}}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -181,7 +181,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.job	}}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -224,7 +224,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.job	}}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -260,7 +260,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.job	}}
+          key: build-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
