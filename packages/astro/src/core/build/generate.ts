@@ -242,7 +242,6 @@ async function generatePath(
 		ssr,
 		streaming: true,
 	};
-	console.log('generatePath::');
 
 	let body: string;
 	if (pageData.route.type === 'endpoint') {
