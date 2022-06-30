@@ -84,6 +84,8 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 		} else if (body instanceof Readable) {
 			body.pipe(res);
 			return;
+		} else if (typeof body === 'string') {
+			res.write(body);
 		} else {
 			const reader = body.getReader();
 			while (true) {
