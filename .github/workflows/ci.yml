@@ -211,6 +211,7 @@ jobs:
     name: Changelog PR or Release
     if: ${{ (github.ref_name == 'main' || github.head_ref == 'next') && github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
 
