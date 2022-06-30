@@ -77,8 +77,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node_version: [14]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node_version: [16]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -101,7 +101,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -147,7 +147,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -188,7 +188,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -231,7 +231,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
@@ -267,7 +267,7 @@ jobs:
       - name: Cache Build Output
         uses: actions/cache@v3
         with:
-          key: build-${{ github.run_id }}-${{ github.run_attempt }}
+          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             packages/*/dist/**
             packages/*/*/dist/**
