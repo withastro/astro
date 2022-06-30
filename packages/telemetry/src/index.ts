@@ -7,7 +7,7 @@ import { post } from './post.js';
 import { getProjectInfo, ProjectInfo } from './project-info.js';
 import { getSystemInfo, SystemInfo } from './system-info.js';
 
-export type AstroTelemetryOptions = { version: string };
+export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
 interface EventContext {
 	anonymousId: string;
@@ -25,7 +25,10 @@ export class AstroTelemetry {
 	private debug = debug('astro:telemetry');
 
 	private get astroVersion() {
-		return this.opts.version;
+		return this.opts.astroVersion;
+	}
+	private get viteVersion() {
+		return this.opts.viteVersion;
 	}
 	private get ASTRO_TELEMETRY_DISABLED() {
 		return process.env.ASTRO_TELEMETRY_DISABLED;
@@ -131,7 +134,7 @@ export class AstroTelemetry {
 		}
 
 		const meta: EventMeta = {
-			...getSystemInfo(this.astroVersion),
+			...getSystemInfo({ astroVersion: this.astroVersion, viteVersion: this.viteVersion }),
 			isGit: this.anonymousProjectInfo.isGit,
 		};
 
@@ -140,6 +143,12 @@ export class AstroTelemetry {
 			anonymousProjectId: this.anonymousProjectInfo.anonymousProjectId,
 			anonymousSessionId: this.anonymousSessionId,
 		};
+
+		// Every CI session also creates a new user, which blows up telemetry.
+		// To solve this, we track all CI runs under a single "CI" anonymousId.
+		if (meta.isCI) {
+			context.anonymousId = `CI.${meta.ciName || 'UNKNOWN'}`;
+		}
 
 		return post({
 			context,

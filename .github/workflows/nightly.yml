@@ -57,8 +57,11 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Upgrade recursive
-        run: pnpm upgrade --recursive
+      - name: Delete the existing pnpm-lock.yaml file
+        run: rm pnpm-lock.yaml
+
+      - name: Create a fresh pnpm lockfile (no install)
+        run: pnpm install --lockfile-only
 
       - name: Create Pull Request
         id: createpr
