@@ -81,8 +81,8 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-/** 
- * Run the given command with the given flags. 
+/**
+ * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
  * to present user-friendly error output where the fn is called.
  **/
