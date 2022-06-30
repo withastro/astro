@@ -7,6 +7,7 @@ on:
   pull_request:
     paths-ignore:
       - '.vscode/**'
+      - '**/*.md'
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
@@ -17,8 +18,14 @@ defaults:
   run:
     shell: bash
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  TURBO_REMOTE_ONLY: true
+  FORCE_COLOR: true
+  ASTRO_TELEMETRY_DISABLED: true
+
 jobs:
-  # Lint can run in parallel with Build.
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -65,13 +72,17 @@ jobs:
       # Checks that the formatter runs successfully on all files
       # In the future, we may have this fail PRs on unformatted code
       - name: Format Check
-        run: yarn format --list
+        run: pnpm run format --list
 
-  # Build installs all devDependencies and runs our full build pipeline.
-  # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
+  # Build primes out build caches for Turbo
   build:
-    name: Build Packages
-    runs-on: ubuntu-latest
+    name: 'Build: ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [14]
+      fail-fast: true
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -79,35 +90,22 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup Node
+      - name: Setup node@${{ matrix.node_version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
-
+      
       - name: Build Packages
         run: pnpm run build
 
-      - name: Upload Package Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
-          if-no-files-found: error
-
-  # Test depends on Build's output, which allows us to skip any build process!
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
-    env:
-      ASTRO_TELEMETRY_DISABLED: true
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -118,8 +116,6 @@ jobs:
           - os: macos-latest
             node_version: 14
       fail-fast: false
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -138,14 +134,11 @@ jobs:
         with:
           deno-version: v1.19.3
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Extract Artifacts
-        run: ./.github/extract-artifacts.sh
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test
@@ -153,15 +146,13 @@ jobs:
   e2e:
     name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
-    env:
-      ASTRO_TELEMETRY_DISABLED: true
+    timeout-minutes: 20
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         node_version: [14]
       fail-fast: false
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -175,14 +166,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Extract Artifacts
-        run: ./.github/extract-artifacts.sh
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test:e2e
@@ -190,12 +178,11 @@ jobs:
   smoke:
     name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         node_version: [14]
-    needs:
-      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -214,26 +201,20 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Extract Artifacts
-        run: ./.github/extract-artifacts.sh
-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test:smoke
 
-
-  # Changelog can only run _after_ build.
-  # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
     if: ${{ (github.ref_name == 'main' || github.head_ref == 'next') && github.repository_owner == 'withastro' }}
-    needs: [build]
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
 
@@ -246,14 +227,11 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-
-      - name: Extract Artifacts
-        run: ./.github/extract-artifacts.sh
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Create Release Pull Request or Publish
         id: changesets
