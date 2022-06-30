@@ -3,7 +3,7 @@ if (import.meta.hot) {
 
 	const parser = new DOMParser();
 
-	const KNOWN_MANUAL_HMR_EXTENSIONS = ['.astro', '.md', '.mdx'];
+	const KNOWN_MANUAL_HMR_EXTENSIONS = new Set(['.astro', '.md', '.mdx']);
 	function needsManualHMR(path: string) {
 		for (const ext of KNOWN_MANUAL_HMR_EXTENSIONS.values()) {
 			if (path.endsWith(ext)) return true;
