@@ -11,7 +11,7 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR } from '../../util.js';
+import { isBuildingToSSR, isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
@@ -87,16 +87,6 @@ export async function preload({
 	}
 
 	return [renderers, mod];
-}
-
-function isPage(filePath: URL, astroConfig: AstroConfig): boolean {
-	const relativeURL = filePath.toString().replace(astroConfig.srcDir.toString().slice(0, -1), '');
-	if (!relativeURL.includes('/pages/')) return false;
-	const ext = '.' + relativeURL.split('.').at(-1);
-	for (const _ext of astroConfig._ctx.pageExtensions) {
-		if (ext === _ext) return true;
-	}
-	return false;
 }
 
 /** use Vite to SSR */
