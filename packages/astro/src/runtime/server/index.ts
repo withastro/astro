@@ -542,6 +542,9 @@ export function createAstro(
 const toAttributeString = (value: any, shouldEscape = true) =>
 	shouldEscape ? String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') : value;
 
+const kebab = (k: string) => k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+const toStyleString = (obj: Record<string, any>) => Object.entries(obj).map(([k, v]) => `${kebab(k)}:${v}`).join(';')
+
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // A helper used to turn expressions into attribute key/value
@@ -573,6 +576,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 			return '';
 		}
 		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
+	}
+
+	// support object styles for better JSX compat
+	if (key === 'style' && typeof value === 'object') {
+		return markHTMLString(` ${key}="${toStyleString(value)}"`);
 	}
 
 	// Boolean values only need the key
