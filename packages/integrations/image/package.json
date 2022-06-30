@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/image",
-  "description": "Load and transform images in your site.",
+  "description": "Load and transform images in your Astro site.",
   "version": "0.0.1",
   "type": "module",
   "types": "./dist/types.d.ts",
@@ -9,8 +9,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/labs/image"
+    "directory": "packages/integrations/image"
   },
+  "keywords": [
+    "astro-component",
+    "withastro",
+    "image"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
@@ -35,7 +40,6 @@
     "etag": "^1.8.1",
     "image-size": "^1.0.1",
     "image-type": "^4.1.0",
-    "mime-types": "^2.1.35",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6",
     "slash": "^4.0.0"
