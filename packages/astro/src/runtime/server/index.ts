@@ -732,6 +732,8 @@ export async function renderPage(
 
 	if (isAstroComponent(factoryReturnValue)) {
 		let iterable = renderAstroComponent(factoryReturnValue);
+		let init = result.response;
+		let headers = new Headers(init.headers);
 		let body: BodyInit;
 		if (streaming) {
 			body = new ReadableStream({
@@ -766,9 +768,10 @@ export async function renderPage(
 				body += chunk;
 				i++;
 			}
+			headers.set('Content-Length', `${Buffer.byteLength(body, 'utf-8')}`);
 		}
-		let init = result.response;
-		let response = createResponse(body, init);
+
+		let response = createResponse(body, { ...init, headers });
 		return response;
 	} else {
 		return factoryReturnValue;

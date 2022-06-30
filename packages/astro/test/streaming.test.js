@@ -126,6 +126,8 @@ describe('Streaming disabled', () => {
 
 			expect(response.status).to.equal(200);
 			expect(response.headers.get('content-type')).to.equal('text/html');
+			expect(response.headers.has('content-length')).to.equal(true);
+			expect(parseInt(response.headers.get('content-length'))).to.be.greaterThan(0);
 
 			const html = await response.text();
 			const $ = cheerio.load(html);
