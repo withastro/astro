@@ -1,5 +1,11 @@
 # @astrojs/prefetch
 
+## 0.0.3
+
+### Patch Changes
+
+- [#3778](https://github.com/withastro/astro/pull/3778) [`91635f05`](https://github.com/withastro/astro/commit/91635f05df207d33ee8b50a2afe970b94b24ba7b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix integration name (`prefetch` instead of `lit`)
+
 ## 0.0.2
 
 ### Patch Changes
