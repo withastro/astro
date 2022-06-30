@@ -1,72 +1,101 @@
 # @astrojs/sitemap 🗺
 
-This **[Astro integration][astro-integration]** generates a sitemap for your Astro project.
+This **[Astro integration][astro-integration]** generates a sitemap based on your routes when you build your Astro project.
 
-Sitemaps outline all of the pages, videos, and files on your site. Search engines like Google read this file to crawl your site more efficiently. [See Google's own advice on sitemaps](https://developers.google.com/search/docs/advanced/sitemaps/overview) to learn more.
+
+- <strong>[Why Astro Sitemap](#why-astro-sitemap)</strong>
+- <strong>[Installation](#installation)</strong>
+- <strong>[Usage](#usage)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
+- <strong>[Troubleshooting](#troubleshooting)</strong>
+- <strong>[Contributing](#contributing)</strong>
+- <strong>[Changelog](#changelog)</strong>
+
+## Why Astro Sitemap
+
+A Sitemap is an XML file that outlines all of the pages, videos, and files on your site. Search engines like Google read this file to crawl your site more efficiently. [See Google's own advice on sitemaps](https://developers.google.com/search/docs/advanced/sitemaps/overview) to learn more.
+
+A sitemap file is recommended for large multi-page sites. If you don't use a sitemap, most search engines will still be able to list your site's pages, but a sitemap is a great way to ensure that your site is as search engine friendly as possible.
+
+With Astro Sitemap, you don't have to worry about creating this file: build your Astro site how you normally would, and the Astro Sitemap integration will crawl your routes and create the sitemap file.
 
 ## Installation
 
-There are two ways to add integrations to your project. Let's try the most convenient option first!
+<details>
+  <summary>Quick Install</summary>
+  <br/>
+  
+The experimental `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+  
+  ```sh
+  # Using NPM
+  npx astro add sitemap
+  # Using Yarn
+  yarn astro add sitemap
+  # Using PNPM
+  pnpx astro add sitemap
+  ```
+  
+Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
+  
+Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+</details>
 
-### (experimental) `astro add` command
+<details>
+  <summary>Manual Install</summary>
 
-Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
-1. (Optionally) Install all necessary dependencies and peer dependencies
-2. (Also optionally) Update your `astro.config.*` file to apply this integration
-
-To install `@astrojs/sitemap`, run the following from your project directory and follow the prompts:
-
+<br/>
+  
+First, install the `@astrojs/sitemap` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
-# Using NPM
-npx astro add sitemap
-# Using Yarn
-yarn astro add sitemap
-# Using PNPM
-pnpx astro add sitemap
-```
-
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-
-### Install dependencies manually
-
-First, install the `@astrojs/sitemap` integration like so:
-
-```
 npm install @astrojs/sitemap
 ```
-
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
 __astro.config.mjs__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [sitemap()],
-}
+})
 ```
+  
+Then, restart the dev server.
+</details>
 
-## Getting started
+## Usage
 
-`@astrojs/sitemap` requires a deployment / site URL for generation. Add your site's URL under your `astro.config.*` using the `site` property:
+`@astrojs/sitemap` requires a deployment / site URL for generation. Add your site's URL under your `astro.config.*` using the `site` property. This must begin with `http:` or `https:`.
 
 __astro.config.mjs__
 
 ```js
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   // ...
   site: 'https://stargazers.club',
   integrations: [sitemap()],
-}
+})
 ```
 
-Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find your _sitemap_ under `dist/sitemap-index.xml` and `dist/sitemap-0.xml`!
+Note that unlike other configuration options, `site` is set in the root `defineConfig` object, rather than inside the `sitemap()` call.
 
-Generated sitemap content for two pages website:
+Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find your sitemap under `dist/sitemap.xml`!
+
+> **Warning**
+> If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap.xml` file won't be generated.
+
+<details>
+<summary>
+Example of generated sitemap content for a two-page website:
+</summary>
 
 **sitemap-index.xml**
 
@@ -93,76 +122,69 @@ Generated sitemap content for two pages website:
   </url>
 </urlset>
 ```
+</details>
 
-You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+
 
 ## Configuration
 
-### filter
+To configure this integration, pass an object to the `sitemap()` function call in `astro.config.mjs`.
 
-All pages are included in your sitemap by default. By adding a custom `filter`, you can filter included pages by URL.
+__astro.config.mjs__
+```js
+...
+export default defineConfig({
+  integrations: [sitemap({
+    filter: ...
+  })]
+});
+```
+
+<details>
+  <summary><strong>filter</strong></summary>
+  
+  <br/>
+  
+  All pages are included in your sitemap by default. By adding a custom `filter` function, you can filter  included pages by URL.
 
 __astro.config.mjs__
 
 ```js
-import sitemap from '@astrojs/sitemap';
-
-export default {
-  site: 'https://stargazers.club',
-  integrations: [
+...
     sitemap({
       filter: (page) => page !== 'https://stargazers.club/secret-vip-lounge'
     }),
-  ],
-}
 ```
 
-The `page` function parameter is the full URL of your rendered page, including your `site` domain. Return `true` to include a page in your sitemap, and `false` to remove it.
+The function will be called for every page on your site. The `page` function parameter is the full URL of the page currently under considering, including your `site` domain. Return `true` to include the page in your sitemap, and `false` to leave it out.
+  
+</details>
 
-### customPages
-
-You may have custom routes to add to your sitemap. To append these to your sitemap, pass an array of valid URLs including the base origin:
+<details>
+  <summary><strong>customPages</strong></summary>
+  
+  <br/>
+  
+  In some cases, a page might be part of your deployed site but not part of your Astro project.
+  If you'd like to include a page in your sitemap that _isn't_ created by Astro, you can use this option.
 
 __astro.config.mjs__
 
 ```js
-import sitemap from '@astrojs/sitemap';
-
-export default {
-  site: 'https://stargazers.club',
-  integrations: [
+...
     sitemap({
-      customPages: ['https://stargazers.biz/careers'],
+      customPages: ['https://stargazers.club/external-page', 'https://stargazers.club/external-page2']
     }),
-  ],
-}
 ```
+</details>
 
-💡 You should also use `customPages` to manually list sitemap pages when using an SSR adapter. Currently, we cannot detect your site's pages unless you are building statically. To avoid an empty sitemap, list all pages (including the base origin) with this configuration option!
+<details>
+  <summary>
+    entryLimit
+  </summary>
 
-### canonicalURL
-
-If present, we use the `site` config option as the base for all sitemap URLs. Use `canonicalURL` to override this.
-
-__astro.config.mjs__
-
-```js
-import sitemap from '@astrojs/sitemap';
-
-export default {
-  site: 'https://stargazers.club',
-  integrations: [
-    sitemap({
-      // https://astronaut.party will be used for all sitemap URLs instead
-      canonicalURL: 'https://astronaut.party',
-    }),
-  ],
-}
-```
-
-### entryLimit
-
-Non-negative `Number` of entries per sitemap file. Default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See explanation about large sitemaps on [Google](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
+The maximum number entries per sitemap file. The default value is 45000. A sitemap index and multiple sitemaps are created if you have more entries. See this [explanation of splitting up a large sitemap](https://developers.google.com/search/docs/advanced/sitemaps/large-sitemaps).
 
 __astro.config.mjs__
 
@@ -178,21 +200,20 @@ export default {
   ],
 }
 ```
-
-### changefreq, lastmod, priority
-
-`changefreq` - How frequently the page is likely to change. Available values: `always` \| `hourly` \| `daily` \| `weekly` \| `monthly` \| `yearly` \| `never`.    
-
-`priority` - The priority of this URL relative to other URLs on your site. Valid values range from 0.0 to 1.0.  
-
-`lastmod` - The date of page last modification.  
-
-The `changefreq` and `priority` are ignored by Google.  
-
-See detailed explanation of sitemap specific options on [sitemap.org](https://www.sitemaps.org/protocol.html).  
+</details>
 
 
-:exclamation: This integration uses 'astro:build:done' hook. The hook exposes generated page paths only. So with present version of Astro the integration has no abilities to analyze a page source, frontmatter etc. The integration can add `changefreq`, `lastmod` and `priority` attributes only in a batch or nothing.
+<details>
+  <summary>
+    <strong>changefreq</strong>, <strong>lastmod</strong>, and <strong>priority</strong>
+  </summary>
+
+These options correspond to the `<changefreq>`, `<lastmod>`, and `<priortity>` tags in the [Sitemap XML specification.](https://www.sitemaps.org/protocol.html)
+
+Note that `changefreq` and `priority` are ignored by Google.  
+
+> **Note**
+> Due to limitations of Astro's [Integration API](https://docs.astro.build/en/reference/integrations-reference/), this integration can't analyze a given page's source code. This configuration option can set `changefreq`, `lastmod` and `priority` on a _site-wide_ basis; see the next option **serialize** for how you can set these values on a per-page basis.
 
 __astro.config.mjs__
 
@@ -211,20 +232,29 @@ export default {
 }
 ```
 
-### serialize
+</details>
 
-Async or sync function called for each sitemap entry just before writing to a disk.  
+<details>
+  <summary>
+    <strong>serialize</strong>
+  </summary>
 
-It receives as parameter a `SitemapItem` object which consists of `url` (required, absolute page URL) and optional `changefreq`, `lastmod` (ISO formatted date, `String` type), `priority` and `links` properties.  
+A function called for each sitemap entry just before writing to a disk. This function can be asynchronous.
 
-Optional `links` property contains the `LinkItem` list of alternate pages including a parent page.  
-The `LinkItem` type has two required fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `lang` (a supported language code targeted by this version of the page).
+It receives as its parameter a `SitemapItem` object that can have these properties:
+  - `url` (absolute page URL). This is the only property that is guaranteed to be on `SitemapItem`.
+  -  `changefreq` 
+  - `lastmod` (ISO formatted date, `String` type) 
+  - `priority` 
+  - `links`. 
+
+This `links` property contains a `LinkItem` list of alternate pages including a parent page.  
+
+The `LinkItem` type has two fields: `url` (the fully-qualified URL for the version of this page for the specified language) and `lang` (a supported language code targeted by this version of the page).
 
 The `serialize` function should return `SitemapItem`, touched or not.  
 
-To exclude the passed entry from sitemap it should return `undefined`.
-
-The example below shows the ability to exclude certain entries and add the sitemap specific properties individually.
+The example below shows the ability to add sitemap specific properties individually.
 
 __astro.config.mjs__
 
@@ -251,17 +281,24 @@ export default {
 }
 ```
 
-### i18n
 
-To localize a sitemap you should supply the integration config with the `i18n` option. The integration will check generated page paths on presence of locale keys in paths.
+</details>
 
-`i18n` object has two required properties:
+<details>
+  <summary>
+    <strong>i18n</strong>
+  </summary>
+
+To localize a sitemap, pass an object to this `i18n` option.
+
+This object has two required properties:
 
 - `defaultLocale`: `String`. Its value must exist as one of `locales` keys.
-- `locales`:  `Record<String, String>`, key/value - pairs. The key is used to look for a locale part in a page path. The value is a language attribute, only English alphabet and hyphen allowed. See more about language attribute on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang).
+- `locales`:  `Record<String, String>`, key/value - pairs. The key is used to look for a locale part in a page path. The value is a language attribute, only English alphabet and hyphen allowed. 
 
+[Read more about language attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang).
 
-Read more about localization on Google in [Advanced SEO](https://developers.google.com/search/docs/advanced/crawling/localized-versions#all-method-guidelines).
+[Read more about localization](https://developers.google.com/search/docs/advanced/crawling/localized-versions#all-method-guidelines).
 
 __astro.config.mjs__
 
@@ -283,11 +320,10 @@ export default {
     }),
   ],
 };
-...
-
 ```
 
-The sitemap content will be:
+<details>
+  <summary>The resulting sitemap looks like this</summary>
 
 ```xml
 ...
@@ -318,5 +354,21 @@ The sitemap content will be:
 ...
 ```
 
+</details>
+</details>
+
+## Examples
+- The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap.xml).
+- The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Sitemap installed. Try adding a route and building the project!
+- [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples! 
+
+## Troubleshooting
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+## Changelog
+
+
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components

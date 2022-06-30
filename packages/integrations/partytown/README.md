@@ -2,55 +2,75 @@
 
 This **[Astro integration][astro-integration]** enables [Partytown](https://partytown.builder.io/) in your Astro project.
 
+
+- <strong>[Why Astro Partytown](#why-astro-partytown)</strong>
+- <strong>[Installation](#installation)</strong>
+- <strong>[Usage](#usage)</strong>
+- <strong>[Configuration](#configuration)</strong>
+- <strong>[Examples](#examples)</strong>
+- <strong>[Troubleshooting](#troubleshooting)</strong>
+- <strong>[Contributing](#contributing)</strong>
+- <strong>[Changelog](#changelog)</strong>
+
+## Why Astro Partytown
+
 Partytown is a lazy-loaded library to help relocate resource intensive scripts into a [web worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), and off of the [main thread](https://developer.mozilla.org/en-US/docs/Glossary/Main_thread).
+
+If you're using third-party scripts for things like analytics or ads, Partytown is a great way to make sure that they don't slow down your site.
+
+The Astro Partytown integration installs Partytown for you and makes sure it's enabled on all of your pages.
 
 ## Installation
 
-There are two ways to add integrations to your project. Let's try the most convenient option first!
+<details>
+  <summary>Quick Install</summary>
+  <br/>
+  
+The experimental `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+  
+  ```sh
+  # Using NPM
+  npx astro add partytown
+  # Using Yarn
+  yarn astro add partytown
+  # Using PNPM
+  pnpx astro add partytown
+  ```
+  
+Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
+  
+Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+</details>
 
-### (experimental) `astro add` command
+<details>
+  <summary>Manual Install</summary>
 
-Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
-1. (Optionally) Install all necessary dependencies and peer dependencies
-2. (Also optionally) Update your `astro.config.*` file to apply this integration
-
-To install `@astrojs/partytown`, run the following from your project directory and follow the prompts:
-
+<br/>
+  
+First, install the `@astrojs/partytown` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
-# Using NPM
-npx astro add partytown
-# Using Yarn
-yarn astro add partytown
-# Using PNPM
-pnpx astro add partytown
-```
-
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-
-### Install dependencies manually
-
-First, install the `@astrojs/partytown` integration like so:
-
-```
 npm install @astrojs/partytown
 ```
-
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
 __astro.config.mjs__
 
 ```js
-import partytown from '@astrojs/partytown';
+import { defineConfig } from 'astro/config';
+import partytown from '@astrojs/sitemap';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [partytown()],
-}
+})
 ```
+  
+Then, restart the dev server.
+</details>
 
-## Getting started
+## Usage
 
-Partytown should be ready-to-use with zero config. If you have an existing 3rd party script on your site, try adding the `type="text/partytown"` attribute:
+Partytown should be ready to go with zero config. If you have an existing 3rd party script on your site, try adding the `type="text/partytown"` attribute:
 
 ```diff
 -  <script src="fancy-analytics.js"></script>
@@ -61,37 +81,81 @@ If you open the "Network" tab from [your browser's dev tools](https://developer.
 
 ## Configuration
 
-### config.debug
+To configure this integration, pass a 'config' object to the `partytown()` function call in `astro.config.mjs`.
 
-You can set debug mode using this integration's `config.debug` option. If `config.debug` is unset, it will fall back to `true` if the command is `dev`.
+__astro.config.mjs__
+```js
+...
+export default defineConfig({
+  integrations: [partytown({
+    config: {
+      //options go here
+    }
+  })]
+});
+```
+
+This mirrors the [Partytown config object](https://partytown.builder.io/configuration), but only `debug` and `forward` are exposed by this integration.
+
+<details>
+  <summary><strong>config.debug</strong></summary>
+  
+  <br/>
+
+  Partytown ships with a `debug` mode; enable or disable it by passing `true` or `false` to `config.debug`. If [`debug` mode](https://partytown.builder.io/debugging) is enabled, it will output detailed logs to the browser console. 
+
+  If this option isn't set, `debug` mode will be on by default in [dev](https://docs.astro.build/en/reference/cli-reference/#astro-dev) or [preview](https://docs.astro.build/en/reference/cli-reference/#astro-preview) mode. 
+
+__astro.config.mjs__
 
 ```js
-// astro.config.mjs
-export default {
+export default defineConfig({
   integrations: [partytown({
     // Example: Disable debug mode.
     config: { debug: false },
-  })],
-}
+  
+})
 ```
+</details>
 
-### config.forward
+<details>
+  <summary><strong>config.forward</strong></summary>
+  
+  <br/>
+  
+  Third-party scripts typically add variables to the `window` object so that you can communicate with them throughout your site. But when a script is loaded in a web-worker, it doesn't have access to that global `window` object.
 
-Because we’re moving third-party scripts to a web worker, the main thread needs to know which variables to patch on window, and when these services are called, the data is correctly forwarded to the web worker. You can to set it on the `config.forward` option.
+  To solve this, Partytown can "patch" variables to the global window object and forward them to the appropriate script.
+
+  You can specify which variables to forward with the `config.forward` option. [Read more in Partytown's documentation.](https://partytown.builder.io/forwarding-events)
+
+
+__astro.config.mjs__
 
 ```js
-// astro.config.mjs
-export default {
+export default defineConfig ({
   integrations: [partytown({
     // Example: Add dataLayer.push as a forwarding-event.
-    config: { forward: ["dataLayer.push"] },
+    config: { 
+      forward: ["dataLayer.push"] 
+    },
   })],
-}
+})
 ```
+</details>
 
-## Read more
+## Examples
 
-[Head to the Partytown docs](https://partytown.builder.io/configuration) for configuration options and more usage examples. You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+- The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Partytown installed, with a demo script that shows how Partytown moves intensive operations off of the main thread.
+
+- [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22@astrojs/partytown%22+filename:package.json&type=Code) for more examples! 
+
+## Troubleshooting
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+## Changelog
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
-[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
