@@ -77,7 +77,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         node_version: [16]
     steps:
       - name: Checkout
@@ -98,16 +98,6 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
-      - name: Cache Build Output
-        uses: actions/cache@v3
-        with:
-          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
-
   # Test depends on Build's output, which allows us to skip any build process!
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
@@ -123,7 +113,6 @@ jobs:
             node_version: 14
           - os: macos-latest
             node_version: 14
-      fail-fast: false
     needs:
       - build
     steps:
@@ -144,15 +133,8 @@ jobs:
         with:
           deno-version: v1.19.3
 
-      - name: Cache Build Output
-        uses: actions/cache@v3
-        with:
-          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Install dependencies
         run: pnpm install
@@ -185,15 +167,8 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Cache Build Output
-        uses: actions/cache@v3
-        with:
-          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Install dependencies
         run: pnpm install
@@ -228,15 +203,8 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Cache Build Output
-        uses: actions/cache@v3
-        with:
-          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -264,15 +232,8 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Cache Build Output
-        uses: actions/cache@v3
-        with:
-          key: build-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            packages/*/dist/**
-            packages/*/*/dist/**
-            packages/webapi/mod.js
-            packages/webapi/mod.js.map
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Install dependencies
         run: pnpm install
