@@ -768,7 +768,8 @@ export async function renderPage(
 				body += chunk;
 				i++;
 			}
-			headers.set('Content-Length', `${Buffer.byteLength(body, 'utf-8')}`);
+			const bytes = encoder.encode(body);
+			headers.set('Content-Length', `${bytes.byteLength}`);
 		}
 
 		let response = createResponse(body, { ...init, headers });
