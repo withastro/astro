@@ -119,13 +119,13 @@ describe('Streaming disabled', () => {
 	// TODO: find a different solution for the test-adapter,
 	// currently there's no way to resolve two different versions with one
 	// having streaming disabled
-	describe.skip('Production', () => {
+	describe('Production', () => {
 		before(async () => {
 			await fixture.build();
 		});
 
 		it('Can get the full html body', async () => {
-			const app = await fixture.loadTestAdapterApp();
+			const app = await fixture.loadTestAdapterApp(false);
 			const request = new Request('http://example.com/');
 			const response = await app.render(request);
 

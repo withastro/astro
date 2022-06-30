@@ -149,10 +149,10 @@ export async function loadFixture(inlineConfig) {
 		clean: async () => {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
 		},
-		loadTestAdapterApp: async () => {
+		loadTestAdapterApp: async (streaming) => {
 			const url = new URL('./server/entry.mjs', config.outDir);
 			const { createApp, manifest } = await import(url);
-			const app = createApp();
+			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
 		},
