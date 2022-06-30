@@ -21,6 +21,7 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
   TURBO_REMOTE_ONLY: true
+  ASTRO_TELEMETRY_DISABLED: true
 
 jobs:
   lint:
@@ -71,11 +72,38 @@ jobs:
       - name: Format Check
         run: pnpm run format --list
 
+  # Build primes out build caches for Turbo
+  build:
+    name: 'Build: ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node_version: [14]
+      fail-fast: true
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Setup PNPM
+          uses: pnpm/action-setup@v2.2.1
+
+        - name: Setup node@${{ matrix.node_version }}
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node_version }}
+            cache: 'pnpm'
+
+        - name: Install dependencies
+          run: pnpm install
+        
+        - name: Build Packages
+          run: pnpm run build
+
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
-    env:
-      ASTRO_TELEMETRY_DISABLED: true
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -116,8 +144,7 @@ jobs:
   e2e:
     name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
-    env:
-      ASTRO_TELEMETRY_DISABLED: true
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -148,6 +175,7 @@ jobs:
   smoke:
     name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
