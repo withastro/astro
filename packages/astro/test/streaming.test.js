@@ -103,16 +103,14 @@ describe('Streaming disabled', () => {
 			await devServer.stop();
 		});
 
-		it('Body is not chunked', async () => {
+		it('Body is chunked', async () => {
 			let res = await fixture.fetch('/');
-			
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('content-type')).to.equal('text/html');
-			expect(res.headers.has('content-length')).to.equal(true);
-			expect(parseInt(res.headers.get('content-length'))).to.be.greaterThan(0);
-			
-			let body = await res.text();
-			expect(body.startsWith('<!DOCTYPE html>')).to.equal(true);
+			let chunks = [];
+			for await (const bytes of res.body) {
+				let chunk = bytes.toString('utf-8');
+				chunks.push(chunk);
+			}
+			expect(chunks.length).to.be.greaterThan(1);
 		});
 	});
 
