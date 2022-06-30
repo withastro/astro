@@ -1,5 +1,18 @@
 # astro
 
+## 1.0.0-beta.60
+
+### Patch Changes
+
+- [#3779](https://github.com/withastro/astro/pull/3779) [`192c4bcf`](https://github.com/withastro/astro/commit/192c4bcfd69aa44f735866378d8ba08ba902d290) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue with throwAndExit not awaiting
+
+* [#3706](https://github.com/withastro/astro/pull/3706) [`032ad1c0`](https://github.com/withastro/astro/commit/032ad1c047a62dd663067cc562537d16f2872aa7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Internal changes needed to support `@astrojs/mdx`
+
+- [#3768](https://github.com/withastro/astro/pull/3768) [`913591d1`](https://github.com/withastro/astro/commit/913591d13761d7c99f4b5bf547942922736a9f3a) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue with unfriendly config validation error output
+
+- Updated dependencies [[`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378)]:
+  - @astrojs/telemetry@0.2.3
+
 ## 1.0.0-beta.59
 
 ### Patch Changes
