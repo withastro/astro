@@ -166,9 +166,7 @@ function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
-const rendererAliases = new Map([
-	['solid', 'solid-js']
-])
+const rendererAliases = new Map([['solid', 'solid-js']]);
 
 export async function renderComponent(
 	result: SSRResult,
@@ -283,7 +281,9 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		// Attempt: use explicitly passed renderer name
 		if (metadata.hydrateArgs) {
 			const passedName = metadata.hydrateArgs;
-			const rendererName = rendererAliases.has(passedName) ? rendererAliases.get(passedName) : passedName;
+			const rendererName = rendererAliases.has(passedName)
+				? rendererAliases.get(passedName)
+				: passedName;
 			renderer = renderers.filter(
 				({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
 			)[0];
@@ -709,16 +709,22 @@ export async function renderPage(
 	let iterable: AsyncIterable<any>;
 	if (!componentFactory.isAstroComponentFactory) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
-		const output = await renderComponent(result, componentFactory.name, componentFactory, pageProps, null);
-		let html = output.toString()
+		const output = await renderComponent(
+			result,
+			componentFactory.name,
+			componentFactory,
+			pageProps,
+			null
+		);
+		let html = output.toString();
 		if (!/<!doctype html/i.test(html)) {
 			html = `<!DOCTYPE html>\n${await maybeRenderHead(result)}${html}`;
 		}
 		return new Response(html, {
 			headers: new Headers([
 				['Content-Type', 'text/html; charset=utf-8'],
-				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`]
-			])
+				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`],
+			]),
 		});
 	}
 	const factoryReturnValue = await componentFactory(result, props, children);

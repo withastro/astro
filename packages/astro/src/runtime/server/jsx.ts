@@ -28,13 +28,16 @@ export async function renderJSX(result: any, vnode: any): Promise<any> {
 			let props: Record<string, any> = {};
 			let slots: Record<string, any> = {};
 			for (const [key, value] of Object.entries(vnode.props ?? {})) {
-				if (key === 'children' || value && typeof value === 'object' && (value as any)['$$slot']) {
+				if (
+					key === 'children' ||
+					(value && typeof value === 'object' && (value as any)['$$slot'])
+				) {
 					slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
 				} else {
 					props[key] = value;
 				}
 			}
-			return await renderToString(result, vnode.type, props, slots)	
+			return await renderToString(result, vnode.type, props, slots);
 		}
 	}
 	if (vnode[AstroJSX]) {

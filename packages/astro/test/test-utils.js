@@ -71,7 +71,7 @@ export async function loadFixture(inlineConfig) {
 			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
 		}
 	}
-	
+
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, root: cwd });
@@ -83,7 +83,7 @@ export async function loadFixture(inlineConfig) {
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
 	}
-	if (config.integrations.find(integration => integration.name === '@astrojs/mdx')) {
+	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
 		config._ctx.renderers.unshift(jsxRenderer);

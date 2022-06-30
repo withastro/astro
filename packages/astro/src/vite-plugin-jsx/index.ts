@@ -165,7 +165,6 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 			}
 
-
 			// if no imports were found, look for @jsxImportSource comment
 			if (!importSource) {
 				const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];

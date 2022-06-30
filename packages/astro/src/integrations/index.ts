@@ -2,9 +2,9 @@ import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
 import {
 	AstroConfig,
-	HookParameters,
 	AstroRenderer,
 	BuildConfig,
+	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
 import ssgAdapter from '../adapter-ssg/index.js';
@@ -58,9 +58,7 @@ export async function runHookConfigSetup({
 			};
 			// Semi-private `addPageExtension` hook
 			function addPageExtension(...input: (string | string[])[]) {
-				const exts = (input.flat(Infinity) as string[]).map(
-					(ext) => `.${ext.replace(/^\./, '')}`
-				);
+				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
 				updatedConfig._ctx.pageExtensions.push(...exts);
 			}
 			Object.defineProperty(hooks, 'addPageExtension', {

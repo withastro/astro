@@ -346,9 +346,7 @@ export async function validateConfig(
 			adapter: undefined,
 		},
 	};
-	if (
-		result.integrations.find((integration) => integration.name === '@astrojs/mdx')
-	) {
+	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('../jsx/renderer.js');
 		(result._ctx.renderers as any[]).unshift(jsxRenderer);
