@@ -113,6 +113,7 @@ jobs:
             node_version: 14
           - os: macos-latest
             node_version: 14
+      fail-fast: false
     needs:
       - build
     steps:
@@ -133,11 +134,11 @@ jobs:
         with:
           deno-version: v1.19.3
 
-      - name: Build Packages
-        run: pnpm run build
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test
@@ -167,11 +168,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Build Packages
-        run: pnpm run build
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test:e2e
@@ -203,11 +204,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Build Packages
-        run: pnpm run build
-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Test
         run: pnpm run test:smoke
@@ -232,11 +233,11 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Build Packages
-        run: pnpm run build
-
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Create Release Pull Request or Publish
         id: changesets
