@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3750](https://github.com/withastro/astro/pull/3750) [`dd176ca5`](https://github.com/withastro/astro/commit/dd176ca58d9ce8ab757075491568a014c0943de2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add basic error reporting to astro telemetry
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # astro
 
+## 1.0.0-beta.59
+
+### Patch Changes
+
+- [#3767](https://github.com/withastro/astro/pull/3767) [`1eab496e`](https://github.com/withastro/astro/commit/1eab496e9d733a13f3a2eb2129e90949b130901d) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates an error handler to expect updated `@astrojs/lit` behavior
+
+* [#3763](https://github.com/withastro/astro/pull/3763) [`54cd6b8d`](https://github.com/withastro/astro/commit/54cd6b8dd184fb0acb2facaa9b6843be59f9c57f) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes how `injectRoute` parses route patterns on Windows
+
+- [#3750](https://github.com/withastro/astro/pull/3750) [`dd176ca5`](https://github.com/withastro/astro/commit/dd176ca58d9ce8ab757075491568a014c0943de2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add basic error reporting to astro telemetry
+
+- Updated dependencies [[`dd176ca5`](https://github.com/withastro/astro/commit/dd176ca58d9ce8ab757075491568a014c0943de2)]:
+  - @astrojs/telemetry@0.2.2
+
 ## 1.0.0-beta.58
 
 ### Patch Changes

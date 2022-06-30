@@ -6,7 +6,7 @@ import type { SSROptions } from '../core/render/dev/index';
 import { Readable } from 'stream';
 import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { fixViteErrorMessage } from '../core/errors.js';
+import { collectErrorMetadata, fixViteErrorMessage } from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -320,7 +320,8 @@ async function handleRequest(
 		}
 	} catch (_err) {
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		error(logging, null, msg.formatErrorMessage(err));
+		const errorWithMetadata = collectErrorMetadata(_err);
+		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }

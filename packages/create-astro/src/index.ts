@@ -14,6 +14,7 @@ import { TEMPLATES } from './templates.js';
 function wait(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
 function logAndWait(message: string, ms = 100) {
 	console.log(message);
 	return wait(ms);
