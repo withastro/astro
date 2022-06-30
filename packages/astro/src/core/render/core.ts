@@ -80,6 +80,7 @@ export interface RenderOptions {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	streaming: boolean;
 	request: Request;
 }
 
@@ -100,6 +101,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		routeCache,
 		site,
 		ssr,
+		streaming,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -138,6 +140,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		scripts,
 		ssr,
+		streaming,
 	});
 
 	if (!Component.isAstroComponentFactory) {
@@ -145,6 +148,6 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		const html = await renderComponent(result, Component.name, Component, props, null);
 		return new Response(html.toString(), result.response);
 	} else {
-		return await renderPage(result, Component, pageProps, null);
+		return await renderPage(result, Component, pageProps, null, streaming);
 	}
 }

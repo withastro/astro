@@ -117,6 +117,7 @@ export class App {
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			streaming: import.meta.env.STREAMING,
 		});
 
 		return response;

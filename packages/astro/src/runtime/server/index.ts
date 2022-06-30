@@ -692,14 +692,15 @@ export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
 	props: any,
-	children: any
+	children: any,
+	streaming: boolean,
 ): Promise<Response> {
 	const factoryReturnValue = await componentFactory(result, props, children);
 
 	if (isAstroComponent(factoryReturnValue)) {
 		let iterable = renderAstroComponent(factoryReturnValue);
 		let body: BodyInit;
-		if (import.meta.env.STREAMING) {
+		if (streaming) {
 			body = new ReadableStream({
 				start(controller) {
 					async function read() {

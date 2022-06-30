@@ -240,6 +240,7 @@ async function generatePath(
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
 		ssr,
+		streaming: astroConfig.server.streaming,
 	};
 
 	let body: string;

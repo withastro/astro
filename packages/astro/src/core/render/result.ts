@@ -24,6 +24,7 @@ function onlyAvailableInSSR(name: string) {
 
 export interface CreateResultArgs {
 	ssr: boolean;
+	streaming: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
@@ -114,7 +115,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const headers = new Headers();
-	if (import.meta.env.STREAMING) {
+	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
 	} else {
 		headers.set('Content-Type', 'text/html');
