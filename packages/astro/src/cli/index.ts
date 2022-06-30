@@ -8,7 +8,7 @@ import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { LogOptions } from '../core/logger/core.js';
+import { debug, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
@@ -170,24 +170,34 @@ export async function cli(args: string[]) {
 	try {
 		await runCommand(cmd, flags);
 	} catch (err) {
-		return throwAndExit(cmd, err);
+		await throwAndExit(cmd, err);
 	}
 }
 
 /** Display error and exit */
-function throwAndExit(cmd: string, err: unknown) {
+async function throwAndExit(cmd: string, err: unknown) {
 	let telemetryPromise: Promise<any>;
+	let errorMessage: string;
+	function exitWithErrorMessage() {
+		console.error(errorMessage);
+		process.exit(1);
+	}
+
 	if (err instanceof z.ZodError) {
-		console.error(formatConfigErrorMessage(err));
 		telemetryPromise = telemetry.record(eventConfigError({ cmd, err, isFatal: true }));
+		errorMessage = formatConfigErrorMessage(err);
 	} else {
 		const errorWithMetadata = collectErrorMetadata(createSafeError(err));
-		console.error(formatErrorMessage(errorWithMetadata));
 		telemetryPromise = telemetry.record(eventError({ cmd, err: errorWithMetadata, isFatal: true }));
+		errorMessage = formatErrorMessage(errorWithMetadata);
 	}
-	// Wait for the telemetry event to send, then exit. Ignore an error.
-	telemetryPromise.catch(() => undefined).then(() => process.exit(1));
-	// Don't wait too long. Timeout the request faster than usual because the user is waiting.
-	// TODO: Investigate using an AbortController once we drop Node v14 support.
-	setTimeout(() => process.exit(1), 300);
+
+	// Timeout the error reporter (very short) because the user is waiting.
+	// NOTE(fks): It is better that we miss some events vs. holding too long.
+	// TODO(fks): Investigate using an AbortController once we drop Node v14.
+	setTimeout(exitWithErrorMessage, 400);
+	// Wait for the telemetry event to send, then exit. Ignore any error.
+	await telemetryPromise
+		.catch((err) => debug('telemetry', `record() error: ${err.message}`))
+		.then(exitWithErrorMessage);
 }
