@@ -5,7 +5,7 @@ import { getImage } from '../src';
 import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
 
 export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'> {
-	src: ImageMetadata;	
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 }
 
 export interface RemoteImageProps extends TransformOptions, ImageAttributes {
@@ -23,19 +23,41 @@ function isLocalImage(props: Props): props is LocalImageProps {
 	return typeof props.src !== 'string';
 }
 
-function resolveProps(props: Props): TransformOptions {
+function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
+	if (!aspectRatio) {
+		return undefined;
+	}
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof aspectRatio === 'number') {
+		aspectRatio = aspectRatio;
+	} else {
+		const [width, height] = aspectRatio.split(':');
+		aspectRatio = parseInt(width) / parseInt(height);
+	}
+}
+
+async function resolveProps(props: Props): Promise<TransformOptions> {
+	// For remote images, don't touch user-provided props
 	if (!isLocalImage(props)) {
-		return props;
+		return calculateSize(props);
 	}
 
 	let { width, height, aspectRatio, format, ...rest } = props;
-	const { src, ...metadata } = props.src;
+	const { src, ...metadata } = 'then' in props.src ? (await props.src).default : props.src;
 
 	if (!width && !height) {
+		// neither dimension was provided, use the file metadata
 		width = metadata.width;
 		height = metadata.height;
-	} else if (height || width) {
-		aspectRatio = aspectRatio || metadata.width / metadata.height;
+	} else if (width) {
+		// one dimension was provided, calculate the other
+		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
+		height = height || width / ratio;
+	} else if (height) {
+		// one dimension was provided, calculate the other
+		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
+		width = width || height * ratio;
 	}
 	
 	return {
@@ -92,7 +114,8 @@ function calculateSize(transform: TransformOptions): TransformOptions {
 }
 
 const props = Astro.props as Props;
-const imageProps = calculateSize(resolveProps(props));
+
+const imageProps = await resolveProps(props);
 
 const attrs = await getImage(loader, imageProps);
 ---

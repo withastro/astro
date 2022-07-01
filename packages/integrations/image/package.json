@@ -23,7 +23,7 @@
     "./sharp": "./dist/loaders/sharp.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
-    "./Image.astro": "./src/Image.astro",
+    "./components": "./components/index.js",
     "./package.json": "./package.json"
   },
   "files": [

@@ -1920,7 +1920,6 @@ importers:
       etag: ^1.8.1
       image-size: ^1.0.1
       image-type: ^4.1.0
-      mime-types: ^2.1.35
       mrmime: ^1.0.0
       sharp: ^0.30.6
       slash: ^4.0.0
@@ -1928,7 +1927,6 @@ importers:
       etag: 1.8.1
       image-size: 1.0.1
       image-type: 4.1.0
-      mime-types: 2.1.35
       mrmime: 1.0.1
       sharp: 0.30.7
       slash: 4.0.0
@@ -11844,18 +11842,6 @@ packages:
 
   /micromorph/0.1.2:
     resolution: {integrity: sha512-pDEgWjUoCMBwME8z8UiCOO6FKH0It1LASFh8hFSk8uSyfyw6rqY4PBk2LiIEPaVHwtLDhozp4Pr0I+yAUfCpiA==}
-    dev: false
-
-  /mime-db/1.52.0:
-    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
-    engines: {node: '>= 0.6'}
-    dev: false
-
-  /mime-types/2.1.35:
-    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
-    engines: {node: '>= 0.6'}
-    dependencies:
-      mime-db: 1.52.0
     dev: false
 
   /mime/3.0.0:

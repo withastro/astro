@@ -109,7 +109,7 @@ export default {
 
 ```html
 ---
-import Image from '@astrojs/image/Image.astro';
+import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
 ---
 
@@ -136,7 +136,7 @@ import heroImage from '../assets/hero.png';
 
 ```html
 ---
-import Image from '@astrojs/image/Image.astro';
+import { Image } from '@astrojs/image/components';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
 ---
