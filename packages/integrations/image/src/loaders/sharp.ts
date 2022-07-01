@@ -1,6 +1,6 @@
 import sharp from 'sharp';
+import type { OutputFormat, SSRImageService, TransformOptions } from '../types';
 import { isAspectRatioString, isOutputFormat } from '../utils.js';
-import type { TransformOptions, OutputFormat, SSRImageService } from '../types';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {

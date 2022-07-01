@@ -1,7 +1,14 @@
+import type { AstroConfig, AstroIntegration } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import slash from 'slash';
+import { fileURLToPath } from 'url';
+import type {
+	ImageAttributes,
+	IntegrationOptions,
+	SSRImageService,
+	TransformOptions,
+} from './types';
 import {
 	ensureDir,
 	isRemoteImage,
@@ -10,13 +17,6 @@ import {
 	propsToFilename,
 } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
-import type { AstroConfig, AstroIntegration } from 'astro';
-import type {
-	ImageAttributes,
-	IntegrationOptions,
-	SSRImageService,
-	TransformOptions,
-} from './types';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
@@ -76,9 +76,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
 			optimizeDeps: {
-				include: ['image-size', 'sharp']
-			}
-		}
+				include: ['image-size', 'sharp'],
+			},
+		};
 	}
 
 	return {

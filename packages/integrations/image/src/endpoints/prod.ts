@@ -1,9 +1,9 @@
 // @ts-ignore
-import loader from 'virtual:image-loader';
+import type { APIRoute } from 'astro';
 import etag from 'etag';
 import { lookup } from 'mrmime';
+import loader from 'virtual:image-loader';
 import { isRemoteImage, loadRemoteImage } from '../utils.js';
-import type { APIRoute } from 'astro';
 
 export const get: APIRoute = async ({ request }) => {
 	try {
