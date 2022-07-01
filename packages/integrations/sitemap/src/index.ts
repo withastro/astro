@@ -63,32 +63,28 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				const logger = new Logger(PKG_NAME);
 
 				try {
-					const opts = validateOptions(config.site, options);
+					const opts = validateOptions(options);
 
 					const { filter, customPages, serialize, entryLimit } = opts;
 
-					let finalSiteUrl: URL;
-					if (config.site) {
-						finalSiteUrl = new URL(config.base, config.site);
-					} else {
-						console.warn(
-							'The Sitemap integration requires the `site` astro.config option. Skipping.'
-						);
+					if (!config.site) {
+						logger.warn('The Sitemap integration requires the `site` astro.config option.');
 						return;
 					}
+					const finalSiteUrl = new URL(config.base, config.site);
 
 					let pageUrls = pages.map((p) => {
 						const path = finalSiteUrl.pathname + p.pathname;
 						return new URL(path, finalSiteUrl).href;
 					});
-
-					try {
-						if (filter) {
+					
+					if (filter) {
+						try {
 							pageUrls = pageUrls.filter(filter);
+						} catch (err) {
+							logger.error(`Error filtering pages\n${(err as any).toString()}`);
+							return;
 						}
-					} catch (err) {
-						logger.error(`Error filtering pages\n${(err as any).toString()}`);
-						return;
 					}
 
 					if (customPages) {
@@ -102,7 +98,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 								`No pages found! We can only detect sitemap routes for "static" projects. Since you are using an SSR adapter, we recommend manually listing your sitemap routes using the "customPages" integration option.\n\nExample: \`sitemap({ customPages: ['https://example.com/route'] })\``
 							);
 						} else {
-							logger.warn(`No pages found!\n\`${OUTFILE}\` not created.`);
+							logger.warn('No pages found!');
 						}
 						return;
 					}
