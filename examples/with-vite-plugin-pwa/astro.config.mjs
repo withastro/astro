@@ -52,12 +52,6 @@ if (process.env.SW === 'true') {
 	pwaOptions.strategies = 'injectManifest'
 	pwaOptions.manifest.description = 'Astro PWA Inject Manifest'
 } 
-else {
-	// I'll fix this in pwa repo: allowlist equivalent in claims-sw.ts
-	pwaOptions.workbox = {
-		navigateFallbackAllowlist: [/^\/$/]
-	}
-}
 
 if (reload) {
 	// @ts-ignore
@@ -68,6 +62,14 @@ if (reload) {
 export default defineConfig({
 	integrations: [pwa(pwaOptions)],
 	vite: {
+		resolve: {
+			alias: {
+				'workbox-window': './node_modules/workbox-window/build/workbox-window.prod.es5.mjs'
+			},
+		},
+		optimizeDeps: {
+			include: ['workbox-window']
+		},
 		logLevel: 'info',
 		build: {
 			sourcemap: process.env.SOURCE_MAP === 'true',

@@ -80,6 +80,7 @@ function createManifestTransform (enableManifestTransform: EnableManifestTransfo
 }
 
 function getViteConfiguration(config: AstroConfig, options: Partial<VitePWAOptions>, enableManifestTransform: EnableManifestTransform) {
+	// @ts-ignore I know what I'm doing
 	const plugin = config.vite?.plugins?.flat(Infinity).find(p => p.name === 'vite-plugin-pwa')
 	if (plugin) {
 		throw new Error("Remove the vite-plugin-pwa plugin from Vite Plugins entry in Astro config file, configure it via @astrojs/pwa integration");
@@ -151,6 +152,7 @@ export default function (options: Partial<VitePWAOptions> = {}): AstroIntegratio
 				updateConfig({ vite: getViteConfiguration(config, options, enableManifestTransform) });
 			},
 			'astro:config:done': ({ config }) => {
+				// @ts-ignore I know what I'm doing
 				pwaPlugin = config.vite!.plugins!.flat(Infinity).find(p => p.name === 'vite-plugin-pwa')!
 			},
 			'astro:build:done': async ({ dir, routes }) => {
