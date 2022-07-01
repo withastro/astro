@@ -108,8 +108,8 @@ importers:
       react-dom: ^18.1.0
     dependencies:
       '@algolia/client-search': 4.13.1
-      '@docsearch/css': 3.1.0
-      '@docsearch/react': 3.1.0_h3umwasw2xj55xde6qtxq6tis4
+      '@docsearch/css': 3.1.1
+      '@docsearch/react': 3.1.1_4qtyd5khpgkxb2ee2czgfifgy4
       '@types/react': 17.0.47
       preact: 10.8.2
       react: 18.2.0
@@ -616,7 +616,7 @@ importers:
       zod: 3.17.3
     devDependencies:
       '@babel/types': 7.18.7
-      '@playwright/test': 1.23.0
+      '@playwright/test': 1.23.1
       '@types/babel__core': 7.1.19
       '@types/babel__generator': 7.6.4
       '@types/babel__traverse': 7.17.1
@@ -2091,7 +2091,7 @@ importers:
       '@types/mocha': 9.1.1
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      playwright: 1.23.0
+      playwright: 1.23.1
 
   packages/integrations/prefetch/test/fixtures/basic-prefetch:
     specifiers:
@@ -2473,14 +2473,25 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@algolia/autocomplete-core/1.6.3:
-    resolution: {integrity: sha512-dqQqRt01fX3YuVFrkceHsoCnzX0bLhrrg8itJI1NM68KjrPYQPYsE+kY8EZTCM4y8VDnhqJErR73xe/ZsV+qAA==}
+  /@algolia/autocomplete-core/1.7.1:
+    resolution: {integrity: sha512-eiZw+fxMzNQn01S8dA/hcCpoWCOCwcIIEUtHHdzN5TGB3IpzLbuhqFeTfh2OUhhgkE8Uo17+wH+QJ/wYyQmmzg==}
     dependencies:
-      '@algolia/autocomplete-shared': 1.6.3
+      '@algolia/autocomplete-shared': 1.7.1
     dev: false
 
-  /@algolia/autocomplete-shared/1.6.3:
-    resolution: {integrity: sha512-UV46bnkTztyADFaETfzFC5ryIdGVb2zpAoYgu0tfcuYWjhg1KbLXveFffZIrGVoboqmAk1b+jMrl6iCja1i3lg==}
+  /@algolia/autocomplete-preset-algolia/1.7.1_jr4xm7x4v4vd7iifhnoo3rb33u:
+    resolution: {integrity: sha512-pJwmIxeJCymU1M6cGujnaIYcY3QPOVYZOXhFkWVM7IxKzy272BwCvMFMyc5NpG/QmiObBxjo7myd060OeTNJXg==}
+    peerDependencies:
+      '@algolia/client-search': ^4.9.1
+      algoliasearch: ^4.9.1
+    dependencies:
+      '@algolia/autocomplete-shared': 1.7.1
+      '@algolia/client-search': 4.13.1
+      algoliasearch: 4.13.1
+    dev: false
+
+  /@algolia/autocomplete-shared/1.7.1:
+    resolution: {integrity: sha512-eTmGVqY3GeyBTT8IWiB2K5EuURAqhnumfktAEoHxfDY2o7vg2rSnO16ZtIG0fMgt3py28Vwgq42/bVEuaQV7pg==}
     dev: false
 
   /@algolia/cache-browser-local-storage/4.13.1:
@@ -2941,8 +2952,6 @@ packages:
     resolution: {integrity: sha512-uQVSa9jJUe/G/304lXspfWVpKpK4euFLgGiMQFOCpM/bgcAdeoHwi/OQz23O9GK2osz26ZiXRRV9aV+Yl1O8tw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-    dependencies:
-      '@babel/types': 7.18.7
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.18.6_@babel+core@7.18.6:
     resolution: {integrity: sha512-Dgxsyg54Fx1d4Nge8UnvTrED63vrwOdPmyvPzlNN/boaliRP54pm3pGzZD1SJUwrBA+Cs/xdG8kXX6Mn/RfISQ==}
@@ -4385,23 +4394,26 @@ packages:
       postcss-selector-parser: 6.0.10
     dev: true
 
-  /@docsearch/css/3.1.0:
-    resolution: {integrity: sha512-bh5IskwkkodbvC0FzSg1AxMykfDl95hebEKwxNoq4e5QaGzOXSBgW8+jnMFZ7JU4sTBiB04vZWoUSzNrPboLZA==}
+  /@docsearch/css/3.1.1:
+    resolution: {integrity: sha512-utLgg7E1agqQeqCJn05DWC7XXMk4tMUUnL7MZupcknRu2OzGN13qwey2qA/0NAKkVBGugiWtON0+rlU0QIPojg==}
     dev: false
 
-  /@docsearch/react/3.1.0_h3umwasw2xj55xde6qtxq6tis4:
-    resolution: {integrity: sha512-bjB6ExnZzf++5B7Tfoi6UXgNwoUnNOfZ1NyvnvPhWgCMy5V/biAtLL4o7owmZSYdAKeFSvZ5Lxm0is4su/dBWg==}
+  /@docsearch/react/3.1.1_4qtyd5khpgkxb2ee2czgfifgy4:
+    resolution: {integrity: sha512-cfoql4qvtsVRqBMYxhlGNpvyy/KlCoPqjIsJSZYqYf9AplZncKjLBTcwBu6RXFMVCe30cIFljniI4OjqAU67pQ==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
       react: '>= 16.8.0 < 19.0.0'
       react-dom: '>= 16.8.0 < 19.0.0'
     dependencies:
-      '@algolia/autocomplete-core': 1.6.3
-      '@docsearch/css': 3.1.0
+      '@algolia/autocomplete-core': 1.7.1
+      '@algolia/autocomplete-preset-algolia': 1.7.1_jr4xm7x4v4vd7iifhnoo3rb33u
+      '@docsearch/css': 3.1.1
       '@types/react': 17.0.47
       algoliasearch: 4.13.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    transitivePeerDependencies:
+      - '@algolia/client-search'
     dev: false
 
   /@emmetio/abbreviation/2.2.3:
@@ -4657,7 +4669,7 @@ packages:
       hast-util-to-estree: 2.0.2
       markdown-extensions: 1.1.1
       periscopic: 3.0.4
-      remark-mdx: 2.1.1
+      remark-mdx: 2.1.2
       remark-parse: 10.0.1
       remark-rehype: 10.1.0
       unified: 10.1.2
@@ -4814,8 +4826,8 @@ packages:
       - encoding
     dev: true
 
-  /@octokit/openapi-types/12.5.0:
-    resolution: {integrity: sha512-VatvE5wtRkJq6hAWGTBZ62WkrdlCiy0G0u27cVOYTfAWVZi7QqTurVcjpsyc5+9hXLPRP5O/DaNEs4TgAp4Mqg==}
+  /@octokit/openapi-types/12.6.0:
+    resolution: {integrity: sha512-7uS/1woIC7FvIxNSTcY4BLnNFbPtv/iteW041u7EfrZxFrUzB6C402sLyCEezl89HPHRjQet9Q1SHLMe0StITg==}
     dev: true
 
   /@octokit/plugin-paginate-rest/2.21.0_@octokit+core@3.6.0:
@@ -4861,16 +4873,16 @@ packages:
   /@octokit/types/6.38.1:
     resolution: {integrity: sha512-kWMohLCIvnwApRmxRFDOqve7puiNNdtVfgwdDOm6QyJNorWOgKv2/AodCcGqx63o28kF7Dr4/nJCatrwwqhULg==}
     dependencies:
-      '@octokit/openapi-types': 12.5.0
+      '@octokit/openapi-types': 12.6.0
     dev: true
 
-  /@playwright/test/1.23.0:
-    resolution: {integrity: sha512-RPWI8AHBVBiDyfTuxi1BhOaY3yaVy3S5ZsGKkSGGeWpZtSgN4SerInCYvgh9+EunIAK4RJQo+bzupbAn5pVqHQ==}
+  /@playwright/test/1.23.1:
+    resolution: {integrity: sha512-dKplLPSYPZgnsBk1xxOophhpx3ZVg8DveoNJgLPe096lDCfmaIIreLsYF+4hqzy3PG61IP+aEnG5VAOjC3bhbA==}
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
       '@types/node': 18.0.0
-      playwright-core: 1.23.0
+      playwright-core: 1.23.1
     dev: true
 
   /@polka/url/1.0.0-next.21:
@@ -7856,7 +7868,7 @@ packages:
       glob: 7.2.3
       graceful-fs: 4.2.10
       micromatch: 4.0.5
-      node-gyp-build: 4.4.0
+      node-gyp-build: 4.5.0
       node-pre-gyp: 0.13.0
       resolve-from: 5.0.0
       rollup-pluginutils: 2.8.2
@@ -8399,7 +8411,7 @@ packages:
       chalk: 4.1.2
       cli-boxes: 3.0.0
       string-width: 5.1.2
-      type-fest: 2.14.0
+      type-fest: 2.15.1
       widest-line: 4.0.1
       wrap-ansi: 8.0.1
     dev: false
@@ -8438,7 +8450,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001361
-      electron-to-chromium: 1.4.174
+      electron-to-chromium: 1.4.176
       node-releases: 2.0.5
       update-browserslist-db: 1.0.4_browserslist@4.21.1
 
@@ -9236,8 +9248,8 @@ packages:
       jake: 10.8.5
     dev: true
 
-  /electron-to-chromium/1.4.174:
-    resolution: {integrity: sha512-JER+w+9MV2MBVFOXxP036bLlNOnzbYAWrWU8sNUwoOO69T3w4564WhM5H5atd8VVS8U4vpi0i0kdoYzm1NPQgQ==}
+  /electron-to-chromium/1.4.176:
+    resolution: {integrity: sha512-92JdgyRlcNDwuy75MjuFSb3clt6DGJ2IXSpg0MCjKd3JV9eSmuUAIyWiGAp/EtT0z2D4rqbYqThQLV90maH3Zw==}
 
   /emmet/2.3.6:
     resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
@@ -12084,8 +12096,8 @@ packages:
       formdata-polyfill: 4.0.10
     dev: false
 
-  /node-gyp-build/4.4.0:
-    resolution: {integrity: sha512-amJnQCcgtRVw9SvoebO3BKGESClrfXGCUTX9hSn1OuGQTQBOZmVd0Z0OlecpuRksKvbsUqALE8jls/ErClAPuQ==}
+  /node-gyp-build/4.5.0:
+    resolution: {integrity: sha512-2iGbaQBV+ITgCz76ZEjmhUKAKVf7xfY1sRl4UiKQspfZMH2h06SyhNsnSVy50cwkFQDGLyif6m/6uFXHkOZ6rg==}
     hasBin: true
     dev: false
 
@@ -12601,19 +12613,19 @@ packages:
       find-up: 3.0.0
     dev: false
 
-  /playwright-core/1.23.0:
-    resolution: {integrity: sha512-Zzhyr5RZGoJ1ek2sgfJCt2076kdOg8hnNwFBqAYeLySiutXyxSQk93vZ5gbnFiWV1sHvueCcwla9n35acUTxtA==}
+  /playwright-core/1.23.1:
+    resolution: {integrity: sha512-9CXsE0gawph4KXl6oUaa0ehHRySZjHvly4TybcBXDvzK3N3o6L/eZ8Q6iVWUiMn0LLS5bRFxo1qEtOETlYJxjw==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
 
-  /playwright/1.23.0:
-    resolution: {integrity: sha512-rfZfuLueBPGV3UdEqPQxS8Uw7TgVMATWSPb3O0oV8SZBmVAhOndkOU9MPP8dxJoQI68r94yevuObPr14PhW9Xg==}
+  /playwright/1.23.1:
+    resolution: {integrity: sha512-+lgiy1JZMNPwpBp5tsUdjTGxuJ+lXZbtSKmMDc0/f1oVsNDXXA+r7zeC9Kzd+4jSHteoJJocargxVx2Mn1o2kw==}
     engines: {node: '>=14'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      playwright-core: 1.23.0
+      playwright-core: 1.23.1
     dev: true
 
   /postcss-attribute-case-insensitive/5.0.1_postcss@8.4.14:
@@ -13490,8 +13502,8 @@ packages:
       - supports-color
     dev: false
 
-  /remark-mdx/2.1.1:
-    resolution: {integrity: sha512-0wXdEITnFyjLquN3VvACNLzbGzWM5ujzTvfgOkONBZgSFJ7ezLLDaTWqf6H9eUgVITEP8asp6LJ0W/X090dXBg==}
+  /remark-mdx/2.1.2:
+    resolution: {integrity: sha512-npQagPdczPAv0xN9F8GSi5hJfAe/z6nBjylyfOfjLOmz086ahWrIjlk4BulRfNhA+asutqWxyuT3DFVsxiTVHA==}
     dependencies:
       mdast-util-mdx: 2.0.0
       micromark-extension-mdxjs: 1.0.0
@@ -14696,8 +14708,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /type-fest/2.14.0:
-    resolution: {integrity: sha512-hQnTQkFjL5ik6HF2fTAM8ycbr94UbQXK364wF930VHb0dfBJ5JBP8qwrR8TaK9zwUEk7meruo2JAUDMwvuxd/w==}
+  /type-fest/2.15.1:
+    resolution: {integrity: sha512-LYSjcIz3NmoQksXq/3/B7Nfad+T8mkaI628agAAnHCpXPTBRMK2ygt3eABpzII8CbZZM8dLdVQ4Gr8ousjFjMw==}
     engines: {node: '>=12.20'}
     dev: false
 
@@ -15234,7 +15246,7 @@ packages:
   /wide-align/1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
     dependencies:
-      string-width: 4.2.3
+      string-width: 1.0.2
     dev: false
 
   /widest-line/4.0.1:
