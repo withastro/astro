@@ -1,7 +1,4 @@
 {
-  "recommendations": [
-    "astro-build.astro-vscode",
-    "silvenon.mdx"
-  ],
+  "recommendations": ["astro-build.astro-vscode", "silvenon.mdx"],
   "unwantedRecommendations": []
 }
