@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import type { OutputFormat, TransformOptions } from './types';
 
- export function isOutputFormat(value: string): value is OutputFormat {
+export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
 }
 
@@ -41,9 +41,7 @@ export async function loadRemoteImage(src: string) {
 }
 
 export async function loadImage(src: string) {
-	return isRemoteImage(src)
-		? await loadRemoteImage(src)
-		: await loadLocalImage(src);
+	return isRemoteImage(src) ? await loadRemoteImage(src) : await loadLocalImage(src);
 }
 
 export function propsToFilename({ src, width, height, format }: TransformOptions) {

@@ -15,6 +15,6 @@ export async function metadata(src: string): Promise<ImageMetadata | undefined> 
 		src,
 		width,
 		height,
-		format: type as InputFormat
-	}
+		format: type as InputFormat,
+	};
 }

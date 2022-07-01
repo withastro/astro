@@ -56,7 +56,11 @@ describe('SSG images', function () {
 			});
 
 			it('built the optimized image', () => {
-				verifyImage('_image/googlelogo_color_272x92dp_544x184.webp', { width: 544, height: 184, type: 'webp' });
+				verifyImage('_image/googlelogo_color_272x92dp_544x184.webp', {
+					width: 544,
+					height: 184,
+					type: 'webp',
+				});
 			});
 		});
 	});
@@ -95,9 +99,9 @@ describe('SSG images', function () {
 
 			it('returns the optimized image', async () => {
 				const image = $('#social-jpg');
-				
+
 				const res = await fixture.fetch(image.attr('src'));
-				
+
 				expect(res.status).to.equal(200);
 				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
 
@@ -119,7 +123,9 @@ describe('SSG images', function () {
 				expect(searchParams.get('f')).to.equal('webp');
 				expect(searchParams.get('w')).to.equal('544');
 				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+				expect(searchParams.get('href')).to.equal(
+					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				);
 			});
 		});
 	});

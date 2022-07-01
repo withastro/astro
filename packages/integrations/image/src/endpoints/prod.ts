@@ -15,7 +15,9 @@ export const get: APIRoute = async ({ request }) => {
 		}
 
 		// TODO: Can we lean on fs to load local images in SSR prod builds?
-		const href = isRemoteImage(transform.src) ? new URL(transform.src) : new URL(transform.src, url.origin);
+		const href = isRemoteImage(transform.src)
+			? new URL(transform.src)
+			: new URL(transform.src, url.origin);
 
 		const inputBuffer = await loadRemoteImage(href.toString());
 
@@ -30,11 +32,11 @@ export const get: APIRoute = async ({ request }) => {
 			headers: {
 				'Content-Type': lookup(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
-				'ETag': etag(inputBuffer),
-				'Date': (new Date()).toUTCString(),
-			}
+				ETag: etag(inputBuffer),
+				Date: new Date().toUTCString(),
+			},
 		});
 	} catch (err: unknown) {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
-}
+};

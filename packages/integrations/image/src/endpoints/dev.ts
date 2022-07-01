@@ -24,10 +24,10 @@ export const get: APIRoute = async ({ request }) => {
 		return new Response(data, {
 			status: 200,
 			headers: {
-				'Content-Type': lookup(format) || ''
-			}
+				'Content-Type': lookup(format) || '',
+			},
 		});
 	} catch (err: unknown) {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
-}
+};
