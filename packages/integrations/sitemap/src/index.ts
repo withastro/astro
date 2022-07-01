@@ -8,9 +8,9 @@ import {
 import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
 
-import { generateSitemap } from './generate-sitemap.js';
 import { Logger } from './utils/logger.js';
 import { validateOptions } from './validate-options.js';
+import { generateSitemap } from './generate-sitemap.js';
 
 export type ChangeFreq = EnumChangefreq;
 export type SitemapItem = Pick<
