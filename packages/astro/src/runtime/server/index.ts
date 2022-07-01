@@ -705,7 +705,7 @@ export async function renderPage(
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any,
-	streaming: boolean,
+	streaming: boolean
 ): Promise<Response> {
 	let iterable: AsyncIterable<any>;
 	if (!componentFactory.isAstroComponentFactory) {
@@ -756,7 +756,7 @@ export async function renderPage(
 				},
 			});
 		} else {
-		  body = '';
+			body = '';
 			let i = 0;
 			for await (const chunk of iterable) {
 				let html = chunk.toString();

@@ -87,7 +87,7 @@ describe('Streaming disabled', () => {
 			},
 			server: {
 				streaming: false,
-			}
+			},
 		});
 	});
 
