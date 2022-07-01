@@ -82,7 +82,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 						try {
 							pageUrls = pageUrls.filter(filter);
 						} catch (err) {
-							logger.error(`Error filtering pages\n${(err as any).toString()}`);
+							logger.error(`Error filtering pages.\n${(err as any).toString()}`);
 							return;
 						}
 					}
@@ -120,7 +120,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							}
 							urlData = serializedUrls;
 						} catch (err) {
-							logger.error(`Error serializing pages\n${(err as any).toString()}`);
+							logger.error(`Error serializing pages.\n${(err as any).toString()}`);
 							return;
 						}
 					}
