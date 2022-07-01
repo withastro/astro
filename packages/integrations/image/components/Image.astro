@@ -38,12 +38,14 @@ function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
 }
 
 async function resolveProps(props: Props): Promise<TransformOptions> {
-	// For remote images, don't touch user-provided props
+	// For remote images, just check the width/height provided
 	if (!isLocalImage(props)) {
 		return calculateSize(props);
 	}
 
 	let { width, height, aspectRatio, format, ...rest } = props;
+
+	// if a Promise<ImageMetadata> was provided, unwrap it first
 	const { src, ...metadata } = 'then' in props.src ? (await props.src).default : props.src;
 
 	if (!width && !height) {
