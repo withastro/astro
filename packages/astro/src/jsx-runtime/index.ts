@@ -1,6 +1,6 @@
 import { Fragment, markHTMLString } from '../runtime/server/index.js';
 
-const AstroJSX = Symbol('@astrojs/jsx');
+const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');
 
 interface AstroVNode {
