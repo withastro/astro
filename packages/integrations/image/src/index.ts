@@ -76,9 +76,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
 			optimizeDeps: {
-				include: ['image-size', 'sharp']
-			}
-		}
+				include: ['image-size', 'sharp'],
+			},
+		};
 	}
 
 	return {
