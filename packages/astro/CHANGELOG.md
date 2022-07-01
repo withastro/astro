@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.61
+
+### Patch Changes
+
+- [#3777](https://github.com/withastro/astro/pull/3777) [`976e1f17`](https://github.com/withastro/astro/commit/976e1f175a95ea39f737b8575e4fdf3c3d89e1ee) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds an option to disable HTTP streaming in Astro's production `App` server
+
 ## 1.0.0-beta.60
 
 ### Patch Changes
