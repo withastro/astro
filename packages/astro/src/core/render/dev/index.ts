@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { HtmlTagDescriptor, ViteDevServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -11,13 +11,12 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR } from '../../util.js';
+import { isBuildingToSSR, isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
-import { injectTags } from './html.js';
 import { resolveClientDevPath } from './resolve.js';
 
 export interface SSROptions {
@@ -44,10 +43,6 @@ export interface SSROptions {
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
-
-export type RenderResponse =
-	| { type: 'html'; html: string; response: ResponseInit }
-	| { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -99,7 +94,7 @@ export async function render(
 	renderers: SSRLoadedRenderer[],
 	mod: ComponentInstance,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const {
 		astroConfig,
 		filePath,
@@ -118,7 +113,7 @@ export async function render(
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
+	if (isPage(filePath, astroConfig) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -167,7 +162,7 @@ export async function render(
 		});
 	});
 
-	let content = await coreRender({
+	let response = await coreRender({
 		links,
 		styles,
 		logging,
@@ -189,34 +184,16 @@ export async function render(
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
+		streaming: true,
 	});
 
-	if (route?.type === 'endpoint' || content.type === 'response') {
-		return content;
-	}
-
-	// inject tags
-	const tags: HtmlTagDescriptor[] = [];
-
-	// add injected tags
-	let html = injectTags(content.html, tags);
-
-	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + content;
-	}
-
-	return {
-		type: 'html',
-		html,
-		response: content.response,
-	};
+	return response;
 }
 
 export async function ssr(
 	preloadedComponent: ComponentPreload,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const [renderers, mod] = preloadedComponent;
 	return await render(renderers, mod, ssrOpts); // NOTE: without "await", errors won’t get caught below
 }

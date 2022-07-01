@@ -8,7 +8,7 @@ type Env = {
 };
 
 export function createExports(manifest: SSRManifest) {
-	const app = new App(manifest);
+	const app = new App(manifest, false);
 
 	const fetch = async (request: Request, env: Env) => {
 		const { origin, pathname } = new URL(request.url);
@@ -24,6 +24,11 @@ export function createExports(manifest: SSRManifest) {
 		}
 
 		// 404
+		const _404Request = new Request(`${origin}/404`, request);
+		if (app.match(_404Request)) {
+			return app.render(_404Request);
+		}
+
 		return new Response(null, {
 			status: 404,
 			statusText: 'Not found',

@@ -9,7 +9,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderComponent, renderPage } from '../../runtime/server/index.js';
+import { renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -80,14 +80,11 @@ export interface RenderOptions {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	streaming: boolean;
 	request: Request;
 }
 
-export async function render(
-	opts: RenderOptions
-): Promise<
-	{ type: 'html'; html: string; response: ResponseInit } | { type: 'response'; response: Response }
-> {
+export async function render(opts: RenderOptions): Promise<Response> {
 	const {
 		links,
 		styles,
@@ -104,6 +101,7 @@ export async function render(
 		routeCache,
 		site,
 		ssr,
+		streaming,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -142,34 +140,13 @@ export async function render(
 		site,
 		scripts,
 		ssr,
+		streaming,
 	});
 
-	let page: Awaited<ReturnType<typeof renderPage>>;
-	if (!Component.isAstroComponentFactory) {
-		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
-		const html = await renderComponent(result, Component.name, Component, props, null);
-		page = {
-			type: 'html',
-			html: html.toString(),
-		};
-	} else {
-		page = await renderPage(result, Component, pageProps, null);
+	// Support `export const components` for `MDX` pages
+	if (typeof (mod as any).components === 'object') {
+		Object.assign(pageProps, { components: (mod as any).components });
 	}
 
-	if (page.type === 'response') {
-		return page;
-	}
-
-	let html = page.html;
-
-	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + html;
-	}
-
-	return {
-		type: 'html',
-		html,
-		response: result.response,
-	};
+	return await renderPage(result, Component, pageProps, null, streaming);
 }

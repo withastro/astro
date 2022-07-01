@@ -23,7 +23,6 @@ export type SitemapOptions =
 	| {
 			filter?(page: string): boolean;
 			customPages?: string[];
-			canonicalURL?: string;
 
 			i18n?: {
 				defaultLocale: string;
@@ -38,7 +37,7 @@ export type SitemapOptions =
 			priority?: number;
 
 			// called for each sitemap item just before to save them on disk, sync or async
-			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem>;
+			serialize?(item: SitemapItem): SitemapItem | Promise<SitemapItem | undefined> | undefined;
 	  }
 	| undefined;
 
@@ -66,18 +65,16 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 				try {
 					const opts = validateOptions(config.site, options);
 
-					const { filter, customPages, canonicalURL, serialize, entryLimit } = opts;
+					const { filter, customPages, serialize, entryLimit } = opts;
 
 					let finalSiteUrl: URL;
-					if (canonicalURL) {
-						finalSiteUrl = new URL(canonicalURL);
-						if (!finalSiteUrl.pathname.endsWith('/')) {
-							finalSiteUrl.pathname += '/'; // normalizes the final url since it's provided by user
-						}
-					} else {
-						// `validateOptions` forces to provide `canonicalURL` or `config.site` at least.
-						// So step to check on empty values of `canonicalURL` and `config.site` is dropped.
+					if (config.site) {
 						finalSiteUrl = new URL(config.base, config.site);
+					} else {
+						console.warn(
+							'The Sitemap integration requires the `site` astro.config option. Skipping.'
+						);
+						return;
 					}
 
 					let pageUrls = pages.map((p) => {
@@ -117,7 +114,13 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 							const serializedUrls: SitemapItem[] = [];
 							for (const item of urlData) {
 								const serialized = await Promise.resolve(serialize(item));
-								serializedUrls.push(serialized);
+								if (serialized) {
+									serializedUrls.push(serialized);
+								}
+							}
+							if (serializedUrls.length === 0) {
+								logger.warn('No pages found!');
+								return;
 							}
 							urlData = serializedUrls;
 						} catch (err) {

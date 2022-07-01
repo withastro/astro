@@ -240,6 +240,7 @@ async function generatePath(
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
 		ssr,
+		streaming: true,
 	};
 
 	let body: string;
@@ -251,13 +252,14 @@ async function generatePath(
 		}
 		body = result.body;
 	} else {
-		const result = await render(options);
+		const response = await render(options);
 
 		// If there's a redirect or something, just do nothing.
-		if (result.type !== 'html') {
+		if (response.status !== 200 || !response.body) {
 			return;
 		}
-		body = result.html;
+
+		body = await response.text();
 	}
 
 	const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);

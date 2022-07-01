@@ -1,5 +1,53 @@
 # @astrojs/preact
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3769](https://github.com/withastro/astro/pull/3769) [`b934ab5d`](https://github.com/withastro/astro/commit/b934ab5d860aa3adeec56a9c395f629ee7252ca4) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix "Invalid hook call" warning
+
+## 0.3.0
+
+### Minor Changes
+
+- [#3712](https://github.com/withastro/astro/pull/3712) [`e3fdc9b4`](https://github.com/withastro/astro/commit/e3fdc9b4030b96e815c133a388a7625b7e8e4a2e) Thanks [@delucis](https://github.com/delucis)! - Add support for enabling `preact/compat` to Preact renderer
+
+  To use `preact/compat` to render React components, users can now set `compat` to `true` when using the Preact integration:
+
+  ```js
+  integrations: [
+    preact({ compat: true }),
+  ],
+  ```
+
+## 0.2.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for passing named slots from `.astro` => framework components.
+
+  Each `slot` is be passed as a top-level prop. For example:
+
+  ```jsx
+  // From .astro
+  <Component>
+    <h2 slot="title">Hello world!</h2>
+    <h2 slot="slot-with-dash">Dash</h2>
+    <div>Default</div>
+  </Component>;
+
+  // For .jsx
+  export default function Component({ title, slotWithDash, children }) {
+    return (
+      <>
+        <div id="title">{title}</div>
+        <div id="slot-with-dash">{slotWithDash}</div>
+        <div id="main">{children}</div>
+      </>
+    );
+  }
+  ```
+
 ## 0.1.3
 
 ### Patch Changes

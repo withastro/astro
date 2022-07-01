@@ -19,3 +19,12 @@ test.describe('Vue components in Markdown files', () => {
 		counterCssFilePath: './src/components/Counter.vue',
 	});
 });
+
+test.describe('Vue components in MDX files', () => {
+	createTests({
+		pageUrl: '/mdx/',
+		pageSourceFilePath: './src/pages/mdx.mdx',
+		componentFilePath: './src/components/VueComponent.vue',
+		counterCssFilePath: './src/components/Counter.vue',
+	});
+});

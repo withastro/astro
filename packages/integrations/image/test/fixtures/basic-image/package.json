@@ -1,0 +1,10 @@
+{
+  "name": "@test/sharp",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/image": "workspace:*",
+    "@astrojs/node": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

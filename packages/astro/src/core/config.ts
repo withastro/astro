@@ -34,6 +34,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	server: {
 		host: false,
 		port: 3000,
+		streaming: true,
 	},
 	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
@@ -315,6 +316,7 @@ export async function validateConfig(
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					streaming: z.boolean().optional().default(true),
 				})
 				.optional()
 				.default({})
@@ -339,13 +341,19 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: [],
+			pageExtensions: ['.astro', '.md'],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
 			adapter: undefined,
 		},
 	};
+	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
+		const { default: jsxRenderer } = await import('../jsx/renderer.js');
+		(result._ctx.renderers as any[]).unshift(jsxRenderer);
+	}
+
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (
 		!result.experimental?.integrations &&

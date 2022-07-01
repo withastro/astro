@@ -122,6 +122,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					entryFileNames: opts.buildConfig.serverEntry,
 				},
 			},
+
 			ssr: true,
 			// must match an esbuild target
 			target: 'esnext',

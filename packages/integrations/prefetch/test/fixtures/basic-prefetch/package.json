@@ -1,0 +1,9 @@
+{
+  "name": "@test/astro-prefetch",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/prefetch": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

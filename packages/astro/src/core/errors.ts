@@ -5,10 +5,19 @@ import type { ViteDevServer } from 'vite';
 import type { SSRError } from '../@types/astro';
 import { codeFrame, createSafeError } from './util.js';
 
+export enum AstroErrorCodes {
+	// 1xxx: Astro Runtime Errors
+	UnknownError = 1000,
+	ConfigError = 1001,
+	// 2xxx: Astro Compiler Errors
+	UnknownCompilerError = 2000,
+	UnknownCompilerCSSError = 2001,
+}
 export interface ErrorWithMetadata {
 	[name: string]: any;
 	message: string;
 	stack: string;
+	code?: number;
 	hint?: string;
 	id?: string;
 	frame?: string;

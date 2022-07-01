@@ -9,19 +9,19 @@
   "scripts": {
     "postinstall": "patch-package",
     "release": "pnpm run build && changeset publish",
-    "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "build:ci": "turbo run build:ci --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
+    "build": "turbo run build --output-logs=new-only --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
+    "build:ci": "turbo run build:ci --output-logs=new-only --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w .",
+    "format:code": "prettier -w . --cache",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
-    "test": "turbo run test --concurrency=1",
+    "test": "turbo run test --output-logs=new-only --concurrency=1",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "turbo run test --filter=create-astro --concurrency=1",
     "test:smoke": "node scripts/smoke/index.js",
-    "test:vite-ci": "turbo run test --no-deps --scope=astro --concurrency=1",
+    "test:vite-ci": "turbo run test --output-logs=new-only --no-deps --scope=astro --concurrency=1",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
     "benchmark": "turbo run benchmark --scope=astro",
@@ -50,6 +50,7 @@
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
+        "rollup",
         "@babel/core",
         "@babel/plugin-transform-react-jsx",
         "vite"
@@ -63,21 +64,21 @@
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.22.0",
     "@octokit/action": "^3.18.1",
-    "@typescript-eslint/eslint-plugin": "^5.27.0",
-    "@typescript-eslint/parser": "^5.27.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.1",
+    "@typescript-eslint/parser": "^5.27.1",
     "del": "^6.1.1",
-    "esbuild": "^0.14.42",
-    "eslint": "^8.16.0",
+    "esbuild": "^0.14.43",
+    "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",
     "patch-package": "^6.4.7",
-    "prettier": "^2.6.2",
+    "prettier": "^2.7.0",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
     "turbo": "1.2.5",
-    "typescript": "~4.7.2"
+    "typescript": "~4.7.3"
   }
 }
