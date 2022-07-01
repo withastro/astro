@@ -1,0 +1,125 @@
+---
+// @ts-ignore
+import loader from 'virtual:image-loader';
+import { getImage } from '../src';
+import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
+
+export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+}
+
+export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+	src: string;
+	format: OutputFormat;
+	width: number;
+	height: number;
+}
+
+export type Props = LocalImageProps | RemoteImageProps;
+
+function isLocalImage(props: Props): props is LocalImageProps {
+	// vite-plugin-astro-image resolves ESM imported images
+	// to a metadata object
+	return typeof props.src !== 'string';
+}
+
+function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
+	if (!aspectRatio) {
+		return undefined;
+	}
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof aspectRatio === 'number') {
+		aspectRatio = aspectRatio;
+	} else {
+		const [width, height] = aspectRatio.split(':');
+		aspectRatio = parseInt(width) / parseInt(height);
+	}
+}
+
+async function resolveProps(props: Props): Promise<TransformOptions> {
+	// For remote images, just check the width/height provided
+	if (!isLocalImage(props)) {
+		return calculateSize(props);
+	}
+
+	let { width, height, aspectRatio, format, ...rest } = props;
+
+	// if a Promise<ImageMetadata> was provided, unwrap it first
+	const { src, ...metadata } = 'then' in props.src ? (await props.src).default : props.src;
+
+	if (!width && !height) {
+		// neither dimension was provided, use the file metadata
+		width = metadata.width;
+		height = metadata.height;
+	} else if (width) {
+		// one dimension was provided, calculate the other
+		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
+		height = height || width / ratio;
+	} else if (height) {
+		// one dimension was provided, calculate the other
+		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
+		width = width || height * ratio;
+	}
+	
+	return {
+		...rest,
+		width,
+		height,
+		aspectRatio,
+		src,
+		format: format || metadata.format as OutputFormat,
+	}
+}
+
+function calculateSize(transform: TransformOptions): TransformOptions {
+	// keep width & height as provided
+	if (transform.width && transform.height) {
+		return transform;
+	}
+
+	if (!transform.width && !transform.height) {
+		throw new Error(`"width" and "height" cannot both be undefined`);
+	}
+
+	if (!transform.aspectRatio) {
+		throw new Error(`"aspectRatio" must be included if only "${transform.width ? "width": "height"}" is provided`)
+	}
+
+	let aspectRatio: number;
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof transform.aspectRatio === 'number') {
+		aspectRatio = transform.aspectRatio;
+	} else {
+		const [width, height] = transform.aspectRatio.split(':');
+		aspectRatio = parseInt(width) / parseInt(height);
+	}
+
+	if (transform.width) {
+	// only width was provided, calculate height
+		return {
+			...transform,
+			width: transform.width,
+			height: transform.width / aspectRatio
+		};
+	} else if (transform.height) {
+	// only height was provided, calculate width
+		return {
+			...transform,
+		width: transform.height * aspectRatio,
+		height: transform.height
+		}
+	}
+
+	return transform;
+}
+
+const props = Astro.props as Props;
+
+const imageProps = await resolveProps(props);
+
+const attrs = await getImage(loader, imageProps);
+---
+
+<img {...attrs} />
