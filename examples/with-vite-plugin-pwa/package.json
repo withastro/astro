@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
+    "start": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW_DEV=true astro dev",
+    "start-sw": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW=true SW_DEV=true astro dev",
     "build": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true astro build",
     "build-sw": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW=true astro build",
     "preview": "npm run build && astro preview",

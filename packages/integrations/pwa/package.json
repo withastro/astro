@@ -29,7 +29,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "vite-plugin-pwa": "^0.12.0",
+    "vite-plugin-pwa": "^0.12.2",
     "workbox-build": "^6.5.3",
     "vite": "^2.9.9"
   },

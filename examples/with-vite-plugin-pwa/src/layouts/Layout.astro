@@ -7,7 +7,7 @@ export interface Props {
 const buildDate = '__DATE__';
 
 const { title } = Astro.props as Props;
-const production = import.meta.env.MODE === 'production'
+const enableManifest = import.meta.env.MODE === 'production' || (import.meta.env.MODE === 'development' && import.meta.env.SW_DEV === 'true');
 ---
 
 <html lang="en">
@@ -27,7 +27,7 @@ const production = import.meta.env.MODE === 'production'
     }
     </style>
     <script src="/src/pwa.ts"></script>
-    { production && <link rel="manifest" href="/manifest.webmanifest"> }
+    { enableManifest && <link rel="manifest" href="/manifest.webmanifest"> }
   </head>
   <body>
     <main>

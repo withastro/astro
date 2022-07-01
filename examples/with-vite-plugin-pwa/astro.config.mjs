@@ -31,19 +31,11 @@ const pwaOptions = {
 			},
 		],
 	},
-	workbox: {
-		navigateFallback: '/',
-		// we don't need the html files: we only need the navigation fallback
-		globPatterns: ['**/*.{js,css}'],
-	},
-	injectManifest: {
-		globPatterns: ['**/*.{js,css}'],
-	},
 	devOptions: {
 		enabled: process.env.SW_DEV === 'true',
 		/* when using generateSW the PWA plugin will switch to classic */
 		type: 'module',
-		navigateFallback: 'index.html',
+		navigateFallback: '/',
 	},
 }
 
@@ -59,6 +51,12 @@ if (process.env.SW === 'true') {
 	pwaOptions.filename = 'claims-sw.ts'
 	pwaOptions.strategies = 'injectManifest'
 	pwaOptions.manifest.description = 'Astro PWA Inject Manifest'
+} 
+else {
+	// I'll fix this in pwa repo: allowlist equivalent in claims-sw.ts
+	pwaOptions.workbox = {
+		navigateFallbackAllowlist: [/^\/$/]
+	}
 }
 
 if (reload) {
