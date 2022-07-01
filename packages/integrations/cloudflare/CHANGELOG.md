@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3777](https://github.com/withastro/astro/pull/3777) [`976e1f17`](https://github.com/withastro/astro/commit/976e1f175a95ea39f737b8575e4fdf3c3d89e1ee) Thanks [@tony-sull](https://github.com/tony-sull)! - Disables HTTP streaming in Cloudflare Pages deployments
+
 ## 0.2.1
 
 ### Patch Changes
