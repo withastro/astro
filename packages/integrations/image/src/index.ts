@@ -75,7 +75,10 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 	function getViteConfiguration() {
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
-		};
+			optimizeDeps: {
+				include: ['image-size', 'sharp']
+			}
+		}
 	}
 
 	return {
