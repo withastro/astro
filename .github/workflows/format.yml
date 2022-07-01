@@ -8,6 +8,8 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
       - name: Check out code using Git
         uses: actions/checkout@v3
