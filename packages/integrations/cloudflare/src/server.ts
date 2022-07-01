@@ -8,7 +8,7 @@ type Env = {
 };
 
 export function createExports(manifest: SSRManifest) {
-	const app = new App(manifest);
+	const app = new App(manifest, false);
 
 	const fetch = async (request: Request, env: Env) => {
 		const { origin, pathname } = new URL(request.url);
