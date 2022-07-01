@@ -8,7 +8,8 @@ import type { AstroConfig } from 'astro';
 import type { IntegrationOptions } from './types';
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
-	const filter = (id: string) => /^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
+	const filter = (id: string) =>
+		/^(?!\/_image?).*.(heic|heif|avif|jpeg|jpg|png|tiff|webp|gif)$/.test(id);
 
 	const virtualModuleId = 'virtual:image-loader';
 
@@ -43,10 +44,12 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 		},
 		async load(id) {
 			// only claim image ESM imports
-			if (!filter(id)) { return null; }
+			if (!filter(id)) {
+				return null;
+			}
 
 			const meta = await metadata(id);
-		
+
 			const fileUrl = pathToFileURL(id);
 			const src = resolvedConfig.isProduction
 				? fileUrl.pathname.replace(config.srcDir.pathname, '/')
@@ -66,6 +69,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			}
 
 			return `export default ${JSON.stringify(output)}`;
-		}
+		},
 	};
 }

@@ -13,7 +13,7 @@ describe('Sharp service', () => {
 			['height', { src, height: 414 }],
 			['width & height', { src, height: 400, width: 200 }],
 			['aspect ratio string', { src, aspectRatio: '16:9' }],
-			['aspect ratio float', { src, aspectRatio: 1.7 }]
+			['aspect ratio float', { src, aspectRatio: 1.7 }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
 				const { searchParams } = await sharp.serializeTransform(props);
@@ -48,7 +48,7 @@ describe('Sharp service', () => {
 			['height', `h=414&href=${href}`, { src, height: 414 }],
 			['width & height', `w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
 			['aspect ratio string', `ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
-			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }]
+			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }],
 		].forEach(([description, params, expected]) => {
 			it(description, async () => {
 				const searchParams = new URLSearchParams(params);
