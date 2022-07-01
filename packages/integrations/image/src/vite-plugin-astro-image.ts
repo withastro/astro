@@ -31,8 +31,8 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 	return {
 		name: '@astrojs/image',
 		enforce: 'pre',
-		configResolved(config) {
-			resolvedConfig = config;
+		configResolved(viteConfig) {
+			resolvedConfig = viteConfig;
 		},
 		async resolveId(id) {
 			// The virtual model redirects imports to the ImageService being used

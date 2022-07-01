@@ -147,6 +147,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					}
 
 					if (!inputBuffer) {
+						// eslint-disable-next-line no-console
 						console.warn(`"${transform.src}" image could not be fetched`);
 						continue;
 					}

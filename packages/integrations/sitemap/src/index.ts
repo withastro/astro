@@ -71,6 +71,7 @@ const createPlugin = (options?: SitemapOptions): AstroIntegration => {
 					if (config.site) {
 						finalSiteUrl = new URL(config.base, config.site);
 					} else {
+						// eslint-disable-next-line no-console
 						console.warn(
 							'The Sitemap integration requires the `site` astro.config option. Skipping.'
 						);
