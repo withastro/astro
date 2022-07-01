@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-beta.63
+
+### Patch Changes
+
+- [#3799](https://github.com/withastro/astro/pull/3799) [`5fe52737`](https://github.com/withastro/astro/commit/5fe52737cbb3676af69bb446afa7f3b53b78dc34) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix internal error for MDX integration
+
 ## 1.0.0-beta.62
 
 ### Patch Changes

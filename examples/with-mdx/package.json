@@ -11,7 +11,7 @@
   "devDependencies": {
     "@astrojs/mdx": "^0.0.2",
     "@astrojs/preact": "^0.3.1",
-    "astro": "^1.0.0-beta.62",
+    "astro": "^1.0.0-beta.63",
     "preact": "^10.6.5"
   }
 }
