@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 0.1.8
+
+### Patch Changes
+
+- [#3677](https://github.com/withastro/astro/pull/3677) [`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378) Thanks [@Jutanium](https://github.com/Jutanium)! - Update READMEs
+
 ## 0.1.7
 
 ### Patch Changes
