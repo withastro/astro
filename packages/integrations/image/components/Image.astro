@@ -1,8 +1,8 @@
 ---
 // @ts-ignore
 import loader from 'virtual:image-loader';
-import { getImage } from '../src';
-import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types';
+import { getImage } from '../src/index.js';
+import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types.js';
 
 export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
