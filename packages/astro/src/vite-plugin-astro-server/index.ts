@@ -198,8 +198,8 @@ async function handleRequest(
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 
-	const isEndpoint = matchRoute(rootRelativeUrl, manifest)?.type === 'endpoint';
-	if (!buildingToSSR && !isEndpoint) {
+	// HACK! @astrojs/image uses query params for the injected route in `dev`
+	if (!buildingToSSR && rootRelativeUrl !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.
