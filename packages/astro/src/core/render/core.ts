@@ -80,6 +80,7 @@ export interface RenderOptions {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	streaming: boolean;
 	request: Request;
 }
 
@@ -100,6 +101,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		routeCache,
 		site,
 		ssr,
+		streaming,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -138,6 +140,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		scripts,
 		ssr,
+		streaming,
 	});
 
 	// Support `export const components` for `MDX` pages
@@ -145,5 +148,5 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		Object.assign(pageProps, { components: (mod as any).components });
 	}
 
-	return await renderPage(result, Component, pageProps, null);
+	return await renderPage(result, Component, pageProps, null, streaming);
 }

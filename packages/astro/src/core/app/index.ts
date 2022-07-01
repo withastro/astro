@@ -34,14 +34,16 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
+	#streaming: boolean;
 
-	constructor(manifest: Manifest) {
+	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(this.#logging);
+		this.#streaming = streaming;
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -117,6 +119,7 @@ export class App {
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			streaming: this.#streaming,
 		});
 
 		return response;

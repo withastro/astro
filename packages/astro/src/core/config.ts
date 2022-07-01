@@ -34,6 +34,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	server: {
 		host: false,
 		port: 3000,
+		streaming: true,
 	},
 	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
@@ -315,6 +316,7 @@ export async function validateConfig(
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					streaming: z.boolean().optional().default(true),
 				})
 				.optional()
 				.default({})

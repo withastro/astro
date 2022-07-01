@@ -51,6 +51,9 @@ type CreateResponseFn = (body?: BodyInit | null, init?: ResponseInit) => Respons
 
 export const createResponse: CreateResponseFn = isNodeJS
 	? (body, init) => {
+			if (typeof body === 'string') {
+				return new Response(body, init);
+			}
 			if (typeof StreamingCompatibleResponse === 'undefined') {
 				return new (createResponseClass())(body, init);
 			}

@@ -704,7 +704,8 @@ export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
 	props: any,
-	children: any
+	children: any,
+	streaming: boolean,
 ): Promise<Response> {
 	let iterable: AsyncIterable<any>;
 	if (!componentFactory.isAstroComponentFactory) {
@@ -730,28 +731,48 @@ export async function renderPage(
 	const factoryReturnValue = await componentFactory(result, props, children);
 
 	if (isAstroComponent(factoryReturnValue)) {
-		iterable = renderAstroComponent(factoryReturnValue);
-		let stream = new ReadableStream({
-			start(controller) {
-				async function read() {
-					let i = 0;
-					for await (const chunk of iterable) {
-						let html = chunk.toString();
-						if (i === 0) {
-							if (!/<!doctype html/i.test(html)) {
-								controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
-							}
-						}
-						controller.enqueue(encoder.encode(html));
-						i++;
-					}
-					controller.close();
-				}
-				read();
-			},
-		});
+		let iterable = renderAstroComponent(factoryReturnValue);
 		let init = result.response;
-		let response = createResponse(stream, init);
+		let headers = new Headers(init.headers);
+		let body: BodyInit;
+		if (streaming) {
+			body = new ReadableStream({
+				start(controller) {
+					async function read() {
+						let i = 0;
+						for await (const chunk of iterable) {
+							let html = chunk.toString();
+							if (i === 0) {
+								if (!/<!doctype html/i.test(html)) {
+									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+								}
+							}
+							controller.enqueue(encoder.encode(html));
+							i++;
+						}
+						controller.close();
+					}
+					read();
+				},
+			});
+		} else {
+		  body = '';
+			let i = 0;
+			for await (const chunk of iterable) {
+				let html = chunk.toString();
+				if (i === 0) {
+					if (!/<!doctype html/i.test(html)) {
+						body += '<!DOCTYPE html>\n';
+					}
+				}
+				body += chunk;
+				i++;
+			}
+			const bytes = encoder.encode(body);
+			headers.set('Content-Length', `${bytes.byteLength}`);
+		}
+
+		let response = createResponse(body, { ...init, headers });
 		return response;
 	} else {
 		return factoryReturnValue;

@@ -184,6 +184,7 @@ export async function render(
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
+		streaming: true,
 	});
 
 	return response;
