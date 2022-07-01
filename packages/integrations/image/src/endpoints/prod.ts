@@ -1,7 +1,7 @@
-// @ts-ignore
 import type { APIRoute } from 'astro';
 import etag from 'etag';
 import { lookup } from 'mrmime';
+// @ts-ignore
 import loader from 'virtual:image-loader';
 import { isRemoteImage, loadRemoteImage } from '../utils.js';
 
