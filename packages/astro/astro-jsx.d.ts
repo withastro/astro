@@ -469,12 +469,14 @@ declare namespace astroHTML.JSX {
 		// Standard HTML Attributes
 		autocapitalize?: string | undefined | null;
 		accesskey?: string | undefined | null;
+		autofocus?: boolean | string | undefined | null;
 		class?: string | undefined | null;
 		contenteditable?: 'true' | 'false' | boolean | 'inherit' | undefined | null;
 		contextmenu?: string | undefined | null;
 		dir?: string | undefined | null;
 		draggable?: 'true' | 'false' | boolean | undefined | null;
 		hidden?: boolean | string | undefined | null;
+		inert?: boolean | string | undefined | null;
 		id?: string | undefined | null;
 		lang?: string | undefined | null;
 		placeholder?: string | undefined | null;
@@ -910,7 +912,6 @@ declare namespace astroHTML.JSX {
 
 	interface SelectHTMLAttributes extends HTMLAttributes {
 		autocomplete?: string | undefined | null;
-		autofocus?: boolean | string | undefined | null;
 		disabled?: boolean | string | undefined | null;
 		form?: string | undefined | null;
 		multiple?: boolean | string | undefined | null;
