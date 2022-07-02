@@ -1383,7 +1383,7 @@ declare namespace astroHTML.JSX {
 		source: SourceHTMLAttributes;
 		span: HTMLAttributes;
 		strong: HTMLAttributes;
-		style: StyleHTMLAttributes;
+		style: StyleHTMLAttributes & AstroStyleAttributes;
 		sub: HTMLAttributes;
 		summary: HTMLAttributes;
 		sup: HTMLAttributes;
