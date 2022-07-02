@@ -528,7 +528,8 @@ declare namespace astroHTML.JSX {
 			| 'numeric'
 			| 'decimal'
 			| 'search'
-			| undefined;
+			| undefined
+			| null;
 		/**
 		 * Specify that a standard HTML element should behave like a defined custom built-in element
 		 * @see https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is
@@ -564,139 +565,139 @@ declare namespace astroHTML.JSX {
 	interface AudioHTMLAttributes extends MediaHTMLAttributes {}
 
 	interface AreaHTMLAttributes extends HTMLAttributes {
-		alt?: string | undefined;
-		coords?: string | undefined;
+		alt?: string | undefined | null;
+		coords?: string | undefined | null;
 		download?: any;
-		href?: string | undefined;
-		hreflang?: string | undefined;
-		media?: string | undefined;
-		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined;
-		rel?: string | undefined;
-		shape?: string | undefined;
-		target?: string | undefined;
+		href?: string | undefined | null;
+		hreflang?: string | undefined | null;
+		media?: string | undefined | null;
+		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
+		rel?: string | undefined | null;
+		shape?: string | undefined | null;
+		target?: string | undefined | null;
 	}
 
 	interface BaseHTMLAttributes extends HTMLAttributes {
-		href?: string | undefined;
-		target?: string | undefined;
+		href?: string | undefined | null;
+		target?: string | undefined | null;
 	}
 
 	interface BlockquoteHTMLAttributes extends HTMLAttributes {
-		cite?: string | undefined;
+		cite?: string | undefined | null;
 	}
 
 	interface ButtonHTMLAttributes extends HTMLAttributes {
-		autofocus?: boolean | string | undefined;
-		disabled?: boolean | string | undefined;
-		form?: string | undefined;
-		formaction?: string | undefined;
-		formenctype?: string | undefined;
-		formmethod?: string | undefined;
-		formnovalidate?: boolean | string | undefined;
-		formtarget?: string | undefined;
-		name?: string | undefined;
-		type?: 'submit' | 'reset' | 'button' | undefined;
-		value?: string | string[] | number | undefined;
+		autofocus?: boolean | string | undefined | null;
+		disabled?: boolean | string | undefined | null;
+		form?: string | undefined | null;
+		formaction?: string | undefined | null;
+		formenctype?: string | undefined | null;
+		formmethod?: string | undefined | null;
+		formnovalidate?: boolean | string | undefined | null;
+		formtarget?: string | undefined | null;
+		name?: string | undefined | null;
+		type?: 'submit' | 'reset' | 'button' | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface CanvasHTMLAttributes extends HTMLAttributes {
-		height?: number | string | undefined;
-		width?: number | string | undefined;
+		height?: number | string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface ColHTMLAttributes extends HTMLAttributes {
-		span?: number | string | undefined;
-		width?: number | string | undefined;
+		span?: number | string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface ColgroupHTMLAttributes extends HTMLAttributes {
-		span?: number | string | undefined;
+		span?: number | string | undefined | null;
 	}
 
 	interface DataHTMLAttributes extends HTMLAttributes {
-		value?: string | string[] | number | undefined;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface DetailsHTMLAttributes extends HTMLAttributes {
-		open?: boolean | string | undefined;
+		open?: boolean | string | undefined | null;
 	}
 
 	interface DelHTMLAttributes extends HTMLAttributes {
-		cite?: string | undefined;
-		datetime?: string | undefined;
+		cite?: string | undefined | null;
+		datetime?: string | undefined | null;
 	}
 
 	interface DialogHTMLAttributes extends HTMLAttributes {
-		open?: boolean | string | undefined;
+		open?: boolean | string | undefined | null;
 	}
 
 	interface EmbedHTMLAttributes extends HTMLAttributes {
-		height?: number | string | undefined;
-		src?: string | undefined;
-		type?: string | undefined;
-		width?: number | string | undefined;
+		height?: number | string | undefined | null;
+		src?: string | undefined | null;
+		type?: string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface FieldsetHTMLAttributes extends HTMLAttributes {
-		disabled?: boolean | string | undefined;
-		form?: string | undefined;
-		name?: string | undefined;
+		disabled?: boolean | string | undefined | null;
+		form?: string | undefined | null;
+		name?: string | undefined | null;
 	}
 
 	interface FormHTMLAttributes extends HTMLAttributes {
-		'accept-charset'?: string | undefined;
-		action?: string | undefined;
-		autocomplete?: string | undefined;
-		enctype?: string | undefined;
-		method?: string | undefined;
-		name?: string | undefined;
-		novalidate?: boolean | string | undefined;
-		target?: string | undefined;
+		'accept-charset'?: string | undefined | null;
+		action?: string | undefined | null;
+		autocomplete?: string | undefined | null;
+		enctype?: string | undefined | null;
+		method?: string | undefined | null;
+		name?: string | undefined | null;
+		novalidate?: boolean | string | undefined | null;
+		target?: string | undefined | null;
 	}
 
 	interface HtmlHTMLAttributes extends HTMLAttributes {
-		manifest?: string | undefined;
+		manifest?: string | undefined | null;
 	}
 
 	interface IframeHTMLAttributes extends HTMLAttributes {
-		allow?: string | undefined;
-		allowfullscreen?: boolean | string | undefined;
-		allowtransparency?: boolean | string | undefined;
+		allow?: string | undefined | null;
+		allowfullscreen?: boolean | string | undefined | null;
+		allowtransparency?: boolean | string | undefined | null;
 		/** @deprecated */
-		frameborder?: number | string | undefined;
-		height?: number | string | undefined;
+		frameborder?: number | string | undefined | null;
+		height?: number | string | undefined | null;
 		/** @deprecated */
-		marginheight?: number | string | undefined;
+		marginheight?: number | string | undefined | null;
 		/** @deprecated */
-		marginwidth?: number | string | undefined;
-		name?: string | undefined;
-		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined;
-		sandbox?: string | undefined;
+		marginwidth?: number | string | undefined | null;
+		name?: string | undefined | null;
+		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
+		sandbox?: string | undefined | null;
 		/** @deprecated */
-		scrolling?: string | undefined;
-		seamless?: boolean | string | undefined;
-		src?: string | undefined;
-		srcdoc?: string | undefined;
-		width?: number | string | undefined;
+		scrolling?: string | undefined | null;
+		seamless?: boolean | string | undefined | null;
+		src?: string | undefined | null;
+		srcdoc?: string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface ImgHTMLAttributes extends HTMLAttributes {
-		alt?: string | undefined;
-		crossorigin?: 'anonymous' | 'use-credentials' | '' | undefined;
-		decoding?: 'async' | 'auto' | 'sync' | undefined;
-		height?: number | string | undefined;
-		loading?: 'eager' | 'lazy' | undefined;
-		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined;
-		sizes?: string | undefined;
-		src?: string | undefined;
-		srcset?: string | undefined;
-		usemap?: string | undefined;
-		width?: number | string | undefined;
+		alt?: string | undefined | null;
+		crossorigin?: 'anonymous' | 'use-credentials' | '' | undefined | null;
+		decoding?: 'async' | 'auto' | 'sync' | undefined | null;
+		height?: number | string | undefined | null;
+		loading?: 'eager' | 'lazy' | undefined | null;
+		referrerpolicy?: HTMLAttributeReferrerPolicy | undefined | null;
+		sizes?: string | undefined | null;
+		src?: string | undefined | null;
+		srcset?: string | undefined | null;
+		usemap?: string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface InsHTMLAttributes extends HTMLAttributes {
-		cite?: string | undefined;
-		datetime?: string | undefined;
+		cite?: string | undefined | null;
+		datetime?: string | undefined | null;
 	}
 
 	type HTMLInputTypeAttribute =
@@ -724,276 +725,285 @@ declare namespace astroHTML.JSX {
 		| 'week';
 
 	interface InputHTMLAttributes extends HTMLAttributes {
-		accept?: string | undefined;
-		alt?: string | undefined;
-		autocomplete?: string | undefined;
-		autofocus?: boolean | string | undefined;
-		capture?: boolean | string | undefined; // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-		checked?: boolean | string | undefined;
-		crossorigin?: string | undefined;
-		disabled?: boolean | string | undefined;
-		enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | undefined;
-		form?: string | undefined;
-		formaction?: string | undefined;
-		formenctype?: string | undefined;
-		formmethod?: string | undefined;
-		formnovalidate?: boolean | string | undefined;
-		formtarget?: string | undefined;
-		height?: number | string | undefined;
-		list?: string | undefined;
-		max?: number | string | undefined;
-		maxlength?: number | string | undefined;
-		min?: number | string | undefined;
-		minlength?: number | string | undefined;
-		multiple?: boolean | string | undefined;
-		name?: string | undefined;
-		pattern?: string | undefined;
-		placeholder?: string | undefined;
-		readonly?: boolean | string | undefined;
-		required?: boolean | string | undefined;
-		size?: number | string | undefined;
-		src?: string | undefined;
-		step?: number | string | undefined;
-		type?: HTMLInputTypeAttribute | string | undefined;
-		value?: string | string[] | number | undefined;
-		width?: number | string | undefined;
+		accept?: string | undefined | null;
+		alt?: string | undefined | null;
+		autocomplete?: string | undefined | null;
+		autofocus?: boolean | string | undefined | null;
+		capture?: boolean | string | undefined | null; // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+		checked?: boolean | string | undefined | null;
+		crossorigin?: string | undefined | null;
+		disabled?: boolean | string | undefined | null;
+		enterKeyHint?:
+			| 'enter'
+			| 'done'
+			| 'go'
+			| 'next'
+			| 'previous'
+			| 'search'
+			| 'send'
+			| undefined
+			| null;
+		form?: string | undefined | null;
+		formaction?: string | undefined | null;
+		formenctype?: string | undefined | null;
+		formmethod?: string | undefined | null;
+		formnovalidate?: boolean | string | undefined | null;
+		formtarget?: string | undefined | null;
+		height?: number | string | undefined | null;
+		list?: string | undefined | null;
+		max?: number | string | undefined | null;
+		maxlength?: number | string | undefined | null;
+		min?: number | string | undefined | null;
+		minlength?: number | string | undefined | null;
+		multiple?: boolean | string | undefined | null;
+		name?: string | undefined | null;
+		pattern?: string | undefined | null;
+		placeholder?: string | undefined | null;
+		readonly?: boolean | string | undefined | null;
+		required?: boolean | string | undefined | null;
+		size?: number | string | undefined | null;
+		src?: string | undefined | null;
+		step?: number | string | undefined | null;
+		type?: HTMLInputTypeAttribute | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface KeygenHTMLAttributes extends HTMLAttributes {
-		autofocus?: boolean | string | undefined;
-		challenge?: string | undefined;
-		disabled?: boolean | string | undefined;
-		form?: string | undefined;
-		keytype?: string | undefined;
-		keyparams?: string | undefined;
-		name?: string | undefined;
+		autofocus?: boolean | string | undefined | null;
+		challenge?: string | undefined | null;
+		disabled?: boolean | string | undefined | null;
+		form?: string | undefined | null;
+		keytype?: string | undefined | null;
+		keyparams?: string | undefined | null;
+		name?: string | undefined | null;
 	}
 
 	interface LabelHTMLAttributes extends HTMLAttributes {
-		form?: string | undefined;
-		for?: string | undefined;
+		form?: string | undefined | null;
+		for?: string | undefined | null;
 	}
 
 	interface LiHTMLAttributes extends HTMLAttributes {
-		value?: string | string[] | number | undefined;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
-		as?: string | undefined;
-		crossorigin?: boolean | string | undefined;
-		href?: string | URL | undefined;
-		hreflang?: string | undefined;
-		integrity?: string | undefined;
-		media?: string | undefined;
-		imageSrcSet?: string | undefined;
-		imageSizes?: string | undefined;
-		referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
-		rel?: string | undefined;
-		sizes?: string | undefined;
-		type?: string | undefined;
-		charset?: string | undefined;
+		as?: string | undefined | null;
+		crossorigin?: boolean | string | undefined | null;
+		href?: string | URL | undefined | null;
+		hreflang?: string | undefined | null;
+		integrity?: string | undefined | null;
+		media?: string | undefined | null;
+		imageSrcSet?: string | undefined | null;
+		imageSizes?: string | undefined | null;
+		referrerPolicy?: HTMLAttributeReferrerPolicy | undefined | null;
+		rel?: string | undefined | null;
+		sizes?: string | undefined | null;
+		type?: string | undefined | null;
+		charset?: string | undefined | null;
 	}
 
 	interface MapHTMLAttributes extends HTMLAttributes {
-		name?: string | undefined;
+		name?: string | undefined | null;
 	}
 
 	interface MenuHTMLAttributes extends HTMLAttributes {
-		type?: string | undefined;
+		type?: string | undefined | null;
 	}
 
 	interface MediaHTMLAttributes extends HTMLAttributes {
-		autoplay?: boolean | string | undefined;
-		controls?: boolean | string | undefined;
-		controlslist?: string | undefined;
-		crossorigin?: string | undefined;
-		loop?: boolean | string | undefined;
-		mediagroup?: string | undefined;
-		muted?: boolean | string | undefined;
-		playsinline?: boolean | string | undefined;
-		preload?: string | undefined;
-		src?: string | undefined;
+		autoplay?: boolean | string | undefined | null;
+		controls?: boolean | string | undefined | null;
+		controlslist?: string | undefined | null;
+		crossorigin?: string | undefined | null;
+		loop?: boolean | string | undefined | null;
+		mediagroup?: string | undefined | null;
+		muted?: boolean | string | undefined | null;
+		playsinline?: boolean | string | undefined | null;
+		preload?: string | undefined | null;
+		src?: string | undefined | null;
 	}
 
 	interface MetaHTMLAttributes extends HTMLAttributes {
-		charset?: string | undefined;
-		content?: string | URL | undefined;
-		'http-equiv'?: string | undefined;
-		name?: string | undefined;
+		charset?: string | undefined | null;
+		content?: string | URL | undefined | null;
+		'http-equiv'?: string | undefined | null;
+		name?: string | undefined | null;
 	}
 
 	interface MeterHTMLAttributes extends HTMLAttributes {
-		form?: string | undefined;
-		high?: number | string | undefined;
-		low?: number | string | undefined;
-		max?: number | string | undefined;
-		min?: number | string | undefined;
-		optimum?: number | string | undefined;
-		value?: string | string[] | number | undefined;
+		form?: string | undefined | null;
+		high?: number | string | undefined | null;
+		low?: number | string | undefined | null;
+		max?: number | string | undefined | null;
+		min?: number | string | undefined | null;
+		optimum?: number | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface QuoteHTMLAttributes extends HTMLAttributes {
-		cite?: string | undefined;
+		cite?: string | undefined | null;
 	}
 
 	interface ObjectHTMLAttributes extends HTMLAttributes {
-		classid?: string | undefined;
-		data?: string | undefined;
-		form?: string | undefined;
-		height?: number | string | undefined;
-		name?: string | undefined;
-		type?: string | undefined;
-		usemap?: string | undefined;
-		width?: number | string | undefined;
-		wmode?: string | undefined;
+		classid?: string | undefined | null;
+		data?: string | undefined | null;
+		form?: string | undefined | null;
+		height?: number | string | undefined | null;
+		name?: string | undefined | null;
+		type?: string | undefined | null;
+		usemap?: string | undefined | null;
+		width?: number | string | undefined | null;
+		wmode?: string | undefined | null;
 	}
 
 	interface OlHTMLAttributes extends HTMLAttributes {
-		reversed?: boolean | string | undefined;
-		start?: number | string | undefined;
-		type?: '1' | 'a' | 'A' | 'i' | 'I' | undefined;
+		reversed?: boolean | string | undefined | null;
+		start?: number | string | undefined | null;
+		type?: '1' | 'a' | 'A' | 'i' | 'I' | undefined | null;
 	}
 
 	interface OptgroupHTMLAttributes extends HTMLAttributes {
-		disabled?: boolean | string | undefined;
-		label?: string | undefined;
+		disabled?: boolean | string | undefined | null;
+		label?: string | undefined | null;
 	}
 
 	interface OptionHTMLAttributes extends HTMLAttributes {
-		disabled?: boolean | string | undefined;
-		label?: string | undefined;
-		selected?: boolean | string | undefined;
-		value?: string | string[] | number | undefined;
+		disabled?: boolean | string | undefined | null;
+		label?: string | undefined | null;
+		selected?: boolean | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface OutputHTMLAttributes extends HTMLAttributes {
-		form?: string | undefined;
-		for?: string | undefined;
-		name?: string | undefined;
+		form?: string | undefined | null;
+		for?: string | undefined | null;
+		name?: string | undefined | null;
 	}
 
 	interface ParamHTMLAttributes extends HTMLAttributes {
-		name?: string | undefined;
-		value?: string | string[] | number | undefined;
+		name?: string | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface ProgressHTMLAttributes extends HTMLAttributes {
-		max?: number | string | undefined;
-		value?: string | string[] | number | undefined;
+		max?: number | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface SlotHTMLAttributes extends HTMLAttributes {
-		name?: string | undefined;
+		name?: string | undefined | null;
 	}
 
 	interface ScriptHTMLAttributes extends HTMLAttributes {
-		async?: boolean | string | undefined;
-		charset?: string | undefined;
-		crossorigin?: string | undefined;
-		defer?: boolean | string | undefined;
-		integrity?: string | undefined;
-		nomodule?: boolean | string | undefined;
-		nonce?: string | undefined;
-		src?: string | undefined;
-		type?: string | undefined;
+		async?: boolean | string | undefined | null;
+		charset?: string | undefined | null;
+		crossorigin?: string | undefined | null;
+		defer?: boolean | string | undefined | null;
+		integrity?: string | undefined | null;
+		nomodule?: boolean | string | undefined | null;
+		nonce?: string | undefined | null;
+		src?: string | undefined | null;
+		type?: string | undefined | null;
 	}
 
 	interface SelectHTMLAttributes extends HTMLAttributes {
-		autocomplete?: string | undefined;
-		autofocus?: boolean | string | undefined;
-		disabled?: boolean | string | undefined;
-		form?: string | undefined;
-		multiple?: boolean | string | undefined;
-		name?: string | undefined;
-		required?: boolean | string | undefined;
-		size?: number | string | undefined;
-		value?: string | string[] | number | undefined;
+		autocomplete?: string | undefined | null;
+		autofocus?: boolean | string | undefined | null;
+		disabled?: boolean | string | undefined | null;
+		form?: string | undefined | null;
+		multiple?: boolean | string | undefined | null;
+		name?: string | undefined | null;
+		required?: boolean | string | undefined | null;
+		size?: number | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
 	}
 
 	interface SourceHTMLAttributes extends HTMLAttributes {
-		height?: number | string | undefined;
-		media?: string | undefined;
-		sizes?: string | undefined;
-		src?: string | undefined;
-		srcset?: string | undefined;
-		type?: string | undefined;
-		width?: number | string | undefined;
+		height?: number | string | undefined | null;
+		media?: string | undefined | null;
+		sizes?: string | undefined | null;
+		src?: string | undefined | null;
+		srcset?: string | undefined | null;
+		type?: string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface StyleHTMLAttributes extends HTMLAttributes {
-		media?: string | undefined;
-		nonce?: string | undefined;
-		scoped?: boolean | string | undefined;
-		type?: string | undefined;
+		media?: string | undefined | null;
+		nonce?: string | undefined | null;
+		scoped?: boolean | string | undefined | null;
+		type?: string | undefined | null;
 	}
 
 	interface TableHTMLAttributes extends HTMLAttributes {
-		align?: 'left' | 'center' | 'right' | undefined;
-		bgcolor?: string | undefined;
-		border?: number | undefined;
-		cellpadding?: number | string | undefined;
-		cellspacing?: number | string | undefined;
-		frame?: boolean | undefined;
-		rules?: 'none' | 'groups' | 'rows' | 'columns' | 'all' | undefined;
-		summary?: string | undefined;
-		width?: number | string | undefined;
+		align?: 'left' | 'center' | 'right' | undefined | null;
+		bgcolor?: string | undefined | null;
+		border?: number | undefined | null;
+		cellpadding?: number | string | undefined | null;
+		cellspacing?: number | string | undefined | null;
+		frame?: boolean | undefined | null;
+		rules?: 'none' | 'groups' | 'rows' | 'columns' | 'all' | undefined | null;
+		summary?: string | undefined | null;
+		width?: number | string | undefined | null;
 	}
 
 	interface TextareaHTMLAttributes extends HTMLAttributes {
-		autocomplete?: string | undefined;
-		autofocus?: boolean | string | undefined;
-		cols?: number | string | undefined;
-		dirname?: string | undefined;
-		disabled?: boolean | string | undefined;
-		form?: string | undefined;
-		maxlength?: number | string | undefined;
-		minlength?: number | string | undefined;
-		name?: string | undefined;
-		placeholder?: string | undefined;
-		readonly?: boolean | string | undefined;
-		required?: boolean | string | undefined;
-		rows?: number | string | undefined;
-		value?: string | string[] | number | undefined;
-		wrap?: string | undefined;
+		autocomplete?: string | undefined | null;
+		autofocus?: boolean | string | undefined | null;
+		cols?: number | string | undefined | null;
+		dirname?: string | undefined | null;
+		disabled?: boolean | string | undefined | null;
+		form?: string | undefined | null;
+		maxlength?: number | string | undefined | null;
+		minlength?: number | string | undefined | null;
+		name?: string | undefined | null;
+		placeholder?: string | undefined | null;
+		readonly?: boolean | string | undefined | null;
+		required?: boolean | string | undefined | null;
+		rows?: number | string | undefined | null;
+		value?: string | string[] | number | undefined | null;
+		wrap?: string | undefined | null;
 	}
 
 	interface TdHTMLAttributes extends HTMLAttributes {
-		align?: 'left' | 'center' | 'right' | 'justify' | 'char' | undefined;
-		colspan?: number | string | undefined;
-		headers?: string | undefined;
-		rowspan?: number | string | undefined;
-		scope?: string | undefined;
-		abbr?: string | undefined;
-		valign?: 'top' | 'middle' | 'bottom' | 'baseline' | undefined;
+		align?: 'left' | 'center' | 'right' | 'justify' | 'char' | undefined | null;
+		colspan?: number | string | undefined | null;
+		headers?: string | undefined | null;
+		rowspan?: number | string | undefined | null;
+		scope?: string | undefined | null;
+		abbr?: string | undefined | null;
+		valign?: 'top' | 'middle' | 'bottom' | 'baseline' | undefined | null;
 	}
 
 	interface ThHTMLAttributes extends HTMLAttributes {
-		align?: 'left' | 'center' | 'right' | 'justify' | 'char' | undefined;
-		colspan?: number | string | undefined;
-		headers?: string | undefined;
-		rowspan?: number | string | undefined;
-		scope?: string | undefined;
-		abbr?: string | undefined;
+		align?: 'left' | 'center' | 'right' | 'justify' | 'char' | undefined | null;
+		colspan?: number | string | undefined | null;
+		headers?: string | undefined | null;
+		rowspan?: number | string | undefined | null;
+		scope?: string | undefined | null;
+		abbr?: string | undefined | null;
 	}
 
 	interface TimeHTMLAttributes extends HTMLAttributes {
-		datetime?: string | undefined;
+		datetime?: string | undefined | null;
 	}
 
 	interface TrackHTMLAttributes extends HTMLAttributes {
-		default?: boolean | string | undefined;
-		kind?: string | undefined;
-		label?: string | undefined;
-		src?: string | undefined;
-		srclang?: string | undefined;
+		default?: boolean | string | undefined | null;
+		kind?: string | undefined | null;
+		label?: string | undefined | null;
+		src?: string | undefined | null;
+		srclang?: string | undefined | null;
 	}
 
 	interface VideoHTMLAttributes extends MediaHTMLAttributes {
-		height?: number | string | undefined;
-		playsinline?: boolean | string | undefined;
-		poster?: string | undefined;
-		width?: number | string | undefined;
-		disablepictureinpicture?: boolean | string | undefined;
+		height?: number | string | undefined | null;
+		playsinline?: boolean | string | undefined | null;
+		poster?: string | undefined | null;
+		width?: number | string | undefined | null;
+		disablepictureinpicture?: boolean | string | undefined | null;
 	}
 
 	// this list is "complete" in that it contains every SVG attribute
@@ -1006,7 +1016,6 @@ declare namespace astroHTML.JSX {
 	//   - union of string literals
 	interface SVGAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
 		// Attributes which also defined in HTMLAttributes
-		className?: string | undefined | null;
 		class?: string | undefined | null;
 		color?: string | undefined | null;
 		height?: number | string | undefined | null;
@@ -1023,8 +1032,8 @@ declare namespace astroHTML.JSX {
 		width?: number | string | undefined | null;
 
 		// Other HTML properties supported by SVG elements in browsers
-		role?: string | undefined | null;
-		tabindex?: number | undefined | null;
+		role?: AriaRole | undefined | null;
+		tabindex?: number | string | undefined | null;
 		crossorigin?: 'anonymous' | 'use-credentials' | '' | undefined | null;
 
 		// SVG Specific attributes
