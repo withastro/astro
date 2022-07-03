@@ -1,0 +1,29 @@
+{
+  "name": "@example/with-zustand",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "@astrojs/preact": "^0.3.1",
+    "@astrojs/react": "^0.2.0",
+    "@astrojs/solid-js": "^0.2.0",
+    "@astrojs/svelte": "^0.2.0",
+    "@astrojs/vue": "^0.2.0",
+    "astro": "1.0.0-beta.63"
+  },
+  "dependencies": {
+    "preact": "^10.8.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "solid-js": "^1.4.6",
+    "solid-zustand": "^1.4.0",
+    "vue": "^3.2.37",
+    "vue-zustand": "^0.2.1",
+    "zustand": "4.0.0-rc.1"
+  }
+}

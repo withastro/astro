@@ -473,6 +473,39 @@ importers:
       vite-plugin-pwa: 0.11.11
       workbox-window: 6.5.3
 
+  examples/with-zustand:
+    specifiers:
+      '@astrojs/preact': ^0.3.1
+      '@astrojs/react': ^0.2.0
+      '@astrojs/solid-js': ^0.2.0
+      '@astrojs/svelte': ^0.2.0
+      '@astrojs/vue': ^0.2.0
+      astro: 1.0.0-beta.63
+      preact: ^10.8.2
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      solid-js: ^1.4.6
+      solid-zustand: ^1.4.0
+      vue: ^3.2.37
+      vue-zustand: ^0.2.1
+      zustand: 4.0.0-rc.1
+    dependencies:
+      preact: 10.8.2
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      solid-js: 1.4.6
+      solid-zustand: 1.4.0_gvaeaonxyw4lqr6nk7rpio5s3m
+      vue: 3.2.37
+      vue-zustand: 0.2.1_react@18.2.0
+      zustand: 4.0.0-rc.1_react@18.2.0
+    devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/react': link:../../packages/integrations/react
+      '@astrojs/solid-js': link:../../packages/integrations/solid
+      '@astrojs/svelte': link:../../packages/integrations/svelte
+      '@astrojs/vue': link:../../packages/integrations/vue
+      astro: link:../../packages/astro
+
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.17.1
@@ -2952,6 +2985,8 @@ packages:
     resolution: {integrity: sha512-uQVSa9jJUe/G/304lXspfWVpKpK4euFLgGiMQFOCpM/bgcAdeoHwi/OQz23O9GK2osz26ZiXRRV9aV+Yl1O8tw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+    dependencies:
+      '@babel/types': 7.18.7
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression/7.18.6_@babel+core@7.18.6:
     resolution: {integrity: sha512-Dgxsyg54Fx1d4Nge8UnvTrED63vrwOdPmyvPzlNN/boaliRP54pm3pGzZD1SJUwrBA+Cs/xdG8kXX6Mn/RfISQ==}
@@ -8960,6 +8995,11 @@ packages:
 
   /debug/3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
     dependencies:
       ms: 2.1.3
     dev: false
@@ -12028,6 +12068,8 @@ packages:
       debug: 3.2.7
       iconv-lite: 0.4.24
       sax: 1.2.4
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /netmask/2.0.2:
@@ -12109,6 +12151,8 @@ packages:
       rimraf: 2.7.1
       semver: 5.7.1
       tar: 4.4.19
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /node-releases/2.0.5:
@@ -13916,11 +13960,25 @@ packages:
   /solid-js/1.4.5:
     resolution: {integrity: sha512-32NGpuabEJDTeQ7fjaTR2TLC7R/X5hbqhYdEQ1e+GcIK8r8+/V0Nv17eZQii5Z/97/mtdt8yi63chzg73qnz/A==}
 
+  /solid-js/1.4.6:
+    resolution: {integrity: sha512-vF0x5qbVCDi8zlEyN92y/i+pS7QNYh3uNvbSyUYDhLifKuYqGcJwGxbH9zzDX5sR8o1ijgzI6BEAXlcR7Mkkjw==}
+    dev: false
+
   /solid-nanostores/0.0.6:
     resolution: {integrity: sha512-iwbgdBzQSxBKoxkzaZgC9MGGUsHWJ74at9i7FF0naoqtwGuKdLYOgOJ9QRlA353DHDS/ttH2e0SRS6s3gz8NLQ==}
     dependencies:
       nanostores: 0.5.12
       solid-js: 1.4.5
+    dev: false
+
+  /solid-zustand/1.4.0_gvaeaonxyw4lqr6nk7rpio5s3m:
+    resolution: {integrity: sha512-4rTDfluuRS1JeO0uqCK12Ad7cOThzWumIrJrpQy4obz72NiozqwQ9WpKZV4bTpcSkdX6oDeTozK2BotYWonG5g==}
+    peerDependencies:
+      solid-js: '>=1.4.0'
+      zustand: ^4.0.0-rc.0
+    dependencies:
+      solid-js: 1.4.6
+      zustand: 4.0.0-rc.1_react@18.2.0
     dev: false
 
   /sorcery/0.10.0:
@@ -14922,6 +14980,14 @@ packages:
     resolution: {integrity: sha512-OxVmQLKMQbDZX1m8Ljuf26rzMUJ7lm3cnBAicqrB0qmo1qb/koH7EXayeHiZdiyc6Z0OnaHETW2JCoVHgTnGGA==}
     dev: true
 
+  /use-sync-external-store/1.1.0_react@18.2.0:
+    resolution: {integrity: sha512-SEnieB2FPKEVne66NpXPd1Np4R1lTNKfjuy3XdIoPQKYBAFdzbzSZlSn1KJZUiihQLQC5Znot4SBz1EOTBwQAQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -15143,6 +15209,15 @@ packages:
 
   /vscode-uri/3.0.3:
     resolution: {integrity: sha512-EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==}
+    dev: false
+
+  /vue-zustand/0.2.1_react@18.2.0:
+    resolution: {integrity: sha512-f4i5PD24VapPiwsnBjB7tyoWGUNXCU67z9ieqCDpUiaHoXlUsF/hfQ53uYtJHLCAtsFt5h2NLgt18oikpix9CA==}
+    dependencies:
+      vue: 3.2.37
+      zustand: 3.7.2_react@18.2.0
+    transitivePeerDependencies:
+      - react
     dev: false
 
   /vue/3.2.37:
@@ -15539,6 +15614,34 @@ packages:
 
   /zod/3.17.3:
     resolution: {integrity: sha512-4oKP5zvG6GGbMlqBkI5FESOAweldEhSOZ6LI6cG+JzUT7ofj1ZOC0PJudpQOpT1iqOFpYYtX5Pw0+o403y4bcg==}
+    dev: false
+
+  /zustand/3.7.2_react@18.2.0:
+    resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      react: '>=16.8'
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /zustand/4.0.0-rc.1_react@18.2.0:
+    resolution: {integrity: sha512-qgcs7zLqBdHu0PuT3GW4WCIY5SgXdsv30GQMu9Qpp1BA2aS+sNS8l4x0hWuyEhjXkN+701aGWawhKDv6oWJAcw==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.1.0_react@18.2.0
     dev: false
 
   /zwitch/2.0.2:

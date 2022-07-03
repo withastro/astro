@@ -1,0 +1,84 @@
+---
+import { Markdown } from 'astro/components';
+---
+
+<article>
+	<div class="banner">
+		<p><strong>🧑‍🚀 Seasoned astronaut?</strong> Delete this file. Have fun!</p>
+	</div>
+
+	<section>
+		<Markdown>
+			## 🚀 Project Structure
+
+			Inside of your Astro project, you'll see the following folders and files:
+
+			```
+			/
+			├── public/
+			│   └── favicon.ico
+			├── src/
+			│   ├── components/
+			│   │   └── Tour.astro
+			│   └── pages/
+			│       └── index.astro
+			└── package.json
+			```
+
+			Astro looks for `.astro` or `.md` files in the `src/pages/` directory.
+			Each page is exposed as a route based on its file name.
+
+			There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+
+			Any static assets, like images, can be placed in the `public/` directory.
+		</Markdown>
+	</section>
+
+	<section>
+		<h2>👀 Want to learn more?</h2>
+		<p>Feel free to check <a href="https://github.com/withastro/astro">our documentation</a> or jump into our <a href="https://astro.build/chat">Discord server</a>.</p>
+	</section>
+</article>
+
+<style>
+	article {
+		padding-top: 2em;
+		line-height: 1.5;
+	}
+	section {
+		margin-top: 2em;
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
+		max-width: 70ch;
+	}
+
+	.banner {
+		text-align: center;
+		font-size: 1.2rem;
+		background: var(--color-light);
+		padding: 1em 1.5em;
+		padding-left: 0.75em;
+		border-radius: 4px;
+	}
+
+	pre,
+	code {
+		font-family: var(--font-mono);
+		background: var(--color-light);
+		border-radius: 4px;
+	}
+
+	pre {
+		padding: 1em 1.5em;
+	}
+
+	.tree {
+		line-height: 1.2;
+	}
+
+	code:not(.tree) {
+		padding: 0.125em;
+		margin: 0 -0.125em;
+	}
+</style>
