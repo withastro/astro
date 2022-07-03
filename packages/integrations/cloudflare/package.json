@@ -18,7 +18,8 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./dist/server.js",
+    "./server.advanced.js": "./dist/server.advanced.js",
+    "./server.directory.js": "./dist/server.directory.js",
     "./package.json": "./package.json"
   },
   "scripts": {
