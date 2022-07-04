@@ -1,5 +1,12 @@
 # @astrojs/image
 
+## 0.0.4
+
+### Patch Changes
+
+- [#3812](https://github.com/withastro/astro/pull/3812) [`5ccccace`](https://github.com/withastro/astro/commit/5ccccace0cc3055117f118a88231999fab585a3b) Thanks [@tony-sull](https://github.com/tony-sull)! - - Updates how the `<Image />` component is exported to support older versions of Astro
+  - Adds an example of using the `<Image />` component in markdown pages
+
 ## 0.0.3
 
 ### Patch Changes
