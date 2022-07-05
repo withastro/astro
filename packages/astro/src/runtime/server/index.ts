@@ -789,7 +789,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 };
 
 const alreadyHeadRenderedResults = new WeakSet<SSRResult>();
-export async function renderHead(result: SSRResult): Promise<string> {
+export function renderHead(result: SSRResult): Promise<string> {
 	alreadyHeadRenderedResults.add(result);
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
@@ -811,11 +811,11 @@ export async function renderHead(result: SSRResult): Promise<string> {
 // This accomodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export function maybeRenderHead(result: SSRResult): string | Promise<string> {
+export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string> {
 	if (alreadyHeadRenderedResults.has(result)) {
-		return '';
+		return;
 	}
-	return renderHead(result);
+	yield renderHead(result);
 }
 
 export async function* renderAstroComponent(
