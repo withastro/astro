@@ -152,6 +152,30 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 ```
 </details>
 
+<details>
+<summary><strong>Images in markdown</strong></summary>
+  
+  <br/>
+  
+  The `<Image />` component can also be used to optimize images in markdown pages. For local images imported from your project's `src` directory, use Astro's the `setup` frontmatter to import the image file.
+
+```html
+---
+setup: |
+  import { Image } from '@astrojs/image/components'
+  import hero from '../../assets/blog/introducing-astro.jpg'
+title: Hello world!
+publishDate: 12 Sep 2021
+name: Nate Moore
+value: 128
+description: Just a Hello World Post!
+---
+
+<Image src={hero} width={640} />
+<Image src="https://example.com/image.jpg" width={640} aspectRatio="16:9" />
+```
+</details>
+
 ## Troubleshooting
 - If your installation doesn't seem to be working, make sure to restart the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
