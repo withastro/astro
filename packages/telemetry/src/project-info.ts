@@ -67,7 +67,7 @@ function getProjectIdFromGit(): string | null {
 	try {
 		const originBuffer = execSync(`git rev-list --max-parents=0 HEAD`, {
 			timeout: 500,
-			stdio: [0, 'pipe', 0],
+			stdio: ['ignore', 'pipe', 'ignore'],
 		});
 		return String(originBuffer).trim();
 	} catch (_) {
