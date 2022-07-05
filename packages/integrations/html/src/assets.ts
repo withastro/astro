@@ -1,4 +1,81 @@
 import { pathToFileURL } from 'node:url'
+import type { Plugin } from 'unified';
+import type { Root, RootContent, Element } from 'hast';
+import { visit } from 'unist-util-visit';
+import MagicString from 'magic-string';
+
+import { replaceAttribute } from './utils.js';
+
+const rehypeAssets: Plugin<[{ s: MagicString, imports: Map<string, string> }], Root> = ({ s, imports }) => {
+  return (tree, file) => {
+		const fileURL = new URL(file.path, 'file://');
+		function addImport(el: Element, attr: string, value: string) {
+			let url = value.trim();
+
+			// Skip if url points to id, e.g. sprite sheets
+			if (url.startsWith('#')) return
+
+			if (/^https?:\/\//.test(url)) return
+
+			if (el.tagName === 'script') {
+				url = `${url}`;
+			}
+
+			if (url.startsWith('.')) {
+				url = '/@fs/' + new URL(url, fileURL).pathname.slice(1);
+			}
+			url += `?url`
+			let importName = ''
+
+			if (imports.has(url)) {
+				importName = imports.get(url)!
+			} else {
+				importName = `${ASSET_PREFIX}${imports.size}`;
+				imports.set(url, importName)
+			}
+
+			replaceAttribute(s, el, attr, `${attr}="\${${importName}}"`);
+	}
+
+
+    visit(tree, (node: Root | RootContent) => {
+      if (node.type !== 'element') return;
+			check(node);
+			function check(el: Element) {
+				const name = el.tagName;
+				for (const source of DEFAULT_SOURCES) {
+					if (source.tag !== name) continue;
+
+					const attributes = el.properties ?? {};
+
+					if (source.filter && !source.filter({ attributes })) {
+						continue;
+					}
+
+					// Check src
+					source.srcAttributes?.forEach((attr) => {
+						const value = attributes[attr];
+						if (!value) return;
+						addImport(el, attr, value.toString());
+					});
+
+					// Check srcset
+					source.srcsetAttributes?.forEach((attr) => {
+						const value = attributes[attr];
+						if (!value) return;
+						const srcsetRegex = /\s*([^,\s]+).*?(?:,|$)\s*/gm;
+						let match: RegExpExecArray | null;
+						while ((match = srcsetRegex.exec(value.toString()))) {
+							addImport(el, attr, match[1]);
+						}
+					});
+				}
+			}
+    });
+  }
+}
+
+export default rehypeAssets;
 
 export interface AssetSource {
 	tag: string;
@@ -8,98 +85,10 @@ export interface AssetSource {
 }
 
 export interface FilterMetadata {
-	attributes: Record<string, string>;
+	attributes: Record<string, any>;
 }
 
 export const ASSET_PREFIX = '___ASSET___';
-
-export function transformAssets(document: Document, id: string) {
-	// Import path to import name
-	// e.g. ./foo.png => ___ASSET___0
-	const imports = new Map<string, string>();
-
-	function addImport(el: Element, attr: string, value: string) {
-		let url = value.trim();
-
-		// Skip if url points to id, e.g. sprite sheets
-		if (url.startsWith('#')) return
-
-		if (/^https?:\/\//.test(url)) return
-
-		if (el.localName === 'script' || (el.localName === 'link' && el.getAttribute('rel') === 'stylesheet')) {
-			url = `${url}?url`;
-		}
-
-		url = '/@fs/' + new URL('../' + url, `file://${pathToFileURL(id).pathname}/`).toString().slice('file://'.length);
-		let importName = ''
-
-		if (imports.has(url)) {
-			importName = imports.get(url)!
-		} else {
-			importName = `${ASSET_PREFIX}${imports.size}`;
-			imports.set(url, importName)
-		}
-		
-		const newValue = el.getAttribute(attr)!.replace(value, `\${${importName}}`);
-		el.setAttribute(attr, newValue);
-	}
-
-	const walker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_ELEMENT, null);
-
-	function check(node: Node) {
-		const el = node as Element;
-		const name = node.nodeName.toLowerCase();
-		for (const source of DEFAULT_SOURCES) {
-			if (source.tag !== name) continue;
-
-			function getAttributes() {
-				const attributes: Record<string, string> = {}
-				for (const attr of el.attributes) {
-					attributes[attr.name] = attr.value;
-				}
-				return attributes;
-			}
-
-			if (source.filter && !source.filter({ attributes: getAttributes() })) {
-				continue;
-			}
-
-			// Check src
-			source.srcAttributes?.forEach((attr) => {
-				const value = el.getAttribute(attr);
-				if (!value) return;
-				addImport(el, attr, value);
-			});
-
-			// Check srcset
-			source.srcsetAttributes?.forEach((attr) => {
-				const value = el.getAttribute(attr);
-				if (!value) return;
-				const srcsetRegex = /\s*([^,\s]+).*?(?:,|$)\s*/gm;
-				let match: RegExpExecArray | null;
-				while ((match = srcsetRegex.exec(value))) {
-					addImport(el, attr, match[1]);
-				}
-			});
-		}
-	}
-
-	let currentNode: Node | null = walker.root;
-	while (currentNode) {
-		check(currentNode);
-		currentNode = walker.nextNode();
-	}
-
-	if (imports.size > 0) {
-		let importText = ''
-		for (const [path, importName] of imports.entries()) {
-			importText += `import ${importName} from "${path}";\n`
-		}
-		return importText;
-	}
-
-	return '';
-}
 
 const ALLOWED_REL = [
 	'stylesheet',

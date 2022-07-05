@@ -20,10 +20,9 @@ function getViteConfiguration() {
 				options(options: any) {
 					options.plugins = options.plugins?.filter((p: any) => p.name !== 'vite:build-html');
 				},
-				transform(source: string, id: string) {
+				async transform(source: string, id: string) {
 					if (!id.endsWith('.html')) return;
-					const code = transform(source, id);
-					return { code };
+					return await transform(source, id);
 				}
 			}
 		],
