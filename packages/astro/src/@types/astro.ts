@@ -585,11 +585,12 @@ export interface AstroUserConfig {
 	};
 
 	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
+	 * @docs
+	 * @kind heading
+	 * @name Adapter
 	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 * 
+	 * Deploy to your favorite server, serverless, or edge host with deployment adapters. Import a first-party adapter for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR. [See our Server-side Rendering docs](https://docs.astro.build/en/guides/server-side-rendering/) for full details.
 	 */
 	adapter?: AstroIntegration;
 
