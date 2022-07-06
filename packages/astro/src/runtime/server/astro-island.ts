@@ -41,7 +41,20 @@ declare const Astro: {
 				public Component: any;
 				public hydrator: any;
 				static observedAttributes = ['props'];
-				async connectedCallback() {
+				connectedCallback() {
+					if(this.getAttribute('client') === 'only' || this.firstChild) {
+						this.childrenConnectedCallback();
+					} else {
+						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
+						// If SSR children are expected, but not yet rendered,
+						// Wait with a mutation observer
+						new MutationObserver((_, mo) => {
+							mo.disconnect();
+							this.childrenConnectedCallback();
+						}).observe(this, { childList: true });
+					}
+				}
+				async childrenConnectedCallback() {
 					window.addEventListener('astro:hydrate', this.hydrate);
 					await import(this.getAttribute('before-hydration-url')!);
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
@@ -57,7 +70,7 @@ declare const Astro: {
 							return this.hydrate;
 						},
 						opts,
-						this
+						this,
 					);
 				}
 				hydrate = () => {
