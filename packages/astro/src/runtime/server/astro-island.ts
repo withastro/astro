@@ -42,14 +42,10 @@ declare const Astro: {
 				public hydrator: any;
 				static observedAttributes = ['props'];
 				async connectedCallback() {
-					// connectedCallback may run *before* children are rendered (ex. HTML streaming)
-					if (this.getAttribute('client') === 'only') {
-						// If no SSR children will be rendered,
-						// setTimeout to wait until children exist - needed for client:visible
-						setTimeout(() => this.childrenConnectedCallback(), 0);
-					} else if(this.firstChild) {
+					if(this.getAttribute('client') === 'only' || this.firstChild) {
 						await this.childrenConnectedCallback();
 					} else {
+						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
 						// If SSR children are expected, but not yet rendered,
 						// Wait with a mutation observer
 						new MutationObserver(async (_, mo) => {
