@@ -41,16 +41,16 @@ declare const Astro: {
 				public Component: any;
 				public hydrator: any;
 				static observedAttributes = ['props'];
-				async connectedCallback() {
+				connectedCallback() {
 					if(this.getAttribute('client') === 'only' || this.firstChild) {
-						await this.childrenConnectedCallback();
+						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
 						// If SSR children are expected, but not yet rendered,
 						// Wait with a mutation observer
-						new MutationObserver(async (_, mo) => {
+						new MutationObserver((_, mo) => {
 							mo.disconnect();
-							await this.childrenConnectedCallback();
+							this.childrenConnectedCallback();
 						}).observe(this, { childList: true });
 					}
 				}
