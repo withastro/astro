@@ -707,7 +707,6 @@ export async function renderPage(
 	children: any,
 	streaming: boolean
 ): Promise<Response> {
-	let iterable: AsyncIterable<any>;
 	if (!componentFactory.isAstroComponentFactory) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 		const output = await renderComponent(
@@ -719,12 +718,17 @@ export async function renderPage(
 		);
 		let html = output.toString();
 		if (!/<!doctype html/i.test(html)) {
-			html = `<!DOCTYPE html>\n${await maybeRenderHead(result)}${html}`;
+			let rest = html;
+			html = `<!DOCTYPE html>`;
+			for await(let chunk of maybeRenderHead(result)) {
+				html += chunk;
+			}
+			html += rest;
 		}
 		return new Response(html, {
 			headers: new Headers([
 				['Content-Type', 'text/html; charset=utf-8'],
-				['Content-Length', `${Buffer.byteLength(html, 'utf-8')}`],
+				['Content-Length', Buffer.byteLength(html, 'utf-8').toString()],
 			]),
 		});
 	}
@@ -769,7 +773,7 @@ export async function renderPage(
 				i++;
 			}
 			const bytes = encoder.encode(body);
-			headers.set('Content-Length', `${bytes.byteLength}`);
+			headers.set('Content-Length', bytes.byteLength.toString());
 		}
 
 		let response = createResponse(body, { ...init, headers });
@@ -789,7 +793,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 };
 
 const alreadyHeadRenderedResults = new WeakSet<SSRResult>();
-export async function renderHead(result: SSRResult): Promise<string> {
+export function renderHead(result: SSRResult): Promise<string> {
 	alreadyHeadRenderedResults.add(result);
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
@@ -811,11 +815,11 @@ export async function renderHead(result: SSRResult): Promise<string> {
 // This accomodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
-export function maybeRenderHead(result: SSRResult): string | Promise<string> {
+export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string> {
 	if (alreadyHeadRenderedResults.has(result)) {
-		return '';
+		return;
 	}
-	return renderHead(result);
+	yield renderHead(result);
 }
 
 export async function* renderAstroComponent(
