@@ -56,6 +56,13 @@ describe('API routes in SSR', () => {
 			expect(text).to.equal(`ok`);
 		});
 
+		it('Has default content type with charset for { body } shorthand', async () => {
+			const response = await fixture.fetch('/food.json', {
+				method: 'GET',
+			});
+			expect(response.headers.get('Content-Type')).to.equal('text/plain;charset=utf-8');
+		});
+
 		it('Can set multiple headers of the same type', async () => {
 			const response = await fixture.fetch('/login', {
 				method: 'POST',
