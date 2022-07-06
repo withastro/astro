@@ -42,7 +42,7 @@ declare const Astro: {
 				public hydrator: any;
 				static observedAttributes = ['props'];
 				connectedCallback() {
-					if(this.getAttribute('client') === 'only' || this.firstChild) {
+					if (this.getAttribute('client') === 'only' || this.firstChild) {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)
@@ -70,7 +70,7 @@ declare const Astro: {
 							return this.hydrate;
 						},
 						opts,
-						this,
+						this
 					);
 				}
 				hydrate = () => {
