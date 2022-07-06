@@ -467,19 +467,44 @@ declare namespace astroHTML.JSX {
 
 	interface HTMLAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
 		// Standard HTML Attributes
-		autocapitalize?: string | undefined | null;
 		accesskey?: string | undefined | null;
+		autocapitalize?: string | undefined | null;
 		autofocus?: boolean | string | undefined | null;
 		class?: string | undefined | null;
-		contenteditable?: 'true' | 'false' | boolean | 'inherit' | undefined | null;
-		contextmenu?: string | undefined | null;
+		contenteditable?: 'true' | 'false' | boolean | 'inherit' | string | undefined | null;
 		dir?: string | undefined | null;
 		draggable?: 'true' | 'false' | boolean | undefined | null;
+		enterkeyhint?:
+			| 'enter'
+			| 'done'
+			| 'go'
+			| 'next'
+			| 'previous'
+			| 'search'
+			| 'send'
+			| undefined
+			| null;
 		hidden?: boolean | string | undefined | null;
-		inert?: boolean | string | undefined | null;
 		id?: string | undefined | null;
+		inert?: boolean | string | undefined | null;
+		inputmode?:
+			| 'none'
+			| 'text'
+			| 'tel'
+			| 'url'
+			| 'email'
+			| 'numeric'
+			| 'decimal'
+			| 'search'
+			| undefined
+			| null;
+		is?: string | undefined | null;
+		itemid?: string | undefined | null;
+		itemprop?: string | undefined | null;
+		itemref?: string | undefined | null;
+		itemscope?: boolean | string | undefined | null;
+		itemtype?: string | undefined | null;
 		lang?: string | undefined | null;
-		placeholder?: string | undefined | null;
 		slot?: string | undefined | null;
 		spellcheck?: 'true' | 'false' | boolean | undefined | null;
 		style?: string | undefined | null;
@@ -504,39 +529,12 @@ declare namespace astroHTML.JSX {
 		vocab?: string | undefined | null;
 
 		// Non-standard Attributes
-		autocorrect?: string | undefined | null;
-		autosave?: string | undefined | null;
+		contextmenu?: string | undefined | null; // Obsolete
+		autosave?: string | undefined | null; // Apple exclusive
 		color?: string | undefined | null;
-		itemprop?: string | undefined | null;
-		itemscope?: boolean | string | undefined | null;
-		itemtype?: string | undefined | null;
-		itemid?: string | undefined | null;
-		itemref?: string | undefined | null;
 		results?: number | string | undefined | null;
 		security?: string | undefined | null;
-		unselectable?: 'on' | 'off' | undefined | null;
-
-		// Living Standard
-		/**
-		 * Hints at the type of data that might be entered by the user while editing the element or its contents
-		 * @see https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute
-		 */
-		inputmode?:
-			| 'none'
-			| 'text'
-			| 'tel'
-			| 'url'
-			| 'email'
-			| 'numeric'
-			| 'decimal'
-			| 'search'
-			| undefined
-			| null;
-		/**
-		 * Specify that a standard HTML element should behave like a defined custom built-in element
-		 * @see https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is
-		 */
-		is?: string | undefined | null;
+		unselectable?: 'on' | 'off' | undefined | null; // Internet Explorer
 	}
 
 	type HTMLAttributeReferrerPolicy =
@@ -589,7 +587,6 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface ButtonHTMLAttributes extends HTMLAttributes {
-		autofocus?: boolean | string | undefined | null;
 		disabled?: boolean | string | undefined | null;
 		form?: string | undefined | null;
 		formaction?: string | undefined | null;
@@ -650,6 +647,7 @@ declare namespace astroHTML.JSX {
 		'accept-charset'?: string | undefined | null;
 		action?: string | undefined | null;
 		autocomplete?: string | undefined | null;
+		autocorrect?: string | undefined | null;
 		enctype?: string | undefined | null;
 		method?: string | undefined | null;
 		name?: string | undefined | null;
@@ -730,21 +728,12 @@ declare namespace astroHTML.JSX {
 		accept?: string | undefined | null;
 		alt?: string | undefined | null;
 		autocomplete?: string | undefined | null;
-		autofocus?: boolean | string | undefined | null;
-		capture?: boolean | string | undefined | null; // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+		autocorrect?: string | undefined | null;
+		capture?: boolean | string | undefined | null;
 		checked?: boolean | string | undefined | null;
 		crossorigin?: string | undefined | null;
+		dirname?: string | undefined | null;
 		disabled?: boolean | string | undefined | null;
-		enterKeyHint?:
-			| 'enter'
-			| 'done'
-			| 'go'
-			| 'next'
-			| 'previous'
-			| 'search'
-			| 'send'
-			| undefined
-			| null;
 		form?: string | undefined | null;
 		formaction?: string | undefined | null;
 		formenctype?: string | undefined | null;
@@ -772,7 +761,6 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface KeygenHTMLAttributes extends HTMLAttributes {
-		autofocus?: boolean | string | undefined | null;
 		challenge?: string | undefined | null;
 		disabled?: boolean | string | undefined | null;
 		form?: string | undefined | null;
@@ -787,7 +775,7 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface LiHTMLAttributes extends HTMLAttributes {
-		value?: string | string[] | number | undefined | null;
+		value?: string | number | undefined | null;
 	}
 
 	interface LinkHTMLAttributes extends HTMLAttributes {
@@ -912,6 +900,7 @@ declare namespace astroHTML.JSX {
 
 	interface SelectHTMLAttributes extends HTMLAttributes {
 		autocomplete?: string | undefined | null;
+		autocorrect?: string | undefined | null;
 		disabled?: boolean | string | undefined | null;
 		form?: string | undefined | null;
 		multiple?: boolean | string | undefined | null;
@@ -952,7 +941,7 @@ declare namespace astroHTML.JSX {
 
 	interface TextareaHTMLAttributes extends HTMLAttributes {
 		autocomplete?: string | undefined | null;
-		autofocus?: boolean | string | undefined | null;
+		autocorrect?: string | undefined | null;
 		cols?: number | string | undefined | null;
 		dirname?: string | undefined | null;
 		disabled?: boolean | string | undefined | null;
