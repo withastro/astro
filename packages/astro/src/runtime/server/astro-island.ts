@@ -42,27 +42,40 @@ declare const Astro: {
 				public hydrator: any;
 				static observedAttributes = ['props'];
 				async connectedCallback() {
-					// Hack: connectedCallback may run in Safari *before* children are rendered
-					// Use setTimeout to wait until children exist (needed for client:visible)
-					setTimeout(async () => {
-						window.addEventListener('astro:hydrate', this.hydrate);
-						await import(this.getAttribute('before-hydration-url')!);
-						const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
-						Astro[this.getAttribute('client') as directiveAstroKeys](
-							async () => {
-								const rendererUrl = this.getAttribute('renderer-url');
-								const [componentModule, { default: hydrator }] = await Promise.all([
-									import(this.getAttribute('component-url')!),
-									rendererUrl ? import(rendererUrl) : () => () => {},
-								]);
-								this.Component = componentModule[this.getAttribute('component-export') || 'default'];
-								this.hydrator = hydrator;
-								return this.hydrate;
-							},
-							opts,
-							this,
-						);
-					}, 0);
+					// connectedCallback may run *before* children are rendered (ex. HTML streaming)
+					if (this.getAttribute('client') === 'only') {
+						// If no SSR children will be rendered,
+						// setTimeout to wait until children exist - needed for client:visible
+						setTimeout(() => this.childrenConnectedCallback(), 0);
+					} else if(this.firstChild) {
+						await this.childrenConnectedCallback();
+					} else {
+						// If SSR children are expected, but not yet rendered,
+						// Wait with a mutation observer
+						new MutationObserver(async (_, mo) => {
+							mo.disconnect();
+							await this.childrenConnectedCallback();
+						}).observe(this, { childList: true });
+					}
+				}
+				async childrenConnectedCallback() {
+					window.addEventListener('astro:hydrate', this.hydrate);
+					await import(this.getAttribute('before-hydration-url')!);
+					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
+					Astro[this.getAttribute('client') as directiveAstroKeys](
+						async () => {
+							const rendererUrl = this.getAttribute('renderer-url');
+							const [componentModule, { default: hydrator }] = await Promise.all([
+								import(this.getAttribute('component-url')!),
+								rendererUrl ? import(rendererUrl) : () => () => {},
+							]);
+							this.Component = componentModule[this.getAttribute('component-export') || 'default'];
+							this.hydrator = hydrator;
+							return this.hydrate;
+						},
+						opts,
+						this,
+					);
 				}
 				hydrate = () => {
 					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
