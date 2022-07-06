@@ -149,7 +149,9 @@ export class App {
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
 			if (mimeType) {
-				headers.set('Content-Type', mimeType);
+				headers.set('Content-Type', `${mimeType};charset=utf-8`);
+			} else {
+				headers.set('Content-Type', 'text/plain;charset=utf-8');
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());
