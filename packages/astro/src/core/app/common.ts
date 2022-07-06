@@ -1,5 +1,5 @@
-import type { SSRManifest, SerializedSSRManifest, RouteInfo } from './types';
 import { deserializeRouteData } from '../routing/manifest/serialization.js';
+import type { RouteInfo, SerializedSSRManifest, SSRManifest } from './types';
 
 export function deserializeManifest(serializedManifest: SerializedSSRManifest): SSRManifest {
 	const routes: RouteInfo[] = [];

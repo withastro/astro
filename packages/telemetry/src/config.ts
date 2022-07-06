@@ -1,13 +1,12 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-import process from 'node:process';
-import { dset } from 'dset';
 import dget from 'dlv';
+import { dset } from 'dset';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
 
 export interface ConfigOptions {
 	name: string;
-	defaults: Map<string, any>;
 }
 
 // Adapted from https://github.com/sindresorhus/env-paths
@@ -32,7 +31,7 @@ function getConfigDir(name: string) {
 	}
 }
 
-export class Config {
+export class GlobalConfig {
 	private dir: string;
 	private file: string;
 
@@ -49,9 +48,6 @@ export class Config {
 			this._store = JSON.parse(fs.readFileSync(this.file).toString());
 		} else {
 			const store = {};
-			for (const [key, value] of this.project.defaults) {
-				dset(store, key, value);
-			}
 			this._store = store;
 			this.write();
 		}

@@ -1,5 +1,5 @@
-import * as _ from './utils'
 import { HTMLElement } from './Element'
+import * as _ from './utils'
 
 export class HTMLImageElement extends HTMLElement {
 	get src(): string {

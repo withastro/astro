@@ -4,6 +4,7 @@ import del from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
+import prebuild from './prebuild.js';
 
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {
@@ -11,7 +12,7 @@ const defaultConfig = {
 	format: 'esm',
 	platform: 'node',
 	target: 'node14',
-	sourcemap: 'inline',
+	sourcemap: false,
 	sourcesContent: false,
 };
 
@@ -20,9 +21,23 @@ const dt = new Intl.DateTimeFormat('en-us', {
 	minute: '2-digit',
 });
 
+function getPrebuilds(isDev, args) {
+	let prebuilds = [];
+	while (args.includes('--prebuild')) {
+		let idx = args.indexOf('--prebuild');
+		prebuilds.push(args[idx + 1]);
+		args.splice(idx, 2);
+	}
+	if (prebuilds.length && isDev) {
+		prebuilds.unshift('--no-minify');
+	}
+	return prebuilds;
+}
+
 export default async function build(...args) {
 	const config = Object.assign({}, defaultConfig);
 	const isDev = args.slice(-1)[0] === 'IS_DEV';
+	const prebuilds = getPrebuilds(isDev, args);
 	const patterns = args
 		.filter((f) => !!f) // remove empty args
 		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
@@ -46,7 +61,6 @@ export default async function build(...args) {
 	if (!isDev) {
 		await esbuild.build({
 			...config,
-			sourcemap: false,
 			bundle: false,
 			entryPoints,
 			outdir,
@@ -59,6 +73,9 @@ export default async function build(...args) {
 		...config,
 		watch: {
 			onRebuild(error, result) {
+				if (prebuilds.length) {
+					prebuild(...prebuilds);
+				}
 				const date = dt.format(new Date());
 				if (error || (result && result.errors.length)) {
 					console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));

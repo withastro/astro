@@ -9,12 +9,12 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/react": "^0.1.1",
-    "astro": "^1.0.0-beta.24",
-    "sass": "^1.50.1"
+    "@astrojs/react": "^0.2.0",
+    "astro": "^1.0.0-beta.63",
+    "sass": "^1.52.2"
   },
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   }
 }

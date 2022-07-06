@@ -9,10 +9,10 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/solid-js": "^0.1.2",
-    "astro": "^1.0.0-beta.24"
+    "@astrojs/solid-js": "^0.2.0",
+    "astro": "^1.0.0-beta.63"
   },
   "dependencies": {
-    "solid-js": "^1.3.16"
+    "solid-js": "^1.4.3"
   }
 }

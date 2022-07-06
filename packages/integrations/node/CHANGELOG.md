@@ -1,5 +1,18 @@
 # @astrojs/node
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3677](https://github.com/withastro/astro/pull/3677) [`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378) Thanks [@Jutanium](https://github.com/Jutanium)! - Update READMEs
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`4de53ecc`](https://github.com/withastro/astro/commit/4de53eccef346bed843b491b7ab93987d7d85655)]:
+  - @astrojs/webapi@0.12.0
+
 ## 0.1.1
 
 ### Patch Changes

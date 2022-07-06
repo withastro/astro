@@ -6,7 +6,7 @@ chai.use(chaiPromises);
 
 const title = 'My RSS feed';
 const description = 'This sure is a nice RSS feed';
-const canonicalUrl = 'https://example.com';
+const site = 'https://example.com';
 
 const phpFeedItem = {
 	link: '/php',
@@ -29,22 +29,12 @@ const web1FeedItem = {
 const validXmlResult = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title><![CDATA[My RSS feed]]></title><description><![CDATA[This sure is a nice RSS feed]]></description><link>https://example.com/</link><item><title><![CDATA[Remember PHP?]]></title><link>https://example.com/php/</link><guid>https://example.com/php/</guid><description><![CDATA[PHP is a general-purpose scripting language geared toward web development. It was originally created by Danish-Canadian programmer Rasmus Lerdorf in 1994.]]></description><pubDate>Tue, 03 May 1994 00:00:00 GMT</pubDate></item><item><title><![CDATA[Web 1.0]]></title><link>https://example.com/web1/</link><guid>https://example.com/web1/</guid><description><![CDATA[Web 1.0 is the term used for the earliest version of the Internet as it emerged from its origins with Defense Advanced Research Projects Agency (DARPA) and became, for the first time, a global network representing the future of digital communications.]]></description><pubDate>Sat, 03 May 1997 00:00:00 GMT</pubDate></item></channel></rss>`;
 
 describe('rss', () => {
-	it('should fail on missing "site" and/or "canonicalUrl"', () => {
-		return chai.expect(
-			rss({
-				title,
-				description,
-				items: [],
-			})
-		).to.be.rejected;
-	});
-
 	it('should generate on valid RSSFeedItem array', async () => {
 		const { body } = await rss({
 			title,
 			description,
 			items: [phpFeedItem, web1FeedItem],
-			canonicalUrl,
+			site,
 		});
 
 		chai.expect(body).to.equal(validXmlResult);
@@ -81,7 +71,7 @@ describe('rss', () => {
 				title,
 				description,
 				items: globResult,
-				canonicalUrl,
+				site,
 			});
 
 			chai.expect(body).to.equal(validXmlResult);
@@ -105,7 +95,7 @@ describe('rss', () => {
 					title,
 					description,
 					items: globResult,
-					canonicalUrl,
+					site,
 				})
 			).to.be.rejected;
 		});
@@ -128,7 +118,7 @@ describe('rss', () => {
 					title,
 					description,
 					items: globResult,
-					canonicalUrl,
+					site,
 				})
 			).to.be.rejected;
 		});

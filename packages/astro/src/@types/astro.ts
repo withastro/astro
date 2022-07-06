@@ -1,21 +1,21 @@
-import type { AddressInfo } from 'net';
-import type * as babel from '@babel/core';
-import type * as vite from 'vite';
-import { z } from 'zod';
 import type {
-	ShikiConfig,
-	RemarkPlugins,
-	RehypePlugins,
-  RemarkRehype,
 	MarkdownHeader,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+  RemarkRehype,
+	ShikiConfig,
 } from '@astrojs/markdown-remark';
-import type { AstroConfigSchema } from '../core/config';
-import type { AstroComponentFactory, Metadata } from '../runtime/server';
-import type { ViteConfigWithSSR } from '../core/create-vite';
+import type * as babel from '@babel/core';
+import type { AddressInfo } from 'net';
+import type * as vite from 'vite';
+import { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
+import type { AstroConfigSchema } from '../core/config';
+import type { ViteConfigWithSSR } from '../core/create-vite';
+import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -132,6 +132,18 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrorequest)
 	 */
 	request: Request;
+	/** Information about the outgoing response. This is a standard [ResponseInit](https://developer.mozilla.org/en-US/docs/Web/API/Response/Response#init) object
+	 *
+	 * For example, to change the status code you can set a different status on this object:
+	 * ```typescript
+	 * Astro.response.status = 404;
+	 * ```
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroresponse)
+	 */
+	response: ResponseInit & {
+		readonly headers: Headers;
+	};
 	/** Redirect to another page (**SSR Only**)
 	 *
 	 * Example usage:
@@ -205,7 +217,7 @@ export interface AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
-	glob(globStr: `${any}.astro`): Promise<ComponentInstance[]>;
+	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
@@ -244,6 +256,10 @@ type ServerConfig = {
 	port?: number;
 };
 
+export interface ViteUserConfig extends vite.UserConfig {
+	ssr?: vite.SSROptions;
+}
+
 /**
  * Astro User Config
  * Docs: https://docs.astro.build/reference/configuration-reference/
@@ -262,7 +278,7 @@ export interface AstroUserConfig {
 	 * @type {string}
 	 * @default `"."` (current working directory)
 	 * @summary Set the project root. The project root is the directory where your Astro project (and all `src`, `public` and `package.json` files) live.
-	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the `astro.config.js` file, since Astro needs to know your project root before it can locate your config file.
+	 * @description  You should only provide this option if you run the `astro` CLI commands in a directory other than the project root directory. Usually, this option is provided via the CLI instead of the [Astro config file](https://docs.astro.build/en/guides/configuring-astro/#supported-config-file-types), since Astro needs to know your project root before it can locate your config file.
 	 *
 	 * If you provide a relative path (ex: `--root: './my-project'`) Astro will resolve it against your current working directory.
 	 *
@@ -365,7 +381,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
-	 * @default `'always'`
+	 * @default `'ignore'`
 	 * @see buildOptions.pageUrlFormat
 	 * @description
 	 *
@@ -421,11 +437,11 @@ export interface AstroUserConfig {
 	 * @name Server Options
 	 * @description
 	 *
-	 * Customize the Astro dev server, used by both `astro dev` and `astro serve`.
+	 * Customize the Astro dev server, used by both `astro dev` and `astro preview`.
 	 *
 	 * ```js
 	 * {
-	 *   server: {port: 1234, host: true}
+	 *   server: { port: 1234, host: true}
 	 * }
 	 * ```
 	 *
@@ -434,7 +450,7 @@ export interface AstroUserConfig {
 	 * ```js
 	 * {
 	 *   // Example: Use the function syntax to customize based on command
-	 *   server: (command) => ({port: command === 'dev' ? 3000 : 4000})
+	 *   server: (command) => ({ port: command === 'dev' ? 3000 : 4000 })
 	 * }
 	 * ```
 	 */
@@ -446,10 +462,10 @@ export interface AstroUserConfig {
 	 * @default `false`
 	 * @version 0.24.0
 	 * @description
-	 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+	 * Set which network IP addresses the server should listen on (i.e. non-localhost IPs).
 	 * - `false` - do not expose on a network IP address
 	 * - `true` - listen on all addresses, including LAN and public addresses
-	 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
+	 * - `[custom-address]` - expose on a network IP address at `[custom-address]` (ex: `192.168.0.1`)
 	 */
 
 	/**
@@ -458,9 +474,15 @@ export interface AstroUserConfig {
 	 * @type {number}
 	 * @default `3000`
 	 * @description
-	 * Set which port the dev server should listen on.
+	 * Set which port the server should listen on.
 	 *
 	 * If the given port is already in use, Astro will automatically try the next available port.
+	 *
+	 * ```js
+	 * {
+	 *   server: { port: 8080 }
+	 * }
+	 * ```
 	 */
 
 	server?: ServerConfig | ((options: { command: 'dev' | 'preview' }) => ServerConfig);
@@ -491,16 +513,6 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		drafts?: boolean;
-
-		/**
-		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `mdx`
-		 * @description
-		 * Control wheater to allow components inside markdown files ('mdx') or not ('md').
-		 */
-		mode?: 'md' | 'mdx';
 
 		/**
 		 * @docs
@@ -546,7 +558,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of remark plugins used by Astro
-		 *     remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+		 *     remarkPlugins: ['remark-gfm', 'remark-smartypants'],
 		 *   },
 		 * };
 		 * ```
@@ -565,7 +577,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     // Example: The default set of rehype plugins used by Astro
-		 *     rehypePlugins: ['rehype-slug', ['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }]],
+		 *     rehypePlugins: [],
 		 *   },
 		 * };
 		 * ```
@@ -652,7 +664,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
+	vite?: ViteUserConfig;
 
 	experimental?: {
 		/**
@@ -716,6 +728,11 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
+
+export interface InjectedRoute {
+	pattern: string;
+	entryPoint: string;
+}
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -727,6 +744,8 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		pageExtensions: string[];
+		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
@@ -736,7 +755,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 export type AsyncRendererComponentFn<U> = (
 	Component: any,
 	props: any,
-	children: string | undefined,
+	slots: Record<string, string>,
 	metadata?: AstroComponentMetadata
 ) => Promise<U>;
 
@@ -748,30 +767,43 @@ export interface ComponentInstance {
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
+export interface AstroInstance {
+	file: string;
+	url: string | undefined;
+	default: AstroComponentFactory;
+}
+
 export interface MarkdownInstance<T extends Record<string, any>> {
 	frontmatter: T;
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
+	/** raw Markdown file content, excluding frontmatter */
+	rawContent(): string;
+	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
+	compiledContent(): Promise<string>;
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent;
+		frontmatter: MarkdownContent<T>;
 		$$metadata: Metadata;
 		default: AstroComponentFactory;
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
- * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */ export interface GetStaticPathsOptions {
-	paginate?: PaginateFunction;
-	rss?: (...args: any[]) => any;
+	paginate: PaginateFunction;
+	/**
+	 * The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead.
+	 * @see https://docs.astro.build/en/guides/rss/
+	 */
+	rss(): never;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
@@ -780,17 +812,27 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
 };
 
+/**
+ * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes). (**SSG Only**)
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ */
+export type GetStaticPaths = (
+	options: GetStaticPathsOptions
+) =>
+	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
+	| GetStaticPathsResult
+	| GetStaticPathsResult[];
+
 export interface HydrateOptions {
 	name: string;
 	value?: string;
 }
 
-export interface JSXTransformConfig {
-	/** Babel presets */
-	presets?: babel.PluginItem[];
-	/** Babel plugins */
-	plugins?: babel.PluginItem[];
-}
+export type JSXTransformConfig = Pick<
+	babel.TransformOptions,
+	'presets' | 'plugins' | 'inputSourceMap'
+>;
 
 export type JSXTransformFn = (options: {
 	mode: string;
@@ -809,16 +851,17 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
 
 /**
  * The `content` prop given to a Layout
- * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ *
+ * [Astro reference](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts)
  */
-export interface MarkdownContent {
-	[key: string]: any;
+export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
-}
+};
 
 /**
  * paginate() Options
- * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
 export interface PaginateOptions {
 	/** the number of items per-page (default: `10`) */
@@ -830,8 +873,9 @@ export interface PaginateOptions {
 }
 
 /**
- * Page Prop
- * Docs: https://docs.astro.build/guides/pagination/#using-the-page-prop
+ * Represents a single page of data in a paginated collection
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
  */
 export interface Page<T = any> {
 	/** result */
@@ -859,13 +903,11 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | number | undefined>;
 
 export type Props = Record<string, unknown>;
-
-type Body = string;
 
 export interface AstroAdapter {
 	name: string;
@@ -874,27 +916,23 @@ export interface AstroAdapter {
 	args?: any;
 }
 
+type Body = string;
+
 export interface APIContext {
 	params: Params;
 	request: Request;
 }
 
-export interface EndpointOutput<Output extends Body = Body> {
-	body: Output;
+export interface EndpointOutput {
+	body: Body;
 }
 
-interface APIRoute {
-	(context: APIContext): EndpointOutput | Response;
-
-	/**
-	 * @deprecated
-	 * Use { context: APIRouteContext } object instead.
-	 */
-	(params: Params, request: Request): EndpointOutput | Response;
-}
+export type APIRoute = (
+	context: APIContext
+) => EndpointOutput | Response | Promise<EndpointOutput | Response>;
 
 export interface EndpointHandler {
-	[method: string]: APIRoute;
+	[method: string]: APIRoute | ((params: Params, request: Request) => EndpointOutput | Response);
 }
 
 export interface AstroRenderer {
@@ -919,6 +957,11 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
+export type HookParameters<
+	Hook extends keyof AstroIntegration['hooks'],
+	Fn = AstroIntegration['hooks'][Hook]
+> = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
@@ -930,11 +973,12 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
+			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;
@@ -948,6 +992,7 @@ export interface AstroIntegration {
 			vite: ViteConfigWithSSR;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
+			updateConfig: (newConfig: ViteConfigWithSSR) => void;
 		}) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
@@ -966,10 +1011,13 @@ export interface RoutePart {
 }
 
 export interface RouteData {
+	route: string;
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
+	// expose the real path name on SSG
+	distURL?: URL;
 	pattern: RegExp;
 	segments: RoutePart[][];
 	type: RouteType;
@@ -978,54 +1026,12 @@ export interface RouteData {
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
 	generate: undefined;
 	pattern: string;
+	_meta: {
+		trailingSlash: AstroConfig['trailingSlash'];
+	};
 };
 
 export type RuntimeMode = 'development' | 'production';
-
-/**
- * RSS
- * Docs: https://docs.astro.build/reference/api-reference/#rss
- */
-export interface RSS {
-	/** (required) Title of the RSS Feed */
-	title: string;
-	/** (required) Description of the RSS Feed */
-	description: string;
-	/** Specify arbitrary metadata on opening <xml> tag */
-	xmlns?: Record<string, string>;
-	/**
-	 * If false (default), does not include XSL stylesheet.
-	 * If true, automatically includes 'pretty-feed-v3'.
-	 * If a string value, specifies a local custom XSL stylesheet, for example '/custom-feed.xsl'.
-	 */
-	stylesheet?: string | boolean;
-	/** Specify custom data in opening of file */
-	customData?: string;
-	/**
-	 * Specify where the RSS xml file should be written.
-	 * Relative to final build directory. Example: '/foo/bar.xml'
-	 * Defaults to '/rss.xml'.
-	 */
-	dest?: string;
-	/** Return data about each item */
-	items: {
-		/** (required) Title of item */
-		title: string;
-		/** (required) Link to item */
-		link: string;
-		/** Publication date of item */
-		pubDate?: Date;
-		/** Item description */
-		description?: string;
-		/** Append some other XML-valid data to this item */
-		customData?: string;
-	}[];
-}
-
-export type RSSFunction = (args: RSS) => RSSResult;
-
-export type FeedResult = { url: string; content?: string };
-export type RSSResult = { xml: FeedResult; xsl?: FeedResult };
 
 export type SSRError = Error & vite.ErrorPayload['err'];
 
@@ -1049,5 +1055,6 @@ export interface SSRResult {
 		slots: Record<string, any> | null
 	): AstroGlobal;
 	resolve: (s: string) => Promise<string>;
+	response: ResponseInit;
 	_metadata: SSRMetadata;
 }

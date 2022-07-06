@@ -1,5 +1,50 @@
 # @astrojs/vercel
 
+## 0.2.4
+
+### Patch Changes
+
+- [#3677](https://github.com/withastro/astro/pull/3677) [`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378) Thanks [@Jutanium](https://github.com/Jutanium)! - Update READMEs
+
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`4de53ecc`](https://github.com/withastro/astro/commit/4de53eccef346bed843b491b7ab93987d7d85655)]:
+  - @astrojs/webapi@0.12.0
+
+## 0.2.2
+
+### Patch Changes
+
+- [#3368](https://github.com/withastro/astro/pull/3368) [`9d01f93b`](https://github.com/withastro/astro/commit/9d01f93b1c7db5d4afc4041e6ee73fb52f24d2d1) Thanks [@JuanM04](https://github.com/JuanM04)! - Remove `nodeVersion` option for `serverless` target. Now it is inferred from Vercel
+
+## 0.2.1
+
+### Patch Changes
+
+- [#3355](https://github.com/withastro/astro/pull/3355) [`945f5c68`](https://github.com/withastro/astro/commit/945f5c68e892f6f17e59e41d0dfa2a7841f96bbf) Thanks [@JuanM04](https://github.com/JuanM04)! - Added typescript definitions
+
+## 0.2.0
+
+### Minor Changes
+
+- [#3216](https://github.com/withastro/astro/pull/3216) [`114bf63e`](https://github.com/withastro/astro/commit/114bf63e11f28299b13178ef1a412eed37ab7909) Thanks [@JuanM04](https://github.com/JuanM04)! - **[BREAKING]** Now with Build Output API (v3)! [See the README to get started](https://github.com/withastro/astro/tree/main/packages/integrations/vercel#readme).
+
+  - `trailingSlash` redirects works without a `vercel.json` file: just configure them inside your `astro.config.mjs`
+  - Multiple deploy targets: `edge`, `serverless` and `static`!
+  - When building to `serverless`, your code isn't transpiled to CJS anymore.
+
+  **Migrate from v0.1**
+
+  1. Change the import inside `astro.config.mjs`:
+     ```diff
+     - import vercel from '@astrojs/vercel';
+     + import vercel from '@astrojs/vercel/serverless';
+     ```
+  2. Rename the `ENABLE_FILE_SYSTEM_API` environment variable to `ENABLE_VC_BUILD`, as Vercel changed it.
+  3. The output folder changed from `.output` to `.vercel/output` — you may need to update your `.gitignore`.
+
 ## 0.1.4
 
 ### Patch Changes

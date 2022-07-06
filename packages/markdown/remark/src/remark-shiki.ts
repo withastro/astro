@@ -11,7 +11,7 @@ import type { ShikiConfig } from './types.js';
 const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
 const remarkShiki = async (
-	{ langs, theme, wrap }: ShikiConfig,
+	{ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig,
 	scopedClassName?: string | null
 ) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;

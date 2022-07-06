@@ -1,5 +1,5 @@
-import * as _ from './utils'
 import { Event } from 'event-target-shim'
+import * as _ from './utils'
 
 class CustomEvent<
 	TEventType extends string = string

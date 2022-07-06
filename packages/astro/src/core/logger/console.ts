@@ -1,9 +1,7 @@
-import type { AstroConfig } from '../../@types/astro';
-import type { LogMessage } from './core.js';
-import { bold, cyan, dim, red, yellow, reset } from 'kleur/colors';
-import stringWidth from 'string-width';
+import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
 import { format as utilFormat } from 'util';
-import { levels, dateTimeFormat } from './core.js';
+import type { LogMessage } from './core.js';
+import { dateTimeFormat, levels } from './core.js';
 
 let lastMessage: string;
 let lastMessageCount = 1;

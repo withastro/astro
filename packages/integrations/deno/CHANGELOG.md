@@ -1,5 +1,42 @@
 # @astrojs/node
 
+## 0.1.8
+
+### Patch Changes
+
+- [#3677](https://github.com/withastro/astro/pull/3677) [`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378) Thanks [@Jutanium](https://github.com/Jutanium)! - Update READMEs
+
+## 0.1.7
+
+### Patch Changes
+
+- [#3734](https://github.com/withastro/astro/pull/3734) [`4acd245d`](https://github.com/withastro/astro/commit/4acd245d8f59871eb9c0083ae1a0fe7aa70c84f5) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: append shim to top of built file to avoid "can't read process of undefined" issues
+
+## 0.1.6
+
+### Patch Changes
+
+- [#3673](https://github.com/withastro/astro/pull/3673) [`ba5ad785`](https://github.com/withastro/astro/commit/ba5ad7855c4252e10e76b41b88fd4c74b4b7295b) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix react dependencies to improve test reliability
+
+## 0.1.5
+
+### Patch Changes
+
+- [#3532](https://github.com/withastro/astro/pull/3532) [`c22a07db`](https://github.com/withastro/astro/commit/c22a07db134a9d0741a05123fb506595aabf145b) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using Astro.glob when using the Deno Deploy adapter
+
+## 0.1.4
+
+### Patch Changes
+
+- [#3503](https://github.com/withastro/astro/pull/3503) [`207f58d1`](https://github.com/withastro/astro/commit/207f58d1715ac024cc7c81b76e26aa49fca5173f) Thanks [@williamtetlow](https://github.com/williamtetlow)! - Alias `from 'astro'` imports to `'@astro/types'`
+  Update Deno and Netlify integrations to handle vite.resolves.alias as an array
+
+## 0.1.3
+
+### Patch Changes
+
+- [#3483](https://github.com/withastro/astro/pull/3483) [`b795a085`](https://github.com/withastro/astro/commit/b795a085f0d20abe83c5ada1e7ba89ec4444c2d5) Thanks [@mvolfik](https://github.com/mvolfik)! - Deno integration now loads environment variables in server runtime
+
 ## 0.1.2
 
 ### Patch Changes

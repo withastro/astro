@@ -1,9 +1,8 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.1.4",
+  "version": "0.2.4",
   "type": "module",
-  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -14,9 +13,25 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
-    ".": "./dist/index.js",
-    "./server-entrypoint": "./dist/server-entrypoint.js",
+    "./edge": "./dist/edge/adapter.js",
+    "./edge/entrypoint": "./dist/edge/entrypoint.js",
+    "./serverless": "./dist/serverless/adapter.js",
+    "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
+    "./static": "./dist/serverless/adapter.js",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "edge": [
+        "dist/edge/adapter.d.ts"
+      ],
+      "serverless": [
+        "dist/serverless/adapter.d.ts"
+      ],
+      "static": [
+        "dist/static/adapter.d.ts"
+      ]
+    }
   },
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -24,8 +39,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.11.1",
-    "esbuild": "^0.14.38"
+    "@astrojs/webapi": "^0.12.0",
+    "@vercel/nft": "^0.18.2"
   },
   "devDependencies": {
     "astro": "workspace:*",

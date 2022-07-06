@@ -1,0 +1,11 @@
+{
+  "name": "@e2e/preact-component",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "astro": "workspace:*",
+    "preact": "^10.7.3"
+  }
+}

@@ -1,21 +1,20 @@
-import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
-import type { Arguments as Flags } from 'yargs-parser';
+import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import type { RemarkPlugin, RehypePlugin } from '@astrojs/markdown-remark';
-import type { Options as RemarkRehype } from 'mdast-util-to-hast';
+import type { Arguments as Flags } from 'yargs-parser';
+import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../@types/astro';
 
+import load, { ProloadError, resolve } from '@proload/core';
+import loadTypeScript from '@proload/plugin-tsm';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import { pathToFileURL, fileURLToPath } from 'url';
-import { mergeConfig as mergeViteConfig } from 'vite';
-import { BUNDLED_THEMES } from 'shiki';
-import { z } from 'zod';
-import load, { resolve, ProloadError } from '@proload/core';
-import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
+import { BUNDLED_THEMES } from 'shiki';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { mergeConfig as mergeViteConfig } from 'vite';
+import { z } from 'zod';
+import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
-import { appendForwardSlash, trimSlashes } from './path.js';
 
 load.use([loadTypeScript]);
 
@@ -23,6 +22,40 @@ interface PostCSSConfigResult {
 	options: Postcss.ProcessOptions;
 	plugins: Postcss.Plugin[];
 }
+
+const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
+	root: '.',
+	srcDir: './src',
+	publicDir: './public',
+	outDir: './dist',
+	base: '/',
+	trailingSlash: 'ignore',
+	build: { format: 'directory' },
+	server: {
+		host: false,
+		port: 3000,
+		streaming: true,
+	},
+	style: { postcss: { options: {}, plugins: [] } },
+	integrations: [],
+	markdown: {
+		drafts: false,
+		syntaxHighlight: 'shiki',
+		shikiConfig: {
+			langs: [],
+			theme: 'github-dark',
+			wrap: false,
+		},
+		remarkPlugins: [],
+		rehypePlugins: [],
+    remarkRehype: {},
+	},
+	vite: {},
+	experimental: {
+		ssr: false,
+		integrations: false,
+	},
+};
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
 	if (isObject(inlineOptions)) {
@@ -66,22 +99,22 @@ export const AstroConfigSchema = z.object({
 	root: z
 		.string()
 		.optional()
-		.default('.')
+		.default(ASTRO_CONFIG_DEFAULTS.root)
 		.transform((val) => new URL(val)),
 	srcDir: z
 		.string()
 		.optional()
-		.default('./src')
+		.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 		.transform((val) => new URL(val)),
 	publicDir: z
 		.string()
 		.optional()
-		.default('./public')
+		.default(ASTRO_CONFIG_DEFAULTS.publicDir)
 		.transform((val) => new URL(val)),
 	outDir: z
 		.string()
 		.optional()
-		.default('./dist')
+		.default(ASTRO_CONFIG_DEFAULTS.outDir)
 		.transform((val) => new URL(val)),
 	site: z
 		.string()
@@ -95,18 +128,18 @@ export const AstroConfigSchema = z.object({
 	base: z
 		.string()
 		.optional()
-		.default('/')
-		.transform((val) => appendForwardSlash(trimSlashes(val))),
+		.default(ASTRO_CONFIG_DEFAULTS.base)
+		.transform((val) => prependForwardSlash(appendForwardSlash(trimSlashes(val)))),
 	trailingSlash: z
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
-		.default('ignore'),
+		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	build: z
 		.object({
 			format: z
 				.union([z.literal('file'), z.literal('directory')])
 				.optional()
-				.default('directory'),
+				.default(ASTRO_CONFIG_DEFAULTS.build.format),
 		})
 		.optional()
 		.default({}),
@@ -118,8 +151,11 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.object({
-				host: z.union([z.string(), z.boolean()]).optional().default(false),
-				port: z.number().optional().default(3000),
+				host: z
+					.union([z.string(), z.boolean()])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.server.host),
+				port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
 			})
 			.optional()
 			.default({})
@@ -130,7 +166,7 @@ export const AstroConfigSchema = z.object({
 		// validate
 		z
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default([])
+			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
 	style: z
 		.object({
@@ -140,7 +176,7 @@ export const AstroConfigSchema = z.object({
 					plugins: z.array(z.any()),
 				})
 				.optional()
-				.default({ options: {}, plugins: [] }),
+				.default(ASTRO_CONFIG_DEFAULTS.style.postcss),
 		})
 		.optional()
 		.default({}),
@@ -152,15 +188,15 @@ export const AstroConfigSchema = z.object({
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
-				.default('shiki'),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.syntaxHighlight),
 			shikiConfig: z
 				.object({
 					langs: z.custom<ILanguageRegistration>().array().default([]),
 					theme: z
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IThemeRegistration>())
-						.default('github-dark'),
-					wrap: z.boolean().or(z.null()).default(false),
+						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme),
+					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap),
 				})
 				.default({}),
 			remarkPlugins: z
@@ -171,7 +207,7 @@ export const AstroConfigSchema = z.object({
 					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
 				])
 				.array()
-				.default([]),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkPlugins),
 			rehypePlugins: z
 				.union([
 					z.string(),
@@ -180,15 +216,20 @@ export const AstroConfigSchema = z.object({
 					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
 				])
 				.array()
-				.default([]),
-      remarkRehype: z.custom<RemarkRehype>().optional().default({}),
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
+      remarkRehype: z
+        .custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
+        .optional()
+        .default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 		})
 		.default({}),
-	vite: z.any().optional().default({}),
+	vite: z
+		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
+		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	experimental: z
 		.object({
-			ssr: z.boolean().optional().default(false),
-			integrations: z.boolean().optional().default(false),
+			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
+			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
 		})
 		.optional()
 		.default({}),
@@ -254,19 +295,19 @@ export async function validateConfig(
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
 		root: z
 			.string()
-			.default('.')
+			.default(ASTRO_CONFIG_DEFAULTS.root)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		srcDir: z
 			.string()
-			.default('./src')
+			.default(ASTRO_CONFIG_DEFAULTS.srcDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		publicDir: z
 			.string()
-			.default('./public')
+			.default(ASTRO_CONFIG_DEFAULTS.publicDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		outDir: z
 			.string()
-			.default('./dist')
+			.default(ASTRO_CONFIG_DEFAULTS.outDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
 		server: z.preprocess(
 			// preprocess
@@ -275,8 +316,12 @@ export async function validateConfig(
 			// validate
 			z
 				.object({
-					host: z.union([z.string(), z.boolean()]).optional().default(false),
-					port: z.number().optional().default(3000),
+					host: z
+						.union([z.string(), z.boolean()])
+						.optional()
+						.default(ASTRO_CONFIG_DEFAULTS.server.host),
+					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					streaming: z.boolean().optional().default(true),
 				})
 				.optional()
 				.default({})
@@ -291,7 +336,7 @@ export async function validateConfig(
 							plugins: z.array(z.any()),
 						})
 						.optional()
-						.default({ options: {}, plugins: [] })
+						.default(ASTRO_CONFIG_DEFAULTS.style.postcss)
 				),
 			})
 			.optional()
@@ -300,8 +345,20 @@ export async function validateConfig(
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: { scripts: [], renderers: [], adapter: undefined },
+		_ctx: {
+			pageExtensions: ['.astro', '.md'],
+			scripts: [],
+			renderers: [],
+			injectedRoutes: [],
+			adapter: undefined,
+		},
 	};
+	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
+		const { default: jsxRenderer } = await import('../jsx/renderer.js');
+		(result._ctx.renderers as any[]).unshift(jsxRenderer);
+	}
+
 	// Final-Pass Validation (perform checks that require the full config object)
 	if (
 		!result.experimental?.integrations &&
@@ -399,7 +456,59 @@ export async function resolveConfigURL(
 	}
 }
 
-/** Attempt to load an `astro.config.mjs` file */
+interface OpenConfigResult {
+	userConfig: AstroUserConfig;
+	astroConfig: AstroConfig;
+	flags: CLIFlags;
+	root: string;
+}
+
+/** Load a configuration file, returning both the userConfig and astroConfig */
+export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+	let userConfig: AstroUserConfig = {};
+	let userConfigPath: string | undefined;
+
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(
+			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
+		);
+	}
+
+	// Automatically load config file using Proload
+	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+	let config;
+	try {
+		config = await load('astro', {
+			mustExist: !!userConfigPath,
+			cwd: root,
+			filePath: userConfigPath,
+		});
+	} catch (err) {
+		if (err instanceof ProloadError && flags.config) {
+			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+		}
+		throw err;
+	}
+	if (config) {
+		userConfig = config.value;
+	}
+	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+
+	return {
+		astroConfig,
+		userConfig,
+		flags,
+		root,
+	};
+}
+
+/**
+ * Attempt to load an `astro.config.mjs` file
+ * @deprecated
+ */
 export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});

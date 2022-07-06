@@ -1,5 +1,31 @@
 # @astrojs/svelte
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => framework components.
+
+  Inside your components, use the built-in `slot` API as you normally would.
+
+## 0.1.5
+
+### Patch Changes
+
+- [#3685](https://github.com/withastro/astro/pull/3685) [`3d554fdb`](https://github.com/withastro/astro/commit/3d554fdbfb49d85d2945b7775825f7d9ace959ce) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix PostCSS config not applied to Svelte component by default
+
+## 0.1.4
+
+### Patch Changes
+
+- [#3455](https://github.com/withastro/astro/pull/3455) [`e9a77d86`](https://github.com/withastro/astro/commit/e9a77d861907adccfa75811f9aaa555f186d78f8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update client hydration to check for `ssr` attribute. Requires `astro@^1.0.0-beta.36`.
+
+## 0.1.3
+
+### Patch Changes
+
+- [#3333](https://github.com/withastro/astro/pull/3333) [`ce6d7982`](https://github.com/withastro/astro/commit/ce6d79828250e9a3631778a37d43068cae04bb4f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a vite peer dependency bug
+
 ## 0.1.2
 
 ### Patch Changes

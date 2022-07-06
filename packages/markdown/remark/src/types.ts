@@ -1,8 +1,8 @@
-import type * as unified from 'unified';
-import type * as mdast from 'mdast';
 import type * as hast from 'hast';
+import type * as mdast from 'mdast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import type { Options as RemarkRehypeOptions } from 'mdast-util-to-hast';
+import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type * as unified from 'unified';
 
 export type { Node } from 'unist';
 
@@ -23,22 +23,24 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 export type RemarkRehype = RemarkRehypeOptions;
 
 export interface ShikiConfig {
-	langs: ILanguageRegistration[];
-	theme: Theme | IThemeRegistration;
-	wrap: boolean | null;
+	langs?: ILanguageRegistration[];
+	theme?: Theme | IThemeRegistration;
+	wrap?: boolean | null;
 }
 
 export interface AstroMarkdownOptions {
-	mode: 'md' | 'mdx';
-	drafts: boolean;
-	syntaxHighlight: 'shiki' | 'prism' | false;
-	shikiConfig: ShikiConfig;
-	remarkPlugins: RemarkPlugins;
-	rehypePlugins: RehypePlugins;
- 	remarkRehype?: RemarkRehypeOptions;
+	mode?: 'md' | 'mdx';
+	drafts?: boolean;
+	syntaxHighlight?: 'shiki' | 'prism' | false;
+	shikiConfig?: ShikiConfig;
+	remarkPlugins?: RemarkPlugins;
+	rehypePlugins?: RehypePlugins;
+ 	remarkRehype?: RemarkRehype;
 }
 
 export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
+	/** @internal */
+	fileURL?: URL;
 	/** @internal */
 	$?: {
 		scopedClassName: string | null;

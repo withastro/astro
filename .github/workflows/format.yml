@@ -8,11 +8,15 @@ on:
 jobs:
   format:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
       - name: Check out code using Git
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+          # Needs access to push to main
+          token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
       - name: Setup Node
@@ -23,9 +27,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Format code
-        run: pnpm run format
+        run: pnpm run format:ci
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: '[ci] format'
           branch: ${{ github.head_ref }}
+          commit_user_name: fredkbot
+          commit_user_email: fred+astrobot@astro.build

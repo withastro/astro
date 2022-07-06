@@ -1,26 +1,25 @@
-import type yargs from 'yargs-parser';
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import path from 'path';
-import { existsSync, promises as fs } from 'fs';
-import { execa } from 'execa';
-import { fileURLToPath, pathToFileURL } from 'url';
-import { diffWords } from 'diff';
 import boxen from 'boxen';
-import prompts from 'prompts';
-import preferredPM from 'preferred-pm';
+import { diffWords } from 'diff';
+import { execa } from 'execa';
+import { existsSync, promises as fs } from 'fs';
+import { bold, cyan, dim, green, magenta } from 'kleur/colors';
 import ora from 'ora';
+import path from 'path';
+import preferredPM from 'preferred-pm';
+import prompts from 'prompts';
+import { fileURLToPath, pathToFileURL } from 'url';
+import type yargs from 'yargs-parser';
 import { resolveConfigURL } from '../config.js';
-import { apply as applyPolyfill } from '../polyfill.js';
-import { error, info, debug, LogOptions } from '../logger/core.js';
-import { printHelp } from '../messages.js';
+import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
-import * as CONSTS from './consts.js';
-import { dim, red, cyan, green, magenta, bold } from 'kleur/colors';
-import { parseNpmName } from '../util.js';
-import { wrapDefaultExport } from './wrapper.js';
-import { ensureImport } from './imports.js';
-import { t, parse, visit, generate } from './babel.js';
+import { printHelp } from '../messages.js';
 import { appendForwardSlash } from '../path.js';
+import { apply as applyPolyfill } from '../polyfill.js';
+import { parseNpmName } from '../util.js';
+import { generate, parse, t, visit } from './babel.js';
+import { ensureImport } from './imports.js';
+import { wrapDefaultExport } from './wrapper.js';
 
 export interface AddOptions {
 	logging: LogOptions;
@@ -34,71 +33,73 @@ export interface IntegrationInfo {
 	packageName: string;
 	dependencies: [name: string, version: string][];
 }
+const ALIASES = new Map([
+	['solid', 'solid-js'],
+	['tailwindcss', 'tailwind'],
+]);
+const ASTRO_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\ndefault defineConfig({});`;
+const TAILWIND_CONFIG_STUB = `/** @type {import('tailwindcss').Config} */
+module.exports = {
+	content: ['./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}'],
+	theme: {
+		extend: {},
+	},
+	plugins: [],
+}\n`;
 
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
-	if (flags.help) {
+	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
-			usage: '[FLAGS] [INTEGRATIONS...]',
-			flags: [
-				['--yes', 'Add the integration without user interaction.'],
-				['--help', 'Show this help message.'],
-			],
+			usage: '[...integrations]',
+			tables: {
+				Flags: [
+					['--yes', 'Accept all prompts.'],
+					['--help', 'Show this help message.'],
+				],
+				'Example: Add a UI Framework': [
+					['react', 'astro add react'],
+					['preact', 'astro add preact'],
+					['vue', 'astro add vue'],
+					['svelte', 'astro add svelte'],
+					['solid-js', 'astro add solid-js'],
+					['lit', 'astro add lit'],
+				],
+				'Example: Add an Integration': [
+					['tailwind', 'astro add tailwind'],
+					['partytown', 'astro add partytown'],
+					['sitemap', 'astro add sitemap'],
+				],
+			},
+			description: `Check out the full integration catalog: ${cyan(
+				'https://astro.build/integrations'
+			)}`,
 		});
 		return;
 	}
 	let configURL: URL | undefined;
 	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
-	// TODO: improve error handling for invalid configs
 	configURL = await resolveConfigURL({ cwd, flags });
-
-	if (configURL?.pathname.endsWith('package.json')) {
-		throw new Error(
-			`Unable to use astro add with package.json#astro configuration! Try migrating to \`astro.config.mjs\` and try again.`
-		);
-	}
 	applyPolyfill();
-
-	// If no integrations were given, prompt the user for some popular ones.
-	if (names.length === 0) {
-		const response = await prompts([
-			{
-				type: 'multiselect',
-				name: 'frameworks',
-				message: 'What frameworks would you like to enable?',
-				instructions: '\n  Space to select. Return to submit',
-				choices: CONSTS.FIRST_PARTY_FRAMEWORKS,
-			},
-			{
-				type: 'multiselect',
-				name: 'addons',
-				message: 'What additional integrations would you like to enable?',
-				instructions: '\n  Space to select. Return to submit',
-				choices: CONSTS.FIRST_PARTY_ADDONS,
-			},
-		]);
-
-		names = [...(response.frameworks ?? []), ...(response.addons ?? [])];
-	}
-
-	// If still empty after prompting, exit gracefully.
-	if (names.length === 0) {
-		error(logging, null, `No integrations specified.`);
-		return;
-	}
-
-	// Some packages might have a common alias! We normalize those here.
-	names = names.map((name) => (CONSTS.ALIASES.has(name) ? CONSTS.ALIASES.get(name)! : name));
 
 	if (configURL) {
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
 		configURL = new URL('./astro.config.mjs', appendForwardSlash(root.href));
-		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
+		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
-	const integrations = await validateIntegrations(names);
+	// TODO: improve error handling for invalid configs
+	if (configURL?.pathname.endsWith('package.json')) {
+		throw new Error(
+			`Unable to use "astro add" with package.json configuration. Try migrating to \`astro.config.mjs\` and try again.`
+		);
+	}
+
+	// Some packages might have a common alias! We normalize those here.
+	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
+	const integrations = await validateIntegrations(integrationNames);
 
 	let ast: t.File | null = null;
 	try {
@@ -194,7 +195,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					if (await askToContinue({ flags })) {
 						await fs.writeFile(
 							fileURLToPath(new URL('./tailwind.config.cjs', configURL)),
-							CONSTS.TAILWIND_CONFIG_STUB,
+							TAILWIND_CONFIG_STUB,
 							{ encoding: 'utf-8' }
 						);
 						debug('add', `Generated default ./tailwind.config.cjs file`);
@@ -407,7 +408,9 @@ async function getInstallIntegrationsCommand({
 		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
 		.flat(1)
 		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
-		.map(([name, version]) => (version === null ? name : `${name}@${version}`))
+		.map(([name, version]) =>
+			version === null ? name : `${name}@${version.split(/\s*\|\|\s*/).pop()}`
+		)
 		.sort();
 
 	switch (pm.name) {

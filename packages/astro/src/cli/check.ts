@@ -2,11 +2,11 @@
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
 import type { AstroConfig } from '../@types/astro';
 
-import { bold, black, bgWhite, red, cyan, yellow } from 'kleur/colors';
 import glob from 'fast-glob';
+import * as fs from 'fs';
+import { bgWhite, black, bold, cyan, red, yellow } from 'kleur/colors';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
-import * as fs from 'fs';
 
 async function openAllDocuments(
 	workspaceUri: URL,

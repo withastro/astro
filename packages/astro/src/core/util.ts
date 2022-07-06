@@ -8,6 +8,9 @@ import type { ErrorPayload } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { removeTrailingForwardSlash } from './path.js';
 
+// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
+export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
@@ -147,6 +150,33 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 
 export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
+}
+
+function isInPagesDir(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	return file.toString().startsWith(pagesDir.toString());
+}
+
+function isPublicRoute(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
+	for (const part of parts) {
+		if (part.startsWith('_')) return false;
+	}
+	return true;
+}
+
+function endsWithPageExt(file: URL, config: AstroConfig): boolean {
+	for (const ext of config._ctx.pageExtensions) {
+		if (file.toString().endsWith(ext)) return true;
+	}
+	return false;
+}
+
+export function isPage(file: URL, config: AstroConfig): boolean {
+	if (!isInPagesDir(file, config)) return false;
+	if (!isPublicRoute(file, config)) return false;
+	return endsWithPageExt(file, config);
 }
 
 export function isBuildingToSSR(config: AstroConfig): boolean {

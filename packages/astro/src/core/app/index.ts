@@ -3,22 +3,23 @@ import type {
 	EndpointHandler,
 	ManifestData,
 	RouteData,
+	SSRElement,
 } from '../../@types/astro';
-import type { SSRManifest as Manifest, RouteInfo } from './types';
 import type { LogOptions } from '../logger/core.js';
+import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
-import { consoleLogDestination } from '../logger/console.js';
-export { deserializeManifest } from './common.js';
-import { matchRoute } from '../routing/match.js';
-import { render } from '../render/core.js';
 import { call as callEndpoint } from '../endpoint/index.js';
+import { consoleLogDestination } from '../logger/console.js';
+import { joinPaths, prependForwardSlash } from '../path.js';
+import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,
-	createModuleScriptElementWithSrcSet,
+	createModuleScriptElement,
 } from '../render/ssr-element.js';
-import { prependForwardSlash } from '../path.js';
+import { matchRoute } from '../routing/match.js';
+export { deserializeManifest } from './common.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
@@ -33,14 +34,16 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
+	#streaming: boolean;
 
-	constructor(manifest: Manifest) {
+	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(this.#logging);
+		this.#streaming = streaming;
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -78,9 +81,22 @@ export class App {
 		const renderers = manifest.renderers;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
-		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
-		const result = await render({
+		let scripts = new Set<SSRElement>();
+		for (const script of info.scripts) {
+			if ('stage' in script) {
+				if (script.stage === 'head-inline') {
+					scripts.add({
+						props: {},
+						children: script.children,
+					});
+				}
+			} else {
+				scripts.add(createModuleScriptElement(script, manifest.site));
+			}
+		}
+
+		const response = await render({
 			links,
 			logging: this.#logging,
 			markdown: manifest.markdown,
@@ -94,28 +110,19 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = manifest.entryModules[specifier];
-				return bundlePath.startsWith('data:') ? bundlePath : prependForwardSlash(bundlePath);
+				return bundlePath.startsWith('data:')
+					? bundlePath
+					: prependForwardSlash(joinPaths(manifest.base, bundlePath));
 			},
 			route: routeData,
 			routeCache: this.#routeCache,
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			streaming: this.#streaming,
 		});
 
-		if (result.type === 'response') {
-			return result.response;
-		}
-
-		let html = result.html;
-		let bytes = this.#encoder.encode(html);
-		return new Response(bytes, {
-			status: 200,
-			headers: {
-				'Content-Type': 'text/html',
-				'Content-Length': bytes.byteLength.toString(),
-			},
-		});
+		return response;
 	}
 
 	async #callEndpoint(

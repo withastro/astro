@@ -42,13 +42,14 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [create-astro](packages/create-astro)                   | [![create-astro version](https://img.shields.io/npm/v/create-astro.svg?label=%20)](packages/create-astro/CHANGELOG.md)            |
 | [@astrojs/react](packages/integrations/react)           | [![astro version](https://img.shields.io/npm/v/@astrojs/react.svg?label=%20)](packages/integrations/react/CHANGELOG.md)           |
 | [@astrojs/preact](packages/integrations/preact)         | [![astro version](https://img.shields.io/npm/v/@astrojs/preact.svg?label=%20)](packages/integrations/preact/CHANGELOG.md)         |
-| [@astrojs/solid-js](packages/integrations/solid-js)     | [![astro version](https://img.shields.io/npm/v/@astrojs/solid-js.svg?label=%20)](packages/integrations/solid-js/CHANGELOG.md)     |
+| [@astrojs/solid-js](packages/integrations/solid)        | [![astro version](https://img.shields.io/npm/v/@astrojs/solid-js.svg?label=%20)](packages/integrations/solid-js/CHANGELOG.md)     |
 | [@astrojs/svelte](packages/integrations/svelte)         | [![astro version](https://img.shields.io/npm/v/@astrojs/svelte.svg?label=%20)](packages/integrations/svelte/CHANGELOG.md)         |
 | [@astrojs/vue](packages/integrations/vue)               | [![astro version](https://img.shields.io/npm/v/@astrojs/vue.svg?label=%20)](packages/integrations/vue/CHANGELOG.md)               |
 | [@astrojs/lit](packages/integrations/lit)               | [![astro version](https://img.shields.io/npm/v/@astrojs/lit.svg?label=%20)](packages/integrations/lit/CHANGELOG.md)               |
 | [@astrojs/deno](packages/integrations/deno)             | [![astro version](https://img.shields.io/npm/v/@astrojs/deno.svg?label=%20)](packages/integrations/deno/CHANGELOG.md)             |
 | [@astrojs/netlify](packages/integrations/netlify)       | [![astro version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](packages/integrations/netlify/CHANGELOG.md)       |
 | [@astrojs/vercel](packages/integrations/vercel)         | [![astro version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)         |
+| [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md)   |
 | [@astrojs/partytown](packages/integrations/partytown)   | [![astro version](https://img.shields.io/npm/v/@astrojs/partytown.svg?label=%20)](packages/integrations/partytown/CHANGELOG.md)   |
 | [@astrojs/sitemap](packages/integrations/sitemap)       | [![astro version](https://img.shields.io/npm/v/@astrojs/sitemap.svg?label=%20)](packages/integrations/sitemap/CHANGELOG.md)       |
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |

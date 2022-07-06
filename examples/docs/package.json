@@ -9,17 +9,17 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@algolia/client-search": "^4.13.0",
-    "@docsearch/css": "^3.0.0",
-    "@docsearch/react": "^3.0.0",
-    "@types/react": "^17.0.44",
-    "preact": "^10.7.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "@algolia/client-search": "^4.13.1",
+    "@docsearch/css": "^3.1.0",
+    "@docsearch/react": "^3.1.0",
+    "@types/react": "^17.0.45",
+    "preact": "^10.7.3",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@astrojs/preact": "^0.1.2",
-    "@astrojs/react": "^0.1.1",
-    "astro": "^1.0.0-beta.24"
+    "@astrojs/preact": "^0.3.1",
+    "@astrojs/react": "^0.2.0",
+    "astro": "^1.0.0-beta.63"
   }
 }

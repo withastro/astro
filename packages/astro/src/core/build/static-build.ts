@@ -1,36 +1,32 @@
-import type { RollupOutput } from 'rollup';
-import { BuildInternals, trackClientOnlyPageDatas } from '../../core/build/internal.js';
-import type { ViteConfigWithSSR } from '../create-vite';
-import type { PageBuildData, StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import npath from 'path';
+import type { RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { createBuildInternals } from '../../core/build/internal.js';
-import { info } from '../logger/core.js';
+import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
+import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
-import { vitePluginInternals } from './vite-plugin-internals.js';
-import { vitePluginSSR } from './vite-plugin-ssr.js';
-import { vitePluginPages } from './vite-plugin-pages.js';
+import type { ViteConfigWithSSR } from '../create-vite';
+import { info } from '../logger/core.js';
+import { isBuildingToSSR } from '../util.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { isBuildingToSSR } from '../util.js';
-import { runHookBuildSetup } from '../../integrations/index.js';
+import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
+import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
+import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
+import { vitePluginInternals } from './vite-plugin-internals.js';
+import { vitePluginPages } from './vite-plugin-pages.js';
+import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
 	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
-
-	// The JavaScript entrypoints.
-	const jsInput = new Set<string>();
 
 	// A map of each page .astro file, to the PageBuildData which contains information
 	// about that page, such as its paths.
@@ -50,42 +46,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		// Track the page data in internals
 		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
-		if (pageData.route.type === 'page') {
-			const [renderers, mod] = pageData.preload;
-			const metadata = mod.$$metadata;
-
-			// Track client:only usage so we can map their CSS back to the Page they are used in.
-			const clientOnlys = Array.from(metadata.clientOnlyComponentPaths());
-			trackClientOnlyPageDatas(internals, pageData, clientOnlys, astroConfig);
-
-			const topLevelImports = new Set([
-				// Any component that gets hydrated
-				// 'components/Counter.jsx'
-				// { 'components/Counter.jsx': 'counter.hash.js' }
-				...metadata.hydratedComponentPaths(),
-				// Client-only components
-				...clientOnlys,
-				// Any hydration directive like astro/client/idle.js
-				...metadata.hydrationDirectiveSpecifiers(),
-				// The client path for each renderer
-				...renderers
-					.filter((renderer) => !!renderer.clientEntrypoint)
-					.map((renderer) => renderer.clientEntrypoint!),
-			]);
-
-			// Add hoisted scripts
-			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
-			if (hoistedScripts.size) {
-				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
-				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
-				topLevelImports.add(moduleId);
-			}
-
-			for (const specifier of topLevelImports) {
-				jsInput.add(specifier);
-			}
-		}
-
 		pageInput.add(astroModuleId);
 		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 	}
@@ -95,21 +55,40 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// condition, so we are doing it ourselves
 	emptyDir(astroConfig.outDir, new Set('.git'));
 
-	timer.clientBuild = performance.now();
-	// Run client build first, so the assets can be fed into the SSR rendered version.
-	await clientBuild(opts, internals, jsInput);
-
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
-	info(opts.logging, 'build', 'Building for SSR...');
+	info(
+		opts.logging,
+		'build',
+		isBuildingToSSR(astroConfig)
+			? 'Building SSR entrypoints...'
+			: 'Building entrypoints for prerendering...'
+	);
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
+	const clientInput = new Set<string>([
+		...internals.discoveredHydratedComponents,
+		...internals.discoveredClientOnlyComponents,
+		...(astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter((a) => a) as string[]),
+		...internals.discoveredScripts,
+	]);
+
+	// Run client build first, so the assets can be fed into the SSR rendered version.
+	timer.clientBuild = performance.now();
+	await clientBuild(opts, internals, clientInput);
+
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
-		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
-		await cleanSsrOutput(opts);
+		try {
+			await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
+		} finally {
+			await cleanSsrOutput(opts);
+		}
 	} else {
+		// Inject the manifest
+		await injectManifest(opts, internals);
+
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 	}
@@ -120,10 +99,14 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const ssr = isBuildingToSSR(astroConfig);
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
-	const viteBuildConfig = {
-		logLevel: 'error',
+	const viteBuildConfig: ViteConfigWithSSR = {
+		logLevel: opts.viteConfig.logLevel ?? 'error',
 		mode: 'production',
 		css: viteConfig.css,
+		optimizeDeps: {
+			include: [...(viteConfig.optimizeDeps?.include ?? [])],
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
+		},
 		build: {
 			...viteConfig.build,
 			emptyOutDir: false,
@@ -133,11 +116,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
+					chunkFileNames: 'chunks/[name].[hash].mjs',
+					assetFileNames: 'assets/[name].[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
-					chunkFileNames: 'chunks/chunk.[hash].mjs',
-					assetFileNames: 'assets/asset.[hash][extname]',
 				},
 			},
+
 			ssr: true,
 			// must match an esbuild target
 			target: 'esnext',
@@ -157,15 +142,16 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			// SSR needs to be last
 			isBuildingToSSR(opts.astroConfig) &&
 				vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+			vitePluginAnalyzer(opts.astroConfig, internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.site ? new URL(astroConfig.site).pathname : '/',
+		base: astroConfig.base,
 		ssr: viteConfig.ssr,
 		resolve: viteConfig.resolve,
-	} as ViteConfigWithSSR;
+	};
 
 	await runHookBuildSetup({
 		config: astroConfig,
@@ -205,6 +191,10 @@ async function clientBuild(
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
+		optimizeDeps: {
+			include: [...(viteConfig.optimizeDeps?.include ?? [])],
+			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
+		},
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
@@ -213,9 +203,10 @@ async function clientBuild(
 				input: Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: 'entry.[hash].js',
-					chunkFileNames: 'chunks/chunk.[hash].js',
-					assetFileNames: 'assets/asset.[hash][extname]',
+					entryFileNames: '[name].[hash].js',
+					chunkFileNames: 'chunks/[name].[hash].js',
+					assetFileNames: 'assets/[name].[hash][extname]',
+					...viteConfig.build?.rollupOptions?.output,
 				},
 				preserveEntrySignatures: 'exports-only',
 			},

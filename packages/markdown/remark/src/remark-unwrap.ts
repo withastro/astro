@@ -1,4 +1,4 @@
-import { visit as _visit, SKIP } from 'unist-util-visit';
+import { SKIP, visit as _visit } from 'unist-util-visit';
 
 // This is a workaround.
 // It fixes a compatibility issue between different, incompatible ASTs given by plugins to Unist
@@ -8,7 +8,7 @@ const visit = _visit as (
 	callback?: (node: any, index: number, parent: any) => any
 ) => any;
 
-// Remove the wrapping paragraph for <astro-root> islands
+// Remove the wrapping paragraph for <astro-island> islands
 export default function remarkUnwrap() {
 	const astroRootNodes = new Set();
 	let insideAstroRoot = false;
@@ -19,10 +19,10 @@ export default function remarkUnwrap() {
 		astroRootNodes.clear();
 
 		visit(tree, 'html', (node) => {
-			if (node.value.indexOf('<astro-root') > -1 && !insideAstroRoot) {
+			if (node.value.indexOf('<astro-island') > -1 && !insideAstroRoot) {
 				insideAstroRoot = true;
 			}
-			if (node.value.indexOf('</astro-root') > -1 && insideAstroRoot) {
+			if (node.value.indexOf('</astro-island') > -1 && insideAstroRoot) {
 				insideAstroRoot = false;
 			}
 			astroRootNodes.add(node);

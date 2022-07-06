@@ -1,5 +1,4 @@
-import './edge-shim.js';
-import { SSRManifest } from 'astro';
+import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
 export function createExports(manifest: SSRManifest) {

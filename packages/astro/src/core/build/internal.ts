@@ -1,16 +1,17 @@
-import type { AstroConfig, RouteData } from '../../@types/astro';
-import type { RenderedChunk } from 'rollup';
+import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { fileURLToPath } from 'url';
+import { prependForwardSlash } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.
 	pureCSSChunks: Set<RenderedChunk>;
 
-	// TODO document what this is
+	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
+	// A mapping of hoisted script ids back to the pages which reference it
+	hoistedScriptIdToPagesMap: Map<string, Set<string>>;
 
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
 	// Used to render pages with the correct specifiers.
@@ -30,6 +31,27 @@ export interface BuildInternals {
 	 * A map for page-specific information by a client:only component
 	 */
 	pagesByClientOnly: Map<string, Set<PageBuildData>>;
+
+	/**
+	 * A list of hydrated components that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredHydratedComponents: Set<string>;
+	/**
+	 * A list of client:only components that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredClientOnlyComponents: Set<string>;
+	/**
+	 * A list of hoisted scripts that are discovered during the SSR build
+	 * These will be used as the top-level entrypoints for the client build.
+	 */
+	discoveredScripts: Set<string>;
+
+	// A list of all static files created during the build. Used for SSR.
+	staticFiles: Set<string>;
+	// The SSR entry chunk. Kept in internals to share between ssr/client build steps
+	ssrEntryChunk?: OutputChunk;
 }
 
 /**
@@ -51,14 +73,23 @@ export function createBuildInternals(): BuildInternals {
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
 
+	// This tracks hoistedScriptId => page components
+	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
+
 	return {
 		pureCSSChunks,
 		hoistedScriptIdToHoistedMap,
+		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
 
 		pagesByComponent: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
+
+		discoveredHydratedComponents: new Set(),
+		discoveredClientOnlyComponents: new Set(),
+		discoveredScripts: new Set(),
+		staticFiles: new Set(),
 	};
 }
 
@@ -80,17 +111,16 @@ export function trackPageData(
 export function trackClientOnlyPageDatas(
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	clientOnlys: string[],
-	astroConfig: AstroConfig
+	clientOnlys: string[]
 ) {
 	for (const clientOnlyComponent of clientOnlys) {
-		const coPath = viteID(new URL('.' + clientOnlyComponent, astroConfig.root));
 		let pageDataSet: Set<PageBuildData>;
-		if (internals.pagesByClientOnly.has(coPath)) {
-			pageDataSet = internals.pagesByClientOnly.get(coPath)!;
+		// clientOnlyComponent will be similar to `/@fs{moduleID}`
+		if (internals.pagesByClientOnly.has(clientOnlyComponent)) {
+			pageDataSet = internals.pagesByClientOnly.get(clientOnlyComponent)!;
 		} else {
 			pageDataSet = new Set<PageBuildData>();
-			internals.pagesByClientOnly.set(coPath, pageDataSet);
+			internals.pagesByClientOnly.set(clientOnlyComponent, pageDataSet);
 		}
 		pageDataSet.add(pageData);
 	}
@@ -108,17 +138,17 @@ export function* getPageDatasByChunk(
 	}
 }
 
-export function* getPageDatasByClientOnlyChunk(
+export function* getPageDatasByClientOnlyID(
 	internals: BuildInternals,
-	chunk: RenderedChunk
+	viteid: ViteID
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		for (const [modulePath] of Object.entries(chunk.modules)) {
-			if (pagesByClientOnly.has(modulePath)) {
-				for (const pageData of pagesByClientOnly.get(modulePath)!) {
-					yield pageData;
-				}
+		const pathname = `/@fs${prependForwardSlash(viteid)}`;
+		const pageBuildDatas = pagesByClientOnly.get(pathname);
+		if (pageBuildDatas) {
+			for (const pageData of pageBuildDatas) {
+				yield pageData;
 			}
 		}
 	}

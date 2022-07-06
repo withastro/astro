@@ -9,10 +9,11 @@ import { h, defineComponent } from 'vue';
 const StaticHtml = defineComponent({
 	props: {
 		value: String,
+		name: String,
 	},
-	setup({ value }) {
+	setup({ name, value }) {
 		if (!value) return () => null;
-		return () => h('astro-fragment', { innerHTML: value });
+		return () => h('astro-slot', { name, innerHTML: value });
 	},
 });
 
