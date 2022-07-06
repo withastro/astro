@@ -315,7 +315,8 @@ async function handleRequest(
 			if (result.type === 'response') {
 				await writeWebResponse(res, result.response);
 			} else {
-				res.writeHead(200);
+				// mirrors SvelteKit's default when using { body: ... } shorthand
+				res.writeHead(200, { 'Content-Type': 'text/plain;charset=utf-8' });
 				res.end(result.body);
 			}
 		} else {
