@@ -19,13 +19,13 @@ export function addCartItem({ id, name, imageSrc }) {
     cartItems.setKey(id, {
       ...existingEntry,
       quantity: existingEntry.quantity + 1,
-    })
+    });
   } else {
     cartItems.setKey(id, {
       id,
       name,
       imageSrc,
       quantity: 1,
-    })
+    });
   }
 }
