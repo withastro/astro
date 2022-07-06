@@ -159,6 +159,8 @@ export function startLanguageServer(connection: vscode.Connection) {
 		} else {
 			configManager.updateGlobalConfig(<LSConfig>change.settings.astro || defaultLSConfig);
 		}
+
+		updateAllDiagnostics();
 	});
 
 	// Documents

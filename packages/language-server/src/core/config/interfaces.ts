@@ -16,6 +16,7 @@ export interface LSFormatConfig {
 
 export interface LSTypescriptConfig {
 	enabled: boolean;
+	allowArbitraryAttributes: boolean;
 	diagnostics: {
 		enabled: boolean;
 	};

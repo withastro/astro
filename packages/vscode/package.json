@@ -100,6 +100,12 @@
           "title": "TypeScript",
           "description": "Enable TypeScript features"
         },
+        "astro.typescript.allowArbitraryAttributes": {
+          "type": "boolean",
+          "default": false,
+          "title": "TypeScript: Allow arbitrary attributes on HTML elements",
+          "description": "Enable the usage of non-standard HTML attributes, such as the ones added by AlpineJS or petite-vue"
+        },
         "astro.typescript.diagnostics.enabled": {
           "type": "boolean",
           "default": true,

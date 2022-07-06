@@ -24,6 +24,7 @@ export class LanguageServiceManager {
 		this.docContext = {
 			createDocument: this.createDocument,
 			globalSnapshotManager: this.globalSnapshotManager,
+			configManager: this.configManager,
 		};
 
 		const handleDocumentChange = (document: AstroDocument) => {

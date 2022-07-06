@@ -43,6 +43,19 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		]);
 	});
 
+	it('support arbitrary attributes when enabled', async () => {
+		const { provider, document, configManager } = setup('arbitraryAttrs.astro');
+
+		configManager.updateGlobalConfig(<any>{
+			typescript: {
+				allowArbitraryAttributes: true,
+			},
+		});
+
+		const diagnostics = await provider.getDiagnostics(document);
+		expect(diagnostics).to.be.empty;
+	});
+
 	it('provide deprecated and unused hints', async () => {
 		const { provider, document } = setup('hints.astro');
 
