@@ -12,6 +12,7 @@ import Slotted from '../components/Slotted.astro';
 			{true ? <span slot="b">B</span> : null}
 			{() => <span slot="c">C</span>}
 			{() => {
+				const value = 0.33;
 				if (value > 0.25) {
 					return <span>Default</span>
 				} else if (value > 0.5) {
@@ -19,7 +20,7 @@ import Slotted from '../components/Slotted.astro';
 				} else if (value > 0.75) {
 					return <span>Other</span>
 				}
-				return <span>Yet Other</span>
+				return <span>Yet Another</span>
 			}}
     </Slotted>
   </body>
