@@ -720,7 +720,7 @@ export async function renderPage(
 		if (!/<!doctype html/i.test(html)) {
 			let rest = html;
 			html = `<!DOCTYPE html>`;
-			for await(let chunk of maybeRenderHead(result)) {
+			for await (let chunk of maybeRenderHead(result)) {
 				html += chunk;
 			}
 			html += rest;
