@@ -28,7 +28,8 @@ function check(Component, props, children) {
 
 			return !/\<undefined\>/.test(html);
 		} catch (err) {
-			return false;
+			// This is done intentionally in order to show errors that are thrown during a build process.
+			throw err;
 		}
 	} finally {
 		finishUsingConsoleFilter();
