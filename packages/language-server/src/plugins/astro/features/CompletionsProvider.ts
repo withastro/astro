@@ -15,8 +15,7 @@ import {
 } from 'vscode-languageserver';
 import ts from 'typescript';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
-import { isInComponentStartTag, isInsideExpression } from '../../../core/documents/utils';
-import { isPossibleComponent } from '../../../utils';
+import { isInComponentStartTag, isInsideExpression, isPossibleComponent } from '../../../core/documents/utils';
 import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
 import { getLanguageService } from 'vscode-html-languageservice';
 import { astroDirectives } from '../../html/features/astro-attributes';

@@ -14,9 +14,9 @@ import { CompletionItem, CompletionItemKind } from 'vscode-languageserver-protoc
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import {
 	getLineAtPosition,
-	isComponentTag,
 	isInsideExpression,
 	isInsideFrontmatter,
+	isPossibleComponent,
 } from '../../../core/documents/utils';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import ts, { ScriptElementKind, ScriptElementKindModifier } from 'typescript';
@@ -172,9 +172,9 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 				return null;
 			}
 
-			// If the current node is not a component (aka, it doesn't start with a caps), let's disable ourselves as the user
+			// If the current node is not a component, let's disable ourselves as the user
 			// is most likely looking for HTML completions
-			if (!isCompletionInsideFrontmatter && !isComponentTag(node) && !isCompletionInsideExpression) {
+			if (!isCompletionInsideFrontmatter && !isPossibleComponent(node) && !isCompletionInsideExpression) {
 				return null;
 			}
 

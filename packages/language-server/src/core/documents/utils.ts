@@ -126,32 +126,19 @@ export function getLineAtPosition(position: Position, text: string) {
 }
 
 /**
- * Returns the node if offset is inside a HTML start tag
- */
-export function getNodeIfIsInHTMLStartTag(html: HTMLDocument, offset: number): Node | undefined {
-	const node = html.findNodeAt(offset);
-	if (!!node.tag && node.tag[0] === node.tag[0].toLowerCase() && (!node.startTagEnd || offset < node.startTagEnd)) {
-		return node;
-	}
-}
-
-/**
- * Return if a Node is a Component
- */
-export function isComponentTag(node: Node) {
-	if (!node.tag) {
-		return false;
-	}
-	const firstChar = node.tag[0];
-	return /[A-Z]/.test(firstChar);
-}
-
-/**
  * Return if a given offset is inside the start tag of a component
  */
 export function isInComponentStartTag(html: HTMLDocument, offset: number): boolean {
 	const node = html.findNodeAt(offset);
-	return isComponentTag(node) && (!node.startTagEnd || offset < node.startTagEnd);
+	return isPossibleComponent(node) && (!node.startTagEnd || offset < node.startTagEnd);
+}
+
+/**
+ * Return true if a specific node could be a component.
+ * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
+ */
+export function isPossibleComponent(node: Node): boolean {
+	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]?/);
 }
 
 /**

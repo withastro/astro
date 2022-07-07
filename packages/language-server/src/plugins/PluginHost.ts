@@ -30,7 +30,7 @@ import {
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { DocumentManager } from '../core/documents/DocumentManager';
 import { isNotNullOrUndefined, regexLastIndexOf } from '../utils';
-import { getNodeIfIsInHTMLStartTag, isInComponentStartTag } from '../core/documents';
+import { isInComponentStartTag } from '../core/documents';
 
 enum ExecuteMode {
 	None,
@@ -87,12 +87,13 @@ export class PluginHost {
 		const astro = completions.find((completion) => completion.plugin === 'astro');
 
 		if (html && ts) {
-			if (getNodeIfIsInHTMLStartTag(document.html, document.offsetAt(position))) {
+			const inComponentStartTag = isInComponentStartTag(document.html, document.offsetAt(position));
+			if (!inComponentStartTag) {
 				ts.result.items = [];
 			}
 
 			// If the Astro plugin has completions for us, don't show TypeScript's as they're most likely duplicates
-			if (astro && astro.result.items.length > 0 && isInComponentStartTag(document.html, document.offsetAt(position))) {
+			if (astro && astro.result.items.length > 0 && inComponentStartTag) {
 				ts.result.items = [];
 			}
 

@@ -1,6 +1,5 @@
 import { URI } from 'vscode-uri';
 import { Position, Range } from 'vscode-languageserver';
-import { Node } from 'vscode-html-languageservice';
 
 /** Normalizes a document URI */
 export function normalizeUri(uri: string): string {
@@ -102,14 +101,6 @@ export function modifyLines(text: string, replacementFn: (line: string, lineIdx:
 				.join('\n')
 		)
 		.join('\r\n');
-}
-
-/**
- * Return true if a specific node could be a component.
- * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
- */
-export function isPossibleComponent(node: Node): boolean {
-	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]/);
 }
 
 /** Clamps a number between min and max */

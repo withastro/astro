@@ -47,6 +47,17 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		expect(completions).to.be.null;
 	});
 
+	it('provides completion for components under a namespace', async () => {
+		const { provider, document } = setup('importNamespacedComponents.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(4, 12), {
+			triggerKind: CompletionTriggerKind.TriggerCharacter,
+			triggerCharacter: '.',
+		});
+
+		expect(completions?.items).to.not.be.empty;
+	});
+
 	it('provide auto import completion with insert action for component - no front matter', async () => {
 		const { provider, document } = setup('autoImportNoFrontmatter.astro');
 

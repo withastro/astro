@@ -16,9 +16,13 @@ import { getLanguageService, HTMLFormatConfiguration } from 'vscode-html-languag
 import type { Plugin } from '../interfaces';
 import { ConfigManager } from '../../core/config/ConfigManager';
 import { AstroDocument } from '../../core/documents/AstroDocument';
-import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
+import {
+	isInComponentStartTag,
+	isInsideExpression,
+	isInsideFrontmatter,
+	isPossibleComponent,
+} from '../../core/documents/utils';
 import { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
-import { isPossibleComponent } from '../../utils';
 import { astroAttributes, astroDirectives, classListAttribute } from './features/astro-attributes';
 import { removeDataAttrCompletion } from './utils';
 
