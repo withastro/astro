@@ -7,7 +7,6 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "postinstall": "patch-package",
     "release": "pnpm run build && changeset publish",
     "build": "turbo run build --output-logs=new-only --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:ci": "turbo run build:ci --output-logs=new-only --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
@@ -44,9 +43,9 @@
   ],
   "engines": {
     "node": "^14.15.0 || >=16.0.0",
-    "pnpm": ">=7.0.0"
+    "pnpm": ">=7.5.0"
   },
-  "packageManager": "pnpm@7.0.0",
+  "packageManager": "pnpm@7.5.0",
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -55,14 +54,19 @@
         "@babel/plugin-transform-react-jsx",
         "vite"
       ]
+    },
+    "patchedDependencies": {
+      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch",
+      "@changesets/assemble-release-plan@5.1.3": "patches/@changesets__assemble-release-plan@5.1.3.patch"
     }
   },
   "dependencies": {
     "@astrojs/webapi": "workspace:*"
   },
   "devDependencies": {
+    "@changesets/assemble-release-plan": "5.1.3",
     "@changesets/changelog-github": "0.4.4",
-    "@changesets/cli": "2.22.0",
+    "@changesets/cli": "2.23.0",
     "@octokit/action": "^3.18.1",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
@@ -74,7 +78,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",
-    "patch-package": "^6.4.7",
     "prettier": "^2.7.0",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
