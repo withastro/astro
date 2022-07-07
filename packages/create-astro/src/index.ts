@@ -6,11 +6,11 @@ import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 
 import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
+import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
 import { TEMPLATES } from './templates.js';
-import detectPackageManager from 'which-pm-runs';
 
 function wait(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -251,4 +251,3 @@ export async function main() {
 function emojiWithFallback(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
-
