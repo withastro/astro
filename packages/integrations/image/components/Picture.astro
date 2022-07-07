@@ -4,17 +4,16 @@ import Image from './Image.astro';
 import loader from 'virtual:image-loader';
 import { lookup } from 'mrmime';
 import { getImage } from '../src/index.js';
-import type { ImageAttributes, ImageMetadata, OutputFormat, PictureAttributes } from '../src/types.js';
+import type { ImageMetadata, OutputFormat } from '../src/types.js';
 
-export interface Props extends Omit<PictureAttributes, 'src'> {
+export interface Props extends Partial<HTMLPictureElement> {
 	src: ImageMetadata;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	formats?: OutputFormat[];
-	img?: Omit<ImageAttributes, 'src'|'sizes'|'width'|'height'>;
 }
 
-const { src, sizes, widths, formats = ['avif', 'webp', 'jpeg'], ...attrs } = Astro.props as Props;
+const { src, sizes, widths, formats = ['avif', 'webp', 'jpeg'] } = Astro.props as Props;
 
 if (widths.length <= 0) {
 	throw new Error('At least one width must be provided for the <Picture>');
@@ -40,7 +39,7 @@ const width = widths.sort().shift()!;
 const height = Math.round(width / aspectRatio);
 ---
 
-<picture {...attrs}>
+<picture>
 	{sources.map(attrs => (
 	<source {...attrs} {sizes}>))}
 	<Image {sizes} {src} {width} {height} />

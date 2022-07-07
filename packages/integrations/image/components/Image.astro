@@ -4,7 +4,7 @@ import loader from 'virtual:image-loader';
 import { getImage } from '../src/index.js';
 import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types.js';
 
-export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'|'width'|'height'> {
+export interface LocalImageProps extends Omit<TransformOptions, 'src'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 }
 

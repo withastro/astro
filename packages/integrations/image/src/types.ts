@@ -1,4 +1,3 @@
-import 'astro/astro-jsx.js';
 export type { Image, Picture } from '../components/index.js';
 export * from './index.js';
 
@@ -73,8 +72,7 @@ export interface TransformOptions {
 	aspectRatio?: number | `${number}:${number}`;
 }
 
-export type ImageAttributes = astroHTML.JSX.HTMLAttributes<HTMLImageElement>;
-export type PictureAttributes = astroHTML.JSX.HTMLAttributes<HTMLPictureElement>;
+export type ImageAttributes = Partial<HTMLImageElement>;
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
