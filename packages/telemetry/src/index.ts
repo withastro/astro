@@ -9,14 +9,11 @@ import { getSystemInfo, SystemInfo } from './system-info.js';
 
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
-interface EventContext {
-	anonymousId: string;
-	anonymousProjectId: string;
-	anonymousSessionId: string;
-}
 
-interface EventMeta extends SystemInfo {
-	isGit: boolean;
+interface EventMeta extends SystemInfo {}
+interface EventContext extends ProjectInfo {
+	anonymousId: string;
+	anonymousSessionId: string;
 }
 export class AstroTelemetry {
 	private _anonymousSessionId: string | undefined;
@@ -118,29 +115,19 @@ export class AstroTelemetry {
 			return Promise.resolve();
 		}
 
-		if (this.debug.enabled) {
-			// Print to standard error to simplify selecting the output
-			events.forEach(({ eventName, payload }) =>
-				this.debug(JSON.stringify({ eventName, payload }, null, 2))
-			);
-			// Do not send the telemetry data if debugging. Users may use this feature
-			// to preview what data would be sent.
-			return Promise.resolve();
-		}
-
 		// Skip recording telemetry if the feature is disabled
 		if (this.isDisabled) {
+			this.debug('telemetry disabled');
 			return Promise.resolve();
 		}
 
 		const meta: EventMeta = {
 			...getSystemInfo({ astroVersion: this.astroVersion, viteVersion: this.viteVersion }),
-			isGit: this.anonymousProjectInfo.isGit,
 		};
 
 		const context: EventContext = {
+			...this.anonymousProjectInfo,
 			anonymousId: this.anonymousId,
-			anonymousProjectId: this.anonymousProjectInfo.anonymousProjectId,
 			anonymousSessionId: this.anonymousSessionId,
 		};
 
@@ -148,6 +135,15 @@ export class AstroTelemetry {
 		// To solve this, we track all CI runs under a single "CI" anonymousId.
 		if (meta.isCI) {
 			context.anonymousId = `CI.${meta.ciName || 'UNKNOWN'}`;
+		}
+
+		if (this.debug.enabled) {
+			// Print to standard error to simplify selecting the output
+			this.debug({ context, meta });
+			this.debug(JSON.stringify(events, null, 2));
+			// Do not send the telemetry data if debugging. Users may use this feature
+			// to preview what data would be sent.
+			return Promise.resolve();
 		}
 
 		return post({

@@ -34,11 +34,13 @@
     "git-up": "^4.0.5",
     "is-docker": "^3.0.0",
     "is-wsl": "^2.2.0",
-    "node-fetch": "^3.2.5"
+    "node-fetch": "^3.2.5",
+    "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
     "@types/dlv": "^1.1.2",
     "@types/node": "^14.18.21",
+    "@types/which-pm-runs": "^1.0.0",
     "astro-scripts": "workspace:*"
   },
   "engines": {

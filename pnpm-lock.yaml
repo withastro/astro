@@ -1844,6 +1844,7 @@ importers:
       '@types/degit': ^2.8.3
       '@types/mocha': ^9.1.1
       '@types/prompts': ^2.0.14
+      '@types/which-pm-runs': ^1.0.0
       '@types/yargs-parser': ^21.0.0
       astro-scripts: workspace:*
       chai: ^4.3.6
@@ -1855,20 +1856,23 @@ importers:
       ora: ^6.1.0
       prompts: ^2.4.2
       uvu: ^0.5.3
+      which-pm-runs: ^1.1.0
       yargs-parser: ^21.0.1
     dependencies:
-      '@types/degit': 2.8.3
-      '@types/prompts': 2.0.14
       chalk: 5.0.1
       degit: 2.8.4
       execa: 6.1.0
       kleur: 4.1.5
       ora: 6.1.2
       prompts: 2.4.2
+      which-pm-runs: 1.1.0
       yargs-parser: 21.0.1
     devDependencies:
       '@types/chai': 4.3.1
+      '@types/degit': 2.8.3
       '@types/mocha': 9.1.1
+      '@types/prompts': 2.0.14
+      '@types/which-pm-runs': 1.0.0
       '@types/yargs-parser': 21.0.0
       astro-scripts: link:../../scripts
       chai: 4.3.6
@@ -2310,6 +2314,7 @@ importers:
     specifiers:
       '@types/dlv': ^1.1.2
       '@types/node': ^14.18.21
+      '@types/which-pm-runs': ^1.0.0
       astro-scripts: workspace:*
       ci-info: ^3.3.1
       debug: ^4.3.4
@@ -2320,6 +2325,7 @@ importers:
       is-docker: ^3.0.0
       is-wsl: ^2.2.0
       node-fetch: ^3.2.5
+      which-pm-runs: ^1.1.0
     dependencies:
       ci-info: 3.3.2
       debug: 4.3.4
@@ -2330,9 +2336,11 @@ importers:
       is-docker: 3.0.0
       is-wsl: 2.2.0
       node-fetch: 3.2.6
+      which-pm-runs: 1.1.0
     devDependencies:
       '@types/dlv': 1.1.2
       '@types/node': 14.18.21
+      '@types/which-pm-runs': 1.0.0
       astro-scripts: link:../../scripts
 
   packages/webapi:
@@ -7385,7 +7393,7 @@ packages:
 
   /@types/degit/2.8.3:
     resolution: {integrity: sha512-CL7y71j2zaDmtPLD5Xq5S1Gv2dFoHl0/GBZm6s39Mj/ls28L3NzAOqf7H4H0/2TNVMgMjMVf9CAFYSjmXhi3bw==}
-    dev: false
+    dev: true
 
   /@types/diff/5.0.2:
     resolution: {integrity: sha512-uw8eYMIReOwstQ0QKF0sICefSy8cNO/v7gOTiIy9SbwuHyEecJUm7qlgueOO5S1udZ5I/irVydHVwMchgzbKTg==}
@@ -7536,7 +7544,7 @@ packages:
     resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
     dependencies:
       '@types/node': 18.0.0
-    dev: false
+    dev: true
 
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -7641,6 +7649,10 @@ packages:
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
+
+  /@types/which-pm-runs/1.0.0:
+    resolution: {integrity: sha512-BXfdlYLWvRhngJbih4N57DjO+63Z7AxiFiip8yq3rD46U7V4I2W538gngPvBsZiMehhD8sfGf4xLI6k7TgXvNw==}
+    dev: true
 
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -15156,6 +15168,11 @@ packages:
   /which-module/2.0.0:
     resolution: {integrity: sha512-B+enWhmw6cjfVC7kS8Pj9pCrKSc5txArRyaYGe088shv/FGWH+0Rjx/xPgtsWfsUtS27FkP697E4DDhgrgoc0Q==}
     dev: true
+
+  /which-pm-runs/1.1.0:
+    resolution: {integrity: sha512-n1brCuqClxfFfq/Rb0ICg9giSZqCS+pLtccdag6C2HyufBrh3fBOiy9nb6ggRMvWOVH5GrdJskj5iGTZNxd7SA==}
+    engines: {node: '>=4'}
+    dev: false
 
   /which-pm/2.0.0:
     resolution: {integrity: sha512-Lhs9Pmyph0p5n5Z3mVnN0yWcbQYUAD7rbQUiMsQxOJ3T57k7RFe35SUwWMf7dsbDZks1uOmw4AecB/JMDj3v/w==}

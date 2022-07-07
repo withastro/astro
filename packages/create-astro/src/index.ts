@@ -10,6 +10,7 @@ import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
 import { TEMPLATES } from './templates.js';
+import detectPackageManager from 'which-pm-runs';
 
 function wait(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -48,7 +49,7 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
-	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
+	const pkgManager = detectPackageManager()?.name || 'npm';
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
@@ -251,18 +252,3 @@ function emojiWithFallback(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }
 
-function pkgManagerFromUserAgent(userAgent?: string) {
-	if (!userAgent) return 'npm';
-	const pkgSpec = userAgent.split(' ')[0];
-	const pkgSpecArr = pkgSpec.split('/');
-	return pkgSpecArr[0];
-}
-
-function pkgManagerExecCommand(pkgManager: string) {
-	if (pkgManager === 'pnpm') {
-		return 'pnpx';
-	} else {
-		// note: yarn does not have an "npx" equivalent
-		return 'npx';
-	}
-}
