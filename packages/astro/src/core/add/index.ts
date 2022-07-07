@@ -568,7 +568,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 							initial: true,
 						});
 						if (!response.askToContinue) {
-							throw new Error('No problem! Find our official integrations at https://astro.build/integrations');
+							throw new Error(`No problem! Find our official integrations at ${cyan('https://astro.build/integrations')}`);
 						}
 						spinner.start('Resolving with third party packages...');
 						pkgType = 'third-party';
@@ -608,7 +608,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 					integrationType = 'adapter';
 				} else {
 					throw new Error(
-						`${bold(packageName)} doesn't appear to be an integration or an adapter. Find our official integrations at https://astro.build/integrations`
+						`${bold(packageName)} doesn't appear to be an integration or an adapter. Find our official integrations at ${cyan('https://astro.build/integrations')}`
 					);
 				}
 
