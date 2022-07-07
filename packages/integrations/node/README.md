@@ -33,7 +33,7 @@ __astro.config.mjs__
 
 ```js
 import { defineConfig } from 'astro/config';
-import deno from '@astrojs/node';
+import node from '@astrojs/node';
 
 export default defineConfig({
   // ...

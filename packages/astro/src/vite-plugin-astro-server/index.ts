@@ -1,4 +1,5 @@
 import type http from 'http';
+import mime from 'mime';
 import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
@@ -315,7 +316,12 @@ async function handleRequest(
 			if (result.type === 'response') {
 				await writeWebResponse(res, result.response);
 			} else {
-				res.writeHead(200);
+				let contentType = 'text/plain';
+				const computedMimeType = route.pathname ? mime.getType(route.pathname) : null;
+				if (computedMimeType) {
+					contentType = computedMimeType;
+				}
+				res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
 				res.end(result.body);
 			}
 		} else {

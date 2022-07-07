@@ -1,6 +1,6 @@
 import sharp from 'sharp';
+import type { OutputFormat, SSRImageService, TransformOptions } from '../types';
 import { isAspectRatioString, isOutputFormat } from '../utils.js';
-import type { TransformOptions, OutputFormat, SSRImageService } from '../types';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
@@ -84,7 +84,9 @@ class SharpService implements SSRImageService {
 		const sharpImage = sharp(inputBuffer, { failOnError: false });
 
 		if (transform.width || transform.height) {
-			sharpImage.resize(transform.width, transform.height);
+			const width = transform.width && Math.round(transform.width);
+			const height = transform.height && Math.round(transform.height);
+			sharpImage.resize(width, height);
 		}
 
 		if (transform.format) {

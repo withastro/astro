@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.2.4
+
+### Patch Changes
+
+- [#3822](https://github.com/withastro/astro/pull/3822) [`e4b2dca1`](https://github.com/withastro/astro/commit/e4b2dca1f3f03bd951f1d623695631cebf638c67) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue where handled error output was piped to the user
+
 ## 0.2.3
 
 ### Patch Changes

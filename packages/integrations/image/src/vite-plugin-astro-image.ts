@@ -1,10 +1,10 @@
-import fs from 'fs/promises';
-import { pathToFileURL } from 'url';
-import slash from 'slash';
-import { metadata } from './metadata.js';
-import type { PluginContext } from 'rollup';
-import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig } from 'astro';
+import fs from 'fs/promises';
+import type { PluginContext } from 'rollup';
+import slash from 'slash';
+import { pathToFileURL } from 'url';
+import type { Plugin, ResolvedConfig } from 'vite';
+import { metadata } from './metadata.js';
 import type { IntegrationOptions } from './types';
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {

@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3817](https://github.com/withastro/astro/pull/3817) [`2f56664f`](https://github.com/withastro/astro/commit/2f56664f85596c6268ecb44bbb9c36cca2ea49c5) Thanks [@ran-dall](https://github.com/ran-dall)! - Fix example on `README.md`
+
 ## 0.1.3
 
 ### Patch Changes

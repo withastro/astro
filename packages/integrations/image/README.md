@@ -109,7 +109,7 @@ export default {
 
 ```html
 ---
-import { Image } from '@astrojs/image/components';
+import { Image } from '@astrojs/image';
 import heroImage from '../assets/hero.png';
 ---
 
@@ -136,7 +136,7 @@ import heroImage from '../assets/hero.png';
 
 ```html
 ---
-import { Image } from '@astrojs/image/components';
+import { Image } from '@astrojs/image';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
 ---
@@ -149,6 +149,30 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 
 // cropping to a specific height and aspect ratio and converting to an avif format
 <Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" />
+```
+</details>
+
+<details>
+<summary><strong>Images in markdown</strong></summary>
+  
+  <br/>
+  
+  The `<Image />` component can also be used to optimize images in markdown pages. For local images imported from your project's `src` directory, use Astro's the `setup` frontmatter to import the image file.
+
+```html
+---
+setup: |
+  import { Image } from '@astrojs/image'
+  import hero from '../../assets/blog/introducing-astro.jpg'
+title: Hello world!
+publishDate: 12 Sep 2021
+name: Nate Moore
+value: 128
+description: Just a Hello World Post!
+---
+
+<Image src={hero} width={640} />
+<Image src="https://example.com/image.jpg" width={640} aspectRatio="16:9" />
 ```
 </details>
 
