@@ -165,7 +165,7 @@ export class CSSPlugin implements Plugin {
 		};
 
 		const extensionConfig = await this.configManager.getConfig<LSConfig>('astro', document.uri);
-		if (extensionConfig.css.completions.emmet) {
+		if (extensionConfig?.css?.completions?.emmet ?? true) {
 			langService.setCompletionParticipants([
 				{
 					onCssProperty: (context) => {
