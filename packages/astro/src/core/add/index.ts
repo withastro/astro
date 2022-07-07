@@ -52,7 +52,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
-			usage: '[...integrations]',
+			usage: '[...integrations/adapters]',
 			tables: {
 				Flags: [
 					['--yes', 'Accept all prompts.'],
@@ -70,6 +70,11 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['tailwind', 'astro add tailwind'],
 					['partytown', 'astro add partytown'],
 					['sitemap', 'astro add sitemap'],
+				],
+				'Example: Add an Adapter': [
+					['netlify', 'astro add netlify'],
+					['vercel', 'astro add vercel'],
+					['deno', 'astro add deno'],
 				],
 			},
 			description: `Check out the full integration catalog: ${cyan(
