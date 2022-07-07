@@ -2180,7 +2180,6 @@ importers:
   packages/integrations/tailwind:
     specifiers:
       '@proload/core': ^0.3.2
-      '@types/tailwindcss': ^3.0.10
       astro: workspace:*
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
@@ -2192,7 +2191,6 @@ importers:
       postcss: 8.4.14
       tailwindcss: 3.1.4
     devDependencies:
-      '@types/tailwindcss': 3.0.11
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
@@ -7634,10 +7632,6 @@ packages:
 
   /@types/strip-json-comments/0.0.30:
     resolution: {integrity: sha512-7NQmHra/JILCd1QqpSzl8+mJRc8ZHz3uDm8YV1Ks9IhK0epEiTw8aIErbvH9PI+6XbqhyIQy3462nEsn7UVzjQ==}
-    dev: true
-
-  /@types/tailwindcss/3.0.11:
-    resolution: {integrity: sha512-PR+BOIrI+rxteHwFvkfIOty+PDJwTG4ute3alxSSXpF/xKpryO1room265m46Auyae0VwqUYs3PuVEOF9Oil3w==}
     dev: true
 
   /@types/throttle-debounce/2.1.0:
