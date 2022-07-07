@@ -748,7 +748,7 @@ export async function renderPage(
 	const factoryReturnValue = await componentFactory(result, props, children);
 
 	if (isAstroComponent(factoryReturnValue)) {
-		iterable = renderAstroComponent(factoryReturnValue);
+		let iterable = renderAstroComponent(factoryReturnValue);
 		let init = result.response;
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
