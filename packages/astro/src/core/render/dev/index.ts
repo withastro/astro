@@ -150,11 +150,19 @@ export async function render(
 
 	let styles = new Set<SSRElement>();
 	[...stylesMap].forEach(([url, content]) => {
-		// The URL is only used by HMR for Svelte components
-		// See src/runtime/client/hmr.ts for more details
+		// Vite handles HMR for styles injected as scripts
+		scripts.add({
+			props: {
+				type: 'module',
+				src: url,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
+		// But we still want to inject the styles to avoid FOUC
 		styles.add({
 			props: {
-				'data-astro-injected': svelteStylesRE.test(url) ? url : true,
+				'data-astro-injected': url,
 			},
 			children: content,
 		});
