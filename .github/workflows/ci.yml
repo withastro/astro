@@ -21,7 +21,6 @@ defaults:
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-  TURBO_REMOTE_ONLY: true
   FORCE_COLOR: true
   ASTRO_TELEMETRY_DISABLED: true
 
