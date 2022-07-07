@@ -1,5 +1,5 @@
-export type { Image } from '../components/index';
-export * from './index';
+export type { Image, Picture } from '../components/index.js';
+export * from './index.js';
 
 export type InputFormat =
 	| 'heic'
