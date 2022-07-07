@@ -1,5 +1,18 @@
 # astro
 
+## 1.0.0-beta.64
+
+### Patch Changes
+
+- [#3821](https://github.com/withastro/astro/pull/3821) [`c2165c34`](https://github.com/withastro/astro/commit/c2165c34a76c183b3af6303526ae292a1f2426ce) Thanks [@matthewp](https://github.com/matthewp)! - Fix for putting the <head> into its own component
+
+* [#3841](https://github.com/withastro/astro/pull/3841) [`820a26dd`](https://github.com/withastro/astro/commit/820a26dde5cdc11b5bf430bc2a1e3b09084ae045) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: add default content type to endpoints with { body } shorthand
+
+- [#3839](https://github.com/withastro/astro/pull/3839) [`cd3f6348`](https://github.com/withastro/astro/commit/cd3f6348c4e918b5367587bce58d724aec44eddd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `client:visible` directive in safari
+
+- Updated dependencies [[`e4b2dca1`](https://github.com/withastro/astro/commit/e4b2dca1f3f03bd951f1d623695631cebf638c67)]:
+  - @astrojs/telemetry@0.2.4
+
 ## 1.0.0-beta.63
 
 ### Patch Changes
