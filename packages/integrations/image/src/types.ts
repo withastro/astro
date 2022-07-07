@@ -76,17 +76,12 @@ export type ImageAttributes = Partial<HTMLImageElement>;
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
-	 * Gets the HTML attributes needed for the server rendered `<img />` element.
+	 * Gets the `src` attribute needed for the server rendered `<img />` element.
 	 */
-	getImageAttributes(transform: T): Promise<ImageAttributes>;
+	getImageSrc(transform: T): Promise<string>;
 }
 
-export interface SSRImageService<T extends TransformOptions = TransformOptions>
-	extends HostedImageService<T> {
-	/**
-	 * Gets the HTML attributes needed for the server rendered `<img />` element.
-	 */
-	getImageAttributes(transform: T): Promise<Exclude<ImageAttributes, 'src'>>;
+export interface SSRImageService<T extends TransformOptions = TransformOptions> {
 	/**
 	 * Serializes image transformation properties to URLSearchParams, used to build
 	 * the final `src` that points to the self-hosted SSR endpoint.
@@ -114,6 +109,14 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions>
 export type ImageService<T extends TransformOptions = TransformOptions> =
 	| HostedImageService<T>
 	| SSRImageService<T>;
+
+export function isHostedService(service: ImageService): service is ImageService {
+	return 'getImageSrc' in service;
+}
+
+export function isSSRService(service: ImageService): service is SSRImageService {
+	return 'transform' in service;
+}
 
 export interface ImageMetadata {
 	src: string;

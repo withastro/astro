@@ -3,16 +3,6 @@ import type { OutputFormat, SSRImageService, TransformOptions } from '../types';
 import { isAspectRatioString, isOutputFormat } from '../utils.js';
 
 class SharpService implements SSRImageService {
-	async getImageAttributes(transform: TransformOptions) {
-		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
-
-		return {
-			...rest,
-			width: width,
-			height: height,
-		};
-	}
-
 	serializeTransform(transform: TransformOptions) {
 		const searchParams = new URLSearchParams();
 

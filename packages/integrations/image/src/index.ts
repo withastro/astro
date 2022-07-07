@@ -3,14 +3,15 @@ import fs from 'fs/promises';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import type {
+import {
 	ImageAttributes,
 	ImageMetadata,
+	ImageService,
 	IntegrationOptions,
+	isSSRService,
 	OutputFormat,
-	SSRImageService,
 	TransformOptions,
-} from './types';
+} from './types.js';
 import {
 	ensureDir,
 	isRemoteImage,
@@ -58,13 +59,13 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 		return {
 			...transform,
 			width: transform.width,
-			height: transform.width / aspectRatio
+			height: Math.round(transform.width / aspectRatio)
 		} as TransformOptions;
 	} else if (transform.height) {
 	// only height was provided, calculate width
 		return {
 			...transform,
-			width: transform.height * aspectRatio,
+			width: Math.round(transform.height * aspectRatio),
 			height: transform.height
 		};
 	}
@@ -92,11 +93,11 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	} else if (width) {
 		// one dimension was provided, calculate the other
 		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
-		height = height || width / ratio;
+		height = height || Math.round(width / ratio);
 	} else if (height) {
 		// one dimension was provided, calculate the other
 		let ratio = parseAspectRatio(aspectRatio) || metadata.width / metadata.height;
-		width = width || height * ratio;
+		width = width || Math.round(height * ratio);
 	}
 
 	return {
@@ -109,6 +110,16 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	}
 }
 
+function getImageAttributes(src: string, transform: TransformOptions): ImageAttributes {
+	return {
+		loading: 'lazy',
+		decoding: 'async',
+		src,
+		width: transform.width,
+		height: transform.height
+	};
+}
+
 /**
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  *
@@ -117,17 +128,15 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
 export async function getImage(
-	loader: SSRImageService,
+	loader: ImageService,
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {
 	(globalThis as any).loader = loader;
 
 	const resolved = await resolveTransform(transform);
 
-	const attributes = await loader.getImageAttributes(resolved);
-
 	// For SSR services, build URLs for the injected route
-	if (typeof loader.transform === 'function') {
+	if (isSSRService(loader)) {
 		const { searchParams } = loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
@@ -140,14 +149,12 @@ export async function getImage(
 				? (globalThis as any).filenameFormat(resolved, searchParams)
 				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
-		return {
-			...attributes,
-			src: slash(src), // Windows compat
-		};
+		// Windows compat
+		return getImageAttributes(slash(src), resolved);
 	}
 
-	// For hosted services, return the <img /> attributes as-is
-	return attributes;
+	// For hosted services, return the `src` attribute as-is
+	return getImageAttributes(await loader.getImageSrc(resolved), resolved);
 }
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
