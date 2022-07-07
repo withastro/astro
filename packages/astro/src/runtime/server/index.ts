@@ -142,6 +142,19 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 	return fallback;
 }
 
+export function mergeSlots(...slotted: unknown[]) {
+	const slots: Record<string, () => any> = {};
+	for (const slot of slotted) {
+		if (!slot) continue;
+		if (typeof slot === 'object') {
+			Object.assign(slots, slot);
+		} else if (typeof slot === 'function') {
+			Object.assign(slots, mergeSlots(slot()));
+		}
+	}
+	return slots;
+}
+
 export const Fragment = Symbol('Astro.Fragment');
 
 function guessRenderers(componentUrl?: string): string[] {
