@@ -620,7 +620,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 	} catch (e) {
 		if (e instanceof Error) {
 			spinner.fail(e.message);
-			process.exit(0);
+			process.exit(1);
 		} else {
 			throw e;
 		}
