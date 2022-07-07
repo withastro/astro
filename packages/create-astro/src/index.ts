@@ -2,7 +2,7 @@
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import { bgCyan, black, bold, cyan, dim, gray, green, red, yellow } from 'kleur/colors';
+import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
@@ -181,7 +181,7 @@ export async function main() {
 	const installResponse = await prompts({
 		type: 'confirm',
 		name: 'install',
-		message: `Would you like us to run "${pkgManager} install?"`,
+		message: `Would you like to install ${pkgManager} dependencies? ${reset(dim('(recommended)'))}`,
 		initial: true,
 	});
 
@@ -203,13 +203,13 @@ export async function main() {
 		installSpinner.text = green('Packages installed!');
 		installSpinner.succeed();
 	} else {
-		ora().info(dim(`No problem! You can install dependencies yourself after setup.`));
+		ora().info(dim(`No problem! Remember to install dependencies after setup.`));
 	}
 
 	const gitResponse = await prompts({
 		type: 'confirm',
 		name: 'git',
-		message: `Initialize a new git repository? ${dim('This can be useful to track changes.')}`,
+		message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
 		initial: true,
 	});
 
