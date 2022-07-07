@@ -52,7 +52,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
-			usage: '[...integrations/adapters]',
+			usage: '[...integrations] [...adapters]',
 			tables: {
 				Flags: [
 					['--yes', 'Accept all prompts.'],
