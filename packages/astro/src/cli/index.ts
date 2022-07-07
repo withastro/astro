@@ -198,6 +198,6 @@ async function throwAndExit(cmd: string, err: unknown) {
 	setTimeout(exitWithErrorMessage, 400);
 	// Wait for the telemetry event to send, then exit. Ignore any error.
 	await telemetryPromise
-		.catch((err) => debug('telemetry', `record() error: ${err.message}`))
+		.catch((e) => debug('telemetry', `record() error: ${e.message}`))
 		.then(exitWithErrorMessage);
 }

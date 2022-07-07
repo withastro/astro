@@ -10,7 +10,7 @@ import { getSystemInfo, SystemInfo } from './system-info.js';
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
 
-interface EventMeta extends SystemInfo {}
+type EventMeta = SystemInfo
 interface EventContext extends ProjectInfo {
 	anonymousId: string;
 	anonymousSessionId: string;
