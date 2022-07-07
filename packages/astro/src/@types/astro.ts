@@ -589,11 +589,11 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Adapter
 	 * @description
-	 * 
+	 *
 	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
-	 * 
+	 *
 	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
-	 * 
+	 *
 	 * ```js
 	 * import netlify from '@astrojs/netlify/functions';
 	 * {
