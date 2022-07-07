@@ -12,6 +12,7 @@
     "directory": "packages/integrations/turbolinks"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "performance"
   ],

@@ -12,6 +12,7 @@
     "directory": "packages/integrations/solid"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "renderer",
     "solid"

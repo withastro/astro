@@ -12,6 +12,7 @@
     "directory": "packages/integrations/svelte"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "renderer",
     "svelte"

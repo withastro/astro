@@ -12,6 +12,7 @@
     "directory": "packages/integrations/sitemap"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "seo",
     "sitemap"
