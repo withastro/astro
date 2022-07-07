@@ -1,6 +1,6 @@
 import type http from 'http';
-import type * as vite from 'vite';
 import mime from 'mime';
+import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
