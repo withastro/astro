@@ -1,5 +1,5 @@
-export * from './index';
 export type { Image } from '../components/index';
+export * from './index';
 
 export type InputFormat =
 	| 'heic'
