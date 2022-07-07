@@ -26,6 +26,7 @@
   "exports": {
     ".": "./astro.js",
     "./env": "./env.d.ts",
+    "./client": "./client.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
@@ -63,6 +64,7 @@
     "config.d.ts",
     "config.mjs",
     "env.d.ts",
+    "client.d.ts",
     "astro-jsx.d.ts",
     "README.md",
     "vendor"
