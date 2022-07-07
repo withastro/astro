@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import path from 'path';
 import sizeOf from 'image-size';
+import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
@@ -12,7 +13,8 @@ describe('SSG images', function () {
 	});
 
 	function verifyImage(pathname, expected) {
-		const dist = path.join('test/fixtures/basic-image/dist', pathname);
+		const url = new URL('./fixtures/basic-image/dist/' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
 		const result = sizeOf(dist);
 		expect(result).to.deep.equal(expected);
 	}
