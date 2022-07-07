@@ -28,9 +28,8 @@ import {
 	LinkedEditingRanges,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
-import { flatten } from 'lodash';
 import { DocumentManager } from '../core/documents/DocumentManager';
-import { isNotNullOrUndefined } from '../utils';
+import { isNotNullOrUndefined, regexLastIndexOf } from '../utils';
 import { getNodeIfIsInHTMLStartTag, isInComponentStartTag } from '../core/documents';
 
 enum ExecuteMode {
@@ -39,7 +38,7 @@ enum ExecuteMode {
 	Collect,
 }
 
-interface PluginHostConfig {
+export interface PluginHostConfig {
 	filterIncompleteCompletions: boolean;
 	definitionLinkSupport: boolean;
 }
@@ -105,11 +104,24 @@ export class PluginHost {
 			});
 		}
 
-		let flattenedCompletions = flatten(completions.map((completion) => completion.result.items));
+		let flattenedCompletions = completions.flatMap((completion) => completion.result.items);
 		const isIncomplete = completions.reduce(
 			(incomplete, completion) => incomplete || completion.result.isIncomplete,
 			false as boolean
 		);
+
+		// If the result is incomplete, we need to filter the results ourselves
+		// to throw out non-matching results. VSCode does filter client-side,
+		// but other IDEs might not.
+		if (isIncomplete && this.pluginHostConfig.filterIncompleteCompletions) {
+			const offset = document.offsetAt(position);
+			// Assumption for performance reasons:
+			// Noone types import names longer than 20 characters and still expects perfect autocompletion.
+			const text = document.getText().substring(Math.max(0, offset - 20), offset);
+			const start = regexLastIndexOf(text, /[\W\s]/g) + 1;
+			const filterValue = text.substring(start).toLowerCase();
+			flattenedCompletions = flattenedCompletions.filter((comp) => comp.label.toLowerCase().includes(filterValue));
+		}
 
 		return CompletionList.create(flattenedCompletions, isIncomplete);
 	}
@@ -132,7 +144,8 @@ export class PluginHost {
 	async getDiagnostics(textDocument: TextDocumentIdentifier): Promise<Diagnostic[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(await this.execute<Diagnostic[]>('getDiagnostics', [document], ExecuteMode.Collect));
+		const diagnostics = await this.execute<Diagnostic>('getDiagnostics', [document], ExecuteMode.Collect);
+		return diagnostics;
 	}
 
 	async doHover(textDocument: TextDocumentIdentifier, position: Position): Promise<Hover | null> {
@@ -144,23 +157,21 @@ export class PluginHost {
 	async formatDocument(textDocument: TextDocumentIdentifier, options: FormattingOptions): Promise<TextEdit[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(await this.execute<TextEdit[]>('formatDocument', [document, options], ExecuteMode.Collect));
+		return await this.execute<TextEdit>('formatDocument', [document, options], ExecuteMode.Collect);
 	}
 
 	async getCodeActions(
 		textDocument: TextDocumentIdentifier,
 		range: Range,
 		context: CodeActionContext,
-		cancellationToken: CancellationToken
+		cancellationToken?: CancellationToken
 	): Promise<CodeAction[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(
-			await this.execute<CodeAction[]>(
-				'getCodeActions',
-				[document, range, context, cancellationToken],
-				ExecuteMode.Collect
-			)
+		return await this.execute<CodeAction>(
+			'getCodeActions',
+			[document, range, context, cancellationToken],
+			ExecuteMode.Collect
 		);
 	}
 
@@ -173,21 +184,19 @@ export class PluginHost {
 	async getFoldingRanges(textDocument: TextDocumentIdentifier): Promise<FoldingRange[] | null> {
 		const document = this.getDocument(textDocument.uri);
 
-		const foldingRanges = flatten(
-			await this.execute<FoldingRange[]>('getFoldingRanges', [document], ExecuteMode.Collect)
-		);
-
-		return foldingRanges;
+		return await this.execute<FoldingRange>('getFoldingRanges', [document], ExecuteMode.Collect);
 	}
 
 	async getDocumentSymbols(
 		textDocument: TextDocumentIdentifier,
-		cancellationToken: CancellationToken
+		cancellationToken?: CancellationToken
 	): Promise<SymbolInformation[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(
-			await this.execute<SymbolInformation[]>('getDocumentSymbols', [document, cancellationToken], ExecuteMode.Collect)
+		return await this.execute<SymbolInformation>(
+			'getDocumentSymbols',
+			[document, cancellationToken],
+			ExecuteMode.Collect
 		);
 	}
 
@@ -220,9 +229,7 @@ export class PluginHost {
 	): Promise<DefinitionLink[] | Location[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		const definitions = flatten(
-			await this.execute<DefinitionLink[]>('getDefinitions', [document, position], ExecuteMode.Collect)
-		);
+		const definitions = await this.execute<DefinitionLink>('getDefinitions', [document, position], ExecuteMode.Collect);
 
 		if (this.pluginHostConfig.definitionLinkSupport) {
 			return definitions;
@@ -244,17 +251,7 @@ export class PluginHost {
 	async getDocumentColors(textDocument: TextDocumentIdentifier): Promise<ColorInformation[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(await this.execute<ColorInformation[]>('getDocumentColors', [document], ExecuteMode.Collect));
-	}
-
-	async getInlayHints(
-		textDocument: TextDocumentIdentifier,
-		range: Range,
-		cancellationToken: CancellationToken
-	): Promise<InlayHint[]> {
-		const document = this.getDocument(textDocument.uri);
-
-		return flatten(await this.execute<InlayHint[]>('getInlayHints', [document, range], ExecuteMode.FirstNonNull));
+		return await this.execute<ColorInformation>('getDocumentColors', [document], ExecuteMode.Collect);
 	}
 
 	async getColorPresentations(
@@ -264,23 +261,32 @@ export class PluginHost {
 	): Promise<ColorPresentation[]> {
 		const document = this.getDocument(textDocument.uri);
 
-		return flatten(
-			await this.execute<ColorPresentation[]>('getColorPresentations', [document, range, color], ExecuteMode.Collect)
+		return await this.execute<ColorPresentation>(
+			'getColorPresentations',
+			[document, range, color],
+			ExecuteMode.Collect
 		);
+	}
+
+	async getInlayHints(
+		textDocument: TextDocumentIdentifier,
+		range: Range,
+		cancellationToken?: CancellationToken
+	): Promise<InlayHint[]> {
+		const document = this.getDocument(textDocument.uri);
+
+		return (await this.execute<InlayHint[]>('getInlayHints', [document, range], ExecuteMode.FirstNonNull)) ?? [];
 	}
 
 	async getSignatureHelp(
 		textDocument: TextDocumentIdentifier,
 		position: Position,
 		context: SignatureHelpContext | undefined,
-		cancellationToken: CancellationToken
+		cancellationToken?: CancellationToken
 	): Promise<SignatureHelp | null> {
 		const document = this.getDocument(textDocument.uri);
-		if (!document) {
-			throw new Error('Cannot call methods on an unopened document');
-		}
 
-		return await this.execute<any>(
+		return await this.execute<SignatureHelp>(
 			'getSignatureHelp',
 			[document, position, context, cancellationToken],
 			ExecuteMode.FirstNonNull
@@ -323,12 +329,14 @@ export class PluginHost {
 				}
 				return null;
 			case ExecuteMode.Collect:
-				return Promise.all(
-					plugins.map((plugin) => {
-						let ret = this.tryExecutePlugin(plugin, name, args, []);
-						return ret;
-					})
-				);
+				return (
+					await Promise.all(
+						plugins.map((plugin) => {
+							let ret = this.tryExecutePlugin(plugin, name, args, []);
+							return ret;
+						})
+					)
+				).flat();
 			case ExecuteMode.None:
 				await Promise.all(plugins.map((plugin) => this.tryExecutePlugin(plugin, name, args, null)));
 				return;

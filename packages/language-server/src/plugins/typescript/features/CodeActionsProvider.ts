@@ -1,4 +1,3 @@
-import { flatten } from 'lodash';
 import ts, { CodeFixAction, FileTextChanges } from 'typescript';
 import { CancellationToken } from 'vscode-languageserver';
 import {
@@ -239,7 +238,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 				fixName: 'import',
 			})) ?? [];
 
-		return flatten(completion.entries.filter((c) => c.name === name || c.name === suffixedName).map(toFix));
+		return completion.entries.filter((c) => c.name === name || c.name === suffixedName).flatMap(toFix);
 	}
 
 	private async organizeSortImports(

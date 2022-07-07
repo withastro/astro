@@ -38,6 +38,46 @@ export function getLastPartOfPath(path: string): string {
 }
 
 /**
+ * Return an element in an object using a path as a string (ex: `astro.typescript.format` will return astro['typescript']['format']).
+ * From: https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_get
+ */
+export function get<T>(obj: Record<string, any>, path: string) {
+	const travel = (regexp: RegExp) =>
+		String.prototype.split
+			.call(path, regexp)
+			.filter(Boolean)
+			.reduce((res, key) => (res !== null && res !== undefined ? res[key] : res), obj);
+	const result = travel(/[,[\]]+?/) || travel(/[,[\].]+?/);
+	return result === undefined ? undefined : (result as T);
+}
+
+/**
+ * Performs a deep merge of objects and returns new object. Does not modify
+ * objects (immutable) and merges arrays via concatenation.
+ * From: https://stackoverflow.com/a/48218209
+ */
+export function mergeDeep(...objects: Record<string, any>[]): Record<string, any> {
+	const isObject = (obj: Record<string, any>) => obj && typeof obj === 'object';
+
+	return objects.reduce((prev, obj) => {
+		Object.keys(obj).forEach((key) => {
+			const pVal = prev[key];
+			const oVal = obj[key];
+
+			if (Array.isArray(pVal) && Array.isArray(oVal)) {
+				prev[key] = pVal.concat(...oVal);
+			} else if (isObject(pVal) && isObject(oVal)) {
+				prev[key] = mergeDeep(pVal, oVal);
+			} else {
+				prev[key] = oVal;
+			}
+		});
+
+		return prev;
+	}, {});
+}
+
+/**
  * Transform a string into PascalCase
  */
 export function toPascalCase(string: string) {
@@ -72,11 +112,6 @@ export function isPossibleComponent(node: Node): boolean {
 	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]/);
 }
 
-/** Flattens an array */
-export function flatten<T>(arr: T[][]): T[] {
-	return arr.reduce((all, item) => [...all, ...item], []);
-}
-
 /** Clamps a number between min and max */
 export function clamp(num: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, num));
@@ -95,6 +130,25 @@ export function isBeforeOrEqualToPosition(position: Position, positionToTest: Po
 		positionToTest.line < position.line ||
 		(positionToTest.line === position.line && positionToTest.character <= position.character)
 	);
+}
+
+/**
+ * Like str.lastIndexOf, but for regular expressions. Note that you need to provide the g-flag to your RegExp!
+ */
+export function regexLastIndexOf(text: string, regex: RegExp, endPos?: number) {
+	if (endPos === undefined) {
+		endPos = text.length;
+	} else if (endPos < 0) {
+		endPos = 0;
+	}
+
+	const stringToWorkWith = text.substring(0, endPos + 1);
+	let lastIndexOf = -1;
+	let result: RegExpExecArray | null = null;
+	while ((result = regex.exec(stringToWorkWith)) !== null) {
+		lastIndexOf = result.index;
+	}
+	return lastIndexOf;
 }
 
 /**

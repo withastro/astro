@@ -1,9 +1,9 @@
-import { merge, get } from 'lodash';
 import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
 import { LSConfig, LSCSSConfig, LSFormatConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
 import { Connection, FormattingOptions } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { FormatCodeSettings, InlayHintsOptions, SemicolonPreference, UserPreferences } from 'typescript';
+import { get, mergeDeep } from '../../utils';
 
 export const defaultLSConfig: LSConfig = {
 	typescript: {
@@ -75,9 +75,9 @@ export class ConfigManager {
 		delete this.documentSettings[scopeUri];
 	}
 
-	async getConfig<T>(section: string, scopeUri: string): Promise<T> {
+	async getConfig<T>(section: string, scopeUri: string): Promise<T | Record<string, any>> {
 		if (!this.connection) {
-			return get(this.globalConfig, section);
+			return get<T>(this.globalConfig, section) ?? {};
 		}
 
 		if (!this.documentSettings[scopeUri]) {
@@ -214,9 +214,9 @@ export class ConfigManager {
 	 */
 	updateGlobalConfig(config: DeepPartial<LSConfig> | any, outsideAstro?: boolean) {
 		if (outsideAstro) {
-			this.globalConfig = merge({}, this.globalConfig, config);
+			this.globalConfig = mergeDeep({}, this.globalConfig, config);
 		} else {
-			this.globalConfig.astro = merge({}, defaultLSConfig, this.globalConfig.astro, config);
+			this.globalConfig.astro = mergeDeep({}, defaultLSConfig, this.globalConfig.astro, config);
 		}
 
 		this.shouldRefreshTSServices = true;

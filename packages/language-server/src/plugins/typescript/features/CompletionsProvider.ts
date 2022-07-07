@@ -38,7 +38,6 @@ import {
 	SnapshotFragment,
 } from '../snapshots/DocumentSnapshot';
 import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
-import { flatten } from 'lodash';
 import { getMarkdownDocumentation } from '../previewer';
 import { isPartOfImportStatement } from './utils';
 import { ConfigManager } from '../../../core/config';
@@ -483,7 +482,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		const rawImports = getRegExpMatches(scriptImportRegex, document.getText()).map((match) =>
 			(match[1] ?? match[2]).split(',')
 		);
-		const tidiedImports = flatten(rawImports).map((match) => match.trim());
+		const tidiedImports = rawImports.flat().map((match) => match.trim());
 		return new Set(tidiedImports);
 	}
 

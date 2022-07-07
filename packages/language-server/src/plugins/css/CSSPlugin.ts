@@ -33,7 +33,6 @@ import { getLanguage, getLanguageService } from './language-service';
 import { AttributeContext, getAttributeContextAtPosition } from '../../core/documents/parseHtml';
 import { StyleAttributeDocument } from './StyleAttributeDocument';
 import { getIdClassCompletion } from './features/getIdClassCompletions';
-import { flatten } from 'lodash';
 
 export class CSSPlugin implements Plugin {
 	__name = 'css';
@@ -215,7 +214,7 @@ export class CSSPlugin implements Plugin {
 			return [];
 		}
 
-		const allColorInfo = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+		const allColorInfo = this.getCSSDocumentsForDocument(document).flatMap((cssDoc) => {
 			const cssLang = extractLanguage(cssDoc);
 			const langService = getLanguageService(cssLang);
 
@@ -228,7 +227,7 @@ export class CSSPlugin implements Plugin {
 				.map((colorInfo) => mapObjWithRangeToOriginal(cssDoc, colorInfo));
 		});
 
-		return flatten(allColorInfo);
+		return allColorInfo;
 	}
 
 	async getColorPresentations(document: AstroDocument, range: Range, color: Color): Promise<ColorPresentation[]> {
@@ -236,7 +235,7 @@ export class CSSPlugin implements Plugin {
 			return [];
 		}
 
-		const allColorPres = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+		const allColorPres = this.getCSSDocumentsForDocument(document).flatMap((cssDoc) => {
 			const cssLang = extractLanguage(cssDoc);
 			const langService = getLanguageService(cssLang);
 
@@ -252,18 +251,18 @@ export class CSSPlugin implements Plugin {
 				.map((colorPres) => mapColorPresentationToOriginal(cssDoc, colorPres));
 		});
 
-		return flatten(allColorPres);
+		return allColorPres;
 	}
 
 	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {
-		const allFoldingRanges = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+		const allFoldingRanges = this.getCSSDocumentsForDocument(document).flatMap((cssDoc) => {
 			const cssLang = extractLanguage(cssDoc);
 			const langService = getLanguageService(cssLang);
 
 			return langService.getFoldingRanges(cssDoc).map((foldingRange) => mapFoldingRangeToParent(cssDoc, foldingRange));
 		});
 
-		return flatten(allFoldingRanges);
+		return allFoldingRanges;
 	}
 
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
@@ -271,13 +270,13 @@ export class CSSPlugin implements Plugin {
 			return [];
 		}
 
-		const allDocumentSymbols = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+		const allDocumentSymbols = this.getCSSDocumentsForDocument(document).flatMap((cssDoc) => {
 			return getLanguageService(extractLanguage(cssDoc))
 				.findDocumentSymbols(cssDoc, cssDoc.stylesheet)
 				.map((symbol) => mapSymbolInformationToOriginal(cssDoc, symbol));
 		});
 
-		return flatten(allDocumentSymbols);
+		return allDocumentSymbols;
 	}
 
 	private inStyleAttributeWithoutInterpolation(
