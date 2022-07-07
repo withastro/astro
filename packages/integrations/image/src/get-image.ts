@@ -111,6 +111,7 @@ function getImageAttributes(src: string, transform: TransformOptions): ImageAttr
 	(globalThis as any).loader = loader;
 
 	const resolved = await resolveTransform(transform);
+	const attributes = await loader.getImageAttributes(resolved);
 
 	// For SSR services, build URLs for the injected route
 	if (isSSRService(loader)) {
@@ -126,10 +127,12 @@ function getImageAttributes(src: string, transform: TransformOptions): ImageAttr
 				? (globalThis as any).filenameFormat(resolved, searchParams)
 				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
-		// Windows compat
-		return getImageAttributes(slash(src), resolved);
+		return {
+			...attributes,
+			src: slash(src), // Windows compat
+		};
 	}
 
-	// For hosted services, return the `src` attribute as-is
-	return getImageAttributes(await loader.getImageSrc(resolved), resolved);
+	// For hosted services, return the `<img />` attributes as-is
+	return attributes;
 }
