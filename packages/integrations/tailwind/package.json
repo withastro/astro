@@ -33,7 +33,6 @@
     "tailwindcss": "^3.0.24"
   },
   "devDependencies": {
-    "@types/tailwindcss": "^3.0.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },

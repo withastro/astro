@@ -59,7 +59,7 @@ import vercel from '@astrojs/vercel/static';
 
 ## Usage
 
-📚 **[Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/vercel)**
+📚 **[Read the full deployment guide here.](https://docs.astro.build/en/guides/deploy/vercel/)**
 
 You can deploy by CLI (`vercel deploy`) or by connecting your new repo in the [Vercel Dashboard](https://vercel.com/). Alternatively, you can create a production build locally:
 

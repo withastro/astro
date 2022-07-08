@@ -1,26 +1,43 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Card from '../components/Card.astro';
+import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
 ---
+
 <Layout title="Welcome to Astro.">
 	<main>
 		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
 		<p class="instructions">
-			Check out the <code>src/pages</code> directory to get started.<br/>
+			Check out the <code>src/pages</code> directory to get started.<br />
 			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
 		</p>
 		<ul role="list" class="link-card-grid">
-			<Card href="https://docs.astro.build/" title="Documentation" body="Learn how Astro works and explore the official API docs." /> 
-			<Card href="https://astro.build/integrations/" title="Integrations" body="Supercharge your project with new frameworks and libraries." /> 
-			<Card href="https://astro.build/themes/" title="Themes" body="Explore a galaxy of community-built starter themes." /> 
-			<Card href="https://astro.build/chat/" title="Chat" body="Come say hi to our amazing Discord community. ❤️" />
+			<Card
+				href="https://docs.astro.build/"
+				title="Documentation"
+				body="Learn how Astro works and explore the official API docs."
+			/>
+			<Card
+				href="https://astro.build/integrations/"
+				title="Integrations"
+				body="Supercharge your project with new frameworks and libraries."
+			/>
+			<Card
+				href="https://astro.build/themes/"
+				title="Themes"
+				body="Explore a galaxy of community-built starter themes."
+			/>
+			<Card
+				href="https://astro.build/chat/"
+				title="Chat"
+				body="Come say hi to our amazing Discord community. ❤️"
+			/>
 		</ul>
 	</main>
 </Layout>
 
 <style>
 	:root {
-		--astro-gradient: linear-gradient(0deg,#4F39FA, #DA62C4);
+		--astro-gradient: linear-gradient(0deg, #4f39fa, #da62c4);
 	}
 
 	h1 {
@@ -29,7 +46,7 @@ import Card from '../components/Card.astro';
 
 	main {
 		margin: auto;
-    	padding: 1em;
+		padding: 1em;
 		max-width: 60ch;
 	}
 
@@ -45,15 +62,20 @@ import Card from '../components/Card.astro';
 	}
 
 	@keyframes pulse {
-		0%, 100% { background-position-y: 0%; }
-		50% { background-position-y: 80%; }
+		0%,
+		100% {
+			background-position-y: 0%;
+		}
+		50% {
+			background-position-y: 80%;
+		}
 	}
 
 	.instructions {
 		line-height: 1.6;
 		margin: 1rem 0;
-		background: #4F39FA;
-		padding: 1.0rem;
+		background: #4f39fa;
+		padding: 1rem;
 		border-radius: 0.4rem;
 		color: var(--color-bg);
 	}

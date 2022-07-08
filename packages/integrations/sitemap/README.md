@@ -109,7 +109,6 @@ Example of generated sitemap content for a two-page website:
 ```
 
 **sitemap-0.xml**
-<?xml version="1.0" encoding="UTF-8"?>
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>

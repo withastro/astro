@@ -2,10 +2,11 @@
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import { bgCyan, black, bold, cyan, dim, gray, green, red, yellow } from 'kleur/colors';
+import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
+import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
@@ -48,7 +49,7 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
-	const pkgManager = pkgManagerFromUserAgent(process.env.npm_config_user_agent);
+	const pkgManager = detectPackageManager()?.name || 'npm';
 
 	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
@@ -181,7 +182,7 @@ export async function main() {
 	const installResponse = await prompts({
 		type: 'confirm',
 		name: 'install',
-		message: `Would you like us to run "${pkgManager} install?"`,
+		message: `Would you like to install ${pkgManager} dependencies? ${reset(dim('(recommended)'))}`,
 		initial: true,
 	});
 
@@ -203,13 +204,13 @@ export async function main() {
 		installSpinner.text = green('Packages installed!');
 		installSpinner.succeed();
 	} else {
-		ora().info(dim(`No problem! You can install dependencies yourself after setup.`));
+		ora().info(dim(`No problem! Remember to install dependencies after setup.`));
 	}
 
 	const gitResponse = await prompts({
 		type: 'confirm',
 		name: 'git',
-		message: `Initialize a new git repository? ${dim('This can be useful to track changes.')}`,
+		message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
 		initial: true,
 	});
 
@@ -249,20 +250,4 @@ export async function main() {
 
 function emojiWithFallback(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
-}
-
-function pkgManagerFromUserAgent(userAgent?: string) {
-	if (!userAgent) return 'npm';
-	const pkgSpec = userAgent.split(' ')[0];
-	const pkgSpecArr = pkgSpec.split('/');
-	return pkgSpecArr[0];
-}
-
-function pkgManagerExecCommand(pkgManager: string) {
-	if (pkgManager === 'pnpm') {
-		return 'pnpx';
-	} else {
-		// note: yarn does not have an "npx" equivalent
-		return 'npx';
-	}
 }

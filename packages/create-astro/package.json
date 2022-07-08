@@ -28,19 +28,21 @@
     "create-astro.js"
   ],
   "dependencies": {
-    "@types/degit": "^2.8.3",
-    "@types/prompts": "^2.0.14",
     "chalk": "^5.0.1",
     "degit": "^2.8.4",
     "execa": "^6.1.0",
     "kleur": "^4.1.4",
     "ora": "^6.1.0",
     "prompts": "^2.4.2",
+    "which-pm-runs": "^1.1.0",
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
+    "@types/degit": "^2.8.3",
     "@types/mocha": "^9.1.1",
+    "@types/prompts": "^2.0.14",
+    "@types/which-pm-runs": "^1.0.0",
     "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",

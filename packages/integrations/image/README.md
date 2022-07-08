@@ -4,7 +4,7 @@
 
 This **[Astro integration][astro-integration]** makes it easy to optimize images in your [Astro project](https://astro.build), with full support for SSG builds and server-side rendering!
 
-- <strong>[Why `@astrojs/image`?](#why-astrojs-image)</strong>
+- <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
