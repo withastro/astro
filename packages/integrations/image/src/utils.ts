@@ -66,9 +66,9 @@ export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
 
 	// parse aspect ratio strings, if required (ex: "16:9")
 	if (typeof aspectRatio === 'number') {
-		aspectRatio = aspectRatio;
+		return aspectRatio;
 	} else {
 		const [width, height] = aspectRatio.split(':');
-		aspectRatio = parseInt(width) / parseInt(height);
+		return parseInt(width) / parseInt(height);
 	}
 }

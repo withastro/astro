@@ -1,46 +1,39 @@
 ---
-import Image from './Image.astro';
 // @ts-ignore
 import loader from 'virtual:image-loader';
-import { lookup } from 'mrmime';
-import { getImage } from '../src/index.js';
-import type { ImageMetadata, OutputFormat } from '../src/types.js';
+import { getPicture } from '../src/get-picture.js';
+import type { ImageAttributes, ImageMetadata, OutputFormat, TransformOptions } from '../src/types.js';
 
-export interface Props extends Partial<HTMLPictureElement> {
-	src: ImageMetadata;
+export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'|'width'|'height'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	formats?: OutputFormat[];
 }
 
-const { src, sizes, widths, formats = ['avif', 'webp', 'jpeg'] } = Astro.props as Props;
-
-if (widths.length <= 0) {
-	throw new Error('At least one width must be provided for the <Picture>');
+export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+	src: string;
+	sizes: HTMLImageElement['sizes'];
+	widths: number[];
+	aspectRatio: TransformOptions['aspectRatio'];
+	formats?: OutputFormat[];
 }
 
-const aspectRatio = src.width / src.height;
+export type Props = LocalImageProps | RemoteImageProps;
 
-async function getSource(format: OutputFormat) {
-	const imgs = await Promise.all(widths.map(async (width) => {
-		const img = await getImage(loader, { src: src.src, format, width, height: Math.round(width / aspectRatio) });
-		return `${img.src} ${width}w`;
-	}))
+const { src, sizes, widths, aspectRatio, formats = ['avif', 'webp'] } = Astro.props as Props;
 
-	return {
-		type: lookup(format) || format,
-		srcset: imgs.join(',')
-	};
-}
-
-const sources = await Promise.all(formats.map(format => getSource(format)));
-
-const width = widths.sort().shift()!;
-const height = Math.round(width / aspectRatio);
+const { image, sources } = await getPicture({ loader, src, widths, formats, aspectRatio });
 ---
 
 <picture>
 	{sources.map(attrs => (
 	<source {...attrs} {sizes}>))}
-	<Image {sizes} {src} {width} {height} />
+	<img {...image} loading="lazy" decoding="async" />
 </picture>
+
+<style>
+	img {
+		content-visibility: auto;
+	}
+</style>

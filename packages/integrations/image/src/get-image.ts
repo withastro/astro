@@ -87,16 +87,6 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	}
 }
 
-function getImageAttributes(src: string, transform: TransformOptions): ImageAttributes {
-	return {
-		loading: 'lazy',
-		decoding: 'async',
-		src,
-		width: transform.width,
-		height: transform.height
-	};
-}
-
 /**
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  *
