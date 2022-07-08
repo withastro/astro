@@ -12,6 +12,9 @@
     "directory": "packages/integrations/pwa"
   },
   "keywords": [
+    "astro",
+    "astro-integration",
+    "service-worker",
     "pwa"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
