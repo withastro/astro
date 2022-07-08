@@ -1,6 +1,6 @@
 # To be removed with ".astro" parsing is ready
 # Also, be sure to remove "pluginSearchDirs" from config
-# **/*.astro
+**/*.astro
 
 # Deep Directories
 **/dist
