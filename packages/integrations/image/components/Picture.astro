@@ -4,14 +4,14 @@ import loader from 'virtual:image-loader';
 import { getPicture } from '../src/get-picture.js';
 import type { ImageAttributes, ImageMetadata, OutputFormat, PictureAttributes, TransformOptions } from '../src/types.js';
 
-export interface LocalImageProps extends Omit<PictureAttributes, 'src'>, Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'|'width'|'height'> {
+export interface LocalImageProps extends Omit<PictureAttributes, 'src' | 'width' | 'height'>, Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	formats?: OutputFormat[];
 }
 
-export interface RemoteImageProps extends PictureAttributes, TransformOptions, ImageAttributes {
+export interface RemoteImageProps extends Omit<PictureAttributes, 'src' | 'width' | 'height'>, TransformOptions, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
 	src: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
