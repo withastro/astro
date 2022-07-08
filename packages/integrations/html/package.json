@@ -9,19 +9,19 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/node"
+    "directory": "packages/integrations/html"
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
-    "./dist/server.js": "./dist/server.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "keywords": [
     "astro-component",
     "renderer",
-    "mdx"
+    "html"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",

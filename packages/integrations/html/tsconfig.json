@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "server.ts"],
   "compilerOptions": {
     "allowJs": true,
     "module": "ES2022",

@@ -4,7 +4,7 @@ import { transform } from './transform/index.js';
 function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/html',
-		serverEntrypoint: './dist/server.js',
+		serverEntrypoint: '@astrojs/html/server.js',
 	};
 }
 
