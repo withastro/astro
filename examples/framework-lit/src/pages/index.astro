@@ -1,7 +1,7 @@
 ---
-import Lorem from '../components/Lorem.astro';
-import { CalcAdd } from '../components/calc-add.js';
-import { MyCounter } from '../components/my-counter.js';
+import Lorem from "../components/Lorem.astro";
+import { CalcAdd } from "../components/calc-add.js";
+import { MyCounter } from "../components/my-counter.js";
 ---
 
 <!DOCTYPE html>
@@ -12,8 +12,8 @@ import { MyCounter } from '../components/my-counter.js';
 	</head>
 	<body>
 		<h1>Test app</h1>
-		<MyCounter client:load></MyCounter>
+		<MyCounter client:load />
 		<Lorem />
-		<CalcAdd num={33}></CalcAdd>
+		<CalcAdd num={33} />
 	</body>
 </html>

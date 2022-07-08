@@ -1,28 +1,35 @@
 ---
-import MainHead from '../../components/MainHead.astro';
-import Nav from '../../components/Nav.astro';
-import PostPreview from '../../components/PostPreview.astro';
-import authorData from '../../data/authors.json';
+import MainHead from "../../components/MainHead.astro";
+import Nav from "../../components/Nav.astro";
+import PostPreview from "../../components/PostPreview.astro";
+import authorData from "../../data/authors.json";
 
 export async function getStaticPaths() {
-	const allPosts = await Astro.glob('../post/*.md');
+	const allPosts = await Astro.glob("../post/*.md");
 	let allAuthorsUnique = [...new Set(allPosts.map((p) => p.frontmatter.author))];
 	return allAuthorsUnique.map((author) => ({ params: { author }, props: { allPosts } }));
 }
 
 const { allPosts } = Astro.props;
-const title = 'Don’s Blog';
-const description = 'An example blog on Astro';
+const title = "Don’s Blog";
+const description = "An example blog on Astro";
 
 /** filter posts by author, sort by date */
-const posts = allPosts.filter((post) => post.frontmatter.author === Astro.params.author).sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+const posts = allPosts
+	.filter((post) => post.frontmatter.author === Astro.params.author)
+	.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 const author = authorData[posts[0].frontmatter.author];
 ---
 
 <html lang="en">
 	<head>
 		<title>{title}</title>
-		<MainHead {title} {description} image={posts[0].frontmatter.image} canonicalURL={Astro.canonicalURL.toString()} />
+		<MainHead
+			{title}
+			{description}
+			image={posts[0].frontmatter.image}
+			canonicalURL={Astro.canonicalURL.toString()}
+		/>
 
 		<style lang="scss">
 			.title {

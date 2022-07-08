@@ -7,7 +7,6 @@
 - <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
-- <strong>[Changelog](#changelog)</strong>
 
 ## Why Prefetch?
 

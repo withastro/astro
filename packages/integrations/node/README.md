@@ -43,7 +43,7 @@ export default defineConfig({
 
 ## Usage
 
-After [performing a build](https://docs.astro.build/en/guides/deploy/#building-the-app) there will be a `dist/server/entry.mjs` module that exposes a `handler` function. This works like a [middleware](https://expressjs.com/en/guide/using-middleware.html) function: it can handle incoming requests and respond accordingly. 
+After [performing a build](https://docs.astro.build/en/guides/deploy/#building-your-site-locally) there will be a `dist/server/entry.mjs` module that exposes a `handler` function. This works like a [middleware](https://expressjs.com/en/guide/using-middleware.html) function: it can handle incoming requests and respond accordingly. 
 
 
 ### Using a middleware framework
