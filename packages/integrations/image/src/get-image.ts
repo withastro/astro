@@ -28,7 +28,7 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 		aspectRatio = transform.aspectRatio;
 	} else {
 		const [width, height] = transform.aspectRatio.split(':');
-		aspectRatio = parseInt(width) / parseInt(height);
+		aspectRatio = Number.parseInt(width) / Number.parseInt(height);
 	}
 
 	if (transform.width) {
