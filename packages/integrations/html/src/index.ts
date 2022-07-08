@@ -34,7 +34,7 @@ export default function createIntegration() {
 	return {
 		name: '@astrojs/html',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig, addPageExtension }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig, addPageExtension }: any) => {
 				addRenderer(getRenderer())
 				updateConfig({ vite: getViteConfiguration() });
 				addPageExtension('.html');
