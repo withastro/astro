@@ -6,8 +6,8 @@ export default function CartFlyout() {
 	const $isCartOpen = useStore(isCartOpen);
 	const $cartItems = useStore(cartItems);
 
-	return $isCartOpen ? (
-		<aside className={styles.container}>
+	return (
+		<aside hidden={!$isCartOpen} className={styles.container}>
 			{Object.values($cartItems).length ? (
 				<ul className={styles.list} role="list">
 					{Object.values($cartItems).map(cartItem => (
@@ -22,5 +22,5 @@ export default function CartFlyout() {
 				</ul>
 			) : <p>Your cart is empty!</p>}
 		</aside>
-	) : null;
+	);
 }
