@@ -57,7 +57,7 @@ __astro.config.mjs__
 
 ```js
 import { defineConfig } from 'astro/config';
-import partytown from '@astrojs/sitemap';
+import partytown from '@astrojs/partytown';
 
 export default defineConfig({
   // ...

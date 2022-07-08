@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import type { BinaryLike } from 'node:crypto';
 import { createHash } from 'node:crypto';
+import detectPackageManager from 'which-pm-runs';
 
 /**
  * Astro Telemetry -- Project Info
@@ -46,9 +47,13 @@ import { createHash } from 'node:crypto';
 
 export interface ProjectInfo {
 	/* Your unique project identifier. This will be hashed again before sending. */
-	anonymousProjectId: string;
+	anonymousProjectId: string | undefined;
 	/* true if your project is connected to a git repository. false otherwise. */
 	isGit: boolean;
+	/* The package manager used to run Astro */
+	packageManager: string | undefined;
+	/* The version of the package manager used to run Astro */
+	packageManagerVersion: string | undefined;
 }
 
 function createAnonymousValue(payload: BinaryLike): string {
@@ -75,7 +80,7 @@ function getProjectIdFromGit(): string | null {
 	}
 }
 
-export function getProjectInfo(isCI: boolean): ProjectInfo {
+function getProjectId(isCI: boolean): Pick<ProjectInfo, 'isGit' | 'anonymousProjectId'> {
 	const projectIdFromGit = getProjectIdFromGit();
 	if (projectIdFromGit) {
 		return {
@@ -83,8 +88,29 @@ export function getProjectInfo(isCI: boolean): ProjectInfo {
 			anonymousProjectId: createAnonymousValue(projectIdFromGit),
 		};
 	}
+	// If we're running in CI, the current working directory is not unique.
+	// If the cwd is a single level deep (ex: '/app'), it's probably not unique.
+	const cwd = process.cwd();
+	const isCwdGeneric = (cwd.match(/[\/|\\]/g) || []).length === 1;
+	if (isCI || isCwdGeneric) {
+		return {
+			isGit: false,
+			anonymousProjectId: undefined,
+		};
+	}
 	return {
 		isGit: false,
-		anonymousProjectId: isCI ? '' : createAnonymousValue(process.cwd()),
+		anonymousProjectId: createAnonymousValue(cwd),
 	};
 }
+
+export function getProjectInfo(isCI: boolean): ProjectInfo {
+	const projectId = getProjectId(isCI);
+	const packageManager = detectPackageManager();
+	return {
+		...projectId,
+		packageManager: packageManager?.name,
+		packageManagerVersion: packageManager?.version,
+	};
+}
+//
