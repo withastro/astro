@@ -20,13 +20,14 @@
   "homepage": "https://astro.build",
   "exports": {
     ".": "./dist/index.js",
+    "./editor": "./dist/editor.cjs",
     "./*": "./*",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc && tsc -p ./editor/tsconfig.json",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
@@ -34,6 +35,7 @@
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.48",
     "postcss-load-config": "^3.1.4",
     "svelte-preprocess": "^4.10.7",
+    "svelte2tsx": "^0.5.11",
     "vite": "^2.9.10"
   },
   "devDependencies": {
