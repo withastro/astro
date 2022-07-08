@@ -1,8 +1,10 @@
-import eol from 'eol';
 import type { BuildResult } from 'esbuild';
-import fs from 'fs';
-import type { ViteDevServer } from 'vite';
+import type { ViteDevServer, ErrorPayload } from 'vite';
 import type { SSRError } from '../@types/astro';
+
+import eol from 'eol';
+import fs from 'fs';
+import stripAnsi from 'strip-ansi';
 import { codeFrame, createSafeError } from './util.js';
 
 export enum AstroErrorCodes {
@@ -34,6 +36,7 @@ export function cleanErrorStack(stack: string) {
 	return stack
 		.split(/\n/g)
 		.filter((l) => /^\s*at/.test(l))
+		.map(l => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
 }
 
@@ -73,28 +76,49 @@ function generateHint(err: ErrorWithMetadata): string | undefined {
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
 export function collectErrorMetadata(e: any): ErrorWithMetadata {
-	// normalize error stack line-endings to \n
+	const err = e as SSRError;
 	if ((e as any).stack) {
+		// normalize error stack line-endings to \n
 		(e as any).stack = eol.lf((e as any).stack);
+
+		// derive error location from stack (if possible)
+		const stackText = stripAnsi(e.stack);
+		const source = stackText.split('\n').at(1)?.replace(/^[^(]+\(([^)]+).*$/, '$1');
+		const [file, line, column] = source?.split(':') ?? [];
+		
+		if (!err.loc && line && column) {
+			err.loc = {
+				file,
+				line: Number.parseInt(line),
+				column: Number.parseInt(column)
+			}
+		}
+
+		// Derive plugin from stack (if possible)
+		if (!err.plugin) {
+			const plugin = /(@astrojs\/[\w-]+)\/(server|client|index)/gmi.exec(stackText)?.at(1);
+			err.plugin = plugin;
+		}
+
+		// Normalize stack (remove `/@fs/` urls, etc)
+		err.stack = cleanErrorStack(e.stack)
 	}
 
 	if (e.name === 'YAMLException') {
-		const err = e as SSRError;
 		err.loc = { file: (e as any).id, line: (e as any).mark.line, column: (e as any).mark.column };
 		err.message = (e as any).reason;
+	}
 
-		if (!err.frame) {
-			try {
-				const fileContents = fs.readFileSync(err.loc.file!, 'utf8');
-				err.frame = codeFrame(fileContents, err.loc);
-			} catch {}
-		}
+	if (!err.frame && err.loc) {
+		try {
+			const fileContents = fs.readFileSync(err.loc.file!, 'utf8');
+			err.frame = codeFrame(fileContents, err.loc);
+		} catch {}
 	}
 
 	// Astro error (thrown by esbuild so it needs to be formatted for Vite)
 	if (Array.isArray((e as any).errors)) {
 		const { location, pluginName, text } = (e as BuildResult).errors[0];
-		const err = e as SSRError;
 		if (location) {
 			err.loc = { file: location.file, line: location.line, column: location.column };
 			err.id = err.id || location?.file;
@@ -116,6 +140,17 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 	}
 
 	// Generic error (probably from Vite, and already formatted)
-	e.hint = generateHint(e);
-	return e;
+	err.hint = generateHint(e);
+	return err;
+}
+
+export function getViteErrorPayload(err: ErrorWithMetadata): ErrorPayload {
+	return {
+		type: 'error',
+		err: {
+			...err,
+			message: err.message,
+			stack: err.stack,
+		}
+	}
 }
