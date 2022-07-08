@@ -27,7 +27,7 @@ describe('SSR pictures - build', function () {
 			const $ = cheerio.load(html);
 
 			const sources = $('#social-jpg source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props
@@ -87,7 +87,7 @@ describe('SSR pictures - build', function () {
 			const $ = cheerio.load(html);
 
 			const sources = $('#inline source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props
@@ -128,7 +128,7 @@ describe('SSR pictures - build', function () {
 			const $ = cheerio.load(html);
 
 			const sources = $('#google source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props
@@ -186,7 +186,7 @@ describe('SSR images - dev', function () {
 	describe('Local images', () => {
 		it('includes sources', () => {
 			const sources = $('#social-jpg source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props
@@ -224,7 +224,7 @@ describe('SSR images - dev', function () {
 	describe('Inline imports', () => {
 		it('includes sources', () => {
 			const sources = $('#inline source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props
@@ -251,7 +251,7 @@ describe('SSR images - dev', function () {
 	describe('Remote images', () => {
 		it('includes sources', () => {
 			const sources = $('#google source');
-			
+
 			expect(sources.length).to.equal(3);
 
 			// TODO: better coverage to verify source props

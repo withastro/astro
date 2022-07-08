@@ -83,7 +83,8 @@ export interface HostedImageService<T extends TransformOptions = TransformOption
 	getImageAttributes(transform: T): Promise<ImageAttributes>;
 }
 
-export interface SSRImageService<T extends TransformOptions = TransformOptions> extends HostedImageService<T> {
+export interface SSRImageService<T extends TransformOptions = TransformOptions>
+	extends HostedImageService<T> {
 	/**
 	 * Gets tthe HTML attributes needed for the server rendered `<img />` element.
 	 */

@@ -1,6 +1,13 @@
 import slash from 'slash';
 import { ROUTE_PATTERN } from './constants.js';
-import { ImageAttributes, ImageMetadata, ImageService, isSSRService, OutputFormat, TransformOptions } from './types.js';
+import {
+	ImageAttributes,
+	ImageMetadata,
+	ImageService,
+	isSSRService,
+	OutputFormat,
+	TransformOptions,
+} from './types.js';
 import { parseAspectRatio } from './utils.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
@@ -18,7 +25,9 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 	}
 
 	if (!transform.aspectRatio) {
-		throw new Error(`"aspectRatio" must be included if only "${transform.width ? "width": "height"}" is provided`)
+		throw new Error(
+			`"aspectRatio" must be included if only "${transform.width ? 'width' : 'height'}" is provided`
+		);
 	}
 
 	let aspectRatio: number;
@@ -32,18 +41,18 @@ function resolveSize(transform: TransformOptions): TransformOptions {
 	}
 
 	if (transform.width) {
-	// only width was provided, calculate height
+		// only width was provided, calculate height
 		return {
 			...transform,
 			width: transform.width,
-			height: Math.round(transform.width / aspectRatio)
+			height: Math.round(transform.width / aspectRatio),
 		} as TransformOptions;
 	} else if (transform.height) {
-	// only height was provided, calculate width
+		// only height was provided, calculate width
 		return {
 			...transform,
 			width: Math.round(transform.height * aspectRatio),
-			height: transform.height
+			height: transform.height,
 		};
 	}
 
@@ -57,9 +66,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	}
 
 	// resolve the metadata promise, usually when the ESM import is inlined
-	const metadata = 'then' in input.src
-		? (await input.src).default
-		: input.src;
+	const metadata = 'then' in input.src ? (await input.src).default : input.src;
 
 	let { width, height, aspectRatio, format = metadata.format, ...rest } = input;
 
@@ -84,7 +91,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 		height,
 		aspectRatio,
 		format: format as OutputFormat,
-	}
+	};
 }
 
 /**
@@ -94,7 +101,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
- export async function getImage(
+export async function getImage(
 	loader: ImageService,
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {

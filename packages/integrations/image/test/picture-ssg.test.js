@@ -39,7 +39,7 @@ describe('SSG pictures', function () {
 		describe('Local images', () => {
 			it('includes sources', () => {
 				const sources = $('#social-jpg source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
@@ -66,7 +66,7 @@ describe('SSG pictures', function () {
 		describe('Inline imports', () => {
 			it('includes sources', () => {
 				const sources = $('#inline source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
@@ -93,7 +93,7 @@ describe('SSG pictures', function () {
 		describe('Remote images', () => {
 			it('includes sources', () => {
 				const sources = $('#google source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
@@ -159,7 +159,7 @@ describe('SSG pictures', function () {
 		describe('Local images', () => {
 			it('includes sources', () => {
 				const sources = $('#social-jpg source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
@@ -197,7 +197,7 @@ describe('SSG pictures', function () {
 		describe('Local images with inline imports', () => {
 			it('includes sources', () => {
 				const sources = $('#inline source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
@@ -235,7 +235,7 @@ describe('SSG pictures', function () {
 		describe('Remote images', () => {
 			it('includes sources', () => {
 				const sources = $('#google source');
-				
+
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props

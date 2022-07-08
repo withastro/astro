@@ -40,7 +40,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Inline imports', () => {
-			it ('includes src, width, and height attributes', () => {
+			it('includes src, width, and height attributes', () => {
 				const image = $('#inline');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');

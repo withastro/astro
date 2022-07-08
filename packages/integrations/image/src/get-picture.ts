@@ -1,7 +1,13 @@
 import { lookup } from 'mrmime';
 import { extname } from 'path';
 import { getImage } from './get-image.js';
-import { ImageAttributes, ImageMetadata, ImageService, OutputFormat, TransformOptions } from './types.js';
+import {
+	ImageAttributes,
+	ImageMetadata,
+	ImageService,
+	OutputFormat,
+	TransformOptions,
+} from './types.js';
 import { parseAspectRatio } from './utils.js';
 
 export interface GetPictureParams {
@@ -14,7 +20,7 @@ export interface GetPictureParams {
 
 export interface GetPictureResult {
 	image: ImageAttributes;
-	sources: { type: string; srcset: string; }[];
+	sources: { type: string; srcset: string }[];
 }
 
 async function resolveAspectRatio({ src, aspectRatio }: GetPictureParams) {
@@ -49,14 +55,21 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 	}
 
 	async function getSource(format: OutputFormat) {
-		const imgs = await Promise.all(widths.map(async (width) => {
-			const img = await getImage(loader, { src, format, width, height: Math.round(width / aspectRatio!) });
-			return `${img.src} ${width}w`;
-		}))
+		const imgs = await Promise.all(
+			widths.map(async (width) => {
+				const img = await getImage(loader, {
+					src,
+					format,
+					width,
+					height: Math.round(width / aspectRatio!),
+				});
+				return `${img.src} ${width}w`;
+			})
+		);
 
 		return {
 			type: lookup(format) || format,
-			srcset: imgs.join(',')
+			srcset: imgs.join(','),
 		};
 	}
 
@@ -67,13 +80,13 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		src,
 		width: Math.max(...widths),
 		aspectRatio,
-		format: allFormats[allFormats.length - 1]
+		format: allFormats[allFormats.length - 1],
 	});
 
-	const sources = await Promise.all(allFormats.map(format => getSource(format)));
+	const sources = await Promise.all(allFormats.map((format) => getSource(format)));
 
 	return {
 		sources,
-		image
-	}
+		image,
+	};
 }
