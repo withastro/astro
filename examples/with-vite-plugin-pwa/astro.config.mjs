@@ -62,14 +62,6 @@ if (reload) {
 export default defineConfig({
 	integrations: [pwa(pwaOptions)],
 	vite: {
-		resolve: {
-			alias: {
-				'workbox-window': './node_modules/workbox-window/build/workbox-window.prod.es5.mjs'
-			},
-		},
-		optimizeDeps: {
-			include: ['workbox-window']
-		},
 		logLevel: 'info',
 		build: {
 			sourcemap: process.env.SOURCE_MAP === 'true',
