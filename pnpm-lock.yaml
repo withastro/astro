@@ -1,5 +1,7 @@
 lockfileVersion: 5.4
 
+packageExtensionsChecksum: 01871422d489547c532184effb134b35
+
 patchedDependencies:
   '@changesets/cli@2.23.0':
     hash: kcozqtpxuwjzskw6zg5royevn4
@@ -2184,11 +2186,13 @@ importers:
       postcss-load-config: ^3.1.4
       svelte: ^3.48.0
       svelte-preprocess: ^4.10.7
+      svelte2tsx: ^0.5.11
       vite: ^2.9.10
     dependencies:
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.49_svelte@3.49.0+vite@2.9.14
       postcss-load-config: 3.1.4
       svelte-preprocess: 4.10.7_k3vaqsyrx2lfvza3vdeafxime4
+      svelte2tsx: 0.5.11_svelte@3.49.0
       vite: 2.9.14
     devDependencies:
       astro: link:../../astro
@@ -14277,11 +14281,28 @@ packages:
     resolution: {integrity: sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==}
     engines: {node: '>= 8'}
 
+  /svelte2tsx/0.5.11_svelte@3.49.0:
+    resolution: {integrity: sha512-Is95G1wqNvEUJZ9DITRS2zfMwVJRZztMduPs1vJJ0cm65WUg/avBl5vBXjHycQL/qmFpaqa3NG4qWnf7bCHPag==}
+    peerDependencies:
+      svelte: ^3.24
+      typescript: ^4.1.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      dedent-js: 1.0.1
+      pascal-case: 3.1.2
+      svelte: 3.49.0
+    dev: false
+
   /svelte2tsx/0.5.11_ueozcsexptisi2awlbuwt6eqmq:
     resolution: {integrity: sha512-Is95G1wqNvEUJZ9DITRS2zfMwVJRZztMduPs1vJJ0cm65WUg/avBl5vBXjHycQL/qmFpaqa3NG4qWnf7bCHPag==}
     peerDependencies:
       svelte: ^3.24
       typescript: ^4.1.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2

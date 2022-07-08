@@ -47,6 +47,15 @@
   },
   "packageManager": "pnpm@7.5.0",
   "pnpm": {
+    "packageExtensions": {
+      "svelte2tsx": {
+        "peerDependenciesMeta": {
+          "typescript": {
+            "optional": true
+          }
+        }
+      }
+    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "rollup",
