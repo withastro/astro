@@ -2,3 +2,5 @@
 6ddd7678ffb6598ae6e263706813cb5e94535f02
 # prettier config update
 1335797903a57716e9a02b0ffd8ca636b3883c62
+# Manually format .astro files in example projects (#3862)
+59e8c71786fd1c154904b3fefa7d26d88f4d92d2
