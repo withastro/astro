@@ -2022,7 +2022,6 @@ importers:
     specifiers:
       '@types/chai': ^4.3.1
       '@types/mocha': ^9.1.1
-      astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
       linkedom: ^0.14.12
@@ -2040,7 +2039,6 @@ importers:
     devDependencies:
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
-      astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.6
       linkedom: 0.14.12

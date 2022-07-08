@@ -1,7 +1,6 @@
-import type { AstroIntegration, AstroRenderer } from 'astro';
 import { transform } from './transform/index.js';
 
-function getRenderer(): AstroRenderer {
+function getRenderer() {
 	return {
 		name: '@astrojs/html',
 		serverEntrypoint: '@astrojs/html/server.js',
@@ -31,7 +30,7 @@ function getViteConfiguration() {
 	};
 }
 
-export default function createIntegration(): AstroIntegration {
+export default function createIntegration() {
 	return {
 		name: '@astrojs/html',
 		hooks: {

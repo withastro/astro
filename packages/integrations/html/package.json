@@ -33,7 +33,6 @@
     "@types/chai": "^4.3.1",
     "@types/mocha": "^9.1.1",
     "astro-scripts": "workspace:*",
-    "astro": "workspace:*",
     "chai": "^4.3.6",
     "linkedom": "^0.14.12",
     "mocha": "^9.2.2",
