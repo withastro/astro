@@ -48,6 +48,14 @@ module.exports = {
 	plugins: [],
 }\n`;
 
+const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
+	'netlify': '@astrojs/netlify/functions',
+	'vercel': '@astrojs/vercel/serverless',
+	'cloudflare': '@astrojs/cloudflare',
+	'node': '@astrojs/node',
+	'deno': '@astrojs/deno',
+}
+
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
 	if (flags.help || names.length === 0) {
 		printHelp({
@@ -126,8 +134,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
-			if (integration.type === 'adapter') {
-				await setAdapter(ast, integration);
+			if (isAdapter(integration)) {
+				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
+				if (officialExportName) {
+					await setAdapter(ast, integration, officialExportName);
+				} else {
+					logAdapterConfigInstructions(integration, logging);
+				}
 			} else {
 				await addIntegration(ast, integration);
 			}
@@ -143,7 +156,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 
 	if (ast) {
 		try {
-			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
+			configResult = await updateAstroConfig({
+				configURL,
+				ast,
+				flags,
+				logging,
+				logAdapterInstructions: integrations.some(isAdapter),
+			});
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
 			throw createPrettyError(err as Error);
@@ -241,6 +260,18 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 }
 
+function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'adapter' } {
+  return integration.type === 'adapter';
+}
+
+function logAdapterConfigInstructions(adapter: (IntegrationInfo & { type: 'adapter' }), logging: LogOptions) {
+	info(
+		logging,
+		null,
+		`\n  ${magenta(`Check our deployment docs for ${bold(adapter.packageName)} to update your "adapter" config.`)}`
+	);
+}
+
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	const result = parse(source);
@@ -324,14 +355,14 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	});
 }
 
-async function setAdapter(ast: t.File, adapter: IntegrationInfo) {
+async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: string) {
 	const adapterId = t.identifier(toIdent(adapter.id));
 
 	ensureImport(
 		ast,
 		t.importDeclaration(
 			[t.importDefaultSpecifier(adapterId)],
-			t.stringLiteral(adapter.packageName)
+			t.stringLiteral(exportName)
 		)
 	);
 
@@ -380,11 +411,13 @@ async function updateAstroConfig({
 	ast,
 	flags,
 	logging,
+	logAdapterInstructions,
 }: {
 	configURL: URL;
 	ast: t.File;
 	flags: yargs.Arguments;
 	logging: LogOptions;
+	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	let output = await generate(ast);
@@ -431,6 +464,14 @@ async function updateAstroConfig({
 		null,
 		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
 	);
+
+	if (logAdapterInstructions) {
+		info(
+			logging,
+			null,
+			magenta(`  For complete deployment options, visit\n  ${bold('https://docs.astro.build/en/guides/deploy/')}\n`)
+		);
+	}
 
 	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
