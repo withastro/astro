@@ -34,11 +34,19 @@ function createResponseClass() {
 		async arrayBuffer(): Promise<ArrayBuffer> {
 			if (this.#isStream && isNodeJS) {
 				let body = this.#body as AsyncIterable<Uint8Array>;
-				let chunks: number[] = [];
+				let chunks: Uint8Array[] = [];
+				let len = 0;
 				for await (let chunk of body) {
-					chunks.push(...chunk);
+					chunks.push(chunk);
+					len += chunk.length;
 				}
-				return Uint8Array.from(chunks);
+				let ab = new Uint8Array(len);
+				let offset = 0;
+				for(const chunk of chunks) {
+					ab.set(chunk, offset);
+					offset += chunk.length;
+				}
+				return ab;
 			}
 			return super.arrayBuffer();
 		}
