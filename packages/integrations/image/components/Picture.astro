@@ -2,16 +2,16 @@
 // @ts-ignore
 import loader from 'virtual:image-loader';
 import { getPicture } from '../src/get-picture.js';
-import type { ImageAttributes, ImageMetadata, OutputFormat, TransformOptions } from '../src/types.js';
+import type { ImageAttributes, ImageMetadata, OutputFormat, PictureAttributes, TransformOptions } from '../src/types.js';
 
-export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'|'width'|'height'> {
+export interface LocalImageProps extends Omit<PictureAttributes, 'src'>, Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src'|'width'|'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	formats?: OutputFormat[];
 }
 
-export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+export interface RemoteImageProps extends PictureAttributes, TransformOptions, ImageAttributes {
 	src: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
@@ -21,12 +21,12 @@ export interface RemoteImageProps extends TransformOptions, ImageAttributes {
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const { src, sizes, widths, aspectRatio, formats = ['avif', 'webp'] } = Astro.props as Props;
+const { src, sizes, widths, aspectRatio, formats = ['avif', 'webp'], ...attrs } = Astro.props as Props;
 
 const { image, sources } = await getPicture({ loader, src, widths, formats, aspectRatio });
 ---
 
-<picture>
+<picture {...attrs}>
 	{sources.map(attrs => (
 	<source {...attrs} {sizes}>))}
 	<img {...image} loading="lazy" decoding="async" />

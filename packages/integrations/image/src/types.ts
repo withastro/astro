@@ -73,6 +73,7 @@ export interface TransformOptions {
 }
 
 export type ImageAttributes = Partial<HTMLImageElement>;
+export type PictureAttributes = Partial<HTMLPictureElement>;
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
