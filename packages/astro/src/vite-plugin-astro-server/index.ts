@@ -5,7 +5,6 @@ import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { collectErrorMetadata, ErrorWithMetadata, fixViteErrorMessage, getViteErrorPayload } from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
@@ -16,9 +15,8 @@ import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import { createSafeError, isBuildingToSSR, resolvePages, codeFrame } from '../core/util.js';
+import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import serverErrorTemplate from '../template/5xx.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;

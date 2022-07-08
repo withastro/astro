@@ -869,7 +869,7 @@ export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string>
 
 export async function* renderAstroComponent(
 	component: InstanceType<typeof AstroComponent>
-): AsyncIterable<string|Error> {
+): AsyncIterable<string> {
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
