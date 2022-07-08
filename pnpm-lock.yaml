@@ -2129,16 +2129,16 @@ importers:
     specifiers:
       astro: workspace:*
       astro-scripts: workspace:*
-      vite: ^2.9.9
+      vite: ^2.9.14
       vite-plugin-pwa: ^0.12.2
       workbox-build: ^6.5.3
     dependencies:
-      vite: 2.9.14
       vite-plugin-pwa: 0.12.2_vite@2.9.14
       workbox-build: 6.5.3
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      vite: 2.9.14
 
   packages/integrations/react:
     specifiers:
@@ -14991,7 +14991,6 @@ packages:
       rollup: 2.76.0
     optionalDependencies:
       fsevents: 2.3.2
-    dev: false
 
   /vite/2.9.14_sass@1.53.0:
     resolution: {integrity: sha512-P/UCjSpSMcE54r4mPak55hWAZPlyfS369svib/gpmz8/01L822lMPOJ/RYW6tLCe1RPvMvOsJ17erf55bKp4Hw==}

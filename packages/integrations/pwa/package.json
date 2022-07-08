@@ -33,12 +33,12 @@
   },
   "dependencies": {
     "vite-plugin-pwa": "^0.12.2",
-    "workbox-build": "^6.5.3",
-    "vite": "^2.9.9"
+    "workbox-build": "^6.5.3"
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "vite": "^2.9.14"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

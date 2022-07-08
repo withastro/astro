@@ -127,7 +127,6 @@ function getViteConfiguration(config: AstroConfig, options: Partial<VitePWAOptio
 
 async function regeneratePWA(
 	dir: URL, 
-	routes: RouteData[],
 	pwaPlugin: Plugin | undefined
 ) {
 	const api: VitePluginPWAAPI | undefined = pwaPlugin?.api
@@ -157,7 +156,7 @@ export default function (options: Partial<VitePWAOptions> = {}): AstroIntegratio
 			},
 			'astro:build:done': async ({ dir, routes }) => {
 				data = routes
-				await regeneratePWA(dir, routes, pwaPlugin)
+				await regeneratePWA(dir, pwaPlugin)
 			}
 		},
 	};
