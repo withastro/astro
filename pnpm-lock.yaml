@@ -1538,6 +1538,14 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/test/fixtures/large-array:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+
   packages/astro/test/fixtures/legacy-build:
     specifiers:
       '@astrojs/vue': workspace:*
