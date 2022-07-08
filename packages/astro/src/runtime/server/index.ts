@@ -453,7 +453,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	island.children = `${html ?? ''}${template}`;
 
 	if (island.children) {
-		island.props['await-children'] = ''
+		island.props['await-children'] = '';
 	}
 
 	// Scripts to prepend
