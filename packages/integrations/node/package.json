@@ -11,7 +11,9 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/node"
   },
-  "keywords": ["astro-adapter"],
+  "keywords": [
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
