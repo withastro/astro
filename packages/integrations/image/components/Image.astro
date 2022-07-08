@@ -22,7 +22,7 @@ const props = Astro.props as Props;
 const attrs = await getImage(loader, props);
 ---
 
-<img {...attrs} />
+<img {...attrs} loading="lazy" decoding="async" />
 
 <style>
 	img {
