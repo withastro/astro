@@ -1,17 +1,27 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer/index.jsx';
-import Nav from '../components/Nav/index.jsx';
-import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
+import MainHead from "../components/MainHead.astro";
+import Footer from "../components/Footer/index.jsx";
+import Nav from "../components/Nav/index.jsx";
+import PortfolioPreview from "../components/PortfolioPreview/index.jsx";
 
-const projects = (await Astro.glob('./project/**/*.md'))
+const projects = (await Astro.glob("./project/**/*.md"))
 	.filter(({ frontmatter }) => !!frontmatter.publishDate)
-	.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+	.sort(
+		(a, b) =>
+			new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
+	);
 ---
 
 <html lang="en">
 	<head>
-		<MainHead title="All Projects | Jeanine White" description="Learn about Jenine White's most recent projects" />
+		<MainHead
+			title="All Projects | Jeanine White"
+			description="Learn about Jenine White"
+			s
+			most
+			recent
+			projects'
+		/>
 		<style lang="scss">
 			.grid {
 				display: grid;
