@@ -139,7 +139,11 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 				if (officialExportName) {
 					await setAdapter(ast, integration, officialExportName);
 				} else {
-					logAdapterConfigInstructions(integration, logging);
+					info(
+						logging,
+						null,
+						`\n  ${magenta(`Check our deployment docs for ${bold(integration.packageName)} to update your "adapter" config.`)}`
+					);
 				}
 			} else {
 				await addIntegration(ast, integration);
@@ -262,14 +266,6 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 
 function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'adapter' } {
   return integration.type === 'adapter';
-}
-
-function logAdapterConfigInstructions(adapter: (IntegrationInfo & { type: 'adapter' }), logging: LogOptions) {
-	info(
-		logging,
-		null,
-		`\n  ${magenta(`Check our deployment docs for ${bold(adapter.packageName)} to update your "adapter" config.`)}`
-	);
 }
 
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
