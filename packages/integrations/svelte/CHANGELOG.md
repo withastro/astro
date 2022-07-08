@@ -1,5 +1,13 @@
 # @astrojs/svelte
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+* [#3864](https://github.com/withastro/astro/pull/3864) [`f9ed77bb`](https://github.com/withastro/astro/commit/f9ed77bb0d71d1644d524547a24963210f4ecaff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add entrypoints for editor support for Vue and Svelte (destined to be used by our language server)
+
 ## 0.2.0
 
 ### Minor Changes

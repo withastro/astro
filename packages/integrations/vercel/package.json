@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
   "author": "withastro",
   "license": "MIT",

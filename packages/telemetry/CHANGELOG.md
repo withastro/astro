@@ -1,5 +1,11 @@
 # @astrojs/telemetry
 
+## 0.2.5
+
+### Patch Changes
+
+- [#3847](https://github.com/withastro/astro/pull/3847) [`eedb32c7`](https://github.com/withastro/astro/commit/eedb32c79716a8e04acd46cb2c74c5af112e016f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Detect package manager, improve types
+
 ## 0.2.4
 
 ### Patch Changes
