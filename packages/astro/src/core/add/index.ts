@@ -49,12 +49,12 @@ module.exports = {
 }\n`;
 
 const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
-	'netlify': '@astrojs/netlify/functions',
-	'vercel': '@astrojs/vercel/serverless',
-	'cloudflare': '@astrojs/cloudflare',
-	'node': '@astrojs/node',
-	'deno': '@astrojs/deno',
-}
+	netlify: '@astrojs/netlify/functions',
+	vercel: '@astrojs/vercel/serverless',
+	cloudflare: '@astrojs/cloudflare',
+	node: '@astrojs/node',
+	deno: '@astrojs/deno',
+};
 
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
 	if (flags.help || names.length === 0) {
@@ -142,7 +142,11 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					info(
 						logging,
 						null,
-						`\n  ${magenta(`Check our deployment docs for ${bold(integration.packageName)} to update your "adapter" config.`)}`
+						`\n  ${magenta(
+							`Check our deployment docs for ${bold(
+								integration.packageName
+							)} to update your "adapter" config.`
+						)}`
 					);
 				}
 			} else {
@@ -264,8 +268,10 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 }
 
-function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'adapter' } {
-  return integration.type === 'adapter';
+function isAdapter(
+	integration: IntegrationInfo
+): integration is IntegrationInfo & { type: 'adapter' } {
+	return integration.type === 'adapter';
 }
 
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
@@ -356,10 +362,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 
 	ensureImport(
 		ast,
-		t.importDeclaration(
-			[t.importDefaultSpecifier(adapterId)],
-			t.stringLiteral(exportName)
-		)
+		t.importDeclaration([t.importDefaultSpecifier(adapterId)], t.stringLiteral(exportName))
 	);
 
 	visit(ast, {
@@ -384,9 +387,7 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 			const adapterCall = t.callExpression(adapterId, []);
 
 			if (!adapterProp) {
-				configObject.properties.push(
-					t.objectProperty(t.identifier('adapter'), adapterCall)
-				);
+				configObject.properties.push(t.objectProperty(t.identifier('adapter'), adapterCall));
 				return;
 			}
 
@@ -465,7 +466,11 @@ async function updateAstroConfig({
 		info(
 			logging,
 			null,
-			magenta(`  For complete deployment options, visit\n  ${bold('https://docs.astro.build/en/guides/deploy/')}\n`)
+			magenta(
+				`  For complete deployment options, visit\n  ${bold(
+					'https://docs.astro.build/en/guides/deploy/'
+				)}\n`
+			)
 		);
 	}
 
@@ -570,9 +575,13 @@ async function tryToInstallIntegrations({
 	}
 }
 
-async function fetchPackageJson(scope: string | undefined, name: string, tag: string): Promise<object | Error> {
+async function fetchPackageJson(
+	scope: string | undefined,
+	name: string,
+	tag: string
+): Promise<object | Error> {
 	const packageName = `${scope ? `@${scope}/` : ''}${name}`;
-	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`)
+	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`);
 	if (res.status === 404) {
 		return new Error();
 	} else {
@@ -597,7 +606,9 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (!scope) {
 					const firstPartyPkgCheck = await fetchPackageJson('astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
-						spinner.warn(yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`));
+						spinner.warn(
+							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
+						);
 						const response = await prompts({
 							type: 'confirm',
 							name: 'askToContinue',
@@ -605,7 +616,11 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 							initial: true,
 						});
 						if (!response.askToContinue) {
-							throw new Error(`No problem! Find our official integrations at ${cyan('https://astro.build/integrations')}`);
+							throw new Error(
+								`No problem! Find our official integrations at ${cyan(
+									'https://astro.build/integrations'
+								)}`
+							);
 						}
 						spinner.start('Resolving with third party packages...');
 						pkgType = 'third-party';
@@ -616,9 +631,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (pkgType === 'third-party') {
 					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
 					if (thirdPartyPkgCheck instanceof Error) {
-						throw new Error(
-							`Unable to fetch ${bold(integration)}. Does the package exist?`,
-						);
+						throw new Error(`Unable to fetch ${bold(integration)}. Does the package exist?`);
 					} else {
 						pkgJson = thirdPartyPkgCheck as any;
 					}
@@ -645,7 +658,11 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 					integrationType = 'adapter';
 				} else {
 					throw new Error(
-						`${bold(packageName)} doesn't appear to be an integration or an adapter. Find our official integrations at ${cyan('https://astro.build/integrations')}`
+						`${bold(
+							packageName
+						)} doesn't appear to be an integration or an adapter. Find our official integrations at ${cyan(
+							'https://astro.build/integrations'
+						)}`
 					);
 				}
 
