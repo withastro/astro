@@ -563,7 +563,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: ^2.9.12
+      vite: ^2.9.14
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
