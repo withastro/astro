@@ -42,7 +42,7 @@ function createResponseClass() {
 				}
 				let ab = new Uint8Array(len);
 				let offset = 0;
-				for(const chunk of chunks) {
+				for (const chunk of chunks) {
 					ab.set(chunk, offset);
 					offset += chunk.length;
 				}
