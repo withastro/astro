@@ -1,5 +1,7 @@
 lockfileVersion: 5.4
 
+packageExtensionsChecksum: 01871422d489547c532184effb134b35
+
 patchedDependencies:
   '@changesets/cli@2.23.0':
     hash: kcozqtpxuwjzskw6zg5royevn4
@@ -14274,6 +14276,9 @@ packages:
     peerDependencies:
       svelte: ^3.24
       typescript: ^4.1.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
@@ -14285,6 +14290,9 @@ packages:
     peerDependencies:
       svelte: ^3.24
       typescript: ^4.1.2
+    peerDependenciesMeta:
+      typescript:
+        optional: true
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2

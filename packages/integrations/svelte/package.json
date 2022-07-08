@@ -48,16 +48,5 @@
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
-  },
-  "pnpm": {
-    "packageExtensions": {
-      "svelte2tsx": {
-        "peerDependenciesMeta": {
-          "typescript": {
-            "optional": true
-          }
-        }
-      }
-    }
   }
 }
