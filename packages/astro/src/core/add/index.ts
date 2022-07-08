@@ -105,12 +105,8 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 
 	// Some packages might have a common alias! We normalize those here.
 	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
-	const integrationsAndAdapters = await validateIntegrations(integrationNames);
-	const integrations = integrationsAndAdapters.filter(isIntegration);
-	const adapters = integrationsAndAdapters.filter(isAdapter);
+	const integrations = await validateIntegrations(integrationNames);
 
-	logAdapterConfigInstructions(adapters, logging);
-	if (integrations.length) {
 	let ast: t.File | null = null;
 	try {
 		ast = await parseAstroConfig(configURL);
@@ -130,8 +126,12 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
+			if (integration.type === 'adapter') {
+				await setAdapter(ast, integration);
+			} else {
 				await addIntegration(ast, integration);
-				debug('add', `Astro config added ${integration.type} ${integration.id}`);
+			}
+			debug('add', `Astro config added integration ${integration.id}`);
 		}
 	} catch (err) {
 		debug('add', 'Error parsing/modifying astro config: ', err);
@@ -139,6 +139,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 
 	let configResult: UpdateResult | undefined;
+	let installResult: UpdateResult | undefined;
 
 	if (ast) {
 		try {
@@ -164,7 +165,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 				const missingDeps = integrations.filter(
 					(integration) => !deps.includes(integration.packageName)
 				);
-					if (missingDeps.length === 0 && !adapters.length) {
+				if (missingDeps.length === 0) {
 					info(logging, null, msg.success(`Configuration up-to-date.`));
 					return;
 				}
@@ -174,19 +175,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 			break;
 		}
 	}
-	}
 
-	let installResult = await tryToInstallIntegrations({
-		integrations: integrationsAndAdapters,
-		cwd,
-		flags,
-		logging
-	});
+	installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
 
 	switch (installResult) {
 		case UpdateResult.updated: {
-			const len = integrationsAndAdapters.length;
-			if (integrationsAndAdapters.find((entry) => entry.id === 'tailwind')) {
+			const len = integrations.length;
+			if (integrations.find((integration) => integration.id === 'tailwind')) {
 				const possibleConfigFiles = [
 					'./tailwind.config.cjs',
 					'./tailwind.config.mjs',
@@ -219,7 +214,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					debug('add', `Using existing Tailwind configuration`);
 				}
 			}
-			const list = integrationsAndAdapters.map((entry) => `  - ${entry.packageName}`).join('\n');
+			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			info(
 				logging,
 				null,
@@ -271,29 +266,6 @@ Reason: ${err.message}
 You will need to add these integration(s) manually.
 Documentation: https://docs.astro.build/en/guides/integrations-guide/`;
 	return err;
-}
-
-function isIntegration(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'integration' } {
-	return integration.type === 'integration';
-}
-
-function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'adapter' } {
-	return integration.type === 'adapter';
-}
-
-function logAdapterConfigInstructions(adapters: (IntegrationInfo & { type: 'adapter' })[], logging: LogOptions) {
-	for (const adapter of adapters) {
-		info(
-			logging,
-			null,
-			`\n  ${cyan(`Check our deployment docs for ${bold(adapter.packageName)} to update your "adapter" config.`)}`
-		);
-	}
-	info(
-		logging,
-		null,
-		`\n  ${bold(cyan('https://docs.astro.build/en/guides/deploy/'))}`
-	);
 }
 
 async function addIntegration(ast: t.File, integration: IntegrationInfo) {
@@ -348,6 +320,50 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 			if (existingIntegrationCall) return;
 
 			integrationsProp.value.elements.push(integrationCall);
+		},
+	});
+}
+
+async function setAdapter(ast: t.File, adapter: IntegrationInfo) {
+	const adapterId = t.identifier(toIdent(adapter.id));
+
+	ensureImport(
+		ast,
+		t.importDeclaration(
+			[t.importDefaultSpecifier(adapterId)],
+			t.stringLiteral(adapter.packageName)
+		)
+	);
+
+	visit(ast, {
+		// eslint-disable-next-line @typescript-eslint/no-shadow
+		ExportDefaultDeclaration(path) {
+			if (!t.isCallExpression(path.node.declaration)) return;
+
+			const configObject = path.node.declaration.arguments[0];
+			if (!t.isObjectExpression(configObject)) return;
+
+			let adapterProp = configObject.properties.find((prop) => {
+				if (prop.type !== 'ObjectProperty') return false;
+				if (prop.key.type === 'Identifier') {
+					if (prop.key.name === 'adapter') return true;
+				}
+				if (prop.key.type === 'StringLiteral') {
+					if (prop.key.value === 'adapter') return true;
+				}
+				return false;
+			}) as t.ObjectProperty | undefined;
+
+			const adapterCall = t.callExpression(adapterId, []);
+
+			if (!adapterProp) {
+				configObject.properties.push(
+					t.objectProperty(t.identifier('adapter'), adapterCall)
+				);
+				return;
+			}
+
+			adapterProp.value = adapterCall;
 		},
 	});
 }
