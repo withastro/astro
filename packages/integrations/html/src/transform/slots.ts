@@ -1,9 +1,9 @@
 import type { Plugin } from 'unified';
 import type { Root, RootContent } from 'hast';
+
 import { visit } from 'unist-util-visit';
 import MagicString from 'magic-string';
 import { escape } from './utils.js';
-
 
 const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
   return (tree, file) => {
@@ -25,14 +25,3 @@ const rehypeSlots: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 export default rehypeSlots;
 
 export const SLOT_PREFIX = `___SLOTS___`;
-
-// export function transformSlots(document: Document) {
-// 	for (const slot of document.querySelectorAll('slot')) {
-// 		if (slot.closest('template')) continue;
-// 		if (slot.hasAttribute('is:inline')) {
-// 			slot.removeAttribute('is:inline');
-// 			continue;
-// 		}
-// 		slot.replaceWith(document.createTextNode(`\${${SLOT_PREFIX}['${slot.getAttribute('name') || 'default'}'] ?? ${JSON.stringify(slot.innerHTML)}}`));
-// 	}
-// }

@@ -1,5 +1,5 @@
 import type { Plugin } from 'unified';
-import type { Root, RootContent, Element } from 'hast';
+import type { Root, RootContent } from 'hast';
 import type MagicString from 'magic-string';
 import { visit } from 'unist-util-visit';
 
@@ -14,7 +14,7 @@ const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 				}
 			} else if (node.type === 'element') {
 				for (const [key, value] of Object.entries(node.properties ?? {})) {
-					const newKey = escape(key);
+					const newKey = needsEscape(key) ? escape(key) : key;
 					const newValue = needsEscape(value) ? escape(value) : value;
 					if (newKey === key && newValue === value) continue;
 					replaceAttribute(s, node, key, (value === '') ? newKey : `${newKey}="${newValue}"`);

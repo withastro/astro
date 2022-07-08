@@ -1,18 +1,20 @@
 import type { AstroIntegration, AstroRenderer } from 'astro';
-import { readFileSync } from 'fs';
-import { transform } from './transform.js';
+import { transform } from './transform/index.js';
 
 function getRenderer(): AstroRenderer {
 	return {
 		name: '@astrojs/html',
-		serverEntrypoint: '@astrojs/html/server.js',
+		serverEntrypoint: './dist/server.js',
 	};
 }
 
 function getViteConfiguration() {
 	return {
 		optimizeDeps: {
-			exclude: ['@astrojs/html/server.js'],
+			exclude: ['@astrojs/html/dist/server.js'],
+		},
+		ssr: {
+			external: ['@astrojs/html/dist/server.js']
 		},
 		plugins: [
 			{

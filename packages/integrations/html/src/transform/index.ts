@@ -3,7 +3,6 @@ import { rehype } from 'rehype';
 import { VFile } from 'vfile';
 import escape from './escape.js';
 import slots, { SLOT_PREFIX } from './slots.js';
-import assets from './assets.js';
 
 export async function transform(code: string, id: string) {
 	const s = new MagicString(code, { filename: id });
@@ -11,7 +10,6 @@ export async function transform(code: string, id: string) {
 	const parser = rehype()
 		.data('settings', { fragment: true })
 		.use(escape, { s })
-		.use(assets, { s, imports })
 		.use(slots, { s });
 
 	const vfile = new VFile({ value: code, path: id })

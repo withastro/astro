@@ -1,7 +1,7 @@
 import type { Element } from 'hast';
 import MagicString from 'magic-string';
 
-const splitAttrsTokenizer = /([a-z0-9_\:\-]*)\s*?=\s*?(['"]?)(.*?)\2\s+/gim;
+const splitAttrsTokenizer = /([\$\{\}\@a-z0-9_\:\-]*)\s*?=\s*?(['"]?)(.*?)\2\s+/gim;
 
 export function replaceAttribute(s: MagicString, node: Element, key: string, newValue: string) {
 	splitAttrsTokenizer.lastIndex = 0;
@@ -10,7 +10,8 @@ export function replaceAttribute(s: MagicString, node: Element, key: string, new
 	if (offset === -1) return;
 	const start = node.position!.start.offset! + offset;
 	const tokens = text.slice(offset).split(splitAttrsTokenizer);
-	if (tokens[0].trim() === key) {
+	const token = tokens[0].replace(/([^>])(\>[\s\S]*$)/gmi, '$1');
+	if (token.trim() === key) {
 		const end = start + key.length;
 		s.overwrite(start, end, newValue)
 	} else {
