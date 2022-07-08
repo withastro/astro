@@ -96,7 +96,7 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 
 		// Derive plugin from stack (if possible)
 		if (!err.plugin) {
-			const plugin = /(@astrojs\/[\w-]+)\/(server|client|index)/gmi.exec(stackText)?.at(1);
+			const plugin = /withastro\/astro\/packages\/integrations\/([\w-]+)/gmi.exec(stackText)?.at(1) || /(@astrojs\/[\w-]+)\/(server|client|index)/gmi.exec(stackText)?.at(1);
 			err.plugin = plugin;
 		}
 
