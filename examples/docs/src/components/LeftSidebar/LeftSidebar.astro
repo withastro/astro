@@ -9,7 +9,7 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 	// If the first item is not a section header, create a new container section.
 	if (i === 0) {
 		if (!item.header) {
-			const pesudoSection = { text: "" };
+			const pesudoSection = { text: '' };
 			col.push({ ...pesudoSection, children: [] });
 		}
 	}
@@ -22,8 +22,8 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 }, []);
 ---
 
-<nav aria-labelledby="grid-left">
-	<ul class="nav-groups">
+<nav aria-labelledby='grid-left'>
+	<ul class='nav-groups'>
 		{sidebarSections.map((section) => (
 			<li>
 				<div class="nav-group">
@@ -31,7 +31,10 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 					<ul>
 						{section.children.map((child) => (
 							<li class="nav-link">
-								<a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>
+								<a
+									href={`${Astro.site.pathname}${child.link}`}
+									aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}
+								>
 									{child.text}
 								</a>
 							</li>

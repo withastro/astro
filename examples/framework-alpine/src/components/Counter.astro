@@ -5,14 +5,14 @@
 const { initialCount = 0 } = Astro.props;
 ---
 
-<div class="counter" x-data=`{ count: ${initialCount} }`>
-	<button x-on:click="count--">-</button>
-	<pre x-text="count">{ initialCount }</pre>
-	<button x-on:click="count++">+</button>
+<div class='counter' x-data=`{ count: ${initialCount} }`>
+	<button x-on:click='count--'>-</button>
+	<pre x-text='count'>{ initialCount }</pre>
+	<button x-on:click='count++'>+</button>
 </div>
 
-<div class="counter-message">
-	<slot />
+<div class='counter-message'>
+	<slot></slot>
 </div>
 
 <style>

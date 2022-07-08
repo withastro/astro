@@ -7,14 +7,14 @@ export interface Props {
 const { prevUrl, nextUrl } = Astro.props;
 ---
 
-<div class="wrapper">
-	<nav class="nav">
-		<a class="prev" href={prevUrl || '#'} aria-label="Previous Page">Prev</a>
-		<a class="next" href={nextUrl || '#'} aria-label="Next Page">Next</a>
+<div class='wrapper'>
+	<nav class='nav'>
+		<a class='prev' href={prevUrl || '#'} aria-label='Previous Page'>Prev</a>
+		<a class='next' href={nextUrl || '#'} aria-label='Next Page'>Next</a>
 	</nav>
 </div>
 
-<style lang="scss">
+<style lang='scss'>
 	.nav {
 		display: flex;
 		margin-right: auto;

@@ -15,16 +15,23 @@ const title = 'Don’s Blog';
 const description = 'An example blog on Astro';
 
 /** filter posts by author, sort by date */
-const posts = allPosts.filter((post) => post.frontmatter.author === Astro.params.author).sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+const posts = allPosts
+	.filter((post) => post.frontmatter.author === Astro.params.author)
+	.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 const author = authorData[posts[0].frontmatter.author];
 ---
 
-<html lang="en">
+<html lang='en'>
 	<head>
 		<title>{title}</title>
-		<MainHead {title} {description} image={posts[0].frontmatter.image} canonicalURL={Astro.canonicalURL.toString()} />
+		<MainHead
+			{title}
+			{description}
+			image={posts[0].frontmatter.image}
+			canonicalURL={Astro.canonicalURL.toString()}
+		/>
 
-		<style lang="scss">
+		<style lang='scss'>
 			.title {
 				display: flex;
 				align-items: center;
@@ -61,9 +68,9 @@ const author = authorData[posts[0].frontmatter.author];
 	<body>
 		<Nav {title} />
 
-		<main class="wrapper">
-			<h2 class="title">
-				<div class="avatar"><img class="avatar-img" src={author.image} alt="" /></div>
+		<main class='wrapper'>
+			<h2 class='title'>
+				<div class='avatar'><img class='avatar-img' src={author.image} alt='' /></div>
 				{author.name}
 			</h2>
 			{posts.map((post) => <PostPreview post={post} author={author} />)}

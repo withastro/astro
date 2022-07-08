@@ -2,6 +2,7 @@
 const { tag = 'div' } = Astro.props;
 const Tag = tag;
 ---
+
 <style>
 	.container {
 		width: 1248px; /** TODO: responsive */
@@ -9,4 +10,4 @@ const Tag = tag;
 		margin-right: auto;
 	}
 </style>
-<Tag class="container"><slot /></Tag>
+<Tag class='container'><slot></slot></Tag>

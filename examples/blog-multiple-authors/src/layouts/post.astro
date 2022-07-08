@@ -10,8 +10,13 @@ let canonicalURL = Astro.canonicalURL;
 <html lang={content.lang || 'en'}>
 	<head>
 		<title>{content.title}</title>
-		<MainHead title={content.title} description={content.description} image={content.image} {canonicalURL} />
-		<style lang="scss">
+		<MainHead
+			title={content.title}
+			description={content.description}
+			image={content.image}
+			{canonicalURL}
+		/>
+		<style lang='scss'>
 			.title {
 				margin-top: 4rem;
 				margin-bottom: 4rem;
@@ -61,15 +66,15 @@ let canonicalURL = Astro.canonicalURL;
 	<body>
 		<Nav />
 
-		<main class="wrapper">
-			<h2 class="title">{content.title}</h2>
-			<p class="description">{content.description}</p>
-			<img class="img" src={content.image} alt="" />
-			<article class="article">
-				<slot />
+		<main class='wrapper'>
+			<h2 class='title'>{content.title}</h2>
+			<p class='description'>{content.description}</p>
+			<img class='img' src={content.image} alt='' />
+			<article class='article'>
+				<slot></slot>
 			</article>
-			<footer class="footer">
-				<a class="posts" href="/posts">All Posts</a>
+			<footer class='footer'>
+				<a class='posts' href='/posts'>All Posts</a>
 			</footer>
 		</main>
 

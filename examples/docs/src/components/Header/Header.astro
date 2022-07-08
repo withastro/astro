@@ -13,17 +13,17 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 
 <header>
 	<SkipToContent />
-	<nav class="nav-wrapper" title="Top Navigation">
-		<div class="menu-toggle">
+	<nav class='nav-wrapper' title='Top Navigation'>
+		<div class='menu-toggle'>
 			<SidebarToggle client:idle />
 		</div>
-		<div class="logo flex">
-			<a href="/">
+		<div class='logo flex'>
+			<a href='/'>
 				<AstroLogo size={40} />
-				<h1>{CONFIG.SITE.title ?? "Documentation"}</h1>
+				<h1>{CONFIG.SITE.title ?? 'Documentation'}</h1>
 			</a>
 		</div>
-		<div style="flex-grow: 1;"></div>
+		<div style='flex-grow: 1;'></div>
 		{KNOWN_LANGUAGE_CODES.length > 1 && <LanguageSelect lang={lang} client:idle />}
 		{CONFIG.ALGOLIA && (
 			<div class="search-item">

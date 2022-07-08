@@ -10,7 +10,7 @@ const { content } = Astro.props;
 <html lang={content.lang || 'en'}>
 	<head>
 		<MainHead title={content.title} description={content.description} />
-		<style lang="scss">
+		<style lang='scss'>
 			.hero {
 				padding: 8rem;
 				display: flex;
@@ -69,20 +69,20 @@ const { content } = Astro.props;
 	</head>
 	<body>
 		<Nav />
-		<header style={`background-image:url(${content.img})`} class="hero">
-			<h1 class="title">{content.title}</h1>
+		<header style={`background-image:url(${content.img})`} class='hero'>
+			<h1 class='title'>{content.title}</h1>
 		</header>
-		<div class="leadIn">
-			<div class="wrapper pt8 pb8 mb8 tac">
+		<div class='leadIn'>
+			<div class='wrapper pt8 pb8 mb8 tac'>
 				{content.tags.map((t) => <span class="tag">{t}</span>)}
-				<h3 class="tagline">{content.description}</h3>
+				<h3 class='tagline'>{content.description}</h3>
 			</div>
 		</div>
-		<div class="wrapper wrapper__readable">
-			<div class="content"><slot /></div>
+		<div class='wrapper wrapper__readable'>
+			<div class='content'><slot></slot></div>
 		</div>
-		<footer class="tac mt6">
-			<a href="/projects">
+		<footer class='tac mt6'>
+			<a href='/projects'>
 				<Button>View More</Button>
 			</a>
 		</footer>

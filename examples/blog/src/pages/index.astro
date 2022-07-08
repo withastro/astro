@@ -15,13 +15,16 @@ let permalink = 'https://example.com/';
 // Data Fetching: List all Markdown posts in the repo.
 
 let allPosts = await Astro.glob('./posts/*.md');
-allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
+allPosts = allPosts.sort(
+	(a, b) =>
+		new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
+);
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
 
-<html lang="en">
+<html lang='en'>
 	<head>
 		<BaseHead {title} {description} {permalink} />
 
@@ -63,13 +66,13 @@ allPosts = allPosts.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf()
 
 	<body>
 		<BlogHeader />
-		<div class="wrapper">
-			<main class="content">
-				<section class="intro">
-					<h1 class="latest">{title}</h1>
+		<div class='wrapper'>
+			<main class='content'>
+				<section class='intro'>
+					<h1 class='latest'>{title}</h1>
 					<p>{description}</p>
 				</section>
-				<section aria-label="Blog post list">
+				<section aria-label='Blog post list'>
 					{allPosts.map((p) => <BlogPostPreview post={p} />)}
 				</section>
 			</main>

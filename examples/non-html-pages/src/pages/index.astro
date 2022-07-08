@@ -1,18 +1,19 @@
-
-<html lang="en">
+<html lang='en'>
 	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta charset='utf-8' />
+		<meta name='viewport' content='width=device-width' />
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1 id="result">Loading...</h1>
+		<h1 id='result'>Loading...</h1>
 		<script>
 			// Non-HTML files will be included in your final build, so you
 			// can fetch them directly in the browser.
 			const response = await fetch(`/about.json`);
 			const data = await response.json();
-			document.getElementById('result').innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+			document.getElementById(
+				'result'
+			).innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
 		</script>
 	</body>
 </html>

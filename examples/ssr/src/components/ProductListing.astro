@@ -1,6 +1,7 @@
 ---
 const { products } = Astro.props;
 ---
+
 <style>
 	ul {
 		list-style-type: none;
@@ -43,19 +44,19 @@ const { products } = Astro.props;
 		color: #787878;
 	}
 </style>
-<slot name="title"></slot>
+<slot name='title'></slot>
 <ul>
-{products.map(product => (
-	<li class="product">
-		<a href={`/products/${product.id}`}>
-			<figure>
-				<img src={product.image} />
-				<figcaption>
-					<div class="name">{product.name}</div>
-					<div class="price">${product.price}</div>
-				</figcaption>
-			</figure>
-		</a>
-	</li>
-))}
+	{products.map((product) => (
+		<li class="product">
+			<a href={`/products/${product.id}`}>
+				<figure>
+					<img src={product.image} />
+					<figcaption>
+						<div class="name">{product.name}</div>
+						<div class="price">${product.price}</div>
+					</figcaption>
+				</figure>
+			</a>
+		</li>
+	))}
 </ul>
