@@ -80,7 +80,7 @@ function createManifestTransform (enableManifestTransform: EnableManifestTransfo
 }
 
 function getViteConfiguration(config: AstroConfig, options: Partial<VitePWAOptions>, enableManifestTransform: EnableManifestTransform) {
-	// @ts-ignore I know what I'm doing
+	// @ts-ignore TypeScript doesn't handle flattening Vite's plugin type properly
 	const plugin = config.vite?.plugins?.flat(Infinity).find(p => p.name === 'vite-plugin-pwa')
 	if (plugin) {
 		throw new Error("Remove the vite-plugin-pwa plugin from Vite Plugins entry in Astro config file, configure it via @astrojs/pwa integration");
