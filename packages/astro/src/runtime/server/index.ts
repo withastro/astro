@@ -48,7 +48,9 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // Or maybe type UserValue = any; ?
 async function* _render(child: any): AsyncIterable<any> {
 	child = await child;
-	if (child instanceof HTMLString) {
+	if (child instanceof Error) {
+		throw child;
+	} else if (child instanceof HTMLString) {
 		yield child;
 	} else if (Array.isArray(child)) {
 		for (const value of child) {
@@ -181,6 +183,13 @@ function formatList(values: string[]): string {
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
 
+/** @internal */
+export function __astro_tag_component__(Component: unknown, rendererName: string) {
+	if (!Component) return;
+	if (typeof Component !== 'function') return;
+	Object.assign(Component, { ['astro:renderer']: rendererName });
+}
+
 export async function renderComponent(
 	result: SSRResult,
 	displayName: string,
@@ -269,20 +278,27 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
-		let error;
-		for (const r of renderers) {
-			try {
-				if (await r.ssr.check.call({ result }, Component, props, children)) {
-					renderer = r;
-					break;
-				}
-			} catch (e) {
-				error ??= e;
-			}
+		if (Component && (Component as any)['astro:renderer']) {
+			const rendererName = (Component as any)['astro:renderer'];
+			renderer = renderers.find(({ name }) => name === rendererName);
 		}
 
-		if (error) {
-			throw error;
+		if (!renderer) {
+			let error;
+			for (const r of renderers) {
+				try {
+					if (await r.ssr.check.call({ result }, Component, props, children)) {
+						renderer = r;
+						break;
+					}
+				} catch (e) {
+					error ??= e;
+				}
+			}
+
+			if (error) {
+				throw error;
+			}
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
@@ -297,9 +313,9 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 			const rendererName = rendererAliases.has(passedName)
 				? rendererAliases.get(passedName)
 				: passedName;
-			renderer = renderers.filter(
+			renderer = renderers.find(
 				({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
-			)[0];
+			);
 		}
 		// Attempt: user only has a single renderer, default to that
 		if (!renderer && renderers.length === 1) {
@@ -341,13 +357,17 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				({ html } = await renderer.ssr.renderToStaticMarkup.call(
-					{ result },
-					Component,
-					props,
-					children,
-					metadata
-				));
+				try {
+					({ html } = await renderer.ssr.renderToStaticMarkup.call(
+						{ result },
+						Component,
+						props,
+						children,
+						metadata
+					));
+				} catch (e) {
+					return e as string
+				}
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -366,13 +386,17 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			({ html } = await renderer.ssr.renderToStaticMarkup.call(
-				{ result },
-				Component,
-				props,
-				children,
-				metadata
-			));
+			try {
+				({ html } = await renderer.ssr.renderToStaticMarkup.call(
+					{ result },
+					Component,
+					props,
+					children,
+					metadata
+				));
+			} catch (e) {
+				return e as string;
+			}
 		}
 	}
 
@@ -761,17 +785,21 @@ export async function renderPage(
 				start(controller) {
 					async function read() {
 						let i = 0;
-						for await (const chunk of iterable) {
-							let html = chunk.toString();
-							if (i === 0) {
-								if (!/<!doctype html/i.test(html)) {
-									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+						try {
+							for await (const chunk of iterable) {
+								let html = chunk.toString();
+								if (i === 0) {
+									if (!/<!doctype html/i.test(html)) {
+										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+									}
 								}
+								controller.enqueue(encoder.encode(html));
+								i++;
 							}
-							controller.enqueue(encoder.encode(html));
-							i++;
+							controller.close();
+						} catch (e) {
+							controller.error(e)
 						}
-						controller.close();
 					}
 					read();
 				},
@@ -841,12 +869,12 @@ export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string>
 
 export async function* renderAstroComponent(
 	component: InstanceType<typeof AstroComponent>
-): AsyncIterable<string> {
+): AsyncIterable<string|Error> {
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
 				yield markHTMLString(chunk);
-			}
+			} 
 		}
 	}
 }
