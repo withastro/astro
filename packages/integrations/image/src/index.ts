@@ -78,6 +78,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			optimizeDeps: {
 				include: ['image-size', 'sharp'],
 			},
+      ssr: {
+        noExternal: ['@astrojs/image']
+      }
 		};
 	}
 
