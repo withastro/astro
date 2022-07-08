@@ -5,6 +5,7 @@ import fs from 'fs';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
+import { createCustomViteLogger } from './errors.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -130,6 +131,8 @@ export async function createVite(
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
 	sortPlugins(result);
+
+	result.customLogger = createCustomViteLogger(result.logLevel ?? 'warn');
 
 	return result;
 }

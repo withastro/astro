@@ -1,7 +1,8 @@
 import type { BuildResult } from 'esbuild';
-import type { ViteDevServer, ErrorPayload } from 'vite';
+import type { ViteDevServer, ErrorPayload, LogLevel, Logger } from 'vite';
 import type { SSRError } from '../@types/astro';
 
+import { createLogger } from 'vite';
 import eol from 'eol';
 import fs from 'fs';
 import stripAnsi from 'strip-ansi';
@@ -58,6 +59,20 @@ const incompatiblePackages = {
 };
 const incompatPackageExp = new RegExp(`(${Object.keys(incompatiblePackages).join('|')})`);
 
+
+export function createCustomViteLogger(logLevel: LogLevel): Logger {
+	const viteLogger = createLogger(logLevel);
+	const logger: Logger = {
+		...viteLogger,
+		error(msg, options?) {
+			// Silence warnings from incompatible packages (we log better errors for these)
+			if (incompatPackageExp.test(msg)) return;
+			return viteLogger.error(msg, options);
+		},
+	}
+	return logger;
+}
+
 function generateHint(err: ErrorWithMetadata): string | undefined {
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
@@ -80,10 +95,10 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 	if ((e as any).stack) {
 		// normalize error stack line-endings to \n
 		(e as any).stack = eol.lf((e as any).stack);
-
 		// derive error location from stack (if possible)
 		const stackText = stripAnsi(e.stack);
-		const source = stackText.split('\n').at(1)?.replace(/^[^(]+\(([^)]+).*$/, '$1');
+		const firstDependency = stackText.split('\n').find(ln => ln.includes('node_modules'));
+		const source = firstDependency?.replace(/^[^(]+\(([^)]+).*$/, '$1');
 		const [file, line, column] = source?.split(':') ?? [];
 		
 		if (!err.loc && line && column) {
@@ -112,7 +127,8 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 	if (!err.frame && err.loc) {
 		try {
 			const fileContents = fs.readFileSync(err.loc.file!, 'utf8');
-			err.frame = codeFrame(fileContents, err.loc);
+			const frame = codeFrame(fileContents, err.loc);
+			err.frame = frame;
 		} catch {}
 	}
 
@@ -145,11 +161,16 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 }
 
 export function getViteErrorPayload(err: ErrorWithMetadata): ErrorPayload {
+	let plugin = err.plugin;
+	if (!plugin && err.hint) {
+		plugin = 'astro';
+	}
 	return {
 		type: 'error',
 		err: {
 			...err,
-			message: err.message,
+			plugin,
+			message: err.hint ?? err.message,
 			stack: err.stack,
 		}
 	}
