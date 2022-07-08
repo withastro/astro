@@ -2,8 +2,9 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './config.js';
+import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
 export * from './get-image.js';
+export * from './get-picture.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
 import {
 	ensureDir,

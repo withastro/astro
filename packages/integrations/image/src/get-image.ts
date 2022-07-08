@@ -1,5 +1,5 @@
 import slash from 'slash';
-import { ROUTE_PATTERN } from './config.js';
+import { ROUTE_PATTERN } from './constants.js';
 import { ImageAttributes, ImageMetadata, ImageService, isSSRService, OutputFormat, TransformOptions } from './types.js';
 import { parseAspectRatio } from './utils.js';
 
