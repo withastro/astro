@@ -152,7 +152,7 @@ export default function (options: Partial<VitePWAOptions> = {}): AstroIntegratio
 				updateConfig({ vite: getViteConfiguration(config, options, enableManifestTransform) });
 			},
 			'astro:config:done': ({ config }) => {
-				// @ts-ignore I know what I'm doing
+				// @ts-ignore TypeScript doesn't handle flattening Vite's plugin type properly
 				pwaPlugin = config.vite!.plugins!.flat(Infinity).find(p => p.name === 'vite-plugin-pwa')!
 			},
 			'astro:build:done': async ({ dir, routes }) => {
