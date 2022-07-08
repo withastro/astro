@@ -17,12 +17,12 @@ export interface RemoteImageProps extends TransformOptions, ImageAttributes {
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const props = Astro.props as Props;
+const { loading = "lazy", decoding = "async", ...props } = Astro.props as Props;
 
 const attrs = await getImage(loader, props);
 ---
 
-<img {...attrs} loading="lazy" decoding="async" />
+<img {...attrs} {loading} {decoding} />
 
 <style>
 	img {
