@@ -13,7 +13,7 @@ const headers = content.astro.headers;
 		<nav class="block sm:hidden">
 			<TableOfContents client:media="(max-width: 50em)" {headers} />
 		</nav>
-		<slot></slot>
+		<slot />
 	</section>
 	<nav class="block sm:hidden">
 		<MoreMenu editHref={githubEditUrl} />
