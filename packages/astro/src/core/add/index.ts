@@ -109,7 +109,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	const integrations = integrationsAndAdapters.filter(isIntegration);
 	const adapters = integrationsAndAdapters.filter(isAdapter);
 
-	logAdapterInstallInstructions(adapters, logging);
+	logAdapterConfigInstructions(adapters, logging);
 	if (integrations.length) {
 	let ast: t.File | null = null;
 	try {
@@ -281,7 +281,7 @@ function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo
 	return integration.type === 'adapter';
 }
 
-function logAdapterInstallInstructions(adapters: (IntegrationInfo & { type: 'adapter' })[], logging: LogOptions) {
+function logAdapterConfigInstructions(adapters: (IntegrationInfo & { type: 'adapter' })[], logging: LogOptions) {
 	for (const adapter of adapters) {
 		info(
 			logging,
