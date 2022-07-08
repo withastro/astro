@@ -550,7 +550,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 			integrations.map(async (integration): Promise<IntegrationInfo> => {
 				const parsed = parseIntegrationName(integration);
 				if (!parsed) {
-					throw new Error(`${integration} does not appear to be a valid package name!`);
+					throw new Error(`${bold(integration)} does not appear to be a valid package name!`);
 				}
 
 				let { scope, name, tag } = parsed;
