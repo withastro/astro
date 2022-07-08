@@ -439,6 +439,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.20.0
+      '@astrojs/html': ^0.0.1
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^0.12.0
       '@astrojs/prism': 0.6.1
@@ -524,6 +525,7 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@astrojs/compiler': 0.20.0
+      '@astrojs/html': link:../integrations/html
       '@astrojs/language-server': 0.20.0
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -2044,6 +2046,38 @@ importers:
       linkedom: 0.14.12
       mocha: 9.2.2
       unified: 10.1.2
+
+  packages/integrations/html/test/fixtures/escape:
+    specifiers:
+      '@astrojs/html': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/html': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/html/test/fixtures/html-component:
+    specifiers:
+      '@astrojs/html': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/html': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/html/test/fixtures/html-page:
+    specifiers:
+      '@astrojs/html': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/html': link:../../..
+      astro: link:../../../../../astro
+
+  packages/integrations/html/test/fixtures/slots:
+    specifiers:
+      '@astrojs/html': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/html': link:../../..
+      astro: link:../../../../../astro
 
   packages/integrations/image:
     specifiers:
