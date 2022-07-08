@@ -17,7 +17,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 
 Images play a big role in overall site performance and usability. Serving properly sized images makes all the difference but is often tricky to automate.
 
-This integration provides a basic `<Image />` component and image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replacable, opening the door for future integrations that work with your favorite hosted image service.
+This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replacable, opening the door for future integrations that work with your favorite hosted image service.
 
 ## Installation
 
@@ -124,6 +124,9 @@ import heroImage from '../assets/hero.png';
 
 // cropping to a specific aspect ratio and converting to an avif format
 <Image src={heroImage} aspectRatio="16:9" format="avif" />
+
+// image imports can also be inlined directly
+<Image src={import('../assets/hero.png')} />
 ```
 </details>
 
@@ -174,6 +177,37 @@ description: Just a Hello World Post!
 <Image src={hero} width={640} />
 <Image src="https://example.com/image.jpg" width={640} aspectRatio="16:9" />
 ```
+</details>
+
+<details>
+<summary><strong>Responsive pictures</strong></summary>
+
+  <br />
+
+  The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
+
+  By default, the picture will include formats for `avif` and `webp` in addition to the image's original format.
+
+  For remote images, an `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
+
+```html
+---
+import { Picture } from '@astrojs/image';
+import hero from '../assets/hero.png';
+
+const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+---
+
+// Local image with multiple sizes
+<Picture src={hero} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" />
+
+// Remote image (aspect ratio is required)
+<Picture src={imageUrl} widths={[200, 400, 800]} aspectRatio="4:3" sizes="(max-width: 800px) 100vw, 800px" />
+
+// Inlined imports are supported
+<Picture src={import("../assets/hero.png")} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" />
+```
+
 </details>
 
 ## Troubleshooting
