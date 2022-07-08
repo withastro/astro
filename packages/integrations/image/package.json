@@ -33,7 +33,8 @@
   "files": [
     "components",
     "dist",
-    "src"
+    "src",
+    "types"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",

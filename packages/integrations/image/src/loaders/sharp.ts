@@ -4,6 +4,7 @@ import { isAspectRatioString, isOutputFormat } from '../utils.js';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
+		// strip off the known attributes
 		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
 
 		return {

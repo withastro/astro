@@ -3,12 +3,12 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
-describe('SSR images - build', function () {
+describe('SSR pictures - build', function () {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
 			experimental: {
 				ssr: true,
@@ -18,6 +18,21 @@ describe('SSR images - build', function () {
 	});
 
 	describe('Local images', () => {
+		it('includes sources', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const sources = $('#social-jpg source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
@@ -26,7 +41,7 @@ describe('SSR images - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#social-jpg');
+			const image = $('#social-jpg img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -51,7 +66,7 @@ describe('SSR images - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#social-jpg');
+			const image = $('#social-jpg img');
 
 			const res = await fixture.fetch(image.attr('src'));
 
@@ -63,6 +78,21 @@ describe('SSR images - build', function () {
 	});
 
 	describe('Inline imports', () => {
+		it('includes sources', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const sources = $('#inline source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
@@ -71,7 +101,7 @@ describe('SSR images - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#inline');
+			const image = $('#inline img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -89,6 +119,21 @@ describe('SSR images - build', function () {
 	});
 
 	describe('Remote images', () => {
+		it('includes sources', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const sources = $('#google source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
@@ -97,7 +142,7 @@ describe('SSR images - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#google');
+			const image = $('#google img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -106,7 +151,7 @@ describe('SSR images - build', function () {
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('f')).to.equal('png');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
 			// TODO: possible to avoid encoding the full image path?
@@ -122,7 +167,7 @@ describe('SSR images - dev', function () {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/basic-image/',
+			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
 			experimental: {
 				ssr: true,
@@ -139,8 +184,16 @@ describe('SSR images - dev', function () {
 	});
 
 	describe('Local images', () => {
+		it('includes sources', () => {
+			const sources = $('#social-jpg source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg');
+			const image = $('#social-jpg img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -157,7 +210,7 @@ describe('SSR images - dev', function () {
 		});
 
 		it('returns the optimized image', async () => {
-			const image = $('#social-jpg');
+			const image = $('#social-jpg img');
 
 			const res = await fixture.fetch(image.attr('src'));
 
@@ -169,8 +222,16 @@ describe('SSR images - dev', function () {
 	});
 
 	describe('Inline imports', () => {
+		it('includes sources', () => {
+			const sources = $('#inline source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', () => {
-			const image = $('#inline');
+			const image = $('#inline img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -188,8 +249,16 @@ describe('SSR images - dev', function () {
 	});
 
 	describe('Remote images', () => {
+		it('includes sources', () => {
+			const sources = $('#google source');
+			
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
 		it('includes src, width, and height attributes', () => {
-			const image = $('#google');
+			const image = $('#google img');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -198,7 +267,7 @@ describe('SSR images - dev', function () {
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('f')).to.equal('png');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
 			expect(searchParams.get('href')).to.equal(

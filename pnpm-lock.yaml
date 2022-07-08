@@ -1966,6 +1966,16 @@ importers:
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
 
+  packages/integrations/image/test/fixtures/basic-picture:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
   packages/integrations/lit:
     specifiers:
       '@lit-labs/ssr': ^2.2.0

@@ -1,14 +1,11 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
-import type {
-	ImageAttributes,
-	IntegrationOptions,
-	SSRImageService,
-	TransformOptions,
-} from './types';
+import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
+export * from './get-image.js';
+export * from './get-picture.js';
+import { IntegrationOptions, TransformOptions } from './types.js';
 import {
 	ensureDir,
 	isRemoteImage,
@@ -17,49 +14,6 @@ import {
 	propsToFilename,
 } from './utils.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
-
-const PKG_NAME = '@astrojs/image';
-const ROUTE_PATTERN = '/_image';
-const OUTPUT_DIR = '/_image';
-
-/**
- * Gets the HTML attributes required to build an `<img />` for the transformed image.
- *
- * @param loader @type {ImageService} The image service used for transforming images.
- * @param transform @type {TransformOptions} The transformations requested for the optimized image.
- * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
- */
-export async function getImage(
-	loader: SSRImageService,
-	transform: TransformOptions
-): Promise<ImageAttributes> {
-	(globalThis as any).loader = loader;
-
-	const attributes = await loader.getImageAttributes(transform);
-
-	// For SSR services, build URLs for the injected route
-	if (typeof loader.transform === 'function') {
-		const { searchParams } = loader.serializeTransform(transform);
-
-		// cache all images rendered to HTML
-		if (globalThis && (globalThis as any).addStaticImage) {
-			(globalThis as any)?.addStaticImage(transform);
-		}
-
-		const src =
-			globalThis && (globalThis as any).filenameFormat
-				? (globalThis as any).filenameFormat(transform, searchParams)
-				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
-
-		return {
-			...attributes,
-			src: slash(src), // Windows compat
-		};
-	}
-
-	// For hosted services, return the <img /> attributes as-is
-	return attributes;
-}
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
 	const resolvedOptions = {
