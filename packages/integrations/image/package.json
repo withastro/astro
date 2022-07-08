@@ -12,6 +12,7 @@
     "directory": "packages/integrations/image"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "withastro",
     "image"

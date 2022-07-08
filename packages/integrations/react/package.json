@@ -12,6 +12,7 @@
     "directory": "packages/integrations/react"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "renderer",
     "react"

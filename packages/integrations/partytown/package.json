@@ -12,6 +12,7 @@
     "directory": "packages/integrations/partytown"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "analytics",
     "performance"

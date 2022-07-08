@@ -3,7 +3,7 @@ import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
 import { existsSync, promises as fs } from 'fs';
-import { bold, cyan, dim, green, magenta } from 'kleur/colors';
+import { bold, cyan, dim, green, magenta, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import preferredPM from 'preferred-pm';
@@ -32,6 +32,7 @@ export interface IntegrationInfo {
 	id: string;
 	packageName: string;
 	dependencies: [name: string, version: string][];
+	type: 'integration' | 'adapter';
 }
 const ALIASES = new Map([
 	['solid', 'solid-js'],
@@ -47,11 +48,19 @@ module.exports = {
 	plugins: [],
 }\n`;
 
+const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
+	'netlify': '@astrojs/netlify/functions',
+	'vercel': '@astrojs/vercel/serverless',
+	'cloudflare': '@astrojs/cloudflare',
+	'node': '@astrojs/node',
+	'deno': '@astrojs/deno',
+}
+
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
-			usage: '[...integrations]',
+			usage: '[...integrations] [...adapters]',
 			tables: {
 				Flags: [
 					['--yes', 'Accept all prompts.'],
@@ -69,6 +78,11 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['tailwind', 'astro add tailwind'],
 					['partytown', 'astro add partytown'],
 					['sitemap', 'astro add sitemap'],
+				],
+				'Example: Add an Adapter': [
+					['netlify', 'astro add netlify'],
+					['vercel', 'astro add vercel'],
+					['deno', 'astro add deno'],
 				],
 			},
 			description: `Check out the full integration catalog: ${cyan(
@@ -120,7 +134,20 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		debug('add', 'Astro config ensured `defineConfig`');
 
 		for (const integration of integrations) {
-			await addIntegration(ast, integration);
+			if (isAdapter(integration)) {
+				const officialExportName = OFFICIAL_ADAPTER_TO_IMPORT_MAP[integration.id];
+				if (officialExportName) {
+					await setAdapter(ast, integration, officialExportName);
+				} else {
+					info(
+						logging,
+						null,
+						`\n  ${magenta(`Check our deployment docs for ${bold(integration.packageName)} to update your "adapter" config.`)}`
+					);
+				}
+			} else {
+				await addIntegration(ast, integration);
+			}
 			debug('add', `Astro config added integration ${integration.id}`);
 		}
 	} catch (err) {
@@ -133,7 +160,13 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 
 	if (ast) {
 		try {
-			configResult = await updateAstroConfig({ configURL, ast, flags, logging });
+			configResult = await updateAstroConfig({
+				configURL,
+				ast,
+				flags,
+				logging,
+				logAdapterInstructions: integrations.some(isAdapter),
+			});
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
 			throw createPrettyError(err as Error);
@@ -231,6 +264,10 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 }
 
+function isAdapter(integration: IntegrationInfo): integration is IntegrationInfo & { type: 'adapter' } {
+  return integration.type === 'adapter';
+}
+
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	const result = parse(source);
@@ -314,6 +351,50 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	});
 }
 
+async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: string) {
+	const adapterId = t.identifier(toIdent(adapter.id));
+
+	ensureImport(
+		ast,
+		t.importDeclaration(
+			[t.importDefaultSpecifier(adapterId)],
+			t.stringLiteral(exportName)
+		)
+	);
+
+	visit(ast, {
+		// eslint-disable-next-line @typescript-eslint/no-shadow
+		ExportDefaultDeclaration(path) {
+			if (!t.isCallExpression(path.node.declaration)) return;
+
+			const configObject = path.node.declaration.arguments[0];
+			if (!t.isObjectExpression(configObject)) return;
+
+			let adapterProp = configObject.properties.find((prop) => {
+				if (prop.type !== 'ObjectProperty') return false;
+				if (prop.key.type === 'Identifier') {
+					if (prop.key.name === 'adapter') return true;
+				}
+				if (prop.key.type === 'StringLiteral') {
+					if (prop.key.value === 'adapter') return true;
+				}
+				return false;
+			}) as t.ObjectProperty | undefined;
+
+			const adapterCall = t.callExpression(adapterId, []);
+
+			if (!adapterProp) {
+				configObject.properties.push(
+					t.objectProperty(t.identifier('adapter'), adapterCall)
+				);
+				return;
+			}
+
+			adapterProp.value = adapterCall;
+		},
+	});
+}
+
 const enum UpdateResult {
 	none,
 	updated,
@@ -326,11 +407,13 @@ async function updateAstroConfig({
 	ast,
 	flags,
 	logging,
+	logAdapterInstructions,
 }: {
 	configURL: URL;
 	ast: t.File;
 	flags: yargs.Arguments;
 	logging: LogOptions;
+	logAdapterInstructions: boolean;
 }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	let output = await generate(ast);
@@ -377,6 +460,14 @@ async function updateAstroConfig({
 		null,
 		`\n  ${magenta('Astro will make the following changes to your config file:')}\n${message}`
 	);
+
+	if (logAdapterInstructions) {
+		info(
+			logging,
+			null,
+			magenta(`  For complete deployment options, visit\n  ${bold('https://docs.astro.build/en/guides/deploy/')}\n`)
+		);
+	}
 
 	if (await askToContinue({ flags })) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
@@ -479,46 +570,98 @@ async function tryToInstallIntegrations({
 	}
 }
 
+async function fetchPackageJson(scope: string | undefined, name: string, tag: string): Promise<object | Error> {
+	const packageName = `${scope ? `@${scope}/` : ''}${name}`;
+	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`)
+	if (res.status === 404) {
+		return new Error();
+	} else {
+		return await res.json();
+	}
+}
+
 export async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
-	const spinner = ora('Resolving integrations...').start();
-	const integrationEntries = await Promise.all(
-		integrations.map(async (integration): Promise<IntegrationInfo> => {
-			const parsed = parseIntegrationName(integration);
-			if (!parsed) {
-				spinner.fail();
-				throw new Error(`${integration} does not appear to be a valid package name!`);
-			}
-
-			let { scope = '', name, tag } = parsed;
-			// Allow third-party integrations starting with `astro-` namespace
-			if (!name.startsWith('astro-')) {
-				scope = `astrojs`;
-			}
-			const packageName = `${scope ? `@${scope}/` : ''}${name}`;
-
-			const result = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`).then((res) => {
-				if (res.status === 404) {
-					spinner.fail();
-					throw new Error(`Unable to fetch ${packageName}. Does this package exist?`);
+	const spinner = ora('Resolving packages...').start();
+	try {
+		const integrationEntries = await Promise.all(
+			integrations.map(async (integration): Promise<IntegrationInfo> => {
+				const parsed = parseIntegrationName(integration);
+				if (!parsed) {
+					throw new Error(`${bold(integration)} does not appear to be a valid package name!`);
 				}
-				return res.json();
-			});
 
-			let dependencies: IntegrationInfo['dependencies'] = [
-				[result['name'], `^${result['version']}`],
-			];
+				let { scope, name, tag } = parsed;
+				let pkgJson = null;
+				let pkgType: 'first-party' | 'third-party' = 'first-party';
 
-			if (result['peerDependencies']) {
-				for (const peer in result['peerDependencies']) {
-					dependencies.push([peer, result['peerDependencies'][peer]]);
+				if (!scope) {
+					const firstPartyPkgCheck = await fetchPackageJson('astrojs', name, tag);
+					if (firstPartyPkgCheck instanceof Error) {
+						spinner.warn(yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`));
+						const response = await prompts({
+							type: 'confirm',
+							name: 'askToContinue',
+							message: 'Continue?',
+							initial: true,
+						});
+						if (!response.askToContinue) {
+							throw new Error(`No problem! Find our official integrations at ${cyan('https://astro.build/integrations')}`);
+						}
+						spinner.start('Resolving with third party packages...');
+						pkgType = 'third-party';
+					} else {
+						pkgJson = firstPartyPkgCheck as any;
+					}
 				}
-			}
+				if (pkgType === 'third-party') {
+					const thirdPartyPkgCheck = await fetchPackageJson(scope, name, tag);
+					if (thirdPartyPkgCheck instanceof Error) {
+						throw new Error(
+							`Unable to fetch ${bold(integration)}. Does the package exist?`,
+						);
+					} else {
+						pkgJson = thirdPartyPkgCheck as any;
+					}
+				}
 
-			return { id: integration, packageName, dependencies };
-		})
-	);
-	spinner.succeed();
-	return integrationEntries;
+				const resolvedScope = pkgType === 'first-party' ? 'astrojs' : scope;
+				const packageName = `${resolvedScope ? `@${resolvedScope}/` : ''}${name}`;
+
+				let dependencies: IntegrationInfo['dependencies'] = [
+					[pkgJson['name'], `^${pkgJson['version']}`],
+				];
+
+				if (pkgJson['peerDependencies']) {
+					for (const peer in pkgJson['peerDependencies']) {
+						dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
+					}
+				}
+
+				let integrationType: IntegrationInfo['type'];
+				const keywords = Array.isArray(pkgJson['keywords']) ? pkgJson['keywords'] : [];
+				if (keywords.includes('astro-integration')) {
+					integrationType = 'integration';
+				} else if (keywords.includes('astro-adapter')) {
+					integrationType = 'adapter';
+				} else {
+					throw new Error(
+						`${bold(packageName)} doesn't appear to be an integration or an adapter. Find our official integrations at ${cyan('https://astro.build/integrations')}`
+					);
+				}
+
+				return { id: integration, packageName, dependencies, type: integrationType };
+			})
+		);
+		spinner.succeed();
+		return integrationEntries;
+	} catch (e) {
+		if (e instanceof Error) {
+			spinner.fail(e.message);
+			process.exit(1);
+		} else {
+			throw e;
+		}
+	}
 }
 
 function parseIntegrationName(spec: string) {

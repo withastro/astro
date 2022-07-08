@@ -12,6 +12,7 @@
     "directory": "packages/integrations/mdx"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "renderer",
     "mdx"

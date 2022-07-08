@@ -12,6 +12,7 @@
     "directory": "packages/integrations/tailwind"
   },
   "keywords": [
+    "astro-integration",
     "astro-component"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
