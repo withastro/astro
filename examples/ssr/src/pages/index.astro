@@ -1,9 +1,9 @@
 ---
-import Header from '../components/Header.astro';
-import Container from '../components/Container.astro';
-import ProductListing from '../components/ProductListing.astro';
-import { getProducts } from '../api';
-import '../styles/common.css';
+import Header from "../components/Header.astro";
+import Container from "../components/Container.astro";
+import ProductListing from "../components/ProductListing.astro";
+import { getProducts } from "../api";
+import "../styles/common.css";
 
 const products = await getProducts(Astro.request);
 ---
@@ -27,9 +27,9 @@ const products = await getProducts(Astro.request);
 	<body>
 		<Header />
 
-		<Container tag='main'>
-			<ProductListing products={products} class='product-listing'>
-				<h2 class='product-listing-title' slot='title'>Product Listing</h2>
+		<Container tag="main">
+			<ProductListing products={products} class="product-listing">
+				<h2 class="product-listing-title" slot="title">Product Listing</h2>
 			</ProductListing>
 		</Container>
 	</body>

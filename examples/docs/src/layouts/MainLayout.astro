@@ -1,20 +1,20 @@
 ---
-import HeadCommon from '../components/HeadCommon.astro';
-import HeadSEO from '../components/HeadSEO.astro';
-import Header from '../components/Header/Header.astro';
-import Footer from '../components/Footer/Footer.astro';
-import PageContent from '../components/PageContent/PageContent.astro';
-import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
-import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
-import * as CONFIG from '../config';
+import HeadCommon from "../components/HeadCommon.astro";
+import HeadSEO from "../components/HeadSEO.astro";
+import Header from "../components/Header/Header.astro";
+import Footer from "../components/Footer/Footer.astro";
+import PageContent from "../components/PageContent/PageContent.astro";
+import LeftSidebar from "../components/LeftSidebar/LeftSidebar.astro";
+import RightSidebar from "../components/RightSidebar/RightSidebar.astro";
+import * as CONFIG from "../config";
 
 const { content = {} } = Astro.props;
 const currentPage = new URL(Astro.request.url).pathname;
-const currentFile = `src/pages${currentPage.replace(/\/$/, '')}.md`;
+const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + currentFile;
 ---
 
-<html dir={content.dir ?? 'ltr'} lang={content.lang ?? 'en-us'} class='initial'>
+<html dir={content.dir ?? "ltr"} lang={content.lang ?? "en-us"} class="initial">
 	<head>
 		<HeadCommon />
 		<HeadSEO {content} canonicalURL={Astro.canonicalURL} />
@@ -105,16 +105,16 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 
 	<body>
 		<Header {currentPage} />
-		<main class='layout'>
-			<aside id='grid-left' class='grid-sidebar' title='Site Navigation'>
+		<main class="layout">
+			<aside id="grid-left" class="grid-sidebar" title="Site Navigation">
 				<LeftSidebar {currentPage} />
 			</aside>
-			<div id='grid-main'>
+			<div id="grid-main">
 				<PageContent {content} {githubEditUrl}>
 					<slot></slot>
 				</PageContent>
 			</div>
-			<aside id='grid-right' class='grid-sidebar' title='Table of Contents'>
+			<aside id="grid-right" class="grid-sidebar" title="Table of Contents">
 				<RightSidebar {content} {githubEditUrl} />
 			</aside>
 		</main>

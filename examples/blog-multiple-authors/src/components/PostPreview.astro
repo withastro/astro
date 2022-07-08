@@ -7,23 +7,23 @@ const { post, author } = Astro.props;
 const { frontmatter } = post;
 
 function formatDate(date) {
-	return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, '$1'); // remove everything after YYYY
+	return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, "$1"); // remove everything after YYYY
 }
 ---
 
-<article class='post'>
-	<div class='data'>
+<article class="post">
+	<div class="data">
 		<h2>{frontmatter.title}</h2>
-		<a class='author' href={`/authors/${frontmatter.author}`}>{author.name}</a>
-		<time class='date' datetime={frontmatter.date}>{formatDate(frontmatter.date)}</time>
-		<p class='description'>
+		<a class="author" href={`/authors/${frontmatter.author}`}>{author.name}</a>
+		<time class="date" datetime={frontmatter.date}>{formatDate(frontmatter.date)}</time>
+		<p class="description">
 			{frontmatter.description}
-			<a class='link' href={post.url} aria-label={`Read ${frontmatter.title}`}>Read</a>
+			<a class="link" href={post.url} aria-label={`Read ${frontmatter.title}`}>Read</a>
 		</p>
 	</div>
 </article>
 
-<style lang='scss'>
+<style lang="scss">
 	.post {
 		padding-top: 6rem;
 		padding-bottom: 6rem;

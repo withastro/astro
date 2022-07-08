@@ -1,6 +1,6 @@
 ---
 // fetch all commits for just this page's path
-const path = 'docs/' + Astro.props.path;
+const path = "docs/" + Astro.props.path;
 const url = `https://api.github.com/repos/withastro/astro/commits?path=${path}`;
 const commitsURL = `https://github.com/withastro/astro/commits/main/${path}`;
 
@@ -13,13 +13,13 @@ async function getCommits(url) {
 			);
 		}
 
-		const auth = `Basic ${Buffer.from(token, 'binary').toString('base64')}`;
+		const auth = `Basic ${Buffer.from(token, "binary").toString("base64")}`;
 
 		const res = await fetch(url, {
-			method: 'GET',
+			method: "GET",
 			headers: {
 				Authorization: auth,
-				'User-Agent': 'astro-docs/1.0',
+				"User-Agent": "astro-docs/1.0",
 			},
 		});
 
@@ -62,8 +62,8 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 ---
 
 <!-- Thanks to @5t3ph for https://smolcss.dev/#smol-avatar-list! -->
-<div class='contributors'>
-	<ul class='avatar-list' style={`--avatar-count: ${recentContributors.length}`}>
+<div class="contributors">
+	<ul class="avatar-list" style={`--avatar-count: ${recentContributors.length}`}>
 		{recentContributors.map((item) => (
 			<li>
 				<a href={`https://github.com/${item.login}`}>
@@ -81,7 +81,7 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 	{additionalContributors > 0 && (
 		<span>
 			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${
-				additionalContributors > 1 ? 's' : ''
+				additionalContributors > 1 ? "s" : ""
 			}.`}</a>
 		</span>
 	)}

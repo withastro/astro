@@ -1,27 +1,27 @@
 ---
-import { Content as TourContent } from '../content/Tour.md';
-import Logo from '../components/Logo.astro';
-import '../styles/global.css';
-import '../styles/home.css';
+import { Content as TourContent } from "../content/Tour.md";
+import Logo from "../components/Logo.astro";
+import "../styles/global.css";
+import "../styles/home.css";
 /* ASTRO:COMPONENT_IMPORTS */
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
 // It will run during the build, but never in the browser.
 // All variables are available to use in the HTML template below.
-let title = 'My Astro Site';
+let title = "My Astro Site";
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
 
-<html lang='en'>
+<html lang="en">
 	<head>
-		<meta charset='UTF-8' />
-		<meta name='viewport' content='width=device-width' />
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
 		<title>{title}</title>
 
-		<link rel='icon' type='image/x-icon' href='/favicon.ico' />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
 		<style>
 			header {
@@ -58,12 +58,12 @@ let title = 'My Astro Site';
 			<header>
 				<div>
 					<Logo width={60} height={80} />
-					<h1>Welcome to <a href='https://astro.build/'>Astro</a></h1>
+					<h1>Welcome to <a href="https://astro.build/">Astro</a></h1>
 				</div>
 			</header>
 
 			<article>
-				<div class='banner'>
+				<div class="banner">
 					<p><strong>🧑‍🚀 Seasoned astronaut?</strong> Delete this template and have fun!</p>
 				</div>
 				<TourContent />

@@ -1,20 +1,20 @@
 ---
 // Component Imports
-import BaseHead from '../components/BaseHead.astro';
-import BlogHeader from '../components/BlogHeader.astro';
-import BlogPostPreview from '../components/BlogPostPreview.astro';
+import BaseHead from "../components/BaseHead.astro";
+import BlogHeader from "../components/BlogHeader.astro";
+import BlogPostPreview from "../components/BlogPostPreview.astro";
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
 // It will run during the build, but never in the browser.
 // All variables are available to use in the HTML template below.
-let title = 'Example Blog';
-let description = 'The perfect starter for your perfect blog.';
-let permalink = 'https://example.com/';
+let title = "Example Blog";
+let description = "The perfect starter for your perfect blog.";
+let permalink = "https://example.com/";
 
 // Data Fetching: List all Markdown posts in the repo.
 
-let allPosts = await Astro.glob('./posts/*.md');
+let allPosts = await Astro.glob("./posts/*.md");
 allPosts = allPosts.sort(
 	(a, b) =>
 		new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
@@ -24,7 +24,7 @@ allPosts = allPosts.sort(
 // https://docs.astro.build/core-concepts/astro-components/
 ---
 
-<html lang='en'>
+<html lang="en">
 	<head>
 		<BaseHead {title} {description} {permalink} />
 
@@ -66,13 +66,13 @@ allPosts = allPosts.sort(
 
 	<body>
 		<BlogHeader />
-		<div class='wrapper'>
-			<main class='content'>
-				<section class='intro'>
-					<h1 class='latest'>{title}</h1>
+		<div class="wrapper">
+			<main class="content">
+				<section class="intro">
+					<h1 class="latest">{title}</h1>
 					<p>{description}</p>
 				</section>
-				<section aria-label='Blog post list'>
+				<section aria-label="Blog post list">
 					{allPosts.map((p) => <BlogPostPreview post={p} />)}
 				</section>
 			</main>

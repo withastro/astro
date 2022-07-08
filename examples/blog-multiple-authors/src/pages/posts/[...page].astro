@@ -1,12 +1,12 @@
 ---
-import MainHead from '../../components/MainHead.astro';
-import Nav from '../../components/Nav.astro';
-import PostPreview from '../../components/PostPreview.astro';
-import Pagination from '../../components/Pagination.astro';
-import authorData from '../../data/authors.json';
+import MainHead from "../../components/MainHead.astro";
+import Nav from "../../components/Nav.astro";
+import PostPreview from "../../components/PostPreview.astro";
+import Pagination from "../../components/Pagination.astro";
+import authorData from "../../data/authors.json";
 
 export async function getStaticPaths({ paginate, rss }) {
-	const allPosts = await Astro.glob('../post/*.md');
+	const allPosts = await Astro.glob("../post/*.md");
 	const sortedPosts = allPosts.sort(
 		(a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf()
 	);
@@ -30,13 +30,13 @@ export async function getStaticPaths({ paginate, rss }) {
 }
 
 // page
-const title = 'Don’s Blog';
-const description = 'An example blog on Astro';
+const title = "Don’s Blog";
+const description = "An example blog on Astro";
 const { canonicalURL } = Astro;
 const { page } = Astro.props;
 ---
 
-<html lang='en'>
+<html lang="en">
 	<head>
 		<title>{title}</title>
 		<MainHead
@@ -48,7 +48,7 @@ const { page } = Astro.props;
 			next={page.url.next}
 		/>
 
-		<style lang='scss'>
+		<style lang="scss">
 			.title {
 				font-size: 3em;
 				letter-spacing: -0.04em;
@@ -68,9 +68,9 @@ const { page } = Astro.props;
 	<body>
 		<Nav {title} />
 
-		<main class='wrapper'>
-			<h2 class='title'>All Posts</h2>
-			<small class='count'>{page.start + 1}–{page.end + 1} of {page.total}</small>
+		<main class="wrapper">
+			<h2 class="title">All Posts</h2>
+			<small class="count">{page.start + 1}–{page.end + 1} of {page.total}</small>
 			{page.data.map((post) => (
 				<PostPreview post={post} author={authorData[post.frontmatter.author]} />
 			))}

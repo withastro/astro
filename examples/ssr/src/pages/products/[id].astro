@@ -1,15 +1,15 @@
 ---
-import Header from '../../components/Header.astro';
-import Container from '../../components/Container.astro';
-import AddToCart from '../../components/AddToCart.svelte';
-import { getProduct } from '../../api';
-import '../../styles/common.css';
+import Header from "../../components/Header.astro";
+import Container from "../../components/Container.astro";
+import AddToCart from "../../components/AddToCart.svelte";
+import { getProduct } from "../../api";
+import "../../styles/common.css";
 
 const id = Number(Astro.params.id);
 const product = await getProduct(Astro.request, id);
 ---
 
-<html lang='en'>
+<html lang="en">
 	<head>
 		<title>{product.name} | Online Store</title>
 		<style>
@@ -31,7 +31,7 @@ const product = await getProduct(Astro.request, id);
 	<body>
 		<Header />
 
-		<Container tag='article'>
+		<Container tag="article">
 			<h2>{product.name}</h2>
 			<figure>
 				<img src={product.image} />
