@@ -22,15 +22,17 @@ TypeScript plugin to add support for `.astro` imports in `.ts` files with proper
 
 ### Features provided
 
-These packages power editing functionality such as:
+These packages together power editing functionality such as:
 
-* [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition)
-* Code hover hints
-* Code completion
-* Function signatures
-* Syntax highlighting
-* Code folding
-* Emmet
+- [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition)
+- Code hover hints
+- Code completion
+- Function signatures
+- Syntax highlighting
+- Code folding
+- Emmet
+
+For a full list of features, see [the VS Code's extension README](./packages/vscode/README.md#features).
 
 ## Contributing
 
