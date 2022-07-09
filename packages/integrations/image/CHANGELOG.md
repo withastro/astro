@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.1.1
+
+### Patch Changes
+
+- [#3876](https://github.com/withastro/astro/pull/3876) [`f9614128`](https://github.com/withastro/astro/commit/f9614128622583cba6f65cb4202d56a71b4269a3) Thanks [@tony-sull](https://github.com/tony-sull)! - Bug: Updating the <Picture /> component to default to async image decoding
+
 ## 0.1.0
 
 ### Minor Changes
