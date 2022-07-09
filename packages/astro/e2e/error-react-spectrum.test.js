@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, getErrorOverlayMessage } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/error-react-spectrum/' });
 
@@ -18,12 +18,7 @@ test.describe('Error: React Spectrum', () => {
 	test('overlay', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		const errorOverlay = await page.waitForSelector('vite-error-overlay')
-		expect(errorOverlay).toBeTruthy()
-    const message = await errorOverlay.$$eval('.message-body', (m) => {
-      return m[0].innerHTML
-    })
-		
-		expect(message).toMatch('@adobe/react-spectrum')
+		const message = await getErrorOverlayMessage(page);
+		expect(message).toMatch('@adobe/react-spectrum is not compatible')
 	});
 });
