@@ -456,13 +456,11 @@ importers:
   examples/with-vite-plugin-pwa:
     specifiers:
       '@astrojs/pwa': ^0.0.0
-      '@rollup/plugin-replace': ^4.0.0
-      astro: ^1.0.0-beta.32
+      astro: ^1.0.0-beta.65
       cross-env: ^7.0.3
       workbox-window: ^6.5.3
     devDependencies:
       '@astrojs/pwa': link:../../packages/integrations/pwa
-      '@rollup/plugin-replace': 4.0.0
       astro: link:../../packages/astro
       cross-env: 7.0.3
       workbox-window: 6.5.3
@@ -7234,18 +7232,6 @@ packages:
       rollup: 2.76.0
     dev: false
 
-  /@rollup/plugin-replace/4.0.0:
-    resolution: {integrity: sha512-+rumQFiaNac9y64OHtkHGmdjm7us9bo1PlbgQfdihQtuNxzjpaB064HbRnewUOggLQxVCCyINfStkgmBeQpv1g==}
-    peerDependencies:
-      rollup: ^1.20.0 || ^2.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 3.1.0
-      magic-string: 0.25.9
-    dev: true
-
   /@rollup/plugin-typescript/8.3.3_mrkdcqv53wzt2ybukxlrvz47fu:
     resolution: {integrity: sha512-55L9SyiYu3r/JtqdjhwcwaECXP7JeJ9h1Sg1VWRJKIutla2MdZQodTgcCNybXLMCnqpNLEhS2vGENww98L1npg==}
     engines: {node: '>=8.0.0'}
@@ -7264,20 +7250,6 @@ packages:
       rollup: 2.76.0
       tslib: 2.4.0
       typescript: 4.7.4
-    dev: true
-
-  /@rollup/pluginutils/3.1.0:
-    resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
-    engines: {node: '>= 8.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 0.0.39
-      estree-walker: 1.0.1
-      picomatch: 2.3.1
     dev: true
 
   /@rollup/pluginutils/3.1.0_rollup@2.76.0:

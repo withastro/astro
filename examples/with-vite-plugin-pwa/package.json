@@ -4,17 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW_DEV=true astro dev",
-    "start-sw": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW=true SW_DEV=true astro dev",
-    "build": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true astro build",
-    "build-sw": "cross-env DEBUG=vite-plugin-pwa:* BASE_URL=/ SOURCE_MAP=true SW=true astro build",
+    "start": "cross-env SOURCE_MAP=true SW_DEV=true astro dev",
+    "start-sw": "cross-env SOURCE_MAP=true SW=true SW_DEV=true astro dev",
+    "build": "cross-env SOURCE_MAP=true astro build",
+    "build-sw": "cross-env SOURCE_MAP=true SW=true astro build",
     "preview": "npm run build && astro preview",
     "preview-sw": "npm run build-sw && astro preview"
   },
   "devDependencies": {
     "@astrojs/pwa": "^0.0.0",
-    "@rollup/plugin-replace": "^4.0.0",
-    "astro": "^1.0.0-beta.32",
+    "astro": "^1.0.0-beta.65",
     "cross-env": "^7.0.3",
     "workbox-window": "^6.5.3"
   }

@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import pwa from '@astrojs/pwa';
-import replace from '@rollup/plugin-replace';
 
 const pwaOptions = {
 	mode: 'development',
@@ -39,33 +38,23 @@ const pwaOptions = {
 	},
 }
 
-const replaceOptions = {
-	__DATE__: `${new Date().toISOString()}`,
-	include: [/\.(ts|astro)$/],
-}
-
-const reload = process.env.RELOAD_SW === 'true'
-
 if (process.env.SW === 'true') {
 	pwaOptions.srcDir = 'src'
 	pwaOptions.filename = 'claims-sw.ts'
 	pwaOptions.strategies = 'injectManifest'
 	pwaOptions.manifest.description = 'Astro PWA Inject Manifest'
-} 
-
-if (reload) {
-	// @ts-ignore
-	replaceOptions.__RELOAD_SW__ = 'true'
 }
 
 // https://astro.build/config
 export default defineConfig({
 	integrations: [pwa(pwaOptions)],
 	vite: {
+		define: {
+			'__DATE__': `'${new Date().toISOString()}'`
+		},
 		logLevel: 'info',
 		build: {
 			sourcemap: process.env.SOURCE_MAP === 'true',
-		},
-		plugins:[replace(replaceOptions)]
+		}
 	}
 });

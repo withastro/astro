@@ -4,7 +4,7 @@ export interface Props {
 }
 
 // replaced dynamically
-const buildDate = '__DATE__';
+const buildDate = __DATE__;
 
 const { title } = Astro.props as Props;
 const enableManifest = import.meta.env.MODE === 'production' || (import.meta.env.MODE === 'development' && import.meta.env.SW_DEV === 'true');
