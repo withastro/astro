@@ -18,11 +18,12 @@ test.describe('Error: React Spectrum', () => {
 	test('overlay', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
-		// TODO: fix this tet...
-		const overlay = page.locator('vite-error-overlay');
+		const errorOverlay = await page.waitForSelector('vite-error-overlay')
+		expect(errorOverlay).toBeTruthy()
+    const message = await errorOverlay.$$eval('.message-body', (m) => {
+      return m[0].innerHTML
+    })
 		
-		const text = await overlay.innerHTML();
-
-		expect(text, 'should have overlay').toMatch('@adobe/react-spectrum');
+		expect(message).toMatch('@adobe/react-spectrum')
 	});
 });
