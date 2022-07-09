@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.12.5
+
+### Patch Changes
+
+- [#3831](https://github.com/withastro/astro/pull/3831) [`4fb08502`](https://github.com/withastro/astro/commit/4fb08502a99396723b9eb671099482cd619b3564) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Small wording updates
+
 ## 0.12.4
 
 ### Patch Changes
