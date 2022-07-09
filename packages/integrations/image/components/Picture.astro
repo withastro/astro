@@ -21,7 +21,7 @@ export interface RemoteImageProps extends Omit<PictureAttributes, 'src' | 'width
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const { src, sizes, widths, aspectRatio, formats = ['avif', 'webp'], loading = 'lazy', decoding = 'eager', ...attrs } = Astro.props as Props;
+const { src, sizes, widths, aspectRatio, formats = ['avif', 'webp'], loading = 'lazy', decoding = 'async', ...attrs } = Astro.props as Props;
 
 const { image, sources } = await getPicture({ loader, src, widths, formats, aspectRatio });
 ---
