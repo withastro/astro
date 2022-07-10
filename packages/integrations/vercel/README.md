@@ -27,7 +27,7 @@ npm install @astrojs/vercel
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property (note the import from `@astrojs/vercel/serverless` - see [targets](#targets)).
 
- __astro.config.mjs__ 
+ __`astro.config.mjs`__ 
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -40,7 +40,7 @@ export default defineConfig({
 
 ### Targets
 
-You can deploy to different targes:
+You can deploy to different targets:
 
 - `edge`: SSR inside an [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).

@@ -22,13 +22,14 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 ## Installation
 
 First, install the `@astrojs/node` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
-```sh
+
+```shell
 npm install @astrojs/node
 ```
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';

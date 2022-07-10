@@ -30,7 +30,7 @@ npm install @astrojs/netlify
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property. Note: there are two different adapters, one for Netlify Functions and one for Edge Functions. See [Edge Functions](#edge-functions) below on importing the latter.
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -113,14 +113,14 @@ We check for common mime types for audio, image, and video files. To include spe
 import fs from 'node:fs';
 
 export function get() {
-	const buffer = fs.readFileSync('../image.jpg');
+  const buffer = fs.readFileSync('../image.jpg');
 
   // Return the buffer directly, @astrojs/netlify will base64 encode the body
   return new Response(buffer, {
     status: 200,
-		headers: {
-			'content-type': 'image/jpeg'
-		}
+    headers: {
+      'content-type': 'image/jpeg'
+    }
   });
 }
 ```

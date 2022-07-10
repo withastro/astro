@@ -53,7 +53,7 @@ npm install @astrojs/tailwind
 ```
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import tailwind from '@astrojs/tailwind';

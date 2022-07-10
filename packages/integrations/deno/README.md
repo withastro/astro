@@ -22,13 +22,14 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 ## Installation
 
 First, install the `@astrojs/deno` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
-```sh
+
+```shell
 npm install @astrojs/deno
 ```
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -51,7 +52,8 @@ import './dist/entry.mjs';
 See the `start` option below for how you can have more control over starting the Astro server.
 
 You can also run the script directly using deno:
-```
+
+```shell
 deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 ```
 
@@ -60,7 +62,8 @@ deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 
 To configure this adapter, pass an object to the `deno()` function call in `astro.config.mjs`.
 
-__astro.config.mjs__
+__`astro.config.mjs`__
+
 ```js
 import { defineConfig } from 'astro/config';
 import deno from '@astrojs/deno';

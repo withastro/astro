@@ -41,7 +41,7 @@ npm install solid-js
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import solid from '@astrojs/solid-js';
