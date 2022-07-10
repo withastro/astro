@@ -97,8 +97,9 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 		(e as any).stack = eol.lf((e as any).stack);
 		// derive error location from stack (if possible)
 		const stackText = stripAnsi(e.stack);
-		const firstDependency = stackText.split('\n').find(ln => ln.includes('node_modules'));
-		const source = firstDependency?.replace(/^[^(]+\(([^)]+).*$/, '$1');
+		// TODO: this could be better, `src` might be something else
+		const firstLine = stackText.split('\n').find(ln => ln.includes('src') || ln.includes('node_modules'));
+		const source = firstLine?.replace(/^[^(]+\(([^)]+).*$/, '$1');
 		const [file, line, column] = source?.split(':') ?? [];
 		
 		if (!err.loc && line && column) {

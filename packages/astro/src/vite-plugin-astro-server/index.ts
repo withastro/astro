@@ -151,7 +151,7 @@ async function handle500Response(
 	res: http.ServerResponse,
 	err: ErrorWithMetadata
 ) {
-	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 20))
+	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200))
 	if (res.headersSent) {
 		res.end()
 	} else {
