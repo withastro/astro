@@ -24,7 +24,6 @@ Check out [“Learn Preact in 10 minutes”](https://preactjs.com/tutorial), an 
 
 <details>
   <summary>Quick Install</summary>
-  <br/>
 
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
@@ -44,7 +43,6 @@ Because this command is new, it might not properly set things up. If that happen
 
 <details>
   <summary>Manual Install</summary>
-  <br/>
 
 First, install the `@astrojs/preact` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 

@@ -75,8 +75,6 @@ To configure this adapter, pass an object to the `netlify()` function call in `a
 
 <details>
   <summary><strong>dist</strong></summary>
-  
-  <br/>
 
 We build to the `dist` directory at the base of your project. To change this, use the `dist` option:
 
@@ -136,11 +134,17 @@ export function get() {
 
 ## Troubleshooting
 
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 

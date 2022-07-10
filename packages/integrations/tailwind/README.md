@@ -27,7 +27,6 @@ https://user-images.githubusercontent.com/4033662/169920154-4b42fc52-e2b5-4ca4-b
 
 <details>
   <summary>Quick Install</summary>
-  <br/>
   
 The experimental `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
   
@@ -47,8 +46,6 @@ Because this command is new, it might not properly set things up. If that happen
 
 <details>
   <summary>Manual Install</summary>
-  
-<br/>
   
 First, install the `@astrojs/tailwind` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
@@ -91,12 +88,8 @@ The Astro Tailwind integration handles the communication between Astro and Tailw
 <details>
   <summary><strong>config.path</strong></summary>
   
-  <br/>
-  
-  If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root. 
-  
-  <br/>
-  
+If you want to use a different Tailwind configuration file instead of the default `tailwind.config.(js|cjs|mjs)`, specify that file's location using this integration's `config.path` option. If `config.path` is relative, it will be resolved relative to the root.
+
 > **Warning**
 > Changing this isn't recommended since it can cause problems with other tools that integrate with Tailwind, like the official Tailwind VSCode extension.
 
@@ -167,4 +160,4 @@ This package is maintained by Astro's Core team. You're welcome to submit an iss
 
 ## Changelog
 
-
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
