@@ -9,9 +9,9 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/mdx": "^0.0.3",
-    "@astrojs/preact": "^0.3.2",
-    "astro": "^1.0.0-beta.65",
+    "@astrojs/mdx": "^0.1.0",
+    "@astrojs/preact": "^0.4.0",
+    "astro": "^1.0.0-beta.66",
     "preact": "^10.6.5"
   }
 }

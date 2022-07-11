@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.1.0
+
+### Minor Changes
+
+- [#3871](https://github.com/withastro/astro/pull/3871) [`1cc5b7890`](https://github.com/withastro/astro/commit/1cc5b78905633608e5b07ad291f916f54e67feb1) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update supported `node` versions. Minimum versions are now `node@14.20.0` or `node@16.16.0`.
+
 ## 0.0.3
 
 ### Patch Changes

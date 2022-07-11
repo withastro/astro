@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prism",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Supports Prism highlighting in Astro projects",
   "author": "withastro",
   "license": "MIT",
