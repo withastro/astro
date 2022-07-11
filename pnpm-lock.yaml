@@ -1802,6 +1802,12 @@ importers:
       postcss: 8.4.14
       tailwindcss: 3.1.5
 
+  packages/astro/test/fixtures/virtual-astro-file:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/vue-component:
     specifiers:
       '@astrojs/vue': workspace:*

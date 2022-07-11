@@ -11,7 +11,10 @@ import { viteID } from '../core/util.js';
 import { transformWithVite } from './styles.js';
 
 type CompilationCache = Map<string, CompileResult>;
-type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
+type CompileResult = TransformResult & {
+	rawCSSDeps: Set<string>;
+	source: string;
+};
 
 /**
  * Note: this is currently needed because Astro is directly using a Vite internal CSS transform. This gives us
@@ -44,6 +47,16 @@ export interface CompileProps {
 	pluginContext: PluginContext;
 }
 
+function getNormalizedID(filename: string): string {
+	try {
+		const filenameURL = new URL(`file://${filename}`);
+		return fileURLToPath(filenameURL);
+	} catch(err) {
+		// Not a real file, so just use the provided filename as the normalized id
+		return filename;
+	}
+}
+
 async function compile({
 	config,
 	filename,
@@ -53,9 +66,7 @@ async function compile({
 	viteTransform,
 	pluginContext,
 }: CompileProps): Promise<CompileResult> {
-	const filenameURL = new URL(`file://${filename}`);
-	const normalizedID = fileURLToPath(filenameURL);
-
+	const normalizedID = getNormalizedID(filename);
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
 
@@ -141,6 +152,9 @@ async function compile({
 		rawCSSDeps: {
 			value: rawCSSDeps,
 		},
+		source: {
+			value: source,
+		},
 	});
 
 	return compileResult;
@@ -148,6 +162,13 @@ async function compile({
 
 export function isCached(config: AstroConfig, filename: string) {
 	return configCache.has(config) && configCache.get(config)!.has(filename);
+}
+
+export function getCachedSource(config: AstroConfig, filename: string): string | null {
+	if(!isCached(config, filename)) return null;
+	let src = configCache.get(config)!.get(filename);
+	if(!src) return null;
+	return src.source;
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {

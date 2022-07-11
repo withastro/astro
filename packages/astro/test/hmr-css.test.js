@@ -22,6 +22,9 @@ describe('HMR - CSS', () => {
 	});
 
 	it('Timestamp URL used by Vite gets the right mime type', async () => {
+		// Index page is always loaded first by the browser
+		await fixture.fetch('/');
+		// Now we can simulate what happens in the browser
 		let res = await fixture.fetch(
 			'/src/pages/index.astro?astro=&type=style&index=0&lang.css=&t=1653657441095'
 		);
