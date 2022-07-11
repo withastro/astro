@@ -19,9 +19,6 @@ const { title, description, publishDate, url } = Astro.props as Props;
 </article>
 
 <style>
-	.content :global(main > * + *) {
-		margin-top: 1rem;
-	}
 
 	.post-preview {
 		padding-bottom: 2rem;
@@ -29,23 +26,12 @@ const { title, description, publishDate, url } = Astro.props as Props;
 		border-bottom: 4px solid var(--theme-divider);
 	}
 
-	header {
-		align-items: flex-start;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding-bottom: 2rem;
-		text-align: left;
-	}
-
 	.title,
-	.author,
 	.publish-date {
 		margin: 0;
 	}
 
-	.publish-date,
-	.author {
+	.publish-date {
 		font-size: 1.25rem;
 		color: var(--theme-text-lighter);
 	}
