@@ -12,6 +12,8 @@ import { collectErrorMetadata } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { resolvePages, viteID } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
+import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
+import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -61,9 +63,14 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		return false;
 	}
 
+	let viteTransform: TransformHook;
+
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
+		configResolved(_resolvedConfig) {
+			viteTransform = getViteTransform(_resolvedConfig);
+		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
@@ -85,7 +92,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// In all other cases, we do nothing and rely on normal Vite resolution.
 			return undefined;
 		},
-		async load(id) {
+		async load(id, opts) {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
@@ -174,21 +181,17 @@ ${setup}`.trim();
 				}
 
 				// Transform from `.astro` to valid `.ts`
-				let transformResult = await transform(astroResult, {
-					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
-					projectRoot: config.root.toString(),
-					site: config.site
-						? new URL(config.base, config.site).toString()
-						: `http://localhost:${config.server.port}/`,
-					sourcefile: id,
-					sourcemap: 'inline',
-					// TODO: baseline flag
-					experimentalStaticExtraction: true,
-					internalURL: `/@fs${prependForwardSlash(
-						viteID(new URL('../runtime/server/index.js', import.meta.url))
-					)}`,
-				});
+				const compileProps: CompileProps = {
+					config,
+					filename,
+					moduleId: id,
+					source: astroResult,
+					ssr: Boolean(opts?.ssr),
+					viteTransform,
+					pluginContext: this,
+				};
 
+				let transformResult = await cachedCompilation(compileProps)
 				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
