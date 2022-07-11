@@ -162,7 +162,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				content.astro = metadata;
 				const prelude = `---
 import Slugger from 'github-slugger';
-function $$slug(value: string): string {
+function $$slug(value) {
 	return slugger.slug(value);
 }
 ${layout ? `import Layout from '${layout}';` : ''}
