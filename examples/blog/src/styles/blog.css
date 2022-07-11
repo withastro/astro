@@ -33,7 +33,7 @@
 	--color-yellow: #ffbe2d;
 	--color-yellow-rgb: 255, 190, 45;
 
-	--content-max-width: 80ch;
+	--content-max-width: 70ch;
 }
 
 :root {
@@ -79,7 +79,6 @@ body {
 
 * {
 	box-sizing: border-box;
-	margin: 0;
 }
 
 :root {
