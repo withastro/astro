@@ -1,14 +1,14 @@
-import { useState } from 'preact/hooks'
+import { useState } from "preact/hooks";
 
 export default function LikeButton({ pageUrl }) {
-	const persistedLike = localStorage.getItem(`liked-${pageUrl}`)
-	const [liked, setLiked] = useState(persistedLike ? JSON.parse(persistedLike) : false)
+	const persistedLike = localStorage.getItem(`liked-${pageUrl}`);
+	const [liked, setLiked] = useState(persistedLike ? JSON.parse(persistedLike) : false);
 
 	function toggleLike() {
-		const toggled = !liked
-		setLiked(toggled)
+		const toggled = !liked;
+		setLiked(toggled);
 		// preserve your likes as you navigate the site
-		localStorage.setItem(`liked-${pageUrl}`, JSON.stringify(toggled))
+		localStorage.setItem(`liked-${pageUrl}`, JSON.stringify(toggled));
 	}
 
 	return (
