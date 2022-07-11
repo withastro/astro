@@ -11,17 +11,7 @@ import Slotted from '../components/Slotted.astro';
       {true && <span slot="a">A</span>}
 			{true ? <span slot="b">B</span> : null}
 			{() => <span slot="c">C</span>}
-			{() => {
-				const value = 0.33;
-				if (value > 0.25) {
-					return <span>Default</span>
-				} else if (value > 0.5) {
-					return <span>Another</span>
-				} else if (value > 0.75) {
-					return <span>Other</span>
-				}
-				return <span>Yet Another</span>
-			}}
+			{true && <span>Default</span>}
     </Slotted>
   </body>
 </html>
