@@ -1,5 +1,5 @@
 {
-  "name": "@test/errors",
+  "name": "@e2e/errors",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

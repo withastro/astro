@@ -155,7 +155,7 @@ async function handle500Response(
 	if (res.headersSent) {
 		res.end()
 	} else {
-		writeHtmlResponse(res, 500, '<script type="module" src="/@vite/client"></script>');
+		writeHtmlResponse(res, 500, `<title>${err.name}</title><script type="module" src="/@vite/client"></script>`);
 	}
 }
 
@@ -224,6 +224,7 @@ async function handleRequest(
 		ssr: buildingToSSR,
 	});
 
+	let filePath: URL|undefined;
 	try {
 		if (!pathname.startsWith(devRoot)) {
 			log404(logging, pathname);
@@ -244,7 +245,7 @@ async function handleRequest(
 			}
 		}
 
-		const filePath = new URL(`./${route.component}`, config.root);
+		filePath = new URL(`./${route.component}`, config.root);
 		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
@@ -319,11 +320,11 @@ async function handleRequest(
 			}
 		} else {
 			const result = await ssr(preloadedComponent, options);
-				return await writeSSRResult(result, res);
+			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		const errorWithMetadata = collectErrorMetadata(_err);
+		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
 	}

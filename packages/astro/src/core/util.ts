@@ -98,7 +98,7 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 		output += isFocusedLine ? '> ' : '  ';
 		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
 		if (isFocusedLine)
-			output += `${Array.from({ length: gutterWidth }).join(' ')}  | ${Array.from({ length: loc.column + gutterWidth }).join(' ')}^\n`;
+			output += `${Array.from({ length: gutterWidth }).join(' ')}  | ${Array.from({ length: loc.column }).join(' ')}^\n`;
 	}
 	return output;
 }

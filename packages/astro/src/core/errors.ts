@@ -2,6 +2,7 @@ import type { BuildResult } from 'esbuild';
 import type { ViteDevServer, ErrorPayload, LogLevel, Logger } from 'vite';
 import type { SSRError } from '../@types/astro';
 
+import { fileURLToPath } from 'node:url';
 import { createLogger } from 'vite';
 import eol from 'eol';
 import fs from 'fs';
@@ -42,7 +43,7 @@ export function cleanErrorStack(stack: string) {
 }
 
 /** Update the error message to correct any vite-isms that we don't want to expose to the user. */
-export function fixViteErrorMessage(_err: unknown, server: ViteDevServer) {
+export function fixViteErrorMessage(_err: unknown, server: ViteDevServer, filePath?: URL) {
 	const err = createSafeError(_err);
 	// Vite will give you better stacktraces, using sourcemaps.
 	server.ssrFixStacktrace(err);
@@ -50,6 +51,18 @@ export function fixViteErrorMessage(_err: unknown, server: ViteDevServer) {
 	// so we need to update this error message in case it originally came from Astro.glob().
 	if (err.message === 'import.meta.glob() can only accept string literals.') {
 		err.message = 'Astro.glob() and import.meta.glob() can only accept string literals.';
+	}
+	if (filePath && /failed to load module for ssr:/.test(err.message)) {
+		const importName = err.message.split('for ssr:').at(1)?.trim();
+		if (importName) {
+			const content = fs.readFileSync(fileURLToPath(filePath)).toString();
+			const lns = content.split('\n')
+			const line = lns.findIndex(ln => ln.includes(importName));
+			const column = lns[line].indexOf(importName);
+			if (!err.id) {
+				err.id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`
+			}
+		}
 	}
 	return err;
 }
@@ -73,7 +86,7 @@ export function createCustomViteLogger(logLevel: LogLevel): Logger {
 	return logger;
 }
 
-function generateHint(err: ErrorWithMetadata): string | undefined {
+function generateHint(err: ErrorWithMetadata, filePath?: URL): string | undefined {
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
 	} else {
@@ -90,18 +103,18 @@ function generateHint(err: ErrorWithMetadata): string | undefined {
  * Takes any error-like object and returns a standardized Error + metadata object.
  * Useful for consistent reporting regardless of where the error surfaced from.
  */
-export function collectErrorMetadata(e: any): ErrorWithMetadata {
+export function collectErrorMetadata(e: any, filePath?: URL): ErrorWithMetadata {
 	const err = e as SSRError;
+
 	if ((e as any).stack) {
 		// normalize error stack line-endings to \n
 		(e as any).stack = eol.lf((e as any).stack);
 		// derive error location from stack (if possible)
 		const stackText = stripAnsi(e.stack);
 		// TODO: this could be better, `src` might be something else
-		const firstLine = stackText.split('\n').find(ln => ln.includes('src') || ln.includes('node_modules'));
-		const source = firstLine?.replace(/^[^(]+\(([^)]+).*$/, '$1');
+		const possibleFilePath = err.pluginCode || err.id || stackText.split('\n').find(ln => ln.includes('src') || ln.includes('node_modules'));
+		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1');
 		const [file, line, column] = source?.split(':') ?? [];
-		
 		if (!err.loc && line && column) {
 			err.loc = {
 				file,
@@ -152,12 +165,12 @@ export function collectErrorMetadata(e: any): ErrorWithMetadata {
 		if (pluginName) {
 			err.plugin = pluginName;
 		}
-		err.hint = generateHint(err);
+		err.hint = generateHint(err, filePath);
 		return err;
 	}
 
 	// Generic error (probably from Vite, and already formatted)
-	err.hint = generateHint(e);
+	err.hint = generateHint(e, filePath);
 	return err;
 }
 
