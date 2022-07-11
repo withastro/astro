@@ -13,7 +13,7 @@ import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation, CompileProps } from './compile.js';
+import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
@@ -96,7 +96,15 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return id;
 			}
 		},
-		async load(this: PluginContext, id, opts) {
+		async load(id) {
+			const parsedId = parseAstroRequest(id);
+			const query = parsedId.query;
+			if (!query.astro) {
+				return null;
+			}
+			return getCachedSource(config, parsedId.filename);
+		},
+		async transform(this: PluginContext, source, id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!id.endsWith('.astro') && !query.astro) {
@@ -109,7 +117,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 			const filename = normalizeFilename(parsedId.filename);
 			const fileUrl = new URL(`file://${filename}`);
-			let source = await fs.promises.readFile(fileUrl, 'utf-8');
 			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
