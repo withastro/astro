@@ -14,7 +14,7 @@
     "astro-adapter"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
     "./edge": "./dist/edge/adapter.js",
     "./edge/entrypoint": "./dist/edge/entrypoint.js",
