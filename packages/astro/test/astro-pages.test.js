@@ -42,5 +42,11 @@ describe('Pages', () => {
 
 			expect($('#testing').length).to.be.greaterThan(0);
 		});
+
+		it('Has default Content-Type with charset=utf-8', async () => {
+			const html = await fixture.fetch('/');
+
+			expect(html.headers.get('Content-Type')).to.equal('text/html;charset=utf-8');
+		});
 	});
 });

@@ -326,6 +326,9 @@ async function handleRequest(
 			}
 		} else {
 			const result = await ssr(preloadedComponent, options);
+			if (!result.headers.has('Content-Type')) {
+				result.headers.set('Content-Type', 'text/html;charset=utf-8');
+			}
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
