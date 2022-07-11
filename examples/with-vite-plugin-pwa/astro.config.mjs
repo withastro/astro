@@ -43,6 +43,12 @@ if (process.env.SW === 'true') {
 	pwaOptions.filename = 'claims-sw.ts'
 	pwaOptions.strategies = 'injectManifest'
 	pwaOptions.manifest.description = 'Astro PWA Inject Manifest'
+} else if (process.env.DEV_MODE === 'true') {
+	// In dev, we only need to intercept the entry point.
+	// If not using following regex in allowlist, /about route will not work, since the sw will return / content.
+	pwaOptions.worbox = {
+		navigateFallbackAllowlist: [/^\/$/]
+	}
 }
 
 // https://astro.build/config

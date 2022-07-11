@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "start": "cross-env SOURCE_MAP=true SW_DEV=true astro dev",
-    "start-sw": "cross-env SOURCE_MAP=true SW=true SW_DEV=true astro dev",
+    "start": "cross-env DEV_MODE=true SOURCE_MAP=true SW_DEV=true astro dev",
+    "start-sw": "cross-env DEV_MODE=true SOURCE_MAP=true SW=true SW_DEV=true astro dev",
     "build": "cross-env SOURCE_MAP=true astro build",
     "build-sw": "cross-env SOURCE_MAP=true SW=true astro build",
     "preview": "npm run build && astro preview",
