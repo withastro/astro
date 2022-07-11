@@ -180,7 +180,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         node_version: [14]
     steps:
       - name: Checkout docs
