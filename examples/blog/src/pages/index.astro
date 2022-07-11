@@ -1,5 +1,4 @@
 ---
-// Component Imports
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import BlogPostPreview from "../components/BlogPostPreview.astro";
@@ -8,9 +7,8 @@ let title = "Example Blog";
 let description = "The perfect starter for your perfect blog.";
 let permalink = "https://example.com/";
 
-// Data Fetching: List all Markdown posts in the repo.
-
-const posts = await Astro.glob('./posts/*.mdx')
+// Use Astro.glob to fetch all post with associated frontmatter
+const posts = await Astro.glob('./posts/*.md')
 ---
 
 <html lang="en">
