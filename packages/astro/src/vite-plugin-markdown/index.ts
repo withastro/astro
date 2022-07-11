@@ -161,7 +161,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
 				const prelude = `---
-import { slug as $$slug } from '@astrojs/markdown-remark/ssr-utils';
+import Slugger from 'github-slugger';
+function $$slug(value: string): string {
+	return slugger.slug(value);
+}
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
