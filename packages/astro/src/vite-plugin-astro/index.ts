@@ -6,7 +6,6 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
-import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
@@ -106,12 +105,12 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			// For CSS / hoisted scripts we need to load the source ourselves.
 			// It should be in the compilation cache at this point.
 			let raw = await this.resolve(filename, undefined);
-			if(!raw) {
+			if (!raw) {
 				return null;
 			}
 
 			let source = getCachedSource(config, raw.id);
-			if(!source) {
+			if (!source) {
 				return null;
 			}
 
@@ -125,14 +124,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				pluginContext: this,
 			};
 
-			switch(query.type) {
+			switch (query.type) {
 				case 'style': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
-	
+
 					const transformResult = await cachedCompilation(compileProps);
-	
+
 					// Track any CSS dependencies so that HMR is triggered when they change.
 					await trackCSSDependencies.call(this, {
 						viteDevServer,
@@ -142,7 +141,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					});
 					const csses = transformResult.css;
 					const code = csses[query.index];
-	
+
 					return {
 						code,
 					};
@@ -157,15 +156,15 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							code: `/* client hoisted script, empty in SSR: ${id} */`,
 						};
 					}
-	
+
 					const transformResult = await cachedCompilation(compileProps);
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
-	
+
 					if (!hoistedScript) {
 						throw new Error(`No hoisted script at index ${query.index}`);
 					}
-	
+
 					if (hoistedScript.type === 'external') {
 						const src = hoistedScript.src!;
 						if (src.startsWith('/') && !isBrowserPath(src)) {
@@ -175,7 +174,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							);
 						}
 					}
-	
+
 					return {
 						code:
 							hoistedScript.type === 'inline'
@@ -188,7 +187,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						},
 					};
 				}
-				default: return null;
+				default:
+					return null;
 			}
 		},
 		async transform(this: PluginContext, source, id, opts) {
@@ -220,7 +220,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				viteTransform,
 				pluginContext: this,
 			};
-			
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);

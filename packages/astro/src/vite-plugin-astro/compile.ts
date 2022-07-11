@@ -51,7 +51,7 @@ function getNormalizedID(filename: string): string {
 	try {
 		const filenameURL = new URL(`file://${filename}`);
 		return fileURLToPath(filenameURL);
-	} catch(err) {
+	} catch (err) {
 		// Not a real file, so just use the provided filename as the normalized id
 		return filename;
 	}
@@ -165,9 +165,9 @@ export function isCached(config: AstroConfig, filename: string) {
 }
 
 export function getCachedSource(config: AstroConfig, filename: string): string | null {
-	if(!isCached(config, filename)) return null;
+	if (!isCached(config, filename)) return null;
 	let src = configCache.get(config)!.get(filename);
-	if(!src) return null;
+	if (!src) return null;
 	return src.source;
 }
 

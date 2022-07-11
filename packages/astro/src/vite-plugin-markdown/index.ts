@@ -1,4 +1,3 @@
-import { transform } from '@astrojs/compiler';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -9,11 +8,10 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { prependForwardSlash } from '../core/path.js';
-import { resolvePages, viteID } from '../core/util.js';
-import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
+import { resolvePages } from '../core/util.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
+import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -191,7 +189,7 @@ ${setup}`.trim();
 					pluginContext: this,
 				};
 
-				let transformResult = await cachedCompilation(compileProps)
+				let transformResult = await cachedCompilation(compileProps);
 				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
