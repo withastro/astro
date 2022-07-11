@@ -18,7 +18,7 @@
     "svelte"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/svelte/",
   "exports": {
     ".": "./dist/index.js",
     "./editor": "./dist/editor.cjs",
