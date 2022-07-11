@@ -1,0 +1,19 @@
+---
+export interface Props {
+	username: string;
+	href: string;
+}
+
+const { username, href } = Astro.props as Props;
+console.log(href)
+---
+
+<div class="author">
+	<p>Follow me <a {href} target="_blank" rel="noreferrer">@{username}</a></p>
+</div>
+
+<style>
+	.author {
+		margin-bottom: 0.75rem;
+	}
+</style>
