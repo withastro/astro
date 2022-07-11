@@ -29,7 +29,7 @@ If you run into any hiccups, [feel free to log an issue on our GitHub](https://g
 
 First, install the `@astrojs/svelte` integration like so:
 
-```
+```sh
 npm install @astrojs/svelte
 ```
 
