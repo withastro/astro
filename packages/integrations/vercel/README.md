@@ -6,7 +6,6 @@ This adapter allows Astro to deploy your SSR site to [Vercel](https://www.vercel
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
-- <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong>
@@ -28,7 +27,7 @@ npm install @astrojs/vercel
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property (note the import from `@astrojs/vercel/serverless` - see [targets](#targets)).
 
- __astro.config.mjs__ 
+ __`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -41,7 +40,7 @@ export default defineConfig({
 
 ### Targets
 
-You can deploy to different targes:
+You can deploy to different targets:
 
 - `edge`: SSR inside an [Edge function](https://vercel.com/docs/concepts/functions/edge-functions).
 - `serverless`: SSR inside a [Node.js function](https://vercel.com/docs/concepts/functions/serverless-functions).
@@ -87,16 +86,18 @@ vercel deploy --prebuilt
 
 This adapter does not expose any configuration options.
 
-## Examples
-
 ## Troubleshooting
 
 **A few known complex packages (example: [puppeteer](https://github.com/puppeteer/puppeteer)) do not support bundling and therefore will not work properly with this adapter.** By default, Vercel doesn't include npm installed files & packages from your project's `./node_modules` folder. To address this, the `@astrojs/vercel` adapter automatically bundles your final build output using `esbuild`.
+
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

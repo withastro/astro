@@ -15,7 +15,7 @@
     "astro-integration"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/prefetch/",
   "exports": {
     ".": "./dist/index.js",
     "./client.js": "./dist/client.js",
