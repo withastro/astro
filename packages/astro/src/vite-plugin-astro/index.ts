@@ -203,8 +203,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 
 			const filename = normalizeFilename(parsedId.filename);
-			const fileUrl = new URL(`file://${filename}`);
-			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
+			let isPage = false;
+			try {
+				const fileUrl = new URL(`file://${filename}`);
+				isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
+			} catch {}
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
 				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
 			}

@@ -1,14 +1,15 @@
 
 
 export default function myPlugin() {
+	const pluginId = `@my-plugin/virtual.astro`;
   return {
     enforce: 'pre',
     name: 'virtual-astro-plugin',
     resolveId(id) {
-      if (id === 'virtual.astro') return id;
+      if (id === pluginId) return id;
     },
     load(id) {
-      if (id === 'virtual.astro') {
+      if (id === pluginId) {
         return `---
 const works = true;
 ---
