@@ -2128,10 +2128,10 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       vite: ^2.9.14
-      vite-plugin-pwa: ^0.12.2
+      vite-plugin-pwa: ^0.12.3
       workbox-build: ^6.5.3
     dependencies:
-      vite-plugin-pwa: 0.12.2_vite@2.9.14
+      vite-plugin-pwa: 0.12.3_vite@2.9.14
       workbox-build: 6.5.3
     devDependencies:
       astro: link:../../astro
@@ -14913,8 +14913,8 @@ packages:
       magic-string: 0.26.2
     dev: true
 
-  /vite-plugin-pwa/0.12.2_vite@2.9.14:
-    resolution: {integrity: sha512-XK2oi1YZkoc1J8fyerNYxyh/yfb+INdrdOW/mOOD5DBLq7jVPxHQuncIhqiREbGOMlY/xMe9CSE7QZ9xIAEf7A==}
+  /vite-plugin-pwa/0.12.3_vite@2.9.14:
+    resolution: {integrity: sha512-gmYdIVXpmBuNjzbJFPZFzxWYrX4lHqwMAlOtjmXBbxApiHjx9QPXKQPJjSpeTeosLKvVbNcKSAAhfxMda0QVNQ==}
     peerDependencies:
       vite: ^2.0.0 || ^3.0.0-0
     peerDependenciesMeta:

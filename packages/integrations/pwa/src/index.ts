@@ -131,9 +131,7 @@ async function regeneratePWA(
 ) {
 	const api: VitePluginPWAAPI | undefined = pwaPlugin?.api
 	if (api && !api.disabled) {
-		// generate the manifest.webmanifest file
-		api.generateBundle()
-		// regenerate the sw
+		// regenerate the sw: there is no need to generate the webmanifest again
 		await api.generateSW()
 	}
 }
