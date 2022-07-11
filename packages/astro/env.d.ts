@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference path="./client.d.ts" />
 
 type Astro = import('astro').AstroGlobal;
 
