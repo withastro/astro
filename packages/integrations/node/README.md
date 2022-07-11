@@ -23,7 +23,7 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 
 First, install the `@astrojs/node` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
-```shell
+```sh
 npm install @astrojs/node
 ```
 

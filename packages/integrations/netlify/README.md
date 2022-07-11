@@ -62,7 +62,7 @@ After [performing a build](https://docs.astro.build/en/guides/deploy/#building-y
 
 Now you can deploy. Install the [Netlify CLI](https://docs.netlify.com/cli/get-started/) and run:
 
-```shell
+```sh
 netlify deploy --build
 ```
 
