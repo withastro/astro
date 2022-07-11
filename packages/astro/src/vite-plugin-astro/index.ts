@@ -96,23 +96,110 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return id;
 			}
 		},
-		async load(id) {
+		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!query.astro) {
 				return null;
 			}
-			return getCachedSource(config, parsedId.filename);
+			let filename = parsedId.filename;
+			// For CSS / hoisted scripts we need to load the source ourselves.
+			// It should be in the compilation cache at this point.
+			let raw = await this.resolve(filename, undefined);
+			if(!raw) {
+				return null;
+			}
+
+			let source = getCachedSource(config, raw.id);
+			if(!source) {
+				return null;
+			}
+
+			const compileProps: CompileProps = {
+				config,
+				filename,
+				moduleId: id,
+				source,
+				ssr: Boolean(opts?.ssr),
+				viteTransform,
+				pluginContext: this,
+			};
+
+			switch(query.type) {
+				case 'style': {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for Astro CSS must include an index.`);
+					}
+	
+					const transformResult = await cachedCompilation(compileProps);
+	
+					// Track any CSS dependencies so that HMR is triggered when they change.
+					await trackCSSDependencies.call(this, {
+						viteDevServer,
+						id,
+						filename,
+						deps: transformResult.rawCSSDeps,
+					});
+					const csses = transformResult.css;
+					const code = csses[query.index];
+	
+					return {
+						code,
+					};
+				}
+				case 'script': {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for hoisted scripts must include an index`);
+					}
+					// HMR hoisted script only exists to make them appear in the module graph.
+					if (opts?.ssr) {
+						return {
+							code: `/* client hoisted script, empty in SSR: ${id} */`,
+						};
+					}
+	
+					const transformResult = await cachedCompilation(compileProps);
+					const scripts = transformResult.scripts;
+					const hoistedScript = scripts[query.index];
+	
+					if (!hoistedScript) {
+						throw new Error(`No hoisted script at index ${query.index}`);
+					}
+	
+					if (hoistedScript.type === 'external') {
+						const src = hoistedScript.src!;
+						if (src.startsWith('/') && !isBrowserPath(src)) {
+							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
+							throw new Error(
+								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${filename}`
+							);
+						}
+					}
+	
+					return {
+						code:
+							hoistedScript.type === 'inline'
+								? hoistedScript.code!
+								: `import "${hoistedScript.src!}";`,
+						meta: {
+							vite: {
+								lang: 'ts',
+							},
+						},
+					};
+				}
+				default: return null;
+			}
 		},
 		async transform(this: PluginContext, source, id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
-			if (!id.endsWith('.astro') && !query.astro) {
-				return null;
+			if (!id.endsWith('.astro') || query.astro) {
+				return source;
 			}
 			// if we still get a relative path here, vite couldn't resolve the import
 			if (isRelativePath(parsedId.filename)) {
-				return null;
+				return source;
 			}
 
 			const filename = normalizeFilename(parsedId.filename);
@@ -130,69 +217,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				viteTransform,
 				pluginContext: this,
 			};
-			if (query.astro) {
-				if (query.type === 'style') {
-					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for Astro CSS must include an index.`);
-					}
-
-					const transformResult = await cachedCompilation(compileProps);
-
-					// Track any CSS dependencies so that HMR is triggered when they change.
-					await trackCSSDependencies.call(this, {
-						viteDevServer,
-						id,
-						filename,
-						deps: transformResult.rawCSSDeps,
-					});
-					const csses = transformResult.css;
-					const code = csses[query.index];
-
-					return {
-						code,
-					};
-				} else if (query.type === 'script') {
-					if (typeof query.index === 'undefined') {
-						throw new Error(`Requests for hoisted scripts must include an index`);
-					}
-					// HMR hoisted script only exists to make them appear in the module graph.
-					if (opts?.ssr) {
-						return {
-							code: `/* client hoisted script, empty in SSR: ${id} */`,
-						};
-					}
-
-					const transformResult = await cachedCompilation(compileProps);
-					const scripts = transformResult.scripts;
-					const hoistedScript = scripts[query.index];
-
-					if (!hoistedScript) {
-						throw new Error(`No hoisted script at index ${query.index}`);
-					}
-
-					if (hoistedScript.type === 'external') {
-						const src = hoistedScript.src!;
-						if (src.startsWith('/') && !isBrowserPath(src)) {
-							const publicDir = config.publicDir.pathname.replace(/\/$/, '').split('/').pop() + '/';
-							throw new Error(
-								`\n\n<script src="${src}"> references an asset in the "${publicDir}" directory. Please add the "is:inline" directive to keep this asset from being bundled.\n\nFile: ${filename}`
-							);
-						}
-					}
-
-					return {
-						code:
-							hoistedScript.type === 'inline'
-								? hoistedScript.code!
-								: `import "${hoistedScript.src!}";`,
-						meta: {
-							vite: {
-								lang: 'ts',
-							},
-						},
-					};
-				}
-			}
+			
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);

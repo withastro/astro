@@ -14,6 +14,11 @@ const works = true;
 ---
 <h1 id="something">This is a virtual module id</h1>
 <h2 id="works">{works}</h2>
+<style>
+  h1 {
+		color: green;
+	}
+</style>
 `;
       }
     },
