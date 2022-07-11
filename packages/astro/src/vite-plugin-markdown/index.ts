@@ -167,6 +167,7 @@ ${components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
 ${setup}
 
+const slugger = new Slugger();
 function $$slug(value) {
 	return slugger.slug(value);
 }
