@@ -2,7 +2,7 @@
 
 An SSR adapter for use with Cloudflare Pages Functions targets. Write your code in Astro/Node and deploy to Cloudflare Pages.
 
-In your astro.config.mjs use:
+In your `astro.config.mjs` use:
 
 ```js
 import { defineConfig } from 'astro/config';
