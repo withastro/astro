@@ -10,7 +10,7 @@ export default function CartFlyout() {
 		<aside hidden={!$isCartOpen} className={styles.container}>
 			{Object.values($cartItems).length ? (
 				<ul className={styles.list} role="list">
-					{Object.values($cartItems).map(cartItem => (
+					{Object.values($cartItems).map((cartItem) => (
 						<li className={styles.listItem}>
 							<img className={styles.listItemImg} src={cartItem.imageSrc} alt={cartItem.name} />
 							<div>
@@ -20,7 +20,9 @@ export default function CartFlyout() {
 						</li>
 					))}
 				</ul>
-			) : <p>Your cart is empty!</p>}
+			) : (
+				<p>Your cart is empty!</p>
+			)}
 		</aside>
 	);
 }

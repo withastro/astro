@@ -5,7 +5,7 @@ import type { ComponentChildren } from 'preact';
 type Props = {
 	item: CartItemDisplayInfo;
 	children: ComponentChildren;
-}
+};
 
 export default function AddToCartForm({ item, children }: Props) {
 	function addToCart(e: SubmitEvent) {
@@ -14,9 +14,5 @@ export default function AddToCartForm({ item, children }: Props) {
 		addCartItem(item);
 	}
 
-	return (
-		<form onSubmit={addToCart}>
-			{children}
-		</form>
-	)
+	return <form onSubmit={addToCart}>{children}</form>;
 }

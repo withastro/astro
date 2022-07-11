@@ -7,7 +7,7 @@ export type CartItem = {
 	name: string;
 	imageSrc: string;
 	quantity: number;
-}
+};
 
 export type CartItemDisplayInfo = Pick<CartItem, 'id' | 'name' | 'imageSrc'>;
 
