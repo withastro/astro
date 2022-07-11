@@ -24,12 +24,12 @@ const posts = await Astro.glob("./posts/*.md");
 					<p>{description}</p>
 				</section>
 				<section aria-label="Blog post list">
-					{posts.map(({ frontmatter }) => (
+					{posts.map(({ url, frontmatter }) => (
 						<BlogPostPreview
 							title={frontmatter.title}
 							description={frontmatter.description}
 							publishDate={frontmatter.publishDate}
-							url={frontmatter.url} />
+							url={url} />
 					))}
 				</section>
 			</main>
