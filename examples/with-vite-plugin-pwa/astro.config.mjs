@@ -46,7 +46,7 @@ if (process.env.SW === 'true') {
 } else if (process.env.DEV_MODE === 'true') {
 	// In dev, we only need to intercept the entry point.
 	// If not using following regex in allowlist, /about route will not work, since the sw will return / content.
-	pwaOptions.worbox = {
+	pwaOptions.workbox = {
 		navigateFallbackAllowlist: [/^\/$/]
 	}
 }
