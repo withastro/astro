@@ -5,15 +5,14 @@ import BlogPostPreview from "../components/BlogPostPreview.astro";
 
 let title = "Example Blog";
 let description = "The perfect starter for your perfect blog.";
-let permalink = "https://example.com/";
 
 // Use Astro.glob to fetch all post with associated frontmatter
-const posts = await Astro.glob('./posts/*.md')
+const posts = await Astro.glob('./posts/*.md');
 ---
 
 <html lang="en">
 	<head>
-		<BaseHead {title} {description} {permalink} />
+		<BaseHead {title} {description} />
 	</head>
 
 	<body>
@@ -25,7 +24,13 @@ const posts = await Astro.glob('./posts/*.md')
 					<p>{description}</p>
 				</section>
 				<section aria-label="Blog post list">
-					{posts.map((p) => <BlogPostPreview post={p} />)}
+					{posts.map(({ frontmatter }) => (
+						<BlogPostPreview
+							title={frontmatter.title}
+							description={frontmatter.description}
+							publishDate={frontmatter.publishDate}
+							url={frontmatter.url} />
+					))}
 				</section>
 			</main>
 		</div>
