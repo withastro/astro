@@ -52,11 +52,8 @@ function getNormalizedID(filename: string): string {
 		const filenameURL = new URL(`file://${filename}`);
 		return fileURLToPath(filenameURL);
 	} catch(err) {
-		if((err as any).code === 'ERR_INVALID_FILE_URL_HOST') {
-			// Not a real file, so just use the provided filename as the normalized id
-			return filename;
-		}
-		throw err;
+		// Not a real file, so just use the provided filename as the normalized id
+		return filename;
 	}
 }
 
