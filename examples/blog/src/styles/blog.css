@@ -32,6 +32,8 @@
 	--color-red-rgb: 255, 22, 57;
 	--color-yellow: #ffbe2d;
 	--color-yellow-rgb: 255, 190, 45;
+
+	--content-max-width: 80ch;
 }
 
 :root {
@@ -101,10 +103,18 @@ body {
 .wrapper {
 	margin-left: auto;
 	margin-right: auto;
-	max-width: 65em;
+	max-width: var(--content-max-width);
 	padding-left: 2rem;
 	padding-right: 2rem;
 	width: 100%;
+}
+
+.flex-row {
+	--gap: 1rem;
+
+	display: flex;
+	align-items: baseline;
+	gap: var(--gap);
 }
 
 nav ul {
