@@ -1,5 +1,5 @@
 {
-  "name": "@test/sass",
+  "name": "@e2e/error-sass",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
