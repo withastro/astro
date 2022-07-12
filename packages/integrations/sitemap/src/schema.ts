@@ -8,7 +8,6 @@ export const SitemapOptionsSchema = z
 	.object({
 		filter: z.function().args(z.string()).returns(z.boolean()).optional(),
 		customPages: z.string().url().array().optional(),
-		canonicalURL: z.string().url().optional(),
 
 		i18n: z
 			.object({
