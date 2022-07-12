@@ -19,7 +19,7 @@
     "test": "turbo run test --output-logs=new-only --concurrency=1",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:templates": "turbo run test --filter=create-astro --concurrency=1",
-    "test:smoke": "node scripts/smoke/index.js",
+    "test:smoke": "turbo run build --filter=\"@example/*\" --output-logs=new-only",
     "test:vite-ci": "turbo run test --output-logs=new-only --no-deps --scope=astro --concurrency=1",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",

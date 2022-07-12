@@ -1,8 +1,0 @@
-[submodule "smoke/docs"]
-	path = smoke/docs
-	url = git@github.com:withastro/docs.git
-  branch = main
-[submodule "smoke/astro.build"]
-	path = smoke/astro.build
-	url = git@github.com:withastro/astro.build.git
-	branch = main
