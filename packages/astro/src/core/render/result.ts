@@ -13,7 +13,7 @@ import type {
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
+import { isCSSRequest } from './util.js';
 
 function onlyAvailableInSSR(name: string) {
 	return function _onlyAvailableInSSR() {
@@ -104,16 +104,10 @@ class Slots {
 
 let renderMarkdown: any = null;
 
-function isPaginatedRoute({ page }: { page?: Page }) {
-	return page && 'currentPage' in page;
-}
-
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
 
-	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
-	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const headers = new Headers();
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
@@ -150,7 +144,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 			const Astro = {
 				__proto__: astroGlobal,
-				canonicalURL,
 				params,
 				props,
 				request,

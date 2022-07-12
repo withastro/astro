@@ -82,7 +82,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.18.2",
+    "@astrojs/compiler": "no-canonical",
     "@astrojs/language-server": "^0.13.4",
     "@astrojs/markdown-remark": "^0.11.5",
     "@astrojs/prism": "0.5.0",

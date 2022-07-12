@@ -87,11 +87,6 @@ export interface BuildConfig {
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
-	/** Canonical URL of the current page. If the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option is set, its origin will be the origin of this URL.
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
-	 */
-	canonicalURL: URL;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
@@ -222,11 +217,9 @@ export interface AstroGlobalPartial {
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
 	 *
-	 * If `site` is undefined, the URL object will instead be built from `localhost`
-	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
-	site: URL;
+	site: URL | undefined;
 }
 
 type ServerConfig = {
