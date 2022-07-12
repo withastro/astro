@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^0.11.5",
-    "astro": "^1.0.0-beta.68",
+    "astro": "^1.0.0-beta.69",
     "hast-util-select": "5.0.1",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-slug": "^5.0.1",
