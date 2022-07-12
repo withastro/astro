@@ -8,6 +8,7 @@ describe('Custom 404', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404/',
+			site: 'http://example.com',
 		});
 	});
 
