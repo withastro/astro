@@ -18,9 +18,6 @@ Features:
 Inside of your Astro project, you'll see the following folders and files:
 
 ```
-├── README.md
-├── astro.config.mjs
-├── package.json
 ├── public
 │   ├── assets
 │   │   └── blog
@@ -28,24 +25,26 @@ Inside of your Astro project, you'll see the following folders and files:
 │   ├── favicon.ico
 │   ├── social.jpg
 │   └── social.png
-├── sandbox.config.json
 ├── src
 │   ├── components
 │   │   ├── Author.astro
 │   │   ├── BaseHead.astro
-│   │   ├── BlogHeader.astro
-│   │   ├── BlogPost.astro
 │   │   ├── BlogPostPreview.astro
-│   │   ├── Heading.astro
-│   │   └── Logo.astro
+│   │   ├── FollowMe.astro
+│   │   ├── Header.astro
+│   │   └── LikeButton.tsx
 │   ├── layouts
 │   │   └── BlogPost.astro
 │   ├── pages
 │   │   ├── index.astro
 │   │   └── posts
-│   │       └── index.md
+│   │       ├── interactive-content.md
+│   │       └── static-content.md
 │   └── styles
 │       └── blog.css
+├── astro.config.mjs
+├── README.md
+├── package.json
 └── tsconfig.json
 ```
 
