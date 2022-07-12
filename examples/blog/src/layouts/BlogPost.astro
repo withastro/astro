@@ -49,58 +49,59 @@ const {
 				<slot></slot>
 			</main>
 		</article>
-		<style>
-			.hero-image {
-				width: 100vw;
-				object-fit: cover;
-				object-position: center;
-				margin-top: 2rem;
-				margin-bottom: 4rem;
-				max-width: 1280px;
-			}
-
-			@media (max-width: 50em) {
-				.hero-image {
-					height: 260px;
-					margin-top: 0;
-					margin-bottom: 2rem;
-				}
-			}
-
-			.content {
-				margin-bottom: 8rem;
-			}
-
-			.content :global(h2) {
-				margin-top: 4rem;
-			}
-
-			header {
-				display: flex;
-				flex-direction: column;
-				text-align: center;
-				align-items: center;
-				justify-content: center;
-				gap: 1rem;
-
-				padding-bottom: 2rem;
-				margin-bottom: 2rem;
-				border-bottom: 4px solid var(--theme-divider);
-			}
-
-			.title,
-			.publish-date {
-				margin: 0;
-			}
-
-			.publish-date {
-				color: var(--theme-text-lighter);
-			}
-
-			.title {
-				font-size: 2.25rem;
-				font-weight: 700;
-			}
-		</style>
 	</body>
 </html>
+
+<style>
+	.hero-image {
+		width: 100vw;
+		object-fit: cover;
+		object-position: center;
+		margin-top: 2rem;
+		margin-bottom: 4rem;
+		max-width: 1280px;
+	}
+
+	@media (max-width: 50em) {
+		.hero-image {
+			height: 260px;
+			margin-top: 0;
+			margin-bottom: 2rem;
+		}
+	}
+
+	.content {
+		margin-bottom: 8rem;
+	}
+
+	.content :global(h2) {
+		margin-top: 4rem;
+	}
+
+	header {
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+
+		padding-bottom: 2rem;
+		margin-bottom: 2rem;
+		border-bottom: 4px solid var(--theme-divider);
+	}
+
+	.title,
+	.publish-date {
+		margin: 0;
+	}
+
+	.publish-date {
+		color: var(--theme-text-lighter);
+	}
+
+	.title {
+		font-size: 2.25rem;
+		font-weight: 700;
+	}
+</style>
