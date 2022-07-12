@@ -714,6 +714,14 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/astro/e2e/fixtures/error-sass:
+    specifiers:
+      astro: workspace:*
+      sass: ^1.52.2
+    dependencies:
+      astro: link:../../..
+      sass: 1.53.0
+
   packages/astro/e2e/fixtures/errors:
     specifiers:
       '@astrojs/preact': workspace:*
@@ -1624,14 +1632,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/sass:
-    specifiers:
-      astro: workspace:*
-      sass: ^1.52.2
-    dependencies:
-      astro: link:../../..
-      sass: 1.53.0
 
   packages/astro/test/fixtures/slots-preact:
     specifiers:
