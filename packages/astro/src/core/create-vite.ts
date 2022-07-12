@@ -79,11 +79,6 @@ export async function createVite(
 		define: {
 			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
 		},
-		// fixes HMR for static components
-		// TODO: remove!
-		legacy: {
-			devDepsScanner: true,
-		},
 		server: {
 			hmr:
 				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
