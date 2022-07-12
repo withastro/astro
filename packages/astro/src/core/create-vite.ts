@@ -136,19 +136,24 @@ export async function createVite(
 	return result;
 }
 
-function getPluginName(plugin: vite.PluginOption) {
+function getPluginName(plugin: vite.Plugin) {
 	if (plugin && typeof plugin === 'object' && !Array.isArray(plugin)) {
 		return plugin.name;
 	}
 }
 
+function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
+	return Boolean(plugin?.hasOwnProperty('name'))
+}
+
 function sortPlugins(result: ViteConfigWithSSR) {
+	const plugins = result.plugins?.filter(isVitePlugin) ?? []
 	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
 	const mdxPluginIndex =
-		result.plugins?.findIndex((plugin) => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
+		plugins.findIndex((plugin) => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
 	if (mdxPluginIndex === -1) return;
 	const jsxPluginIndex =
-		result.plugins?.findIndex((plugin) => getPluginName(plugin) === 'astro:jsx') ?? -1;
+		plugins.findIndex((plugin) => getPluginName(plugin) === 'astro:jsx') ?? -1;
 	const mdxPlugin = result.plugins?.[mdxPluginIndex];
 	result.plugins?.splice(mdxPluginIndex, 1);
 	result.plugins?.splice(jsxPluginIndex, 0, mdxPlugin);
