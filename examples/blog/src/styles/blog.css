@@ -108,14 +108,6 @@ body {
 	width: 100%;
 }
 
-.flex-row {
-	--gap: 1rem;
-
-	display: flex;
-	align-items: baseline;
-	gap: var(--gap);
-}
-
 nav ul {
 	list-style: none;
 	padding: 0;
