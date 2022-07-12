@@ -1,6 +1,6 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
 
 export interface Props {
 	content: {
@@ -22,15 +22,15 @@ const {
 <html>
 	<head>
 		<link
-			rel='stylesheet'
-			href='https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-lucario.css'
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-lucario.css"
 		/>
 		<BaseHead title={title} description={description} />
 	</head>
 
 	<body>
 		<Header />
-		<article class='wrapper content'>
+		<article class="wrapper content">
 			<header>
 				{heroImage && (
 					<img
@@ -42,8 +42,8 @@ const {
 						alt={heroImage.alt}
 					/>
 				)}
-				<h1 class='title'>{title}</h1>
-				<p class='publish-date'>{publishDate}</p>
+				<h1 class="title">{title}</h1>
+				<p class="publish-date">{publishDate}</p>
 			</header>
 			<main>
 				<slot></slot>
