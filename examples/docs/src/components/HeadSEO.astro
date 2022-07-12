@@ -1,5 +1,5 @@
 ---
-import { SITE, OPEN_GRAPH } from '../config.ts';
+import { SITE, OPEN_GRAPH } from "../config.ts";
 export interface Props {
 	content: any;
 	site: any;
@@ -22,14 +22,21 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta property="og:locale" content={content.ogLocale ?? SITE.defaultLanguage} />
 <meta property="og:image" content={canonicalImageSrc} />
 <meta property="og:image:alt" content={imageAlt} />
-<meta name="description" property="og:description" content={content.description ? content.description : SITE.description} />
+<meta
+	name="description"
+	property="og:description"
+	content={content.description ? content.description : SITE.description}
+/>
 <meta property="og:site_name" content={SITE.title} />
 
 <!-- Twitter Tags -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content={OPEN_GRAPH.twitter} />
 <meta name="twitter:title" content={formattedContentTitle} />
-<meta name="twitter:description" content={content.description ? content.description : SITE.description} />
+<meta
+	name="twitter:description"
+	content={content.description ? content.description : SITE.description}
+/>
 <meta name="twitter:image" content={canonicalImageSrc} />
 <meta name="twitter:image:alt" content={imageAlt} />
 

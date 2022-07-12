@@ -1,5 +1,17 @@
 # @astrojs/cloudflare
 
+## 0.2.4
+
+### Patch Changes
+
+- [#3885](https://github.com/withastro/astro/pull/3885) [`bf5d1cc1e`](https://github.com/withastro/astro/commit/bf5d1cc1e71da38a14658c615e9481f2145cc6e7) Thanks [@delucis](https://github.com/delucis)! - Integration README fixes
+
+## 0.2.3
+
+### Patch Changes
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
 ## 0.2.2
 
 ### Patch Changes

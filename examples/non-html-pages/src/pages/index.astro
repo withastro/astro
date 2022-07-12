@@ -1,4 +1,3 @@
-
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -12,7 +11,9 @@
 			// can fetch them directly in the browser.
 			const response = await fetch(`/about.json`);
 			const data = await response.json();
-			document.getElementById('result').innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+			document.getElementById(
+				"result"
+			).innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
 		</script>
 	</body>
 </html>

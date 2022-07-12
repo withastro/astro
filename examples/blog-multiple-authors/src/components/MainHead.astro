@@ -1,5 +1,5 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 export interface Props {
 	title: string;
@@ -19,7 +19,10 @@ const { title, description, image, type, next, prev, canonicalURL } = Astro.prop
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="preconnect" href="https://fonts.gstatic.com" />
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+<link
+	href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+	rel="stylesheet"
+/>
 <!-- Sitemap -->
 <link rel="sitemap" href="/sitemap.xml" />
 <!-- RSS -->
@@ -30,17 +33,17 @@ const { title, description, image, type, next, prev, canonicalURL } = Astro.prop
 
 <!-- SEO -->
 <link rel="canonical" href={canonicalURL} />
-{next && <link rel="next" aria-label="Previous Page" href={new URL(next, canonicalURL).href}>}
-{prev && <link rel="prev" aria-label="Next Page" href={new URL(prev, canonicalURL).href}>}
+{next && <link rel="next" aria-label="Previous Page" href={new URL(next, canonicalURL).href} />}
+{prev && <link rel="prev" aria-label="Next Page" href={new URL(prev, canonicalURL).href} />}
 
 <!-- OpenGraph -->
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-{image && (<meta property="og:image" content={new URL(image, canonicalURL)}>)}
+{image && <meta property="og:image" content={new URL(image, canonicalURL)} />}
 
 <!-- Twitter -->
-<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
 <meta name="twitter:site" content="@astro" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
-{image && (<meta name="twitter:image" content={image}>)}
+{image && <meta name="twitter:image" content={image} />}

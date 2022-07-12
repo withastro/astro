@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/prefetch",
   "description": "Faster page navigations by prefetching links when the browser is idle.",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -11,8 +11,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro-prefetch"
   },
+  "keywords": [
+    "astro-integration"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/prefetch/",
   "exports": {
     ".": "./dist/index.js",
     "./client.js": "./dist/client.js",

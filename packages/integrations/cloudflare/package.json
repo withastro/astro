@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare pages functions",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -11,8 +11,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/cloudflare"
   },
+  "keywords": [
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
     "./server.js": "./dist/server.js",

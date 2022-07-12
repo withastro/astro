@@ -515,6 +515,27 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name markdown.mode
+		 * @type {'md' | 'mdx'}
+		 * @default `mdx`
+		 * @description
+		 * Control if markdown processing is done using MDX or not.
+		 *
+		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" markdown processor. This field allows you to control that behavior.
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: Use non-MDX processor for Markdown files
+		 *     mode: 'md',
+		 *   }
+		 * }
+		 * ```
+		 */
+		mode?: 'md' | 'mdx';
+
+		/**
+		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
@@ -585,11 +606,22 @@ export interface AstroUserConfig {
 	};
 
 	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
+	 * @docs
+	 * @kind heading
+	 * @name Adapter
 	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
 	 */
 	adapter?: AstroIntegration;
 
