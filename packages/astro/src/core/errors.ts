@@ -59,8 +59,8 @@ export function fixViteErrorMessage(_err: unknown, server: ViteDevServer, filePa
 			const lns = content.split('\n')
 			const line = lns.findIndex(ln => ln.includes(importName));
 			const column = lns[line].indexOf(importName);
-			if (!err.id) {
-				err.id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`
+			if (!(err as any).id) {
+				(err as any).id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`
 			}
 		}
 	}
