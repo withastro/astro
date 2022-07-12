@@ -43,7 +43,7 @@ const {
 					/>
 				)}
 				<h1 class="title">{title}</h1>
-				<p class="publish-date">{publishDate}</p>
+				<time>{publishDate}</time>
 			</header>
 			<main>
 				<slot></slot>
@@ -92,11 +92,11 @@ const {
 	}
 
 	.title,
-	.publish-date {
+	time {
 		margin: 0;
 	}
 
-	.publish-date {
+	time {
 		color: var(--theme-text-lighter);
 	}
 
