@@ -1,5 +1,14 @@
 # astro
 
+## 1.0.0-beta.68
+
+### Patch Changes
+
+- [#3883](https://github.com/withastro/astro/pull/3883) [`b4cb4a40d`](https://github.com/withastro/astro/commit/b4cb4a40df33b82bcd36e63bd488bd037e94dbc0) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Added "mode" to Astro config file TypeScript definitions
+
+- Updated dependencies [[`c4f6fdf37`](https://github.com/withastro/astro/commit/c4f6fdf3722b9bc2192cab735498f4e0c30c982e)]:
+  - @astrojs/telemetry@0.3.1
+
 ## 1.0.0-beta.67
 
 ### Patch Changes
