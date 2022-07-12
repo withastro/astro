@@ -36,7 +36,6 @@ const {
 					<img
 						width="720"
 						height="420"
-						class="hero-image"
 						loading="lazy"
 						src={heroImage.src}
 						alt={heroImage.alt}
@@ -53,7 +52,7 @@ const {
 </html>
 
 <style>
-	.hero-image {
+	img {
 		width: 100vw;
 		object-fit: cover;
 		object-position: center;
@@ -63,7 +62,7 @@ const {
 	}
 
 	@media (max-width: 50em) {
-		.hero-image {
+		img {
 			height: 260px;
 			margin-top: 0;
 			margin-bottom: 2rem;
