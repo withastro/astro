@@ -7,12 +7,5 @@ export interface Props {
 const { username, href } = Astro.props as Props;
 ---
 
-<div class="author">
-	<p>Follow me <a {href} target="_blank" rel="noreferrer">@{username}</a></p>
-</div>
+<p>Follow me <a {href} target="_blank" rel="noreferrer">@{username}</a></p>
 
-<style>
-	.author {
-		margin-bottom: 0.75rem;
-	}
-</style>
