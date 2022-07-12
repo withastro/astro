@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference types="astro/client" />
 
 interface ImportMetaEnv {
 	readonly DB_PASSWORD: string;

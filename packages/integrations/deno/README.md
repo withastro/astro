@@ -22,13 +22,14 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 ## Installation
 
 First, install the `@astrojs/deno` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+
 ```sh
 npm install @astrojs/deno
 ```
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -51,7 +52,8 @@ import './dist/entry.mjs';
 See the `start` option below for how you can have more control over starting the Astro server.
 
 You can also run the script directly using deno:
-```
+
+```sh
 deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 ```
 
@@ -60,7 +62,8 @@ deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs
 
 To configure this adapter, pass an object to the `deno()` function call in `astro.config.mjs`.
 
-__astro.config.mjs__
+__`astro.config.mjs`__
+
 ```js
 import { defineConfig } from 'astro/config';
 import deno from '@astrojs/deno';
@@ -74,8 +77,6 @@ export default defineConfig({
 
 <details>
   <summary><strong>start</strong></summary>
-  
-  <br/>
 
   This adapter automatically starts a server when it is imported. You can turn this off with the `start` option:
 
@@ -106,8 +107,6 @@ export default defineConfig({
 
 <details>
   <summary><strong>port</strong> and <strong>hostname</strong></summary>
-  
-  <br/>
 
   You can set the port (default: `8085`) and hostname (default: `0.0.0.0`) for the deno server to use. If `start` is false, this has no effect; your own server must configure the port and hostname.
 
@@ -130,10 +129,16 @@ The [Astro Deno](https://github.com/withastro/astro/tree/main/examples/deno) exa
 
 ## Troubleshooting
 
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

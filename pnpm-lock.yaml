@@ -59,14 +59,14 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
-      '@astrojs/preact': ^0.3.2
-      astro: ^1.0.0-beta.65
+      '@astrojs/preact': ^0.4.1
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
     dependencies:
       preact: 10.9.0
@@ -76,8 +76,8 @@ importers:
 
   examples/blog-multiple-authors:
     specifiers:
-      '@astrojs/preact': ^0.3.2
-      astro: ^1.0.0-beta.65
+      '@astrojs/preact': ^0.4.1
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
       sass: ^1.52.2
     dependencies:
@@ -89,14 +89,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -107,12 +107,12 @@ importers:
   examples/docs:
     specifiers:
       '@algolia/client-search': ^4.13.1
-      '@astrojs/preact': ^0.3.2
-      '@astrojs/react': ^0.2.1
+      '@astrojs/preact': ^0.4.1
+      '@astrojs/react': ^0.3.1
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
       '@types/react': ^17.0.45
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -131,14 +131,14 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-alpine:
     specifiers:
       alpinejs: ^3.10.2
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     dependencies:
       alpinejs: 3.10.2
     devDependencies:
@@ -148,7 +148,7 @@ importers:
     specifiers:
       '@astrojs/lit': ^0.3.1
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       lit: ^2.2.5
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
@@ -160,13 +160,13 @@ importers:
   examples/framework-multiple:
     specifiers:
       '@astrojs/lit': ^0.3.1
-      '@astrojs/preact': ^0.3.2
-      '@astrojs/react': ^0.2.1
-      '@astrojs/solid-js': ^0.2.1
-      '@astrojs/svelte': ^0.2.1
-      '@astrojs/vue': ^0.2.1
+      '@astrojs/preact': ^0.4.1
+      '@astrojs/react': ^0.3.1
+      '@astrojs/solid-js': ^0.3.1
+      '@astrojs/svelte': ^0.3.1
+      '@astrojs/vue': ^0.3.1
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       lit: ^2.2.5
       preact: ^10.7.3
       react: ^18.1.0
@@ -194,8 +194,8 @@ importers:
 
   examples/framework-preact:
     specifiers:
-      '@astrojs/preact': ^0.3.2
-      astro: ^1.0.0-beta.65
+      '@astrojs/preact': ^0.4.1
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
     dependencies:
       preact: 10.9.0
@@ -205,10 +205,10 @@ importers:
 
   examples/framework-react:
     specifiers:
-      '@astrojs/react': ^0.2.1
+      '@astrojs/react': ^0.3.1
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -222,8 +222,8 @@ importers:
 
   examples/framework-solid:
     specifiers:
-      '@astrojs/solid-js': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/solid-js': ^0.3.1
+      astro: ^1.0.0-beta.67
       solid-js: ^1.4.3
     dependencies:
       solid-js: 1.4.7
@@ -233,8 +233,8 @@ importers:
 
   examples/framework-svelte:
     specifiers:
-      '@astrojs/svelte': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/svelte': ^0.3.1
+      astro: ^1.0.0-beta.67
       svelte: ^3.48.0
     dependencies:
       svelte: 3.49.0
@@ -244,8 +244,8 @@ importers:
 
   examples/framework-vue:
     specifiers:
-      '@astrojs/vue': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/vue': ^0.3.1
+      astro: ^1.0.0-beta.67
       vue: ^3.2.37
     dependencies:
       vue: 3.2.37
@@ -256,14 +256,14 @@ importers:
   examples/integrations-playground:
     specifiers:
       '@astrojs/lit': ^0.3.1
-      '@astrojs/partytown': ^0.1.7
-      '@astrojs/react': ^0.2.1
-      '@astrojs/sitemap': ^0.2.5
-      '@astrojs/solid-js': 0.2.1
-      '@astrojs/tailwind': ^0.2.3
+      '@astrojs/partytown': ^0.1.8
+      '@astrojs/react': ^0.3.1
+      '@astrojs/sitemap': ^0.2.6
+      '@astrojs/solid-js': 0.3.1
+      '@astrojs/tailwind': ^0.2.4
       '@astrojs/turbolinks': ^0.1.4
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       lit: ^2.2.5
       preact: ^10.7.3
       react: ^18.1.0
@@ -292,20 +292,20 @@ importers:
 
   examples/minimal:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
-      '@astrojs/preact': ^0.3.2
-      astro: ^1.0.0-beta.65
+      '@astrojs/preact': ^0.4.1
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
       sass: ^1.52.2
     dependencies:
@@ -317,9 +317,9 @@ importers:
 
   examples/ssr:
     specifiers:
-      '@astrojs/node': ^0.1.5
-      '@astrojs/svelte': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/node': ^0.1.6
+      '@astrojs/svelte': ^0.3.1
+      astro: ^1.0.0-beta.67
       concurrently: ^7.2.1
       lightcookie: ^1.0.25
       svelte: ^3.48.0
@@ -338,14 +338,14 @@ importers:
 
   examples/starter:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
     devDependencies:
       astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
-      '@astrojs/react': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/react': ^0.3.1
+      astro: ^1.0.0-beta.67
       react: ^18.1.0
       react-dom: ^18.1.0
       sass: ^1.52.2
@@ -359,12 +359,12 @@ importers:
 
   examples/with-markdown:
     specifiers:
-      '@astrojs/markdown-remark': ^0.11.3
-      '@astrojs/preact': ^0.3.2
-      '@astrojs/react': ^0.2.1
-      '@astrojs/svelte': ^0.2.1
-      '@astrojs/vue': ^0.2.1
-      astro: ^1.0.0-beta.65
+      '@astrojs/markdown-remark': ^0.11.5
+      '@astrojs/preact': ^0.4.1
+      '@astrojs/react': ^0.3.1
+      '@astrojs/svelte': ^0.3.1
+      '@astrojs/vue': ^0.3.1
+      astro: ^1.0.0-beta.67
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -386,8 +386,8 @@ importers:
 
   examples/with-markdown-plugins:
     specifiers:
-      '@astrojs/markdown-remark': ^0.11.3
-      astro: ^1.0.0-beta.65
+      '@astrojs/markdown-remark': ^0.11.5
+      astro: ^1.0.0-beta.67
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -404,17 +404,17 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      '@astrojs/markdown-remark': ^0.11.3
-      astro: ^1.0.0-beta.65
+      '@astrojs/markdown-remark': ^0.11.5
+      astro: ^1.0.0-beta.67
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.0.3
-      '@astrojs/preact': ^0.3.2
-      astro: ^1.0.0-beta.65
+      '@astrojs/mdx': ^0.1.1
+      '@astrojs/preact': ^0.4.1
+      astro: ^1.0.0-beta.67
       preact: ^10.6.5
     devDependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -424,43 +424,23 @@ importers:
 
   examples/with-nanostores:
     specifiers:
-      '@astrojs/preact': ^0.3.2
-      '@astrojs/react': ^0.2.1
-      '@astrojs/solid-js': ^0.2.1
-      '@astrojs/svelte': ^0.2.1
-      '@astrojs/vue': ^0.2.1
+      '@astrojs/preact': ^0.4.1
       '@nanostores/preact': ^0.1.3
-      '@nanostores/react': ^0.1.5
-      '@nanostores/vue': ^0.4.1
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       nanostores: ^0.5.12
       preact: ^10.7.3
-      react: ^18.1.0
-      react-dom: ^18.1.0
-      solid-nanostores: 0.0.6
-      vue: ^3.2.37
     dependencies:
       '@nanostores/preact': 0.1.3_yorvncwmul77jqfpi57ixjptpa
-      '@nanostores/react': 0.1.5_3iuy2wepgz3w53kxsavf2p7rzm
-      '@nanostores/vue': 0.4.1_ympl27tda4o7w6en7idglmssei
       nanostores: 0.5.12
       preact: 10.9.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      solid-nanostores: 0.0.6
-      vue: 3.2.37
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
-      '@astrojs/react': link:../../packages/integrations/react
-      '@astrojs/solid-js': link:../../packages/integrations/solid
-      '@astrojs/svelte': link:../../packages/integrations/svelte
-      '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
 
   examples/with-tailwindcss:
     specifiers:
-      '@astrojs/tailwind': ^0.2.3
-      astro: ^1.0.0-beta.65
+      '@astrojs/tailwind': ^0.2.4
+      astro: ^1.0.0-beta.67
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -475,7 +455,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.0.0-beta.65
+      astro: ^1.0.0-beta.67
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     devDependencies:
@@ -485,11 +465,11 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.18.0
+      '@astrojs/compiler': ^0.18.2
       '@astrojs/language-server': ^0.13.4
-      '@astrojs/markdown-remark': ^0.11.3
-      '@astrojs/prism': 0.4.1
-      '@astrojs/telemetry': ^0.2.5
+      '@astrojs/markdown-remark': ^0.11.5
+      '@astrojs/prism': 0.5.0
+      '@astrojs/telemetry': ^0.3.0
       '@astrojs/webapi': ^0.12.0
       '@babel/core': ^7.18.2
       '@babel/generator': ^7.18.2
@@ -535,6 +515,7 @@ importers:
       estree-walker: ^3.0.1
       execa: ^6.1.0
       fast-glob: ^3.2.11
+      github-slugger: ^1.4.0
       gray-matter: ^4.0.3
       html-entities: ^2.3.3
       html-escaper: ^3.0.3
@@ -569,7 +550,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.18.0
+      '@astrojs/compiler': 0.18.2
       '@astrojs/language-server': 0.13.4
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -595,6 +576,7 @@ importers:
       estree-walker: 3.0.1
       execa: 6.1.0
       fast-glob: 3.2.11
+      github-slugger: 1.4.0
       gray-matter: 4.0.3
       html-entities: 2.3.3
       html-escaper: 3.0.3
@@ -1822,6 +1804,12 @@ importers:
       postcss: 8.4.14
       tailwindcss: 3.1.5
 
+  packages/astro/test/fixtures/virtual-astro-file:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/vue-component:
     specifiers:
       '@astrojs/vue': workspace:*
@@ -2258,7 +2246,7 @@ importers:
   packages/markdown/remark:
     specifiers:
       '@astrojs/micromark-extension-mdx-jsx': ^1.0.3
-      '@astrojs/prism': ^0.4.1
+      '@astrojs/prism': ^0.5.0
       '@types/chai': ^4.3.1
       '@types/github-slugger': ^1.3.0
       '@types/hast': ^2.3.4
@@ -2340,8 +2328,6 @@ importers:
       debug: ^4.3.4
       dlv: ^1.1.3
       dset: ^3.1.2
-      escalade: ^3.1.1
-      git-up: ^4.0.5
       is-docker: ^3.0.0
       is-wsl: ^2.2.0
       node-fetch: ^3.2.5
@@ -2351,8 +2337,6 @@ importers:
       debug: 4.3.4
       dlv: 1.1.3
       dset: 3.1.2
-      escalade: 3.1.1
-      git-up: 4.0.5
       is-docker: 3.0.0
       is-wsl: 2.2.0
       node-fetch: 3.2.6
@@ -2656,8 +2640,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.18.0:
-    resolution: {integrity: sha512-iBX4Fm5FwAnDLJcnH6DII41lla6iLX3gSabZ884P5TuG+CxL3fEew9gZ6AhTUnpyNXuyuYb6+xWQPQdNA9KsXA==}
+  /@astrojs/compiler/0.18.2:
+    resolution: {integrity: sha512-R2lOpaif3hDju2/sE6OrKvnTMgrcLRJw+jAVih9pLA2ATgy2EnhYMhflRk1vQ6+YwuhyL6Lj/dRJFXgB7r70eg==}
     dev: false
 
   /@astrojs/language-server/0.13.4:
@@ -4747,34 +4731,6 @@ packages:
     dependencies:
       nanostores: 0.5.12
       preact: 10.9.0
-    dev: false
-
-  /@nanostores/react/0.1.5_3iuy2wepgz3w53kxsavf2p7rzm:
-    resolution: {integrity: sha512-1XEsszpCDcxNeX21QJ+4mFROdn45ulahJ9oLJEo0IA2HZPkwfjSzG+iSXImqFU5nzo0earvlD09z4C9olf8Sxw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    peerDependencies:
-      nanostores: ^0.5.2
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      nanostores: 0.5.12
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    dev: false
-
-  /@nanostores/vue/0.4.1_ympl27tda4o7w6en7idglmssei:
-    resolution: {integrity: sha512-b0nNzKD2fTi8R48Jrlg6j+/InPH9r1HOl0iOnpNmL84BOxl+jQnbgyzNlf+3VWAEQSD955hJ/HTl/N1bjJSz5g==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    peerDependencies:
-      '@vue/devtools-api': '>=6.0.0-beta.20'
-      nanostores: ^0.5.6
-      vue: '>=3.2.0'
-    peerDependenciesMeta:
-      '@vue/devtools-api':
-        optional: true
-    dependencies:
-      nanostores: 0.5.12
-      vue: 3.2.37
     dev: false
 
   /@netlify/edge-handler-types/0.34.1:
@@ -9045,11 +9001,6 @@ packages:
       character-entities: 2.0.2
     dev: false
 
-  /decode-uri-component/0.2.0:
-    resolution: {integrity: sha512-hjf+xovcEn31w/EUYdTXQh/8smFL/dzYjohQGEIgjyNavaJfBY2p5F527Bo1VPATxv0VYTUC2bOcXvqFwk78Og==}
-    engines: {node: '>=0.10'}
-    dev: false
-
   /decompress-response/6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
     engines: {node: '>=10'}
@@ -9935,11 +9886,6 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
 
-  /filter-obj/1.1.0:
-    resolution: {integrity: sha512-8rXg1ZnX7xzy2NGDVkBVaAy+lSlPNwad13BtgSlLuxfIslyt5Vg64U7tFcCt4WS1R0hvtnQybT/IyCkGZ3DpXQ==}
-    engines: {node: '>=0.10.0'}
-    dev: false
-
   /find-babel-config/1.2.0:
     resolution: {integrity: sha512-jB2CHJeqy6a820ssiqwrKMeyC6nNdmrcgkKWJWmpoxpE8RKciYJXCcXRq1h2AzCo5I5BJeN2tkGEO3hLTuePRA==}
     engines: {node: '>=4.0.0'}
@@ -10164,13 +10110,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /git-up/4.0.5:
-    resolution: {integrity: sha512-YUvVDg/vX3d0syBsk/CKUTib0srcQME0JyHkL5BaYdwLsiCslPWmDSi8PUMo9pXYjrryMcmsCoCgsTpSCJEQaA==}
-    dependencies:
-      is-ssh: 1.4.0
-      parse-url: 6.0.2
-    dev: false
 
   /github-from-package/0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -10899,12 +10838,6 @@ packages:
     resolution: {integrity: sha512-sqN2UDu1/0y6uvXyStCOzyhAjCSlHceFoMKJW8W9EU9cvic/QdsZ0kEU93HEy3IUEFZIiH/3w+AH/UQbPHNdhA==}
     dependencies:
       call-bind: 1.0.2
-
-  /is-ssh/1.4.0:
-    resolution: {integrity: sha512-x7+VxdxOdlV3CYpjvRLBv5Lo9OJerlYanjwFrPR9fuGPjCiNiCzFgAWpiLAohSbsnH4ZAys3SBh+hq5rJosxUQ==}
-    dependencies:
-      protocols: 2.0.1
-    dev: false
 
   /is-stream/2.0.1:
     resolution: {integrity: sha512-hFoiJiTl63nn+kstHGBtewWSKnQLpyb155KHheA1l39uvtO9nWIop1p3udqPcUd/xbF1VLMO4n7OI6p7RbngDg==}
@@ -12170,11 +12103,6 @@ packages:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
 
-  /normalize-url/6.1.0:
-    resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
-    engines: {node: '>=10'}
-    dev: false
-
   /not/0.1.0:
     resolution: {integrity: sha512-5PDmaAsVfnWUgTUbJ3ERwn7u79Z0dYxN9ErxCpVJJqe2RK0PJ3z+iFUxuqjwtlDDegXvtWoxD/3Fzxox7tFGWA==}
 
@@ -12472,24 +12400,6 @@ packages:
       nlcst-to-string: 2.0.4
       unist-util-modify-children: 2.0.0
       unist-util-visit-children: 1.1.4
-    dev: false
-
-  /parse-path/4.0.4:
-    resolution: {integrity: sha512-Z2lWUis7jlmXC1jeOG9giRO2+FsuyNipeQ43HAjqAZjwSe3SEf+q/84FGPHoso3kyntbxa4c4i77t3m6fGf8cw==}
-    dependencies:
-      is-ssh: 1.4.0
-      protocols: 1.4.8
-      qs: 6.11.0
-      query-string: 6.14.1
-    dev: false
-
-  /parse-url/6.0.2:
-    resolution: {integrity: sha512-uCSjOvD3T+6B/sPWhR+QowAZcU/o4bjPrVBQBGFxcDF6J6FraCGIaDBsdoQawiaaAVdHvtqBe3w3vKlfBKySOQ==}
-    dependencies:
-      is-ssh: 1.4.0
-      normalize-url: 6.1.0
-      parse-path: 4.0.4
-      protocols: 1.4.8
     dev: false
 
   /parse5-htmlparser2-tree-adapter/7.0.0:
@@ -13140,14 +13050,6 @@ packages:
   /property-information/6.1.1:
     resolution: {integrity: sha512-hrzC564QIl0r0vy4l6MvRLhafmUowhO/O3KgVSoXIbbA2Sz4j8HGpJc6T2cubRVwMwpdiG/vKGfhT4IixmKN9w==}
 
-  /protocols/1.4.8:
-    resolution: {integrity: sha512-IgjKyaUSjsROSO8/D49Ab7hP8mJgTYcqApOqdPhLoPxAplXmkp+zRvsrSQjFn5by0rhm4VH0GAUELIPpx7B1yg==}
-    dev: false
-
-  /protocols/2.0.1:
-    resolution: {integrity: sha512-/XJ368cyBJ7fzLMwLKv1e4vLxOju2MNAIokcr7meSaNcVbWz/CPcW22cP04mwxOErdA5mwjA8Q6w/cdAQxVn7Q==}
-    dev: false
-
   /proxy-agent/5.0.0:
     resolution: {integrity: sha512-gkH7BkvLVkSfX9Dk27W6TyNOWWZWRilRfk1XxGNWOYJ2TuedAv1yFpCaU9QSBmBe716XOTNpYNOzhysyw8xn7g==}
     engines: {node: '>= 8'}
@@ -13182,23 +13084,6 @@ packages:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
     engines: {node: '>=6'}
     dev: true
-
-  /qs/6.11.0:
-    resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.0.4
-    dev: false
-
-  /query-string/6.14.1:
-    resolution: {integrity: sha512-XDxAeVmpfu1/6IjyT/gXHOl+S0vQ9owggJ30hhWKdHAsNPOcasn5o9BW0eejZqL2e4vMjhAxoW3jVHcD6mbcYw==}
-    engines: {node: '>=6'}
-    dependencies:
-      decode-uri-component: 0.2.0
-      filter-obj: 1.1.0
-      split-on-first: 1.1.0
-      strict-uri-encode: 2.0.0
-    dev: false
 
   /queue-microtask/1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -13920,13 +13805,6 @@ packages:
   /solid-js/1.4.7:
     resolution: {integrity: sha512-u3hoe5w3xseAc/8zLwYaQVGanWXknMMQkzryNz7lOPy2ygW6DhCtfMseun4kLflRNRzrUUpTV3W5p7j2SGcHCQ==}
 
-  /solid-nanostores/0.0.6:
-    resolution: {integrity: sha512-iwbgdBzQSxBKoxkzaZgC9MGGUsHWJ74at9i7FF0naoqtwGuKdLYOgOJ9QRlA353DHDS/ttH2e0SRS6s3gz8NLQ==}
-    dependencies:
-      nanostores: 0.5.12
-      solid-js: 1.4.7
-    dev: false
-
   /sorcery/0.10.0:
     resolution: {integrity: sha512-R5ocFmKZQFfSTstfOtHjJuAwbpGyf9qjQa1egyhvXSbM7emjrtLXtGdZsDJDABC85YBfVvrOiGWKSYXPKdvP1g==}
     hasBin: true
@@ -14003,11 +13881,6 @@ packages:
     resolution: {integrity: sha512-Ctl2BrFiM0X3MANYgj3CkygxhRmr9mi6xhejbdO960nF6EDJApTYpn0BQnDKlnNBULKiCN1n3w9EBkHK8ZWg+g==}
     dev: true
 
-  /split-on-first/1.1.0:
-    resolution: {integrity: sha512-43ZssAJaMusuKWL8sKUBQXHWOpq8d6CfN/u1p4gUzfJkM05C8rxTmYrkIPTXapZpORA6LkkzcUulJ8FqA7Uudw==}
-    engines: {node: '>=6'}
-    dev: false
-
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
@@ -14025,11 +13898,6 @@ packages:
     dependencies:
       mixme: 0.5.4
     dev: true
-
-  /strict-uri-encode/2.0.0:
-    resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
-    engines: {node: '>=4'}
-    dev: false
 
   /string-width/1.0.2:
     resolution: {integrity: sha512-0XsVpQLnVCXHJfyEs8tC0zpTVIr5PKKsQtkT29IwupnPTjtPmQ3xT/4yCREF9hYkV/3M3kzcUTSAZT6a6h81tw==}

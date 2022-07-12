@@ -1,50 +1,48 @@
 ---
-// Style Imports
-import "../styles/global.css";
-import "../styles/home.css";
+import type { CartItemDisplayInfo } from '../cartStore';
+import Layout from '../layouts/Layout.astro';
+import AddToCartForm from '../components/AddToCartForm';
+import FigurineDescription from '../components/FigurineDescription.astro';
 
-// Component Imports
-import AdminsReact from "../components/AdminsReact.jsx";
-import AdminsSvelte from "../components/AdminsSvelte.svelte";
-import AdminsVue from "../components/AdminsVue.vue";
-import AdminsSolid from "../components/AdminsSolid.jsx";
-
-// Full Astro Component Syntax:
-// https://docs.astro.build/core-concepts/astro-components/
+const item: CartItemDisplayInfo = {
+	id: 'astronaut-figurine',
+	name: 'Astronaut Figurine',
+	imageSrc: '/images/astronaut-figurine.png',
+};
 ---
+<Layout title={item.name}>
+	<main>
+		<div class="product-layout">
+			<div>
+				<FigurineDescription />
+				<AddToCartForm item={item} client:load>
+					<button type="submit">Add to cart</button>
+				</AddToCartForm>
+			</div>
+			<img src={item.imageSrc} alt={item.name} />
+		</div>
+	</main>
+</Layout>
 
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>Astro</title>
+<style>
+	main {
+		margin: auto;
+		padding: 1em;
+		max-width: var(--content-max-width);
+	}
 
-		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	.product-layout {
+		display: grid;
+		gap: 2rem;
+		grid-template-columns: repeat(auto-fit, minmax(20rem, max-content));
+	}
 
-		<style>
-			header {
-				display: flex;
-				flex-direction: column;
-				gap: 1em;
-				max-width: min(100%, 68ch);
-			}
-		</style>
-	</head>
-	<body>
-		<main>
-			<header>
-				<div>
-					<img width="60" height="80" src="/assets/logo.svg" alt="Astro logo" />
-					<h1>
-						Welcome to <a href="https://astro.build/">Astro</a> -
-						<a href="https://github.com/nanostores/nanostores">nanostores</a>
-					</h1>
-				</div>
-			</header>
-			<AdminsReact client:load />
-			<AdminsSvelte client:load />
-			<AdminsVue client:load />
-			<AdminsSolid client:load />
-		</main>
-	</body>
-</html>
+	.product-layout img {
+		width: 100%;
+		max-width: 26rem;
+	}
+
+	button[type="submit"] {
+		margin-block-start: 1rem;
+	}
+</style>

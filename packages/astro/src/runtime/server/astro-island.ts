@@ -42,7 +42,7 @@ declare const Astro: {
 				public hydrator: any;
 				static observedAttributes = ['props'];
 				connectedCallback() {
-					if (!this.getAttribute('await-children') || this.firstChild) {
+					if (!this.hasAttribute('await-children') || this.firstChild) {
 						this.childrenConnectedCallback();
 					} else {
 						// connectedCallback may run *before* children are rendered (ex. HTML streaming)

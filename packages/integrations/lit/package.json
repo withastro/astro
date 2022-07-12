@@ -18,7 +18,7 @@
     "lit"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/lit/",
   "exports": {
     ".": "./dist/index.js",
     "./server.js": "./server.js",

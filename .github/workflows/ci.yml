@@ -180,16 +180,21 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         node_version: [14]
     steps:
-      - name: Checkout
+      - name: Checkout docs
         uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          repository: withastro/docs
 
-      - name: Update submodules
-        run: git submodule update --remote
+      - name: Checkout astro.build
+        uses: actions/checkout@v3
+        with:
+          repository: withastro/astro.build
+
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
@@ -201,7 +206,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
       - name: Build Packages
         run: pnpm run build

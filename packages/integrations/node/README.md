@@ -6,7 +6,6 @@ This adapter allows Astro to deploy your SSR site to Node targets.
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
-- <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong> 
@@ -23,13 +22,14 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 ## Installation
 
 First, install the `@astrojs/node` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+
 ```sh
 npm install @astrojs/node
 ```
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -96,14 +96,18 @@ http.createServer(function(req, res) {
 
 This adapter does not expose any configuration options.
 
-## Examples
-
 ## Troubleshooting
+
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/

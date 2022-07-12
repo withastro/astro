@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-beta.65",
+  "version": "1.0.0-beta.67",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -26,6 +26,7 @@
   "exports": {
     ".": "./astro.js",
     "./env": "./env.d.ts",
+    "./client": "./client.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
@@ -63,6 +64,7 @@
     "config.d.ts",
     "config.mjs",
     "env.d.ts",
+    "client.d.ts",
     "astro-jsx.d.ts",
     "README.md",
     "vendor"
@@ -80,18 +82,18 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.18.0",
+    "@astrojs/compiler": "^0.18.2",
     "@astrojs/language-server": "^0.13.4",
-    "@astrojs/markdown-remark": "^0.11.3",
-    "@astrojs/prism": "0.4.1",
-    "@astrojs/telemetry": "^0.2.5",
+    "@astrojs/markdown-remark": "^0.11.5",
+    "@astrojs/prism": "0.5.0",
+    "@astrojs/telemetry": "^0.3.0",
     "@astrojs/webapi": "^0.12.0",
     "@babel/core": "^7.18.2",
-    "@babel/types": "^7.18.4",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",
     "@babel/plugin-transform-react-jsx": "^7.17.12",
     "@babel/traverse": "^7.18.2",
+    "@babel/types": "^7.18.4",
     "@proload/core": "^0.3.2",
     "@proload/plugin-tsm": "^0.2.1",
     "ast-types": "^0.14.2",
@@ -106,6 +108,7 @@
     "estree-walker": "^3.0.1",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
+    "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
     "html-entities": "^2.3.3",
     "html-escaper": "^3.0.3",
@@ -167,7 +170,7 @@
     "srcset-parse": "^1.1.0"
   },
   "engines": {
-    "node": "^14.15.0 || >=16.0.0",
+    "node": "^14.20.0 || >=16.16.0",
     "npm": ">=6.14.0"
   }
 }

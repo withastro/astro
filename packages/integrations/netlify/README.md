@@ -30,7 +30,7 @@ npm install @astrojs/netlify
 
 Then, install this adapter in your `astro.config.*` file using the `adapter` property. Note: there are two different adapters, one for Netlify Functions and one for Edge Functions. See [Edge Functions](#edge-functions) below on importing the latter.
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -62,7 +62,7 @@ After [performing a build](https://docs.astro.build/en/guides/deploy/#building-y
 
 Now you can deploy. Install the [Netlify CLI](https://docs.netlify.com/cli/get-started/) and run:
 
-```shell
+```sh
 netlify deploy --build
 ```
 
@@ -75,8 +75,6 @@ To configure this adapter, pass an object to the `netlify()` function call in `a
 
 <details>
   <summary><strong>dist</strong></summary>
-  
-  <br/>
 
 We build to the `dist` directory at the base of your project. To change this, use the `dist` option:
 
@@ -115,14 +113,14 @@ We check for common mime types for audio, image, and video files. To include spe
 import fs from 'node:fs';
 
 export function get() {
-	const buffer = fs.readFileSync('../image.jpg');
+  const buffer = fs.readFileSync('../image.jpg');
 
   // Return the buffer directly, @astrojs/netlify will base64 encode the body
   return new Response(buffer, {
     status: 200,
-		headers: {
-			'content-type': 'image/jpeg'
-		}
+    headers: {
+      'content-type': 'image/jpeg'
+    }
   });
 }
 ```
@@ -136,11 +134,17 @@ export function get() {
 
 ## Troubleshooting
 
+For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 ## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a history of changes to this integration.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 
