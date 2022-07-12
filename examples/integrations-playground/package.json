@@ -10,13 +10,13 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.3.1",
-    "@astrojs/partytown": "^0.1.7",
-    "@astrojs/react": "^0.3.0",
-    "@astrojs/sitemap": "^0.2.5",
-    "@astrojs/solid-js": "0.3.0",
-    "@astrojs/tailwind": "^0.2.3",
+    "@astrojs/partytown": "^0.1.8",
+    "@astrojs/react": "^0.3.1",
+    "@astrojs/sitemap": "^0.2.6",
+    "@astrojs/solid-js": "0.3.1",
+    "@astrojs/tailwind": "^0.2.4",
     "@astrojs/turbolinks": "^0.1.4",
-    "astro": "^1.0.0-beta.66",
+    "astro": "^1.0.0-beta.67",
     "solid-js": "^1.4.3"
   },
   "dependencies": {

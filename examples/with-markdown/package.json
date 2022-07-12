@@ -9,12 +9,12 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.11.4",
-    "@astrojs/preact": "^0.4.0",
-    "@astrojs/react": "^0.3.0",
-    "@astrojs/svelte": "^0.3.0",
-    "@astrojs/vue": "^0.3.0",
-    "astro": "^1.0.0-beta.66"
+    "@astrojs/markdown-remark": "^0.11.5",
+    "@astrojs/preact": "^0.4.1",
+    "@astrojs/react": "^0.3.1",
+    "@astrojs/svelte": "^0.3.1",
+    "@astrojs/vue": "^0.3.1",
+    "astro": "^1.0.0-beta.67"
   },
   "dependencies": {
     "preact": "^10.7.3",

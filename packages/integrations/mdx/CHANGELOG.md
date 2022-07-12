@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.1.1
+
+### Patch Changes
+
+- [#3885](https://github.com/withastro/astro/pull/3885) [`bf5d1cc1e`](https://github.com/withastro/astro/commit/bf5d1cc1e71da38a14658c615e9481f2145cc6e7) Thanks [@delucis](https://github.com/delucis)! - Integration README fixes
+
 ## 0.1.0
 
 ### Minor Changes
