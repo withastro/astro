@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.69
+
+### Patch Changes
+
+- [#3830](https://github.com/withastro/astro/pull/3830) [`4097f0622`](https://github.com/withastro/astro/commit/4097f06226ab393280658e81c258593bc41452fe) Thanks [@delucis](https://github.com/delucis)! - Update funding link in README
+
+* [#3880](https://github.com/withastro/astro/pull/3880) [`402c4181d`](https://github.com/withastro/astro/commit/402c4181dcea8f7b741061452746f304cb952d77) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Fix rendering HTML comments in `mode="md"` configuration
+
 ## 1.0.0-beta.68
 
 ### Patch Changes
