@@ -76,7 +76,7 @@
     "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js --ignore **/errors.test.js && mocha --timeout 20000 **/lit-element.test.js && mocha --timeout 20000 **/errors.test.js",
+    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
