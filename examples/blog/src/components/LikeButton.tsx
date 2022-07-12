@@ -1,6 +1,10 @@
 import { useState } from "preact/hooks";
 
-export default function LikeButton({ pageUrl }) {
+interface Props {
+	pageUrl: string;
+};
+
+export default function LikeButton({ pageUrl }: Props) {
 	const persistedLike = localStorage.getItem(`liked-${pageUrl}`);
 	const [liked, setLiked] = useState(persistedLike ? JSON.parse(persistedLike) : false);
 
