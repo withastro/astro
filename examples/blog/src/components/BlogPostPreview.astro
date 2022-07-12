@@ -11,7 +11,7 @@ const { title, description, publishDate, url } = Astro.props as Props;
 
 <article class="post-preview">
 	<header>
-		<p class="publish-date">{publishDate}</p>
+		<time>{publishDate}</time>
 		<a href={url}><h1 class="title">{title}</h1></a>
 	</header>
 	<p>{description}</p>
@@ -26,11 +26,11 @@ const { title, description, publishDate, url } = Astro.props as Props;
 	}
 
 	.title,
-	.publish-date {
+	time {
 		margin: 0;
 	}
 
-	.publish-date {
+	time {
 		font-size: 1.25rem;
 		color: var(--theme-text-lighter);
 	}
