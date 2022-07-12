@@ -546,7 +546,6 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      utfstring: ^2.0.2
       vite: ^2.9.14
       yargs-parser: ^21.0.1
       zod: ^3.17.3
@@ -605,7 +604,6 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      utfstring: 2.0.2
       vite: 2.9.14_sass@1.53.0
       yargs-parser: 21.0.1
       zod: 3.17.3
@@ -14821,10 +14819,6 @@ packages:
   /urlpattern-polyfill/1.0.0-rc5:
     resolution: {integrity: sha512-OxVmQLKMQbDZX1m8Ljuf26rzMUJ7lm3cnBAicqrB0qmo1qb/koH7EXayeHiZdiyc6Z0OnaHETW2JCoVHgTnGGA==}
     dev: true
-
-  /utfstring/2.0.2:
-    resolution: {integrity: sha512-dlLwDU6nUrUVsUbA3bUQ6LzRpt8cmJFNCarbESKFqZGMdivOFmzapOlQq54ifHXB9zgR00lKpcpCo6CITG2bjQ==}
-    dev: false
 
   /util-deprecate/1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
