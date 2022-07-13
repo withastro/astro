@@ -1087,6 +1087,18 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-check-errors:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-check-no-errors:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-children:
     specifiers:
       '@astrojs/preact': workspace:*
