@@ -466,7 +466,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.18.2
-      '@astrojs/language-server': ^0.19.4
+      '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^0.11.5
       '@astrojs/prism': 0.5.0
       '@astrojs/telemetry': ^0.3.0
@@ -551,7 +551,7 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@astrojs/compiler': 0.18.2
-      '@astrojs/language-server': 0.19.4
+      '@astrojs/language-server': 0.20.0
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
       '@astrojs/telemetry': link:../telemetry
@@ -2644,14 +2644,11 @@ packages:
     resolution: {integrity: sha512-R2lOpaif3hDju2/sE6OrKvnTMgrcLRJw+jAVih9pLA2ATgy2EnhYMhflRk1vQ6+YwuhyL6Lj/dRJFXgB7r70eg==}
     dev: false
 
-  /@astrojs/language-server/0.19.4:
-    resolution: {integrity: sha512-Po+/gLyetY2jka4x3jheQTGtD5hVOm6krGlv39ZdNNlQudcO9YuZhKgDa5BafRJb21DgFcH2BLb6lM7mR/fqHw==}
+  /@astrojs/language-server/0.20.0:
+    resolution: {integrity: sha512-A2zWnlZLcDtHISX18+f91pzTfz0SsZVvbcIDPQAVHk5ErpvdGEhJSEHhqY+wif5OXP37l+CVLVSnGzdmiXl5wg==}
     hasBin: true
     dependencies:
-      '@astrojs/svelte-language-integration': 0.1.6_typescript@4.6.4
-      '@astrojs/vue-language-integration': 0.1.1
       '@vscode/emmet-helper': 2.8.4
-      lodash: 4.17.21
       source-map: 0.7.4
       typescript: 4.6.4
       vscode-css-languageservice: 6.0.1
@@ -2675,22 +2672,6 @@ packages:
       micromark-util-types: 1.0.2
       uvu: 0.5.6
       vfile-message: 3.1.2
-    dev: false
-
-  /@astrojs/svelte-language-integration/0.1.6_typescript@4.6.4:
-    resolution: {integrity: sha512-nqczE674kz7GheKSWQwTOL6+NGHghc4INQox048UyHJRaIKHEbCPyFLDBDVY7QJH0jug1komCJ8OZXUn6Z3eLA==}
-    dependencies:
-      svelte: 3.49.0
-      svelte2tsx: 0.5.11_ueozcsexptisi2awlbuwt6eqmq
-    transitivePeerDependencies:
-      - typescript
-    dev: false
-
-  /@astrojs/vue-language-integration/0.1.1:
-    resolution: {integrity: sha512-MPnZO41txVXkZWgN6UtI8ysFViBiCurRchsE/eZ2KFyQLQwB0rOk+FN7aeIIKOigV+Kosbwai50beuztkI4v/A==}
-    dependencies:
-      '@vue/compiler-sfc': 3.2.37
-      '@vue/runtime-core': 3.2.37
     dev: false
 
   /@babel/code-frame/7.18.6:
@@ -11166,6 +11147,7 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
 
   /log-symbols/4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -14169,21 +14151,6 @@ packages:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
       svelte: 3.49.0
-    dev: false
-
-  /svelte2tsx/0.5.11_ueozcsexptisi2awlbuwt6eqmq:
-    resolution: {integrity: sha512-Is95G1wqNvEUJZ9DITRS2zfMwVJRZztMduPs1vJJ0cm65WUg/avBl5vBXjHycQL/qmFpaqa3NG4qWnf7bCHPag==}
-    peerDependencies:
-      svelte: ^3.24
-      typescript: ^4.1.2
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      dedent-js: 1.0.1
-      pascal-case: 3.1.2
-      svelte: 3.49.0
-      typescript: 4.6.4
     dev: false
 
   /tailwindcss/3.1.5:
