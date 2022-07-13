@@ -123,4 +123,24 @@ describe('rss', () => {
 			).to.be.rejected;
 		});
 	});
+
+	describe('errors', () => {
+		it('should provide a good error message when a link is not provided', async () => {
+			try {
+				await rss({
+					title: 'Your Website Title',
+					description: 'Your Website Description',
+					site: 'https://astro-demo',
+					items: [{
+						pubDate: new Date(),
+						title: 'Some title',
+						slug: 'foo'
+					}]
+				});
+				chai.expect(false).to.equal(true, 'Should have errored');
+			} catch(err) {
+				chai.expect(err.message).to.contain('Required field [link] is missing');
+			}
+		});
+	})
 });

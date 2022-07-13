@@ -113,6 +113,7 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	if (typeof rssOptions.customData === 'string') xml += rssOptions.customData;
 	// items
 	for (const result of items) {
+		validate(result);
 		xml += `<item>`;
 		xml += `<title><![CDATA[${result.title}]]></title>`;
 		// If the item's link is already a valid URL, don't mess with it.
@@ -145,4 +146,15 @@ export async function generateRSS({ rssOptions, items }: GenerateRSSArgs): Promi
 	}
 
 	return xml;
+}
+
+const requiredFields = Object.freeze(['link', 'title']);
+
+// Perform validation to make sure all required fields are passed.
+function validate(item: RSSFeedItem) {
+	for(const field of requiredFields) {
+		if(!(field in item)) {
+			throw new Error(`@astrojs/rss: Required field [${field}] is missing. RSS cannot be generated without it.`);
+		}
+	}
 }
