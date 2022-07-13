@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.19.6
+
+### Patch Changes
+
+- 4c1045d: Empty changeset because publish failed
+
 ## 0.19.5
 
 ### Patch Changes
