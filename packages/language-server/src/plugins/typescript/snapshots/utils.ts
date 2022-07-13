@@ -4,9 +4,8 @@ import astro2tsx from '../astro2tsx';
 import { URI, Utils } from 'vscode-uri';
 import { FrameworkExt, getFrameworkFromFilePath, isAstroFilePath, isFrameworkFilePath } from '../utils';
 import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
-import { toTSX as svelte2tsx } from '@astrojs/svelte-language-integration';
-import { toTSX as vue2tsx } from '@astrojs/vue-language-integration';
 import { toPascalCase } from '../../../utils';
+import { importSvelteIntegration, importVueIntegration } from '../../../importPackage';
 
 // Utilities to create Snapshots from different contexts
 export function createFromDocument(document: AstroDocument) {
@@ -76,9 +75,15 @@ export function createFromFrameworkFilePath(filePath: string, framework: Framewo
 	let code = '';
 
 	if (framework === 'svelte') {
-		code = svelte2tsx(originalText, className);
+		const svelteIntegration = importSvelteIntegration(filePath);
+		if (svelteIntegration) {
+			code = svelteIntegration.toTSX(originalText, className);
+		}
 	} else if (framework === 'vue') {
-		code = vue2tsx(originalText, className);
+		const vueIntegration = importVueIntegration(filePath);
+		if (vueIntegration) {
+			code = vueIntegration.toTSX(originalText, className);
+		}
 	}
 
 	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX);

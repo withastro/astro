@@ -19,8 +19,6 @@
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 20000 --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\""
   },
   "dependencies": {
-    "@astrojs/vue-language-integration": "^0.1.1",
-    "@astrojs/svelte-language-integration": "^0.1.6",
     "@vscode/emmet-helper": "^2.8.4",
     "source-map": "^0.7.3",
     "typescript": "~4.6.4",
@@ -33,6 +31,8 @@
     "vscode-uri": "^3.0.3"
   },
   "devDependencies": {
+    "@astrojs/svelte": "^0.2.1",
+    "@astrojs/vue": "^0.2.1",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/sinon": "^10.0.11",
@@ -42,6 +42,8 @@
     "cross-env": "^7.0.3",
     "mocha": "^9.2.2",
     "sinon": "^13.0.1",
-    "ts-node": "^10.7.0"
+    "svelte": "^3.49.0",
+    "ts-node": "^10.7.0",
+    "vue": "^3.2.37"
   }
 }
