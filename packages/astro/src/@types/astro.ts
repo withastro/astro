@@ -498,9 +498,9 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
-		 * Control if markdown draft pages should be included in the build.
+		 * Control whether Markdown draft pages should be included in the build.
 		 *
-		 * A markdown page is considered a draft if it includes `draft: true` in its front matter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
+		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
 		 *
 		 * ```js
 		 * {
@@ -519,9 +519,9 @@ export interface AstroUserConfig {
 		 * @type {'md' | 'mdx'}
 		 * @default `mdx`
 		 * @description
-		 * Control if markdown processing is done using MDX or not.
+		 * Control whether Markdown processing is done using MDX or not.
 		 *
-		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" markdown processor. This field allows you to control that behavior.
+		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" Markdown processor. This field allows you to control that behavior.
 		 *
 		 * ```js
 		 * {
@@ -539,7 +539,7 @@ export interface AstroUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
