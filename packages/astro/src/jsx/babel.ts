@@ -1,5 +1,7 @@
+import type { PluginMetadata } from '../vite-plugin-astro/types';
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
+import { pathToFileURL } from 'node:url'
 
 function isComponent(tagName: string) {
 	return (
@@ -40,28 +42,14 @@ function jsxAttributeToString(attr: t.JSXAttribute): string {
 	return `${attr.name.name}`;
 }
 
-function addClientMetadata(node: t.JSXElement, meta: { path: string; name: string }) {
+function addClientMetadata(node: t.JSXElement, meta: { resolvedPath: string; path: string; name: string }) {
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
 		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
 	);
 	if (!existingAttributes.find((attr) => attr === 'client:component-path')) {
 		const componentPath = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
-			!meta.path.startsWith('.')
-				? t.stringLiteral(meta.path)
-				: t.jsxExpressionContainer(
-						t.binaryExpression(
-							'+',
-							t.stringLiteral('/@fs'),
-							t.memberExpression(
-								t.newExpression(t.identifier('URL'), [
-									t.stringLiteral(meta.path),
-									t.identifier('import.meta.url'),
-								]),
-								t.identifier('pathname')
-							)
-						)
-				  )
+			t.stringLiteral(meta.resolvedPath)
 		);
 		node.openingElement.attributes.push(componentPath);
 	}
@@ -86,7 +74,14 @@ function addClientMetadata(node: t.JSXElement, meta: { path: string; name: strin
 export default function astroJSX(): PluginObj {
 	return {
 		visitor: {
-			Program(path) {
+			Program(path, state) {
+				if (!(state.file.metadata as PluginMetadata).astro) {
+					(state.file.metadata as PluginMetadata).astro = {
+						clientOnlyComponents: [],
+						hydratedComponents: [],
+						scripts: [],
+					}
+				}
 				path.node.body.splice(
 					0,
 					0,
@@ -146,6 +141,22 @@ export default function astroJSX(): PluginObj {
 				// TODO: map unmatched identifiers back to imports if possible
 				const meta = path.getData('import');
 				if (meta) {
+					let resolvedPath: string;
+					if (meta.path.startsWith('.')) {
+						const fileURL = pathToFileURL(state.filename!);
+						resolvedPath = `/@fs${new URL(meta.path, fileURL).pathname}`;
+						if (resolvedPath.endsWith('.jsx')) {
+							resolvedPath = resolvedPath.slice(0, -4);
+						}
+					} else {
+						resolvedPath = meta.path;
+					}
+					(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
+						exportName: meta.name,
+						specifier: meta.name,
+						resolvedPath
+					})
+					meta.resolvedPath = resolvedPath;
 					addClientMetadata(parentNode, meta);
 				} else {
 					throw new Error(

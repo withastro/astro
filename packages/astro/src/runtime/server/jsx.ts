@@ -46,15 +46,11 @@ export async function renderJSX(result: any, vnode: any): Promise<any> {
 			return await renderElement(result, vnode.type, vnode.props ?? {});
 		}
 		if (!!vnode.type) {
-			try {
-				// TODO: silence Invalid hook call warning from React
+			// Only handle pages which will have the `server:root` property
+			if (vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
-				if (output && output[AstroJSX]) {
-					return await renderJSX(result, output);
-				} else if (!output) {
-					return await renderJSX(result, output);
-				}
-			} catch (e) {}
+				return await renderJSX(result, output);
+			}
 
 			const { children = null, ...props } = vnode.props ?? {};
 			const slots: Record<string, any> = {
