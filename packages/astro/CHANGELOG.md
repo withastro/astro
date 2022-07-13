@@ -1,5 +1,18 @@
 # astro
 
+## 1.0.0-beta.70
+
+### Patch Changes
+
+- [#3902](https://github.com/withastro/astro/pull/3902) [`d8af02a94`](https://github.com/withastro/astro/commit/d8af02a9443de5fa4cfe8e3ef7beddde9ef8cf09) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: markdown "require is not defined" issue
+
+* [#3914](https://github.com/withastro/astro/pull/3914) [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86) Thanks [@ran-dall](https://github.com/ran-dall)! - Rollback supported `node@16` version. Minimum versions are now `node@14.20.0` or `node@16.14.0`.
+
+* Updated dependencies [[`ca45c0c27`](https://github.com/withastro/astro/commit/ca45c0c270f5ca3f7d2fb113a235d415cecdb333), [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86)]:
+  - @astrojs/markdown-remark@0.11.6
+  - @astrojs/prism@0.6.0
+  - @astrojs/telemetry@0.4.0
+
 ## 1.0.0-beta.69
 
 ### Patch Changes
