@@ -10,7 +10,7 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisite
 
 ```shell
-node: "^14.20.0 || >=16.16.0"
+node: "^14.20.0 || >=16.14.0"
 pnpm: "^7.5.0"
 # otherwise, your build will fail
 ```
