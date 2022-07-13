@@ -1,5 +1,6 @@
+**/dist
+**/node_modules
+**/fixtures
+**/.vscode-test
 .github
 .changeset
-**/dist
-**/fixtures
-scripts/

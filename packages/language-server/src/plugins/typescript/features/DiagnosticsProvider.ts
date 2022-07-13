@@ -18,6 +18,7 @@ interface BoundaryParseResults {
 // https://github.com/Microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
 export enum DiagnosticCodes {
 	SPREAD_EXPECTED = 1005, // '{0}' expected.
+	IS_NOT_A_MODULE = 2306, // '{0}' is not a module.
 	DUPLICATED_JSX_ATTRIBUTES = 17001, // JSX elements cannot have multiple attributes with the same name.
 	MUST_HAVE_PARENT_ELEMENT = 2657, // JSX expressions must have one parent element.
 	CANT_RETURN_OUTSIDE_FUNC = 1108, // A 'return' statement can only be used within a function body.
@@ -250,6 +251,20 @@ function isNoIsolatedModuleError(diagnostic: Diagnostic) {
  * Some diagnostics have JSX-specific nomenclature or unclear description. Enhance them for more clarity.
  */
 function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
+	// When the language integrations are not installed, the content of the imported snapshot is empty
+	// As such, it triggers the "is not a module error", which we can enhance with a more helpful message for the related framework
+	if (diagnostic.code === DiagnosticCodes.IS_NOT_A_MODULE) {
+		if (diagnostic.message.includes('.svelte')) {
+			diagnostic.message +=
+				'\n\nIs the `@astrojs/svelte` package installed? You can add it to your project by running the following command: `astro add svelte`. If already installed, restarting the language server might be necessary in order for the change to take effect';
+		}
+
+		if (diagnostic.message.includes('.vue')) {
+			diagnostic.message +=
+				'\n\nIs the `@astrojs/vue` package installed? You can add it to your project by running the following command: `astro add vue`. If already installed, restarting the language server might be necessary in order for the change to take effect';
+		}
+	}
+
 	// JSX element has no closing tag. JSX -> HTML
 	if (diagnostic.code === DiagnosticCodes.JSX_NO_CLOSING_TAG) {
 		return {
