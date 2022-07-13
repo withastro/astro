@@ -2262,20 +2262,20 @@ importers:
 
   packages/integrations/svelte:
     specifiers:
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.48
+      '@sveltejs/vite-plugin-svelte': ^1.0.1
       astro: workspace:*
       astro-scripts: workspace:*
       postcss-load-config: ^3.1.4
       svelte: ^3.48.0
       svelte-preprocess: ^4.10.7
       svelte2tsx: ^0.5.11
-      vite: ^2.9.10
+      vite: ^3.0.0
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.49_svelte@3.49.0+vite@2.9.14
+      '@sveltejs/vite-plugin-svelte': 1.0.1_svelte@3.49.0+vite@3.0.0
       postcss-load-config: 3.1.4
       svelte-preprocess: 4.10.7_k3vaqsyrx2lfvza3vdeafxime4
       svelte2tsx: 0.5.11_svelte@3.49.0
-      vite: 2.9.14
+      vite: 3.0.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -7346,13 +7346,13 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.49_svelte@3.49.0+vite@2.9.14:
-    resolution: {integrity: sha512-AKh0Ka8EDgidnxWUs8Hh2iZLZovkETkefO99XxZ4sW4WGJ7VFeBx5kH/NIIGlaNHLcrIvK3CK0HkZwC3Cici0A==}
-    engines: {node: ^14.13.1 || >= 16}
+  /@sveltejs/vite-plugin-svelte/1.0.1_svelte@3.49.0+vite@3.0.0:
+    resolution: {integrity: sha512-PorCgUounn0VXcpeJu+hOweZODKmGuLHsLomwqSj+p26IwjjGffmYQfVHtiTWq+NqaUuuHWWG7vPge6UFw4Aeg==}
+    engines: {node: ^14.18.0 || >= 16}
     peerDependencies:
       diff-match-patch: ^1.0.5
       svelte: ^3.44.0
-      vite: ^2.9.0
+      vite: ^3.0.0
     peerDependenciesMeta:
       diff-match-patch:
         optional: true
@@ -7366,7 +7366,7 @@ packages:
       magic-string: 0.26.2
       svelte: 3.49.0
       svelte-hmr: 0.14.12_svelte@3.49.0
-      vite: 2.9.14
+      vite: 3.0.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -14988,6 +14988,33 @@ packages:
       sass:
         optional: true
       stylus:
+        optional: true
+    dependencies:
+      esbuild: 0.14.48
+      postcss: 8.4.14
+      resolve: 1.22.1
+      rollup: 2.76.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
+
+  /vite/3.0.0:
+    resolution: {integrity: sha512-M7phQhY3+fRZa0H+1WzI6N+/onruwPTBTMvaj7TzgZ0v2TE+N2sdLKxJOfOv9CckDWt5C4HmyQP81xB4dwRKzA==}
+    engines: {node: '>=14.18.0'}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
         optional: true
     dependencies:
       esbuild: 0.14.48
