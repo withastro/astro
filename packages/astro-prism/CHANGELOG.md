@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 0.6.0
+
+### Minor Changes
+
+- [#3914](https://github.com/withastro/astro/pull/3914) [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86) Thanks [@ran-dall](https://github.com/ran-dall)! - Rollback supported `node@16` version. Minimum versions are now `node@14.20.0` or `node@16.14.0`.
+
 ## 0.5.0
 
 ### Minor Changes

@@ -11,12 +11,12 @@
   "devDependencies": {
     "@astrojs/lit": "^0.3.1",
     "@astrojs/partytown": "^0.1.8",
-    "@astrojs/react": "^0.3.1",
+    "@astrojs/react": "^0.4.0",
     "@astrojs/sitemap": "^0.2.6",
-    "@astrojs/solid-js": "0.3.1",
+    "@astrojs/solid-js": "0.4.0",
     "@astrojs/tailwind": "^0.2.4",
     "@astrojs/turbolinks": "^0.1.4",
-    "astro": "^1.0.0-beta.69",
+    "astro": "^1.0.0-beta.70",
     "solid-js": "^1.4.3"
   },
   "dependencies": {
