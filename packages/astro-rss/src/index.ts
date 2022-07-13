@@ -152,9 +152,11 @@ const requiredFields = Object.freeze(['link', 'title']);
 
 // Perform validation to make sure all required fields are passed.
 function validate(item: RSSFeedItem) {
-	for(const field of requiredFields) {
-		if(!(field in item)) {
-			throw new Error(`@astrojs/rss: Required field [${field}] is missing. RSS cannot be generated without it.`);
+	for (const field of requiredFields) {
+		if (!(field in item)) {
+			throw new Error(
+				`@astrojs/rss: Required field [${field}] is missing. RSS cannot be generated without it.`
+			);
 		}
 	}
 }

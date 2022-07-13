@@ -131,16 +131,18 @@ describe('rss', () => {
 					title: 'Your Website Title',
 					description: 'Your Website Description',
 					site: 'https://astro-demo',
-					items: [{
-						pubDate: new Date(),
-						title: 'Some title',
-						slug: 'foo'
-					}]
+					items: [
+						{
+							pubDate: new Date(),
+							title: 'Some title',
+							slug: 'foo',
+						},
+					],
 				});
 				chai.expect(false).to.equal(true, 'Should have errored');
-			} catch(err) {
+			} catch (err) {
 				chai.expect(err.message).to.contain('Required field [link] is missing');
 			}
 		});
-	})
+	});
 });
