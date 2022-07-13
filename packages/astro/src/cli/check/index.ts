@@ -39,7 +39,7 @@ export async function check(astroConfig: AstroConfig) {
 
 	diagnostics.forEach((diag) => {
 		diag.diagnostics.forEach((d) => {
-			console.error(printDiagnostic(diag.filePath, diag.text, d));
+			console.log(printDiagnostic(diag.filePath, diag.text, d));
 
 			switch (d.severity) {
 				case DiagnosticSeverity.Error: {
