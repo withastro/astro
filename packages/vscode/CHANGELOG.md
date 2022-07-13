@@ -1,5 +1,16 @@
 # astro-vscode
 
+## 0.19.5
+
+### Patch Changes
+
+- 421ab52: Added a new setting (`astro.typescript.allowArbitraryAttributes`) to enable support for arbitrary attributes
+- Updated dependencies [421ab52]
+- Updated dependencies [06e3c95]
+- Updated dependencies [301dcfb]
+- Updated dependencies [dd1283b]
+  - @astrojs/language-server@0.19.5
+
 ## 0.19.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @astrojs/language-server
 
+## 0.19.5
+
+### Patch Changes
+
+- 421ab52: Added a new setting (`astro.typescript.allowArbitraryAttributes`) to enable support for arbitrary attributes
+- 06e3c95: Updated behaviour when no settings are provided. All features are now considered enabled by default
+- 301dcfb: Remove Lodash from the code base, significally reducing the file count of the package
+- dd1283b: Updated Component detection so completions now work for namespaced components (for example, typing `<myMarkdown.` will now give you a completion for the Content component)
+
 ## 0.19.4
 
 ### Patch Changes
