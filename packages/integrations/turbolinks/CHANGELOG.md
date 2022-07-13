@@ -1,5 +1,23 @@
 # @astrojs/turbolinks
 
+## 0.1.4
+
+### Patch Changes
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+## 0.1.3
+
+### Patch Changes
+
+- [#3383](https://github.com/withastro/astro/pull/3383) [`387ed0cf`](https://github.com/withastro/astro/commit/387ed0cfa1ed73e0025dd81f221ea7c95d724a59) Thanks [@tony-sull](https://github.com/tony-sull)! - The @astrojs/turbolinks integration has been deprecated
+
+## 0.1.2
+
+### Patch Changes
+
+- [#3283](https://github.com/withastro/astro/pull/3283) [`9ad8aefd`](https://github.com/withastro/astro/commit/9ad8aefdd79a039062f5a0510fabb2b5e535603f) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes an issue that prevented client components from rehydrating when navigating back to a page
+
 ## 0.1.1
 
 ### Patch Changes

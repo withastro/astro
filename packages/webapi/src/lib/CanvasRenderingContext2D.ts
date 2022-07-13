@@ -1,8 +1,8 @@
 import type { HTMLCanvasElement } from './HTMLCanvasElement'
 import type { OffscreenCanvas } from './OffscreenCanvas'
 
-import * as _ from './utils'
 import { ImageData } from './ImageData'
+import * as _ from './utils'
 
 export class CanvasRenderingContext2D {
 	get canvas(): HTMLCanvasElement | OffscreenCanvas | null {

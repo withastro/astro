@@ -1,14 +1,18 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
 import type { AstroAdapter } from '../../@types/astro';
-import type { StaticBuildOptions } from './types';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
+import type { BuildInternals } from './internal.js';
+import type { StaticBuildOptions } from './types';
 
-import { serializeRouteData } from '../routing/index.js';
-import { eachPageData } from './internal.js';
-import { addRollupInput } from './add-rollup-input.js';
-import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
+import glob from 'fast-glob';
+import * as fs from 'fs';
+import { fileURLToPath } from 'url';
+import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { pagesVirtualModuleId } from '../app/index.js';
+import { serializeRouteData } from '../routing/index.js';
+import { addRollupInput } from './add-rollup-input.js';
+import { eachPageData } from './internal.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -65,29 +69,67 @@ if(_start in adapter) {
 			}
 			return void 0;
 		},
-		generateBundle(_opts, bundle) {
-			const manifest = buildManifest(buildOpts, internals);
-
+		async generateBundle(_opts, bundle) {
+			// Add assets from this SSR chunk as well.
 			for (const [_chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') continue;
+				if (chunk.type === 'asset') {
+					internals.staticFiles.add(chunk.fileName);
+				}
+			}
+
+			for (const [chunkName, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') {
+					continue;
+				}
 				if (chunk.modules[resolvedVirtualModuleId]) {
-					const code = chunk.code;
-					chunk.code = code.replace(replaceExp, () => {
-						return JSON.stringify(manifest);
-					});
+					internals.ssrEntryChunk = chunk;
+					delete bundle[chunkName];
 				}
 			}
 		},
 	};
 }
 
-function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): SerializedSSRManifest {
+export async function injectManifest(buildOpts: StaticBuildOptions, internals: BuildInternals) {
+	if (!internals.ssrEntryChunk) {
+		throw new Error(`Did not generate an entry chunk for SSR`);
+	}
+
+	// Add assets from the client build.
+	const clientStatics = new Set(
+		await glob('**/*', {
+			cwd: fileURLToPath(buildOpts.buildConfig.client),
+		})
+	);
+	for (const file of clientStatics) {
+		internals.staticFiles.add(file);
+	}
+
+	const staticFiles = internals.staticFiles;
+	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
+	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
+
+	const chunk = internals.ssrEntryChunk;
+	const code = chunk.code;
+	chunk.code = code.replace(replaceExp, () => {
+		return JSON.stringify(manifest);
+	});
+	const serverEntryURL = new URL(buildOpts.buildConfig.serverEntry, buildOpts.buildConfig.server);
+	await fs.promises.mkdir(new URL('./', serverEntryURL), { recursive: true });
+	await fs.promises.writeFile(serverEntryURL, chunk.code, 'utf-8');
+}
+
+function buildManifest(
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	staticFiles: string[]
+): SerializedSSRManifest {
 	const { astroConfig } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
 
 	for (const pageData of eachPageData(internals)) {
-		const scripts = Array.from(pageData.scripts);
+		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			scripts.unshift(pageData.hoistedScript);
 		}
@@ -95,8 +137,13 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 		routes.push({
 			file: '',
 			links: Array.from(pageData.css),
-			scripts,
-			routeData: serializeRouteData(pageData.route),
+			scripts: [
+				...scripts,
+				...astroConfig._ctx.scripts
+					.filter((script) => script.stage === 'head-inline')
+					.map(({ stage, content }) => ({ stage, children: content })),
+			],
+			routeData: serializeRouteData(pageData.route, astroConfig.trailingSlash),
 		});
 	}
 
@@ -108,10 +155,12 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
 		site: astroConfig.site,
+		base: astroConfig.base,
 		markdown: astroConfig.markdown,
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
+		assets: staticFiles.map((s) => '/' + s),
 	};
 
 	return ssrManifest;

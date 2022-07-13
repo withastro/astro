@@ -1,0 +1,7 @@
+{
+  "name": "@test/reexport-astro-containing-client-component",
+  "dependencies": {
+    "astro": "workspace:",
+    "@astrojs/preact": "workspace:"
+  }
+}

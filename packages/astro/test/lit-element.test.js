@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('LitElement test', function () {
@@ -21,7 +21,7 @@ describe('LitElement test', function () {
 		await fixture.build();
 	});
 
-	it('Renders a custom element by tag name', async () => {
+	it('Renders a custom element by Constructor', async () => {
 		// @lit-labs/ssr/ requires Node 13.9 or higher
 		if (NODE_VERSION < 13.9) {
 			return;
@@ -62,15 +62,22 @@ describe('LitElement test', function () {
 		expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
 	});
 
-	// Skipped because not supported by Lit
-	it.skip('Renders a custom element by the constructor', async () => {
-		const html = await fixture.fetch('/ctr/index.html');
+	it('Correctly passes child slots', async () => {
+		// @lit-labs/ssr/ requires Node 13.9 or higher
+		if (NODE_VERSION < 13.9) {
+			return;
+		}
+		const html = await fixture.readFile('/slots/index.html');
 		const $ = cheerio.load(html);
 
-		// test 1: attributes rendered
-		expect($('my-element').attr('foo')).to.equal('bar');
+		expect($('my-element').length).to.equal(1);
 
-		// test 2: shadow rendered
-		expect($('my-element').html()).to.include(`<div>Testing...</div>`);
+		const [defaultSlot, namedSlot] = $('template').siblings().toArray();
+
+		// has default slot content in lightdom
+		expect($(defaultSlot).text()).to.equal('default');
+
+		// has named slot content in lightdom
+		expect($(namedSlot).text()).to.equal('named');
 	});
 });

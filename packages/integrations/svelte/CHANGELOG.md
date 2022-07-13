@@ -1,5 +1,57 @@
 # @astrojs/svelte
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3885](https://github.com/withastro/astro/pull/3885) [`bf5d1cc1e`](https://github.com/withastro/astro/commit/bf5d1cc1e71da38a14658c615e9481f2145cc6e7) Thanks [@delucis](https://github.com/delucis)! - Integration README fixes
+
+## 0.3.0
+
+### Minor Changes
+
+- [#3871](https://github.com/withastro/astro/pull/3871) [`1cc5b7890`](https://github.com/withastro/astro/commit/1cc5b78905633608e5b07ad291f916f54e67feb1) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update supported `node` versions. Minimum versions are now `node@14.20.0` or `node@16.16.0`.
+
+## 0.2.1
+
+### Patch Changes
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+* [#3864](https://github.com/withastro/astro/pull/3864) [`f9ed77bb`](https://github.com/withastro/astro/commit/f9ed77bb0d71d1644d524547a24963210f4ecaff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add entrypoints for editor support for Vue and Svelte (destined to be used by our language server)
+
+## 0.2.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => framework components.
+
+  Inside your components, use the built-in `slot` API as you normally would.
+
+## 0.1.5
+
+### Patch Changes
+
+- [#3685](https://github.com/withastro/astro/pull/3685) [`3d554fdb`](https://github.com/withastro/astro/commit/3d554fdbfb49d85d2945b7775825f7d9ace959ce) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix PostCSS config not applied to Svelte component by default
+
+## 0.1.4
+
+### Patch Changes
+
+- [#3455](https://github.com/withastro/astro/pull/3455) [`e9a77d86`](https://github.com/withastro/astro/commit/e9a77d861907adccfa75811f9aaa555f186d78f8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update client hydration to check for `ssr` attribute. Requires `astro@^1.0.0-beta.36`.
+
+## 0.1.3
+
+### Patch Changes
+
+- [#3333](https://github.com/withastro/astro/pull/3333) [`ce6d7982`](https://github.com/withastro/astro/commit/ce6d79828250e9a3631778a37d43068cae04bb4f) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a vite peer dependency bug
+
+## 0.1.2
+
+### Patch Changes
+
+- [#3181](https://github.com/withastro/astro/pull/3181) [`ce9a61e9`](https://github.com/withastro/astro/commit/ce9a61e9fc6fdbf9b8469197df6d728f395656ec) Thanks [@tony-sull](https://github.com/tony-sull)! - `@astrojs/svelte` integration supports custom svelte compiler options
+
 ## 0.1.1
 
 ### Patch Changes

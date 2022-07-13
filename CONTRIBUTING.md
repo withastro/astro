@@ -10,8 +10,8 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisite
 
 ```shell
-node: "^14.15.0 || >=16.0.0"
-pnpm: "^6.23.6"
+node: "^14.20.0 || >=16.16.0"
+pnpm: "^7.5.0"
 # otherwise, your build will fail
 ```
 
@@ -58,6 +58,24 @@ pnpm run test
 # (example - `pnpm run test:match "RSS"` runs `astro-rss.test.js`)
 pnpm run test:match "$STRING_MATCH"
 ```
+
+#### E2E tests
+
+Certain features, like HMR and client hydration, need end-to-end tests to verify functionality in the dev server. [Playwright](https://playwright.dev/) is used to test against the dev server.
+
+```shell
+# run this in the top-level project root to run all E2E tests
+pnpm run test:e2e
+# run only a few tests, great for working on a single feature
+# (example - `pnpm run test:e2e:match "Tailwind CSS" runs `tailwindcss.test.js`)
+pnpm run test:e2e:match "$STRING_MATCH"
+```
+
+**When should you add E2E tests?**
+
+Any tests for `astro build` output should use the main `mocha` tests rather than E2E - these tests will run faster than having Playwright start the `astro preview` server.
+
+If a test needs to validate what happens on the page after it's loading in the browser, that's a perfect use for E2E dev server tests, i.e. to verify that hot-module reloading works in `astro dev` or that components were client hydrated and are interactive.
 
 ### Other useful commands
 
@@ -126,7 +144,7 @@ Understanding in which environment code runs, and at which stage in the process,
 
 ## Releasing Astro
 
-_Note: Only [core maintainers (L3+)](https://github.com/withastro/astro/blob/main/GOVERNANCE.md#level-3-l3---core-maintainer) can release new versions of Astro._
+_Note: Only [core maintainers (L3+)](https://github.com/withastro/.github/blob/main/GOVERNANCE.md#level-3-l3---core-maintainer) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
@@ -195,29 +213,8 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
-## Translations
+## Documentation
 
-Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! This can be a great way to get involved with open source development without having to code.
+Help us make [docs.astro.build](https://docs.astro.build/) as accurate and easy-to-use as possible. Contributing to documentation can be a great way to get involved with open source development without having to code.
 
-Our translation process is loosely based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
-
-### Important: Beta Status
-
-Astro is changing quickly, and so are the docs. We cannot translate too many pages until Astro is closer to a v1.0.0 release candidate. **To start, do not translate more than the "getting started" page.** Once we are closer to a v1.0.0 release candidate, we will begin translating all pages.
-
-### Tier 1: Priority Languages
-
-**Tier 1** languages are considered a top priority for Astro documentation. The docs site should be fully translated into these languages, and reasonably kept up-to-date:
-
-- Simplified Chinese (zh-CN)
-- Traditional Chinese (zh-TW)
-- French (fr)
-- Japanese (ja)
-
-We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
-
-### Tier 2 Languages
-
-All other languages are considered **Tier 2**. Tier 2 language translations are driven by the community, with support from core maintainers. If you want to see the Astro docs site translated into a new language, then we need your help to kick off the project!
-
-If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
+Head over to [the `withastro/docs` repo](https://github.com/withastro/docs) to get involved!

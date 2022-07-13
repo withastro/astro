@@ -1,12 +1,10 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { BuildInternals } from './internal.js';
-import type { StaticBuildOptions } from './types';
-import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData } from './internal.js';
+import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
 import { isBuildingToSSR } from '../util.js';
-
-export const virtualModuleId = '@astrojs-pages-virtual-entry';
-export const resolvedVirtualModuleId = '\0' + virtualModuleId;
+import { addRollupInput } from './add-rollup-input.js';
+import type { BuildInternals } from './internal.js';
+import { eachPageData } from './internal.js';
+import type { StaticBuildOptions } from './types';
 
 export function vitePluginPages(opts: StaticBuildOptions, internals: BuildInternals): VitePlugin {
 	return {
@@ -14,18 +12,18 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 		options(options) {
 			if (!isBuildingToSSR(opts.astroConfig)) {
-				return addRollupInput(options, [virtualModuleId]);
+				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},
 
 		resolveId(id) {
-			if (id === virtualModuleId) {
-				return resolvedVirtualModuleId;
+			if (id === pagesVirtualModuleId) {
+				return resolvedPagesVirtualModuleId;
 			}
 		},
 
 		load(id) {
-			if (id === resolvedVirtualModuleId) {
+			if (id === resolvedPagesVirtualModuleId) {
 				let importMap = '';
 				let imports = [];
 				let i = 0;
@@ -40,7 +38,9 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 				let rendererItems = '';
 				for (const renderer of opts.astroConfig._ctx.renderers) {
 					const variable = `_renderer${i}`;
-					imports.push(`import ${variable} from '${renderer.serverEntrypoint}';`);
+					// Use unshift so that renderers are imported before user code, in case they set globals
+					// that user code depends on.
+					imports.unshift(`import ${variable} from '${renderer.serverEntrypoint}';`);
 					rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
 					i++;
 				}

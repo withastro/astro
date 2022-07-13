@@ -5,7 +5,7 @@
  */
 
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
@@ -18,6 +18,7 @@ describe('CSS', function () {
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
 		let $;
+		let html;
 		let bundledCSS;
 
 		before(async () => {
@@ -25,10 +26,12 @@ describe('CSS', function () {
 			await fixture.build();
 
 			// get bundled CSS (will be hashed, hence DOM query)
-			const html = await fixture.readFile('/index.html');
+			html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
 			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
-			bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+			bundledCSS = (await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/')))
+				.replace(/\s/g, '')
+				.replace('/n', '');
 		});
 
 		describe('Astro Styles', () => {
@@ -47,6 +50,10 @@ describe('CSS', function () {
 				expect(bundledCSS).to.include(expected);
 			});
 
+			it('Generated link tags are void elements', async () => {
+				expect(html).to.not.include('</link>');
+			});
+
 			it('No <style> skips scoping', async () => {
 				// Astro component without <style> should not include scoped class
 				expect($('#no-scope').attr('class')).to.equal(undefined);
@@ -56,9 +63,9 @@ describe('CSS', function () {
 				expect($('#passed-in').attr('class')).to.match(/outer astro-[A-Z0-9]+ astro-[A-Z0-9]+/);
 			});
 
-			it('Using hydrated components adds astro-root styles', async () => {
+			it('Using hydrated components adds astro-island styles', async () => {
 				const inline = $('style').html();
-				expect(inline).to.include('display: contents');
+				expect(inline).to.include('display:contents');
 			});
 
 			it('<style lang="sass">', async () => {
@@ -102,7 +109,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.sass', async () => {
@@ -112,7 +119,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-sass-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.react-sass-title[^{]*{font-family:fantasy`));
 			});
 
 			it('.scss', async () => {
@@ -122,7 +129,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('react-scss-title');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.react-scss-title[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.sass', async () => {
@@ -134,7 +141,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 
 			it('.module.scss', async () => {
@@ -146,7 +153,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:fantasy`));
 			});
 		});
 
@@ -185,7 +192,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive}`));
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive`));
 			});
 
 			it('<style lang="sass">', async () => {
@@ -222,7 +229,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -238,7 +245,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 
@@ -254,7 +261,7 @@ describe('CSS', function () {
 
 				// 2. check CSS
 				expect(bundledCSS).to.match(
-					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:Comic Sans MS`)
+					new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:ComicSansMS`)
 				);
 			});
 		});
@@ -290,53 +297,62 @@ describe('CSS', function () {
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 
+		it('resolves ESM style imports', async () => {
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
+
+			expect(allInjectedStyles, 'styles/imported-url.css').to.contain('.imported{');
+			expect(allInjectedStyles, 'styles/imported-url.sass').to.contain('.imported-sass{');
+			expect(allInjectedStyles, 'styles/imported-url.scss').to.contain('.imported-scss{');
+		});
+
 		it('resolves Astro styles', async () => {
-			const astroPageCss = $('link[rel=stylesheet][href^=/src/pages/index.astro?astro&type=style]');
-			expect(astroPageCss.length).to.equal(
-				4,
-				'The index.astro page should generate 4 stylesheets, 1 for each <style> tag on the page.'
-			);
+			const allInjectedStyles = $('style[data-astro-injected]').text();
+
+			expect(allInjectedStyles).to.contain('.linked-css.astro-');
+			expect(allInjectedStyles).to.contain('.linked-sass.astro-');
+			expect(allInjectedStyles).to.contain('.linked-scss.astro-');
+			expect(allInjectedStyles).to.contain('.wrapper.astro-');
 		});
 
 		it('resolves Styles from React', async () => {
 			const styles = [
-				'ReactCSS.css',
 				'ReactModules.module.css',
 				'ReactModules.module.scss',
 				'ReactModules.module.sass',
-				'ReactSass.sass',
-				'ReactScss.scss',
 			];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
+
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
+
+			expect(allInjectedStyles).to.contain('.react-title{');
+			expect(allInjectedStyles).to.contain('.react-sass-title{');
+			expect(allInjectedStyles).to.contain('.react-scss-title{');
 		});
 
 		it('resolves CSS from Svelte', async () => {
-			const scripts = [
-				'SvelteCSS.svelte?svelte&type=style&lang.css',
-				'SvelteSass.svelte?svelte&type=style&lang.css',
-				'SvelteScss.svelte?svelte&type=style&lang.css',
-			];
-			for (const script of scripts) {
-				const src = $(`script[src$="${script}"]`).attr('src');
-				expect((await fixture.fetch(src)).status, script).to.equal(200);
-			}
+			const allInjectedStyles = $('style[data-astro-injected]').text();
+
+			expect(allInjectedStyles).to.contain('.svelte-css');
+			expect(allInjectedStyles).to.contain('.svelte-sass');
+			expect(allInjectedStyles).to.contain('.svelte-scss');
 		});
 
 		it('resolves CSS from Vue', async () => {
-			const styles = [
-				'VueCSS.vue?vue&type=style&index=0&lang.css',
-				'VueModules.vue?vue&type=style&index=0&lang.module.scss',
-				'VueSass.vue?vue&type=style&index=0&lang.sass',
-				'VueScoped.vue?vue&type=style&index=0&scoped=true&lang.css',
-				'VueScss.vue?vue&type=style&index=0&lang.scss',
-			];
+			const styles = ['VueModules.vue?vue&type=style&index=0&lang.module.scss'];
 			for (const style of styles) {
 				const href = $(`link[href$="${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
+
+			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
+
+			expect(allInjectedStyles).to.contain('.vue-css{');
+			expect(allInjectedStyles).to.contain('.vue-sass{');
+			expect(allInjectedStyles).to.contain('.vue-scss{');
+			expect(allInjectedStyles).to.contain('.vue-scoped[data-v-');
 		});
 	});
 });

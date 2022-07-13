@@ -3,7 +3,6 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import { viteID } from '../dist/core/util.js';
 
-// Asset bundling
 describe('Integration buildConfig hook', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
@@ -27,8 +26,10 @@ describe('Integration buildConfig hook', () => {
 											if (id === '@my-ssr') {
 												return id;
 											} else if (id === 'astro/app') {
-												const id = viteID(new URL('../dist/core/app/index.js', import.meta.url));
-												return id;
+												const viteId = viteID(
+													new URL('../dist/core/app/index.js', import.meta.url)
+												);
+												return viteId;
 											}
 										},
 										load(id) {

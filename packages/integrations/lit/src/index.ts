@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
 import type { AstroIntegration } from 'astro';
+import { readFileSync } from 'node:fs';
 
 function getViteConfiguration() {
 	return {
@@ -18,6 +18,7 @@ function getViteConfiguration() {
 				'@lit-labs/ssr/lib/install-global-dom-shim.js',
 				'@lit-labs/ssr/lib/render-lit-html.js',
 				'@lit-labs/ssr/lib/lit-element-renderer.js',
+				'@astrojs/lit/server.js',
 			],
 		},
 	};
@@ -44,6 +45,19 @@ export default function (): AstroIntegration {
 				updateConfig({
 					vite: getViteConfiguration(),
 				});
+			},
+			'astro:build:setup': ({ vite, target }) => {
+				if (target === 'server') {
+					if (!vite.ssr) {
+						vite.ssr = {};
+					}
+					if (!vite.ssr.noExternal) {
+						vite.ssr.noExternal = [];
+					}
+					if (Array.isArray(vite.ssr.noExternal)) {
+						vite.ssr.noExternal.push('lit');
+					}
+				}
 			},
 		},
 	};

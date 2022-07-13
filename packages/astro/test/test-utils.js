@@ -2,7 +2,7 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { resolveConfig, loadConfig } from '../dist/core/config.js';
+import { loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -25,13 +25,16 @@ polyfill(globalThis, {
  *
  * @typedef {Object} Fixture
  * @property {typeof build} build
+ * @property {(url: string) => string} resolveUrl
  * @property {(url: string, opts: any) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
  * @property {() => Promise<App>} loadTestAdapterApp
+ * @property {() => Promise<void>} onNextChange
  */
 
 /**
@@ -68,16 +71,22 @@ export async function loadFixture(inlineConfig) {
 			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
 		}
 	}
+
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, root: cwd });
 
-	// Note: the inline config doesn't run through config validation where these normalizations usually occur
+	// HACK: the inline config doesn't run through config validation where these normalizations usually occur
 	if (typeof inlineConfig.site === 'string') {
 		config.site = new URL(inlineConfig.site);
 	}
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
+	}
+	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
+		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
+		config._ctx.renderers.unshift(jsxRenderer);
 	}
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
@@ -86,29 +95,88 @@ export async function loadFixture(inlineConfig) {
 		level: 'error',
 	};
 
+	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
+	const telemetry = {
+		record() {
+			return Promise.resolve();
+		},
+	};
+
+	const resolveUrl = (url) =>
+		`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`;
+
+	// A map of files that have been editted.
+	let fileEdits = new Map();
+
+	const resetAllFiles = () => {
+		for (const [, reset] of fileEdits) {
+			reset();
+		}
+		fileEdits.clear();
+	};
+
+	const onNextChange = () =>
+		devServer
+			? new Promise((resolve) => devServer.watcher.once('change', resolve))
+			: Promise.reject(new Error('No dev server running'));
+
+	// After each test, reset each of the edits to their original contents.
+	if (typeof afterEach === 'function') {
+		afterEach(resetAllFiles);
+	}
+	// Also do it on process exit, just in case.
+	process.on('exit', resetAllFiles);
+
+	let devServer;
+
 	return {
-		build: (opts = {}) => build(config, { mode: 'development', logging, ...opts }),
+		build: (opts = {}) => build(config, { logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
-			const devResult = await dev(config, { logging, ...opts });
-			config.server.port = devResult.address.port; // update port
-			return devResult;
+			devServer = await dev(config, { logging, telemetry, ...opts });
+			config.server.port = devServer.address.port; // update port
+			return devServer;
 		},
 		config,
-		fetch: (url, init) =>
-			fetch(`http://${'127.0.0.1'}:${config.server.port}${url.replace(/^\/?/, '/')}`, init),
+		resolveUrl,
+		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
-			const previewServer = await preview(config, { logging, ...opts });
+			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;
 		},
 		readFile: (filePath) =>
 			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
-		clean: () => fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
-		loadTestAdapterApp: async () => {
-			const url = new URL('./server/entry.mjs', config.outDir);
-			const { createApp } = await import(url);
-			return createApp();
+		clean: async () => {
+			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
 		},
+		loadTestAdapterApp: async (streaming) => {
+			const url = new URL('./server/entry.mjs', config.outDir);
+			const { createApp, manifest } = await import(url);
+			const app = createApp(streaming);
+			app.manifest = manifest;
+			return app;
+		},
+		editFile: async (filePath, newContentsOrCallback) => {
+			const fileUrl = new URL(filePath.replace(/^\//, ''), config.root);
+			const contents = await fs.promises.readFile(fileUrl, 'utf-8');
+			const reset = () => {
+				fs.writeFileSync(fileUrl, contents);
+			};
+			// Only save this reset if not already in the map, in case multiple edits happen
+			// to the same file.
+			if (!fileEdits.has(fileUrl.toString())) {
+				fileEdits.set(fileUrl.toString(), reset);
+			}
+			const newContents =
+				typeof newContentsOrCallback === 'function'
+					? newContentsOrCallback(contents)
+					: newContentsOrCallback;
+			const nextChange = onNextChange();
+			await fs.promises.writeFile(fileUrl, newContents);
+			await nextChange;
+			return reset;
+		},
+		resetAllFiles,
 	};
 }
 
@@ -191,4 +259,10 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 	return { local, network };
 }
 
+export const isLinux = os.platform() === 'linux';
+export const isMacOS = os.platform() === 'darwin';
 export const isWindows = os.platform() === 'win32';
+
+export function fixLineEndings(str) {
+	return str.replace(/\r\n/g, '\n');
+}

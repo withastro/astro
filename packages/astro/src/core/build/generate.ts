@@ -10,22 +10,19 @@ import type {
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { debug, info } from '../logger/core.js';
-import { prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
+import { joinPaths, prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
+import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
-import {
-	createLinkStylesheetElementSet,
-	createModuleScriptElementWithSrcSet,
-} from '../render/ssr-element.js';
+import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
+import { createRequest } from '../request.js';
 import { getOutputFilename, isBuildingToSSR } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { createRequest } from '../request.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
@@ -54,6 +51,16 @@ function* throttle(max: number, inPaths: string[]) {
 	if (tmp.length) {
 		yield tmp;
 	}
+}
+
+function shouldSkipDraft(pageModule: ComponentInstance, astroConfig: AstroConfig): boolean {
+	return (
+		// Drafts are disabled
+		!astroConfig.markdown.drafts &&
+		// This is a draft post
+		'frontmatter' in pageModule &&
+		(pageModule as any).frontmatter.draft === true
+	);
 }
 
 // Gives back a facadeId that is relative to the root.
@@ -114,7 +121,7 @@ async function generatePage(
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
 	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
-	const hoistedId = pageInfo?.hoistedScript ?? null;
+	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
 
@@ -124,11 +131,16 @@ async function generatePage(
 		);
 	}
 
+	if (shouldSkipDraft(pageModule, opts.astroConfig)) {
+		info(opts.logging, null, `${magenta('⚠️')}  Skipping draft ${pageData.route.component}`);
+		return;
+	}
+
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		internals,
 		linkIds,
-		hoistedId,
+		scripts,
 		mod: pageModule,
 		renderers,
 	};
@@ -152,7 +164,7 @@ interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
-	hoistedId: string | null;
+	scripts: { type: 'inline' | 'external'; value: string } | null;
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
@@ -167,7 +179,7 @@ async function generatePath(
 	gopts: GeneratePathOptions
 ) {
 	const { astroConfig, logging, origin, routeCache } = opts;
-	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
+	const { mod, internals, linkIds, scripts: hoistedScripts, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	if (pageData.route.type === 'page') {
@@ -176,9 +188,14 @@ async function generatePath(
 
 	debug('build', `Generating: ${pathname}`);
 
-	const site = astroConfig.site;
+	// If a base path was provided, append it to the site URL. This ensures that
+	// all injected scripts and links are referenced relative to the site and subpath.
+	const site =
+		astroConfig.base !== '/'
+			? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
+			: astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
-	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
+	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
 
 	// Add all injected scripts to the page.
 	for (const script of astroConfig._ctx.scripts) {
@@ -214,9 +231,7 @@ async function generatePath(
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
-			const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
-			const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
-			return fullyRelativePath;
+			return prependForwardSlash(npath.posix.join(astroConfig.base, hashedFilePath));
 		},
 		request: createRequest({ url, headers: new Headers(), logging, ssr }),
 		route: pageData.route,
@@ -225,6 +240,7 @@ async function generatePath(
 			? new URL(astroConfig.base, astroConfig.site).toString()
 			: astroConfig.site,
 		ssr,
+		streaming: true,
 	};
 
 	let body: string;
@@ -236,17 +252,19 @@ async function generatePath(
 		}
 		body = result.body;
 	} else {
-		const result = await render(options);
+		const response = await render(options);
 
 		// If there's a redirect or something, just do nothing.
-		if (result.type !== 'html') {
+		if (response.status !== 200 || !response.body) {
 			return;
 		}
-		body = result.html;
+
+		body = await response.text();
 	}
 
 	const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 	const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
+	pageData.route.distURL = outFile;
 	await fs.promises.mkdir(outFolder, { recursive: true });
 	await fs.promises.writeFile(outFile, body, 'utf-8');
 }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Expressions', () => {
@@ -113,5 +113,14 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		expect($('#single-escape').html()).to.equal('Astro &amp; Vite');
+	});
+
+	it('Handles switch statements', async () => {
+		const html = await fixture.readFile('/switch/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#red').length).to.equal(0);
+		expect($('#yellow').length).to.equal(1);
+		expect($('#blue').length).to.equal(0);
 	});
 });

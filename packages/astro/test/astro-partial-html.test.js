@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Partial HTML', async () => {
@@ -25,15 +25,8 @@ describe('Partial HTML', async () => {
 		expect(html).to.match(/^<!DOCTYPE html/);
 
 		// test 2: correct CSS present
-		const link = $('link').attr('href');
-		const css = await fixture
-			.fetch(link, {
-				headers: {
-					accept: 'text/css',
-				},
-			})
-			.then((res) => res.text());
-		expect(css).to.match(/\.astro-[^{]+{color:red}/);
+		const allInjectedStyles = $('style[data-astro-injected]').text();
+		expect(allInjectedStyles).to.match(/\.astro-[^{]+{color:red}/);
 	});
 
 	it('injects framework styles', async () => {
@@ -44,7 +37,13 @@ describe('Partial HTML', async () => {
 		expect(html).to.match(/^<!DOCTYPE html/);
 
 		// test 2: link tag present
-		const href = $('link[rel=stylesheet][data-astro-injected]').attr('href');
-		expect(href).to.be.ok;
+		const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
+		expect(allInjectedStyles).to.match(/h1{color:red;}/);
+	});
+
+	it('pages with a head, injection happens inside', async () => {
+		const html = await fixture.fetch('/with-head').then((res) => res.text());
+		const $ = cheerio.load(html);
+		expect($('style')).to.have.lengthOf(1);
 	});
 });

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro Markdown with draft posts disabled', () => {
@@ -12,11 +12,14 @@ describe('Astro Markdown with draft posts disabled', () => {
 		await fixture.build();
 	});
 	it('Does not render the draft post', async () => {
+		let renderedDraft = false;
 		try {
 			await fixture.readFile('/wip/index.html');
+			renderedDraft = true;
 		} catch (err) {
 			expect(err.code).to.equal('ENOENT');
 		}
+		expect(renderedDraft).to.equal(false, 'Rendered a draft post');
 	});
 });
 

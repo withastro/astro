@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/webapi",
   "description": "Use Web APIs in Node",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "type": "module",
   "exports": {
     ".": {
@@ -49,14 +49,17 @@
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
+  "dependencies": {
+    "node-fetch": "^3.2.5"
+  },
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-inject": "^4.0.4",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "@types/chai": "^4.3.0",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^14.18.12",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^14.18.21",
     "@ungap/structured-clone": "^0.3.4",
     "abort-controller": "^3.0.0",
     "chai": "^4.3.6",
@@ -65,10 +68,10 @@
     "formdata-polyfill": "^4.0.10",
     "magic-string": "^0.25.9",
     "mocha": "^9.2.2",
-    "node-fetch": "^3.2.3",
-    "rollup": "^2.70.1",
+    "rollup": "^2.75.6",
     "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.3.1",
+    "tslib": "^2.4.0",
+    "typescript": "~4.7.3",
     "urlpattern-polyfill": "^1.0.0-rc5",
     "web-streams-polyfill": "^3.2.1"
   },

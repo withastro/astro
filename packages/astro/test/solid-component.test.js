@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Solid component', () => {

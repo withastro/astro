@@ -1,9 +1,5 @@
 import { parse as babelParser } from '@babel/parser';
-import type {
-	ArrowFunctionExpressionKind,
-	CallExpressionKind,
-	StringLiteralKind,
-} from 'ast-types/gen/kinds';
+import type { ArrowFunctionExpressionKind, CallExpressionKind } from 'ast-types/gen/kinds';
 import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';

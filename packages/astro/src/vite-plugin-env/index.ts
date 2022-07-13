@@ -1,9 +1,8 @@
-import type * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import type { TransformPluginContext } from 'rollup';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'url';
+import type * as vite from 'vite';
 import { loadEnv } from 'vite';
+import type { AstroConfig } from '../@types/astro';
 
 interface EnvPluginOptions {
 	config: AstroConfig;
@@ -22,10 +21,6 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 		''
 	);
 	const privateKeys = Object.keys(fullEnv).filter((key) => {
-		// don't expose any variables also on `process.env`
-		// note: this filters out `CLI_ARGS=1` passed to node!
-		if (typeof process.env[key] !== 'undefined') return false;
-
 		// don't inject `PUBLIC_` variables, Vite handles that for us
 		for (const envPrefix of envPrefixes) {
 			if (key.startsWith(envPrefix)) return false;
@@ -37,7 +32,12 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 	if (privateKeys.length === 0) {
 		return null;
 	}
-	return Object.fromEntries(privateKeys.map((key) => [key, JSON.stringify(fullEnv[key])]));
+	return Object.fromEntries(
+		privateKeys.map((key) => {
+			if (typeof process.env[key] !== 'undefined') return [key, `process.env.${key}`];
+			return [key, JSON.stringify(fullEnv[key])];
+		})
+	);
 }
 
 function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any>): Set<string> {
@@ -77,6 +77,8 @@ export default function envVitePlugin({
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
+					privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
+					privateEnv.SSR = JSON.stringify(true);
 					const entries = Object.entries(privateEnv).map(([key, value]) => [
 						`import.meta.env.${key}`,
 						value,
@@ -84,6 +86,8 @@ export default function envVitePlugin({
 					replacements = Object.fromEntries(entries);
 					// These additional replacements are needed to match Vite
 					replacements = Object.assign(replacements, {
+						'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
+						'import.meta.env.SSR': JSON.stringify(true),
 						// This catches destructed `import.meta.env` calls,
 						// BUT we only want to inject private keys referenced in the file.
 						// We overwrite this value on a per-file basis.

@@ -1,36 +1,40 @@
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
+import fs from 'fs';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 import * as vite from 'vite';
-import { runHookServerSetup } from '../integrations/index.js';
-import astroVitePlugin from '../vite-plugin-astro/index.js';
-import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
+import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
+import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
-import markdownVitePlugin from '../vite-plugin-markdown/index.js';
-import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
-import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
+import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
 	...builtinModules.map((name) => `node:${name}`),
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
-	'serialize-javascript',
+	'@astrojs/markdown-remark',
+	// in-lined for markdown modules
+	'github-slugger',
 	'node-fetch',
 	'prismjs',
 	'shiki',
-	'shorthash',
 	'unified',
 	'whatwg-url',
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
-	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	'astro',
+	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
+	'@nanostores/preact',
 ]);
 
 // note: ssr is still an experimental API hence the type omission from `vite`
@@ -56,6 +60,7 @@ export async function createVite(
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			exclude: ['node-fetch'],
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
@@ -73,6 +78,9 @@ export async function createVite(
 		publicDir: fileURLToPath(astroConfig.publicDir),
 		root: fileURLToPath(astroConfig.root),
 		envPrefix: 'PUBLIC_',
+		define: {
+			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
+		},
 		server: {
 			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
 			hmr:
@@ -83,16 +91,29 @@ export async function createVite(
 			proxy: {
 				// add proxies here
 			},
+			watch: {
+				// Prevent watching during the build to speed it up
+				ignored: mode === 'build' ? ['**'] : undefined,
+			},
 		},
 		css: {
 			postcss: astroConfig.style.postcss || {},
 		},
 		resolve: {
-			alias: {
-				// This is needed for Deno compatibility, as the non-browser version
-				// of this module depends on Node `crypto`
-				randombytes: 'randombytes/browser',
-			},
+			alias: [
+				{
+					// This is needed for Deno compatibility, as the non-browser version
+					// of this module depends on Node `crypto`
+					find: 'randombytes',
+					replacement: 'randombytes/browser',
+				},
+				{
+					// Typings are imported from 'astro' (e.g. import { Type } from 'astro')
+					find: /^astro$/,
+					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
+				},
+			],
+			conditions: ['astro'],
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
@@ -110,7 +131,27 @@ export async function createVite(
 	let result = commonConfig;
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
+	sortPlugins(result);
+
 	return result;
+}
+
+function getPluginName(plugin: vite.PluginOption) {
+	if (plugin && typeof plugin === 'object' && !Array.isArray(plugin)) {
+		return plugin.name;
+	}
+}
+
+function sortPlugins(result: ViteConfigWithSSR) {
+	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
+	const mdxPluginIndex =
+		result.plugins?.findIndex((plugin) => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
+	if (mdxPluginIndex === -1) return;
+	const jsxPluginIndex =
+		result.plugins?.findIndex((plugin) => getPluginName(plugin) === 'astro:jsx') ?? -1;
+	const mdxPlugin = result.plugins?.[mdxPluginIndex];
+	result.plugins?.splice(mdxPluginIndex, 1);
+	result.plugins?.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Astro basics', () => {
@@ -74,6 +74,20 @@ describe('Astro basics', () => {
 			expect($('#spread-ts').attr('a')).to.equal('0');
 			expect($('#spread-ts').attr('b')).to.equal('1');
 			expect($('#spread-ts').attr('c')).to.equal('2');
+		});
+
+		it('Allows scoped classes with spread', async () => {
+			const html = await fixture.readFile('/spread-scope/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#spread-plain')).to.have.lengthOf(1);
+			expect($('#spread-plain').attr('class')).to.match(/astro-.*/);
+
+			expect($('#spread-class')).to.have.lengthOf(1);
+			expect($('#spread-class').attr('class')).to.match(/astro-.*/);
+
+			expect($('#spread-class-list')).to.have.lengthOf(1);
+			expect($('#spread-class-list').attr('class')).to.match(/astro-.*/);
 		});
 
 		it('Allows using the Fragment element to be used', async () => {

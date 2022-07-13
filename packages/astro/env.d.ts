@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference path="./client.d.ts" />
 
 type Astro = import('astro').AstroGlobal;
 
@@ -11,3 +11,18 @@ type Astro = import('astro').AstroGlobal;
 declare const Astro: Readonly<Astro>;
 
 declare const Fragment: any;
+
+declare module '*.md' {
+	type MD = import('astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeaders: MD['getHeaders'];
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}

@@ -1,5 +1,5 @@
-import * as _ from './utils'
 import { HTMLImageElement } from './HTMLImageElement'
+import * as _ from './utils'
 
 export function Image() {
 	// @ts-ignore

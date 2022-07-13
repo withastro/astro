@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Development Routing', () => {
@@ -245,6 +245,54 @@ describe('Development Routing', () => {
 			const body = await response.text().then((text) => JSON.parse(text));
 			expect(body.slug).to.equal('thing4');
 			expect(body.title).to.equal('data [slug]');
+		});
+	});
+
+	describe('file format routing', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		/** @type {import('./test-utils').DevServer} */
+		let devServer;
+
+		before(async () => {
+			fixture = await loadFixture({
+				build: {
+					format: 'file',
+				},
+				root: './fixtures/without-site-config/',
+				site: 'http://example.com/',
+			});
+			devServer = await fixture.startDevServer();
+		});
+
+		it('200 when loading /index.html', async () => {
+			const response = await fixture.fetch('/index.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /', async () => {
+			const response = await fixture.fetch('/');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /another.html', async () => {
+			const response = await fixture.fetch('/another.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /another', async () => {
+			const response = await fixture.fetch('/another');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /1.html', async () => {
+			const response = await fixture.fetch('/1.html');
+			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading /1', async () => {
+			const response = await fixture.fetch('/1');
+			expect(response.status).to.equal(200);
 		});
 	});
 });

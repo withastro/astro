@@ -1,7 +1,7 @@
-import { visit } from 'unist-util-visit';
-import Prism from 'prismjs';
 import { addAstro } from '@astrojs/prism/internal';
+import Prism from 'prismjs';
 import loadLanguages from 'prismjs/components/index.js';
+import { visit } from 'unist-util-visit';
 const noVisit = new Set(['root', 'html', 'text']);
 
 const languageMap = new Map([['ts', 'typescript']]);
@@ -13,9 +13,9 @@ function runHighlighter(lang: string, code: string) {
 		lang = 'plaintext';
 	}
 
-	const ensureLoaded = (lang: string) => {
-		if (lang && !Prism.languages[lang]) {
-			loadLanguages([lang]);
+	const ensureLoaded = (language: string) => {
+		if (language && !Prism.languages[language]) {
+			loadLanguages([language]);
 		}
 	};
 
@@ -30,6 +30,7 @@ function runHighlighter(lang: string, code: string) {
 	}
 
 	if (lang && !Prism.languages[lang]) {
+		// eslint-disable-next-line no-console
 		console.warn(`Unable to load the language: ${lang}`);
 	}
 

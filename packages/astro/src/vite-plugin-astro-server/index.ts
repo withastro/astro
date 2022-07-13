@@ -1,21 +1,24 @@
-import type * as vite from 'vite';
 import type http from 'http';
+import mime from 'mime';
+import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
-import type { RenderResponse, SSROptions } from '../core/render/dev/index';
-import { debug, info, warn, error, LogOptions } from '../core/logger/core.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
-import { createRouteManifest, matchRoute } from '../core/routing/index.js';
+import type { SSROptions } from '../core/render/dev/index';
+
+import { Readable } from 'stream';
 import stripAnsi from 'strip-ansi';
-import { createSafeError, resolvePages, isBuildingToSSR } from '../core/util.js';
-import { ssr, preload } from '../core/render/dev/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
+import { collectErrorMetadata, fixViteErrorMessage } from '../core/errors.js';
+import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
+import { appendForwardSlash } from '../core/path.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
+import { preload, ssr } from '../core/render/dev/index.js';
+import { RouteCache } from '../core/render/route-cache.js';
+import { createRequest } from '../core/request.js';
+import { createRouteManifest, matchRoute } from '../core/routing/index.js';
+import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
-import { RouteCache } from '../core/render/route-cache.js';
-import { fixViteErrorMessage } from '../core/errors.js';
-import { createRequest } from '../core/request.js';
-import { Readable } from 'stream';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -33,6 +36,14 @@ function removeViteHttpMiddleware(server: vite.Connect.Server) {
 		if (BAD_VITE_MIDDLEWARE.includes(server.stack[i].handle.name)) {
 			server.stack.splice(i, 1);
 		}
+	}
+}
+
+function truncateString(str: string, n: number) {
+	if (str.length > n) {
+		return str.substring(0, n) + '&#8230;';
+	} else {
+		return str;
 	}
 }
 
@@ -66,9 +77,16 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 
 	res.writeHead(status, _headers);
 	if (body) {
-		if (body instanceof Readable) {
+		if (Symbol.for('astro.responseBody') in webResponse) {
+			let stream = (webResponse as any)[Symbol.for('astro.responseBody')];
+			for await (const chunk of stream) {
+				res.write(chunk.toString());
+			}
+		} else if (body instanceof Readable) {
 			body.pipe(res);
 			return;
+		} else if (typeof body === 'string') {
+			res.write(body);
 		} else {
 			const reader = body.getReader();
 			while (true) {
@@ -83,19 +101,8 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	res.end();
 }
 
-async function writeSSRResult(
-	result: RenderResponse,
-	res: http.ServerResponse,
-	statusCode: 200 | 404
-) {
-	if (result.type === 'response') {
-		const { response } = result;
-		await writeWebResponse(res, response);
-		return;
-	}
-
-	const { html } = result;
-	writeHtmlResponse(res, statusCode, html);
+async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
+	return writeWebResponse(res, webResponse);
 }
 
 async function handle404Response(
@@ -111,6 +118,24 @@ async function handle404Response(
 	if (pathname === '/' && !pathname.startsWith(devRoot)) {
 		html = subpathNotUsedTemplate(devRoot, pathname);
 	} else {
+		// HACK: redirect without the base path for assets in publicDir
+		const redirectTo =
+			req.method === 'GET' &&
+			config.base !== '/' &&
+			pathname.startsWith(config.base) &&
+			pathname.replace(config.base, '/');
+
+		if (redirectTo && redirectTo !== '/') {
+			const response = new Response(null, {
+				status: 302,
+				headers: {
+					Location: redirectTo,
+				},
+			});
+			await writeWebResponse(res, response);
+			return;
+		}
+
 		html = notFoundTemplate({
 			statusCode: 404,
 			title: 'Not found',
@@ -133,17 +158,19 @@ async function handle500Response(
 		statusCode: 500,
 		title: 'Internal Error',
 		tabTitle: '500: Error',
-		message: stripAnsi(err.message),
+		message: stripAnsi(err.hint ?? err.message),
 		url: err.url || undefined,
-		stack: stripAnsi(err.stack),
+		stack: truncateString(stripAnsi(err.stack), 500),
 	});
 	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+	// For Windows compat, use relative page paths to match the 404 route
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
-	return manifest.routes.find((r) => r.component === relPages + '404.astro');
+	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
+	return manifest.routes.find((r) => r.component.match(pattern));
 }
 
 function log404(logging: LogOptions, pathname: string) {
@@ -165,10 +192,15 @@ async function handleRequest(
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
-	const url = new URL(origin + req.url);
+	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
+	// routing behavior matches production builds. This supports both file and directory
+	// build formats, and is necessary based on how the manifest tracks build targets.
+	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
-	if (!buildingToSSR) {
+
+	// HACK! @astrojs/image uses query params for the injected route in `dev`
+	if (!buildingToSSR && rootRelativeUrl !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.
@@ -259,7 +291,7 @@ async function handleRequest(
 					routeCache,
 					viteServer,
 				});
-				return await writeSSRResult(result, res, statusCode);
+				return await writeSSRResult(result, res);
 			} else {
 				return handle404Response(origin, config, req, res);
 			}
@@ -284,20 +316,50 @@ async function handleRequest(
 			if (result.type === 'response') {
 				await writeWebResponse(res, result.response);
 			} else {
-				res.writeHead(200);
+				let contentType = 'text/plain';
+				const computedMimeType = route.pathname ? mime.getType(route.pathname) : null;
+				if (computedMimeType) {
+					contentType = computedMimeType;
+				}
+				res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
 				res.end(result.body);
 			}
 		} else {
 			const result = await ssr(preloadedComponent, options);
-			return await writeSSRResult(result, res, statusCode);
+			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		debugger;
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		error(logging, null, msg.formatErrorMessage(err));
+		const errorWithMetadata = collectErrorMetadata(_err);
+		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }
+
+/**
+ * Vite HMR sends requests for new CSS and those get returned as JS, but we want it to be CSS
+ * since they are inside of a link tag for Astro.
+ */
+const forceTextCSSForStylesMiddleware: vite.Connect.NextHandleFunction = function (req, res, next) {
+	if (req.url) {
+		// We are just using this to parse the URL to get the search params object
+		// so the second arg here doesn't matter
+		const url = new URL(req.url, 'https://astro.build');
+		// lang.css is a search param that exists on Astro, Svelte, and Vue components.
+		// We only want to override for astro files.
+		if (url.searchParams.has('astro') && url.searchParams.has('lang.css')) {
+			// Override setHeader so we can set the correct content-type for this request.
+			const setHeader = res.setHeader;
+			res.setHeader = function (key, value) {
+				if (key.toLowerCase() === 'content-type') {
+					return setHeader.call(this, key, 'text/css');
+				}
+				return setHeader.apply(this, [key, value]);
+			};
+		}
+	}
+	next();
+};
 
 export default function createPlugin({ config, logging }: AstroPluginOptions): vite.Plugin {
 	return {
@@ -318,6 +380,12 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
 				removeViteHttpMiddleware(viteServer.middlewares);
+
+				// Push this middleware to the front of the stack so that it can intercept responses.
+				viteServer.middlewares.stack.unshift({
+					route: '',
+					handle: forceTextCSSForStylesMiddleware,
+				});
 				viteServer.middlewares.use(async (req, res) => {
 					if (!req.url || !req.method) {
 						throw new Error('Incomplete request');

@@ -1,10 +1,10 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
+	ComponentInstance,
 	RouteData,
 	SerializedRouteData,
-	ComponentInstance,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 
 export type ComponentPath = string;
 
@@ -12,7 +12,12 @@ export interface RouteInfo {
 	routeData: RouteData;
 	file: string;
 	links: string[];
-	scripts: string[];
+	scripts: // Integration injected
+	(
+		| { children: string; stage: string }
+		// Hoisted
+		| { type: 'inline' | 'external'; value: string }
+	)[];
 }
 
 export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
@@ -22,14 +27,17 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 export interface SSRManifest {
 	routes: RouteInfo[];
 	site?: string;
+	base?: string;
 	markdown: MarkdownRenderingOptions;
 	pageMap: Map<ComponentPath, ComponentInstance>;
 	renderers: SSRLoadedRenderer[];
 	entryModules: Record<string, string>;
+	assets: Set<string>;
 }
 
-export type SerializedSSRManifest = Omit<SSRManifest, 'routes'> & {
+export type SerializedSSRManifest = Omit<SSRManifest, 'routes' | 'assets'> & {
 	routes: SerializedRouteInfo[];
+	assets: string[];
 };
 
 export type AdapterCreateExports<T = any> = (

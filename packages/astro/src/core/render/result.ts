@@ -1,20 +1,22 @@
+import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	Page,
 	Params,
+	Props,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
 } from '../../@types/astro';
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
 import { isScriptRequest } from './script.js';
+import { createCanonicalURL, isCSSRequest } from './util.js';
 
 function onlyAvailableInSSR(name: string) {
-	return function () {
+	return function _onlyAvailableInSSR() {
 		// TODO add more guidance when we have docs and adapters.
 		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`);
 	};
@@ -22,16 +24,19 @@ function onlyAvailableInSSR(name: string) {
 
 export interface CreateResultArgs {
 	ssr: boolean;
+	streaming: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
 	params: Params;
 	pathname: string;
+	props: Props;
 	renderers: SSRLoadedRenderer[];
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
+	styles?: Set<SSRElement>;
 	request: Request;
 }
 
@@ -99,17 +104,40 @@ class Slots {
 
 let renderMarkdown: any = null;
 
-export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, request, resolve, site } = args;
+function isPaginatedRoute({ page }: { page?: Page }) {
+	return page && 'currentPage' in page;
+}
 
+export function createResult(args: CreateResultArgs): SSRResult {
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+
+	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
-	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin);
+	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
+	const headers = new Headers();
+	if (args.streaming) {
+		headers.set('Transfer-Encoding', 'chunked');
+	} else {
+		headers.set('Content-Type', 'text/html');
+	}
+	const response: ResponseInit = {
+		status: 200,
+		statusText: 'OK',
+		headers,
+	};
+
+	// Make headers be read-only
+	Object.defineProperty(response, 'headers', {
+		value: response.headers,
+		enumerable: true,
+		writable: false,
+	});
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
-		styles: new Set<SSRElement>(),
+		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
 		/** This function returns the `Astro` faux-global */
@@ -129,7 +157,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
-								status: 301,
+								status: 302,
 								headers: {
 									Location: path,
 								},
@@ -168,6 +196,7 @@ ${extra}`
 					// Intentionally return an empty string so that it is not relied upon.
 					return '';
 				},
+				response,
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
 
@@ -202,6 +231,7 @@ ${extra}`
 			renderers,
 			pathname,
 		},
+		response,
 	};
 
 	return result;

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
 
@@ -15,9 +15,9 @@ describe('Astro Markdown plugins', () => {
 					['rehype-autolink-headings', { behavior: 'prepend' }],
 				],
 				rehypePlugins: [
+					'rehype-slug',
 					['rehype-toc', { headings: ['h2', 'h3'] }],
 					[addClasses, { 'h1,h2,h3': 'title' }],
-					'rehype-slug',
 				],
 			},
 		});

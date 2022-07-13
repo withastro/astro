@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Slots', () => {
@@ -22,6 +22,16 @@ describe('Slots', () => {
 
 	it('Dynamic named slots work', async () => {
 		const html = await fixture.readFile('/dynamic/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#a').text().trim()).to.equal('A');
+		expect($('#b').text().trim()).to.equal('B');
+		expect($('#c').text().trim()).to.equal('C');
+		expect($('#default').text().trim()).to.equal('Default');
+	});
+
+	it('Conditional named slots work', async () => {
+		const html = await fixture.readFile('/conditional/index.html');
 		const $ = cheerio.load(html);
 
 		expect($('#a').text().trim()).to.equal('A');

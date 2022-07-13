@@ -1,12 +1,24 @@
 ---
+import Title from "../components/Title.astro"
 let foo = 'bar'
+let bg = 'white'
+let fg = 'black'
 ---
 
 <html>
-  <head></head>
+  <head>
+    <style define:vars={{bg, fg}}>
+      body {
+        background: var(--bg);
+        color: var(--fg);
+      }
+    </style>
+  </head>
   <body>
     <script id="inline" define:vars={{ foo }}>
 			console.log(foo);
 		</script>
+
+		<Title />
   </body>
 </html>

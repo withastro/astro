@@ -38,3 +38,11 @@ export function startsWithDotSlash(path: string) {
 export function isRelativePath(path: string) {
 	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
+
+function isString(path: unknown): path is string {
+	return typeof path === 'string' || path instanceof String;
+}
+
+export function joinPaths(...paths: (string | undefined)[]) {
+	return paths.filter(isString).map(trimSlashes).join('/');
+}

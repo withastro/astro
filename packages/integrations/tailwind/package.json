@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Tailwind + Astro Integrations",
-  "version": "0.2.0",
+  "version": "0.2.4",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -12,10 +12,11 @@
     "directory": "packages/integrations/tailwind"
   },
   "keywords": [
+    "astro-integration",
     "astro-component"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/tailwind/",
   "exports": {
     ".": "./dist/index.js",
     "./base.css": "./base.css",
@@ -27,13 +28,12 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@proload/core": "^0.2.2",
-    "autoprefixer": "^10.4.4",
-    "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "@proload/core": "^0.3.2",
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.0.24"
   },
   "devDependencies": {
-    "@types/tailwindcss": "^3.0.10",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },

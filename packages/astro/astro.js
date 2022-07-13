@@ -50,7 +50,7 @@ async function main() {
 	// it's okay to hard-code the valid Node versions here since they will not change over time.
 	if (typeof require === 'undefined') {
 		console.error(`\nNode.js v${version} is not supported by Astro!
-Please upgrade to a version of Node.js with complete ESM support: "^14.15.0 || >=16.0.0"\n`);
+Please upgrade to a version of Node.js with complete ESM support: "^14.20.0 || >=16.16.0"\n`);
 	}
 
 	// Not supported: Report the most helpful error message possible.

@@ -3,7 +3,6 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-// Asset bundling
 describe('Using Astro.request in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;

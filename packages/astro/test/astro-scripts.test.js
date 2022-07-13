@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
-import path from 'path';
+import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Scripts (hoisted and not)', () => {
@@ -38,18 +37,33 @@ describe('Scripts (hoisted and not)', () => {
 		// Inline page
 		let inline = await fixture.readFile('/inline/index.html');
 		let $ = cheerio.load(inline);
+		let $el = $('script');
 
 		// test 1: Just one entry module
-		expect($('script')).to.have.lengthOf(1);
+		expect($el).to.have.lengthOf(1);
 
 		// test 2: attr removed
-		expect($('script').attr('data-astro')).to.equal(undefined);
+		expect($el.attr('data-astro')).to.equal(undefined);
 
-		const entryURL = $('script').attr('src');
-		const inlineEntryJS = await fixture.readFile(entryURL);
+		expect($el.attr('src')).to.equal(undefined);
+		const inlineEntryJS = $el.text();
 
 		// test 3: the JS exists
 		expect(inlineEntryJS).to.be.ok;
+
+		// test 4: Inline imported JS is included
+		expect(inlineEntryJS).to.contain(
+			'I AM IMPORTED INLINE',
+			'The inline imported JS is included in the bundle'
+		);
+	});
+
+	it("Inline scripts that are shared by multiple pages create chunks, and aren't inlined into the HTML", async () => {
+		let html = await fixture.readFile('/inline-shared-one/index.html');
+		let $ = cheerio.load(html);
+
+		expect($('script')).to.have.lengthOf(1);
+		expect($('script').attr('src')).to.not.equal(undefined);
 	});
 
 	it('External page builds the hoisted scripts to a single bundle', async () => {
@@ -60,8 +74,8 @@ describe('Scripts (hoisted and not)', () => {
 		expect($('script')).to.have.lengthOf(2);
 
 		let el = $('script').get(1);
-		let entryURL = $(el).attr('src');
-		let externalEntryJS = await fixture.readFile(entryURL);
+		expect($(el).attr('src')).to.equal(undefined, 'This should have been inlined');
+		let externalEntryJS = $(el).text();
 
 		// test 2: the JS exists
 		expect(externalEntryJS).to.be.ok;
