@@ -119,6 +119,9 @@ describe('Astro Markdown Shiki', () => {
 			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
 			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
 			expect(segments[2].attribs.style).to.be.equal('color: #C9D1D9');
+			
+			const unknownLang = $('.line').last().html();
+			expect(unknownLang).to.be.equal('<span style="color: #c9d1d9">This language does not exist</span>')
 		});
 
 		it('<Markdown /> component', async () => {
@@ -129,6 +132,9 @@ describe('Astro Markdown Shiki', () => {
 			expect(segments).to.have.lengthOf(3);
 			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
 			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
+
+			const unknownLang = $('.line').last().html();
+			expect(unknownLang).to.be.equal('<span style="color: #c9d1d9">This language does not exist</span>')
 		});
 	});
 
