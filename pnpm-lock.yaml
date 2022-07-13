@@ -2324,14 +2324,14 @@ importers:
 
   packages/integrations/vue:
     specifiers:
-      '@vitejs/plugin-vue': ^2.3.3
+      '@vitejs/plugin-vue': ^3.0.0
       astro: workspace:*
       astro-scripts: workspace:*
-      vite: ^2.9.10
+      vite: ^3.0.0
       vue: ^3.2.37
     dependencies:
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.14+vue@3.2.37
-      vite: 2.9.14
+      '@vitejs/plugin-vue': 3.0.0_vite@3.0.0+vue@3.2.37
+      vite: 3.0.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -7952,17 +7952,17 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue/2.3.3_vite@2.9.14+vue@3.2.37:
-    resolution: {integrity: sha512-SmQLDyhz+6lGJhPELsBdzXGc+AcaT8stgkbiTFGpXPe8Tl1tJaBw1A6pxDqDuRsVkD8uscrkx3hA7QDOoKYtyw==}
-    engines: {node: '>=12.0.0'}
+  /@vitejs/plugin-vue/3.0.0_vite@3.0.0+vue@3.2.37:
+    resolution: {integrity: sha512-yWP34ArFh/jAeNUDkkLz/kVRLjf5ppJiq4L36f64Cp6dIrMQeYZGDP9xxdemlXfZR9ylN9JgHUl3GzfqOtgYDg==}
+    engines: {node: '>=14.18.0'}
     peerDependencies:
-      vite: ^2.5.10
+      vite: ^3.0.0
       vue: ^3.2.25
     peerDependenciesMeta:
       vite:
         optional: true
     dependencies:
-      vite: 2.9.14
+      vite: 3.0.0
       vue: 3.2.37
     dev: false
 
@@ -14973,30 +14973,6 @@ packages:
       - '@types/babel__core'
       - supports-color
     dev: true
-
-  /vite/2.9.14:
-    resolution: {integrity: sha512-P/UCjSpSMcE54r4mPak55hWAZPlyfS369svib/gpmz8/01L822lMPOJ/RYW6tLCe1RPvMvOsJ17erf55bKp4Hw==}
-    engines: {node: '>=12.2.0'}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-    dependencies:
-      esbuild: 0.14.48
-      postcss: 8.4.14
-      resolve: 1.22.1
-      rollup: 2.76.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
 
   /vite/3.0.0:
     resolution: {integrity: sha512-M7phQhY3+fRZa0H+1WzI6N+/onruwPTBTMvaj7TzgZ0v2TE+N2sdLKxJOfOv9CckDWt5C4HmyQP81xB4dwRKzA==}

@@ -33,8 +33,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^2.3.3",
-    "vite": "^2.9.10"
+    "@vitejs/plugin-vue": "^3.0.0",
+    "vite": "^3.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
