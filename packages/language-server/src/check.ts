@@ -1,10 +1,11 @@
-import type { Diagnostic } from 'vscode-languageserver';
+import type { Diagnostic } from 'vscode-languageserver-types';
+import { ConfigManager, LSConfig } from './core/config';
 import { DocumentManager } from './core/documents';
-import { ConfigManager } from './core/config';
 import { PluginHost, TypeScriptPlugin } from './plugins';
-export { DiagnosticSeverity } from 'vscode-languageserver-protocol';
+export { DiagnosticSeverity } from 'vscode-languageserver-types';
+export { Diagnostic };
 
-interface GetDiagnosticsResult {
+export interface GetDiagnosticsResult {
 	filePath: string;
 	text: string;
 	diagnostics: Diagnostic[];
@@ -15,8 +16,12 @@ export class AstroCheck {
 	private configManager = new ConfigManager();
 	private pluginHost = new PluginHost(this.docManager);
 
-	constructor(workspacePath: string) {
+	constructor(workspacePath: string, options?: LSConfig) {
 		this.initialize(workspacePath);
+
+		if (options) {
+			this.configManager.updateGlobalConfig(options);
+		}
 	}
 
 	upsertDocument(doc: { text: string; uri: string }) {

@@ -1,1 +1,2 @@
-export { AstroCheck, DiagnosticSeverity } from './check';
+export { AstroCheck, Diagnostic, DiagnosticSeverity, GetDiagnosticsResult } from './check';
+export { offsetAt } from './core/documents';
