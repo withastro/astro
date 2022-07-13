@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.20.0
+
+### Minor Changes
+
+- ba0fab1: Load language integrations from the user's project instead of bundling them in the language server
+
+### Patch Changes
+
+- fa3f0f7: Updated exports for `astro check`
+
 ## 0.19.6
 
 ### Patch Changes
