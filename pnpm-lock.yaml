@@ -253,43 +253,6 @@ importers:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
 
-  examples/integrations-playground:
-    specifiers:
-      '@astrojs/lit': ^0.3.1
-      '@astrojs/partytown': ^0.1.8
-      '@astrojs/react': ^0.4.0
-      '@astrojs/sitemap': ^0.2.6
-      '@astrojs/solid-js': 0.4.0
-      '@astrojs/tailwind': ^0.2.4
-      '@astrojs/turbolinks': ^0.1.4
-      '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-beta.70
-      lit: ^2.2.5
-      preact: ^10.7.3
-      react: ^18.1.0
-      react-dom: ^18.1.0
-      solid-js: ^1.4.3
-      svelte: ^3.48.0
-      vue: ^3.2.37
-    dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.2.7
-      preact: 10.9.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      svelte: 3.49.0
-      vue: 3.2.37
-    devDependencies:
-      '@astrojs/lit': link:../../packages/integrations/lit
-      '@astrojs/partytown': link:../../packages/integrations/partytown
-      '@astrojs/react': link:../../packages/integrations/react
-      '@astrojs/sitemap': link:../../packages/integrations/sitemap
-      '@astrojs/solid-js': link:../../packages/integrations/solid
-      '@astrojs/tailwind': link:../../packages/integrations/tailwind
-      '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
-      astro: link:../../packages/astro
-      solid-js: 1.4.7
-
   examples/minimal:
     specifiers:
       astro: ^1.0.0-beta.70
@@ -335,12 +298,6 @@ importers:
       lightcookie: 1.0.25
       unocss: 0.15.6
       vite-imagetools: 4.0.4
-
-  examples/starter:
-    specifiers:
-      astro: ^1.0.0-beta.70
-    devDependencies:
-      astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
