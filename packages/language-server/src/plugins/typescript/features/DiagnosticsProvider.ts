@@ -25,7 +25,6 @@ export enum DiagnosticCodes {
 	ISOLATED_MODULE_COMPILE_ERR = 1208, // '{0}' cannot be compiled under '--isolatedModules' because it is considered a global script file.
 	TYPE_NOT_ASSIGNABLE = 2322, // Type '{0}' is not assignable to type '{1}'.
 	JSX_NO_CLOSING_TAG = 17008, // JSX element '{0}' has no corresponding closing tag.
-	NO_DECL_IMPLICIT_ANY_TYPE = 7016, // Could not find a declaration file for module '{0}'. '{1}' implicitly has an 'any' type.
 	JSX_ELEMENT_NO_CALL = 2604, // JSX element type '{0}' does not have any construct or call signatures.
 }
 
@@ -105,7 +104,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 					isNoSpreadExpected(diag, document) &&
 					isNoCantReturnOutsideFunction(diag) &&
 					isNoIsolatedModuleError(diag) &&
-					isNoImportImplicitAnyType(diag) &&
 					isNoJsxCannotHaveMultipleAttrsError(diag)
 				);
 			})
@@ -210,10 +208,6 @@ function isNoJSXMustHaveOneParent(diagnostic: Diagnostic) {
 	return diagnostic.code !== DiagnosticCodes.MUST_HAVE_PARENT_ELEMENT;
 }
 
-function isNoImportImplicitAnyType(diagnostic: Diagnostic) {
-	return diagnostic.code !== DiagnosticCodes.NO_DECL_IMPLICIT_ANY_TYPE;
-}
-
 /**
  * When using the shorthand syntax for props TSX expects you to use the spread operator
  * Since the shorthand syntax works differently in Astro and this is not required, hide this message
@@ -233,7 +227,7 @@ function isNoSpreadExpected(diagnostic: Diagnostic, document: AstroDocument) {
 
 /**
  * Ignore "Can't return outside of function body"
- * Since the frontmatter is at the top level, users trying to return a Response  for SSR mode run into this
+ * Since the frontmatter is at the top level, users trying to return a Response for SSR mode run into this
  */
 function isNoCantReturnOutsideFunction(diagnostic: Diagnostic) {
 	return diagnostic.code !== DiagnosticCodes.CANT_RETURN_OUTSIDE_FUNC;
@@ -263,6 +257,8 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 			diagnostic.message +=
 				'\n\nIs the `@astrojs/vue` package installed? You can add it to your project by running the following command: `astro add vue`. If already installed, restarting the language server might be necessary in order for the change to take effect';
 		}
+
+		return diagnostic;
 	}
 
 	// JSX element has no closing tag. JSX -> HTML
@@ -288,7 +284,7 @@ function enhanceIfNecessary(diagnostic: Diagnostic): Diagnostic {
 
 	// For the rare case where an user might try to put a client directive on something that is not a component
 	if (diagnostic.code === DiagnosticCodes.TYPE_NOT_ASSIGNABLE) {
-		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLProps")) {
+		if (diagnostic.message.includes("Property 'client:") && diagnostic.message.includes("to type 'HTMLAttributes")) {
 			return {
 				...diagnostic,
 				message: 'Client directives are only available on framework components',

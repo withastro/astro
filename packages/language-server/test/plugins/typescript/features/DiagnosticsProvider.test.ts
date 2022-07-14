@@ -34,7 +34,7 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 			{
 				code: 2322,
 				message:
-					"Type '{ astroIsAmazing: true; }' is not assignable to type 'HTMLProps<HTMLDivElement>'.\n  Property 'astroIsAmazing' does not exist on type 'HTMLProps<HTMLDivElement>'.",
+					"Type '{ astroIsAmazing: true; }' is not assignable to type 'HTMLAttributes'.\n  Property 'astroIsAmazing' does not exist on type 'HTMLAttributes'.",
 				range: Range.create(0, 5, 0, 19),
 				severity: DiagnosticSeverity.Error,
 				source: 'ts',

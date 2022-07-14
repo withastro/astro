@@ -290,7 +290,9 @@ async function createLanguageService(
 	}
 
 	function getParsedTSConfig() {
-		let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {};
+		let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {
+			compilerOptions: getDefaultCompilerOptions(astroVersion),
+		};
 
 		// If our user has types in their config but it doesn't include the types needed for Astro, add them to the config
 		if (configJson.compilerOptions?.types) {
@@ -305,9 +307,9 @@ async function createLanguageService(
 			) {
 				configJson.compilerOptions.types.push('astro/astro-jsx');
 			}
+		} else {
+			configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(astroVersion), configJson.compilerOptions);
 		}
-
-		configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(astroVersion), configJson.compilerOptions);
 
 		// Delete include so that .astro files don't get mistakenly excluded by the user
 		delete configJson.include;
@@ -321,6 +323,7 @@ async function createLanguageService(
 			declaration: false,
 
 			resolveJsonModule: true,
+			allowSyntheticDefaultImports: true,
 			allowNonTsExtensions: true,
 			allowJs: true,
 			jsx: ts.JsxEmit.Preserve,
@@ -358,7 +361,7 @@ async function createLanguageService(
 }
 
 /**
- * Default configuration used as a base and when the user doesn't have any
+ * Default compiler configuration used when the user doesn't have any
  */
 function getDefaultCompilerOptions(astroVersion: AstroVersion): ts.CompilerOptions {
 	const types = ['astro/env'];
@@ -368,12 +371,10 @@ function getDefaultCompilerOptions(astroVersion: AstroVersion): ts.CompilerOptio
 	}
 
 	return {
-		maxNodeModuleJsDepth: 2,
-		allowSyntheticDefaultImports: true,
 		types: types,
 	};
 }
 
-function getDefaultExclude() {
+function getDefaultExclude(): string[] {
 	return ['dist', 'node_modules'];
 }
