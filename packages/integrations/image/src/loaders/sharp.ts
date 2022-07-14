@@ -37,6 +37,10 @@ class SharpService implements SSRImageService {
 			searchParams.append('ar', transform.aspectRatio.toString());
 		}
 
+		if (transform.blur) {
+			searchParams.append('b', transform.blur.toString());
+		}
+
 		searchParams.append('href', transform.src);
 
 		return { searchParams };
@@ -78,6 +82,10 @@ class SharpService implements SSRImageService {
 			}
 		}
 
+		if (searchParams.has('b')) {
+			transform.blur = parseFloat(searchParams.get('b')!);
+		}
+
 		return transform;
 	}
 
@@ -92,6 +100,10 @@ class SharpService implements SSRImageService {
 
 		if (transform.format) {
 			sharpImage.toFormat(transform.format, { quality: transform.quality });
+		}
+
+		if (transform.blur) {
+			sharpImage.blur(transform.blur);
 		}
 
 		const { data, info } = await sharpImage.toBuffer({ resolveWithObject: true });

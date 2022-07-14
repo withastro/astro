@@ -71,6 +71,7 @@ export interface TransformOptions {
 	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
 	 */
 	aspectRatio?: number | `${number}:${number}`;
+	blur?: number;
 }
 
 export type ImageAttributes = astroHTML.JSX.ImgHTMLAttributes;

@@ -1,11 +1,12 @@
 ---
 // @ts-ignore
 import loader from 'virtual:image-loader';
-import { getImage } from '../src/index.js';
+import { getImage, getPlaceholder } from '../src/index.js';
 import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types.js';
 
 export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	placeholder?: boolean;
 }
 
 export interface RemoteImageProps extends TransformOptions, ImageAttributes {
@@ -13,16 +14,53 @@ export interface RemoteImageProps extends TransformOptions, ImageAttributes {
 	format: OutputFormat;
 	width: number;
 	height: number;
+	placeholder?: boolean;
 }
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const { loading = "lazy", decoding = "async", ...props } = Astro.props as Props;
+const { loading = "lazy", decoding = "async", placeholder = true, ...props } = Astro.props as Props;
 
-const attrs = await getImage(loader, props);
+const { src, ...attrs } = await getImage(loader, props);
+const base64Placeholder = placeholder && await getPlaceholder(loader, props);
 ---
 
-<img {...attrs} {loading} {decoding} />
+{base64Placeholder ? (
+	<img src={base64Placeholder} data-src={src} {loading} {decoding} {...attrs} />
+	<script is:global>
+		(function() {
+			function lazyload(elem) {
+				const img = new Image();
+				const src = elem.getAttribute('data-src');
+				img.onload = () => {
+					elem.src = src;
+					elem.removeAttribute('data-src');
+				}
+				img.src = src;
+			}
+
+			function handleIntersect(entries, observer) {
+				entries.forEach((entry) => {
+					if (entry.intersectionRatio > 0) {
+						lazyload(entry.target);
+						observer.unobserve(entry.target);
+					}
+				});
+			}
+
+			const observer = new IntersectionObserver(handleIntersect);
+			document.querySelectorAll('img[data-src]', elem => observer.observe(elem));
+		})();
+		for (const elem of document.querySelectorAll('img[data-src]')) {
+			const img = new Image()
+			const src = elem.getAttribute('data-src')
+			img.onload = () => elem.src = src
+			img.src = src
+		}
+	</script>
+) : (
+	<img {src} {...attrs} {loading} {decoding} />
+)}
 
 <style>
 	img {

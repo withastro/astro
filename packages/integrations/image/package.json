@@ -24,6 +24,7 @@
       "astro": "./components/index.js",
       "import": "./dist/index.js"
     },
+    "./lazyload": "./dist/lazyload.js",
     "./sharp": "./dist/loaders/sharp.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",

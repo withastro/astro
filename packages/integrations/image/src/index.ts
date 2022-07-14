@@ -14,6 +14,7 @@ import {
 import { createPlugin } from './vite-plugin-astro-image.js';
 export * from './get-image.js';
 export * from './get-picture.js';
+export * from './get-placeholder.js';
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
 	const resolvedOptions = {
@@ -43,6 +44,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		hooks: {
 			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
+				console.log(config.srcDir)
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
