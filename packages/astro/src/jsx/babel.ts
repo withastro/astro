@@ -1,7 +1,8 @@
 import type { PluginMetadata } from '../vite-plugin-astro/types';
-import type { PluginObj } from '@babel/core';
+import type { PluginObj, NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { pathToFileURL } from 'node:url'
+import { ClientOnlyPlaceholder } from '../runtime/server/index.js';
 
 function isComponent(tagName: string) {
 	return (
@@ -15,6 +16,15 @@ function hasClientDirective(node: t.JSXElement) {
 	for (const attr of node.openingElement.attributes) {
 		if (attr.type === 'JSXAttribute' && attr.name.type === 'JSXNamespacedName') {
 			return attr.name.namespace.name === 'client';
+		}
+	}
+	return false;
+}
+
+function isClientOnlyComponent(node: t.JSXElement) {
+	for (const attr of node.openingElement.attributes) {
+		if (attr.type === 'JSXAttribute' && attr.name.type === 'JSXNamespacedName') {
+			return jsxAttributeToString(attr) === 'client:only'; 
 		}
 	}
 	return false;
@@ -71,25 +81,68 @@ function addClientMetadata(node: t.JSXElement, meta: { resolvedPath: string; pat
 	}
 }
 
+function addClientOnlyMetadata(node: t.JSXElement, meta: { resolvedPath: string; path: string; name: string }) {
+	const tagName = getTagName(node);
+	node.openingElement = t.jsxOpeningElement(t.jsxIdentifier(ClientOnlyPlaceholder), node.openingElement.attributes)
+	if (node.closingElement) {
+		node.closingElement = t.jsxClosingElement(t.jsxIdentifier(ClientOnlyPlaceholder))
+	}
+	const existingAttributes = node.openingElement.attributes.map((attr) =>
+		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
+	);
+	if (!existingAttributes.find((attr) => attr === 'client:display-name')) {
+		const displayName = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('display-name')),
+			t.stringLiteral(tagName)
+		);
+		node.openingElement.attributes.push(displayName);
+	}
+	if (!existingAttributes.find((attr) => attr === 'client:component-path')) {
+		const componentPath = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-path')),
+			t.stringLiteral(meta.resolvedPath)
+		);
+		node.openingElement.attributes.push(componentPath);
+	}
+	if (!existingAttributes.find((attr) => attr === 'client:component-export')) {
+		if (meta.name === '*') {
+			meta.name = getTagName(node).split('.').at(1)!;
+		}
+		const componentExport = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
+			t.stringLiteral(meta.name)
+		);
+		node.openingElement.attributes.push(componentExport);
+	}
+	if (!existingAttributes.find((attr) => attr === 'client:component-hydration')) {
+		const staticMarker = t.jsxAttribute(
+			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-hydration'))
+		);
+		node.openingElement.attributes.push(staticMarker);
+	}
+}
+
 export default function astroJSX(): PluginObj {
 	return {
 		visitor: {
-			Program(path, state) {
-				if (!(state.file.metadata as PluginMetadata).astro) {
-					(state.file.metadata as PluginMetadata).astro = {
-						clientOnlyComponents: [],
-						hydratedComponents: [],
-						scripts: [],
+			Program: {
+				enter(path, state) {
+					if (!(state.file.metadata as PluginMetadata).astro) {
+						(state.file.metadata as PluginMetadata).astro = {
+							clientOnlyComponents: [],
+							hydratedComponents: [],
+							scripts: [],
+						}
 					}
+					path.node.body.splice(
+						0,
+						0,
+						t.importDeclaration(
+							[t.importSpecifier(t.identifier('Fragment'), t.identifier('Fragment'))],
+							t.stringLiteral('astro/jsx-runtime')
+						)
+					);
 				}
-				path.node.body.splice(
-					0,
-					0,
-					t.importDeclaration(
-						[t.importSpecifier(t.identifier('Fragment'), t.identifier('Fragment'))],
-						t.stringLiteral('astro/jsx-runtime')
-					)
-				);
 			},
 			ImportDeclaration(path, state) {
 				const source = path.node.source.value;
@@ -122,9 +175,11 @@ export default function astroJSX(): PluginObj {
 				const tagName = getTagName(parentNode);
 				if (!isComponent(tagName)) return;
 				if (!hasClientDirective(parentNode)) return;
+				const isClientOnly = isClientOnlyComponent(parentNode);
+				if (tagName === ClientOnlyPlaceholder) return;
 
 				const imports = state.get('imports') ?? new Map();
-				const namespace = getTagName(parentNode).split('.');
+				const namespace = tagName.split('.');
 				for (const [source, specs] of imports) {
 					for (const { imported, local } of specs) {
 						const reference = path.referencesImport(source, imported);
@@ -138,7 +193,7 @@ export default function astroJSX(): PluginObj {
 						}
 					}
 				}
-				// TODO: map unmatched identifiers back to imports if possible
+
 				const meta = path.getData('import');
 				if (meta) {
 					let resolvedPath: string;
@@ -151,13 +206,25 @@ export default function astroJSX(): PluginObj {
 					} else {
 						resolvedPath = meta.path;
 					}
-					(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
-						exportName: meta.name,
-						specifier: meta.name,
-						resolvedPath
-					})
-					meta.resolvedPath = resolvedPath;
-					addClientMetadata(parentNode, meta);
+					if (isClientOnly) {
+						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
+							exportName: meta.name,
+							specifier: meta.name,
+							resolvedPath
+						})
+
+						meta.resolvedPath = resolvedPath;
+						addClientOnlyMetadata(parentNode, meta);
+					} else {
+						(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
+							exportName: meta.name,
+							specifier: meta.name,
+							resolvedPath
+						})
+
+						meta.resolvedPath = resolvedPath;
+						addClientMetadata(parentNode, meta);
+					}
 				} else {
 					throw new Error(
 						`Unable to match <${getTagName(

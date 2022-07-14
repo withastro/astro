@@ -4,6 +4,7 @@ import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
 	Fragment,
+	ClientOnlyPlaceholder,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
@@ -47,16 +48,26 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 		}
 	}
 	if (vnode[AstroJSX]) {
-		if (!vnode.type && vnode.type !== 0) return '';
-		if (typeof vnode.type === 'string') {
+		if (!vnode.type && vnode.type !== 0) {
+			return '';
+		}
+		if (typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder) {
 			return await renderElement(result, vnode.type, vnode.props ?? {});
 		}
 		if (!!vnode.type) {
-			if (!skipAstroJSXCheck.has(vnode.type)) {
+			if (vnode.props['server:root']) {
+				const output = await vnode.type(vnode.props ?? {});
+				return await renderJSX(result, output);
+			}
+			if (typeof vnode.type !== 'string' && !skipAstroJSXCheck.has(vnode.type)) {
 				useConsoleFilter();
 				try {
 					const output = await vnode.type(vnode.props ?? {});
-					return await renderJSX(result, output);
+					if (output && output[AstroJSX]) {
+						return await renderJSX(result, output);
+					} else if (!output) {
+						return await renderJSX(result, output);
+					}
 				} catch (e) {
 					skipAstroJSXCheck.add(vnode.type);
 				} finally {
@@ -88,9 +99,14 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 
 			const renderers = result._metadata.renderers;
-			result._metadata.renderers = renderers.filter(r => r.name != 'astro:jsx')
-			const output = await renderComponent(result, vnode.type.name, vnode.type, props, slots);
-			result._metadata.renderers = renderers
+			result._metadata.renderers = renderers.filter((r) => r.name != 'astro:jsx');
+			let output: string | AsyncIterable<string>;
+			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
+				output = await renderComponent(result, vnode.props['client:display-name'] ?? '', null, props, slots);
+			} else {
+				output = await renderComponent(result, vnode.type.name, vnode.type, props, slots);
+			}
+			result._metadata.renderers = renderers;
 			return markHTMLString(output);
 		}
 	}
