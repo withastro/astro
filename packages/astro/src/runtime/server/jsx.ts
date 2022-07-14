@@ -24,35 +24,36 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return markHTMLString(escapeHTML(vnode));
 		case !vnode && vnode !== 0:
 			return '';
-		case vnode.type === Symbol.for('astro:fragment'):
-			return renderJSX(result, vnode.props.children);
 		case Array.isArray(vnode):
 			return markHTMLString(
 				(await Promise.all(vnode.map((v: any) => renderJSX(result, v)))).join('')
 			);
-		case vnode.type.isAstroComponentFactory: {
-			let props: Record<string, any> = {};
-			let slots: Record<string, any> = {};
-			for (const [key, value] of Object.entries(vnode.props ?? {})) {
-				if (
-					key === 'children' ||
-					(value && typeof value === 'object' && (value as any)['$$slot'])
-				) {
-					slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
-				} else {
-					props[key] = value;
-				}
-			}
-			return await renderToString(result, vnode.type, props, slots);
-		}
 	}
-	if (vnode[AstroJSX]) {
-		if (!vnode.type && vnode.type !== 0) {
-			return '';
+	if (isVNode(vnode)) {
+		switch (true) {
+			case (vnode.type as any) === Symbol.for('astro:fragment'):
+				return renderJSX(result, vnode.props.children);
+			case (vnode.type as any).isAstroComponentFactory: {
+				let props: Record<string, any> = {};
+				let slots: Record<string, any> = {};
+				for (const [key, value] of Object.entries(vnode.props ?? {})) {
+					if (
+						key === 'children' ||
+						(value && typeof value === 'object' && (value as any)['$$slot'])
+					) {
+						slots[key === 'children' ? 'default' : key] = () => renderJSX(result, value);
+					} else {
+						props[key] = value;
+					}
+				}
+				return await renderToString(result, vnode.type as any, props, slots);
+			}
+			case !vnode.type && (vnode.type as any) !== 0:
+				return '';
+			case typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder:
+				return await renderElement(result, vnode.type as string, vnode.props ?? {});
 		}
-		if (typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder) {
-			return await renderElement(result, vnode.type, vnode.props ?? {});
-		}
+
 		if (!!vnode.type) {
 			if (vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
@@ -99,7 +100,13 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 
 			let output: string | AsyncIterable<string>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
-				output = await renderComponent(result, vnode.props['client:display-name'] ?? '', null, props, slots);
+				output = await renderComponent(
+					result,
+					vnode.props['client:display-name'] ?? '',
+					null,
+					props,
+					slots
+				);
 			} else {
 				output = await renderComponent(result, vnode.type.name, vnode.type, props, slots);
 			}
