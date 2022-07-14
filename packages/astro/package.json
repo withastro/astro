@@ -35,7 +35,7 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
-    "./components": "./components/index.js",
+    "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
