@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 0.4.1
+
+### Patch Changes
+
+- [#3928](https://github.com/withastro/astro/pull/3928) [`d6dfef0ca`](https://github.com/withastro/astro/commit/d6dfef0caa25f4effd0ed548d92ff48ce7a39ab2) Thanks [@matthewp](https://github.com/matthewp)! - Removes @babel/core peerDependency warning
+
 ## 0.4.0
 
 ### Minor Changes
