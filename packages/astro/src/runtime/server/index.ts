@@ -357,17 +357,13 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
-				try {
-					({ html } = await renderer.ssr.renderToStaticMarkup.call(
-						{ result },
-						Component,
-						props,
-						children,
-						metadata
-					));
-				} catch (e) {
-					return e as string
-				}
+				({ html } = await renderer.ssr.renderToStaticMarkup.call(
+					{ result },
+					Component,
+					props,
+					children,
+					metadata
+				));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -386,17 +382,13 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		if (metadata.hydrate === 'only') {
 			html = await renderSlot(result, slots?.fallback);
 		} else {
-			try {
-				({ html } = await renderer.ssr.renderToStaticMarkup.call(
-					{ result },
-					Component,
-					props,
-					children,
-					metadata
-				));
-			} catch (e) {
-				return e as string;
-			}
+			({ html } = await renderer.ssr.renderToStaticMarkup.call(
+				{ result },
+				Component,
+				props,
+				children,
+				metadata
+			));
 		}
 	}
 
