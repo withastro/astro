@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-beta.72
+
+### Patch Changes
+
+- [#3922](https://github.com/withastro/astro/pull/3922) [`7094d6a45`](https://github.com/withastro/astro/commit/7094d6a45f06b61f2a35af3408380654f24fc8f5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle `false` in `class:list`
+
+* [#3927](https://github.com/withastro/astro/pull/3927) [`7c5c4106d`](https://github.com/withastro/astro/commit/7c5c4106d7b9d73103eb6e899f39125e630280ff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated `astro/components` exports to a `.ts` file so it's automatically typed
+
 ## 1.0.0-beta.71
 
 ### Patch Changes

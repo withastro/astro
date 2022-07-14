@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/preact",
   "description": "Use Preact components within Astro",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
