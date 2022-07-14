@@ -936,6 +936,7 @@ type Body = string;
 export interface APIContext {
 	params: Params;
 	request: Request;
+	context: any;
 }
 
 export interface EndpointOutput {

@@ -49,7 +49,7 @@ export class App {
 		const url = new URL(request.url);
 		return matchRoute(url.pathname, this.#manifestData);
 	}
-	async render(request: Request, routeData?: RouteData): Promise<Response> {
+	async render(request: Request, routeData?: RouteData, context?: any): Promise<Response> {
 		if (!routeData) {
 			routeData = this.match(request);
 			if (!routeData) {
@@ -63,9 +63,9 @@ export class App {
 		const mod = this.#manifest.pageMap.get(routeData.component)!;
 
 		if (routeData.type === 'page') {
-			return this.#renderPage(request, routeData, mod);
+			return this.#renderPage(request, routeData, mod, context);
 		} else if (routeData.type === 'endpoint') {
-			return this.#callEndpoint(request, routeData, mod);
+			return this.#callEndpoint(request, routeData, mod, context);
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
@@ -74,7 +74,8 @@ export class App {
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
+		mod: ComponentInstance,
+		context?: any,
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
@@ -119,6 +120,7 @@ export class App {
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			context,
 			streaming: this.#streaming,
 		});
 
@@ -128,8 +130,9 @@ export class App {
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
-	): Promise<Response> {
+		mod: ComponentInstance,
+		context?: any,
+		): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {
@@ -140,6 +143,7 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
+			context,
 		});
 
 		if (result.type === 'response') {

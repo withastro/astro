@@ -38,6 +38,7 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	request: Request;
+	context: any;
 }
 
 function getFunctionExpression(slot: any) {
@@ -109,7 +110,17 @@ function isPaginatedRoute({ page }: { page?: Page }) {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+	const { 
+		markdown, 
+		params, 
+		pathname, 
+		props: pageProps, 
+		renderers, 
+		request, 
+		resolve, 
+		site, 
+		context 
+	} = args;
 
 	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
@@ -197,6 +208,7 @@ ${extra}`
 					return '';
 				},
 				response,
+				context,
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
 

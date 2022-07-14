@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { IncomingMessage } from 'http';
 import { deserializeManifest } from './common.js';
 import { App } from './index.js';
+import { RouteData } from '../../@types/astro';
 
 function createRequestFromNodeRequest(req: IncomingMessage): Request {
 	let url = `http://${req.headers.host}${req.url}`;
@@ -19,8 +20,8 @@ export class NodeApp extends App {
 	match(req: IncomingMessage | Request) {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req));
 	}
-	render(req: IncomingMessage | Request) {
-		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req));
+	render(req: IncomingMessage | Request, routeData?: RouteData, context?: any) {
+		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req), routeData, context);
 	}
 }
 

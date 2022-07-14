@@ -9,5 +9,6 @@ export async function call(ssrOpts: SSROptions) {
 	return await callEndpoint(mod as unknown as EndpointHandler, {
 		...ssrOpts,
 		ssr: isBuildingToSSR(ssrOpts.astroConfig),
+		context: null,
 	});
 }
