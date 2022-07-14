@@ -17,6 +17,7 @@ import { RouteCache } from '../route-cache.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
+import { getScriptsForURL } from './scripts.js';
 import { resolveClientDevPath } from './resolve.js';
 
 export interface SSROptions {
@@ -108,9 +109,7 @@ export async function render(
 		viteServer,
 	} = ssrOpts;
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(
-		mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
-	);
+	const scripts = await getScriptsForURL(filePath, astroConfig, viteServer);
 
 	// Inject HMR scripts
 	if (isPage(filePath, astroConfig) && mode === 'development') {
