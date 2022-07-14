@@ -70,8 +70,11 @@ export async function getStylesForURL(
 				if (
 					mode === 'development' && // only inline in development
 					typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
-				) {
-					importedStylesMap.set(importedModule.url, importedModule.ssrModule.default);
+					) {
+						const styles = importedModule.ssrModule?.default
+							.replace(/^export default "/, '')
+							.replace(/"$/, '');
+					importedStylesMap.set(importedModule.url, styles);
 				} else {
 					// NOTE: We use the `url` property here. `id` would break Windows.
 					importedCssUrls.add(importedModule.url);
