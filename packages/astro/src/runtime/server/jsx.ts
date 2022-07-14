@@ -3,7 +3,6 @@ import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
-	Fragment,
 	ClientOnlyPlaceholder,
 	HTMLString,
 	markHTMLString,
@@ -25,7 +24,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return markHTMLString(escapeHTML(vnode));
 		case !vnode && vnode !== 0:
 			return '';
-		case vnode.type === Fragment:
+		case vnode.type === Symbol.for('astro:fragment'):
 			return renderJSX(result, vnode.props.children);
 		case Array.isArray(vnode):
 			return markHTMLString(
@@ -59,7 +58,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
 			}
-			if (typeof vnode.type !== 'string' && !skipAstroJSXCheck.has(vnode.type)) {
+			if (typeof vnode.type === 'function' && !skipAstroJSXCheck.has(vnode.type)) {
 				useConsoleFilter();
 				try {
 					const output = await vnode.type(vnode.props ?? {});
@@ -98,15 +97,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				slots[key] = () => renderJSX(result, value);
 			}
 
-			const renderers = result._metadata.renderers;
-			result._metadata.renderers = renderers.filter((r) => r.name != 'astro:jsx');
 			let output: string | AsyncIterable<string>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(result, vnode.props['client:display-name'] ?? '', null, props, slots);
 			} else {
 				output = await renderComponent(result, vnode.type.name, vnode.type, props, slots);
 			}
-			result._metadata.renderers = renderers;
 			return markHTMLString(output);
 		}
 	}
