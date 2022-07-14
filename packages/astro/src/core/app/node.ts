@@ -21,7 +21,11 @@ export class NodeApp extends App {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req));
 	}
 	render(req: IncomingMessage | Request, routeData?: RouteData, context?: any) {
-		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req), routeData, context);
+		return super.render(
+			req instanceof Request ? req : createRequestFromNodeRequest(req),
+			routeData,
+			context
+		);
 	}
 }
 

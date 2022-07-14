@@ -75,7 +75,7 @@ export class App {
 		request: Request,
 		routeData: RouteData,
 		mod: ComponentInstance,
-		context?: any,
+		context?: any
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
@@ -131,8 +131,8 @@ export class App {
 		request: Request,
 		routeData: RouteData,
 		mod: ComponentInstance,
-		context?: any,
-		): Promise<Response> {
+		context?: any
+	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(handler, {

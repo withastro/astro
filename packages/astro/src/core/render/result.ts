@@ -110,16 +110,16 @@ function isPaginatedRoute({ page }: { page?: Page }) {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { 
-		markdown, 
-		params, 
-		pathname, 
-		props: pageProps, 
-		renderers, 
-		request, 
-		resolve, 
-		site, 
-		context 
+	const {
+		markdown,
+		params,
+		pathname,
+		props: pageProps,
+		renderers,
+		request,
+		resolve,
+		site,
+		context,
 	} = args;
 
 	const paginated = isPaginatedRoute(pageProps);

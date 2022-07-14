@@ -628,7 +628,12 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 }
 
 /** Renders an endpoint request to completion, returning the body. */
-export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params, context: any) {
+export async function renderEndpoint(
+	mod: EndpointHandler,
+	request: Request,
+	params: Params,
+	context: any
+) {
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!handler || typeof handler !== 'function') {
