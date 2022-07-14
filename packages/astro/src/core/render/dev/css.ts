@@ -71,6 +71,8 @@ export async function getStylesForURL(
 					mode === 'development' && // only inline in development
 					typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
 					) {
+						// TODO: understand where this export default wrapper is coming from
+						// Note: does not occur when SSR-ing styles in plain Vite 3
 						const styles = importedModule.ssrModule?.default
 							.replace(/^export default "/, '')
 							.replace(/"$/, '');
