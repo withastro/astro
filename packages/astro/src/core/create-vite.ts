@@ -21,6 +21,8 @@ const ALWAYS_EXTERNAL = new Set([
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
 	'@astrojs/markdown-remark',
+	// in-lined for markdown modules
+	'github-slugger',
 	'node-fetch',
 	'prismjs',
 	'shiki',
@@ -111,6 +113,7 @@ export async function createVite(
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
 				},
 			],
+			conditions: ['astro'],
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
@@ -129,6 +132,7 @@ export async function createVite(
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
 	sortPlugins(result);
+
 	return result;
 }
 

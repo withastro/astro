@@ -30,7 +30,7 @@ describe('API routes in SSR', () => {
 		const request = new Request('http://example.com/food.json');
 		const response = await app.render(request);
 		expect(response.status).to.equal(200);
-		expect(response.headers.get('Content-Type')).to.equal('application/json');
+		expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
 		expect(response.headers.get('Content-Length')).to.not.be.empty;
 		const body = await response.json();
 		expect(body.length).to.equal(3);
@@ -54,6 +54,13 @@ describe('API routes in SSR', () => {
 			expect(response.status).to.equal(200);
 			const text = await response.text();
 			expect(text).to.equal(`ok`);
+		});
+
+		it('Infer content type with charset for { body } shorthand', async () => {
+			const response = await fixture.fetch('/food.json', {
+				method: 'GET',
+			});
+			expect(response.headers.get('Content-Type')).to.equal('application/json;charset=utf-8');
 		});
 
 		it('Can set multiple headers of the same type', async () => {

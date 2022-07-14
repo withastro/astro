@@ -1,30 +1,31 @@
 ---
-import Header from '../components/Header.astro';
-import Container from '../components/Container.astro';
+import Header from "../components/Header.astro";
+import Container from "../components/Container.astro";
 ---
+
 <html>
-<head>
-	<title>Online Store</title>
-	<style>
-		h1 {
-			font-size: 36px;
-		}
-	</style>
-</head>
-<body>
-	<Header />
+	<head>
+		<title>Online Store</title>
+		<style>
+			h1 {
+				font-size: 36px;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
 
-	<Container tag="main">
-		<h1>Login</h1>
-		<form action="/login.form" method="POST">
-			<label for="name">Name</label>
-			<input type="text" name="name">
+		<Container tag="main">
+			<h1>Login</h1>
+			<form action="/login.form" method="POST">
+				<label for="name">Name</label>
+				<input type="text" name="name" />
 
-			<label for="password">Password</label>
-			<input type="password" name="password">
+				<label for="password">Password</label>
+				<input type="password" name="password" />
 
-			<input type="submit" value="Submit">
-		</form>
-	</Container>
-</body>
+				<input type="submit" value="Submit" />
+			</form>
+		</Container>
+	</body>
 </html>

@@ -66,16 +66,16 @@ Several official projects are maintained outside of this repo:
 ## Links
 
 - [License (MIT)](LICENSE)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Open Governance & Voting](GOVERNANCE.md)
-- [Project Funding](FUNDING.md)
+- [Code of Conduct](https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md)
+- [Open Governance & Voting](https://github.com/withastro/.github/blob/main/GOVERNANCE.md)
+- [Project Funding](https://github.com/withastro/.github/blob/main/FUNDING.md)
 - [Website](https://astro.build/)
 
 ## Sponsors
 
 Astro is generously supported by Netlify, Vercel, and several other amazing organizations.
 
-[❤️ Sponsor Astro! ❤️](FUNDING.md)
+[❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
 ### Platinum Sponsors
 

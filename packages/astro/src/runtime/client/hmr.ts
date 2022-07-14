@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 if (import.meta.hot) {
 	import.meta.hot.accept((mod) => mod);
 

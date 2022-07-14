@@ -29,7 +29,7 @@ If you run into any hiccups, [feel free to log an issue on our GitHub](https://g
 
 First, install the `@astrojs/react` integration like so:
 
-```
+```sh
 npm install @astrojs/react
 ```
 
@@ -41,7 +41,7 @@ npm install react react-dom
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import react from '@astrojs/react';

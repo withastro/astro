@@ -58,3 +58,17 @@ export function propsToFilename({ src, width, height, format }: TransformOptions
 
 	return format ? src.replace(ext, format) : src;
 }
+
+export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
+	if (!aspectRatio) {
+		return undefined;
+	}
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof aspectRatio === 'number') {
+		return aspectRatio;
+	} else {
+		const [width, height] = aspectRatio.split(':');
+		return parseInt(width) / parseInt(height);
+	}
+}

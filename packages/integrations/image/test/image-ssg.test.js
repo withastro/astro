@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import path from 'path';
 import sizeOf from 'image-size';
+import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
@@ -12,7 +12,8 @@ describe('SSG images', function () {
 	});
 
 	function verifyImage(pathname, expected) {
-		const dist = path.join('test/fixtures/basic-image/dist', pathname);
+		const url = new URL('./fixtures/basic-image/dist/' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
 		const result = sizeOf(dist);
 		expect(result).to.deep.equal(expected);
 	}
@@ -31,6 +32,16 @@ describe('SSG images', function () {
 		describe('Local images', () => {
 			it('includes src, width, and height attributes', () => {
 				const image = $('#social-jpg');
+
+				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
+				expect(image.attr('width')).to.equal('506');
+				expect(image.attr('height')).to.equal('253');
+			});
+		});
+
+		describe('Inline imports', () => {
+			it('includes src, width, and height attributes', () => {
+				const image = $('#inline');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
 				expect(image.attr('width')).to.equal('506');
@@ -99,6 +110,36 @@ describe('SSG images', function () {
 
 			it('returns the optimized image', async () => {
 				const image = $('#social-jpg');
+
+				const res = await fixture.fetch(image.attr('src'));
+
+				expect(res.status).to.equal(200);
+				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
+
+				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+			});
+		});
+
+		describe('Local images with inline imports', () => {
+			it('includes src, width, and height attributes', () => {
+				const image = $('#inline');
+
+				const src = image.attr('src');
+				const [route, params] = src.split('?');
+
+				expect(route).to.equal('/_image');
+
+				const searchParams = new URLSearchParams(params);
+
+				expect(searchParams.get('f')).to.equal('jpg');
+				expect(searchParams.get('w')).to.equal('506');
+				expect(searchParams.get('h')).to.equal('253');
+				// TODO: possible to avoid encoding the full image path?
+				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			});
+
+			it('returns the optimized image', async () => {
+				const image = $('#inline');
 
 				const res = await fixture.fetch(image.attr('src'));
 

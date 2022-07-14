@@ -1,4 +1,6 @@
-export * from './index';
+/// <reference types="astro/astro-jsx" />
+export type { Image, Picture } from '../components/index.js';
+export * from './index.js';
 
 export type InputFormat =
 	| 'heic'
@@ -71,7 +73,8 @@ export interface TransformOptions {
 	aspectRatio?: number | `${number}:${number}`;
 }
 
-export type ImageAttributes = Partial<HTMLImageElement>;
+export type ImageAttributes = astroHTML.JSX.ImgHTMLAttributes;
+export type PictureAttributes = astroHTML.JSX.HTMLAttributes;
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
@@ -83,7 +86,7 @@ export interface HostedImageService<T extends TransformOptions = TransformOption
 export interface SSRImageService<T extends TransformOptions = TransformOptions>
 	extends HostedImageService<T> {
 	/**
-	 * Gets the HTML attributes needed for the server rendered `<img />` element.
+	 * Gets tthe HTML attributes needed for the server rendered `<img />` element.
 	 */
 	getImageAttributes(transform: T): Promise<Exclude<ImageAttributes, 'src'>>;
 	/**
@@ -113,6 +116,14 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions>
 export type ImageService<T extends TransformOptions = TransformOptions> =
 	| HostedImageService<T>
 	| SSRImageService<T>;
+
+export function isHostedService(service: ImageService): service is ImageService {
+	return 'getImageSrc' in service;
+}
+
+export function isSSRService(service: ImageService): service is SSRImageService {
+	return 'transform' in service;
+}
 
 export interface ImageMetadata {
 	src: string;

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/netlify",
   "description": "Deploy your site to Netlify",
-  "version": "0.4.8",
+  "version": "0.4.10",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -11,8 +11,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/netlify"
   },
+  "keywords": [
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/netlify/",
   "exports": {
     ".": "./dist/index.js",
     "./functions": "./dist/integration-functions.js",

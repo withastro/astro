@@ -1,6 +1,6 @@
 export const TEMPLATES = [
 	{
-		title: 'Just the basics',
+		title: 'Just the basics (recommended)',
 		value: 'basics',
 	},
 	{
@@ -8,15 +8,15 @@ export const TEMPLATES = [
 		value: 'blog',
 	},
 	{
-		title: 'Documentation',
-		value: 'docs',
-	},
-	{
 		title: 'Portfolio',
 		value: 'portfolio',
 	},
 	{
-		title: 'Completely empty',
+		title: 'Documentation Site',
+		value: 'docs',
+	},
+	{
+		title: 'Empty project',
 		value: 'minimal',
 	},
 ];

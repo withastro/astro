@@ -62,6 +62,32 @@ describe('SSR images - build', function () {
 		});
 	});
 
+	describe('Inline imports', () => {
+		it('includes src, width, and height attributes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const image = $('#inline');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			// TODO: possible to avoid encoding the full image path?
+			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+		});
+	});
+
 	describe('Remote images', () => {
 		it('includes src, width, and height attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
@@ -139,6 +165,25 @@ describe('SSR images - dev', function () {
 			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
 
 			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+		});
+	});
+
+	describe('Inline imports', () => {
+		it('includes src, width, and height attributes', () => {
+			const image = $('#inline');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			// TODO: possible to avoid encoding the full image path?
+			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
 		});
 	});
 

@@ -30,7 +30,21 @@ const remarkShiki = async (
 
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
-			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
+			let lang: string;
+
+			if (typeof node.lang === 'string') {
+				const langExists = highlighter.getLoadedLanguages().includes(node.lang);
+				if (langExists) {
+					lang = node.lang;
+				} else {
+					console.warn(`The language "${node.lang}" doesn't exist, falling back to plaintext.`);
+					lang = 'plaintext';
+				}
+			} else {
+				lang = 'plaintext';
+			}
+
+			let html = highlighter!.codeToHtml(node.value, { lang });
 
 			// Q: Couldn't these regexes match on a user's inputted code blocks?
 			// A: Nope! All rendered HTML is properly escaped.
