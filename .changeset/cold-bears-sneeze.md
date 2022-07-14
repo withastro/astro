@@ -1,5 +1,5 @@
 ---
-'@astrojs/markdown-remark': patch
+'@astrojs/markdown-remark': minor
 ---
 
 fixed generated slugs in markdown that ends with a dash
