@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.11.7
+
+### Patch Changes
+
+- [#3919](https://github.com/withastro/astro/pull/3919) [`01a55467d`](https://github.com/withastro/astro/commit/01a55467d561974f843a9e0cd6963af7c840abb9) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add back missing ssr-utils.js file
+
 ## 0.11.6
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # astro
 
+## 1.0.0-beta.71
+
+### Patch Changes
+
+- [#3918](https://github.com/withastro/astro/pull/3918) [`6a7a17f73`](https://github.com/withastro/astro/commit/6a7a17f735bd8a58cdc08f25a1442277aa7d2fb0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler`, fixing various edge cases around nested expressions, tables, and conditional slots. See the [`@astrojs/compiler@0.19.0 changelog`](https://github.com/withastro/compiler/blob/main/packages/compiler/CHANGELOG.md#0190) for more information.
+
+- Updated dependencies [[`01a55467d`](https://github.com/withastro/astro/commit/01a55467d561974f843a9e0cd6963af7c840abb9)]:
+  - @astrojs/markdown-remark@0.11.7
+
 ## 1.0.0-beta.70
 
 ### Patch Changes
