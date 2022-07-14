@@ -54,8 +54,8 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				return await renderElement(result, vnode.type as string, vnode.props ?? {});
 		}
 
-		if (!!vnode.type) {
-			if (vnode.props['server:root']) {
+		if (vnode.type) {
+			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
 			}
@@ -108,7 +108,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					slots
 				);
 			} else {
-				output = await renderComponent(result, vnode.type.name, vnode.type, props, slots);
+				output = await renderComponent(result, typeof vnode.type === 'function' ? vnode.type.name : vnode.type, vnode.type, props, slots);
 			}
 			return markHTMLString(output);
 		}
