@@ -31,9 +31,13 @@ export function testFactory(inlineConfig) {
 }
 
 export async function getErrorOverlayMessage(page) {
-	const errorOverlay = await page.waitForSelector('vite-error-overlay')
+	const overlay = await page.waitForSelector('vite-error-overlay', { strict: true, timeout: 5000 })
+
+	console.log('waiting')
+	await overlay.waitFor();
+	console.log('waited')
 	
-	expect(errorOverlay).toBeTruthy()
+	expect(overlay).toBeTruthy()
 	
 	return await errorOverlay.$$eval('.message-body', (m) => m[0].textContent)
 }
