@@ -6,8 +6,6 @@ const config = {
 	componentFilePath: './src/components/SvelteComponent.svelte',
 	counterComponentFilePath: './src/components/Counter.svelte',
 	counterCssFilePath: './src/components/Counter.svelte',
-	errorReplace: 'export let id: string;',
-	errorMessage: 'id is not defined',
 }
 
 test.describe('Svelte components in Astro files', () => {

@@ -5,8 +5,6 @@ const { test, createTests } = prepareTestFactory({ root: './fixtures/preact-comp
 const config = {
 		counterComponentFilePath: './src/components/Counter.jsx',
 		componentFilePath: './src/components/JSXComponent.jsx',
-		errorReplace: '{ useState } from',
-		errorMessage: 'useState is not defined',
 }
 
 test.describe('Preact components in Astro files', () => {

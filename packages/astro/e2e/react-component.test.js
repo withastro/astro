@@ -5,8 +5,6 @@ const { test, createTests } = prepareTestFactory({ root: './fixtures/react-compo
 const config = {
 		counterComponentFilePath: './src/components/Counter.jsx',
 		componentFilePath: './src/components/JSXComponent.jsx',
-		errorReplace: ', { useState }',
-		errorMessage: 'useState is not defined',
 }
 
 test.describe('React components in Astro files', () => {

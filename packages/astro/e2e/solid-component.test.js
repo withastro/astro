@@ -5,8 +5,6 @@ const { test, createTests } = prepareTestFactory({ root: './fixtures/solid-compo
 const config = {
 	componentFilePath: './src/components/SolidComponent.jsx',
 	counterComponentFilePath: './src/components/Counter.jsx',
-	errorReplace: '{ createSignal } from ',
-	errorMessage: 'createSignal is not defined',
 }
 
 test.describe('Solid components in Astro files', () => {

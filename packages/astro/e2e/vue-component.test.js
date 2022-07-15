@@ -6,8 +6,6 @@ const config = {
 	componentFilePath: './src/components/VueComponent.vue',
 	counterCssFilePath: './src/components/Counter.vue',
 	counterComponentFilePath: './src/components/Counter.vue',
-	errorReplace: 'const id = props.id;',
-	errorMessage: 'id is not defined',
 }
 
 test.describe('Vue components in Astro files', () => {
