@@ -31,10 +31,8 @@ export function testFactory(inlineConfig) {
 }
 
 export async function getErrorOverlayMessage(page) {
-	const overlay = await page.waitForSelector('vite-error-overlay', { strict: true, timeout: 5000 })
-
 	console.log('waiting')
-	await overlay.waitFor();
+	const overlay = await page.waitForSelector('vite-error-overlay', { strict: true, timeout: 5000 })
 	console.log('waited')
 	
 	expect(overlay).toBeTruthy()
