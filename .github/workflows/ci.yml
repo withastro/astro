@@ -187,11 +187,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: withastro/docs
+          path: examples/.generated/astro-docs
 
       - name: Checkout astro.build
         uses: actions/checkout@v3
         with:
           repository: withastro/astro.build
+          path: examples/.generated/astro-build
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -206,7 +208,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Packages
         run: pnpm run build
