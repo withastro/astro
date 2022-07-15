@@ -2064,6 +2064,14 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/node/test/fixtures/context:
+    specifiers:
+      '@astrojs/node': ^0.1.6
+      astro: ^1.0.0-beta.72
+    devDependencies:
+      '@astrojs/node': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/partytown:
     specifiers:
       '@builder.io/partytown': ^0.4.5

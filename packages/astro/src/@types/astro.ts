@@ -198,6 +198,8 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 */
 		render(slotName: string, args?: any[]): Promise<string>;
 	};
+
+	context: any;
 }
 
 export interface AstroGlobalPartial {
