@@ -44,7 +44,10 @@ export async function * crawlGraph(
 					// use URL to strip special query params like "?content"
 					const { pathname } = new URL(`file://${importedModule.id}`);
 					if (fileExtensionsToSSR.has(npath.extname(pathname))) {
-						await viteServer.ssrLoadModule(importedModule.id);
+						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
+						if(!mod?.ssrModule) {
+							await viteServer.ssrLoadModule(importedModule.id);
+						}
 					}
 				}
 				importedModules.add(importedModule);

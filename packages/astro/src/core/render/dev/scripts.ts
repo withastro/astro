@@ -34,26 +34,7 @@ function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null, rootPr
 		return;
 	}
 
-	// Create a path for this script element that starts from the project root, if possible.
 	let id = info.id;
-	if(id[0] === '/') {
-		const startsWithFS = id.startsWith('/@fs');
-		switch(true) {
-			case id.startsWith(rootProjectFolder): {
-				id = id.slice(rootProjectFolder.length - 1);
-				break;
-			}
-			case (startsWithFS && id.slice(4).startsWith(rootProjectFolder)): {
-				id = id.slice(rootProjectFolder.length + 3);
-				break;
-			}
-			case !startsWithFS: {
-				id = '/@fs' + id;
-				break;
-			}
-		}
-	}
-
 	const astro = info?.meta?.astro as AstroPluginMetadata['astro'];
 	for(let i = 0; i < astro.scripts.length; i++) {
 		const scriptId = `${id}?astro&type=script&index=${i}&lang.ts`;
