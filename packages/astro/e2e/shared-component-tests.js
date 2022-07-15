@@ -14,7 +14,12 @@ export function prepareTestFactory(opts) {
 		await devServer.stop();
 	});
 
-	const createTests = ({ pageUrl, pageSourceFilePath, componentFilePath, counterComponentFilePath, errorReplace, errorMessage, counterCssFilePath }) => {
+	const createTests = ({
+		pageUrl,
+		pageSourceFilePath,
+		componentFilePath,
+		counterCssFilePath,
+	}) => {
 		test('server only', async ({ page, astro }) => {
 			await page.goto(astro.resolveUrl(pageUrl));
 
@@ -145,8 +150,9 @@ export function prepareTestFactory(opts) {
 			astro.resetAllFiles();
 		});
 
-	return {
-		test,
-		createTests,
+		return {
+			test,
+			createTests,
+		};
 	};
 }
