@@ -37,5 +37,5 @@ export async function getErrorOverlayMessage(page) {
 	
 	expect(overlay).toBeTruthy()
 	
-	return await errorOverlay.$$eval('.message-body', (m) => m[0].textContent)
+	return await overlay.$$eval('.message-body', (m) => m[0].textContent)
 }
