@@ -21,9 +21,12 @@ test.describe('Error display', () => {
 		const message = await getErrorOverlayMessage(page);
 		expect(message).toMatch('Unexpected "}"')
 
-		await astro.editFile('./src/pages/astro-syntax-error.astro', () => `<h1>No syntax error</h1>`);
-
-		await page.waitForNavigation();
+		await Promise.all([
+			// Wait for page reload
+			page.waitForNavigation(),
+			// Edit the component file
+			await astro.editFile('./src/pages/astro-syntax-error.astro', () => `<h1>No syntax error</h1>`)
+		]);
 
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);
 	});
@@ -34,9 +37,12 @@ test.describe('Error display', () => {
 		const message = await getErrorOverlayMessage(page);
 		expect(message).toMatch('failed to load module for ssr: ../abc.astro')
 
-		await astro.editFile('./src/pages/import-not-found.astro', () => `<h1>No import error</h1>`);
-
-		await page.waitForNavigation();
+		await Promise.all([
+			// Wait for page reload
+			page.waitForNavigation(),
+			// Edit the component file
+			astro.editFile('./src/pages/import-not-found.astro', () => `<h1>No import error</h1>`)
+		]);
 
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);
 	});
@@ -47,9 +53,12 @@ test.describe('Error display', () => {
 		const message = await getErrorOverlayMessage(page);
 		expect(message).toMatch('</div> attempted to close an element that was not open')
 
-		await astro.editFile('./src/components/SvelteSyntaxError.svelte', () => `<h1>No mismatch</h1>`);
-
-		await page.waitForNavigation();
+		await Promise.all([
+			// Wait for page reload
+			page.waitForNavigation(),
+			// Edit the component file
+			astro.editFile('./src/components/SvelteSyntaxError.svelte', () => `<h1>No mismatch</h1>`)
+		]);
 
 		expect(await page.locator('vite-error-overlay').count()).toEqual(0);
 	});
