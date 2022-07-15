@@ -14,7 +14,6 @@ import { LogOptions } from '../../logger/core.js';
 import { isBuildingToSSR, isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
-import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { getScriptsForURL } from './scripts.js';
