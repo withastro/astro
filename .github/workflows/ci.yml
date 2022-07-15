@@ -195,26 +195,11 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build Packages
-        run: pnpm run build
-
-      - name: Test @examples
-        run: pnpm run test:smoke
-
       - name: Checkout docs
         uses: actions/checkout@v3
         with:
           repository: withastro/docs
           path: examples/.generated/astro-docs
-
-      - name: Install docs dependencies
-        run: pnpm install
-
-      - name: Build docs
-        run: pnpm run build
 
       - name: Checkout astro.build
         uses: actions/checkout@v3
@@ -222,11 +207,14 @@ jobs:
           repository: withastro/astro.build
           path: examples/.generated/astro-build
 
-      - name: Install astro.build dependencies
-        run: pnpm install
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build astro.build
+      - name: Build Packages
         run: pnpm run build
+
+      - name: Test
+        run: pnpm run test:smoke
 
   changelog:
     name: Changelog PR or Release
