@@ -42,7 +42,7 @@
     "packages/astro/test/fixtures/static build/pkg"
   ],
   "engines": {
-    "node": "^14.20.0 || >=16.14.0",
+    "node": "^14.18.0 || >=16.12.0",
     "pnpm": ">=7.5.0"
   },
   "packageManager": "pnpm@7.5.0",
