@@ -132,8 +132,14 @@ describe('Scripts (hoisted and not)', () => {
 			let html = await res.text();
 			let $ = cheerio.load(html);
 
-			let hoistedScript = $('[src="/src/components/Glob/GlobComponent.astro?astro&type=script&index=0&lang.ts"]');
-			expect(hoistedScript).to.have.a.lengthOf(1);
+			let found = 0;
+			let moduleScripts = $('[type=module]');
+			moduleScripts.each((i, el) => {
+				if($(el).attr('src').includes('Glob/GlobComponent.astro?astro&type=script&index=0&lang.ts')) {
+					found++;
+				}
+			})
+			expect(found).to.equal(1);
 		});
 	});
 });
