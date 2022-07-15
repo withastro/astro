@@ -201,7 +201,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 
 	/**
 	 * Object provided by the server (**SSR Only**).
-	 * 
+	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astrocontext)
 	 */
 	context: any;
