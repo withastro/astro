@@ -30,6 +30,9 @@ const ALWAYS_NOEXTERNAL = new Set([
 	'astro',
 	// Vite fails on nested `.astro` imports without bundling
 	'astro/components',
+	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
+	'@nanostores/preact',
 ]);
 
 function getSsrNoExternalDeps(projectRoot: URL): string[] {
