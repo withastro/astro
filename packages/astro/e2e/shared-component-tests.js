@@ -150,7 +150,7 @@ export function prepareTestFactory(opts) {
 			
 			await Promise.all([
 				// Wait for page reload
-				page.waitForLoadState().then(() => console.log("Load", { pageUrl })),
+				page.waitForTimeout(5000),
 				// Edit the component file
 				astro.editFile(counterComponentFilePath, (original) =>
 					original.replace(
@@ -159,8 +159,6 @@ export function prepareTestFactory(opts) {
 					)
 				)
 			]);
-
-			console.log("Error overlay");
 
 			const message = await getErrorOverlayMessage(page)
 			expect(message, 'error overlay has message').toContain(errorMessage);
