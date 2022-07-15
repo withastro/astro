@@ -130,12 +130,7 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: async (opts = {}) => {
-			// TODO: remove once Vite resolves this internally
-			const initialNodeEnv = process.env.NODE_ENV;
-			await build(config, { logging, telemetry, ...opts })
-			process.env.NODE_ENV = initialNodeEnv;
-		},
+		build: (opts = {}) => build(config, { logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
 			devServer = await dev(config, { logging, telemetry, ...opts });
 			config.server.port = devServer.address.port; // update port
