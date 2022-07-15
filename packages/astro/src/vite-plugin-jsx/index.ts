@@ -2,6 +2,7 @@ import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
 import * as eslexer from 'es-module-lexer';
@@ -70,6 +71,23 @@ async function transformJSX({
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
 	if (!result) return null;
+
+	if (renderer.name === 'astro:jsx') {
+		const { astro } = result.metadata as unknown as PluginMetadata;
+		return {
+			code: result.code || '',
+			map: result.map,
+			meta: {
+				astro,
+				vite: {
+					// Setting this vite metadata to `ts` causes Vite to resolve .js
+					// extensions to .ts files.
+					lang: 'ts',
+				},
+			},
+		};
+	}
+	
 	return {
 		code: result.code || '',
 		map: result.map,

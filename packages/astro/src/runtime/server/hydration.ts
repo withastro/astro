@@ -58,6 +58,9 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 				case 'client:component-hydration': {
 					break;
 				}
+				case 'client:display-name': {
+					break;
+				}
 				default: {
 					extracted.hydration.directive = key.split(':')[1];
 					extracted.hydration.value = value;

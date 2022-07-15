@@ -3,9 +3,9 @@ import { Fragment, markHTMLString } from '../runtime/server/index.js';
 const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');
 
-interface AstroVNode {
+export interface AstroVNode {
 	[AstroJSX]: boolean;
-	type: string | ((...args: any) => any) | typeof Fragment;
+	type: string | ((...args: any) => any);
 	props: Record<string, any>;
 }
 

@@ -155,7 +155,8 @@ export function mergeSlots(...slotted: unknown[]) {
 	return slots;
 }
 
-export const Fragment = Symbol('Astro.Fragment');
+export const Fragment = Symbol.for('astro:fragment');
+export const ClientOnlyPlaceholder = 'astro-client-only';
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
