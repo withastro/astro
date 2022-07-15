@@ -1,8 +1,22 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 
 export const tagName = 'my-counter';
 
 class Counter extends LitElement {
+	static styles = css`
+		.counter {
+			display: grid;
+			font-size: 2em;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			margin-top: 2em;
+			place-items: center;
+		}
+
+		.counter-message {
+			text-align: center;
+		}
+	`;
+
 	static get properties() {
 		return {
 			count: {
@@ -20,12 +34,18 @@ class Counter extends LitElement {
 		this.count++;
 	}
 
+	decrement() {
+		this.count--;
+	}
+
 	render() {
 		return html`
-			<div>
-				<p>Count: ${this.count}</p>
-				<button type="button" @click=${this.increment}>Increment</button>
+			<div class="counter">
+				<button @click=${this.decrement}>-</button>
+				<pre>${this.count}</pre>
+				<button @click=${this.increment}>+</button>
 			</div>
+			<div class="counter-message"><slot></slot></div>
 		`;
 	}
 }

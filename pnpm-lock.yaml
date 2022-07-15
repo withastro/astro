@@ -137,11 +137,13 @@ importers:
 
   examples/framework-alpine:
     specifiers:
+      '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
       astro: ^1.0.0-beta.70
     dependencies:
       alpinejs: 3.10.2
     devDependencies:
+      '@types/alpinejs': 3.7.0
       astro: link:../../packages/astro
 
   examples/framework-lit:
@@ -167,7 +169,7 @@ importers:
       '@astrojs/vue': ^0.4.0
       '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^1.0.0-beta.70
-      lit: ^2.2.5
+      lit: ^2.1.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -175,8 +177,6 @@ importers:
       svelte: ^3.48.0
       vue: ^3.2.37
     dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.2.7
       preact: 10.9.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -190,7 +190,9 @@ importers:
       '@astrojs/solid-js': link:../../packages/integrations/solid
       '@astrojs/svelte': link:../../packages/integrations/svelte
       '@astrojs/vue': link:../../packages/integrations/vue
+      '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../packages/astro
+      lit: 2.2.7
 
   examples/framework-preact:
     specifiers:
@@ -4595,7 +4597,6 @@ packages:
 
   /@lit/reactive-element/1.3.3:
     resolution: {integrity: sha512-ukelZ49tzUqgOAEbVujl/U62JNK3wdn5kKtXVqrjKND4QvHACZOMOYaZI6/5Jd8vsg+Fq9HDwiib70FBLydOiQ==}
-    dev: false
 
   /@ljharb/has-package-exports-patterns/0.0.2:
     resolution: {integrity: sha512-4/RWEeXDO6bocPONheFe6gX/oQdP/bEpv0oL4HqjPP5DCenBSt0mHgahppY49N0CpsaqffdwPq+TlX9CYOq2Dw==}
@@ -7270,6 +7271,12 @@ packages:
       '@types/estree': 0.0.52
     dev: false
 
+  /@types/alpinejs/3.7.0:
+    resolution: {integrity: sha512-iMvJwgJHYFUlMOixKF68BmMQZbnxVA/erh1blbfhY8Z6u6oleEJViz8bye58roLOp8jyBNOsXtobyq7zR/7A2g==}
+    dependencies:
+      '@vue/reactivity': 3.2.37
+    dev: true
+
   /@types/babel__core/7.1.19:
     resolution: {integrity: sha512-WEOTgRsbYkvA/KCsDwVEGkd7WAr1e3g31VHQ8zy5gul/V1qKullU/BU5I68X5v7V3GnB9eotmom4v5a5gjxorw==}
     dependencies:
@@ -7941,7 +7948,6 @@ packages:
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
-    dev: false
 
   /abbrev/1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -11047,13 +11053,11 @@ packages:
     dependencies:
       '@lit/reactive-element': 1.3.3
       lit-html: 2.2.6
-    dev: false
 
   /lit-html/2.2.6:
     resolution: {integrity: sha512-xOKsPmq/RAKJ6dUeOxhmOYFjcjf0Q7aSdfBJgdJkOfCUnkmmJPxNrlZpRBeVe1Gg50oYWMlgm6ccAE/SpJgSdw==}
     dependencies:
       '@types/trusted-types': 2.0.2
-    dev: false
 
   /lit/2.2.7:
     resolution: {integrity: sha512-WXYujlKFwme5ZqXOZoWuRVZQAwy7scbcVT3wCbAOHefOxyscqjywWGlF2e6nnC9E64yP9l2ZQlN8wZcRlrjUMQ==}
@@ -11061,7 +11065,6 @@ packages:
       '@lit/reactive-element': 1.3.3
       lit-element: 3.2.1
       lit-html: 2.2.6
-    dev: false
 
   /load-yaml-file/0.2.0:
     resolution: {integrity: sha512-OfCBkGEw4nN6JLtgRidPX6QxjBQGQf72q3si2uvqyFEMbycSFFHwAZeXx6cJgFM9wmLrf9zBwCP3Ivqa+LLZPw==}
