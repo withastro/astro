@@ -2,8 +2,8 @@
 import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
-	escapeHTML,
 	ClientOnlyPlaceholder,
+	escapeHTML,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
@@ -108,7 +108,13 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					slots
 				);
 			} else {
-				output = await renderComponent(result, typeof vnode.type === 'function' ? vnode.type.name : vnode.type, vnode.type, props, slots);
+				output = await renderComponent(
+					result,
+					typeof vnode.type === 'function' ? vnode.type.name : vnode.type,
+					vnode.type,
+					props,
+					slots
+				);
 			}
 			return markHTMLString(output);
 		}

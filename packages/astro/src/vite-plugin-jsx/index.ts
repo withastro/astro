@@ -87,7 +87,7 @@ async function transformJSX({
 			},
 		};
 	}
-	
+
 	return {
 		code: result.code || '',
 		map: result.map,

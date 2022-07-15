@@ -1,8 +1,8 @@
-import type { PluginMetadata } from '../vite-plugin-astro/types';
-import type { PluginObj, NodePath } from '@babel/core';
+import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
-import { pathToFileURL } from 'node:url'
+import { pathToFileURL } from 'node:url';
 import { ClientOnlyPlaceholder } from '../runtime/server/index.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 function isComponent(tagName: string) {
 	return (
@@ -24,7 +24,7 @@ function hasClientDirective(node: t.JSXElement) {
 function isClientOnlyComponent(node: t.JSXElement) {
 	for (const attr of node.openingElement.attributes) {
 		if (attr.type === 'JSXAttribute' && attr.name.type === 'JSXNamespacedName') {
-			return jsxAttributeToString(attr) === 'client:only'; 
+			return jsxAttributeToString(attr) === 'client:only';
 		}
 	}
 	return false;
@@ -52,7 +52,10 @@ function jsxAttributeToString(attr: t.JSXAttribute): string {
 	return `${attr.name.name}`;
 }
 
-function addClientMetadata(node: t.JSXElement, meta: { resolvedPath: string; path: string; name: string }) {
+function addClientMetadata(
+	node: t.JSXElement,
+	meta: { resolvedPath: string; path: string; name: string }
+) {
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
 		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
 	);
@@ -81,11 +84,17 @@ function addClientMetadata(node: t.JSXElement, meta: { resolvedPath: string; pat
 	}
 }
 
-function addClientOnlyMetadata(node: t.JSXElement, meta: { resolvedPath: string; path: string; name: string }) {
+function addClientOnlyMetadata(
+	node: t.JSXElement,
+	meta: { resolvedPath: string; path: string; name: string }
+) {
 	const tagName = getTagName(node);
-	node.openingElement = t.jsxOpeningElement(t.jsxIdentifier(ClientOnlyPlaceholder), node.openingElement.attributes)
+	node.openingElement = t.jsxOpeningElement(
+		t.jsxIdentifier(ClientOnlyPlaceholder),
+		node.openingElement.attributes
+	);
 	if (node.closingElement) {
-		node.closingElement = t.jsxClosingElement(t.jsxIdentifier(ClientOnlyPlaceholder))
+		node.closingElement = t.jsxClosingElement(t.jsxIdentifier(ClientOnlyPlaceholder));
 	}
 	const existingAttributes = node.openingElement.attributes.map((attr) =>
 		t.isJSXAttribute(attr) ? jsxAttributeToString(attr) : null
@@ -132,7 +141,7 @@ export default function astroJSX(): PluginObj {
 							clientOnlyComponents: [],
 							hydratedComponents: [],
 							scripts: [],
-						}
+						};
 					}
 					path.node.body.splice(
 						0,
@@ -142,7 +151,7 @@ export default function astroJSX(): PluginObj {
 							t.stringLiteral('astro/jsx-runtime')
 						)
 					);
-				}
+				},
 			},
 			ImportDeclaration(path, state) {
 				const source = path.node.source.value;
@@ -210,8 +219,8 @@ export default function astroJSX(): PluginObj {
 						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
 							exportName: meta.name,
 							specifier: meta.name,
-							resolvedPath
-						})
+							resolvedPath,
+						});
 
 						meta.resolvedPath = resolvedPath;
 						addClientOnlyMetadata(parentNode, meta);
@@ -219,8 +228,8 @@ export default function astroJSX(): PluginObj {
 						(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
 							exportName: meta.name,
 							specifier: meta.name,
-							resolvedPath
-						})
+							resolvedPath,
+						});
 
 						meta.resolvedPath = resolvedPath;
 						addClientMetadata(parentNode, meta);
