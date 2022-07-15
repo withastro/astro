@@ -126,30 +126,31 @@ export async function createVite(
 	let result = commonConfig;
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
-	sortPlugins(result);
+	if (result.plugins) {
+		sortPlugins(result.plugins);
+	}
 
 	return result;
 }
 
-function getPluginName(plugin: vite.Plugin) {
-	if (plugin && typeof plugin === 'object' && !Array.isArray(plugin)) {
-		return plugin.name;
-	}
-}
-
 function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
-	return Boolean(plugin?.hasOwnProperty('name'))
+	return Boolean(plugin?.hasOwnProperty('name'));
 }
 
-function sortPlugins(result: ViteConfigWithSSR) {
-	const plugins = result.plugins?.filter(isVitePlugin) ?? []
+function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string): number {
+	return pluginOptions.findIndex(function (pluginOption) {
+		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
+		// CAUTION: could be a problem if a plugin we're searching for becomes async!
+		return isVitePlugin(pluginOption) && pluginOption.name === name
+	})
+}
+
+function sortPlugins(pluginOptions: vite.PluginOption[]) {
 	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
-	const mdxPluginIndex =
-		plugins.findIndex((plugin) => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
+	const mdxPluginIndex = findPluginIndexByName(pluginOptions, '@mdx-js/rollup');
 	if (mdxPluginIndex === -1) return;
-	const jsxPluginIndex =
-		plugins.findIndex((plugin) => getPluginName(plugin) === 'astro:jsx') ?? -1;
-	const mdxPlugin = result.plugins?.[mdxPluginIndex];
-	result.plugins?.splice(mdxPluginIndex, 1);
-	result.plugins?.splice(jsxPluginIndex, 0, mdxPlugin);
+	const jsxPluginIndex = findPluginIndexByName(pluginOptions, 'astro:jsx');
+	const mdxPlugin = pluginOptions[mdxPluginIndex];
+	pluginOptions.splice(mdxPluginIndex, 1);
+	pluginOptions.splice(jsxPluginIndex, 0, mdxPlugin);
 }
