@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 0.2.1
+
+### Patch Changes
+
+- [#3913](https://github.com/withastro/astro/pull/3913) [`cd2dbfedb`](https://github.com/withastro/astro/commit/cd2dbfedb15969274df40b1c41b6680ea8885e8d) Thanks [@matthewp](https://github.com/matthewp)! - Adds error messages for missing required fields
+
 ## 0.2.0
 
 ### Minor Changes

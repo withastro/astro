@@ -157,7 +157,8 @@ export function mergeSlots(...slotted: unknown[]) {
 	return slots;
 }
 
-export const Fragment = Symbol('Astro.Fragment');
+export const Fragment = Symbol.for('astro:fragment');
+export const ClientOnlyPlaceholder = 'astro-client-only';
 
 function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
@@ -569,7 +570,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		return markHTMLString(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
+		const listValue = toAttributeString(serializeListValue(value));
+		if (listValue === '') {
+			return '';
+		}
+		return markHTMLString(` ${key.slice(0, -5)}="${listValue}"`);
 	}
 
 	// Boolean values only need the key
