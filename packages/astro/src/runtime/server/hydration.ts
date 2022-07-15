@@ -1,12 +1,12 @@
+import clsx from 'clsx';
 import type {
 	AstroComponentMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
-	SSRResult,
+	SSRResult
 } from '../../@types/astro';
 import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
-import { serializeListValue } from './util.js';
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
@@ -86,7 +86,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 			}
 		} else if (key === 'class:list') {
 			// support "class" from an expression passed into a component (#782)
-			extracted.props[key.slice(0, -5)] = serializeListValue(value);
+			extracted.props[key.slice(0, -5)] = clsx(value);
 		} else {
 			extracted.props[key] = value;
 		}

@@ -99,6 +99,7 @@
     "ast-types": "^0.14.2",
     "boxen": "^6.2.1",
     "ci-info": "^3.3.1",
+    "clsx": "^1.2.1",
     "common-ancestor-path": "^1.0.1",
     "debug": "^4.3.4",
     "diff": "^5.1.0",

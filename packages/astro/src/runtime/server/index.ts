@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import type {
 	APIContext,
 	AstroComponentMetadata,
@@ -6,9 +7,8 @@ import type {
 	Params,
 	SSRElement,
 	SSRLoadedRenderer,
-	SSRResult,
+	SSRResult
 } from '../../@types/astro';
-
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { createResponse } from './response.js';
@@ -16,17 +16,15 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-	PrescriptType,
+	PrescriptType
 } from './scripts.js';
 import { serializeProps } from './serialize.js';
 import { shorthash } from './shorthash.js';
-import { serializeListValue } from './util.js';
-
 export {
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
-	markHTMLString as unescapeHTML,
+	markHTMLString as unescapeHTML
 } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
@@ -545,7 +543,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		const listValue = toAttributeString(serializeListValue(value));
+		const listValue = toAttributeString(clsx(value));
 		if (listValue === '') {
 			return '';
 		}
