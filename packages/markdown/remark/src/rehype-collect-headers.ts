@@ -53,11 +53,11 @@ export default function createCollectHeaders() {
 							node as any
 						).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
 					} else {
-            let slug = slugger.slug(text);
-					
-					  if (slug.endsWith('-')) slug = slug.slice(0, -1);
-					
-					  node.properties.id = slug;
+						let slug = slugger.slug(text);
+
+						if (slug.endsWith('-')) slug = slug.slice(0, -1);
+
+						node.properties.id = slug;
 					}
 				}
 
