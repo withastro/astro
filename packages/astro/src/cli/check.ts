@@ -93,7 +93,7 @@ export async function check(astroConfig: AstroConfig) {
 					let str = diag.text.substring(startOffset, endOffset - 1);
 					const lineNumStr = d.range.start.line.toString();
 					const lineNumLen = lineNumStr.length;
-					console.error(`${bgWhite(black(lineNumStr))}  ${str}`);
+					console.error(`${bgWhite(black(lineNumStr))}  ${str.replaceAll('\t', ' ')}`);
 					let tildes = generateString('~', d.range.end.character - d.range.start.character);
 					let spaces = generateString(' ', d.range.start.character + lineNumLen - 1);
 					console.error(`   ${spaces}${bold(red(tildes))}\n`);
