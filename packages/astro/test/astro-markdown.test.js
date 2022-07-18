@@ -79,6 +79,20 @@ describe('Astro Markdown', () => {
 		expect($('h1').text()).to.equal('It still works!');
 	});
 
+	it('Can handle HTML comments in inline code', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('p code').text()).to.equal('<!-- HTML comments in code -->');
+	});
+
+	it('Can handle HTML comments in code fences', async () => {
+		const html = await fixture.readFile('/comment-with-js/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('pre > code').text()).to.equal('<!-- HTML comments in code fence -->');
+	});
+
 	// https://github.com/withastro/astro/issues/3254
 	it('Can handle scripts in markdown pages', async () => {
 		const html = await fixture.readFile('/script/index.html');
@@ -263,14 +277,20 @@ describe('Astro Markdown', () => {
 		// test 1: referencing an existing var name
 		expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
 		expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
-		expect($('code').eq(2).text()).to.contain('site: import.meta.env.SITE');
+		expect($('code').eq(3).text()).to.contain('site: import.meta.env.SITE');
 		expect($('blockquote').text()).to.contain('import.meta.env.SITE');
 
 		// test 2: referencing a non-existing var name
 		expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
 		expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
-		expect($('code').eq(2).text()).to.contain('title: import.meta.env.TITLE');
+		expect($('code').eq(3).text()).to.contain('title: import.meta.env.TITLE');
 		expect($('blockquote').text()).to.contain('import.meta.env.TITLE');
+
+		// test 3: referencing `import.meta.env` itself (without any var name)
+		expect($('code').eq(2).text()).to.equal('import.meta.env');
+		expect($('li').eq(2).text()).to.equal('import.meta.env');
+		expect($('code').eq(3).text()).to.contain('// Use Vite env vars with import.meta.env');
+		expect($('blockquote').text()).to.match(/import\.meta\.env\s*$/);
 	});
 
 	it('Escapes HTML tags in code blocks', async () => {
@@ -291,12 +311,16 @@ describe('Astro Markdown', () => {
 		expect(slots.find('> .fragmentSlot > div').text()).to.contain('1:');
 		expect(slots.find('> .fragmentSlot > div + p').text()).to.contain('2:');
 		expect(slots.find('> .pSlot > p[title="hello"]').text()).to.contain('3:');
-		expect(slots.find('> .defaultSlot').text().replace(/\s+/g, ' ')).to.equal(
-			`
-			4: Div in default slot
-			5: Paragraph in fragment in default slot
-			6: Regular text in default slot
-		`.replace(/\s+/g, ' ')
+		expect(slots.find('> .defaultSlot').html()).to.match(
+			new RegExp(
+				`<div>4: Div in default slot</div>` +
+					// Optional extra paragraph due to the line breaks between components
+					`(<p></p>)?` +
+					`<p>5: Paragraph in fragment in default slot</p>` +
+					// Optional whitespace due to the line breaks between components
+					`[\s\n]*` +
+					`6: Regular text in default slot`
+			)
 		);
 
 		const nestedSlots = $('article').eq(1);

@@ -1,7 +1,6 @@
 <script lang="ts">
 	export let id: string;
-
-  let count = 0;
+	export let count: number = 0;
 
   function add() {
     count += 1;

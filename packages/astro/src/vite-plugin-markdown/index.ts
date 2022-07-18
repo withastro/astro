@@ -1,4 +1,3 @@
-import { transform } from '@astrojs/compiler';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -9,8 +8,10 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { prependForwardSlash } from '../core/path.js';
-import { resolvePages, viteID } from '../core/util.js';
+import { resolvePages } from '../core/util.js';
+import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
+import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
+import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -60,9 +61,14 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		return false;
 	}
 
+	let viteTransform: TransformHook;
+
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
+		configResolved(_resolvedConfig) {
+			viteTransform = getViteTransform(_resolvedConfig);
+		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
@@ -84,7 +90,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// In all other cases, we do nothing and rely on normal Vite resolution.
 			return undefined;
 		},
-		async load(id) {
+		async load(id, opts) {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
@@ -141,10 +147,13 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
-				markdownContent = markdownContent.replace(
-					/<\s*!--([^-->]*)(.*?)-->/gs,
-					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
-				);
+				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
+				if (renderOpts.mode === 'mdx') {
+					markdownContent = markdownContent.replace(
+						/<\s*!--([^-->]*)(.*?)-->/gs,
+						(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
+					);
+				}
 
 				let renderResult = await renderMarkdown(markdownContent, {
 					...renderOpts,
@@ -156,11 +165,16 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				content.url = getFileInfo(id, config).fileUrl;
 				content.file = filename;
 				const prelude = `---
-import { slug as $$slug } from '@astrojs/markdown-remark';
+import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
 ${setup}
+
+const slugger = new Slugger();
+function $$slug(value) {
+	return slugger.slug(value);
+}
 
 const $$content = ${JSON.stringify(content)}
 ---`;
@@ -174,20 +188,18 @@ ${setup}`.trim();
 				}
 
 				// Transform from `.astro` to valid `.ts`
-				let { code: tsResult } = await transform(astroResult, {
-					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
-					projectRoot: config.root.toString(),
-					site: config.site
-						? new URL(config.base, config.site).toString()
-						: `http://localhost:${config.server.port}/`,
-					sourcefile: id,
-					sourcemap: 'inline',
-					// TODO: baseline flag
-					experimentalStaticExtraction: true,
-					internalURL: `/@fs${prependForwardSlash(
-						viteID(new URL('../runtime/server/index.js', import.meta.url))
-					)}`,
-				});
+				const compileProps: CompileProps = {
+					config,
+					filename,
+					moduleId: id,
+					source: astroResult,
+					ssr: Boolean(opts?.ssr),
+					viteTransform,
+					pluginContext: this,
+				};
+
+				let transformResult = await cachedCompilation(compileProps);
+				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
@@ -205,10 +217,18 @@ ${tsResult}`;
 					sourcemap: false,
 					sourcefile: id,
 				});
+
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts,
+				};
+
 				return {
 					code: escapeViteEnvReferences(code),
 					map: null,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							lang: 'ts',
 						},
@@ -221,9 +241,9 @@ ${tsResult}`;
 	};
 }
 
-// Converts the first dot in `import.meta.env.` to its Unicode escape sequence,
+// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
 // which prevents Vite from replacing strings like `import.meta.env.SITE`
 // in our JS representation of loaded Markdown files
 function escapeViteEnvReferences(code: string) {
-	return code.replace(/import\.meta\.env\./g, 'import\\u002Emeta.env.');
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }

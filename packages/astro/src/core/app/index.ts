@@ -3,6 +3,7 @@ import type {
 	EndpointHandler,
 	ManifestData,
 	RouteData,
+	SSRElement,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
@@ -15,7 +16,7 @@ import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,
-	createModuleScriptElementWithSrcSet,
+	createModuleScriptElement,
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
@@ -33,14 +34,16 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
+	#streaming: boolean;
 
-	constructor(manifest: Manifest) {
+	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(this.#logging);
+		this.#streaming = streaming;
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -79,22 +82,21 @@ export class App {
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 
-		const filteredScripts = info.scripts.filter(
-			(script) => typeof script !== 'string' && script?.stage !== 'head-inline'
-		) as string[];
-		const scripts = createModuleScriptElementWithSrcSet(filteredScripts, manifest.site);
-
-		// Add all injected scripts to the page.
+		let scripts = new Set<SSRElement>();
 		for (const script of info.scripts) {
-			if (typeof script !== 'string' && script.stage === 'head-inline') {
-				scripts.add({
-					props: {},
-					children: script.children,
-				});
+			if ('stage' in script) {
+				if (script.stage === 'head-inline') {
+					scripts.add({
+						props: {},
+						children: script.children,
+					});
+				}
+			} else {
+				scripts.add(createModuleScriptElement(script, manifest.site));
 			}
 		}
 
-		const result = await render({
+		const response = await render({
 			links,
 			logging: this.#logging,
 			markdown: manifest.markdown,
@@ -117,19 +119,10 @@ export class App {
 			site: this.#manifest.site,
 			ssr: true,
 			request,
+			streaming: this.#streaming,
 		});
 
-		if (result.type === 'response') {
-			return result.response;
-		}
-
-		let html = result.html;
-		let init = result.response;
-		let headers = init.headers as Headers;
-		let bytes = this.#encoder.encode(html);
-		headers.set('Content-Type', 'text/html');
-		headers.set('Content-Length', bytes.byteLength.toString());
-		return new Response(bytes, init);
+		return response;
 	}
 
 	async #callEndpoint(
@@ -156,7 +149,9 @@ export class App {
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
 			if (mimeType) {
-				headers.set('Content-Type', mimeType);
+				headers.set('Content-Type', `${mimeType};charset=utf-8`);
+			} else {
+				headers.set('Content-Type', 'text/plain;charset=utf-8');
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());

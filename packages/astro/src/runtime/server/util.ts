@@ -23,7 +23,7 @@ export function serializeListValue(value: any) {
 		// otherwise, push any other values as a string
 		else {
 			// get the item as a string
-			item = item == null ? '' : String(item).trim();
+			item = item === false || item == null ? '' : String(item).trim();
 
 			// add the item if it is filled
 			if (item) {
@@ -33,13 +33,4 @@ export function serializeListValue(value: any) {
 			}
 		}
 	}
-}
-
-/**
- * Get the import specifier for a given hydration directive.
- * @param hydrate The hydration directive such as `idle` or `visible`
- * @returns
- */
-export function hydrationSpecifier(hydrate: string) {
-	return `astro/client/${hydrate}.js`;
 }

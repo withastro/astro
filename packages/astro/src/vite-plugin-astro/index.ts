@@ -2,19 +2,19 @@ import type { PluginContext } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
-import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation } from './compile.js';
+import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
-import { parseAstroRequest } from './query.js';
+import { parseAstroRequest, ParsedRequestResult } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
@@ -47,6 +47,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
+	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
+		const filename = normalizeFilename(parsedFrom.filename);
+		const resolvedURL = new URL(id, `file://${filename}`);
+		const resolved = resolvedURL.pathname;
+		if (isBrowserPath(resolved)) {
+			return relativeToRoot(resolved + resolvedURL.search);
+		}
+		return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
+	}
+
 	return {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
@@ -58,19 +68,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-		async resolveId(id, from) {
+		async resolveId(id, from, opts) {
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
 			if (from) {
 				const parsedFrom = parseAstroRequest(from);
-				if (parsedFrom.query.astro && isRelativePath(id) && parsedFrom.query.type === 'script') {
-					const filename = normalizeFilename(parsedFrom.filename);
-					const resolvedURL = new URL(id, `file://${filename}`);
-					const resolved = resolvedURL.pathname;
-					if (isBrowserPath(resolved)) {
-						return relativeToRoot(resolved + resolvedURL.search);
-					}
-					return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
+				const isAstroScript = parsedFrom.query.astro && parsedFrom.query.type === 'script';
+				if (isAstroScript && isRelativePath(id)) {
+					return this.resolve(resolveRelativeFromAstroParent(id, parsedFrom), from, {
+						custom: opts.custom,
+						skipSelf: true,
+					});
 				}
 			}
 
@@ -87,34 +95,37 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return id;
 			}
 		},
-		async load(this: PluginContext, id, opts) {
+		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
-			if (!id.endsWith('.astro') && !query.astro) {
+			if (!query.astro) {
 				return null;
 			}
-			// if we still get a relative path here, vite couldn't resolve the import
-			if (isRelativePath(parsedId.filename)) {
+			let filename = parsedId.filename;
+			// For CSS / hoisted scripts we need to load the source ourselves.
+			// It should be in the compilation cache at this point.
+			let raw = await this.resolve(filename, undefined);
+			if (!raw) {
 				return null;
 			}
 
-			const filename = normalizeFilename(parsedId.filename);
-			const fileUrl = new URL(`file://${filename}`);
-			let source = await fs.promises.readFile(fileUrl, 'utf-8');
-			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
-			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
+			let source = getCachedSource(config, raw.id);
+			if (!source) {
+				return null;
 			}
-			const compileProps = {
+
+			const compileProps: CompileProps = {
 				config,
 				filename,
 				moduleId: id,
 				source,
 				ssr: Boolean(opts?.ssr),
 				viteTransform,
+				pluginContext: this,
 			};
-			if (query.astro) {
-				if (query.type === 'style') {
+
+			switch (query.type) {
+				case 'style': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
@@ -134,7 +145,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					return {
 						code,
 					};
-				} else if (query.type === 'script') {
+				}
+				case 'script': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
@@ -168,9 +180,46 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							hoistedScript.type === 'inline'
 								? hoistedScript.code!
 								: `import "${hoistedScript.src!}";`,
+						meta: {
+							vite: {
+								lang: 'ts',
+							},
+						},
 					};
 				}
+				default:
+					return null;
 			}
+		},
+		async transform(this: PluginContext, source, id, opts) {
+			const parsedId = parseAstroRequest(id);
+			const query = parsedId.query;
+			if (!id.endsWith('.astro') || query.astro) {
+				return source;
+			}
+			// if we still get a relative path here, vite couldn't resolve the import
+			if (isRelativePath(parsedId.filename)) {
+				return source;
+			}
+
+			const filename = normalizeFilename(parsedId.filename);
+			let isPage = false;
+			try {
+				const fileUrl = new URL(`file://${filename}`);
+				isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
+			} catch {}
+			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
+				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
+			}
+			const compileProps: CompileProps = {
+				config,
+				filename,
+				moduleId: id,
+				source,
+				ssr: Boolean(opts?.ssr),
+				viteTransform,
+				pluginContext: this,
+			};
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);
@@ -203,8 +252,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}`);
-						SUFFIX += `import "${id}?astro&type=script&index=${i}";`;
+						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
+						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
 
@@ -217,10 +266,17 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 
+				const astroMetadata: AstroPluginMetadata['astro'] = {
+					clientOnlyComponents: transformResult.clientOnlyComponents,
+					hydratedComponents: transformResult.hydratedComponents,
+					scripts: transformResult.scripts,
+				};
+
 				return {
 					code: `${code}${SUFFIX}`,
 					map,
 					meta: {
+						astro: astroMetadata,
 						vite: {
 							// Setting this vite metadata to `ts` causes Vite to resolve .js
 							// extensions to .ts files.

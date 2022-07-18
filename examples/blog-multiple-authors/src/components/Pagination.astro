@@ -9,8 +9,8 @@ const { prevUrl, nextUrl } = Astro.props;
 
 <div class="wrapper">
 	<nav class="nav">
-		<a class="prev" href={prevUrl || '#'} aria-label="Previous Page">Prev</a>
-		<a class="next" href={nextUrl || '#'} aria-label="Next Page">Next</a>
+		<a class="prev" href={prevUrl || "#"} aria-label="Previous Page">Prev</a>
+		<a class="next" href={nextUrl || "#"} aria-label="Next Page">Next</a>
 	</nav>
 </div>
 
@@ -29,7 +29,7 @@ const { prevUrl, nextUrl } = Astro.props;
 		text-transform: uppercase;
 		font-size: 0.8em;
 
-		&[href='#'] {
+		&[href="#"] {
 			display: none;
 		}
 	}

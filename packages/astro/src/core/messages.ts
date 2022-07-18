@@ -18,7 +18,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ZodError } from 'zod';
 import type { AstroConfig } from '../@types/astro';
-import { cleanErrorStack, collectErrorMetadata } from './errors.js';
+import { cleanErrorStack, ErrorWithMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -86,7 +86,9 @@ export function devStart({
 		const ipv4Networks = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
 			.filter(
-				(networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4'
+				(networkInterface) =>
+					networkInterface?.address &&
+					networkInterface?.family === (Number(process.version.substring(1, 5)) < 18.1 ? 'IPv4' : 4)
 			);
 		for (let { address } of ipv4Networks) {
 			if (address.includes('127.0.0.1')) {
@@ -217,8 +219,7 @@ export function formatConfigErrorMessage(err: ZodError) {
 	)}`;
 }
 
-export function formatErrorMessage(_err: Error, args: string[] = []): string {
-	const err = collectErrorMetadata(_err);
+export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []): string {
 	args.push(`${bgRed(black(` error `))}${red(bold(padMultilineString(err.message)))}`);
 	if (err.hint) {
 		args.push(`  ${bold('Hint:')}`);
@@ -246,29 +247,28 @@ export function printHelp({
 	commandName,
 	headline,
 	usage,
-	commands,
-	flags,
+	tables,
+	description,
 }: {
 	commandName: string;
 	headline?: string;
 	usage?: string;
-	commands?: [command: string, help: string][];
-	flags?: [flag: string, help: string][];
+	tables?: Record<string, [command: string, help: string][]>;
+	description?: string;
 }) {
 	const linebreak = () => '';
 	const title = (label: string) => `  ${bgWhite(black(` ${label} `))}`;
-	const table = (rows: [string, string][], opts: { padding: number; prefix: string }) => {
-		const split = rows.some((row) => {
-			const message = `${opts.prefix}${' '.repeat(opts.padding)}${row[1]}`;
-			return message.length > process.stdout.columns;
-		});
-
+	const table = (rows: [string, string][], { padding }: { padding: number }) => {
+		const split = process.stdout.columns < 60;
 		let raw = '';
 
 		for (const row of rows) {
-			raw += `${opts.prefix}${bold(`${row[0]}`.padStart(opts.padding - opts.prefix.length))}`;
-			if (split) raw += '\n    ';
-			raw += ' ' + dim(row[1]) + '\n';
+			if (split) {
+				raw += `    ${row[0]}\n    `;
+			} else {
+				raw += `${`${row[0]}`.padStart(padding)}`;
+			}
+			raw += '  ' + dim(row[1]) + '\n';
 		}
 
 		return raw.slice(0, -1); // remove latest \n
@@ -289,18 +289,21 @@ export function printHelp({
 		message.push(linebreak(), `  ${green(commandName)} ${bold(usage)}`);
 	}
 
-	if (commands) {
-		message.push(
-			linebreak(),
-			title('Commands'),
-			table(commands, { padding: 28, prefix: `  ${commandName || 'astro'} ` })
-		);
+	if (tables) {
+		function calculateTablePadding(rows: [string, string][]) {
+			return rows.reduce((val, [first]) => Math.max(val, first.length), 0) + 2;
+		}
+		const tableEntries = Object.entries(tables);
+		const padding = Math.max(...tableEntries.map(([, rows]) => calculateTablePadding(rows)));
+		for (const [tableTitle, tableRows] of tableEntries) {
+			message.push(linebreak(), title(tableTitle), table(tableRows, { padding }));
+		}
 	}
 
-	if (flags) {
-		message.push(linebreak(), title('Flags'), table(flags, { padding: 28, prefix: '  ' }));
+	if (description) {
+		message.push(linebreak(), `${description}`);
 	}
 
 	// eslint-disable-next-line no-console
-	console.log(message.join('\n'));
+	console.log(message.join('\n') + '\n');
 }

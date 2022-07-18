@@ -1,5 +1,39 @@
 # create-astro
 
+## 0.14.0
+
+### Minor Changes
+
+- [#3914](https://github.com/withastro/astro/pull/3914) [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86) Thanks [@ran-dall](https://github.com/ran-dall)! - Rollback supported `node@16` version. Minimum versions are now `node@14.20.0` or `node@16.14.0`.
+
+## 0.13.0
+
+### Minor Changes
+
+- [#3871](https://github.com/withastro/astro/pull/3871) [`1cc5b7890`](https://github.com/withastro/astro/commit/1cc5b78905633608e5b07ad291f916f54e67feb1) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update supported `node` versions. Minimum versions are now `node@14.20.0` or `node@16.16.0`.
+
+### Patch Changes
+
+- [#3886](https://github.com/withastro/astro/pull/3886) [`cb6a97383`](https://github.com/withastro/astro/commit/cb6a973839450dea1705407e1060919c946cca99) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix portfolio example JSX error
+
+## 0.12.5
+
+### Patch Changes
+
+- [#3831](https://github.com/withastro/astro/pull/3831) [`4fb08502`](https://github.com/withastro/astro/commit/4fb08502a99396723b9eb671099482cd619b3564) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Small wording updates
+
+## 0.12.4
+
+### Patch Changes
+
+- [#3756](https://github.com/withastro/astro/pull/3756) [`507cd5c8`](https://github.com/withastro/astro/commit/507cd5c868448971c6265d97f22e786263dd5a77) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Chore: remove create-astro install step test
+
+## 0.12.3
+
+### Patch Changes
+
+- [#3748](https://github.com/withastro/astro/pull/3748) [`012f093e`](https://github.com/withastro/astro/commit/012f093eeb771b42b4e9d1e0cbb0d9a9605e0514) Thanks [@delucis](https://github.com/delucis)! - Remove `astro add` step & tweak wording (PR #3715)
+
 ## 0.12.2
 
 ### Patch Changes

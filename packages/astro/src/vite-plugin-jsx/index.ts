@@ -2,6 +2,7 @@ import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
 import * as eslexer from 'es-module-lexer';
@@ -12,11 +13,12 @@ import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
-const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);
+const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
 	preact: "import { h } from 'preact'",
-	'solid-js': "import 'solid-js/web'",
+	'solid-js': "import 'solid-js'",
+	astro: "import 'astro/jsx-runtime'",
 };
 
 // A code snippet to inject into JS files to prevent esbuild reference bugs.
@@ -25,6 +27,7 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
 function getEsbuildLoader(fileExt: string): string {
+	if (fileExt === '.mdx') return 'jsx';
 	return fileExt.slice(1);
 }
 
@@ -68,6 +71,23 @@ async function transformJSX({
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
 	if (!result) return null;
+
+	if (renderer.name === 'astro:jsx') {
+		const { astro } = result.metadata as unknown as PluginMetadata;
+		return {
+			code: result.code || '',
+			map: result.map,
+			meta: {
+				astro,
+				vite: {
+					// Setting this vite metadata to `ts` causes Vite to resolve .js
+					// extensions to .ts files.
+					lang: 'ts',
+				},
+			},
+		};
+	}
+
 	return {
 		code: result.code || '',
 		map: result.map,
@@ -165,14 +185,18 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 
 			// if no imports were found, look for @jsxImportSource comment
 			if (!importSource) {
-				const multiline = code.match(/\/\*\*[\S\s]*\*\//gm) || [];
+				const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
 				for (const comment of multiline) {
-					const [_, lib] = comment.match(/@jsxImportSource\s*(\S+)/) || [];
+					const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
 					if (lib) {
-						importSource = lib;
+						importSource = lib.trim();
 						break;
 					}
 				}
+			}
+
+			if (!importSource && jsxRenderers.has('astro') && id.includes('.mdx')) {
+				importSource = 'astro';
 			}
 
 			// if JSX renderer found, then use that

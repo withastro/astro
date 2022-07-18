@@ -24,6 +24,7 @@ function onlyAvailableInSSR(name: string) {
 
 export interface CreateResultArgs {
 	ssr: boolean;
+	streaming: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
@@ -113,10 +114,16 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
 	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
+	const headers = new Headers();
+	if (args.streaming) {
+		headers.set('Transfer-Encoding', 'chunked');
+	} else {
+		headers.set('Content-Type', 'text/html');
+	}
 	const response: ResponseInit = {
 		status: 200,
 		statusText: 'OK',
-		headers: new Headers(),
+		headers,
 	};
 
 	// Make headers be read-only
@@ -150,7 +157,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
-								status: 301,
+								status: 302,
 								headers: {
 									Location: path,
 								},

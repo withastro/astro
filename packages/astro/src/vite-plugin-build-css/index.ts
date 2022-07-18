@@ -1,11 +1,11 @@
-import type { GetModuleInfo, ModuleInfo, OutputChunk } from 'rollup';
+import type { GetModuleInfo, OutputChunk } from 'rollup';
 import { BuildInternals } from '../core/build/internal';
 import type { PageBuildData } from '../core/build/types';
 
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
-import { resolvedPagesVirtualModuleId } from '../core/app/index.js';
+import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { isCSSRequest } from '../core/render/util.js';
 
@@ -16,40 +16,6 @@ interface PluginOptions {
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals } = options;
-
-	// This walks up the dependency graph and yields out each ModuleInfo object.
-	function* walkParentInfos(
-		id: string,
-		ctx: { getModuleInfo: GetModuleInfo },
-		seen = new Set<string>()
-	): Generator<ModuleInfo, void, unknown> {
-		seen.add(id);
-		const info = ctx.getModuleInfo(id);
-		if (info) {
-			yield info;
-		}
-		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-		for (const imp of importers) {
-			if (seen.has(imp)) {
-				continue;
-			}
-			yield* walkParentInfos(imp, ctx, seen);
-		}
-	}
-
-	// This function walks the dependency graph, going up until it finds a page component.
-	// This could be a .astro page or a .md page.
-	function* getTopLevelPages(
-		id: string,
-		ctx: { getModuleInfo: GetModuleInfo }
-	): Generator<string, void, unknown> {
-		for (const info of walkParentInfos(id, ctx)) {
-			const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-			if (importers.length <= 2 && importers[0] === resolvedPagesVirtualModuleId) {
-				yield info.id;
-			}
-		}
-	}
 
 	function createHashOfPageParents(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx)).sort();
@@ -173,9 +139,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										fileName: imp,
 										name: imp,
 										facadeModuleId: imp,
-										code: `/* Pure CSS chunk ${imp} */ ${bindings.map(
-											(b) => `export const ${b} = {};`
-										)}`,
+										code: `/* Pure CSS chunk ${imp} */ ${bindings
+											.map((b) => `export const ${b} = {};`)
+											.join('')}`,
 										dynamicImports: [],
 										implicitlyLoadedBefore: [],
 										importedBindings: {},

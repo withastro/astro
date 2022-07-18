@@ -16,13 +16,11 @@ describe('Client only components', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 
-		// test 1: <astro-root> is empty
-		expect($('astro-root').html()).to.equal('');
-		const $script = $('script');
-		const script = $script.html();
+		// test 1: <astro-island> is empty
+		expect($('astro-island').html()).to.equal('');
 
 		// test 2: svelte renderer is on the page
-		expect(/import\("\/entry.*/g.test(script)).to.be.ok;
+		expect($('astro-island').attr('renderer-url')).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {
@@ -53,13 +51,11 @@ describe('Client only components subpath', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerioLoad(html);
 
-		// test 1: <astro-root> is empty
-		expect($('astro-root').html()).to.equal('');
-		const $script = $('script');
-		const script = $script.html();
+		// test 1: <astro-island> is empty
+		expect($('astro-island').html()).to.equal('');
 
 		// test 2: svelte renderer is on the page
-		expect(/import\("\/blog\/entry.*/g.test(script)).to.be.ok;
+		expect($('astro-island').attr('renderer-url')).to.be.ok;
 	});
 
 	it('Adds the CSS to the page', async () => {

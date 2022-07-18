@@ -1,15 +1,17 @@
 import type http from 'http';
-import { Readable } from 'stream';
-import stripAnsi from 'strip-ansi';
+import mime from 'mime';
 import type * as vite from 'vite';
 import type { AstroConfig, ManifestData } from '../@types/astro';
+import type { SSROptions } from '../core/render/dev/index';
+
+import { Readable } from 'stream';
+import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { fixViteErrorMessage } from '../core/errors.js';
+import { collectErrorMetadata, fixViteErrorMessage } from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
-import type { RenderResponse, SSROptions } from '../core/render/dev/index';
 import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
@@ -75,9 +77,16 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 
 	res.writeHead(status, _headers);
 	if (body) {
-		if (body instanceof Readable) {
+		if (Symbol.for('astro.responseBody') in webResponse) {
+			let stream = (webResponse as any)[Symbol.for('astro.responseBody')];
+			for await (const chunk of stream) {
+				res.write(chunk.toString());
+			}
+		} else if (body instanceof Readable) {
 			body.pipe(res);
 			return;
+		} else if (typeof body === 'string') {
+			res.write(body);
 		} else {
 			const reader = body.getReader();
 			while (true) {
@@ -92,24 +101,8 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 	res.end();
 }
 
-async function writeSSRResult(
-	result: RenderResponse,
-	res: http.ServerResponse,
-	statusCode: 200 | 404
-) {
-	if (result.type === 'response') {
-		const { response } = result;
-		await writeWebResponse(res, response);
-		return;
-	}
-
-	const { html, response: init } = result;
-	const headers = init.headers as Headers;
-
-	headers.set('Content-Type', 'text/html; charset=utf-8');
-	headers.set('Content-Length', Buffer.byteLength(html, 'utf-8').toString());
-
-	return writeWebResponse(res, new Response(html, init));
+async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
+	return writeWebResponse(res, webResponse);
 }
 
 async function handle404Response(
@@ -205,7 +198,9 @@ async function handleRequest(
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
-	if (!buildingToSSR) {
+
+	// HACK! @astrojs/image uses query params for the injected route in `dev`
+	if (!buildingToSSR && rootRelativeUrl !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.
@@ -296,7 +291,7 @@ async function handleRequest(
 					routeCache,
 					viteServer,
 				});
-				return await writeSSRResult(result, res, statusCode);
+				return await writeSSRResult(result, res);
 			} else {
 				return handle404Response(origin, config, req, res);
 			}
@@ -321,16 +316,22 @@ async function handleRequest(
 			if (result.type === 'response') {
 				await writeWebResponse(res, result.response);
 			} else {
-				res.writeHead(200);
+				let contentType = 'text/plain';
+				const computedMimeType = route.pathname ? mime.getType(route.pathname) : null;
+				if (computedMimeType) {
+					contentType = computedMimeType;
+				}
+				res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
 				res.end(result.body);
 			}
 		} else {
 			const result = await ssr(preloadedComponent, options);
-			return await writeSSRResult(result, res, statusCode);
+			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
 		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		error(logging, null, msg.formatErrorMessage(err));
+		const errorWithMetadata = collectErrorMetadata(_err);
+		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }

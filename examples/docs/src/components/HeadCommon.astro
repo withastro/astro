@@ -1,6 +1,6 @@
 ---
-import '../styles/theme.css';
-import '../styles/index.css';
+import "../styles/theme.css";
+import "../styles/index.css";
 ---
 
 <!-- Global Metadata -->
@@ -15,19 +15,24 @@ import '../styles/index.css';
 <!-- Preload Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet" />
+<link
+	href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap"
+	rel="stylesheet"
+/>
 
 <!-- Scrollable a11y code helper -->
-<script src="/make-scrollable-code-focusable.js" is:inline></script>
+<script src="/make-scrollable-code-focusable.js" is:inline>
+
+</script>
 
 <!-- This is intentionally inlined to avoid FOUC -->
 <script is:inline>
 	const root = document.documentElement;
-	const theme = localStorage.getItem('theme');
-	if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-		root.classList.add('theme-dark');
+	const theme = localStorage.getItem("theme");
+	if (theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+		root.classList.add("theme-dark");
 	} else {
-		root.classList.remove('theme-dark');
+		root.classList.remove("theme-dark");
 	}
 </script>
 

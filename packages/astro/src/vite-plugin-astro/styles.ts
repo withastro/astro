@@ -1,3 +1,4 @@
+import type { PluginContext } from 'rollup';
 import type * as vite from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/render/util.js';
@@ -13,7 +14,7 @@ export function getViteTransform(viteConfig: vite.ResolvedConfig): TransformHook
 	const viteCSSPlugin = viteConfig.plugins.find(({ name }) => name === 'vite:css');
 	if (!viteCSSPlugin) throw new Error(`vite:css plugin couldn’t be found`);
 	if (!viteCSSPlugin.transform) throw new Error(`vite:css has no transform() hook`);
-	return viteCSSPlugin.transform.bind(null as any) as any;
+	return viteCSSPlugin.transform as any;
 }
 
 interface TransformWithViteOptions {
@@ -21,6 +22,7 @@ interface TransformWithViteOptions {
 	lang: string;
 	id: string;
 	transformHook: TransformHook;
+	pluginContext: PluginContext;
 	ssr?: boolean;
 }
 
@@ -31,9 +33,10 @@ export async function transformWithVite({
 	transformHook,
 	id,
 	ssr,
+	pluginContext,
 }: TransformWithViteOptions): Promise<vite.TransformResult | null> {
 	if (!STYLE_EXTENSIONS.has(lang)) {
 		return null; // only preprocess langs supported by Vite
 	}
-	return transformHook(value, id + `?astro&type=style&lang${lang}`, ssr);
+	return transformHook.call(pluginContext, value, id + `?astro&type=style&lang${lang}`, ssr);
 }

@@ -6,7 +6,7 @@ This **[Astro integration][astro-integration]** enables server-side rendering an
 
 There are two ways to add integrations to your project. Let's try the most convenient option first!
 
-### (experimental) `astro add` command
+### `astro add` command
 
 Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
 1. (Optionally) Install all necessary dependencies and peer dependencies
@@ -29,7 +29,7 @@ If you run into any hiccups, [feel free to log an issue on our GitHub](https://g
 
 First, install the `@astrojs/lit` integration like so:
 
-```
+```sh
 npm install @astrojs/lit
 ```
 
@@ -41,7 +41,7 @@ npm install lit @webcomponents/template-shadowroot
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import lit from '@astrojs/lit';
@@ -63,7 +63,7 @@ However, there's a key difference with Lit _custom elements_ over conventional _
 
 Astro needs to know which tag is associated with which component script. We expose this through exporting a `tagName` variable from the component script. It looks like this:
 
-__src/components/my-element.js__
+__`src/components/my-element.js`__
 
 ```js
 import { LitElement, html } from 'lit';
@@ -83,7 +83,7 @@ customElements.define(tagName, MyElement);
 
 In your Astro template import this component as a side-effect and use the element.
 
-__src/pages/index.astro__
+__`src/pages/index.astro`__
 
 ```astro
 ---

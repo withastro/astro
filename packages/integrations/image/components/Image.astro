@@ -1,0 +1,31 @@
+---
+// @ts-ignore
+import loader from 'virtual:image-loader';
+import { getImage } from '../src/index.js';
+import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types.js';
+
+export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
+	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+}
+
+export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+	src: string;
+	format: OutputFormat;
+	width: number;
+	height: number;
+}
+
+export type Props = LocalImageProps | RemoteImageProps;
+
+const { loading = "lazy", decoding = "async", ...props } = Astro.props as Props;
+
+const attrs = await getImage(loader, props);
+---
+
+<img {...attrs} {loading} {decoding} />
+
+<style>
+	img {
+		content-visibility: auto;
+	}
+</style>

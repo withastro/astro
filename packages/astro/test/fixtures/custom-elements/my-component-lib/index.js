@@ -13,9 +13,9 @@ export default function () {
 		hooks: {
 			'astro:config:setup': ({ updateConfig, addRenderer, injectScript }) => {
 				// Inject the necessary polyfills on every page
-				injectScript('head-inline', `import '@test/custom-element-renderer/polyfill.js';`);
+				injectScript('head-inline', `import('@test/custom-element-renderer/polyfill.js');`);
 				// Inject the hydration code, before a component is hydrated.
-				injectScript('before-hydration', `import '@test/custom-element-renderer/hydration-polyfill.js';`);
+				injectScript('before-hydration', `import('@test/custom-element-renderer/hydration-polyfill.js');`);
 				// Add the lit renderer so that Astro can understand lit components.
 				addRenderer({
 					name: '@test/custom-element-renderer',

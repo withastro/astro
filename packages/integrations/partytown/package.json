@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/partytown",
   "description": "Astro + Partytown integration",
-  "version": "0.1.4",
+  "version": "0.1.8",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -12,12 +12,13 @@
     "directory": "packages/integrations/partytown"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "analytics",
     "performance"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/partytown/",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"

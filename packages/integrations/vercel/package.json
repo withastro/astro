@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.2.3",
+  "version": "0.2.6",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -10,8 +10,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/vercel"
   },
+  "keywords": [
+    "astro-adapter"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/vercel/",
   "exports": {
     "./edge": "./dist/edge/adapter.js",
     "./edge/entrypoint": "./dist/edge/entrypoint.js",

@@ -2,8 +2,6 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
 describe('Tailwind', () => {
 	let fixture;
 
@@ -62,10 +60,10 @@ describe('Tailwind', () => {
 
 		it('handles Markdown pages', async () => {
 			const html = await fixture.readFile('/markdown-page/index.html');
-			const $ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
-			const bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
-			expect(bundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
+			const $md = cheerio.load(html);
+			const bundledCSSHREF = $md('link[rel=stylesheet][href^=/assets/]').attr('href');
+			const mdBundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
 		});
 	});
 });

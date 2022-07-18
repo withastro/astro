@@ -6,6 +6,7 @@ import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
 import rehypeJsx from './rehype-jsx.js';
+import remarkEscape from './remark-escape.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import remarkMdxish from './remark-mdxish.js';
 import remarkPrism from './remark-prism.js';
@@ -13,7 +14,6 @@ import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
 
-import Slugger from 'github-slugger';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import markdown from 'remark-parse';
@@ -25,11 +25,6 @@ export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = [];
-
-const slugger = new Slugger();
-export function slug(value: string): string {
-	return slugger.slug(value);
-}
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
@@ -52,7 +47,7 @@ export async function renderMarkdown(
 	let parser = unified()
 		.use(markdown)
 		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel] : [])
-		.use([remarkUnwrap]);
+		.use([remarkUnwrap, remarkEscape]);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
@@ -62,8 +57,8 @@ export async function renderMarkdown(
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
 	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
-	loadedRemarkPlugins.forEach(([plugin, opts]) => {
-		parser.use([[plugin, opts]]);
+	loadedRemarkPlugins.forEach(([plugin, pluginOpts]) => {
+		parser.use([[plugin, pluginOpts]]);
 	});
 
 	if (scopedClassName) {
@@ -92,8 +87,8 @@ export async function renderMarkdown(
 		],
 	]);
 
-	loadedRehypePlugins.forEach(([plugin, opts]) => {
-		parser.use([[plugin, opts]]);
+	loadedRehypePlugins.forEach(([plugin, pluginOpts]) => {
+		parser.use([[plugin, pluginOpts]]);
 	});
 
 	parser
@@ -111,6 +106,7 @@ export async function renderMarkdown(
 		// Ensure that the error message contains the input filename
 		// to make it easier for the user to fix the issue
 		err = prefixError(err, `Failed to parse Markdown file "${input.path}"`);
+		// eslint-disable-next-line no-console
 		console.error(err);
 		throw err;
 	}

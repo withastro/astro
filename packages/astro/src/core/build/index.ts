@@ -55,7 +55,7 @@ class AstroBuilder {
 		this.origin = config.site
 			? new URL(config.site).origin
 			: `http://localhost:${config.server.port}`;
-		this.manifest = createRouteManifest({ config }, this.logging);
+		this.manifest = { routes: [] };
 		this.timer = {};
 	}
 
@@ -66,6 +66,8 @@ class AstroBuilder {
 		this.timer.init = performance.now();
 		this.timer.viteStart = performance.now();
 		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
+		this.manifest = createRouteManifest({ config: this.config }, this.logging);
+
 		const viteConfig = await createVite(
 			{
 				mode: this.mode,
@@ -110,18 +112,6 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			viteServer,
 			ssr: isBuildingToSSR(this.config),
-		});
-
-		// Filter pages by using conditions based on their frontmatter.
-		Object.entries(allPages).forEach(([page, data]) => {
-			if ('frontmatter' in data.preload[1]) {
-				// TODO: add better type inference to data.preload[1]
-				const frontmatter = (data.preload[1] as any).frontmatter;
-				if (Boolean(frontmatter.draft) && !this.config.markdown.drafts) {
-					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
-					delete allPages[page];
-				}
-			}
 		});
 
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));

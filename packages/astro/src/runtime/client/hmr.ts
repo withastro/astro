@@ -1,6 +1,17 @@
+/// <reference types="vite/client" />
 if (import.meta.hot) {
 	import.meta.hot.accept((mod) => mod);
+
 	const parser = new DOMParser();
+
+	const KNOWN_MANUAL_HMR_EXTENSIONS = new Set(['.astro', '.md', '.mdx']);
+	function needsManualHMR(path: string) {
+		for (const ext of KNOWN_MANUAL_HMR_EXTENSIONS.values()) {
+			if (path.endsWith(ext)) return true;
+		}
+		return false;
+	}
+
 	async function updatePage() {
 		const { default: diff } = await import('micromorph');
 		const html = await fetch(`${window.location}`).then((res) => res.text());
@@ -9,9 +20,9 @@ if (import.meta.hot) {
 			doc.head.appendChild(style);
 		}
 		// Match incoming islands to current state
-		for (const root of doc.querySelectorAll('astro-root')) {
+		for (const root of doc.querySelectorAll('astro-island')) {
 			const uid = root.getAttribute('uid');
-			const current = document.querySelector(`astro-root[uid="${uid}"]`);
+			const current = document.querySelector(`astro-island[uid="${uid}"]`);
 			if (current) {
 				current.setAttribute('data-persist', '');
 				root.replaceWith(current);
@@ -26,7 +37,7 @@ if (import.meta.hot) {
 		}
 		return diff(document, doc).then(() => {
 			// clean up data-persist attributes added before diffing
-			for (const root of document.querySelectorAll('astro-root[data-persist]')) {
+			for (const root of document.querySelectorAll('astro-island[data-persist]')) {
 				root.removeAttribute('data-persist');
 			}
 			for (const style of document.querySelectorAll("style[type='text/css'][data-persist]")) {
@@ -35,11 +46,11 @@ if (import.meta.hot) {
 		});
 	}
 	async function updateAll(files: any[]) {
-		let hasAstroUpdate = false;
+		let hasManualUpdate = false;
 		let styles = [];
 		for (const file of files) {
-			if (file.acceptedPath.endsWith('.astro')) {
-				hasAstroUpdate = true;
+			if (needsManualHMR(file.acceptedPath)) {
+				hasManualUpdate = true;
 				continue;
 			}
 			if (file.acceptedPath.includes('svelte&type=style')) {
@@ -72,7 +83,7 @@ if (import.meta.hot) {
 				updateStyle(id, content);
 			}
 		}
-		if (hasAstroUpdate) {
+		if (hasManualUpdate) {
 			return await updatePage();
 		}
 	}

@@ -30,6 +30,16 @@ describe('Slots', () => {
 		expect($('#default').text().trim()).to.equal('Default');
 	});
 
+	it('Conditional named slots work', async () => {
+		const html = await fixture.readFile('/conditional/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#a').text().trim()).to.equal('A');
+		expect($('#b').text().trim()).to.equal('B');
+		expect($('#c').text().trim()).to.equal('C');
+		expect($('#default').text().trim()).to.equal('Default');
+	});
+
 	it('Slots render fallback content by default', async () => {
 		const html = await fixture.readFile('/fallback/index.html');
 		const $ = cheerio.load(html);

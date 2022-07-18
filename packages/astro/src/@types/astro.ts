@@ -498,9 +498,9 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
-		 * Control if markdown draft pages should be included in the build.
+		 * Control whether Markdown draft pages should be included in the build.
 		 *
-		 * A markdown page is considered a draft if it includes `draft: true` in its front matter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
+		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
 		 *
 		 * ```js
 		 * {
@@ -515,10 +515,31 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name markdown.mode
+		 * @type {'md' | 'mdx'}
+		 * @default `mdx`
+		 * @description
+		 * Control whether Markdown processing is done using MDX or not.
+		 *
+		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" Markdown processor. This field allows you to control that behavior.
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: Use non-MDX processor for Markdown files
+		 *     mode: 'md',
+		 *   }
+		 * }
+		 * ```
+		 */
+		mode?: 'md' | 'mdx';
+
+		/**
+		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -585,11 +606,22 @@ export interface AstroUserConfig {
 	};
 
 	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
+	 * @docs
+	 * @kind heading
+	 * @name Adapter
 	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
 	 */
 	adapter?: AstroIntegration;
 
@@ -710,6 +742,11 @@ export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
+
+export interface InjectedRoute {
+	pattern: string;
+	entryPoint: string;
+}
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -721,6 +758,8 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		pageExtensions: string[];
+		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
@@ -730,7 +769,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 export type AsyncRendererComponentFn<U> = (
 	Component: any,
 	props: any,
-	children: string | undefined,
+	slots: Record<string, string>,
 	metadata?: AstroComponentMetadata
 ) => Promise<U>;
 
@@ -760,19 +799,18 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	getHeaders(): Promise<MarkdownHeader[]>;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent;
+		frontmatter: MarkdownContent<T>;
 		$$metadata: Metadata;
 		default: AstroComponentFactory;
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
- * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
 	/**
@@ -787,6 +825,18 @@ export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
 };
+
+/**
+ * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes). (**SSG Only**)
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ */
+export type GetStaticPaths = (
+	options: GetStaticPathsOptions
+) =>
+	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
+	| GetStaticPathsResult
+	| GetStaticPathsResult[];
 
 export interface HydrateOptions {
 	name: string;
@@ -815,16 +865,17 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
 
 /**
  * The `content` prop given to a Layout
- * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ *
+ * [Astro reference](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts)
  */
-export interface MarkdownContent {
-	[key: string]: any;
+export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
-}
+};
 
 /**
  * paginate() Options
- * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
 export interface PaginateOptions {
 	/** the number of items per-page (default: `10`) */
@@ -836,8 +887,9 @@ export interface PaginateOptions {
 }
 
 /**
- * Page Prop
- * Docs: https://docs.astro.build/guides/pagination/#using-the-page-prop
+ * Represents a single page of data in a paginated collection
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
  */
 export interface Page<T = any> {
 	/** result */
@@ -865,7 +917,7 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | number | undefined>;
 
@@ -919,6 +971,11 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
+export type HookParameters<
+	Hook extends keyof AstroIntegration['hooks'],
+	Fn = AstroIntegration['hooks'][Hook]
+> = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
@@ -930,11 +987,12 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
+			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;
@@ -967,6 +1025,7 @@ export interface RoutePart {
 }
 
 export interface RouteData {
+	route: string;
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];

@@ -20,12 +20,12 @@ export default function createCollectHeaders() {
 
 				let text = '';
 				let isJSX = false;
-				visit(node, (child, _, parent) => {
+				visit(node, (child, __, parent) => {
 					if (child.type === 'element' || parent == null) {
 						return;
 					}
 					if (child.type === 'raw') {
-						if (child.value.startsWith('\n<') || child.value.endsWith('>\n')) {
+						if (child.value.match(/^\n?<.*>\n?$/)) {
 							return;
 						}
 					}

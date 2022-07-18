@@ -41,6 +41,6 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 
 Astro is generously supported by [Netlify](https://www.netlify.com/), [Vercel](https://vercel.com/), and several other amazing organizations [listed here.](https://astro.build/)
 
-[❤️ Sponsor Astro! ❤️](https://github.com/withastro/astro/blob/main/FUNDING.md)
+[❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
 

@@ -49,6 +49,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/deno](packages/integrations/deno)             | [![astro version](https://img.shields.io/npm/v/@astrojs/deno.svg?label=%20)](packages/integrations/deno/CHANGELOG.md)             |
 | [@astrojs/netlify](packages/integrations/netlify)       | [![astro version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](packages/integrations/netlify/CHANGELOG.md)       |
 | [@astrojs/vercel](packages/integrations/vercel)         | [![astro version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)         |
+| [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md)   |
 | [@astrojs/partytown](packages/integrations/partytown)   | [![astro version](https://img.shields.io/npm/v/@astrojs/partytown.svg?label=%20)](packages/integrations/partytown/CHANGELOG.md)   |
 | [@astrojs/sitemap](packages/integrations/sitemap)       | [![astro version](https://img.shields.io/npm/v/@astrojs/sitemap.svg?label=%20)](packages/integrations/sitemap/CHANGELOG.md)       |
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |
@@ -65,16 +66,16 @@ Several official projects are maintained outside of this repo:
 ## Links
 
 - [License (MIT)](LICENSE)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Open Governance & Voting](GOVERNANCE.md)
-- [Project Funding](FUNDING.md)
+- [Code of Conduct](https://github.com/withastro/.github/blob/main/CODE_OF_CONDUCT.md)
+- [Open Governance & Voting](https://github.com/withastro/.github/blob/main/GOVERNANCE.md)
+- [Project Funding](https://github.com/withastro/.github/blob/main/FUNDING.md)
 - [Website](https://astro.build/)
 
 ## Sponsors
 
 Astro is generously supported by Netlify, Vercel, and several other amazing organizations.
 
-[❤️ Sponsor Astro! ❤️](FUNDING.md)
+[❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
 
 ### Platinum Sponsors
 

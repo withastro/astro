@@ -1,8 +1,3 @@
-// NOTE(fks): Side-effect -- shim.js must run first. This isn't guaranteed by
-// the language, but it is a Node.js behavior that we rely on here. Keep this
-// separate from the other imports so that it doesn't get organized & reordered.
-import './shim.js';
-
 // Normal Imports
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
@@ -45,6 +40,7 @@ export function start(manifest: SSRManifest, options: Options) {
 	});
 
 	_startPromise = Promise.resolve(_server.listenAndServe());
+	// eslint-disable-next-line no-console
 	console.error(`Server running on port ${port}`);
 }
 

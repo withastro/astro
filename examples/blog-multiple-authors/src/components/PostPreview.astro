@@ -7,7 +7,7 @@ const { post, author } = Astro.props;
 const { frontmatter } = post;
 
 function formatDate(date) {
-	return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, '$1'); // remove everything after YYYY
+	return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, "$1"); // remove everything after YYYY
 }
 ---
 

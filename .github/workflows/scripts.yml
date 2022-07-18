@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - 'main'
+    paths:
+      - 'packages/astro/src/runtime/client/**/*'
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:

@@ -21,7 +21,8 @@ const ALWAYS_EXTERNAL = new Set([
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
 	'@astrojs/markdown-remark',
-	'serialize-javascript',
+	// in-lined for markdown modules
+	'github-slugger',
 	'node-fetch',
 	'prismjs',
 	'shiki',
@@ -29,7 +30,11 @@ const ALWAYS_EXTERNAL = new Set([
 	'whatwg-url',
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
-	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	'astro',
+	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
+	'@nanostores/preact',
 ]);
 
 // note: ssr is still an experimental API hence the type omission from `vite`
@@ -108,6 +113,7 @@ export async function createVite(
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
 				},
 			],
+			conditions: ['astro'],
 		},
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
@@ -125,7 +131,27 @@ export async function createVite(
 	let result = commonConfig;
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
+	sortPlugins(result);
+
 	return result;
+}
+
+function getPluginName(plugin: vite.PluginOption) {
+	if (plugin && typeof plugin === 'object' && !Array.isArray(plugin)) {
+		return plugin.name;
+	}
+}
+
+function sortPlugins(result: ViteConfigWithSSR) {
+	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
+	const mdxPluginIndex =
+		result.plugins?.findIndex((plugin) => getPluginName(plugin) === '@mdx-js/rollup') ?? -1;
+	if (mdxPluginIndex === -1) return;
+	const jsxPluginIndex =
+		result.plugins?.findIndex((plugin) => getPluginName(plugin) === 'astro:jsx') ?? -1;
+	const mdxPlugin = result.plugins?.[mdxPluginIndex];
+	result.plugins?.splice(mdxPluginIndex, 1);
+	result.plugins?.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file

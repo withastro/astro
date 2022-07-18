@@ -12,13 +12,15 @@ import Vue from '../components/Vue.vue';
 	</style>
   <style>
     .astro-page {
-      appearance: none;
+			&.nested {
+				color: red;
+			}
     }
   </style>
 </head>
 
 <body>
-  <div class="astro-page">
+  <div class="astro-page nested">
     <AstroComponent />
     <JSX />
     <Svelte />
