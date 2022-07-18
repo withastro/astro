@@ -31,6 +31,31 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include('Complete');
 	});
 
+	it('astro check no errors', async () => {
+		let proc = undefined;
+		const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
+		try {
+			proc = await cli('check', '--root', fileURLToPath(projectRootURL));
+		} catch (err) {}
+
+		expect(proc?.stdout).to.include('0 errors');
+	});
+
+	it('astro check has errors', async () => {
+		let stdout = undefined;
+		const projectRootURL = new URL('./fixtures/astro-check-errors/', import.meta.url);
+
+		// When `astro check` finds errors, it returns an error code. As such, we need to wrap this
+		// in a try/catch because otherwise Mocha will always report this test as a fail
+		try {
+			await cli('check', '--root', fileURLToPath(projectRootURL));
+		} catch (err) {
+			stdout = err.toString();
+		}
+
+		expect(stdout).to.include('1 error');
+	});
+
 	it('astro dev welcome', async () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);

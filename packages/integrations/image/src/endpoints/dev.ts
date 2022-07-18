@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
 import { lookup } from 'mrmime';
-// @ts-ignore
-import loader from 'virtual:image-loader';
 import { loadImage } from '../utils.js';
 
 export const get: APIRoute = async ({ request }) => {
+	const loader = globalThis.astroImage.ssrLoader;
+
 	try {
 		const url = new URL(request.url);
 		const transform = loader.parseTransform(url.searchParams);
