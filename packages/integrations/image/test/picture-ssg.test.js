@@ -38,7 +38,8 @@ describe('SSG pictures', function () {
 
 		describe('Local images', () => {
 			it('includes sources', () => {
-				const sources = $('#social-jpg source');
+				const picture = $('#social-jpg').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -46,7 +47,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#social-jpg img');
+				const image = $('#social-jpg');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
 				expect(image.attr('width')).to.equal('506');
@@ -65,7 +66,8 @@ describe('SSG pictures', function () {
 
 		describe('Inline imports', () => {
 			it('includes sources', () => {
-				const sources = $('#inline source');
+				const picture = $('#inline').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -73,7 +75,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#inline img');
+				const image = $('#inline');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
 				expect(image.attr('width')).to.equal('506');
@@ -96,7 +98,8 @@ describe('SSG pictures', function () {
 			const HASH = 'Z1iI4xW';
 
 			it('includes sources', () => {
-				const sources = $('#google source');
+				const picture = $('#google').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -104,7 +107,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#google img');
+				const image = $('#google');
 
 				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.png`);
 				expect(image.attr('width')).to.equal('544');
@@ -162,7 +165,8 @@ describe('SSG pictures', function () {
 
 		describe('Local images', () => {
 			it('includes sources', () => {
-				const sources = $('#social-jpg source');
+				const picture = $('#social-jpg').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -170,7 +174,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#social-jpg img');
+				const image = $('#social-jpg');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');
@@ -187,7 +191,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('returns the optimized image', async () => {
-				const image = $('#social-jpg img');
+				const image = $('#social-jpg');
 
 				const res = await fixture.fetch(image.attr('src'));
 
@@ -200,7 +204,8 @@ describe('SSG pictures', function () {
 
 		describe('Local images with inline imports', () => {
 			it('includes sources', () => {
-				const sources = $('#inline source');
+				const picture = $('#inline').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -208,7 +213,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#inline img');
+				const image = $('#inline');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');
@@ -225,7 +230,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('returns the optimized image', async () => {
-				const image = $('#inline img');
+				const image = $('#inline');
 
 				const res = await fixture.fetch(image.attr('src'));
 
@@ -238,7 +243,8 @@ describe('SSG pictures', function () {
 
 		describe('Remote images', () => {
 			it('includes sources', () => {
-				const sources = $('#google source');
+				const picture = $('#google').parent('picture');
+				const sources = picture.children('source');
 
 				expect(sources.length).to.equal(3);
 
@@ -246,7 +252,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('includes src, width, and height attributes', () => {
-				const image = $('#google img');
+				const image = $('#google');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');

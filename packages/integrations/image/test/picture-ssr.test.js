@@ -26,7 +26,8 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $('#social-jpg source');
+			const picture = $('#social-jpg').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -41,7 +42,7 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#social-jpg img');
+			const image = $('#social-jpg');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -66,7 +67,7 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#social-jpg img');
+			const image = $('#social-jpg');
 
 			const res = await fixture.fetch(image.attr('src'));
 
@@ -86,7 +87,8 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $('#inline source');
+			const picture = $('#inline').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -101,7 +103,7 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#inline img');
+			const image = $('#inline');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -127,7 +129,8 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $('#google source');
+			const picture = $('#google').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -142,7 +145,7 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const image = $('#google img');
+			const image = $('#google');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -185,7 +188,8 @@ describe('SSR images - dev', function () {
 
 	describe('Local images', () => {
 		it('includes sources', () => {
-			const sources = $('#social-jpg source');
+			const picture = $('#social-jpg').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -193,7 +197,7 @@ describe('SSR images - dev', function () {
 		});
 
 		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg img');
+			const image = $('#social-jpg');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -210,7 +214,7 @@ describe('SSR images - dev', function () {
 		});
 
 		it('returns the optimized image', async () => {
-			const image = $('#social-jpg img');
+			const image = $('#social-jpg');
 
 			const res = await fixture.fetch(image.attr('src'));
 
@@ -223,7 +227,8 @@ describe('SSR images - dev', function () {
 
 	describe('Inline imports', () => {
 		it('includes sources', () => {
-			const sources = $('#inline source');
+			const picture = $('#inline').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -231,7 +236,7 @@ describe('SSR images - dev', function () {
 		});
 
 		it('includes src, width, and height attributes', () => {
-			const image = $('#inline img');
+			const image = $('#inline');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -250,7 +255,8 @@ describe('SSR images - dev', function () {
 
 	describe('Remote images', () => {
 		it('includes sources', () => {
-			const sources = $('#google source');
+			const picture = $('#google').parent('picture');
+			const sources = picture.children('source');
 
 			expect(sources.length).to.equal(3);
 
@@ -258,7 +264,7 @@ describe('SSR images - dev', function () {
 		});
 
 		it('includes src, width, and height attributes', () => {
-			const image = $('#google img');
+			const image = $('#google');
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
