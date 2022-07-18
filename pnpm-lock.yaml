@@ -1359,6 +1359,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/code-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/component-library:
     specifiers:
       '@astrojs/preact': workspace:*
