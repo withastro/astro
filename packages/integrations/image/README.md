@@ -179,6 +179,8 @@ description: Just a Hello World Post!
 
   For remote images, an `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
+  Do you need to add attributes to the picture's `<img>` element? Just add them to the `<Picture />`! Any unrecognized props will be added directly to the `<img>` element.
+
 ```html
 ---
 import { Picture } from '@astrojs/image';
@@ -195,6 +197,9 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 
 // Inlined imports are supported
 <Picture src={import("../assets/hero.png")} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" />
+
+// Add alt and class attributes to the <img>
+<Picture src={hero} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="My awesome image" class="my-hero" />
 ```
 
 </details>
