@@ -135,7 +135,7 @@ describe('rss', () => {
 		
 				chai.expect(false).to.equal(true, 'Should have errored');
 			} catch (err) {
-				chai.expect(err.message).to.contain('[RSS] the configuration "site" option is missing');
+        chai.expect(err.message).to.contain('[RSS] the "site" option is required, but no value was given.');
 			}
 		});
 		
