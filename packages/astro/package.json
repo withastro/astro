@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@astrojs/compiler": "^0.19.0",
-    "@astrojs/language-server": "^0.13.4",
+    "@astrojs/language-server": "^0.20.0",
     "@astrojs/markdown-remark": "^0.11.7",
     "@astrojs/prism": "0.6.0",
     "@astrojs/telemetry": "^0.4.0",
