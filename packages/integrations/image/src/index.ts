@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
+import sharp from './loaders/sharp.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
 import {
 	ensureDir,
@@ -16,6 +17,10 @@ export * from './get-image.js';
 export * from './get-picture.js';
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
+	(globalThis as any)['@astrojs/image'] = {
+		ssrLoader: sharp
+	};
+
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/sharp',
 		...options,
@@ -43,6 +48,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		hooks: {
 			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
+				(globalThis as any)['@astrojs/image'].command = command;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
@@ -51,12 +57,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any).addStaticImage = (transform: TransformOptions) => {
+				(globalThis as any)['@astrojs/image'].addStaticImage = (transform: TransformOptions) => {
 					staticImages.set(propsToFilename(transform), transform);
 				};
 
 				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any).filenameFormat = (
+				(globalThis as any)['@astrojs/image'].filenameFormat = (
 					transform: TransformOptions,
 					searchParams: URLSearchParams
 				) => {
@@ -83,7 +89,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			},
 			'astro:build:done': async ({ dir }) => {
 				for await (const [filename, transform] of staticImages) {
-					const loader = (globalThis as any).loader;
+					const loader = (globalThis as any)['@astrojs/image'].loader;
 
 					let inputBuffer: Buffer | undefined = undefined;
 					let outputFile: string;

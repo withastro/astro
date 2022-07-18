@@ -8,7 +8,7 @@ import {
 	OutputFormat,
 	TransformOptions,
 } from './types.js';
-import { parseAspectRatio } from './utils.js';
+import { isRemoteImage, parseAspectRatio } from './utils.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -105,23 +105,29 @@ export async function getImage(
 	loader: ImageService,
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {
-	(globalThis as any).loader = loader;
+	(globalThis as any)['@astrojs/image'].loader = loader;
 
 	const resolved = await resolveTransform(transform);
+
 	const attributes = await loader.getImageAttributes(resolved);
 
+	const isDev = (globalThis as any)['@astrojs/image'].command === 'dev';
+	const isLocalImage = !isRemoteImage(resolved.src);
+	
+	const _loader = isDev && isLocalImage ? (globalThis as any)['@astrojs/image'].ssrLoader : loader;
+
 	// For SSR services, build URLs for the injected route
-	if (isSSRService(loader)) {
-		const { searchParams } = loader.serializeTransform(resolved);
+	if (isSSRService(_loader)) {
+		const { searchParams } = _loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
-		if (globalThis && (globalThis as any).addStaticImage) {
-			(globalThis as any)?.addStaticImage(resolved);
+		if (globalThis && (globalThis as any)['@astrojs/image'].addStaticImage) {
+			(globalThis as any)['@astrojs/image'].addStaticImage(resolved);
 		}
 
 		const src =
-			globalThis && (globalThis as any).filenameFormat
-				? (globalThis as any).filenameFormat(resolved, searchParams)
+			globalThis && (globalThis as any)['@astrojs/image'].filenameFormat
+				? (globalThis as any)['@astrojs/image'].filenameFormat(resolved, searchParams)
 				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
 		return {
