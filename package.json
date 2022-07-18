@@ -61,7 +61,10 @@
         "rollup",
         "@babel/core",
         "@babel/plugin-transform-react-jsx",
-        "vite"
+        "vite",
+        "react",
+        "react-dom",
+        "@types/react"
       ]
     },
     "patchedDependencies": {
