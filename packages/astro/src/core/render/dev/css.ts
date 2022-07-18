@@ -15,7 +15,7 @@ export async function getStylesForURL(
 	const importedCssUrls = new Set<string>();
 	const importedStylesMap = new Map<string, string>();
 
-	for await(const importedModule of crawlGraph(viteServer, viteID(filePath), true)) {
+	for await (const importedModule of crawlGraph(viteServer, viteID(filePath), true)) {
 		const ext = path.extname(importedModule.url).toLowerCase();
 		if (STYLE_EXTENSIONS.has(ext)) {
 			if (

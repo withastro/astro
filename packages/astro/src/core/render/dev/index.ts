@@ -16,8 +16,8 @@ import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
-import { getScriptsForURL } from './scripts.js';
 import { resolveClientDevPath } from './resolve.js';
+import { getScriptsForURL } from './scripts.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
