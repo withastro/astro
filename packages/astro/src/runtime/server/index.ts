@@ -825,7 +825,7 @@ export function renderHead(result: SSRResult): Promise<string> {
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
 		.map((script, i) => {
-			return renderElement('script', script);
+			return renderElement('script', script, false);
 		});
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
