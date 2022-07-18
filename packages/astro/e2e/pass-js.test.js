@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
 const test = testFactory({
-	root: './fixtures/pass-js/'
+	root: './fixtures/pass-js/',
 });
 
 let devServer;
