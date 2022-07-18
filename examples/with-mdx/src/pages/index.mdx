@@ -14,4 +14,4 @@ Written by: {new Intl.ListFormat('en').format(authors.map(d => d.name))}.
 
 Published on: {new Intl.DateTimeFormat('en', {dateStyle: 'long'}).format(published)}.
 
-<Counter>## This is a counter!</Counter>
+<Counter client:idle>This is a **counter**!</Counter>

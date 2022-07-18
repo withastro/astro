@@ -1,27 +1,102 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
-import BlogHeader from "../components/BlogHeader.astro";
-import BlogPost from "../components/BlogPost.astro";
+import Header from "../components/Header.astro";
 
-const { content } = Astro.props;
-const { title, description, publishDate, author, heroImage, permalink, alt } = content;
+export interface Props {
+	content: {
+		title: string;
+		description: string;
+		publishDate: string;
+		heroImage?: {
+			src: string;
+			alt: string;
+		};
+	};
+}
+
+const {
+	content: { title, description, publishDate, heroImage },
+} = Astro.props as Props;
 ---
 
-<html lang={content.lang || "en"}>
+<html>
 	<head>
-		<link
-			rel="stylesheet"
-			href="https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-lucario.css"
-		/>
-		<BaseHead {title} {description} {permalink} />
+		<BaseHead title={title} description={description} />
 	</head>
 
 	<body>
-		<BlogHeader />
-		<div class="wrapper">
-			<BlogPost {title} {author} {heroImage} {publishDate} {alt}>
-				<slot />
-			</BlogPost>
-		</div>
+		<Header />
+		<article class="wrapper content">
+			<header>
+				{heroImage && (
+					<img
+						width="720"
+						height="420"
+						loading="lazy"
+						src={heroImage.src}
+						alt={heroImage.alt}
+					/>
+				)}
+				<h1 class="title">{title}</h1>
+				<time>{publishDate}</time>
+			</header>
+			<main>
+				<slot></slot>
+			</main>
+		</article>
 	</body>
 </html>
+
+<style>
+	img {
+		width: 100vw;
+		object-fit: cover;
+		object-position: center;
+		margin-top: 2rem;
+		margin-bottom: 4rem;
+		max-width: 1280px;
+	}
+
+	@media (max-width: 50em) {
+		img {
+			height: 260px;
+			margin-top: 0;
+			margin-bottom: 2rem;
+		}
+	}
+
+	.content {
+		margin-bottom: 8rem;
+	}
+
+	.content :global(h2) {
+		margin-top: 4rem;
+	}
+
+	header {
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+
+		padding-bottom: 2rem;
+		margin-bottom: 2rem;
+		border-bottom: 4px solid var(--theme-divider);
+	}
+
+	.title,
+	time {
+		margin: 0;
+	}
+
+	time {
+		color: var(--theme-text-lighter);
+	}
+
+	.title {
+		font-size: 2.25rem;
+		font-weight: 700;
+	}
+</style>

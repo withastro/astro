@@ -16,3 +16,7 @@ import Component from '../components/Span.astro'
 <Component class:list={new Set(['test', 'set'])} />
 
 <Component class:list={[ 'hello goodbye', { hello: true, world: true }, new Set([ 'hello', 'friend' ]) ]} />
+
+<Component class:list={['foo', false && 'bar', true && 'baz']} />
+
+<Component class:list={[false && 'empty']} />

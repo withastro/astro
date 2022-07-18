@@ -1,5 +1,52 @@
 # astro
 
+## 1.0.0-beta.72
+
+### Patch Changes
+
+- [#3922](https://github.com/withastro/astro/pull/3922) [`7094d6a45`](https://github.com/withastro/astro/commit/7094d6a45f06b61f2a35af3408380654f24fc8f5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle `false` in `class:list`
+
+* [#3927](https://github.com/withastro/astro/pull/3927) [`7c5c4106d`](https://github.com/withastro/astro/commit/7c5c4106d7b9d73103eb6e899f39125e630280ff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated `astro/components` exports to a `.ts` file so it's automatically typed
+
+## 1.0.0-beta.71
+
+### Patch Changes
+
+- [#3918](https://github.com/withastro/astro/pull/3918) [`6a7a17f73`](https://github.com/withastro/astro/commit/6a7a17f735bd8a58cdc08f25a1442277aa7d2fb0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler`, fixing various edge cases around nested expressions, tables, and conditional slots. See the [`@astrojs/compiler@0.19.0 changelog`](https://github.com/withastro/compiler/blob/main/packages/compiler/CHANGELOG.md#0190) for more information.
+
+- Updated dependencies [[`01a55467d`](https://github.com/withastro/astro/commit/01a55467d561974f843a9e0cd6963af7c840abb9)]:
+  - @astrojs/markdown-remark@0.11.7
+
+## 1.0.0-beta.70
+
+### Patch Changes
+
+- [#3902](https://github.com/withastro/astro/pull/3902) [`d8af02a94`](https://github.com/withastro/astro/commit/d8af02a9443de5fa4cfe8e3ef7beddde9ef8cf09) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: markdown "require is not defined" issue
+
+* [#3914](https://github.com/withastro/astro/pull/3914) [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86) Thanks [@ran-dall](https://github.com/ran-dall)! - Rollback supported `node@16` version. Minimum versions are now `node@14.20.0` or `node@16.14.0`.
+
+* Updated dependencies [[`ca45c0c27`](https://github.com/withastro/astro/commit/ca45c0c270f5ca3f7d2fb113a235d415cecdb333), [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86)]:
+  - @astrojs/markdown-remark@0.11.6
+  - @astrojs/prism@0.6.0
+  - @astrojs/telemetry@0.4.0
+
+## 1.0.0-beta.69
+
+### Patch Changes
+
+- [#3830](https://github.com/withastro/astro/pull/3830) [`4097f0622`](https://github.com/withastro/astro/commit/4097f06226ab393280658e81c258593bc41452fe) Thanks [@delucis](https://github.com/delucis)! - Update funding link in README
+
+* [#3880](https://github.com/withastro/astro/pull/3880) [`402c4181d`](https://github.com/withastro/astro/commit/402c4181dcea8f7b741061452746f304cb952d77) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Fix rendering HTML comments in `mode="md"` configuration
+
+## 1.0.0-beta.68
+
+### Patch Changes
+
+- [#3883](https://github.com/withastro/astro/pull/3883) [`b4cb4a40d`](https://github.com/withastro/astro/commit/b4cb4a40df33b82bcd36e63bd488bd037e94dbc0) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Added "mode" to Astro config file TypeScript definitions
+
+- Updated dependencies [[`c4f6fdf37`](https://github.com/withastro/astro/commit/c4f6fdf3722b9bc2192cab735498f4e0c30c982e)]:
+  - @astrojs/telemetry@0.3.1
+
 ## 1.0.0-beta.67
 
 ### Patch Changes

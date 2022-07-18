@@ -21,6 +21,8 @@ const ALWAYS_EXTERNAL = new Set([
 	'@sveltejs/vite-plugin-svelte',
 	'micromark-util-events-to-acorn',
 	'@astrojs/markdown-remark',
+	// in-lined for markdown modules
+	'github-slugger',
 	'node-fetch',
 	'prismjs',
 	'shiki',

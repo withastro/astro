@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/svelte",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -48,6 +48,6 @@
     "svelte": "^3.46.4"
   },
   "engines": {
-    "node": "^14.20.0 || >=16.16.0"
+    "node": "^14.18.0 || >=16.12.0"
   }
 }
