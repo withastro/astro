@@ -1,11 +1,11 @@
 ---
-import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from "../../languages.ts";
-import * as CONFIG from "../../config.ts";
+import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from "../../languages";
+import * as CONFIG from "../../config";
 import AstroLogo from "./AstroLogo.astro";
 import SkipToContent from "./SkipToContent.astro";
-import SidebarToggle from "./SidebarToggle.tsx";
-import LanguageSelect from "./LanguageSelect.tsx";
-import Search from "./Search.tsx";
+import SidebarToggle from "./SidebarToggle";
+import LanguageSelect from "./LanguageSelect";
+import Search from "./Search";
 
 const { currentPage } = Astro.props;
 const lang = currentPage && getLanguageFromURL(currentPage);
