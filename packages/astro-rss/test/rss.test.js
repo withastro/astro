@@ -125,6 +125,20 @@ describe('rss', () => {
 	});
 
 	describe('errors', () => {
+		it('should provide a error message when a "site" option is missing', async () => {
+			try {
+				await rss({
+					title,
+					description,
+					items: [phpFeedItem, web1FeedItem]
+				});
+		
+				chai.expect(false).to.equal(true, 'Should have errored');
+			} catch (err) {
+				chai.expect(err.message).to.contain('[RSS] the configuration "site" option is missing');
+			}
+		});
+		
 		it('should provide a good error message when a link is not provided', async () => {
 			try {
 				await rss({
