@@ -39,7 +39,7 @@ describe('astro cli', () => {
 		} catch (err) {}
 
 		expect(proc?.stdout).to.include('0 errors');
-	});
+	}).timeout(35000);
 
 	it('astro check has errors', async () => {
 		let stdout = undefined;
@@ -54,7 +54,7 @@ describe('astro cli', () => {
 		}
 
 		expect(stdout).to.include('1 error');
-	});
+	}).timeout(35000);
 
 	it('astro dev welcome', async () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
