@@ -54,7 +54,7 @@ describe('expressions', () => {
 		chai
 			.expect(code)
 			.to.equal(
-				'<h1 id="-foo--is-a-shorthand-for--foo-foo"><code is:raw>{ foo }</code> is a shorthand for <code is:raw>{ foo: foo }</code></h1>'
+				'<h1 id="-foo--is-a-shorthand-for--foo-foo-"><code is:raw>{ foo }</code> is a shorthand for <code is:raw>{ foo: foo }</code></h1>'
 			);
 	});
 
