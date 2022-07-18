@@ -9,7 +9,7 @@ import {
 	gray,
 	red,
 	white,
-	yellow
+	yellow,
 } from 'kleur/colors';
 import stringWidth from 'string-width';
 
@@ -28,7 +28,7 @@ export function printDiagnostic(filePath: string, text: string, diag: Diagnostic
 		`${IDEFilePath} ${bold(getColorForSeverity(diag, getStringForSeverity(diag)))}: ${diag.message}`
 	);
 
-	// Optionally add the before the error to add context if not empty
+	// Optionally add the line before the error to add context if not empty
 	const previousLine = getLine(diag.range.start.line - 1, text);
 	if (previousLine) {
 		result.push(`${getPrintableLineNumber(realStartLine - 1)}  ${gray(previousLine)}`);
