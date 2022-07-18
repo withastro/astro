@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@babel/core": ">=7.0.0-0 <8.0.0",
-    "@babel/plugin-transform-react-jsx": "^7.17.12"
+    "@babel/plugin-transform-react-jsx": "^7.17.12",
+    "@vitejs/plugin-react": "1.3.2"
   },
   "devDependencies": {
     "@types/react": "^17.0.45",

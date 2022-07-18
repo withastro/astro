@@ -71,7 +71,7 @@ export async function createVite(
 			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
 			markdownVitePlugin({ config: astroConfig }),
-			jsxVitePlugin({ config: astroConfig, logging }),
+			// jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
 		],

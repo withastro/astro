@@ -1,7 +1,8 @@
 import { AstroIntegration } from 'astro';
 import { version as ReactVersion } from 'react-dom';
+import react from '@vitejs/plugin-react';
 
-function getRenderer() {
+function getRenderer(options: {include: any, exclude: any}) {
 	return {
 		name: '@astrojs/react',
 		clientEntrypoint: ReactVersion.startsWith('18.')
@@ -56,6 +57,7 @@ function getViteConfiguration() {
 		resolve: {
 			dedupe: ['react', 'react-dom'],
 		},
+		plugins: [react()],
 		ssr: {
 			external: ReactVersion.startsWith('18.')
 				? ['react-dom/server', 'react-dom/client']
@@ -64,12 +66,19 @@ function getViteConfiguration() {
 	};
 }
 
-export default function (): AstroIntegration {
+export default function (options: {include?: any, exclude?: any} = {}): AstroIntegration {
 	return {
 		name: '@astrojs/react',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
-				addRenderer(getRenderer());
+			'astro:config:setup': ({ addRenderer, updateConfig, injectScript }) => {
+				injectScript('before-hydration', `
+				import RefreshRuntime from "/@react-refresh"
+				RefreshRuntime.injectIntoGlobalHook(window)
+				window.$RefreshReg$ = () => {}
+				window.$RefreshSig$ = () => (type) => type
+				window.__vite_plugin_react_preamble_installed__ = true
+`);
+				addRenderer(getRenderer({include: options.include, exclude: options.exclude}));
 				updateConfig({ vite: getViteConfiguration() });
 			},
 		},
