@@ -1,7 +1,7 @@
-import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
+import type { MarkdownHeader, MarkdownMetadata, MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
 
 import { loadPlugins } from './load-plugins.js';
-import createCollectHeaders from './rehype-collect-headers.js';
+import rehypeCollectHeaders from './rehype-collect-headers.js';
 import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
@@ -42,7 +42,6 @@ export async function renderMarkdown(
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
 	const isMDX = mode === 'mdx';
-	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
 	let parser = unified()
 		.use(markdown)
@@ -95,13 +94,21 @@ export async function renderMarkdown(
 		.use(isMDX ? [rehypeJsx, rehypeExpressions] : [rehypeRaw])
 		.use(rehypeEscape)
 		.use(rehypeIslands)
-		.use([rehypeCollectHeaders])
+		.use(rehypeCollectHeaders)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
 	let result: string;
+	let metadata: MarkdownMetadata;
 	try {
 		const vfile = await parser.process(input);
 		result = vfile.toString();
+		const { headers, ...otherVFileData } = vfile.data;
+		metadata = {
+			headers: vfile.data.headers as MarkdownHeader[],
+			source: content,
+			html: result.toString(),
+			...otherVFileData
+		}
 	} catch (err) {
 		// Ensure that the error message contains the input filename
 		// to make it easier for the user to fix the issue
@@ -112,7 +119,7 @@ export async function renderMarkdown(
 	}
 
 	return {
-		metadata: { headers, source: content, html: result.toString() },
+		metadata,
 		code: result.toString(),
 	};
 }
