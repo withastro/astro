@@ -10,7 +10,6 @@
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react/index.d.ts
  */
 declare namespace astroHTML.JSX {
-	/* html jsx */
 	export type Child = Node | Node[] | string | number | boolean | null | undefined | unknown;
 	export type Children = Child | Child[];
 
@@ -24,17 +23,18 @@ declare namespace astroHTML.JSX {
 		children?: Children;
 	}
 
-	type AstroBuiltinProps = import('astro').AstroBuiltinProps;
-	type AstroBuiltinAttributes = import('astro').AstroBuiltinAttributes;
-	type AstroDefineVarsAttribute = import('astro').AstroDefineVarsAttribute;
-	type AstroScriptAttributes = import('astro').AstroScriptAttributes & AstroDefineVarsAttribute;
-	type AstroStyleAttributes = import('astro').AstroStyleAttributes & AstroDefineVarsAttribute;
+	type AstroBuiltinProps = import('./dist/types/@types/astro').AstroBuiltinProps;
+	type AstroBuiltinAttributes = import('./dist/types/@types/astro').AstroBuiltinAttributes;
+	type AstroDefineVarsAttribute = import('./dist/types/@types/astro').AstroDefineVarsAttribute;
+	type AstroScriptAttributes = import('./dist/types/@types/astro').AstroScriptAttributes &
+		AstroDefineVarsAttribute;
+	type AstroStyleAttributes = import('./dist/types/@types/astro').AstroStyleAttributes &
+		AstroDefineVarsAttribute;
 
-	// Certain Astro methods returns AstroComponent using AstroComponentFactory
-	// The language-server does not really like this because it expects Elements to
-	// all be compatible with HTMLElement so we'll add AstroComponentFactory as a valid element type
-	type AstroComponent = import('astro').AstroComponentFactory;
-	type Element = HTMLElement | AstroComponent;
+	// This is an unfortunate use of `any`, but unfortunately we can't make a type that works for every framework
+	// without importing every single framework's types (which comes with its own set of problems).
+	// Using any isn't that bad here however as in Astro files the return type of a component isn't relevant in most cases
+	type Element = HTMLElement | any;
 
 	interface DOMAttributes {
 		children?: Children;
