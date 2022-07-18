@@ -105,29 +105,33 @@ export async function getImage(
 	loader: ImageService,
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {
-	(globalThis as any)['@astrojs/image'].loader = loader;
+	globalThis.astroImage.loader = loader;
 
 	const resolved = await resolveTransform(transform);
 
 	const attributes = await loader.getImageAttributes(resolved);
 
-	const isDev = (globalThis as any)['@astrojs/image'].command === 'dev';
+	const isDev = globalThis.astroImage.command === 'dev';
 	const isLocalImage = !isRemoteImage(resolved.src);
 	
-	const _loader = isDev && isLocalImage ? (globalThis as any)['@astrojs/image'].ssrLoader : loader;
+	const _loader = isDev && isLocalImage ? globalThis.astroImage.ssrLoader : loader;
+
+	if (!_loader) {
+		throw new Error('@astrojs/image: loader not found!');
+	}
 
 	// For SSR services, build URLs for the injected route
 	if (isSSRService(_loader)) {
 		const { searchParams } = _loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
-		if (globalThis && (globalThis as any)['@astrojs/image'].addStaticImage) {
-			(globalThis as any)['@astrojs/image'].addStaticImage(resolved);
+		if (globalThis && globalThis.astroImage.addStaticImage) {
+			globalThis.astroImage.addStaticImage(resolved);
 		}
 
 		const src =
-			globalThis && (globalThis as any)['@astrojs/image'].filenameFormat
-				? (globalThis as any)['@astrojs/image'].filenameFormat(resolved, searchParams)
+			globalThis && globalThis.astroImage.filenameFormat
+				? globalThis.astroImage.filenameFormat(resolved, searchParams)
 				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
 		return {

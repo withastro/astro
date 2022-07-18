@@ -17,7 +17,7 @@ export * from './get-image.js';
 export * from './get-picture.js';
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
-	(globalThis as any)['@astrojs/image'] = {
+	globalThis.astroImage = {
 		ssrLoader: sharp
 	};
 
@@ -48,7 +48,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		hooks: {
 			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
-				(globalThis as any)['@astrojs/image'].command = command;
+				globalThis.astroImage.command = command;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
@@ -57,12 +57,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any)['@astrojs/image'].addStaticImage = (transform: TransformOptions) => {
+				globalThis.astroImage.addStaticImage = (transform: TransformOptions) => {
 					staticImages.set(propsToFilename(transform), transform);
 				};
 
 				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any)['@astrojs/image'].filenameFormat = (
+				globalThis.astroImage.filenameFormat = (
 					transform: TransformOptions,
 					searchParams: URLSearchParams
 				) => {
@@ -89,7 +89,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			},
 			'astro:build:done': async ({ dir }) => {
 				for await (const [filename, transform] of staticImages) {
-					const loader = (globalThis as any)['@astrojs/image'].loader;
+					const loader = globalThis.astroImage.loader;
+
+					if (!loader || !('transform' in loader)) {
+						// this should never be hit, how was a staticImage added without an SSR service?
+						return;
+					}
 
 					let inputBuffer: Buffer | undefined = undefined;
 					let outputFile: string;
