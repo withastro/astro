@@ -25,7 +25,6 @@
       "import": "./dist/index.js"
     },
     "./sharp": "./dist/loaders/sharp.js",
-    "./cloudinary": "./dist/loaders/cloudinary.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
