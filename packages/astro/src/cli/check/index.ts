@@ -6,7 +6,6 @@ import glob from 'fast-glob';
 import * as fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
 import ora from 'ora';
-import * as path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { printDiagnostic } from './print.js';
 
@@ -22,10 +21,10 @@ export async function check(astroConfig: AstroConfig) {
 
 	const root = astroConfig.root;
 
-	const spinner = ora(` Getting diagnostics in ${fileURLToPath(root)}…`).start();
+	const spinner = ora(` Getting diagnostics for Astro files in ${fileURLToPath(root)}…`).start();
 
 	let checker = new AstroCheck(root.toString());
-	await openAllDocuments(root, [], checker);
+	const filesCount = await openAllDocuments(root, [], checker);
 
 	let diagnostics = await checker.getDiagnostics();
 
@@ -60,7 +59,7 @@ export async function check(astroConfig: AstroConfig) {
 
 	console.log(
 		[
-			bold('Result: '),
+			bold(`Result (${filesCount} file${filesCount === 1 ? '' : 's'}): `),
 			bold(red(`${result.errors} ${result.errors === 1 ? 'error' : 'errors'}`)),
 			bold(yellow(`${result.warnings} ${result.warnings === 1 ? 'warning' : 'warnings'}`)),
 			dim(`${result.hints} ${result.hints === 1 ? 'hint' : 'hints'}\n`),
@@ -71,22 +70,27 @@ export async function check(astroConfig: AstroConfig) {
 	return exitCode;
 }
 
+/**
+ * Open all Astro files in the given directory and return the number of files found.
+ */
 async function openAllDocuments(
 	workspaceUri: URL,
 	filePathsToIgnore: string[],
 	checker: AstroCheck
-) {
+): Promise<number> {
 	const files = await glob('**/*.astro', {
-		cwd: workspaceUri.pathname,
+		cwd: fileURLToPath(workspaceUri),
 		ignore: ['node_modules/**'].concat(filePathsToIgnore.map((ignore) => `${ignore}/**`)),
+		absolute: true,
 	});
-	const absFilePaths = files.map((f) => path.resolve(workspaceUri.pathname, f));
 
-	for (const absFilePath of absFilePaths) {
-		const text = fs.readFileSync(absFilePath, 'utf-8');
+	for (const file of files) {
+		const text = fs.readFileSync(file, 'utf-8');
 		checker.upsertDocument({
-			uri: pathToFileURL(absFilePath).toString(),
+			uri: pathToFileURL(file).toString(),
 			text,
 		});
 	}
+
+	return files.length;
 }

@@ -44,6 +44,9 @@ describe('astro cli', () => {
 	it('astro check has errors', async () => {
 		let stdout = undefined;
 		const projectRootURL = new URL('./fixtures/astro-check-errors/', import.meta.url);
+
+		// When `astro check` finds errors, it returns an error code. As such, we need to wrap this
+		// in a try/catch because otherwise Mocha will always report this test as a fail
 		try {
 			await cli('check', '--root', fileURLToPath(projectRootURL));
 		} catch (err) {
