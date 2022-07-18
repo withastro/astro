@@ -79,7 +79,7 @@ export default async function getRSS(rssOptions: RSSOptions) {
 	let { items, site } = rssOptions;
 
 	if (!site) {
-		throw new Error('[@astrojs/rss] the "site" option is required, but no value was given.');
+		throw new Error('[RSS] the "site" option is required, but no value was given.');
 	}
 
 	if (isGlobResult(items)) {
