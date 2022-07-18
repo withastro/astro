@@ -86,7 +86,7 @@ export default async function getRSS(rssOptions: RSSOptions) {
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
 	}
-	
+
 	return {
 		body: await generateRSS({
 			rssOptions,
