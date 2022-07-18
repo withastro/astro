@@ -17,10 +17,6 @@ export * from './get-image.js';
 export * from './get-picture.js';
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
-	globalThis.astroImage = {
-		ssrLoader: sharp
-	};
-
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/sharp',
 		...options,
@@ -48,7 +44,6 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 		hooks: {
 			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
 				_config = config;
-				globalThis.astroImage.command = command;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
 				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
@@ -57,15 +52,15 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				globalThis.astroImage.addStaticImage = (transform: TransformOptions) => {
+				function addStaticImage(transform: TransformOptions) {
 					staticImages.set(propsToFilename(transform), transform);
 				};
 
 				// TODO: Add support for custom, user-provided filename format functions
-				globalThis.astroImage.filenameFormat = (
+				function filenameFormat(
 					transform: TransformOptions,
 					searchParams: URLSearchParams
-				) => {
+				) {
 					if (mode === 'ssg') {
 						return isRemoteImage(transform.src)
 							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
@@ -78,6 +73,16 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
 				};
+
+				// Initialize the integration's globalThis namespace
+				// This is needed to share scope between Node and Vite
+				globalThis.astroImage = {
+					loader: undefined, // initialized in first getImage() call
+					ssrLoader: sharp,
+					command,
+					addStaticImage,
+					filenameFormat,
+				}
 
 				if (mode === 'ssr') {
 					injectRoute({

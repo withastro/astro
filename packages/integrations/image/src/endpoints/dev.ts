@@ -5,10 +5,6 @@ import { loadImage } from '../utils.js';
 export const get: APIRoute = async ({ request }) => {
 	const loader = globalThis.astroImage.ssrLoader;
 
-	if (!loader) {
-		throw new Error('@astrojs/image: loader not found!');
-	}
-
 	try {
 		const url = new URL(request.url);
 		const transform = loader.parseTransform(url.searchParams);

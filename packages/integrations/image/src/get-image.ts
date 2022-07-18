@@ -125,12 +125,11 @@ export async function getImage(
 		const { searchParams } = _loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
-		if (globalThis && globalThis.astroImage.addStaticImage) {
+		if (globalThis?.astroImage) {
 			globalThis.astroImage.addStaticImage(resolved);
 		}
 
-		const src =
-			globalThis && globalThis.astroImage.filenameFormat
+		const src = globalThis?.astroImage
 				? globalThis.astroImage.filenameFormat(resolved, searchParams)
 				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
