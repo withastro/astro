@@ -54,13 +54,10 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				// Added to globalThis to share the same map in Node and Vite
 				function addStaticImage(transform: TransformOptions) {
 					staticImages.set(propsToFilename(transform), transform);
-				};
+				}
 
 				// TODO: Add support for custom, user-provided filename format functions
-				function filenameFormat(
-					transform: TransformOptions,
-					searchParams: URLSearchParams
-				) {
+				function filenameFormat(transform: TransformOptions, searchParams: URLSearchParams) {
 					if (mode === 'ssg') {
 						return isRemoteImage(transform.src)
 							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
@@ -72,7 +69,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					} else {
 						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
 					}
-				};
+				}
 
 				// Initialize the integration's globalThis namespace
 				// This is needed to share scope between Node and Vite
@@ -82,7 +79,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					command,
 					addStaticImage,
 					filenameFormat,
-				}
+				};
 
 				if (mode === 'ssr') {
 					injectRoute({

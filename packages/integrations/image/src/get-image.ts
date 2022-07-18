@@ -113,7 +113,7 @@ export async function getImage(
 
 	const isDev = globalThis.astroImage.command === 'dev';
 	const isLocalImage = !isRemoteImage(resolved.src);
-	
+
 	const _loader = isDev && isLocalImage ? globalThis.astroImage.ssrLoader : loader;
 
 	if (!_loader) {
@@ -130,8 +130,8 @@ export async function getImage(
 		}
 
 		const src = globalThis?.astroImage
-				? globalThis.astroImage.filenameFormat(resolved, searchParams)
-				: `${ROUTE_PATTERN}?${searchParams.toString()}`;
+			? globalThis.astroImage.filenameFormat(resolved, searchParams)
+			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 
 		return {
 			...attributes,
