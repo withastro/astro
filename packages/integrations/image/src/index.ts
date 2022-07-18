@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
+import sharp from './loaders/sharp.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
 import {
 	ensureDir,
@@ -51,15 +52,15 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any).addStaticImage = (transform: TransformOptions) => {
+				function addStaticImage(transform: TransformOptions) {
 					staticImages.set(propsToFilename(transform), transform);
 				};
 
 				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any).filenameFormat = (
+				function filenameFormat(
 					transform: TransformOptions,
 					searchParams: URLSearchParams
-				) => {
+				) {
 					if (mode === 'ssg') {
 						return isRemoteImage(transform.src)
 							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
@@ -73,6 +74,16 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					}
 				};
 
+				// Initialize the integration's globalThis namespace
+				// This is needed to share scope between Node and Vite
+				globalThis.astroImage = {
+					loader: undefined, // initialized in first getImage() call
+					ssrLoader: sharp,
+					command,
+					addStaticImage,
+					filenameFormat,
+				}
+
 				if (mode === 'ssr') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
@@ -83,7 +94,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			},
 			'astro:build:done': async ({ dir }) => {
 				for await (const [filename, transform] of staticImages) {
-					const loader = (globalThis as any).loader;
+					const loader = globalThis.astroImage.loader;
+
+					if (!loader || !('transform' in loader)) {
+						// this should never be hit, how was a staticImage added without an SSR service?
+						return;
+					}
 
 					let inputBuffer: Buffer | undefined = undefined;
 					let outputFile: string;
