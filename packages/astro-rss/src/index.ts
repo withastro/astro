@@ -76,10 +76,17 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 }
 
 export default async function getRSS(rssOptions: RSSOptions) {
+	const { site } = rssOptions;
 	let { items } = rssOptions;
+
+	if (!site) {
+		throw new Error('[RSS] the "site" option is required, but no value was given.');
+	}
+
 	if (isGlobResult(items)) {
 		items = await mapGlobResult(items);
 	}
+	
 	return {
 		body: await generateRSS({
 			rssOptions,
