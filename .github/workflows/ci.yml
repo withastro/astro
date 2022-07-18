@@ -183,16 +183,6 @@ jobs:
         os: [ubuntu-latest]
         node_version: [14]
     steps:
-      - name: Checkout docs
-        uses: actions/checkout@v3
-        with:
-          repository: withastro/docs
-
-      - name: Checkout astro.build
-        uses: actions/checkout@v3
-        with:
-          repository: withastro/astro.build
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -205,8 +195,20 @@ jobs:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
+      - name: Checkout docs
+        uses: actions/checkout@v3
+        with:
+          repository: withastro/docs
+          path: smoke/docs
+
+      - name: Checkout astro.build
+        uses: actions/checkout@v3
+        with:
+          repository: withastro/astro.build
+          path: smoke/astro-build
+
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Packages
         run: pnpm run build
