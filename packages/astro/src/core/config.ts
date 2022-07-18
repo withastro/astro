@@ -471,16 +471,23 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
 		);
 	}
-
 	// Automatically load config file using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	let config;
 	try {
-		config = await load('astro', {
+		const resolvedConfigPath = await resolve('astro', {
 			mustExist: !!userConfigPath,
 			cwd: root,
 			filePath: userConfigPath,
-		});
+		})
+		if (resolvedConfigPath) {
+			config = await load('astro', {
+				mustExist: false,
+				cwd: root,
+				// append timestamp (?t) to force re-imports on dev server restart
+				filePath: resolvedConfigPath + `?t=${Date.now()}`,
+			});
+		}
 	} catch (err) {
 		if (err instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import type { AstroConfig } from '../@types/astro.js';
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -132,7 +133,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
+	const { astroConfig, userConfig, userConfigPath } = await openConfig({ cwd: root, flags, cmd });
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -140,7 +141,22 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			await devServer(astroConfig, { logging, telemetry });
+			async function startDevServer(refreshedAstroConfig?: AstroConfig) {
+				const { watcher, stop } = await devServer(
+					refreshedAstroConfig ?? astroConfig,
+					{ logging, telemetry },
+				);
+				async function refreshOnConfigChange(path: string) {
+					// TODO: make more specific
+					if (path.includes('astro.config')) {
+						await stop();
+					}
+				}
+				watcher.on('add', refreshOnConfigChange);
+				watcher.on('change', refreshOnConfigChange);
+				watcher.on('unlink', refreshOnConfigChange);
+			}
+			await startDevServer();
 			return await new Promise(() => {}); // lives forever
 		}
 
