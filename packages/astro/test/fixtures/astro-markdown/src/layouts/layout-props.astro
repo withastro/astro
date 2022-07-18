@@ -1,0 +1,17 @@
+---
+  interface Props {
+    url: string;
+    file: string;
+    title: string;
+  }
+
+  const { title, url, file } = Astro.props.content as Props;
+---
+
+<html>
+  <body>
+    <div id="title">{title}</div>
+    <div id="url">{url}</div>
+    <div id="file">{file}</div>
+  </body>
+</html>

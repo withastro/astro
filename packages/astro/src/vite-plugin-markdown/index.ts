@@ -114,7 +114,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export function $$loadMetadata() {
 							return load().then((m) => m.$$metadata);
 						}
-						
+
 						// Deferred
 						export default async function load() {
 							return (await import(${JSON.stringify(fileId + MARKDOWN_CONTENT_FLAG)}));
@@ -162,6 +162,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
+				content.url = getFileInfo(id, config).fileUrl;
+				content.file = filename;
 				const prelude = `---
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
