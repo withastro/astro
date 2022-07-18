@@ -78,8 +78,8 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 export default async function getRSS(rssOptions: RSSOptions) {
 	let { items, site } = rssOptions;
 
-	if (!Boolean(site)) {
-		throw new Error('[RSS] the configuration "site" option is missing')
+	if (!site) {
+		throw new Error('[@astrojs/rss] the "site" option is required, but no value was given.');
 	}
 
 	if (isGlobResult(items)) {
