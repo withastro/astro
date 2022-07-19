@@ -73,8 +73,9 @@ class AstroBuilder {
 				mode: this.mode,
 				server: {
 					hmr: false,
-					middlewareMode: 'ssr',
+					middlewareMode: true,
 				},
+				appType: 'custom',
 			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);

@@ -11,6 +11,7 @@ interface ImageIntegration {
 }
 
 declare global {
+	// eslint-disable-next-line no-var
 	var astroImage: ImageIntegration;
 }
 

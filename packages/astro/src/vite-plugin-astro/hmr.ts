@@ -41,7 +41,7 @@ export async function trackCSSDependencies(
 			}
 
 			// Update the module graph, telling it about our CSS deps.
-			moduleGraph.updateModuleInfo(mod, depModules, new Set(), true);
+			moduleGraph.updateModuleInfo(mod, depModules, new Map(), new Set(), new Set(), true);
 			for (const dep of cssDeps) {
 				this.addWatchFile(dep);
 			}

@@ -820,6 +820,7 @@ declare namespace astroHTML.JSX {
 		content?: string | URL | undefined | null;
 		'http-equiv'?: string | undefined | null;
 		name?: string | undefined | null;
+		media?: string | undefined | null;
 	}
 
 	interface MeterHTMLAttributes extends HTMLAttributes {

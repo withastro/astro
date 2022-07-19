@@ -338,4 +338,13 @@ describe('Astro Markdown', () => {
 
 		expect($('article').eq(4).text().replace(/[^❌]/g, '')).to.equal('❌❌❌');
 	});
+
+	it('Generate the right props for the layout', async () => {
+		const html = await fixture.readFile('/layout-props/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#title').text()).to.equal('Hello world!');
+		expect($('#url').text()).to.equal('/layout-props');
+		expect($('#file').text()).to.match(/.*\/layout-props.md$/);
+	});
 });
