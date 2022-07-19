@@ -34,8 +34,8 @@ describe('MDX remark plugins', () => {
 		const html = await fixture.readFile('/with-gfm/index.html');
 		const { document } = parseHTML(html);
 
-		const authGenLink = document.querySelector('a[href="https://example.com"]');
-		expect(authGenLink).to.not.be.null;
+		const autoGenLink = document.querySelector('a[href="https://example.com"]');
+		expect(autoGenLink).to.not.be.null;
 	});
 
 	it('preserves default GitHub-flavored markdown with "extends"', async () => {
@@ -52,7 +52,7 @@ describe('MDX remark plugins', () => {
 
 		const tocLink1 = document.querySelector('ul a[href="#section-1"]');
 		expect(tocLink1).to.not.be.null;
-		const authGenLink = document.querySelector('a[href="https://handle-me-gfm.com"]');
-		expect(authGenLink).to.not.be.null;
+		const autoGenLink = document.querySelector('a[href="https://handle-me-gfm.com"]');
+		expect(autoGenLink).to.not.be.null;
 	});
 });
