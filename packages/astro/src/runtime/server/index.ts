@@ -281,6 +281,8 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
+		// If this component ran through `__astro_tag_component__`, we already know
+		// which renderer to match to and can skip the usual `check` calls
 		if (Component && (Component as any)['astro:renderer']) {
 			const rendererName = (Component as any)['astro:renderer'];
 			renderer = renderers.find(({ name }) => name === rendererName);
