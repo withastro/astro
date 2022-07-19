@@ -1,5 +1,16 @@
 # @astrojs/markdown-remark
 
+## 0.12.0
+
+### Minor Changes
+
+- [#3924](https://github.com/withastro/astro/pull/3924) [`07fb544da`](https://github.com/withastro/astro/commit/07fb544dab142a3d4bb9d0d878aab34eaea447b2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Remove unused ssr-utils file
+
+### Patch Changes
+
+- Updated dependencies [[`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e)]:
+  - @astrojs/prism@0.6.1
+
 ## 0.11.7
 
 ### Patch Changes

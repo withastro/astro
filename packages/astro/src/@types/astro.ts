@@ -16,7 +16,6 @@ import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type { SSRManifest } from '../core/app/types';
-export type { AstroComponentFactory } from '../runtime/server';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

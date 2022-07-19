@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3956](https://github.com/withastro/astro/pull/3956) [`57e529e4c`](https://github.com/withastro/astro/commit/57e529e4c13f3e7829311ac6f92682eb6333fd96) Thanks [@esafev](https://github.com/esafev)! - Throw the error when 'site' option is missing
+
 ## 0.2.1
 
 ### Patch Changes

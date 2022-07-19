@@ -1,5 +1,13 @@
 # @astrojs/image
 
+## 0.1.3
+
+### Patch Changes
+
+- [#3957](https://github.com/withastro/astro/pull/3957) [`2a7dd040e`](https://github.com/withastro/astro/commit/2a7dd040e8a65d62fbb3bbd7308f523bd48deda5) Thanks [@tony-sull](https://github.com/tony-sull)! - Improves the `astro dev` experience when using a third-party hosted image service
+
+* [#3965](https://github.com/withastro/astro/pull/3965) [`299b4afca`](https://github.com/withastro/astro/commit/299b4afcab090bbe014d4eaf2a5ea439e8436bcc) Thanks [@tony-sull](https://github.com/tony-sull)! - Adding a unique hash to remote images built for SSG to ensure unique URLs are always de-duplicated
+
 ## 0.1.2
 
 ### Patch Changes

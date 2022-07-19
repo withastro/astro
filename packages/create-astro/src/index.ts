@@ -108,7 +108,10 @@ export async function main() {
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
-	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
+	// Don't touch the template name if a GitHub repo was provided, ex: `--template cassidoo/shopify-react-astro`
+	const templateTarget = options.template.includes('/')
+		? options.template
+		: `withastro/astro/examples/${options.template}#latest`;
 
 	const emitter = degit(`${templateTarget}${hash}`, {
 		cache: false,

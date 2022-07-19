@@ -1,5 +1,45 @@
 # astro
 
+## 1.0.0-beta.73
+
+### Patch Changes
+
+- [#3937](https://github.com/withastro/astro/pull/3937) [`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e) Thanks [@delucis](https://github.com/delucis)! - Roll back supported Node engines
+
+* [#3588](https://github.com/withastro/astro/pull/3588) [`5d0edfc3b`](https://github.com/withastro/astro/commit/5d0edfc3b9a20bf68b16c463bbf9cbf31324143a) Thanks [@charlesvdv](https://github.com/charlesvdv)! - Fix missing props (url, file) in markdown layout
+
+- [#3960](https://github.com/withastro/astro/pull/3960) [`ceda294e1`](https://github.com/withastro/astro/commit/ceda294e133d4cc32e68488393287be6077fd3d5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration of maps/sets
+
+* [#3958](https://github.com/withastro/astro/pull/3958) [`8eba6d9d9`](https://github.com/withastro/astro/commit/8eba6d9d977920bdb0830cc219e636236433b2fd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix JSX definitions being too strict as to what an element is, which lead to type issues in certain cases (Markdown imports, JSX components etc)
+
+- [#3915](https://github.com/withastro/astro/pull/3915) [`f5d4ebf0e`](https://github.com/withastro/astro/commit/f5d4ebf0e242a7d33fedfe924f9dea678a7e673c) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix metadata handling for building MDX files
+
+* [#3930](https://github.com/withastro/astro/pull/3930) [`3acb9ec26`](https://github.com/withastro/astro/commit/3acb9ec264de6ca6eecf49313c0f4d02c3908afa) Thanks [@matthewp](https://github.com/matthewp)! - Include hoisted scripts inside Astro.glob in dev
+
+- [#3906](https://github.com/withastro/astro/pull/3906) [`b37695c34`](https://github.com/withastro/astro/commit/b37695c34c84274af873cf5c69d484ee33c82098) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed many long-standing issues with `astro check`
+
+  - Fixed it not working on Windows at all
+  - Fixed red squiggles not showing in the proper place in certain contexts, notably with strings using non-latin characters
+  - Fixed IDE links pointing to the wrong line number and character
+  - Fixed line numbers being off by one
+  - Fixed IDE links not working when the project wasn't at the root of the folder
+
+  Additionally added some features:
+
+  - Added more pretty colors
+  - Fixed it not working at all on Windows
+  - Warnings and hints are now printed alongside errors
+  - Surrounding lines are now shown when relevant (aka not empty)
+
+* [#3955](https://github.com/withastro/astro/pull/3955) [`92b48b152`](https://github.com/withastro/astro/commit/92b48b1525f12663a4932dd6b63bc18f7f0f35fa) Thanks [@matthewp](https://github.com/matthewp)! - Set import.meta.env.BASE_URL in dev mode
+
+- [#3963](https://github.com/withastro/astro/pull/3963) [`5fde2fd8b`](https://github.com/withastro/astro/commit/5fde2fd8bcc7f10e8a449146fa89843f6e6b6aa3) Thanks [@matthewp](https://github.com/matthewp)! - Makes the Debug component's styles be inlined
+
+- Updated dependencies [[`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e), [`07fb544da`](https://github.com/withastro/astro/commit/07fb544dab142a3d4bb9d0d878aab34eaea447b2)]:
+  - @astrojs/prism@0.6.1
+  - @astrojs/telemetry@0.4.1
+  - @astrojs/markdown-remark@0.12.0
+
 ## 1.0.0-beta.72
 
 ### Patch Changes
