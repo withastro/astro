@@ -215,7 +215,7 @@ async function generatePath(
 		logging,
 		markdown: astroConfig.markdown,
 		mod,
-		mode: 'production',
+		mode: opts.mode,
 		origin,
 		pathname,
 		scripts,
