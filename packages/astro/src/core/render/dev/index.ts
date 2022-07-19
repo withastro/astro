@@ -75,8 +75,7 @@ export async function preload({
 	// Important: This needs to happen first, in case a renderer provides polyfills.
 	const renderers = await loadRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
-	let mod;
-	mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	if (viteServer.config.mode === 'development' || !mod?.$$metadata) {
 		return [renderers, mod];
 	}
