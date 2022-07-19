@@ -2,4 +2,4 @@
 '@astrojs/image': patch
 ---
 
-Updates the <Picture /> component to pass all unrecognized attributes down to the <img> element
+Updates the <Picture /> component to pass the `alt` attribute down to the <img> element

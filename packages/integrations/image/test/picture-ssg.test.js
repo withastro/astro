@@ -45,7 +45,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg img');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -73,7 +73,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline img');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -105,7 +105,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#google img');
 
 				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.png`);
@@ -172,7 +172,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg img');
 
 				const src = image.attr('src');
@@ -211,7 +211,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline img');
 
 				const src = image.attr('src');
@@ -250,7 +250,7 @@ describe('SSG pictures', function () {
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#google img');
 
 				const src = image.attr('src');
