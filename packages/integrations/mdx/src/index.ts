@@ -22,20 +22,23 @@ export default function mdx(): AstroIntegration {
 									mdExtensions: [],
 								}),
 							},
-							command === 'dev' && {
+							{
 								name: '@astrojs/mdx',
 								transform(code: string, id: string) {
 									if (!id.endsWith('.mdx')) return;
-
 									const [, moduleExports] = parseESM(code);
+
 									if (!moduleExports.includes('url')) {
 										const { fileUrl } = getFileInfo(id, config);
 										code += `export const url = ${JSON.stringify(fileUrl)};`;
 									}
-									// TODO: decline HMR updates until we have a stable approach
-									return `${code}\nif (import.meta.hot) {
-										import.meta.hot.decline();
-									}`;
+									if (command === 'dev') {
+										// TODO: decline HMR updates until we have a stable approach
+										code += `\nif (import.meta.hot) {
+											import.meta.hot.decline();
+										}`
+									}
+									return code;
 								},
 							},
 						],
