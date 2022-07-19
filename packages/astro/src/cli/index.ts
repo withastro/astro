@@ -141,10 +141,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	switch (cmd) {
 		case 'dev': {
 			async function startDevServer() {
-				const { watcher, stop } = await devServer(
-					astroConfig,
-					{ logging, telemetry },
-				);
+				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry });
 
 				watcher.on('change', logRestartServerOnConfigChange);
 				watcher.on('unlink', logRestartServerOnConfigChange);
