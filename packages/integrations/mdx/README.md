@@ -119,6 +119,27 @@ export default {
 
 </details>
 
+<details>
+  <summary><strong>rehypePlugins</strong></summary>
+
+**Default plugins:** none
+
+[Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
+
+To apply rehype plugins, use the `rehypePlugins` configuration option like so:
+
+```js
+// astro.config.mjs
+import rehypeMinifyHtml from 'rehype-minify';
+
+export default {
+  integrations: [mdx({
+    rehypePlugins: [rehypeMinifyHtml],
+  })],
+}
+```
+</details>
+
 ## Examples
 
 - The [Astro MDX example](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
