@@ -105,9 +105,9 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 	return output;
 }
 
-export function resolveDependency(dep: string, astroConfig: AstroConfig) {
+export function resolveDependency(dep: string, projectRoot: URL) {
 	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(astroConfig.root),
+		basedir: fileURLToPath(projectRoot),
 	});
 	// For Windows compat, we need a fully resolved `file://` URL string
 	return pathToFileURL(resolved).toString();

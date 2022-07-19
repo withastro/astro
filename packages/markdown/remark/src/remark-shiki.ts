@@ -37,6 +37,7 @@ const remarkShiki = async (
 				if (langExists) {
 					lang = node.lang;
 				} else {
+					// eslint-disable-next-line no-console
 					console.warn(`The language "${node.lang}" doesn't exist, falling back to plaintext.`);
 					lang = 'plaintext';
 				}

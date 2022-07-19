@@ -1,5 +1,17 @@
 # @astrojs/react
 
+## 0.4.2
+
+### Patch Changes
+
+- [#3937](https://github.com/withastro/astro/pull/3937) [`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e) Thanks [@delucis](https://github.com/delucis)! - Roll back supported Node engines
+
+## 0.4.1
+
+### Patch Changes
+
+- [#3928](https://github.com/withastro/astro/pull/3928) [`d6dfef0ca`](https://github.com/withastro/astro/commit/d6dfef0caa25f4effd0ed548d92ff48ce7a39ab2) Thanks [@matthewp](https://github.com/matthewp)! - Removes @babel/core peerDependency warning
+
 ## 0.4.0
 
 ### Minor Changes

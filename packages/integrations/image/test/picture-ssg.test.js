@@ -91,6 +91,10 @@ describe('SSG pictures', function () {
 		});
 
 		describe('Remote images', () => {
+			// Hard-coding in the test! This should never change since the hash is based
+			// on the static `src` string
+			const HASH = 'Z1iI4xW';
+
 			it('includes sources', () => {
 				const sources = $('#google source');
 
@@ -102,38 +106,38 @@ describe('SSG pictures', function () {
 			it('includes src, width, and height attributes', () => {
 				const image = $('#google img');
 
-				expect(image.attr('src')).to.equal('/_image/googlelogo_color_272x92dp_544x184.png');
+				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.png`);
 				expect(image.attr('width')).to.equal('544');
 				expect(image.attr('height')).to.equal('184');
 			});
 
 			it('built the optimized image', () => {
-				verifyImage('_image/googlelogo_color_272x92dp_272x92.avif', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.avif`, {
 					width: 272,
 					height: 92,
 					type: 'avif',
 				});
-				verifyImage('_image/googlelogo_color_272x92dp_272x92.webp', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.webp`, {
 					width: 272,
 					height: 92,
 					type: 'webp',
 				});
-				verifyImage('_image/googlelogo_color_272x92dp_272x92.png', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.png`, {
 					width: 272,
 					height: 92,
 					type: 'png',
 				});
-				verifyImage('_image/googlelogo_color_272x92dp_544x184.avif', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.avif`, {
 					width: 544,
 					height: 184,
 					type: 'avif',
 				});
-				verifyImage('_image/googlelogo_color_272x92dp_544x184.webp', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`, {
 					width: 544,
 					height: 184,
 					type: 'webp',
 				});
-				verifyImage('_image/googlelogo_color_272x92dp_544x184.png', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.png`, {
 					width: 544,
 					height: 184,
 					type: 'png',

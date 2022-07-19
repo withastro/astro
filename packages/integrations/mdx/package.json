@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -43,6 +43,6 @@
     "linkedom": "^0.14.12"
   },
   "engines": {
-    "node": "^14.20.0 || >=16.14.0"
+    "node": "^14.18.0 || >=16.12.0"
   }
 }

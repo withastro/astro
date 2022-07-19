@@ -15,7 +15,7 @@ import preview from '../core/preview/index.js';
 import { ASTRO_VERSION, createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
-import { check } from './check.js';
+import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
 

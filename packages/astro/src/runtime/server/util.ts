@@ -23,7 +23,7 @@ export function serializeListValue(value: any) {
 		// otherwise, push any other values as a string
 		else {
 			// get the item as a string
-			item = item == null ? '' : String(item).trim();
+			item = item === false || item == null ? '' : String(item).trim();
 
 			// add the item if it is filled
 			if (item) {
