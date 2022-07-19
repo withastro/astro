@@ -5,13 +5,13 @@ import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
-import tagExportsPlugin from './tag.js';
 import * as eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
+import tagExportsPlugin from './tag.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);

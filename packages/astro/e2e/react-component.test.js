@@ -3,9 +3,9 @@ import { prepareTestFactory } from './shared-component-tests.js';
 const { test, createTests } = prepareTestFactory({ root: './fixtures/react-component/' });
 
 const config = {
-		counterComponentFilePath: './src/components/Counter.jsx',
-		componentFilePath: './src/components/JSXComponent.jsx',
-}
+	counterComponentFilePath: './src/components/Counter.jsx',
+	componentFilePath: './src/components/JSXComponent.jsx',
+};
 
 test.describe('React components in Astro files', () => {
 	createTests({

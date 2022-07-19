@@ -6,7 +6,7 @@ const config = {
 	componentFilePath: './src/components/VueComponent.vue',
 	counterCssFilePath: './src/components/Counter.vue',
 	counterComponentFilePath: './src/components/Counter.vue',
-}
+};
 
 test.describe('Vue components in Astro files', () => {
 	createTests({

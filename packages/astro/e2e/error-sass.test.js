@@ -19,6 +19,6 @@ test.describe('Error: Sass', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch('Undefined variable')
+		expect(message).toMatch('Undefined variable');
 	});
 });

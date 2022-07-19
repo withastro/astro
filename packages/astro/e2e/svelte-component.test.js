@@ -6,7 +6,7 @@ const config = {
 	componentFilePath: './src/components/SvelteComponent.svelte',
 	counterComponentFilePath: './src/components/Counter.svelte',
 	counterCssFilePath: './src/components/Counter.svelte',
-}
+};
 
 test.describe('Svelte components in Astro files', () => {
 	createTests({

@@ -4,7 +4,6 @@ import type { LogOptions } from './logger/core';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { createCustomViteLogger } from './errors.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -14,6 +13,7 @@ import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-contai
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
+import { createCustomViteLogger } from './errors.js';
 import { resolveDependency } from './util.js';
 
 // note: ssr is still an experimental API hence the type omission from `vite`

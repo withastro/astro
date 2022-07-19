@@ -6,7 +6,12 @@ import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { collectErrorMetadata, ErrorWithMetadata, fixViteErrorMessage, getViteErrorPayload } from '../core/errors.js';
+import {
+	collectErrorMetadata,
+	ErrorWithMetadata,
+	fixViteErrorMessage,
+	getViteErrorPayload,
+} from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -151,11 +156,15 @@ async function handle500Response(
 	res: http.ServerResponse,
 	err: ErrorWithMetadata
 ) {
-	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200))
+	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200));
 	if (res.headersSent) {
-		res.end()
+		res.end();
 	} else {
-		writeHtmlResponse(res, 500, `<title>${err.name}</title><script type="module" src="/@vite/client"></script>`);
+		writeHtmlResponse(
+			res,
+			500,
+			`<title>${err.name}</title><script type="module" src="/@vite/client"></script>`
+		);
 	}
 }
 
@@ -225,7 +234,7 @@ async function handleRequest(
 		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
 	});
 
-	let filePath: URL|undefined;
+	let filePath: URL | undefined;
 	try {
 		if (!pathname.startsWith(devRoot)) {
 			log404(logging, pathname);

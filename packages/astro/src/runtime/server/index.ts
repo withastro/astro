@@ -190,8 +190,8 @@ export function __astro_tag_component__(Component: unknown, rendererName: string
 	Object.defineProperty(Component, Renderer, {
 		value: rendererName,
 		enumerable: false,
-		writable: false
-	})
+		writable: false,
+	});
 }
 
 export async function renderComponent(
@@ -801,7 +801,7 @@ export async function renderPage(
 							}
 							controller.close();
 						} catch (e) {
-							controller.error(e)
+							controller.error(e);
 						}
 					}
 					read();
@@ -877,7 +877,7 @@ export async function* renderAstroComponent(
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
 				yield markHTMLString(chunk);
-			} 
+			}
 		}
 	}
 }

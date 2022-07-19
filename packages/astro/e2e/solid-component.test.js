@@ -5,7 +5,7 @@ const { test, createTests } = prepareTestFactory({ root: './fixtures/solid-compo
 const config = {
 	componentFilePath: './src/components/SolidComponent.jsx',
 	counterComponentFilePath: './src/components/Counter.jsx',
-}
+};
 
 test.describe('Solid components in Astro files', () => {
 	createTests({

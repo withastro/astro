@@ -3,9 +3,9 @@ import { prepareTestFactory } from './shared-component-tests.js';
 const { test, createTests } = prepareTestFactory({ root: './fixtures/preact-component/' });
 
 const config = {
-		counterComponentFilePath: './src/components/Counter.jsx',
-		componentFilePath: './src/components/JSXComponent.jsx',
-}
+	counterComponentFilePath: './src/components/Counter.jsx',
+	componentFilePath: './src/components/JSXComponent.jsx',
+};
 
 test.describe('Preact components in Astro files', () => {
 	createTests({

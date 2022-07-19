@@ -19,6 +19,6 @@ test.describe('Error: React Spectrum', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch('@adobe/react-spectrum is not compatible')
+		expect(message).toMatch('@adobe/react-spectrum is not compatible');
 	});
 });

@@ -33,7 +33,7 @@ const config = {
 			use: {
 				browserName: 'chromium',
 				channel: 'chrome',
-				args: ["--use-gl=egl"]
+				args: ['--use-gl=egl'],
 			},
 		},
 	],
