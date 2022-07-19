@@ -108,7 +108,7 @@ export async function render(
 		viteServer,
 	} = ssrOpts;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, astroConfig, viteServer);
+	const { scripts, defineVars } = await getScriptsForURL(filePath, astroConfig, viteServer);
 
 	// Inject HMR scripts
 	if (isPage(filePath, astroConfig) && mode === 'development') {
@@ -132,12 +132,6 @@ export async function render(
 				children: script.content,
 			});
 		}
-	}
-
-	let defineVarsScripts = new Set<string>();
-	const defineVars = mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.defineVarsScriptPaths()) : [];
-	for (const path of defineVars) {
-		defineVarsScripts.add(path);
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
@@ -170,7 +164,7 @@ export async function render(
 		adapterName: astroConfig.adapter?.name,
 		links,
 		styles,
-		defineVarsScripts,
+		defineVars,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

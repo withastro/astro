@@ -12,25 +12,27 @@ export async function getScriptsForURL(
 	filePath: URL,
 	astroConfig: AstroConfig,
 	viteServer: vite.ViteDevServer
-): Promise<Set<SSRElement>> {
+): Promise<{ scripts: Set<SSRElement>, defineVars: Set<string> }> {
 	const elements = new Set<SSRElement>();
+	const defineVars = new Set<string>();
 	const rootID = viteID(filePath);
 	let rootProjectFolder = slash(fileURLToPath(astroConfig.root));
 	const modInfo = viteServer.pluginContainer.getModuleInfo(rootID);
-	addHoistedScripts(elements, modInfo, rootProjectFolder);
+	addHoistedScripts(elements, defineVars, modInfo, rootProjectFolder);
 	for await (const moduleNode of crawlGraph(viteServer, rootID, true)) {
 		const id = moduleNode.id;
 		if (id) {
 			const info = viteServer.pluginContainer.getModuleInfo(id);
-			addHoistedScripts(elements, info, rootProjectFolder);
+			addHoistedScripts(elements, defineVars, info, rootProjectFolder);
 		}
 	}
 
-	return elements;
+	return { scripts: elements, defineVars };
 }
 
 function addHoistedScripts(
-	set: Set<SSRElement>,
+	elements: Set<SSRElement>,
+	defineVars: Set<string>,
 	info: ModuleInfo | null,
 	rootProjectFolder: string
 ) {
@@ -42,7 +44,12 @@ function addHoistedScripts(
 	const astro = info?.meta?.astro as AstroPluginMetadata['astro'];
 	for (let i = 0; i < astro.scripts.length; i++) {
 		const scriptId = `${id}?astro&type=script&index=${i}&lang.ts`;
-		const element = createModuleScriptElementWithSrc(scriptId);
-		set.add(element);
+		const script = astro.scripts[i];
+		if (script.type === 'define:vars') {
+			defineVars.add(`/@fs${scriptId.replace('/@fs', '')}`);
+		} else {
+			const element = createModuleScriptElementWithSrc(scriptId);
+			elements.add(element);
+		}
 	}
 }

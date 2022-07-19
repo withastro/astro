@@ -635,7 +635,7 @@ export function defineStyleVars(defs: Record<any, any>[]) {
 export async function defineScriptVars(vars: Record<any, any>, info?: { file: string, index: number }, result?: SSRResult) {
 	if (typeof info !== 'undefined' && typeof result !== 'undefined') {
 		let match: string | undefined;
-		for (const script of result.defineVarsScripts) {
+		for (const script of result.defineVars) {
 			if (script.replace('/@fs', '').startsWith(info.file) && script.includes(`index=${info.index}`)) {
 				match = await result.resolve(script);
 				break;
