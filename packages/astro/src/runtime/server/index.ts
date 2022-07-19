@@ -213,20 +213,6 @@ export async function renderComponent(
 	if (Component && (Component as any).isAstroComponentFactory) {
 		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
-			// If this component added any define:vars styles and the head has already been
-			// sent out, we need to include those inline.
-			if (result.styles.size && alreadyHeadRenderedResults.has(result)) {
-				let styles = Array.from(result.styles);
-				result.styles.clear();
-				for (const style of styles) {
-					if ('define:vars' in style.props) {
-						// We only want to render the property value and not the full stylesheet
-						// which is bundled in the head.
-						style.children = '';
-						yield markHTMLString(renderElement('style', style));
-					}
-				}
-			}
 			yield* iterable;
 		}
 
@@ -633,16 +619,30 @@ export function spreadAttributes(
 }
 
 // Adds CSS variables to an inline style tag
-export function defineStyleVars(selector: string, vars: Record<any, any>) {
-	let output = '\n';
-	for (const [key, value] of Object.entries(vars)) {
-		output += `  --${key}: ${value};\n`;
+export function defineStyleVars(defs: Record<any, any>[]) {
+	let output = '';
+	for (const vars of defs) {
+		for (const [key, value] of Object.entries(vars)) {
+			if (value || value === 0) {
+				output += `--${key}: ${value};`;
+			}
+		}
 	}
-	return markHTMLString(`${selector} {${output}}`);
+	return markHTMLString(output);
 }
 
 // Adds variables to an inline script.
-export function defineScriptVars(vars: Record<any, any>) {
+export async function defineScriptVars(vars: Record<any, any>, info?: { file: string, index: number }, result?: SSRResult) {
+	if (typeof info !== 'undefined' && typeof result !== 'undefined') {
+		let match: string | undefined;
+		for (const script of result.defineVarsScripts) {
+			if (script.replace('/@fs', '').startsWith(info.file) && script.includes(`index=${info.index}`)) {
+				match = await result.resolve(script);
+				break;
+			}
+		}
+		return markHTMLString(`import("${match}").then(res => res.default(${JSON.stringify(serializeProps(vars))}))`)
+	}
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
 		output += `let ${key} = ${JSON.stringify(value)};\n`;
@@ -945,11 +945,6 @@ function renderElement(
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
 	if (defineVars) {
 		if (name === 'style') {
-			if (props['is:global']) {
-				children = defineStyleVars(`:root`, defineVars) + '\n' + children;
-			} else {
-				children = defineStyleVars(`.astro-${astroId}`, defineVars) + '\n' + children;
-			}
 			delete props['is:global'];
 			delete props['is:scoped'];
 		}

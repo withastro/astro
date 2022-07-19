@@ -77,6 +77,7 @@ export interface RenderOptions {
 	origin: string;
 	pathname: string;
 	scripts: Set<SSRElement>;
+	defineVarsScripts: Set<string>;
 	resolve: (s: string) => Promise<string>;
 	renderers: SSRLoadedRenderer[];
 	route?: RouteData;
@@ -99,6 +100,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		mode,
 		pathname,
 		scripts,
+		defineVarsScripts,
 		renderers,
 		request,
 		resolve,
@@ -146,6 +148,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		request,
 		site,
 		scripts,
+		defineVarsScripts,
 		ssr,
 		streaming,
 	});

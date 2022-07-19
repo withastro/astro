@@ -134,6 +134,12 @@ export async function render(
 		}
 	}
 
+	let defineVarsScripts = new Set<string>();
+	const defineVars = mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.defineVarsScriptPaths()) : [];
+	for (const path of defineVars) {
+		defineVarsScripts.add(path);
+	}
+
 	// Pass framework CSS in as style tags to be appended to the page.
 	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, viteServer, mode);
 	let links = new Set<SSRElement>();
@@ -164,6 +170,7 @@ export async function render(
 		adapterName: astroConfig.adapter?.name,
 		links,
 		styles,
+		defineVarsScripts,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

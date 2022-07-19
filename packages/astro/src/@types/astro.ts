@@ -1060,6 +1060,7 @@ export interface SSRMetadata {
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
+	defineVarsScripts: Set<string>;
 	links: Set<SSRElement>;
 	createAstro(
 		Astro: AstroGlobalPartial,
