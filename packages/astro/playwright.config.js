@@ -9,12 +9,12 @@ const config = {
 		 * Maximum time expect() should wait for the condition to be met.
 		 * For example in `await expect(locator).toHaveText();`
 		 */
-		timeout: 5000,
+		timeout: 3000,
 	},
 	/* Fail the build on CI if you accidentally left test in the source code. */
 	forbidOnly: !!process.env.CI,
 	/* Retry on CI only */
-	retries: process.env.CI ? 5 : 0,
+	retries: process.env.CI ? 3 : 0,
 	/* Opt out of parallel tests on CI. */
 	workers: 1,
 	/* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -33,6 +33,7 @@ const config = {
 			use: {
 				browserName: 'chromium',
 				channel: 'chrome',
+				args: ["--use-gl=egl"]
 			},
 		},
 	],

@@ -700,6 +700,48 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/error-react-spectrum:
+    specifiers:
+      '@adobe/react-spectrum': ^3.18.0
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+      react: ^18.1.0
+      react-dom: ^18.1.0
+    dependencies:
+      '@adobe/react-spectrum': 3.19.0_biqbaboplfbrettd7655fr4n2y
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
+  packages/astro/e2e/fixtures/error-sass:
+    specifiers:
+      astro: workspace:*
+      sass: ^1.52.2
+    dependencies:
+      astro: link:../../..
+      sass: 1.53.0
+
+  packages/astro/e2e/fixtures/errors:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+      react: ^18.1.0
+      react-dom: ^18.1.0
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
   packages/astro/e2e/fixtures/lit-component:
     specifiers:
       '@astrojs/lit': workspace:*
@@ -1467,40 +1509,6 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
-  packages/astro/test/fixtures/error-react-spectrum:
-    specifiers:
-      '@adobe/react-spectrum': ^3.18.0
-      '@astrojs/react': workspace:*
-      astro: workspace:*
-      react: ^18.1.0
-      react-dom: ^18.1.0
-    dependencies:
-      '@adobe/react-spectrum': 3.19.0_biqbaboplfbrettd7655fr4n2y
-      '@astrojs/react': link:../../../../integrations/react
-      astro: link:../../..
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-
-  packages/astro/test/fixtures/errors:
-    specifiers:
-      '@astrojs/preact': workspace:*
-      '@astrojs/react': workspace:*
-      '@astrojs/solid-js': workspace:*
-      '@astrojs/svelte': workspace:*
-      '@astrojs/vue': workspace:*
-      astro: workspace:*
-      react: ^18.1.0
-      react-dom: ^18.1.0
-    dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
-      '@astrojs/react': link:../../../../integrations/react
-      '@astrojs/solid-js': link:../../../../integrations/solid
-      '@astrojs/svelte': link:../../../../integrations/svelte
-      '@astrojs/vue': link:../../../../integrations/vue
-      astro: link:../../..
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-
   packages/astro/test/fixtures/fetch:
     specifiers:
       '@astrojs/preact': workspace:*
@@ -1678,14 +1686,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/sass:
-    specifiers:
-      astro: workspace:*
-      sass: ^1.52.2
-    dependencies:
-      astro: link:../../..
-      sass: 1.53.0
 
   packages/astro/test/fixtures/slots-preact:
     specifiers:

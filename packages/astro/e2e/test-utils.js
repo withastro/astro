@@ -1,4 +1,4 @@
-import { test as testBase } from '@playwright/test';
+import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
 export function loadFixture(inlineConfig) {
@@ -28,4 +28,12 @@ export function testFactory(inlineConfig) {
 	});
 
 	return test;
+}
+
+export async function getErrorOverlayMessage(page) {
+	const overlay = await page.waitForSelector('vite-error-overlay', { strict: true, timeout: 10 * 1000 })
+	
+	expect(overlay).toBeTruthy()
+	
+	return await overlay.$$eval('.message-body', (m) => m[0].textContent)
 }

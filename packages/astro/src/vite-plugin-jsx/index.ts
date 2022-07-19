@@ -5,6 +5,7 @@ import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
+import tagExportsPlugin from './tag.js';
 import * as eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
@@ -55,7 +56,7 @@ async function transformJSX({
 }: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
-	const plugins = [...(options.plugins || [])];
+	const plugins = [...(options.plugins || []), tagExportsPlugin({ rendererName: renderer.name })];
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
 		plugins,

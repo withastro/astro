@@ -1,5 +1,5 @@
 {
-  "name": "@test/error-react-spectrum",
+  "name": "@e2e/error-react-spectrum",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

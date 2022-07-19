@@ -5,9 +5,8 @@ import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { collectErrorMetadata, fixViteErrorMessage } from '../core/errors.js';
+import { collectErrorMetadata, ErrorWithMetadata, fixViteErrorMessage, getViteErrorPayload } from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -18,7 +17,6 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import serverErrorTemplate from '../template/5xx.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -151,19 +149,14 @@ async function handle500Response(
 	origin: string,
 	req: http.IncomingMessage,
 	res: http.ServerResponse,
-	err: any
+	err: ErrorWithMetadata
 ) {
-	const pathname = decodeURI(new URL('./index.html', origin + req.url).pathname);
-	const html = serverErrorTemplate({
-		statusCode: 500,
-		title: 'Internal Error',
-		tabTitle: '500: Error',
-		message: stripAnsi(err.hint ?? err.message),
-		url: err.url || undefined,
-		stack: truncateString(stripAnsi(err.stack), 500),
-	});
-	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
-	writeHtmlResponse(res, 500, transformedHtml);
+	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200))
+	if (res.headersSent) {
+		res.end()
+	} else {
+		writeHtmlResponse(res, 500, `<title>${err.name}</title><script type="module" src="/@vite/client"></script>`);
+	}
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
@@ -232,6 +225,7 @@ async function handleRequest(
 		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
 	});
 
+	let filePath: URL|undefined;
 	try {
 		if (!pathname.startsWith(devRoot)) {
 			log404(logging, pathname);
@@ -252,7 +246,7 @@ async function handleRequest(
 			}
 		}
 
-		const filePath = new URL(`./${route.component}`, config.root);
+		filePath = new URL(`./${route.component}`, config.root);
 		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
@@ -330,10 +324,10 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		const errorWithMetadata = collectErrorMetadata(_err);
+		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
-		handle500Response(viteServer, origin, req, res, err);
+		handle500Response(viteServer, origin, req, res, errorWithMetadata);
 	}
 }
 

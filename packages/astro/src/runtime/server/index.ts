@@ -156,6 +156,7 @@ export function mergeSlots(...slotted: unknown[]) {
 }
 
 export const Fragment = Symbol.for('astro:fragment');
+export const Renderer = Symbol.for('astro:renderer');
 export const ClientOnlyPlaceholder = 'astro-client-only';
 
 function guessRenderers(componentUrl?: string): string[] {
@@ -181,6 +182,17 @@ function formatList(values: string[]): string {
 }
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
+
+/** @internal Assosciate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
+export function __astro_tag_component__(Component: unknown, rendererName: string) {
+	if (!Component) return;
+	if (typeof Component !== 'function') return;
+	Object.defineProperty(Component, Renderer, {
+		value: rendererName,
+		enumerable: false,
+		writable: false
+	})
+}
 
 export async function renderComponent(
 	result: SSRResult,
@@ -270,20 +282,30 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
-		let error;
-		for (const r of renderers) {
-			try {
-				if (await r.ssr.check.call({ result }, Component, props, children)) {
-					renderer = r;
-					break;
-				}
-			} catch (e) {
-				error ??= e;
-			}
+		// If this component ran through `__astro_tag_component__`, we already know
+		// which renderer to match to and can skip the usual `check` calls.
+		// This will help us throw most relevant error message for modules with runtime errors
+		if (Component && (Component as any)[Renderer]) {
+			const rendererName = (Component as any)[Renderer];
+			renderer = renderers.find(({ name }) => name === rendererName);
 		}
 
-		if (error) {
-			throw error;
+		if (!renderer) {
+			let error;
+			for (const r of renderers) {
+				try {
+					if (await r.ssr.check.call({ result }, Component, props, children)) {
+						renderer = r;
+						break;
+					}
+				} catch (e) {
+					error ??= e;
+				}
+			}
+
+			if (error) {
+				throw error;
+			}
 		}
 
 		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
@@ -298,9 +320,9 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 			const rendererName = rendererAliases.has(passedName)
 				? rendererAliases.get(passedName)
 				: passedName;
-			renderer = renderers.filter(
+			renderer = renderers.find(
 				({ name }) => name === `@astrojs/${rendererName}` || name === rendererName
-			)[0];
+			);
 		}
 		// Attempt: user only has a single renderer, default to that
 		if (!renderer && renderers.length === 1) {
@@ -766,17 +788,21 @@ export async function renderPage(
 				start(controller) {
 					async function read() {
 						let i = 0;
-						for await (const chunk of iterable) {
-							let html = chunk.toString();
-							if (i === 0) {
-								if (!/<!doctype html/i.test(html)) {
-									controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+						try {
+							for await (const chunk of iterable) {
+								let html = chunk.toString();
+								if (i === 0) {
+									if (!/<!doctype html/i.test(html)) {
+										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+									}
 								}
+								controller.enqueue(encoder.encode(html));
+								i++;
 							}
-							controller.enqueue(encoder.encode(html));
-							i++;
+							controller.close();
+						} catch (e) {
+							controller.error(e)
 						}
-						controller.close();
 					}
 					read();
 				},
@@ -851,7 +877,7 @@ export async function* renderAstroComponent(
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
 				yield markHTMLString(chunk);
-			}
+			} 
 		}
 	}
 }

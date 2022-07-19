@@ -4,6 +4,7 @@ import type { LogOptions } from './logger/core';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
+import { createCustomViteLogger } from './errors.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -60,7 +61,7 @@ export async function createVite(
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
-			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			entries: ['src/**/*'],
 			exclude: ['node-fetch'],
 		},
 		plugins: [
@@ -132,6 +133,8 @@ export async function createVite(
 	if (result.plugins) {
 		sortPlugins(result.plugins);
 	}
+
+	result.customLogger = createCustomViteLogger(result.logLevel ?? 'warn');
 
 	return result;
 }
