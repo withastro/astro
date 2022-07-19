@@ -1,9 +1,11 @@
-import mdxPlugin from '@mdx-js/rollup';
+import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import { getFileInfo } from './utils.js';
 
-export default function mdx(): AstroIntegration {
+type MdxOptions = Pick<MdxRollupPluginOptions, 'remarkPlugins' | 'rehypePlugins'>;
+
+export default function mdx(mdxOptions: MdxOptions): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
@@ -15,6 +17,7 @@ export default function mdx(): AstroIntegration {
 							{
 								enforce: 'pre',
 								...mdxPlugin({
+									...mdxOptions,
 									jsx: true,
 									jsxImportSource: 'astro',
 									// Note: disable `.md` support
