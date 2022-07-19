@@ -15,7 +15,7 @@ function createRequestFromNodeRequest(req: IncomingMessage): Request {
 		method: req.method || 'GET',
 		headers: new Headers(entries),
 	});
-	if(req.socket.remoteAddress) {
+	if (req.socket.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
 	}
 	return request;

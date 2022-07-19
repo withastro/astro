@@ -157,11 +157,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				__proto__: astroGlobal,
 				canonicalURL,
 				get clientAddress() {
-					if(!(clientAddressSymbol in request)) {
-						if(args.adapterName) {
-							throw new Error(`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`);
+					if (!(clientAddressSymbol in request)) {
+						if (args.adapterName) {
+							throw new Error(
+								`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`
+							);
 						} else {
-							throw new Error(`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`)
+							throw new Error(
+								`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
+							);
 						}
 					}
 

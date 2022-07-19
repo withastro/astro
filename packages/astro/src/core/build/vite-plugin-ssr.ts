@@ -19,10 +19,7 @@ const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-export function vitePluginSSR(
-	internals: BuildInternals,
-	adapter: AstroAdapter
-): VitePlugin {
+export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',

@@ -71,8 +71,8 @@ export function createRequest({
 				return _headers;
 			},
 		});
-	} else if(clientAddress) {
-		Reflect.set(request, clientAddressSymbol, clientAddress);	
+	} else if (clientAddress) {
+		Reflect.set(request, clientAddressSymbol, clientAddress);
 	}
 
 	return request;

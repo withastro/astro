@@ -142,12 +142,11 @@ class AstroBuilder {
 				viteConfig,
 				buildConfig,
 			});
-		} catch(err: unknown) {
+		} catch (err: unknown) {
 			// If the build doesn't complete, still shutdown the Vite server so the process doesn't hang.
 			await viteServer.close();
 			throw err;
 		}
-
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

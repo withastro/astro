@@ -10,8 +10,8 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
 import { call as callEndpoint } from '../endpoint/index.js';
-import { error } from '../logger/core.js';
 import { consoleLogDestination } from '../logger/console.js';
+import { error } from '../logger/core.js';
 import { joinPaths, prependForwardSlash } from '../path.js';
 import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -125,13 +125,13 @@ export class App {
 				request,
 				streaming: this.#streaming,
 			});
-	
+
 			return response;
-		} catch(err) {
+		} catch (err) {
 			error(this.#logging, 'ssr', err);
 			return new Response(null, {
 				status: 500,
-				statusText: 'Internal server error'
+				statusText: 'Internal server error',
 			});
 		}
 	}

@@ -53,7 +53,7 @@ describe('Astro.clientAddress', () => {
 				let $ = cheerio.load(html);
 				let address = $('#address');
 
-				// Just checking that something is here. Not specifying address as it 
+				// Just checking that something is here. Not specifying address as it
 				// might differ per machine.
 				expect(address.length).to.be.greaterThan(0);
 			});
@@ -81,7 +81,7 @@ describe('Astro.clientAddress', () => {
 			const response = await app.render(request);
 			expect(response.status).to.equal(500);
 		});
-	})
+	});
 
 	describe('SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
@@ -98,10 +98,13 @@ describe('Astro.clientAddress', () => {
 				try {
 					await fixture.build();
 					expect(false).to.equal(true, 'Build should not have completed');
-				} catch(err) {
-					expect(err.message).to.match(/Astro\.clientAddress/, 'Error message mentions Astro.clientAddress');
+				} catch (err) {
+					expect(err.message).to.match(
+						/Astro\.clientAddress/,
+						'Error message mentions Astro.clientAddress'
+					);
 				}
-			})
+			});
 		});
 
 		describe('Development', () => {
@@ -125,6 +128,6 @@ describe('Astro.clientAddress', () => {
 				let res = await fixture.fetch('/');
 				expect(res.status).to.equal(500);
 			});
-		})
+		});
 	});
 });
