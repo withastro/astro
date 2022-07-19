@@ -60,6 +60,29 @@ describe('Astro.clientAddress', () => {
 		});
 	});
 
+	describe('SSR adapter not implemented', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/client-address/',
+				experimental: {
+					ssr: true,
+				},
+				adapter: testAdapter({ provideAddress: false }),
+			});
+			await fixture.build();
+		});
+
+		it('Gets an error message', async () => {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			expect(response.status).to.equal(500);
+		});
+	})
+
 	describe('SSG', () => {
 		/** @type {import('./test-utils').Fixture} */
 		let fixture;

@@ -89,6 +89,7 @@ export interface RenderOptions {
 
 export async function render(opts: RenderOptions): Promise<Response> {
 	const {
+		adapterName,
 		links,
 		styles,
 		logging,
@@ -130,6 +131,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
 	const result = createResult({
+		adapterName,
 		links,
 		styles,
 		logging,

@@ -4,7 +4,7 @@ import { viteID } from '../dist/core/util.js';
  *
  * @returns {import('../src/@types/astro').AstroIntegration}
  */
-export default function () {
+export default function ({ provideAddress } = { provideAddress: true }) {
 	return {
 		name: 'my-ssr-adapter',
 		hooks: {
@@ -28,7 +28,7 @@ export default function () {
 
 											class MyApp extends App {
 												render(request) {
-													request[Symbol.for('astro.clientAddress')] = '0.0.0.0';
+													${provideAddress ? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';` : ''}
 													return super.render(request);
 												}
 											}

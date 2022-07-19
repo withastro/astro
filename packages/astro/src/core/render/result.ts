@@ -26,6 +26,7 @@ function onlyAvailableInSSR(name: string) {
 }
 
 export interface CreateResultArgs {
+	adapterName: string | undefined;
 	ssr: boolean;
 	streaming: boolean;
 	logging: LogOptions;
@@ -157,7 +158,11 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				canonicalURL,
 				get clientAddress() {
 					if(!(clientAddressSymbol in request)) {
-						throw new Error(`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`)
+						if(args.adapterName) {
+							throw new Error(`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`);
+						} else {
+							throw new Error(`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`)
+						}
 					}
 
 					return Reflect.get(request, clientAddressSymbol);
