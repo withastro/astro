@@ -57,7 +57,7 @@ export async function collectPagesData(
 					'build',
 					`${colors.bold(
 						route.component
-					)} is taking a bit longer to import. This is common for larger "Astro.glob(...)" or "import.meta.globEager(...)" calls, for instance. Hang tight!`
+					)} is taking a bit longer to import. This is common for larger "Astro.glob(...)" or "import.meta.glob(...)" calls, for instance. Hang tight!`
 				);
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);

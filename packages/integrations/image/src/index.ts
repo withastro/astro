@@ -34,7 +34,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				include: ['image-size', 'sharp'],
 			},
 			ssr: {
-				noExternal: ['@astrojs/image'],
+				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
 			},
 		};
 	}

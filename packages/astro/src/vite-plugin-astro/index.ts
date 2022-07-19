@@ -67,7 +67,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		configureServer(server) {
 			viteDevServer = server;
 		},
-		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
+		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.

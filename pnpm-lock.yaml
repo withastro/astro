@@ -546,7 +546,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: ^2.9.14
+      vite: ^3.0.0
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -604,7 +604,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      vite: 2.9.14_sass@1.53.0
+      vite: 3.0.0_sass@1.53.0
       yargs-parser: 21.0.1
       zod: 3.17.3
     devDependencies:
@@ -1055,6 +1055,12 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
+  packages/astro/test/fixtures/api-routes:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro pages:
     specifiers:
       astro: workspace:*
@@ -1341,6 +1347,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-response:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-scripts:
     specifiers:
       astro: workspace:*
@@ -1396,6 +1408,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/config-path:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/config-vite:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -1505,6 +1523,18 @@ importers:
       '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
+  packages/astro/test/fixtures/hmr-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/import-ts-with-js:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/integration-add-page-extension:
     specifiers:
       astro: workspace:*
@@ -1572,6 +1602,12 @@ importers:
       astro: workspace:*
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/page-level-styles:
+    specifiers:
+      astro: workspace:*
+    dependencies:
       astro: link:../../..
 
   packages/astro/test/fixtures/postcss:
@@ -1703,12 +1739,36 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
+  packages/astro/test/fixtures/ssr-api-route:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-assets:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-dynamic:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/ssr-env:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-hoisted-script:
+    specifiers:
+      astro: workspace:*
+    dependencies:
       astro: link:../../..
 
   packages/astro/test/fixtures/ssr-markdown:
@@ -1726,6 +1786,18 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/ssr-redirect:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-request:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/ssr-response:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -1794,6 +1866,12 @@ importers:
   packages/astro/test/fixtures/static-build/pkg:
     specifiers: {}
 
+  packages/astro/test/fixtures/status-code:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/streaming:
     specifiers:
       astro: workspace:*
@@ -1821,6 +1899,18 @@ importers:
       autoprefixer: 10.4.7_postcss@8.4.14
       postcss: 8.4.14
       tailwindcss: 3.1.5
+
+  packages/astro/test/fixtures/type-imports:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/unused-slot:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
 
   packages/astro/test/fixtures/virtual-astro-file:
     specifiers:
@@ -2190,20 +2280,20 @@ importers:
 
   packages/integrations/svelte:
     specifiers:
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.48
+      '@sveltejs/vite-plugin-svelte': ^1.0.1
       astro: workspace:*
       astro-scripts: workspace:*
       postcss-load-config: ^3.1.4
       svelte: ^3.48.0
       svelte-preprocess: ^4.10.7
       svelte2tsx: ^0.5.11
-      vite: ^2.9.10
+      vite: ^3.0.0
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.49_svelte@3.49.0+vite@2.9.14
+      '@sveltejs/vite-plugin-svelte': 1.0.1_svelte@3.49.0+vite@3.0.0
       postcss-load-config: 3.1.4
       svelte-preprocess: 4.10.7_k3vaqsyrx2lfvza3vdeafxime4
       svelte2tsx: 0.5.11_svelte@3.49.0
-      vite: 2.9.14
+      vite: 3.0.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -2252,14 +2342,14 @@ importers:
 
   packages/integrations/vue:
     specifiers:
-      '@vitejs/plugin-vue': ^2.3.3
+      '@vitejs/plugin-vue': ^3.0.0
       astro: workspace:*
       astro-scripts: workspace:*
-      vite: ^2.9.10
+      vite: ^3.0.0
       vue: ^3.2.37
     dependencies:
-      '@vitejs/plugin-vue': 2.3.3_vite@2.9.14+vue@3.2.37
-      vite: 2.9.14
+      '@vitejs/plugin-vue': 3.0.0_vite@3.0.0+vue@3.2.37
+      vite: 3.0.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -7769,13 +7859,13 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.49_svelte@3.49.0+vite@2.9.14:
-    resolution: {integrity: sha512-AKh0Ka8EDgidnxWUs8Hh2iZLZovkETkefO99XxZ4sW4WGJ7VFeBx5kH/NIIGlaNHLcrIvK3CK0HkZwC3Cici0A==}
-    engines: {node: ^14.13.1 || >= 16}
+  /@sveltejs/vite-plugin-svelte/1.0.1_svelte@3.49.0+vite@3.0.0:
+    resolution: {integrity: sha512-PorCgUounn0VXcpeJu+hOweZODKmGuLHsLomwqSj+p26IwjjGffmYQfVHtiTWq+NqaUuuHWWG7vPge6UFw4Aeg==}
+    engines: {node: ^14.18.0 || >= 16}
     peerDependencies:
       diff-match-patch: ^1.0.5
       svelte: ^3.44.0
-      vite: ^2.9.0
+      vite: ^3.0.0
     peerDependenciesMeta:
       diff-match-patch:
         optional: true
@@ -7789,7 +7879,7 @@ packages:
       magic-string: 0.26.2
       svelte: 3.49.0
       svelte-hmr: 0.14.12_svelte@3.49.0
-      vite: 2.9.14
+      vite: 3.0.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -8375,17 +8465,17 @@ packages:
       - supports-color
     dev: false
 
-  /@vitejs/plugin-vue/2.3.3_vite@2.9.14+vue@3.2.37:
-    resolution: {integrity: sha512-SmQLDyhz+6lGJhPELsBdzXGc+AcaT8stgkbiTFGpXPe8Tl1tJaBw1A6pxDqDuRsVkD8uscrkx3hA7QDOoKYtyw==}
-    engines: {node: '>=12.0.0'}
+  /@vitejs/plugin-vue/3.0.0_vite@3.0.0+vue@3.2.37:
+    resolution: {integrity: sha512-yWP34ArFh/jAeNUDkkLz/kVRLjf5ppJiq4L36f64Cp6dIrMQeYZGDP9xxdemlXfZR9ylN9JgHUl3GzfqOtgYDg==}
+    engines: {node: '>=14.18.0'}
     peerDependencies:
-      vite: ^2.5.10
+      vite: ^3.0.0
       vue: ^3.2.25
     peerDependenciesMeta:
       vite:
         optional: true
     dependencies:
-      vite: 2.9.14
+      vite: 3.0.0
       vue: 3.2.37
     dev: false
 
@@ -15396,20 +15486,23 @@ packages:
       - supports-color
     dev: true
 
-  /vite/2.9.14:
-    resolution: {integrity: sha512-P/UCjSpSMcE54r4mPak55hWAZPlyfS369svib/gpmz8/01L822lMPOJ/RYW6tLCe1RPvMvOsJ17erf55bKp4Hw==}
-    engines: {node: '>=12.2.0'}
+  /vite/3.0.0:
+    resolution: {integrity: sha512-M7phQhY3+fRZa0H+1WzI6N+/onruwPTBTMvaj7TzgZ0v2TE+N2sdLKxJOfOv9CckDWt5C4HmyQP81xB4dwRKzA==}
+    engines: {node: '>=14.18.0'}
     hasBin: true
     peerDependencies:
       less: '*'
       sass: '*'
       stylus: '*'
+      terser: ^5.4.0
     peerDependenciesMeta:
       less:
         optional: true
       sass:
         optional: true
       stylus:
+        optional: true
+      terser:
         optional: true
     dependencies:
       esbuild: 0.14.48
@@ -15420,20 +15513,23 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vite/2.9.14_sass@1.53.0:
-    resolution: {integrity: sha512-P/UCjSpSMcE54r4mPak55hWAZPlyfS369svib/gpmz8/01L822lMPOJ/RYW6tLCe1RPvMvOsJ17erf55bKp4Hw==}
-    engines: {node: '>=12.2.0'}
+  /vite/3.0.0_sass@1.53.0:
+    resolution: {integrity: sha512-M7phQhY3+fRZa0H+1WzI6N+/onruwPTBTMvaj7TzgZ0v2TE+N2sdLKxJOfOv9CckDWt5C4HmyQP81xB4dwRKzA==}
+    engines: {node: '>=14.18.0'}
     hasBin: true
     peerDependencies:
       less: '*'
       sass: '*'
       stylus: '*'
+      terser: ^5.4.0
     peerDependenciesMeta:
       less:
         optional: true
       sass:
         optional: true
       stylus:
+        optional: true
+      terser:
         optional: true
     dependencies:
       esbuild: 0.14.48
