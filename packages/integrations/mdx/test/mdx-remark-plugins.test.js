@@ -37,4 +37,22 @@ describe('MDX remark plugins', () => {
 		const authGenLink = document.querySelector('a[href="https://example.com"]');
 		expect(authGenLink).to.not.be.null;
 	});
+
+	it('preserves default GitHub-flavored markdown with "extends"', async () => {
+		const fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			integrations: [mdx({
+				remarkPlugins: { extends: [remarkToc] },
+			})],
+		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/with-toc/index.html');
+		const { document } = parseHTML(html);
+
+		const tocLink1 = document.querySelector('ul a[href="#section-1"]');
+		expect(tocLink1).to.not.be.null;
+		const authGenLink = document.querySelector('a[href="https://handle-me-gfm.com"]');
+		expect(authGenLink).to.not.be.null;
+	});
 });
