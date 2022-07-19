@@ -186,7 +186,11 @@ const rendererAliases = new Map([['solid', 'solid-js']]);
 export function __astro_tag_component__(Component: unknown, rendererName: string) {
 	if (!Component) return;
 	if (typeof Component !== 'function') return;
-	Object.assign(Component, { ['astro:renderer']: rendererName });
+	Object.defineProperty(Component, 'astro:renderer', {
+		value: rendererName,
+		enumerable: false,
+		writable: false
+	})
 }
 
 export async function renderComponent(
