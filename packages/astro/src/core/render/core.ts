@@ -4,6 +4,7 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
@@ -66,11 +67,13 @@ export async function getParamsAndProps(
 }
 
 export interface RenderOptions {
+	adapterName: string | undefined;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
+	mode: RuntimeMode;
 	origin: string;
 	pathname: string;
 	scripts: Set<SSRElement>;
@@ -92,6 +95,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		origin,
 		markdown,
 		mod,
+		mode,
 		pathname,
 		scripts,
 		renderers,
@@ -130,6 +134,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		styles,
 		logging,
 		markdown,
+		mode,
 		origin,
 		params,
 		props: pageProps,

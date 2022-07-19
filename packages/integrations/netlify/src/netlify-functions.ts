@@ -15,6 +15,8 @@ function parseContentType(header?: string) {
 	return header?.split(';')[0] ?? '';
 }
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 export const createExports = (manifest: SSRManifest, args: Args) => {
 	const app = new App(manifest);
 
@@ -70,6 +72,9 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 				body: 'Not found',
 			};
 		}
+
+		const ip = headers['x-nf-client-connection-ip'];
+		Reflect.set(request, clientAddressSymbol, ip);
 
 		const response: Response = await app.render(request);
 		const responseHeaders = Object.fromEntries(response.headers.entries());

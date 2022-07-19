@@ -5,13 +5,19 @@ import { IncomingMessage } from 'http';
 import { deserializeManifest } from './common.js';
 import { App } from './index.js';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 function createRequestFromNodeRequest(req: IncomingMessage): Request {
 	let url = `http://${req.headers.host}${req.url}`;
-	const entries = Object.entries(req.headers as Record<string, any>);
+	let rawHeaders = req.headers as Record<string, any>;
+	const entries = Object.entries(rawHeaders);
 	let request = new Request(url, {
 		method: req.method || 'GET',
 		headers: new Headers(entries),
 	});
+	if(req.socket.remoteAddress) {
+		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
+	}
 	return request;
 }
 

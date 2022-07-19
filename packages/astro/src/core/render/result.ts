@@ -6,6 +6,7 @@ import type {
 	Page,
 	Params,
 	Props,
+	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -14,6 +15,8 @@ import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { createCanonicalURL, isCSSRequest } from './util.js';
+
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 function onlyAvailableInSSR(name: string) {
 	return function _onlyAvailableInSSR() {
@@ -28,6 +31,7 @@ export interface CreateResultArgs {
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
+	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
 	props: Props;
@@ -151,6 +155,13 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			const Astro = {
 				__proto__: astroGlobal,
 				canonicalURL,
+				get clientAddress() {
+					if(!(clientAddressSymbol in request)) {
+						throw new Error(`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`)
+					}
+
+					return Reflect.get(request, clientAddressSymbol);
+				},
 				params,
 				props,
 				request,

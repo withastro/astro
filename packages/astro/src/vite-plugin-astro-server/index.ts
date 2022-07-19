@@ -229,6 +229,7 @@ async function handleRequest(
 		body,
 		logging,
 		ssr: buildingToSSR,
+		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
 	});
 
 	try {

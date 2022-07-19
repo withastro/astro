@@ -97,10 +97,12 @@ export class App {
 		}
 
 		const response = await render({
+			adapterName: manifest.adapterName,
 			links,
 			logging: this.#logging,
 			markdown: manifest.markdown,
 			mod,
+			mode: 'production',
 			origin: url.origin,
 			pathname: url.pathname,
 			scripts,

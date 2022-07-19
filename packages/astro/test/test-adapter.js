@@ -23,7 +23,23 @@ export default function () {
 								},
 								load(id) {
 									if (id === '@my-ssr') {
-										return `import { App } from 'astro/app';export function createExports(manifest) { return { manifest, createApp: (streaming) => new App(manifest, streaming) }; }`;
+										return `
+											import { App } from 'astro/app';
+
+											class MyApp extends App {
+												render(request) {
+													request[Symbol.for('astro.clientAddress')] = '0.0.0.0';
+													return super.render(request);
+												}
+											}
+											
+											export function createExports(manifest) {
+												return {
+													manifest,
+													createApp: (streaming) => new MyApp(manifest, streaming)
+												};
+											}
+										`;
 									}
 								},
 							},
