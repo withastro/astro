@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
+import type { AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -24,7 +24,7 @@ import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: string;
+	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 }
@@ -39,7 +39,7 @@ export default async function build(config: AstroConfig, options: BuildOptions):
 class AstroBuilder {
 	private config: AstroConfig;
 	private logging: LogOptions;
-	private mode = 'production';
+	private mode: RuntimeMode = 'production';
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -134,6 +134,7 @@ class AstroBuilder {
 				astroConfig: this.config,
 				logging: this.logging,
 				manifest: this.manifest,
+				mode: this.mode,
 				origin: this.origin,
 				pageNames,
 				routeCache: this.routeCache,

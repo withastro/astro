@@ -7,7 +7,7 @@ type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormD
 
 export interface CreateRequestOptions {
 	url: URL | string;
-	clientAddress: string | undefined;
+	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
 	body?: RequestBody | undefined;
