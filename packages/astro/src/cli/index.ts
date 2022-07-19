@@ -8,7 +8,7 @@ import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { debug, LogOptions } from '../core/logger/core.js';
+import { debug, info, LogOptions, warn } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
@@ -132,7 +132,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	const { astroConfig, userConfig } = await openConfig({ cwd: root, flags, cmd });
+	let { astroConfig, userConfig, userConfigPath } = await openConfig({ cwd: root, flags, cmd });
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -140,7 +140,36 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			await devServer(astroConfig, { logging, telemetry });
+			async function startDevServer() {
+				const { watcher, stop } = await devServer(
+					astroConfig,
+					{ logging, telemetry },
+				);
+
+				watcher.on('change', logRestartServerOnConfigChange);
+				watcher.on('unlink', logRestartServerOnConfigChange);
+				function logRestartServerOnConfigChange(changedFile: string) {
+					if (userConfigPath === changedFile) {
+						warn(logging, 'astro', 'Astro config updated. Restart server to see changes!');
+					}
+				}
+
+				watcher.on('add', async function restartServerOnNewConfigFile(addedFile: string) {
+					// if there was not a config before, attempt to resolve
+					if (!userConfigPath && addedFile.includes('astro.config')) {
+						const addedConfig = await openConfig({ cwd: root, flags, cmd });
+						if (addedConfig.userConfigPath) {
+							info(logging, 'astro', 'Astro config detected. Restarting server...');
+							astroConfig = addedConfig.astroConfig;
+							userConfig = addedConfig.userConfig;
+							userConfigPath = addedConfig.userConfigPath;
+							await stop();
+							await startDevServer();
+						}
+					}
+				});
+			}
+			await startDevServer();
 			return await new Promise(() => {}); // lives forever
 		}
 
