@@ -7,11 +7,14 @@ import './shim.js';
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
 	const handler = async (request: Request): Promise<Response> => {
 		if (app.match(request)) {
+			Reflect.set(request, clientAddressSymbol, request.headers.get('x-forwarded-for'));
 			return await app.render(request);
 		}
 

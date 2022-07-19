@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Readable } from 'node:stream';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 /*
   Credits to the SvelteKit team
 	https://github.com/sveltejs/kit/blob/69913e9fda054fa6a62a80e2bb4ee7dca1005796/packages/kit/src/node.js
@@ -66,11 +68,13 @@ export async function getRequest(base: string, req: IncomingMessage): Promise<Re
 		delete headers[':authority'];
 		delete headers[':scheme'];
 	}
-	return new Request(base + req.url, {
+	const request = new Request(base + req.url, {
 		method: req.method,
 		headers,
 		body: await get_raw_body(req), // TODO stream rather than buffer
 	});
+	Reflect.set(request, clientAddressSymbol, headers['x-forwarded-for']);
+	return request;
 }
 
 export async function setResponse(res: ServerResponse, response: Response): Promise<void> {

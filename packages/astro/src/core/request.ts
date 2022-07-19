@@ -7,6 +7,7 @@ type RequestBody = ArrayBuffer | Blob | ReadableStream | URLSearchParams | FormD
 
 export interface CreateRequestOptions {
 	url: URL | string;
+	clientAddress?: string | undefined;
 	headers: HeaderType;
 	method?: string;
 	body?: RequestBody | undefined;
@@ -14,9 +15,12 @@ export interface CreateRequestOptions {
 	ssr: boolean;
 }
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 export function createRequest({
 	url,
 	headers,
+	clientAddress,
 	method = 'GET',
 	body = undefined,
 	logging,
@@ -67,6 +71,8 @@ export function createRequest({
 				return _headers;
 			},
 		});
+	} else if(clientAddress) {
+		Reflect.set(request, clientAddressSymbol, clientAddress);	
 	}
 
 	return request;

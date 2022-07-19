@@ -4,6 +4,7 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
@@ -66,11 +67,13 @@ export async function getParamsAndProps(
 }
 
 export interface RenderOptions {
+	adapterName: string | undefined;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
+	mode: RuntimeMode;
 	origin: string;
 	pathname: string;
 	scripts: Set<SSRElement>;
@@ -86,12 +89,14 @@ export interface RenderOptions {
 
 export async function render(opts: RenderOptions): Promise<Response> {
 	const {
+		adapterName,
 		links,
 		styles,
 		logging,
 		origin,
 		markdown,
 		mod,
+		mode,
 		pathname,
 		scripts,
 		renderers,
@@ -126,10 +131,12 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
 	const result = createResult({
+		adapterName,
 		links,
 		styles,
 		logging,
 		markdown,
+		mode,
 		origin,
 		params,
 		props: pageProps,

@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
+import type { AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -24,7 +24,7 @@ import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: string;
+	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 }
@@ -39,7 +39,7 @@ export default async function build(config: AstroConfig, options: BuildOptions):
 class AstroBuilder {
 	private config: AstroConfig;
 	private logging: LogOptions;
-	private mode = 'production';
+	private mode: RuntimeMode = 'production';
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -129,17 +129,25 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		await staticBuild({
-			allPages,
-			astroConfig: this.config,
-			logging: this.logging,
-			manifest: this.manifest,
-			origin: this.origin,
-			pageNames,
-			routeCache: this.routeCache,
-			viteConfig,
-			buildConfig,
-		});
+		try {
+			await staticBuild({
+				allPages,
+				astroConfig: this.config,
+				logging: this.logging,
+				manifest: this.manifest,
+				mode: this.mode,
+				origin: this.origin,
+				pageNames,
+				routeCache: this.routeCache,
+				viteConfig,
+				buildConfig,
+			});
+		} catch(err: unknown) {
+			// If the build doesn't complete, still shutdown the Vite server so the process doesn't hang.
+			await viteServer.close();
+			throw err;
+		}
+
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

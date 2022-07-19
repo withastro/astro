@@ -20,7 +20,6 @@ const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
 export function vitePluginSSR(
-	buildOpts: StaticBuildOptions,
 	internals: BuildInternals,
 	adapter: AstroAdapter
 ): VitePlugin {
@@ -153,6 +152,7 @@ function buildManifest(
 		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 
 	const ssrManifest: SerializedSSRManifest = {
+		adapterName: opts.astroConfig._ctx.adapter!.name,
 		routes,
 		site: astroConfig.site,
 		base: astroConfig.base,

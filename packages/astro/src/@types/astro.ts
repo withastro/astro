@@ -92,6 +92,10 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
 	 */
 	canonicalURL: URL;
+	/** The address (usually IP address) of the user. Used with SSR only.
+	 * 
+	 */
+	clientAddress: string;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
