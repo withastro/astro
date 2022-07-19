@@ -1,10 +1,19 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
 
-export default function astroJSX({ rendererName }: { rendererName: string }): PluginObj {
+/**
+ * This plugin handles every file that runs through our JSX plugin.
+ * Since we statically match every JSX file to an Astro renderer based on import scanning,
+ * it would be helpful to embed some of that metadata at runtime.
+ *
+ * This plugin crawls each export in the file and "tags" each export with a given `rendererName`.
+ * This allows us to automatically match a component to a renderer and skip the usual `check()` calls.
+ */
+export default function tagExportsWithRenderer({ rendererName }: { rendererName: string }): PluginObj {
 	return {
 		visitor: {
 			Program: {
+				// Inject `import { __astro_tag_component__ } from 'astro/server/index.js'`
 				enter(path) {
 					path.node.body.splice(
 						0,
@@ -15,6 +24,7 @@ export default function astroJSX({ rendererName }: { rendererName: string }): Pl
 						)
 					);
 				},
+				// For each export we found, inject `__astro_tag_component__(exportName, rendererName)`
 				exit(path, state) {
 					const exportedIds  = state.get('astro:tags')
 					if (exportedIds) {

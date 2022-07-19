@@ -182,7 +182,7 @@ function formatList(values: string[]): string {
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
 
-/** @internal */
+/** @internal Assosciate JSX components with a specific renderer (see /src/vite-plugin-jsx/tag.ts) */
 export function __astro_tag_component__(Component: unknown, rendererName: string) {
 	if (!Component) return;
 	if (typeof Component !== 'function') return;
