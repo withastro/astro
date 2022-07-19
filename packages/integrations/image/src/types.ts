@@ -1,5 +1,4 @@
 /// <reference types="astro/astro-jsx" />
-export type { Image, Picture } from '../components/index.js';
 export * from './index.js';
 
 interface ImageIntegration {
