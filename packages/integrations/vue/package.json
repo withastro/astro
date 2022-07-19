@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",

@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.14.1
+
+### Patch Changes
+
+- [#3937](https://github.com/withastro/astro/pull/3937) [`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e) Thanks [@delucis](https://github.com/delucis)! - Roll back supported Node engines
+
 ## 0.14.0
 
 ### Minor Changes

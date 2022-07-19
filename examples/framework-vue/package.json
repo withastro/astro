@@ -9,8 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/vue": "^0.4.0",
-    "astro": "^1.0.0-beta.72"
+    "@astrojs/vue": "^0.4.1",
+    "astro": "^1.0.0-beta.73"
   },
   "dependencies": {
     "vue": "^3.2.37"
