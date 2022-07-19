@@ -80,7 +80,44 @@ Also check our [Astro Integration Documentation][astro-integration] for more on 
 
 ## Configuration
 
-There are currently no configuration options for the `@astrojs/mdx` integration. Please [open an issue](https://github.com/withastro/astro/issues/new/choose) if you have a compelling use case to share.
+<details>
+  <summary><strong>remarkPlugins</strong></summary>
+
+**Default plugins:** [remark-gfm](https://github.com/remarkjs/remark-gfm), [remark-smartypants](https://github.com/silvenon/remark-smartypants)
+
+[Remark plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) allow you to extend your markdown with new capabilities. This includes [auto-generating a table of contents](https://github.com/remarkjs/remark-toc), [applying accessible emoji labels](https://github.com/florianeckerstorfer/remark-a11y-emoji), and more. We encourage you to browse [awesome-remark](https://github.com/remarkjs/awesome-remark) for a full curated list!
+
+We apply [GitHub-flavored markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) by default. This brings some niceties like auto-generating clickable links from text (ex. `https://example.com`) and formatting quotes for readability. When applying your own plugins, you can choose to preserve or remove these defaults.
+
+To apply plugins _while preserving_ Astro's default plugins, use a nested `extends` object like so:
+
+```js
+// astro.config.mjs
+import remarkToc from 'remark-toc';
+
+export default {
+  integrations: [mdx({
+    // apply remark-toc alongside GitHub-flavored markdown and Smartypants
+    remarkPlugins: { extends: [remarkToc] },
+  })],
+}
+```
+
+To apply plugins _without_ Astro's defaults, you can apply a plain array:
+
+```js
+// astro.config.mjs
+import remarkToc from 'remark-toc';
+
+export default {
+  integrations: [mdx({
+    // apply remark-toc alone, removing other defaults
+    remarkPlugins: [remarkToc],
+  })],
+}
+```
+
+</details>
 
 ## Examples
 
