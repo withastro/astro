@@ -1,6 +1,8 @@
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
+
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest);
 
@@ -13,6 +15,8 @@ export function createExports(manifest: SSRManifest) {
 			return;
 		}
 		if (app.match(request)) {
+			const ip = request.headers.get('x-nf-client-connection-ip');
+			Reflect.set(request, clientAddressSymbol, ip);
 			return app.render(request);
 		}
 

@@ -127,6 +127,7 @@ export async function loadFixture(inlineConfig) {
 	// Also do it on process exit, just in case.
 	process.on('exit', resetAllFiles);
 
+	let fixtureId = new Date().valueOf();
 	let devServer;
 
 	return {
@@ -150,7 +151,7 @@ export async function loadFixture(inlineConfig) {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
 		},
 		loadTestAdapterApp: async (streaming) => {
-			const url = new URL('./server/entry.mjs', config.outDir);
+			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
 			const app = createApp(streaming);
 			app.manifest = manifest;
