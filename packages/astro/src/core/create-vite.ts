@@ -35,17 +35,17 @@ const ALWAYS_NOEXTERNAL = new Set([
 ]);
 
 function getSsrNoExternalDeps(projectRoot: URL): string[] {
-	let noExternalDeps = []
+	let noExternalDeps = [];
 	for (const dep of ALWAYS_NOEXTERNAL) {
 		try {
-			resolveDependency(dep, projectRoot)
-			noExternalDeps.push(dep)
+			resolveDependency(dep, projectRoot);
+			noExternalDeps.push(dep);
 		} catch {
 			// ignore dependency if *not* installed / present in your project
 			// prevents hard error from Vite!
 		}
 	}
-	return noExternalDeps
+	return noExternalDeps;
 }
 
 /** Return a common starting point for all Vite actions */
@@ -116,11 +116,8 @@ export async function createVite(
 			conditions: ['astro'],
 		},
 		ssr: {
-			noExternal: [
-				...getSsrNoExternalDeps(astroConfig.root),
-				...thirdPartyAstroPackages,
-			],
-		}
+			noExternal: [...getSsrNoExternalDeps(astroConfig.root), ...thirdPartyAstroPackages],
+		},
 	};
 
 	// Merge configs: we merge vite configuration objects together in the following order,
@@ -147,8 +144,8 @@ function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string)
 	return pluginOptions.findIndex(function (pluginOption) {
 		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
 		// CAUTION: could be a problem if a plugin we're searching for becomes async!
-		return isVitePlugin(pluginOption) && pluginOption.name === name
-	})
+		return isVitePlugin(pluginOption) && pluginOption.name === name;
+	});
 }
 
 function sortPlugins(pluginOptions: vite.PluginOption[]) {

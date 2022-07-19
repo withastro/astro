@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir, resolveDependency } from '../../core/util.js';
+import { emptyDir, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -67,7 +67,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
-	const rendererClientEntrypoints = opts.astroConfig._ctx.renderers.map((r) => r.clientEntrypoint).filter(a => typeof a === 'string') as string[]
+	const rendererClientEntrypoints = opts.astroConfig._ctx.renderers
+		.map((r) => r.clientEntrypoint)
+		.filter((a) => typeof a === 'string') as string[];
 
 	const clientInput = new Set([
 		...internals.discoveredHydratedComponents,
@@ -169,7 +171,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function clientBuild(
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	input: Set<string>,
+	input: Set<string>
 ) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
