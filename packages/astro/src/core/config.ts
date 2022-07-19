@@ -416,7 +416,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	return astroConfig;
 }
 
-export interface LoadConfigOptions {
+interface LoadConfigOptions {
 	cwd?: string;
 	flags?: Flags;
 	cmd: string;
