@@ -156,6 +156,7 @@ export function mergeSlots(...slotted: unknown[]) {
 }
 
 export const Fragment = Symbol.for('astro:fragment');
+export const Renderer = Symbol.for('astro:renderer');
 export const ClientOnlyPlaceholder = 'astro-client-only';
 
 function guessRenderers(componentUrl?: string): string[] {
@@ -186,7 +187,7 @@ const rendererAliases = new Map([['solid', 'solid-js']]);
 export function __astro_tag_component__(Component: unknown, rendererName: string) {
 	if (!Component) return;
 	if (typeof Component !== 'function') return;
-	Object.defineProperty(Component, 'astro:renderer', {
+	Object.defineProperty(Component, Renderer, {
 		value: rendererName,
 		enumerable: false,
 		writable: false
@@ -283,8 +284,8 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	if (metadata.hydrate !== 'only') {
 		// If this component ran through `__astro_tag_component__`, we already know
 		// which renderer to match to and can skip the usual `check` calls
-		if (Component && (Component as any)['astro:renderer']) {
-			const rendererName = (Component as any)['astro:renderer'];
+		if (Component && (Component as any)[Renderer]) {
+			const rendererName = (Component as any)[Renderer];
 			renderer = renderers.find(({ name }) => name === rendererName);
 		}
 
