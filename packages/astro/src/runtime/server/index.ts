@@ -283,7 +283,8 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
 		// If this component ran through `__astro_tag_component__`, we already know
-		// which renderer to match to and can skip the usual `check` calls
+		// which renderer to match to and can skip the usual `check` calls.
+		// This will help us throw most relevant error message for modules with runtime errors
 		if (Component && (Component as any)[Renderer]) {
 			const rendererName = (Component as any)[Renderer];
 			renderer = renderers.find(({ name }) => name === rendererName);
