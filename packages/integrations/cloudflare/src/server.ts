@@ -20,6 +20,7 @@ export function createExports(manifest: SSRManifest) {
 		}
 
 		if (app.match(request)) {
+			Reflect.set(request, Symbol.for('astro.clientAddress'), request.headers.get('cf-connecting-ip'));
 			return app.render(request);
 		}
 
