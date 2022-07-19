@@ -161,11 +161,13 @@ export async function render(
 	});
 
 	let response = await coreRender({
+		adapterName: astroConfig.adapter?.name,
 		links,
 		styles,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,
+		mode,
 		origin,
 		pathname,
 		scripts,

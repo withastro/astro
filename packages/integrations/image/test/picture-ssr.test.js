@@ -33,7 +33,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -55,6 +55,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
 		// TODO: Track down why the fixture.fetch is failing with the test adapter
@@ -93,7 +94,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -115,6 +116,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});
 
@@ -134,7 +136,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -156,6 +158,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('184');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
 });
@@ -207,6 +210,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
 		it('returns the optimized image', async () => {
@@ -245,6 +249,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});
 
@@ -273,6 +278,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('href')).to.equal(
 				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 			);
+			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
 });
