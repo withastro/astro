@@ -38,16 +38,15 @@ describe('SSG pictures', function () {
 
 		describe('Local images', () => {
 			it('includes sources', () => {
-				const picture = $('#social-jpg').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#social-jpg source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#social-jpg img');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
 				expect(image.attr('width')).to.equal('506');
@@ -67,16 +66,15 @@ describe('SSG pictures', function () {
 
 		describe('Inline imports', () => {
 			it('includes sources', () => {
-				const picture = $('#inline').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#inline source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#inline');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#inline img');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
 				expect(image.attr('width')).to.equal('506');
@@ -100,16 +98,15 @@ describe('SSG pictures', function () {
 			const HASH = 'Z1iI4xW';
 
 			it('includes sources', () => {
-				const picture = $('#google').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#google source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#google');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#google img');
 
 				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.png`);
 				expect(image.attr('width')).to.equal('544');
@@ -168,16 +165,15 @@ describe('SSG pictures', function () {
 
 		describe('Local images', () => {
 			it('includes sources', () => {
-				const picture = $('#social-jpg').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#social-jpg source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#social-jpg img');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');
@@ -195,7 +191,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('returns the optimized image', async () => {
-				const image = $('#social-jpg');
+				const image = $('#social-jpg img');
 
 				const res = await fixture.fetch(image.attr('src'));
 
@@ -208,16 +204,15 @@ describe('SSG pictures', function () {
 
 		describe('Local images with inline imports', () => {
 			it('includes sources', () => {
-				const picture = $('#inline').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#inline source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#inline');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#inline img');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');
@@ -235,7 +230,7 @@ describe('SSG pictures', function () {
 			});
 
 			it('returns the optimized image', async () => {
-				const image = $('#inline');
+				const image = $('#inline img');
 
 				const res = await fixture.fetch(image.attr('src'));
 
@@ -248,16 +243,15 @@ describe('SSG pictures', function () {
 
 		describe('Remote images', () => {
 			it('includes sources', () => {
-				const picture = $('#google').parent('picture');
-				const sources = picture.children('source');
+				const sources = $('#google source');
 
 				expect(sources.length).to.equal(3);
 
 				// TODO: better coverage to verify source props
 			});
 
-			it('includes <img> attributes', () => {
-				const image = $('#google');
+			it('includes src, width, and height attributes', () => {
+				const image = $('#google img');
 
 				const src = image.attr('src');
 				const [route, params] = src.split('?');
