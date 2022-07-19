@@ -61,7 +61,7 @@ export async function createVite(
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
-			entries: ['src/pages/**/*'],
+			entries: ['src/**/*'],
 			exclude: ['node-fetch'],
 		},
 		plugins: [
