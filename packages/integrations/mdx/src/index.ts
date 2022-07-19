@@ -1,9 +1,13 @@
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
+import remarkGfm from 'remark-gfm';
+import remarkSmartypants from 'remark-smartypants';
 import { getFileInfo } from './utils.js';
 
 type MdxOptions = Pick<MdxRollupPluginOptions, 'remarkPlugins' | 'rehypePlugins'>;
+
+const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
 
 export default function mdx(mdxOptions: MdxOptions): AstroIntegration {
 	return {
@@ -17,7 +21,10 @@ export default function mdx(mdxOptions: MdxOptions): AstroIntegration {
 							{
 								enforce: 'pre',
 								...mdxPlugin({
+									remarkPlugins: DEFAULT_REMARK_PLUGINS,
+									rehypePlugins: [],
 									...mdxOptions,
+									// place these after so the user can't override
 									jsx: true,
 									jsxImportSource: 'astro',
 									// Note: disable `.md` support
