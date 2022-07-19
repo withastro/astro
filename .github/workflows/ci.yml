@@ -201,12 +201,6 @@ jobs:
           repository: withastro/docs
           path: smoke/docs
 
-      - name: Checkout astro.build
-        uses: actions/checkout@v3
-        with:
-          repository: withastro/astro.build
-          path: smoke/astro-build
-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
