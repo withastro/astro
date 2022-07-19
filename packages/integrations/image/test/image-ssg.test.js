@@ -65,7 +65,9 @@ describe('SSG images', function () {
 			it('includes src, width, and height attributes', () => {
 				const image = $('#google');
 
-				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`);
+				expect(image.attr('src')).to.equal(
+					`/_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`
+				);
 				expect(image.attr('width')).to.equal('544');
 				expect(image.attr('height')).to.equal('184');
 			});
