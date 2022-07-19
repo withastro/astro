@@ -108,7 +108,9 @@ export async function main() {
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
-	const templateTarget = `withastro/astro/examples/${options.template}#latest`;
+	const templateTarget = options.template.includes('/')
+		? options.template
+		: `withastro/astro/examples/${options.template}#latest`;
 
 	const emitter = degit(`${templateTarget}${hash}`, {
 		cache: false,
