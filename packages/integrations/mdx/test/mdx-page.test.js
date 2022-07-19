@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-describe.skip('MDX Page', () => {
+describe('MDX Page', () => {
 	let fixture;
 
 	before(async () => {
