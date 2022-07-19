@@ -453,6 +453,7 @@ export async function resolveConfigURL(
 
 interface OpenConfigResult {
 	userConfig: AstroUserConfig;
+	userConfigPath: string | undefined;
 	astroConfig: AstroConfig;
 	flags: CLIFlags;
 	root: string;
@@ -489,12 +490,14 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	}
 	if (config) {
 		userConfig = config.value;
+		userConfigPath = config.filePath;
 	}
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
 		astroConfig,
 		userConfig,
+		userConfigPath,
 		flags,
 		root,
 	};
