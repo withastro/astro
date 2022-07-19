@@ -18,8 +18,8 @@
     "react-dom": "^18.1.0"
   },
   "devDependencies": {
-    "@astrojs/preact": "^0.5.1",
-    "@astrojs/react": "^0.4.1",
-    "astro": "^1.0.0-beta.72"
+    "@astrojs/preact": "^0.5.2",
+    "@astrojs/react": "^0.4.2",
+    "astro": "^1.0.0-beta.73"
   }
 }
