@@ -181,12 +181,13 @@ export function getViteErrorPayload(err: ErrorWithMetadata): ErrorPayload {
 	if (!plugin && err.hint) {
 		plugin = 'astro';
 	}
+	const message = `${err.message}\n\n${err.hint ?? ''}`;
 	return {
 		type: 'error',
 		err: {
 			...err,
 			plugin,
-			message: err.hint ?? err.message,
+			message: message.trim(),
 			stack: err.stack,
 		}
 	}
