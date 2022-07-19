@@ -8,10 +8,10 @@ import { Picture } from '@astrojs/image';
     <!-- Head Stuff -->
   </head>
   <body>
-		<Picture id="social-jpg" src={socialJpg} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} />
+		<Picture id="social-jpg" src={socialJpg} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} alt="Social image" />
 		<br />
-		<Picture id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" sizes="(min-width: 640px) 50vw, 100vw" widths={[272, 544]} aspectRatio={544/184} />
+		<Picture id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" sizes="(min-width: 640px) 50vw, 100vw" widths={[272, 544]} aspectRatio={544/184} alt="Google logo" />
 		<br />
-		<Picture id='inline' src={import('../assets/social.jpg')} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} />
+		<Picture id='inline' src={import('../assets/social.jpg')} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} alt="Inline social image" />
   </body>
 </html>
