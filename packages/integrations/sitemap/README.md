@@ -84,10 +84,10 @@ export default defineConfig({
 
 Note that unlike other configuration options, `site` is set in the root `defineConfig` object, rather than inside the `sitemap()` call.
 
-Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find your sitemap under `dist/sitemap.xml`!
+Now, [build your site for production](https://docs.astro.build/en/reference/cli-reference/#astro-build) via the `astro build` command. You should find your sitemap under `dist/` for both `sitemap-index.xml` and `sitemap-0.xml`!
 
 > **Warning**
-> If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap.xml` file won't be generated.
+> If you forget to add a `site`, you'll get a friendly warning when you build, and the `sitemap-index.xml` file won't be generated.
 
 <details>
 <summary>Example of generated files for a two-page website</summary>
@@ -344,7 +344,7 @@ export default {
 </details>
 
 ## Examples
-- The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap.xml).
+- The official Astro website uses Astro Sitemap to generate [its sitemap](https://astro.build/sitemap-index.xml).
 - The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Sitemap installed. Try adding a route and building the project!
 - [Browse projects with Astro Sitemap on GitHub](https://github.com/search?q=%22@astrojs/sitemap%22+filename:package.json&type=Code) for more examples! 
 
