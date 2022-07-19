@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { shorthash } from './shorthash.js';
 import type { OutputFormat, TransformOptions } from './types';
 
 export function isOutputFormat(value: string): value is OutputFormat {
@@ -47,6 +48,11 @@ export async function loadImage(src: string) {
 export function propsToFilename({ src, width, height, format }: TransformOptions) {
 	const ext = path.extname(src);
 	let filename = src.replace(ext, '');
+
+	// for remote images, add a hash of the full URL to dedupe images with the same filename
+	if (isRemoteImage(src)) {
+		filename += `-${shorthash(src)}`;
+	}
 
 	if (width && height) {
 		return `${filename}_${width}x${height}.${format}`;
