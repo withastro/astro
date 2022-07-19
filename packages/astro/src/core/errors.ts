@@ -125,8 +125,10 @@ export function collectErrorMetadata(e: any, filePath?: URL): ErrorWithMetadata 
 
 		// Derive plugin from stack (if possible)
 		if (!err.plugin) {
-			const plugin = /withastro\/astro\/packages\/integrations\/([\w-]+)/gmi.exec(stackText)?.at(1) || /(@astrojs\/[\w-]+)\/(server|client|index)/gmi.exec(stackText)?.at(1);
-			err.plugin = plugin;
+			err.plugin = 
+				/withastro\/astro\/packages\/integrations\/([\w-]+)/gmi.exec(stackText)?.at(1) || 
+				/(@astrojs\/[\w-]+)\/(server|client|index)/gmi.exec(stackText)?.at(1) || 
+				undefined;
 		}
 
 		// Normalize stack (remove `/@fs/` urls, etc)
