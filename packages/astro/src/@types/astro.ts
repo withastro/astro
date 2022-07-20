@@ -69,8 +69,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	experimentalSsr?: boolean;
-	experimentalIntegrations?: boolean;
 	drafts?: boolean;
 }
 
@@ -684,20 +682,6 @@ export interface AstroUserConfig {
 	 */
 	vite?: ViteUserConfig;
 
-	experimental?: {
-		/**
-		 * Enable support for 3rd-party integrations.
-		 * Default: false
-		 */
-		integrations?: boolean;
-
-		/**
-		 * Enable support for 3rd-party SSR adapters.
-		 * Default: false
-		 */
-		ssr?: boolean;
-	};
-
 	// Legacy options to be removed
 
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
@@ -720,8 +704,6 @@ export interface AstroUserConfig {
 	buildOptions?: never;
 	/** @deprecated `devOptions` has been renamed to `server` */
 	devOptions?: never;
-	/** @deprecated `experimentalIntegrations` has been renamed to `experimental: { integrations: true }` */
-	experimentalIntegrations?: never;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
