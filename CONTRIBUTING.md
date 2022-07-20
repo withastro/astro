@@ -152,22 +152,29 @@ To release a new version of Astro, find the `Version Packages` PR, read it over,
 
 ### Releasing PR preview snapshots
 
-Our release tool `changeset` has a feature for releasing "snapshot" releases from a PR or custom branch. These are npm package publishes that live temporarily, so that you can give users a way to test a PR before merging. This can be a great way to get early user feedback while still in the PR review process.
+Our release tool `changeset` has a feature for releasing "snapshot" releases from a PR or custom branch. These are npm package publishes that live temporarily, so that you can give users a way to test a PR before merging. This can be a great way to get early user feedback while still in the PR review process. 
+
+To run `changeset version` locally, you'll need to create a GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set it as a `GITHUB_TOKEN` environment variable.
 
 To release a snapshot, run the following locally:
 
 ```shell
-# Note: XXX should be a keyword to identify this release. Ex: `--snapshot routing` & `--tag next--routing`
+# Notes:
+# - YYY should be a keyword to identify this release. Ex: `--snapshot routing` & `--tag next--routing`
+# - Use npm/npx instead of pnpm, since npm handles registry login, authentication and publishing.
+# - Adding GITHUB_TOKEN in the command adds that token to your bash history. Set a short expiration!
 
-# 1:
-pnpm exec changeset version --snapshot XXX
-# 2: (Manual) review the diff, and make sure that you're not releasing more than you need to.
+# 1: Tag the new release versions
+GITHUB_TOKEN=XXX npx changeset version --snapshot YYY
+# 2: Review the diff, and make sure that you're not releasing more than you need to.
 git checkout -- examples/
-# 3:
-pnpm run release --tag next--XXX
-# 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
+# 3: Release
+npm run release --tag next--YYY
+# 4: If you're satisfied, you can now throw out all local changes
 git reset --hard
 ```
+
+By default, every package with a changeset will be released. If you only want to target a smaller subset of packages for release, you can consider clearing out the `.changesets` directory to replace all existing changesets with a single changeset of only the packages that you want to release. Just be sure not to commit or push this to `main`, since it will destroy existing changesets that you will still want to eventually release.
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
 
