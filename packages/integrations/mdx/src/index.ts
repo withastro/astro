@@ -1,11 +1,13 @@
-import mdxPlugin from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
+import mdxPlugin from '@mdx-js/rollup';
+import { parse as parseESM } from 'es-module-lexer';
+import { getFileInfo } from './utils.js';
 
 export default function mdx(): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': ({ updateConfig, addPageExtension, command }: any) => {
+			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 				updateConfig({
 					vite: {
@@ -20,14 +22,23 @@ export default function mdx(): AstroIntegration {
 									mdExtensions: [],
 								}),
 							},
-							command === 'dev' && {
+							{
 								name: '@astrojs/mdx',
 								transform(code: string, id: string) {
 									if (!id.endsWith('.mdx')) return;
-									// TODO: decline HMR updates until we have a stable approach
-									return `${code}\nif (import.meta.hot) {
+									const [, moduleExports] = parseESM(code);
+
+									if (!moduleExports.includes('url')) {
+										const { fileUrl } = getFileInfo(id, config);
+										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
+									}
+									if (command === 'dev') {
+										// TODO: decline HMR updates until we have a stable approach
+										code += `\nif (import.meta.hot) {
 											import.meta.hot.decline();
-										}`;
+										}`
+									}
+									return code;
 								},
 							},
 						],

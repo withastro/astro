@@ -2098,10 +2098,12 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
+      es-module-lexer: ^0.10.5
       linkedom: ^0.14.12
       mocha: ^9.2.2
     dependencies:
       '@mdx-js/rollup': 2.1.2
+      es-module-lexer: 0.10.5
     devDependencies:
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
