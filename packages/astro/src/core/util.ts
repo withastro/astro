@@ -187,20 +187,7 @@ export function isBuildingToSSR(config: AstroConfig): boolean {
 	if (!adapter) return false;
 
 	if (typeof adapter.serverEntrypoint === 'string') {
-		if (!adapter.name.startsWith('@astrojs/') && !config.experimental.ssr) {
-			throw new Error(
-				[
-					`Server-side rendering (SSR) is still experimental.`,
-					``,
-					`Only official "@astrojs/*" adapters are currently supported.`,
-					`To enable SSR for 3rd-party adapters, use the "--experimental-ssr" flag.`,
-					`Breaking changes may occur in this API before Astro v1.0 is released.`,
-					``,
-				].join('\n')
-			);
-		} else {
-			return true;
-		}
+		return true;
 	} else {
 		return false;
 	}

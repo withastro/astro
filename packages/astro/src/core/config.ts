@@ -50,10 +50,6 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
-	experimental: {
-		ssr: false,
-		integrations: false,
-	},
 };
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
@@ -90,7 +86,6 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'markdownOptions',
 	'buildOptions',
 	'devOptions',
-	'experimentalIntegrations',
 ]);
 
 export const AstroConfigSchema = z.object({
@@ -221,13 +216,6 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z
-		.object({
-			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
-			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
-		})
-		.optional()
-		.default({}),
 });
 
 /** Turn raw config values into normalized values */
@@ -354,22 +342,6 @@ export async function validateConfig(
 		(result._ctx.renderers as any[]).unshift(jsxRenderer);
 	}
 
-	// Final-Pass Validation (perform checks that require the full config object)
-	if (
-		!result.experimental?.integrations &&
-		!result.integrations.every((int) => int.name.startsWith('@astrojs/'))
-	) {
-		throw new Error(
-			[
-				`Astro integrations are still experimental.`,
-				``,
-				`Only official "@astrojs/*" integrations are currently supported.`,
-				`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
-				`Breaking changes may occur in this API before Astro v1.0 is released.`,
-				``,
-			].join('\n')
-		);
-	}
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
@@ -383,11 +355,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
-		experimentalIntegrations:
-			typeof flags.experimentalIntegrations === 'boolean'
-				? flags.experimentalIntegrations
-				: undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -395,13 +362,8 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
 	astroConfig.server = astroConfig.server || {};
-	astroConfig.experimental = astroConfig.experimental || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.experimentalSsr === 'boolean')
-		astroConfig.experimental.ssr = flags.experimentalSsr;
-	if (typeof flags.experimentalIntegrations === 'boolean')
-		astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.

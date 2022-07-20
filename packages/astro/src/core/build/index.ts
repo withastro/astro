@@ -14,7 +14,7 @@ import {
 } from '../../integrations/index.js';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { fixViteErrorMessage } from '../errors.js';
-import { debug, info, levels, timerMessage, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -80,7 +80,6 @@ class AstroBuilder {
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		await runHookConfigDone({ config: this.config });
-		warnIfUsingExperimentalSSR(logging, this.config);
 		const viteServer = await vite.createServer(viteConfig);
 		debug('build', timerMessage('Vite started', this.timer.viteStart));
 		return { viteConfig, viteServer };
