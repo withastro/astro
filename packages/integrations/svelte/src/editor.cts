@@ -9,12 +9,10 @@ export function toTSX(code: string, className: string): string {
 	try {
 		let tsx = svelte2tsx(code, { mode: 'ts' }).code;
 		tsx = '/// <reference types="svelte2tsx/svelte-shims" />\n' + tsx;
-
 		result = tsx.replace(
 			'export default class extends __sveltets_1_createSvelte2TsxComponent(',
-			'let Component = '
+			`export default function ${className}__AstroComponent_(_props: typeof Component.props): any {}\nlet Component = `
 		);
-		result += `\nexport default function ${className}__AstroComponent_(_props: typeof Component.props): any {}`;
 	} catch (e: any) {
 		return result;
 	}
