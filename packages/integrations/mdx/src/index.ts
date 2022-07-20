@@ -1,5 +1,5 @@
-import type { AstroIntegration } from 'astro';
 import mdxPlugin from '@mdx-js/rollup';
+import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import { getFileInfo } from './utils.js';
 
@@ -36,7 +36,7 @@ export default function mdx(): AstroIntegration {
 										// TODO: decline HMR updates until we have a stable approach
 										code += `\nif (import.meta.hot) {
 											import.meta.hot.decline();
-										}`
+										}`;
 									}
 									return code;
 								},
