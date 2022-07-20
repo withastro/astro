@@ -40,7 +40,6 @@ export interface CreateResultArgs {
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
-	defineVars?: Set<string>;
 	styles?: Set<SSRElement>;
 	request: Request;
 }
@@ -139,7 +138,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
-		defineVars: args.defineVars ?? new Set<string>(),
 		/** This function returns the `Astro` faux-global */
 		createAstro(
 			astroGlobal: AstroGlobalPartial,

@@ -195,11 +195,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							result.code = `import "${src}"`;
 							break;
 						}
-						case 'define:vars': {
-							let { code, map } = hoistedScript
-							result.code = appendSourceMap(code, map);
-							break;
-						}
 					}
 					
 					return result

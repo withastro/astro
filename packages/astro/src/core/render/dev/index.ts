@@ -108,7 +108,7 @@ export async function render(
 		viteServer,
 	} = ssrOpts;
 	// Add hoisted script tags
-	const { scripts, defineVars } = await getScriptsForURL(filePath, astroConfig, viteServer);
+	const scripts = await getScriptsForURL(filePath, astroConfig, viteServer);
 
 	// Inject HMR scripts
 	if (isPage(filePath, astroConfig) && mode === 'development') {
@@ -164,7 +164,6 @@ export async function render(
 		adapterName: astroConfig.adapter?.name,
 		links,
 		styles,
-		defineVars,
 		logging,
 		markdown: astroConfig.markdown,
 		mod,

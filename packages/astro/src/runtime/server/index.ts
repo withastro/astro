@@ -632,17 +632,7 @@ export function defineStyleVars(defs: Record<any, any>[]) {
 }
 
 // Adds variables to an inline script.
-export async function defineScriptVars(vars: Record<any, any>, info?: { file: string, index: number }, result?: SSRResult) {
-	if (typeof info !== 'undefined' && typeof result !== 'undefined') {
-		let match: string | undefined;
-		for (const script of result.defineVars) {
-			if (script.replace('/@fs', '').startsWith(info.file) && script.includes(`index=${info.index}`)) {
-				match = await result.resolve(script);
-				break;
-			}
-		}
-		return markHTMLString(`import("${match}").then(res => res.default(${JSON.stringify(serializeProps(vars))}))`)
-	}
+export async function defineScriptVars(vars: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
 		output += `let ${key} = ${JSON.stringify(value)};\n`;
