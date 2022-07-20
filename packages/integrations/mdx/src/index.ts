@@ -30,7 +30,7 @@ export default function mdx(): AstroIntegration {
 
 									if (!moduleExports.includes('url')) {
 										const { fileUrl } = getFileInfo(id, config);
-										code += `export const url = ${JSON.stringify(fileUrl)};`;
+										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
 									}
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
