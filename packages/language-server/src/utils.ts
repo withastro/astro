@@ -212,6 +212,27 @@ export function debounceThrottle<T extends (...args: any) => void>(fn: T, millis
 	return maybeCall as any;
 }
 
+/**
+ * Try to determine if a workspace could be an Astro project based on the content of `package.json`
+ */
+export function isAstroWorkspace(workspacePath: string): boolean {
+	try {
+		const astroPackageJson = require.resolve('./package.json', { paths: [workspacePath] });
+		const deps = Object.assign(
+			require(astroPackageJson).dependencies ?? {},
+			require(astroPackageJson).devDependencies ?? {}
+		);
+
+		if (Object.keys(deps).includes('astro')) {
+			return true;
+		}
+	} catch (e) {
+		return false;
+	}
+
+	return false;
+}
+
 export interface AstroVersion {
 	full: string;
 	major: number;
@@ -236,7 +257,7 @@ export function getUserAstroVersion(basePath: string): AstroVersion {
 		} catch (e) {
 			// If we still couldn't find it, it probably just doesn't exist
 			exist = false;
-			console.error(e);
+			console.error(`${basePath} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`);
 		}
 	}
 

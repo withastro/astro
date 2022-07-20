@@ -19,7 +19,7 @@ import { HTMLPlugin } from './plugins/html/HTMLPlugin';
 import { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
 import { TypeScriptPlugin } from './plugins';
-import { debounceThrottle, getUserAstroVersion, urlToPath } from './utils';
+import { debounceThrottle, getUserAstroVersion, isAstroWorkspace, urlToPath } from './utils';
 import { AstroDocument } from './core/documents';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
@@ -43,19 +43,18 @@ export function startLanguageServer(connection: vscode.Connection) {
 		workspaceUris.forEach((uri) => {
 			uri = urlToPath(uri) as string;
 
+			// If the workspace is not an Astro project, we shouldn't warn about not finding Astro
+			// Unless the extension enabled itself in an untitled workspace, in which case the warning is valid
+			if (!isAstroWorkspace(uri) && uri !== '/' && uri !== '') {
+				return;
+			}
+
 			const astroVersion = getUserAstroVersion(uri);
 
 			if (astroVersion.exist === false) {
 				connection.sendNotification(ShowMessageNotification.type, {
 					message: `Couldn't find Astro in workspace "${uri}". Experience might be degraded. For the best experience, please make sure Astro is installed and then restart the language server`,
 					type: MessageType.Warning,
-				});
-			}
-
-			if (astroVersion.exist && astroVersion.major === 0 && astroVersion.minor < 24 && astroVersion.patch < 5) {
-				connection.sendNotification(ShowMessageNotification.type, {
-					message: `The version of Astro you're using (${astroVersion.full}) is not supported by this version of the Astro language server. Please upgrade Astro to any version higher than 0.23.4 or if using the VS Code extension, downgrade the extension to 0.8.10`,
-					type: MessageType.Error,
 				});
 			}
 		});

@@ -123,7 +123,10 @@ async function createLanguageService(
 
 	// Before Astro 1.0, JSX definitions were inside of the language-server instead of inside Astro
 	// TODO: Remove this and astro-jsx.d.ts in types when we consider having support for Astro < 1.0 unnecessary
-	if (astroVersion.major === 0 || astroVersion.full === '1.0.0-beta.0') {
+	if (
+		(astroVersion.major === 0 || astroVersion.full === '1.0.0-beta.0') &&
+		!astroVersion.full.startsWith('0.0.0-rc-') // 1.0.0's RC is considered to be 0.0.0, so we have to check for it
+	) {
 		const astroTSXFile = ts.sys.resolvePath(resolve(languageServerDirectory, '../types/astro-jsx.d.ts'));
 		scriptFileNames.push(astroTSXFile);
 
@@ -301,7 +304,7 @@ async function createLanguageService(
 			}
 
 			if (
-				astroVersion.major >= 1 &&
+				(astroVersion.major >= 1 || astroVersion.full.startsWith('0.0.0-rc-')) &&
 				astroVersion.full !== '1.0.0-beta.0' &&
 				!configJson.compilerOptions?.types.includes('astro/astro-jsx')
 			) {
@@ -366,7 +369,7 @@ async function createLanguageService(
 function getDefaultCompilerOptions(astroVersion: AstroVersion): ts.CompilerOptions {
 	const types = ['astro/env'];
 
-	if (astroVersion.major >= 1 && astroVersion.full !== '1.0.0-beta.0') {
+	if ((astroVersion.major >= 1 && astroVersion.full !== '1.0.0-beta.0') || astroVersion.full.startsWith('0.0.0-rc-')) {
 		types.push('astro/astro-jsx');
 	}
 
