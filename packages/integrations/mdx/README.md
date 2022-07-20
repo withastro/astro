@@ -118,7 +118,7 @@ publishDate: '21 September 2022'
 # {frontmatter.title}
 ```
 
-Now, this `title` and `publishDate` will be excessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements via the `frontmatter` property. This matches the behavior of [plain markdown in Astro](https://docs.astro.build/en/reference/api-reference/#markdown-files) as well!
+Now, this `title` and `publishDate` will be accessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements via the `frontmatter` property. This matches the behavior of [plain markdown in Astro](https://docs.astro.build/en/reference/api-reference/#markdown-files) as well!
 
 ```astro
 ---
