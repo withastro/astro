@@ -140,6 +140,38 @@ export default {
 ```
 </details>
 
+<details>
+  <summary><strong>frontmatterOptions</strong></summary>
+
+**Default:** `{ name: 'frontmatter' }`
+
+We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
+
+For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    frontmatterOptions: {
+      name: '',
+    }
+  })],
+}
+```
+
+```html
+<!--example.mdx-->
+---
+title: I'm just a variable now!
+---
+
+# {title}
+```
+
+See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
+</details>
+
 ## Examples
 
 - The [Astro MDX example](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
