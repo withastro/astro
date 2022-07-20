@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.20.1
+
+### Patch Changes
+
+- e6996f5: Fixed many situations where the language server would warn abusively about not being able to find Astro
+- 4589c2b: Fix the language server not warning properly when a package is implicitely any due to missing types
+
 ## 0.20.0
 
 ### Minor Changes
