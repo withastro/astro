@@ -31,7 +31,9 @@
   },
   "dependencies": {
     "@mdx-js/rollup": "^2.1.1",
-    "es-module-lexer": "^0.10.5"
+    "es-module-lexer": "^0.10.5",
+    "remark-gfm": "^3.0.1",
+    "remark-smartypants": "^2.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
@@ -41,7 +43,8 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "linkedom": "^0.14.12",
-    "mocha": "^9.2.2"
+    "mocha": "^9.2.2",
+    "remark-toc": "^8.0.1"
   },
   "engines": {
     "node": "^14.18.0 || >=16.12.0"
