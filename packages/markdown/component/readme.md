@@ -7,7 +7,7 @@ This package brings legacy support for the `<Markdown />` component to all Astro
 
 ```astro
 ---
-import Markdown from '@astrojs/markdown';
+import Markdown from '@astrojs/markdown-component';
 ---
 <Markdown>
   # Markdown syntax is now supported! **Yay!**

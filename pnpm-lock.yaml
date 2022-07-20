@@ -2344,25 +2344,25 @@ importers:
 
   packages/markdown/component/test/fixtures/astro-markdown:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       '@astrojs/preact': workspace:*
       '@astrojs/svelte': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../..
+      '@astrojs/markdown-component': link:../../..
       '@astrojs/preact': link:../../../../../integrations/preact
       '@astrojs/svelte': link:../../../../../integrations/svelte
       astro: link:../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-plugins:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       '@astrojs/preact': workspace:*
       astro: workspace:*
       hast-util-select: ^5.0.2
       rehype-slug: ^5.0.1
     dependencies:
-      '@astrojs/markdown': link:../../..
+      '@astrojs/markdown-component': link:../../..
       '@astrojs/preact': link:../../../../../integrations/preact
       astro: link:../../../../../astro
       hast-util-select: 5.0.2
@@ -2370,66 +2370,66 @@ importers:
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../..
+      '@astrojs/markdown-component': link:../../..
       astro: link:../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/langs:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/normal:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/themes-custom:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/themes-integrated:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-false:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-null:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-true:
     specifiers:
-      '@astrojs/markdown': workspace:*
+      '@astrojs/markdown-component': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/markdown': link:../../../..
+      '@astrojs/markdown-component': link:../../../..
       astro: link:../../../../../../astro
 
   packages/markdown/remark:

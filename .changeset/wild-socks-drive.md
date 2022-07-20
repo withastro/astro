@@ -1,6 +1,6 @@
 ---
 'astro': minor
-'@astrojs/markdown': minor
+'@astrojs/markdown-component': minor
 ---
 
 Move the Markdown component to its own package
@@ -17,6 +17,6 @@ Becomes:
 
 ```astro
 ---
-import Markdown from '@astrojs/markdown';
+import Markdown from '@astrojs/markdown-component';
 ---
 ```

@@ -4,6 +4,6 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
-    "@astrojs/markdown": "workspace:*"
+    "@astrojs/markdown-component": "workspace:*"
   }
 }

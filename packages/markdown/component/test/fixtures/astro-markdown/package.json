@@ -5,7 +5,7 @@
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "@astrojs/svelte": "workspace:*",
-    "@astrojs/markdown": "workspace:*",
+    "@astrojs/markdown-component": "workspace:*",
     "astro": "workspace:*"
   }
 }
