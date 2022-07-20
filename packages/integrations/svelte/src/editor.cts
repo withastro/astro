@@ -7,13 +7,11 @@ export function toTSX(code: string, className: string): string {
 	`;
 
 	try {
-		let tsx = svelte2tsx(code).code;
-		tsx = 'let Props = render().props;\n' + tsx;
-
-		// Replace Svelte's class export with a function export
+		let tsx = svelte2tsx(code, { mode: 'ts' }).code;
+		tsx = '/// <reference types="svelte2tsx/svelte-shims" />\n' + tsx;
 		result = tsx.replace(
-			/^export default[\S\s]*/gm,
-			`export default function ${className}__AstroComponent_(_props: typeof Props): any {}`
+			'export default class extends __sveltets_1_createSvelte2TsxComponent(',
+			`export default function ${className}__AstroComponent_(_props: typeof Component.props): any {}\nlet Component = `
 		);
 	} catch (e: any) {
 		return result;
