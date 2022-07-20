@@ -11,8 +11,8 @@ import {
 	white,
 	yellow,
 } from 'kleur/colors';
-import { fileURLToPath } from 'url';
 import stringWidth from 'string-width';
+import { fileURLToPath } from 'url';
 
 export function printDiagnostic(filePath: string, text: string, diag: Diagnostic): string {
 	let result = [];
