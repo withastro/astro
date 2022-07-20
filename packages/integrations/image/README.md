@@ -104,7 +104,7 @@ export default {
 
 ```html
 ---
-import { Image } from '@astrojs/image';
+import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
 ---
 
@@ -132,7 +132,7 @@ import heroImage from '../assets/hero.png';
 
 ```html
 ---
-import { Image } from '@astrojs/image';
+import { Image } from '@astrojs/image/components';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
 ---
@@ -156,7 +156,7 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 ```html
 ---
 setup: |
-  import { Image } from '@astrojs/image'
+  import { Image } from '@astrojs/image/components'
   import hero from '../../assets/blog/introducing-astro.jpg'
 title: Hello world!
 publishDate: 12 Sep 2021
@@ -181,7 +181,7 @@ description: Just a Hello World Post!
 
 ```html
 ---
-import { Picture } from '@astrojs/image';
+import { Picture } from '@astrojs/image/components';
 import hero from '../assets/hero.png';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
