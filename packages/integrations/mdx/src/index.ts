@@ -37,7 +37,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								...mdxPlugin({
 									remarkPlugins: handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
 									rehypePlugins: handleExtends(mdxOptions.rehypePlugins),
-									// place these after so the user can't override
 									jsx: true,
 									jsxImportSource: 'astro',
 									// Note: disable `.md` support
