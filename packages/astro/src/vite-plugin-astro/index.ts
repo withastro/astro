@@ -196,10 +196,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 							break;
 						}
 						case 'define:vars': {
-							let { code, map, keys } = hoistedScript
-							// offset mappings by one
-							map = map.replace(`"mappings": "`, `"mappings": ";`)
-							result.code = appendSourceMap(`import d from 'astro/client/deserialize.js'; export default (s) => (async function({ ${keys} }) {\n${code}\n})(d(s))`, map);
+							let { code, map } = hoistedScript
+							result.code = appendSourceMap(code, map);
 							break;
 						}
 					}
