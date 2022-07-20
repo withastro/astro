@@ -217,7 +217,6 @@ export default {
 ```
 
 ```mdx
-<!--example.mdx-->
 ---
 title: I'm just a variable now!
 ---
