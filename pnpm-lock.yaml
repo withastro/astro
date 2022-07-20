@@ -357,33 +357,6 @@ importers:
       astro: link:../../packages/astro
       sass: 1.53.0
 
-  examples/with-markdown:
-    specifiers:
-      '@astrojs/markdown-remark': ^0.12.0
-      '@astrojs/preact': ^0.5.2
-      '@astrojs/react': ^0.4.2
-      '@astrojs/svelte': ^0.4.1
-      '@astrojs/vue': ^0.4.1
-      astro: ^1.0.0-beta.73
-      preact: ^10.7.3
-      react: ^18.1.0
-      react-dom: ^18.1.0
-      svelte: ^3.48.0
-      vue: ^3.2.37
-    dependencies:
-      preact: 10.9.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      svelte: 3.49.0
-      vue: 3.2.37
-    devDependencies:
-      '@astrojs/markdown-remark': link:../../packages/markdown/remark
-      '@astrojs/preact': link:../../packages/integrations/preact
-      '@astrojs/react': link:../../packages/integrations/react
-      '@astrojs/svelte': link:../../packages/integrations/svelte
-      '@astrojs/vue': link:../../packages/integrations/vue
-      astro: link:../../packages/astro
-
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^0.12.0
@@ -465,7 +438,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.19.0
+      '@astrojs/compiler': ^0.20.0
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^0.12.0
       '@astrojs/prism': 0.6.1
@@ -550,7 +523,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.19.0
+      '@astrojs/compiler': 0.20.0
       '@astrojs/language-server': 0.20.0
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -2363,6 +2336,110 @@ importers:
       astro-scripts: link:../../../scripts
       vue: 3.2.37
 
+  packages/markdown/component:
+    specifiers:
+      '@types/mocha': ^9.1.1
+      astro: workspace:*
+      chai: ^4.3.6
+      cheerio: ^1.0.0-rc.11
+      mocha: ^9.2.2
+    devDependencies:
+      '@types/mocha': 9.1.1
+      astro: link:../../astro
+      chai: 4.3.6
+      cheerio: 1.0.0-rc.12
+      mocha: 9.2.2
+
+  packages/markdown/component/test/fixtures/astro-markdown:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      '@astrojs/preact': workspace:*
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../..
+      '@astrojs/preact': link:../../../../../integrations/preact
+      '@astrojs/svelte': link:../../../../../integrations/svelte
+      astro: link:../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-plugins:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      hast-util-select: ^5.0.2
+      rehype-slug: ^5.0.1
+    dependencies:
+      '@astrojs/markdown-component': link:../../..
+      '@astrojs/preact': link:../../../../../integrations/preact
+      astro: link:../../../../../astro
+      hast-util-select: 5.0.2
+      rehype-slug: 5.0.1
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../..
+      astro: link:../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/langs:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/normal:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/themes-custom:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/themes-integrated:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-false:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-null:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
+  packages/markdown/component/test/fixtures/astro-markdown-shiki/wrap-true:
+    specifiers:
+      '@astrojs/markdown-component': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/markdown-component': link:../../../..
+      astro: link:../../../../../../astro
+
   packages/markdown/remark:
     specifiers:
       '@astrojs/micromark-extension-mdx-jsx': ^1.0.3
@@ -2775,8 +2852,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.19.0:
-    resolution: {integrity: sha512-8nvyxZTfCXLyRmYfTttpJT6EPhfBRg0/q4J/Jj3/pNPLzp+vs05ZdktsY6QxAREaOMAnNEtSqcrB4S5DsXOfRg==}
+  /@astrojs/compiler/0.20.0:
+    resolution: {integrity: sha512-6tW9HYJXB8qjdf/YYyurNIGHgBSCbjZe8zN5JNI86ak05eGGKFkAIRwrWilnaRCtp/PNcoyHYFg5l+Hu6p9MXQ==}
     dev: false
 
   /@astrojs/language-server/0.20.0:

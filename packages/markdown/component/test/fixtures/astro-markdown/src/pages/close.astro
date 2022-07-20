@@ -1,0 +1,12 @@
+---
+import Markdown from '@astrojs/markdown-component';
+const content = `Markdown *content* to render`;
+---
+
+<main>
+  <div id="target">
+    <Markdown content={content} />
+    <p>Some other stuff</p>
+  </div>
+  <p>Lastly...</p>
+</main>

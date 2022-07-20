@@ -1,0 +1,18 @@
+---
+import Markdown from '@astrojs/markdown-component';
+import Layout from '../layouts/content.astro';
+import Hello from '../components/Hello.jsx';
+import Counter from '../components/Counter.jsx';
+
+const title = 'My Blog Post';
+const description = 'This is a post about some stuff.';
+---
+
+<Layout>
+	<Markdown>
+		## Interesting Topic
+
+		<Hello name={`world`} />
+		<Counter client:load />
+	</Markdown>
+</Layout>

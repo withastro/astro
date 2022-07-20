@@ -8,5 +8,4 @@ npm init astro -- --template with-markdown-shiki
 
 This example showcases Astro's [built-in Markdown support](https://docs.astro.build/en/guides/markdown-content/).
 
-- `src/pages/index.astro` uses Astro's `<Markdown>` component.
-- `src/pages/other.md` is a treated as a page entrypoint and uses a `layout`.
+- `src/pages/index.md` is a treated as a page entrypoint and uses a `layout`.
