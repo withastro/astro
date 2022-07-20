@@ -27,5 +27,8 @@
     "mocha": "^9.2.2",
     "@types/mocha": "^9.1.1"
   },
-  "keywords": ["astro", "astro-component"]
+  "keywords": [
+    "astro",
+    "astro-component"
+  ]
 }
