@@ -152,7 +152,7 @@ To release a new version of Astro, find the `Version Packages` PR, read it over,
 
 ### Releasing PR preview snapshots
 
-Our release tool `changeset` has a feature for releasing "snapshot" releases from a PR or custom branch. These are npm package publishes that live temporarily, so that you can give users a way to test a PR before merging. This can be a great way to get early user feedback while still in the PR review process. 
+Our release tool `changeset` has a feature for releasing "snapshot" releases from a PR or custom branch. These are npm package publishes that live temporarily, so that you can give users a way to test a PR before merging. This can be a great way to get early user feedback while still in the PR review process.
 
 To run `changeset version` locally, you'll need to create a GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set it as a `GITHUB_TOKEN` environment variable.
 
