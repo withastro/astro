@@ -583,6 +583,11 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return markHTMLString(` ${key}="${toStyleString(value)}"`);
 	}
 
+	// support `className` for better JSX compat
+	if (key === 'className') {
+		return markHTMLString(` class="${toAttributeString(value, shouldEscape)}"`);
+	}
+
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return markHTMLString(` ${key}`);
