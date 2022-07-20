@@ -48,6 +48,10 @@ export class App {
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
+		// ignore requests matching public assets
+		if (this.#manifest.assets.has(url.pathname)) {
+			return undefined;
+		}
 		return matchRoute(url.pathname, this.#manifestData);
 	}
 	async render(request: Request, routeData?: RouteData): Promise<Response> {
