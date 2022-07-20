@@ -31,10 +31,4 @@ describe('Markdown pages in SSR', () => {
 		const $ = cheerioLoad(html);
 		expect($('#subheading').text()).to.equal('Subheading');
 	});
-
-	it('Renders the Markdown component correctly', async () => {
-		const html = await fetchHTML('/page');
-		const $ = cheerioLoad(html);
-		expect($('#something')).to.have.lengthOf(1);
-	});
 });

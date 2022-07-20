@@ -24,8 +24,8 @@ describe('Astro Markdown plugins', () => {
 		await fixture.build();
 	});
 
-	it('Can render markdown with plugins', async () => {
-		const html = await fixture.readFile('/index.html');
+	it('Can render Astro <Markdown> with plugins', async () => {
+		const html = await fixture.readFile('/astro/index.html');
 		const $ = cheerio.load(html);
 
 		// test 1: Added a TOC

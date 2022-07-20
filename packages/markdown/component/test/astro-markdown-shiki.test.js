@@ -11,24 +11,18 @@ describe('Astro Markdown Shiki', () => {
 			await fixture.build();
 		});
 
-		it('Can render markdown with shiki', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('Can render Astro <Markdown> with shiki', async () => {
+			const html = await fixture.readFile('/astro/index.html');
 			const $ = cheerio.load(html);
 
 			// There should be no HTML from Prism
 			expect($('.token')).to.have.lengthOf(0);
 
 			expect($('pre')).to.have.lengthOf(2);
-			expect($('pre').hasClass('astro-code')).to.equal(true);
-			expect($('pre').attr().style).to.equal('background-color: #0d1117; overflow-x: auto;');
-		});
 
-		it('Can render diff syntax with "user-select: none"', async () => {
-			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html);
-			const diffBlockHtml = $('pre').last().html();
-			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">+</span>`);
-			expect(diffBlockHtml).to.contain(`<span style="user-select: none;">-</span>`);
+			expect($('span.line')).to.have.lengthOf(2);
+			expect($('span.line').get(0).children).to.have.lengthOf(1);
+			expect($('span.line').get(1).children).to.have.lengthOf(5);
 		});
 	});
 
@@ -41,8 +35,8 @@ describe('Astro Markdown Shiki', () => {
 				await fixture.build();
 			});
 
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
+			it('<Markdown /> component', async () => {
+				const html = await fixture.readFile('/astro/index.html');
 				const $ = cheerio.load(html);
 
 				expect($('pre')).to.have.lengthOf(1);
@@ -59,8 +53,8 @@ describe('Astro Markdown Shiki', () => {
 				await fixture.build();
 			});
 
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
+			it('<Markdown /> component', async () => {
+				const html = await fixture.readFile('/astro/index.html');
 				const $ = cheerio.load(html);
 
 				expect($('pre')).to.have.lengthOf(1);
@@ -78,15 +72,14 @@ describe('Astro Markdown Shiki', () => {
 			await fixture.build();
 		});
 
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('<Markdown /> component', async () => {
+			const html = await fixture.readFile('/astro/index.html');
 			const $ = cheerio.load(html);
 
 			const segments = $('.line').get(6).children;
 			expect(segments).to.have.lengthOf(3);
 			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
 			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
-			expect(segments[2].attribs.style).to.be.equal('color: #C9D1D9');
 
 			const unknownLang = $('.line').last().html();
 			expect(unknownLang).to.be.equal(
@@ -106,12 +99,12 @@ describe('Astro Markdown Shiki', () => {
 				await fixture.build();
 			});
 
-			it('Markdown file', async () => {
-				const html = await fixture.readFile('/index.html');
+			it('<Markdown /> component', async () => {
+				const html = await fixture.readFile('/astro/index.html');
 				const $ = cheerio.load(html);
 
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').attr('style')).to.equal(style);
+				expect($('pre').get(0).attribs.style).to.equal(style);
+				expect($('pre').get(1).attribs.style).to.equal(style);
 			});
 		});
 	});
@@ -125,12 +118,12 @@ describe('Astro Markdown Shiki', () => {
 			await fixture.build();
 		});
 
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('<Markdown /> component', async () => {
+			const html = await fixture.readFile('/astro/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('pre')).to.have.lengthOf(1);
-			expect($('pre').attr('style')).to.equal(style);
+			expect($('pre').get(0).attribs.style).to.equal(style);
+			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
 	});
 
@@ -143,12 +136,12 @@ describe('Astro Markdown Shiki', () => {
 			await fixture.build();
 		});
 
-		it('Markdown file', async () => {
-			const html = await fixture.readFile('/index.html');
+		it('<Markdown /> component', async () => {
+			const html = await fixture.readFile('/astro/index.html');
 			const $ = cheerio.load(html);
 
-			expect($('pre')).to.have.lengthOf(1);
-			expect($('pre').attr('style')).to.equal(style);
+			expect($('pre').get(0).attribs.style).to.equal(style);
+			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
 	});
 });
