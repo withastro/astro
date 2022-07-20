@@ -1,6 +1,5 @@
-import { bold, dim } from 'kleur/colors';
+import { dim } from 'kleur/colors';
 import stringWidth from 'string-width';
-import type { AstroConfig } from '../../@types/astro';
 
 interface LogWritable<T> {
 	write: (chunk: T) => boolean;
