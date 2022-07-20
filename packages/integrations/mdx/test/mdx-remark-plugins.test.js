@@ -11,9 +11,11 @@ describe('MDX remark plugins', () => {
 	it('supports custom remark plugins - TOC', async () => {
 		const fixture = await loadFixture({
 			root: FIXTURE_ROOT,
-			integrations: [mdx({
-				remarkPlugins: [remarkToc],
-			})],
+			integrations: [
+				mdx({
+					remarkPlugins: [remarkToc],
+				}),
+			],
 		});
 		await fixture.build();
 
@@ -41,9 +43,11 @@ describe('MDX remark plugins', () => {
 	it('preserves default GitHub-flavored markdown with "extends"', async () => {
 		const fixture = await loadFixture({
 			root: FIXTURE_ROOT,
-			integrations: [mdx({
-				remarkPlugins: { extends: [remarkToc] },
-			})],
+			integrations: [
+				mdx({
+					remarkPlugins: { extends: [remarkToc] },
+				}),
+			],
 		});
 		await fixture.build();
 

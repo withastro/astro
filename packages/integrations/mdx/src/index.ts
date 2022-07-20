@@ -10,11 +10,14 @@ type WithExtends<T> = T | { extends: T };
 type MdxOptions = {
 	remarkPlugins?: WithExtends<MdxRollupPluginOptions['remarkPlugins']>;
 	rehypePlugins?: WithExtends<MdxRollupPluginOptions['rehypePlugins']>;
-}
+};
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
 
-function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] | undefined {
+function handleExtends<T>(
+	config: WithExtends<T[] | undefined>,
+	defaults: T[] = []
+): T[] | undefined {
 	if (Array.isArray(config)) return config;
 
 	return [...defaults, ...(config?.extends ?? [])];
