@@ -6,7 +6,7 @@ import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
-import rehypePrism from '@mapbox/rehype-prism';
+import remarkPrism from './remark-prism.js';
 import { getFileInfo } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
@@ -47,9 +47,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					]);
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 				}
-
+				
 				if (config.markdown.syntaxHighlight === 'prism') {
-					rehypePlugins.push(rehypePrism);
+					remarkPlugins.push(remarkPrism);
+					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 				}
 
 				updateConfig({
