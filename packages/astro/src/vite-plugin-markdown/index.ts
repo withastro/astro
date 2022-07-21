@@ -137,6 +137,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
+				const isMDX = renderOpts.mode === 'mdx';
 
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
@@ -148,7 +149,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
 				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
-				if (renderOpts.mode === 'mdx') {
+				if (isMDX) {
 					markdownContent = markdownContent.replace(
 						/<\s*!--([^-->]*)(.*?)-->/gs,
 						(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
@@ -167,19 +168,30 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const prelude = `---
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
-${components ? `import * from '${components}';` : ''}
+${isMDX && components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
-${setup}
+${isMDX ? setup : ''}
 
 const slugger = new Slugger();
 function $$slug(value) {
 	return slugger.slug(value);
 }
 
-const $$content = ${JSON.stringify(content)}
+const $$content = ${JSON.stringify(isMDX
+	? content
+	// Avoid stripping "setup" and "components"
+	// in plain MD mode
+	: { ...content, setup, components })}
 ---`;
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
-${setup}`.trim();
+${isMDX ? setup : ''}`.trim();
+
+				// Wrap with set:html fragment to skip
+				// JSX expressions and components in "plain" md mode
+				if (!isMDX) {
+					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`
+				}
+
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
 					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
