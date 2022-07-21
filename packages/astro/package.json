@@ -136,7 +136,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
-    "vite": "^3.0.0",
+    "vite": "3.0.2",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },
