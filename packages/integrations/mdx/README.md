@@ -78,6 +78,62 @@ To write your first MDX page in Astro, head to our [UI framework documentation][
 
 Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
+### Variables
+
+MDX supports `export` statements to add variables to your templates. These variables are accessible both from the template itself _and_ as named properties when importing the template somewhere else.
+
+For instance, you can export a `title` field from an MDX page or component to use as a heading with `{JSX expressions}`:
+
+```mdx
+export const title = 'My first MDX post'
+
+# {title}
+```
+
+This `title` will be accessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements as well:
+
+```astro
+---
+// src/pages/index.astro
+const posts = await Astro.glob('./*.mdx');
+---
+
+{posts.map(post => <p>{post.title}</p>)}
+```
+
+See [the official "how MDX works" guide](https://mdxjs.com/docs/using-mdx/#how-mdx-works) for more on MDX variables.
+
+### Frontmatter
+
+Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+
+For example, we can add a `title` and `publishDate` to an MDX page or component like so:
+
+```mdx
+---
+title: 'My first MDX post'
+publishDate: '21 September 2022'
+---
+
+# {frontmatter.title}
+```
+
+Now, this `title` and `publishDate` will be accessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements via the `frontmatter` property. This matches the behavior of [plain markdown in Astro](https://docs.astro.build/en/reference/api-reference/#markdown-files) as well!
+
+```astro
+---
+// src/pages/index.astro
+const posts = await Astro.glob('./*.mdx');
+---
+
+{posts.map(post => (
+  <Fragment>
+    <h2>{post.frontmatter.title}</h2>
+    <time>{post.frontmatter.publishDate}</time>
+  </Fragment>
+))}
+```
+
 ## Configuration
 
 <details>
@@ -138,6 +194,37 @@ export default {
   })],
 }
 ```
+</details>
+
+<details>
+  <summary><strong>frontmatterOptions</strong></summary>
+
+**Default:** `{ name: 'frontmatter' }`
+
+We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
+
+For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    frontmatterOptions: {
+      name: '',
+    }
+  })],
+}
+```
+
+```mdx
+---
+title: I'm just a variable now!
+---
+
+# {title}
+```
+
+See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
 </details>
 
 ## Examples

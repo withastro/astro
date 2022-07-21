@@ -1,10 +1,13 @@
+import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
+import type { AstroIntegration } from 'astro';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import { nodeTypes } from '@mdx-js/mdx';
 import rehypeRaw from 'rehype-raw';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
+import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkSmartypants from 'remark-smartypants';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo } from './utils.js';
@@ -14,6 +17,12 @@ type WithExtends<T> = T | { extends: T };
 type MdxOptions = {
 	remarkPlugins?: WithExtends<MdxRollupPluginOptions['remarkPlugins']>;
 	rehypePlugins?: WithExtends<MdxRollupPluginOptions['rehypePlugins']>;
+	/**
+	 * Configure the remark-mdx-frontmatter plugin
+	 * @see https://github.com/remcohaszing/remark-mdx-frontmatter#options for a full list of options
+	 * @default {{ name: 'frontmatter' }}
+	 */
+	frontmatterOptions?: RemarkMdxFrontmatterOptions;
 };
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
@@ -53,6 +62,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 				}
 
+				remarkPlugins.push(remarkFrontmatter);
+				remarkPlugins.push([
+					remarkMdxFrontmatter,
+					{
+						name: 'frontmatter',
+						...mdxOptions.frontmatterOptions,
+					},
+				]);
+
 				updateConfig({
 					vite: {
 						plugins: [
@@ -61,7 +79,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								...mdxPlugin({
 									remarkPlugins,
 									rehypePlugins,
-									// place these after so the user can't override
 									jsx: true,
 									jsxImportSource: 'astro',
 									// Note: disable `.md` support
