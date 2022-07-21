@@ -73,16 +73,16 @@ export async function renderMarkdown(
 	parser.use([
 		[
 			markdownToHtml as any,
-			isMDX ? {
+			{
 				allowDangerousHtml: true,
-				passThrough: [
+				passThrough: isMDX ? [
 					'raw',
 					'mdxFlowExpression',
 					'mdxJsxFlowElement',
 					'mdxJsxTextElement',
 					'mdxTextExpression',
-				],
-			} : {},
+				] : [],
+			},
 		],
 	]);
 
