@@ -1,21 +1,23 @@
 import { renderMarkdown } from '../dist/index.js';
-import chai, { expect } from 'chai';
+import chai from 'chai';
 
 describe('expressions', () => {
+	const renderAstroMd = (text, opts) => renderMarkdown(text, { isAstroFlavoredMd: true, ...opts });
+
 	it('should be able to serialize bare expression', async () => {
-		const { code } = await renderMarkdown(`{a}`, {});
+		const { code } = await renderAstroMd(`{a}`, {});
 
 		chai.expect(code).to.equal(`{a}`);
 	});
 
 	it('should be able to serialize expression inside component', async () => {
-		const { code } = await renderMarkdown(`<Component>{a}</Component>`, {});
+		const { code } = await renderAstroMd(`<Component>{a}</Component>`, {});
 
 		chai.expect(code).to.equal(`<Component>{a}</Component>`);
 	});
 
 	it('should be able to serialize expression inside markdown', async () => {
-		const { code } = await renderMarkdown(`# {frontmatter.title}`, {});
+		const { code } = await renderAstroMd(`# {frontmatter.title}`, {});
 
 		chai
 			.expect(code)
@@ -23,7 +25,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to serialize complex expression inside markdown', async () => {
-		const { code } = await renderMarkdown(`# Hello {frontmatter.name}`, {});
+		const { code } = await renderAstroMd(`# Hello {frontmatter.name}`, {});
 
 		chai
 			.expect(code)
@@ -31,7 +33,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to serialize complex expression with markup inside markdown', async () => {
-		const { code } = await renderMarkdown(`# Hello <span>{frontmatter.name}</span>`, {});
+		const { code } = await renderAstroMd(`# Hello <span>{frontmatter.name}</span>`, {});
 
 		chai
 			.expect(code)
@@ -41,7 +43,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to avoid evaluating JSX-like expressions in an inline code & generate a slug for id', async () => {
-		const { code } = await renderMarkdown(`# \`{frontmatter.title}\``, {});
+		const { code } = await renderAstroMd(`# \`{frontmatter.title}\``, {});
 
 		chai
 			.expect(code)
@@ -49,7 +51,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to avoid evaluating JSX-like expressions in inline codes', async () => {
-		const { code } = await renderMarkdown(`# \`{ foo }\` is a shorthand for \`{ foo: foo }\``, {});
+		const { code } = await renderAstroMd(`# \`{ foo }\` is a shorthand for \`{ foo: foo }\``, {});
 
 		chai
 			.expect(code)
@@ -59,7 +61,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to avoid evaluating JSX-like expressions & escape HTML tag characters in inline codes', async () => {
-		const { code } = await renderMarkdown(
+		const { code } = await renderAstroMd(
 			`###### \`{}\` is equivalent to \`Record<never, never>\` <small>(at TypeScript v{frontmatter.version})</small>`,
 			{}
 		);
@@ -72,7 +74,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to encode ampersand characters in code blocks', async () => {
-		const { code } = await renderMarkdown(
+		const { code } = await renderAstroMd(
 			'The ampersand in `&nbsp;` must be encoded in code blocks.',
 			{}
 		);
@@ -85,7 +87,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to encode ampersand characters in fenced code blocks', async () => {
-		const { code } = await renderMarkdown(`
+		const { code } = await renderAstroMd(`
 		\`\`\`md
 			The ampersand in \`&nbsp;\` must be encoded in code blocks.
 		\`\`\`
@@ -95,7 +97,7 @@ describe('expressions', () => {
 	});
 
 	it('should be able to serialize function expression', async () => {
-		const { code } = await renderMarkdown(
+		const { code } = await renderAstroMd(
 			`{frontmatter.list.map(item => <p id={item}>{item}</p>)}`,
 			{}
 		);
@@ -104,13 +106,13 @@ describe('expressions', () => {
 	});
 
 	it('should unwrap HTML comments in inline code blocks', async () => {
-		const { code } = await renderMarkdown(`\`{/*<!-- HTML comment -->*/}\``);
+		const { code } = await renderAstroMd(`\`{/*<!-- HTML comment -->*/}\``);
 
 		chai.expect(code).to.equal('<p><code is:raw>&lt;!-- HTML comment --&gt;</code></p>');
 	});
 
 	it('should unwrap HTML comments in code fences', async () => {
-		const { code } = await renderMarkdown(
+		const { code } = await renderAstroMd(
 			`
 			  \`\`\`
 				<!-- HTML comment -->
