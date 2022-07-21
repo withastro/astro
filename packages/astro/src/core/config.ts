@@ -50,6 +50,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
+	legacy: {
+		jsxInMarkdown: false,
+	}
 };
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
@@ -216,6 +219,12 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	legacy: z
+		.object({
+			markdownJsx: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.jsxInMarkdown),
+		})
+		.optional()
+		.default({}),
 });
 
 /** Turn raw config values into normalized values */
