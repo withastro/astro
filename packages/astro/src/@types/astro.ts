@@ -716,16 +716,6 @@ export interface AstroUserConfig {
 	buildOptions?: never;
 	/** @deprecated `devOptions` has been renamed to `server` */
 	devOptions?: never;
-
-	legacy?: {
-		/**
-		 * Enable components and JSX expressions in markdown
-		 * Consider our MDX integration before applying this flag!
-		 * @see https://docs.astro.build/en/guides/integrations-guide/mdx/
-		 * Default: false
-		 */
-		jsxInMarkdown?: boolean;
-	};
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
