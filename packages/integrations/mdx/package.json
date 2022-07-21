@@ -32,7 +32,9 @@
   "dependencies": {
     "@mdx-js/rollup": "^2.1.1",
     "es-module-lexer": "^0.10.5",
+    "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
+    "remark-mdx-frontmatter": "^2.0.2",
     "remark-smartypants": "^2.0.0"
   },
   "devDependencies": {

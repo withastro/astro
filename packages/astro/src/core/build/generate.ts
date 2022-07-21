@@ -59,7 +59,7 @@ function shouldSkipDraft(pageModule: ComponentInstance, astroConfig: AstroConfig
 		!astroConfig.markdown.drafts &&
 		// This is a draft post
 		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter.draft === true
+		(pageModule as any).frontmatter?.draft === true
 	);
 }
 
