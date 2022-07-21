@@ -1,5 +1,11 @@
 /// <reference types="vite/types/importMeta" />
 
+// HTML
+declare module "*.html" {
+  const Component: { render(opts: { slots: Record<string, string> }): string };
+  export default content;
+}
+
 // CSS modules
 type CSSModuleClasses = { readonly [key: string]: string };
 
