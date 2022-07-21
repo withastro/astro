@@ -53,7 +53,7 @@ export default function remarkPrism() {
 		let classes = [classLanguage];
 		node.value = `<pre class="${classes.join(
 			' '
-		)}"><code is:raw class="${classLanguage}">${html}</code></pre>`;
+		)}"><code class="${classLanguage}">${html}</code></pre>`;
 		return node;
 	});
 }
