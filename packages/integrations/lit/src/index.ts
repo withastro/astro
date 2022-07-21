@@ -14,11 +14,9 @@ function getViteConfiguration() {
 		},
 		ssr: {
 			external: [
-				'lit-element/lit-element.js',
-				'@lit-labs/ssr/lib/install-global-dom-shim.js',
-				'@lit-labs/ssr/lib/render-lit-html.js',
-				'@lit-labs/ssr/lib/lit-element-renderer.js',
-				'@astrojs/lit/server.js',
+				'lit-element',
+				'@lit-labs/ssr',
+				'@astrojs/lit',
 			],
 		},
 	};
