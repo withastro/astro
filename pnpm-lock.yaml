@@ -1280,6 +1280,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-markdown-md-mode:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-markdown-plugins:
     specifiers:
       '@astrojs/preact': workspace:*
