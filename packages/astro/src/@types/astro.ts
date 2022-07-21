@@ -85,10 +85,10 @@ export interface BuildConfig {
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
-	/** 
+	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
-	 * 
+	 *
 	 * Example:
 	 * ```astro
 	 * ---
@@ -102,9 +102,9 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 */
 	clientAddress: string;
 	/**
-	 * A full URL object of the request URL. 
+	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
-	 * 
+	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
 	 */
 	url: URL;

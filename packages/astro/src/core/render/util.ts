@@ -1,4 +1,3 @@
-import npath from 'path-browserify';
 import type { ModuleNode, ViteDevServer } from 'vite';
 import type { Metadata } from '../../runtime/server/metadata.js';
 

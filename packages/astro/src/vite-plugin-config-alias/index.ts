@@ -1,7 +1,7 @@
-import type { AstroConfig } from '../@types/astro';
 import * as path from 'path';
 import * as tsr from 'tsconfig-resolver';
 import * as url from 'url';
+import type { AstroConfig } from '../@types/astro';
 
 import type * as vite from 'vite';
 
@@ -87,7 +87,11 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 };
 
 /** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
-export default function configAliasVitePlugin({ config: astroConfig }: { config: AstroConfig }): vite.PluginOption {
+export default function configAliasVitePlugin({
+	config: astroConfig,
+}: {
+	config: AstroConfig;
+}): vite.PluginOption {
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
 	const configAlias = getConfigAlias(astroConfig.root && url.fileURLToPath(astroConfig.root));
 

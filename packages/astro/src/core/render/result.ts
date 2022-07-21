@@ -3,7 +3,6 @@ import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
-	Page,
 	Params,
 	Props,
 	RuntimeMode,
@@ -215,12 +214,11 @@ ${extra}`
 			} as unknown as AstroGlobal;
 
 			Object.defineProperty(Astro, 'canonicalURL', {
-				get: function() {
-					warn(args.logging,
+				get: function () {
+					warn(
+						args.logging,
 						'deprecation',
-						`${bold(
-							'Astro.canonicalURL'
-						)} is deprecated! Use \`Astro.url\` instead.
+						`${bold('Astro.canonicalURL')} is deprecated! Use \`Astro.url\` instead.
 Example:
 
 ---
