@@ -91,10 +91,13 @@ export async function renderMarkdown(
 	});
 
 	parser
-		.use(isMDX ? [rehypeJsx, rehypeExpressions] : [rehypeRaw])
-		.use(rehypeEscape)
-		.use(rehypeIslands)
-		.use([rehypeCollectHeaders])
+		.use(isMDX ? [
+			rehypeJsx,
+			rehypeExpressions,
+			rehypeEscape,
+			rehypeIslands,
+			rehypeCollectHeaders,
+		] : [rehypeRaw])
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
 	let result: string;
