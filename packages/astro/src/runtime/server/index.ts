@@ -516,11 +516,11 @@ function createAstroGlobFn() {
 // Inside of getStaticPaths.
 export function createAstro(
 	filePathname: string,
-	_site: string,
+	_site: string | undefined,
 	projectRootStr: string
 ): AstroGlobalPartial {
-	const site = new URL(_site);
-	const url = new URL(filePathname, site);
+	const site = _site ? new URL(_site) : undefined;
+	const referenceURL = new URL(filePathname, `http://localhost`);
 	const projectRoot = new URL(projectRootStr);
 	return {
 		site,
@@ -528,7 +528,7 @@ export function createAstro(
 		glob: createAstroGlobFn(),
 		// INVESTIGATE is there a use-case for multi args?
 		resolve(...segments: string[]) {
-			let resolved = segments.reduce((u, segment) => new URL(segment, u), url).pathname;
+			let resolved = segments.reduce((u, segment) => new URL(segment, u), referenceURL).pathname;
 			// When inside of project root, remove the leading path so you are
 			// left with only `/src/images/tower.png`
 			if (resolved.startsWith(projectRoot.pathname)) {
@@ -541,6 +541,13 @@ export function createAstro(
 
 const toAttributeString = (value: any, shouldEscape = true) =>
 	shouldEscape ? String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') : value;
+
+const kebab = (k: string) =>
+	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+const toStyleString = (obj: Record<string, any>) =>
+	Object.entries(obj)
+		.map(([k, v]) => `${kebab(k)}:${v}`)
+		.join(';');
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 

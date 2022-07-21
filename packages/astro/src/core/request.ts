@@ -38,16 +38,6 @@ export function createRequest({
 	});
 
 	Object.defineProperties(request, {
-		canonicalURL: {
-			get() {
-				warn(
-					logging,
-					'deprecation',
-					`Astro.request.canonicalURL has been moved to Astro.canonicalURL`
-				);
-				return undefined;
-			},
-		},
 		params: {
 			get() {
 				warn(logging, 'deprecation', `Astro.request.params has been moved to Astro.params`);

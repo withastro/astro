@@ -77,9 +77,7 @@ async function compile({
 		// For Windows compat, prepend the module ID with `/@fs`
 		pathname: `/@fs${prependForwardSlash(moduleId)}`,
 		projectRoot: config.root.toString(),
-		site: config.site
-			? new URL(config.base, config.site).toString()
-			: `http://localhost:${config.server.port}/`,
+		site: config.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(

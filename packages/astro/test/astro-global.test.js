@@ -8,7 +8,7 @@ describe('Astro Global', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/astro-global/',
-			site: 'https://mysite.dev/',
+			site: 'https://mysite.dev/blog/',
 			base: '/blog',
 		});
 	});
@@ -48,23 +48,6 @@ describe('Astro Global', () => {
 			expect($('#searchparams').text()).to.equal('{}');
 			expect($('#child-pathname').text()).to.equal('/blog/');
 			expect($('#nested-child-pathname').text()).to.equal('/blog/');
-		});
-
-		it('Astro.canonicalURL', async () => {
-			// given a URL, expect the following canonical URL
-			const canonicalURLs = {
-				'/index.html': 'https://mysite.dev/blog/',
-				'/post/post/index.html': 'https://mysite.dev/blog/post/post/',
-				'/posts/1/index.html': 'https://mysite.dev/blog/posts/',
-				'/posts/2/index.html': 'https://mysite.dev/blog/posts/2/',
-			};
-
-			for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
-				const html = await fixture.readFile(url);
-
-				const $ = cheerio.load(html);
-				expect($('link[rel="canonical"]').attr('href')).to.equal(canonicalURL);
-			}
 		});
 
 		it('Astro.site', async () => {
@@ -134,27 +117,10 @@ describe('Astro Global Defaults', () => {
 			expect($('#nested-child-pathname').text()).to.equal('/');
 		});
 
-		it('Astro.canonicalURL', async () => {
-			// given a URL, expect the following canonical URL
-			const canonicalURLs = {
-				'/index.html': /http:\/\/localhost:\d+\//,
-				'/post/post/index.html': /http:\/\/localhost:\d+\/post\/post\//,
-				'/posts/1/index.html': /http:\/\/localhost:\d+\/posts\//,
-				'/posts/2/index.html': /http:\/\/localhost:\d+\/posts\/2\//,
-			};
-
-			for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
-				const html = await fixture.readFile(url);
-
-				const $ = cheerio.load(html);
-				expect($('link[rel="canonical"]').attr('href')).to.match(canonicalURL);
-			}
-		});
-
 		it('Astro.site', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
-			expect($('#site').attr('href')).to.match(/http:\/\/localhost:\d+\//);
+			expect($('#site').attr('href')).to.equal(undefined);
 		});
 	});
 });

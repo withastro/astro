@@ -32,7 +32,7 @@ export async function getStaticPaths({ paginate, rss }) {
 // page
 const title = "Don’s Blog";
 const description = "An example blog on Astro";
-const { canonicalURL } = Astro;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const { page } = Astro.props;
 ---
 
