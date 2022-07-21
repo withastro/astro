@@ -180,11 +180,16 @@ const $$content = ${JSON.stringify(content)}
 ---`;
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
 ${setup}`.trim();
+
+				// Wrap with set:html fragment to skip
+				// JSX expressions and components in "plain" md mode
+				if (renderOpts.mode === 'md') {
+					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`
+				}
+
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
-					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${
-						renderOpts.mode === 'md' ? `<Fragment set:html={${JSON.stringify(astroResult)}} />` : astroResult
-					}\n\n</Layout>`;
+					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
 				} else {
 					astroResult = `${prelude}\n${astroResult}`;
 				}
