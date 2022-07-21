@@ -213,7 +213,10 @@ async function generatePath(
 		adapterName: undefined,
 		links,
 		logging,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		mod,
 		mode: opts.mode,
 		origin,
