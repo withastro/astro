@@ -31,7 +31,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
+			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 				let remarkPlugins = handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS);
 				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins);
