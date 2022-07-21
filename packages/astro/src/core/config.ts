@@ -51,7 +51,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 	vite: {},
 	legacy: {
-		jsxInMarkdown: false,
+		astroFlavoredMarkdown: false,
 	}
 };
 
@@ -217,7 +217,7 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	legacy: z
 		.object({
-			markdownJsx: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.jsxInMarkdown),
+			astroFlavoredMarkdown: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
 		})
 		.optional()
 		.default({}),
