@@ -41,7 +41,6 @@ if (!content) {
 
 if (content) {
 	htmlContent = await (Astro as any).__renderMarkdown(content, {
-		mode: 'md',
 		$: {
 			scopedClassName: className,
 		},
