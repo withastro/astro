@@ -29,11 +29,13 @@ describe('MDX frontmatter', () => {
 	it('extracts frontmatter to "customFrontmatter" export when configured', async () => {
 		const fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-custom-frontmatter-name/', import.meta.url),
-			integrations: [mdx({
-				frontmatterOptions: {
-					name: 'customFrontmatter',
-				},
-			})],
+			integrations: [
+				mdx({
+					frontmatterOptions: {
+						name: 'customFrontmatter',
+					},
+				}),
+			],
 		});
 		await fixture.build();
 
