@@ -12,7 +12,7 @@ export async function getScriptsForURL(
 	filePath: URL,
 	astroConfig: AstroConfig,
 	viteServer: vite.ViteDevServer
-) {
+): Promise<Set<SSRElement>> {
 	const elements = new Set<SSRElement>();
 	const rootID = viteID(filePath);
 	let rootProjectFolder = slash(fileURLToPath(astroConfig.root));
@@ -30,7 +30,7 @@ export async function getScriptsForURL(
 }
 
 function addHoistedScripts(
-	elements: Set<SSRElement>,
+	set: Set<SSRElement>,
 	info: ModuleInfo | null,
 	rootProjectFolder: string
 ) {
@@ -43,6 +43,6 @@ function addHoistedScripts(
 	for (let i = 0; i < astro.scripts.length; i++) {
 		const scriptId = `${id}?astro&type=script&index=${i}&lang.ts`;
 		const element = createModuleScriptElementWithSrc(scriptId);
-		elements.add(element);
+		set.add(element);
 	}
 }
