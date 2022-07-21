@@ -45,6 +45,14 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
 	const { src, widths } = params;
+	
+	if (!src) {
+		throw new Error('[@astrojs/image] `src` is required');
+	}
+
+	if (!widths || !Array.isArray(widths)) {
+		throw new Error('[@astrojs/image] at least one `width` is required');
+	}
 
 	const aspectRatio = await resolveAspectRatio(params);
 

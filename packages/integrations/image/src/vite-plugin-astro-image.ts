@@ -1,5 +1,4 @@
 import type { AstroConfig } from 'astro';
-import fs from 'fs/promises';
 import type { PluginContext } from 'rollup';
 import slash from 'slash';
 import { pathToFileURL } from 'url';

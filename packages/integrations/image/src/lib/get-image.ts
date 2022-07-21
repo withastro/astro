@@ -104,6 +104,10 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 export async function getImage(
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {
+	if (!transform.src) {
+		throw new Error('[@astrojs/image] `src` is required');
+	}
+
 	let loader = globalThis.astroImage?.loader;
 
 	if (!loader) {
