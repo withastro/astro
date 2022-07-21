@@ -88,6 +88,8 @@ export function createCustomViteLogger(logLevel: LogLevel): Logger {
 function generateHint(err: ErrorWithMetadata, filePath?: URL): string | undefined {
 	if (/Unknown file extension \"\.(jsx|vue|svelte|astro|css)\" for /.test(err.message)) {
 		return 'You likely need to add this package to `vite.ssr.noExternal` in your astro config file.';
+	} else if (err.toString().startsWith('ReferenceError') && (err.loc?.file ?? filePath?.pathname)?.endsWith('.astro')) {
+		return 'export statements in `.astro` files do not have access to local variable declarations, only imported values.';
 	} else {
 		const res = incompatPackageExp.exec(err.stack);
 		if (res) {
@@ -115,7 +117,7 @@ export function collectErrorMetadata(e: any, filePath?: URL): ErrorWithMetadata 
 			err.pluginCode ||
 			err.id ||
 			stackText.split('\n').find((ln) => ln.includes('src') || ln.includes('node_modules'));
-		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1');
+		const source = possibleFilePath?.replace(/^[^(]+\(([^)]+).*$/, '$1').replace(/^\s+at\s+/, '');
 		const [file, line, column] = source?.split(':') ?? [];
 		if (!err.loc && line && column) {
 			err.loc = {
