@@ -46,8 +46,7 @@ export async function renderMarkdown(
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel] : [])
-		.use([remarkUnwrap, remarkEscape]);
+		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : [])
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
