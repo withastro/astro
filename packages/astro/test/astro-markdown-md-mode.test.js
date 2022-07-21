@@ -1,16 +1,13 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture, fixLineEndings } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('Astro Markdown - plain MD mode', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/astro-markdown/',
-			markdown: {
-				mode: 'md',
-			},
+			root: './fixtures/astro-markdown-md-mode/',
 		});
 		await fixture.build();
 	});
@@ -23,9 +20,9 @@ describe('Astro Markdown - plain MD mode', () => {
 	});
 
 	it('Leaves JSX components un-transformed', async () => {
-		const html = await fixture.readFile('/children/index.html');
+		const html = await fixture.readFile('/components/index.html');
 
-		expect(html).to.include('<textblock title="Hello world!" nopadding="">');
+		expect(html).to.include('<counter client:load="" count="{0}">');
 	});
 
 	describe('syntax highlighting', async () => {
@@ -38,7 +35,7 @@ describe('Astro Markdown - plain MD mode', () => {
 
 		it('handles Prism', async () => {
 			fixture = await loadFixture({
-				root: './fixtures/astro-markdown/',
+				root: './fixtures/astro-markdown-md-mode/',
 				markdown: {
 					syntaxHighlight: 'prism',
 					mode: 'md',
