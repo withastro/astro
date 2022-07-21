@@ -45,15 +45,16 @@ function runHighlighter(lang: string, code: string) {
 
 /**  */
 export default function remarkPrism() {
-	return (tree: any) => visit(tree, 'code', (node: any) => {
-		let { lang, value } = node;
-		node.type = 'html';
+	return (tree: any) =>
+		visit(tree, 'code', (node: any) => {
+			let { lang, value } = node;
+			node.type = 'html';
 
-		let { html, classLanguage } = runHighlighter(lang, value);
-		let classes = [classLanguage];
-		node.value = `<pre class="${classes.join(
-			' '
-		)}"><code class="${classLanguage}">${html}</code></pre>`;
-		return node;
-	});
+			let { html, classLanguage } = runHighlighter(lang, value);
+			let classes = [classLanguage];
+			node.value = `<pre class="${classes.join(
+				' '
+			)}"><code class="${classLanguage}">${html}</code></pre>`;
+			return node;
+		});
 }

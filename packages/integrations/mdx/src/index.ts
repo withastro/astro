@@ -1,13 +1,13 @@
-import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
-import type { AstroIntegration } from 'astro';
-import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import { nodeTypes } from '@mdx-js/mdx';
-import rehypeRaw from 'rehype-raw';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
+import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
+import rehypeRaw from 'rehype-raw';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
+import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo } from './utils.js';
@@ -27,10 +27,7 @@ type MdxOptions = {
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
 
-function handleExtends<T>(
-	config: WithExtends<T[] | undefined>,
-	defaults: T[] = [],
-): T[] {
+function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
 
 	return [...defaults, ...(config?.extends ?? [])];
@@ -56,7 +53,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					]);
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 				}
-				
+
 				if (config.markdown.syntaxHighlight === 'prism') {
 					remarkPlugins.push(remarkPrism);
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);

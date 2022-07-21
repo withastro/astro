@@ -17,10 +17,10 @@ describe('MDX syntax highlighting', () => {
 				integrations: [mdx()],
 			});
 			await fixture.build();
-	
+
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-	
+
 			const shikiCodeBlock = document.querySelector('pre.shiki');
 			expect(shikiCodeBlock).to.not.be.null;
 		});
@@ -37,10 +37,10 @@ describe('MDX syntax highlighting', () => {
 				integrations: [mdx()],
 			});
 			await fixture.build();
-	
+
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-	
+
 			const shikiCodeBlock = document.querySelector('pre.shiki.dracula');
 			expect(shikiCodeBlock).to.not.be.null;
 		});
@@ -56,10 +56,10 @@ describe('MDX syntax highlighting', () => {
 				integrations: [mdx()],
 			});
 			await fixture.build();
-	
+
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
-	
+
 			const prismCodeBlock = document.querySelector('pre.language-astro');
 			expect(prismCodeBlock).to.not.be.null;
 		});
