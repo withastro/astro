@@ -1,16 +1,13 @@
-import integration from '@astrojs/html';
-
 import { expect } from 'chai';
-import { parseHTML } from 'linkedom';
-import { loadFixture } from '../../../astro/test/test-utils.js';
+import * as cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-describe('HTML Page', () => {
+describe('HTML Component', () => {
 	let fixture;
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/html-page/', import.meta.url),
-			integrations: [integration()],
+			root: './fixtures/html-component/',
 		});
 	});
 
@@ -21,11 +18,13 @@ describe('HTML Page', () => {
 
 		it('works', async () => {
 			const html = await fixture.readFile('/index.html');
-			const { document } = parseHTML(html);
+			const $ = cheerio.load(html);
 
-			const h1 = document.querySelector('h1');
+			const h1 = $('h1');
+			const foo = $('#foo');
 
-			expect(h1.textContent).to.equal('Hello page!');
+			expect(h1.text()).to.equal('Hello component!');
+			expect(foo.text()).to.equal('bar');
 		});
 	});
 
@@ -46,11 +45,13 @@ describe('HTML Page', () => {
 			expect(res.status).to.equal(200);
 
 			const html = await res.text();
-			const { document } = parseHTML(html);
+			const $ = cheerio.load(html);
 
-			const h1 = document.querySelector('h1');
+			const h1 = $('h1');
+			const foo = $('#foo');
 
-			expect(h1.textContent).to.equal('Hello page!');
+			expect(h1.text()).to.equal('Hello component!');
+			expect(foo.text()).to.equal('bar');
 		});
 	});
 });

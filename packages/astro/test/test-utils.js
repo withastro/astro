@@ -83,11 +83,6 @@ export async function loadFixture(inlineConfig) {
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
 	}
-	if (!config.integrations.find((integration) => integration.name === '@astrojs/html')) {
-		// @ts-ignore types can't be resolved, but it's here!
-		const { default: html } = await import('@astrojs/html');
-		config.integrations.push(html());
-	}
 	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');

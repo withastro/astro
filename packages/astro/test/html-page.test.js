@@ -18,9 +18,11 @@ describe('HTML Page', () => {
 
 		it('works', async () => {
 			const html = await fixture.readFile('/index.html');
-			let $ = cheerio.load(html);
-			expect($('h1')).to.have.a.lengthOf(1, 'renders h1');
-			expect($('h1').text().trim()).to.have.equal('Hello page!');
+			const $ = cheerio.load(html)
+
+			const h1 = $('h1');
+
+			expect(h1.text()).to.equal('Hello page!');
 		});
 	});
 
@@ -41,9 +43,11 @@ describe('HTML Page', () => {
 			expect(res.status).to.equal(200);
 
 			const html = await res.text();
-			let $ = cheerio.load(html);
-			expect($('h1')).to.have.a.lengthOf(1, 'renders h1');
-			expect($('h1').text().trim()).to.have.equal('Hello page!');
+			const $ = cheerio.load(html)
+
+			const h1 = $('h1');
+
+			expect(h1.text()).to.equal('Hello page!');
 		});
 	});
 });

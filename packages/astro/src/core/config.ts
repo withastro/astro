@@ -325,18 +325,13 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: ['.astro', '.md'],
+			pageExtensions: ['.astro', '.md', '.html'],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
 			adapter: undefined,
 		},
 	};
-	if (!result.integrations.find((integration) => integration.name === '@astrojs/html')) {
-		// @ts-ignore types can't be resolved, but it's here!
-		const { default: html } = await import('@astrojs/html');
-		result.integrations.push(html());
-	}
 	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('../jsx/renderer.js');
