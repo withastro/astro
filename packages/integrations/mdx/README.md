@@ -152,7 +152,7 @@ export default {
 }
 ```
 
-Visit [our "Shiki configuration" docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for more on using Shiki with Astro.
+Visit [our Shiki configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for more on using Shiki with Astro.
 
 #### Switch to Prism
 
