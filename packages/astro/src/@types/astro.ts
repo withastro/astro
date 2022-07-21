@@ -90,6 +90,13 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/** 
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
+	 * 
+	 * Example:
+	 * ```astro
+	 * ---
+	 * const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+	 * ---
+	 * ```
 	 */
 	canonicalURL: URL;
 	/** The address (usually IP address) of the user. Used with SSR only.

@@ -216,7 +216,18 @@ ${extra}`
 
 			Object.defineProperty(Astro, 'canonicalURL', {
 				get: function() {
-					console.warn('Astro.canonicalURL is deprecated! Use \`Astro.url\` instead.');
+					warn(args.logging,
+						'deprecation',
+						`${bold(
+							'Astro.canonicalURL'
+						)} is deprecated! Use \`Astro.url\` instead.
+Example:
+
+---
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+`
+					);
 					return new URL(this.request.url.pathname, this.site);
 				},
 			});
