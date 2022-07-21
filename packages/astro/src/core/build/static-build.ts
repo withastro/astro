@@ -24,6 +24,16 @@ import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
+	// Verify this app is buildable.
+	if(opts.astroConfig.mode === 'server' && !opts.astroConfig._ctx.adapter) {
+		throw new Error(`Cannot use mode: 'server' without an adapter. Please install and configure an adapter by setting it on the deploy configuration.
+		
+export default {
+	mode: 'static',
+	adapter: netlify(),
+}`)
+	}
+
 	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
 

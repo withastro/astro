@@ -7,7 +7,6 @@ import {
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
-import { getGenericNodeAdapter } from '../adapter-node/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
@@ -20,10 +19,10 @@ export async function runHookConfigSetup({
 	config: AstroConfig;
 	command: 'dev' | 'build';
 }): Promise<AstroConfig> {
-	// DEPRECATED
-	// if (_config.adapter) {
-	// 	_config.integrations.push(_config.adapter);
-	// }
+	// An adapter is an integration, so if one is provided push it.
+	if (_config.deploy) {
+	 	_config.integrations.push(_config.deploy);
+	}
 
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
@@ -88,10 +87,6 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 			});
 		}
 	}
-    // Call the default adapter
-    if (!config._ctx.adapter && config.mode === 'server') {
-		config._ctx.adapter = getGenericNodeAdapter();
-    }
 }
 
 export async function runHookServerSetup({ 
