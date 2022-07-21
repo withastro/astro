@@ -30,12 +30,19 @@
     "test": "mocha --exit --timeout 20000"
   },
   "dependencies": {
+    "@astrojs/prism": "^0.6.1",
+    "@mdx-js/mdx": "^2.1.2",
     "@mdx-js/rollup": "^2.1.1",
     "es-module-lexer": "^0.10.5",
-    "remark-frontmatter": "^4.0.1",
+    "prismjs": "^1.28.0",
+    "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
-    "remark-mdx-frontmatter": "^2.0.2",
-    "remark-smartypants": "^2.0.0"
+    "remark-shiki-twoslash": "^3.1.0",
+    "remark-smartypants": "^2.0.0",
+    "shiki": "^0.10.1",
+    "unist-util-visit": "^4.1.0",
+    "remark-frontmatter": "^4.0.1",
+    "remark-mdx-frontmatter": "^2.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",

@@ -134,6 +134,42 @@ const posts = await Astro.glob('./*.mdx');
 ))}
 ```
 
+### Syntax highlighting
+
+The MDX integration respects [your project's `markdown.syntaxHighlight` configuration](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting).
+
+We will highlight your code blocks with [Shiki](https://github.com/shikijs/shiki) by default [using Shiki twoslash](https://shikijs.github.io/twoslash/). You can customize [this remark plugin](https://www.npmjs.com/package/remark-shiki-twoslash) using the `markdown.shikiConfig` option in your `astro.config`. For example, you can apply a different built-in theme like so:
+
+```js
+// astro.config.mjs
+export default {
+  markdown: {
+    shikiConfig: {
+      theme: 'dracula',
+    },
+  },
+  integrations: [mdx()],
+}
+```
+
+Visit [our Shiki configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for more on using Shiki with Astro.
+
+#### Switch to Prism
+
+You can also use the [Prism](https://prismjs.com/) syntax highlighter by setting `markdown.syntaxHighlight` to `'prism'` in your `astro.config` like so:
+
+```js
+// astro.config.mjs
+export default {
+  markdown: {
+    syntaxHighlight: 'prism',
+  },
+  integrations: [mdx()],
+}
+```
+
+This applies a minimal Prism renderer with added support for `astro` code blocks. Visit [our "Prism configuration" docs](https://docs.astro.build/en/guides/markdown-content/#prism-configuration) for more on using Prism with Astro.
+
 ## Configuration
 
 <details>
