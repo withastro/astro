@@ -177,11 +177,13 @@ function $$slug(value) {
 	return slugger.slug(value);
 }
 
-const $$content = ${JSON.stringify(isMDX
-	? content
-	// Avoid stripping "setup" and "components"
-	// in plain MD mode
-	: { ...content, setup, components })}
+const $$content = ${JSON.stringify(
+					isMDX
+						? content
+						: // Avoid stripping "setup" and "components"
+						  // in plain MD mode
+						  { ...content, setup, components }
+				)}
 ---`;
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
 ${isMDX ? setup : ''}`.trim();
@@ -189,7 +191,7 @@ ${isMDX ? setup : ''}`.trim();
 				// Wrap with set:html fragment to skip
 				// JSX expressions and components in "plain" md mode
 				if (!isMDX) {
-					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`
+					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`;
 				}
 
 				// If the user imported "Layout", wrap the content in a Layout

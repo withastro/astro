@@ -46,7 +46,7 @@ export async function renderMarkdown(
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : [])
+		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
@@ -75,13 +75,15 @@ export async function renderMarkdown(
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: isMDX ? [
-					'raw',
-					'mdxFlowExpression',
-					'mdxJsxFlowElement',
-					'mdxJsxTextElement',
-					'mdxTextExpression',
-				] : [],
+				passThrough: isMDX
+					? [
+							'raw',
+							'mdxFlowExpression',
+							'mdxJsxFlowElement',
+							'mdxJsxTextElement',
+							'mdxTextExpression',
+					  ]
+					: [],
 			},
 		],
 	]);
@@ -91,13 +93,11 @@ export async function renderMarkdown(
 	});
 
 	parser
-		.use(isMDX ? [
-			rehypeJsx,
-			rehypeExpressions,
-			rehypeEscape,
-			rehypeIslands,
-			rehypeCollectHeaders,
-		] : [rehypeCollectHeaders, rehypeRaw])
+		.use(
+			isMDX
+				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeaders]
+				: [rehypeCollectHeaders, rehypeRaw]
+		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
 	let result: string;
