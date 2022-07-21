@@ -30,7 +30,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -40,7 +40,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Inline imports', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -62,7 +62,7 @@ describe('SSG images', function () {
 			// on the static `src` string
 			const HASH = 'Z1iI4xW';
 
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#google');
 
 				expect(image.attr('src')).to.equal(
@@ -97,7 +97,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
 				const src = image.attr('src');
@@ -127,7 +127,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images with inline imports', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
 				const src = image.attr('src');
@@ -157,7 +157,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Remote images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#google');
 
 				const src = image.attr('src');

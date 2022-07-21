@@ -2,23 +2,25 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { OUTPUT_DIR } from '../constants.js';
-import { SSRImageService, TransformOptions } from '../types.js';
-import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { ensureDir } from '../utils/paths.js';
+import { isRemoteImage, loadRemoteImage, loadLocalImage } from '../utils/images.js';
+import type { SSRImageService, TransformOptions } from '../types.js';
 
-export interface GenerateImagesProps {
+export interface SSGBuildParams {
 	loader: SSRImageService;
 	staticImages: Map<string, TransformOptions>;
 	srcDir: URL;
 	outDir: URL;
 }
 
-export async function generateImages({
+export async function ssgBuild({
 	loader,
 	staticImages,
 	srcDir,
 	outDir,
-}: GenerateImagesProps) {
+}: SSGBuildParams) {
+	const inputFiles = new Set<string>();
+
 	// group transforms by unique original sources, allowing the Buffer to be reused for each transform
 	const groups = Array.from(staticImages.entries()).reduce((acc, [filename, transform]) => {
 		const srcGroup = acc.get(transform.src) || new Map<string, TransformOptions>();
@@ -40,6 +42,9 @@ export async function generateImages({
 			const inputFileURL = new URL(`.${src}`, srcDir);
 			inputFile = fileURLToPath(inputFileURL);
 			inputBuffer = await loadLocalImage(inputFile);
+
+			// track the local file used so the original can be copied over
+			inputFiles.add(inputFile);
 		}
 
 		if (!inputBuffer) {
@@ -50,37 +55,34 @@ export async function generateImages({
 
 		const transforms = Array.from(transformsMap.entries());
 
-		// process file transforms in parallel
-		await Promise.all(
-			transforms.map(([filename, transform]) => {
-				let outputFile: string;
+		// process each transformed versiono of the
+		for await (const [filename, transform] of transforms) {
+			let outputFile: string;
 
-				if (isRemoteImage(src)) {
-					const outputFileURL = new URL(
-						path.join('./', OUTPUT_DIR, path.basename(filename)),
-						outDir
-					);
-					outputFile = fileURLToPath(outputFileURL);
-				} else {
-					const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), outDir);
-					outputFile = fileURLToPath(outputFileURL);
-				}
+			if (isRemoteImage(src)) {
+				const outputFileURL = new URL(
+					path.join('./', OUTPUT_DIR, path.basename(filename)),
+					outDir
+				);
+				outputFile = fileURLToPath(outputFileURL);
+			} else {
+				const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), outDir);
+				outputFile = fileURLToPath(outputFileURL);
+			}
 
-				return loader.transform(inputBuffer!, transform).then(({ data }) => {
-					ensureDir(path.dirname(outputFile));
-					return fs.writeFile(outputFile, data);
-				});
-			})
-		);
+			const { data } = await loader.transform(inputBuffer, transform);
 
-		if (inputFile) {
-			// for local files, copy the original to dist
-			const from = inputFile;
-			const to = inputFile.replace(fileURLToPath(srcDir), fileURLToPath(outDir));
+			ensureDir(path.dirname(outputFile));
 
-			ensureDir(path.dirname(to));
-	
-			await fs.copyFile(from, to);
+			await fs.writeFile(outputFile, data);
 		}
+	}
+
+	// copy all original local images to dist
+	for await (const original of inputFiles) {
+		const to = original.replace(fileURLToPath(srcDir), fileURLToPath(outDir));
+
+		await ensureDir(path.dirname(to));
+		await fs.copyFile(original, to);
 	}
 }
