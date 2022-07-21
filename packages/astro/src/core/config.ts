@@ -175,9 +175,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-			// TODO: This should probably be updated to something more like "md" | "astro"
-			mode: z.enum(['md', 'mdx']).default('mdx'),
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])

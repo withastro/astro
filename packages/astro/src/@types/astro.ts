@@ -529,27 +529,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `mdx`
-		 * @description
-		 * Control whether Markdown processing is done using MDX or not.
-		 *
-		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" Markdown processor. This field allows you to control that behavior.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Use non-MDX processor for Markdown files
-		 *     mode: 'md',
-		 *   }
-		 * }
-		 * ```
-		 */
-		mode?: 'md' | 'mdx';
-
-		/**
-		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
