@@ -4,7 +4,7 @@ export async function getStaticPaths({paginate}) {
   return paginate(data, {pageSize: 1});
 }
 const { page } = Astro.props;
-const { params, canonicalURL } = Astro;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `http://example.com`);
 ---
 
 <html>
@@ -13,7 +13,7 @@ const { params, canonicalURL } = Astro;
     <link rel="canonical" href={canonicalURL.href} />
   </head>
   <body>
-    {page.data.map((data) => (
+    {page.data.map((data: any) => (
       <div>
         <h1>{data.frontmatter.title}</h1>
         <a class="post-url" href={data.url}>Read</a>

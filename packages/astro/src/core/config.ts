@@ -114,11 +114,7 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.url()
 		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val))
-		.refine((val) => !val || new URL(val).pathname.length <= 1, {
-			message:
-				'"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
-		}),
+		.transform((val) => (val ? appendForwardSlash(val) : val)),
 	base: z
 		.string()
 		.optional()

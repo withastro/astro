@@ -14,7 +14,7 @@ import type {
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
+import { isCSSRequest } from './util.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -109,16 +109,10 @@ class Slots {
 
 let renderMarkdown: any = null;
 
-function isPaginatedRoute({ page }: { page?: Page }) {
-	return page && 'currentPage' in page;
-}
-
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
 
-	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
-	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const headers = new Headers();
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
@@ -155,7 +149,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 			const Astro = {
 				__proto__: astroGlobal,
-				canonicalURL,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
@@ -174,6 +167,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				params,
 				props,
 				request,
+				url,
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
@@ -219,6 +213,24 @@ ${extra}`
 				response,
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
+
+			Object.defineProperty(Astro, 'canonicalURL', {
+				get: function() {
+					warn(args.logging,
+						'deprecation',
+						`${bold(
+							'Astro.canonicalURL'
+						)} is deprecated! Use \`Astro.url\` instead.
+Example:
+
+---
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+`
+					);
+					return new URL(this.request.url.pathname, this.site);
+				},
+			});
 
 			Object.defineProperty(Astro, '__renderMarkdown', {
 				// Ensure this API is not exposed to users

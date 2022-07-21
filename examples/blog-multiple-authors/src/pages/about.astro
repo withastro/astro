@@ -4,7 +4,7 @@ import Nav from "../components/Nav.astro";
 
 let title = "About";
 let description = "About page of an example blog on Astro";
-let canonicalURL = Astro.canonicalURL;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="en">

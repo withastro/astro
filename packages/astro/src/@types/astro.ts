@@ -85,15 +85,29 @@ export interface BuildConfig {
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
-	/** Canonical URL of the current page. If the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option is set, its origin will be the origin of this URL.
-	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
+	/** 
+	 * Canonical URL of the current page.
+	 * @deprecated Use `Astro.url` instead.
+	 * 
+	 * Example:
+	 * ```astro
+	 * ---
+	 * const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+	 * ---
+	 * ```
 	 */
 	canonicalURL: URL;
 	/** The address (usually IP address) of the user. Used with SSR only.
 	 *
 	 */
 	clientAddress: string;
+	/**
+	 * A full URL object of the request URL. 
+	 * Equivalent to: `new URL(Astro.request.url)`
+	 * 
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
+	 */
+	url: URL;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
@@ -224,11 +238,9 @@ export interface AstroGlobalPartial {
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
 	 *
-	 * If `site` is undefined, the URL object will instead be built from `localhost`
-	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
-	site: URL;
+	site: URL | undefined;
 }
 
 type ServerConfig = {
