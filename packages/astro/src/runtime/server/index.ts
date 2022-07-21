@@ -542,8 +542,12 @@ export function createAstro(
 const toAttributeString = (value: any, shouldEscape = true) =>
 	shouldEscape ? String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') : value;
 
-const kebab = (k: string) => k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
-const toStyleString = (obj: Record<string, any>) => Object.entries(obj).map(([k, v]) => `${kebab(k)}:${v}`).join(';')
+const kebab = (k: string) =>
+	k.toLowerCase() === k ? k : k.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+const toStyleString = (obj: Record<string, any>) =>
+	Object.entries(obj)
+		.map(([k, v]) => `${kebab(k)}:${v}`)
+		.join(';');
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
