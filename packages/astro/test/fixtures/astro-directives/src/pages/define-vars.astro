@@ -7,15 +7,25 @@ let fg = 'black'
 
 <html>
   <head>
-    <style define:vars={{bg, fg}}>
-      body {
+		<style define:vars={{bg}}>
+      h1 {
         background: var(--bg);
+      }
+    </style>
+    <style define:vars={{fg}}>
+      h1 {
         color: var(--fg);
       }
     </style>
   </head>
   <body>
     <script id="inline" define:vars={{ foo }}>
+			console.log(foo);
+		</script>
+    <script id="inline-2" define:vars={{ foo }}>
+			console.log(foo);
+		</script>
+		<script id="inline-3" define:vars={{ 'dash-case': foo }}>
 			console.log(foo);
 		</script>
 
