@@ -3,15 +3,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import glob from 'tiny-glob';
 import { fileURLToPath } from 'url';
-import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
-import { filenameFormat, propsToFilename } from './utils/paths.js';
+import { generateImages } from './build/generate.js';
+import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
+import { ensureDir, filenameFormat, propsToFilename } from './utils/paths.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
-import {
-	ensureDir,
-	isRemoteImage,
-	loadLocalImage,
-	loadRemoteImage,
-} from './utils/images.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
@@ -34,7 +29,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
-			}
+			},
 		};
 	}
 
@@ -57,8 +52,8 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					});
 				}
 			},
-			'astro:server:setup': async() => {
-				globalThis.astroImage = { };
+			'astro:server:setup': async () => {
+				globalThis.astroImage = {};
 			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
@@ -68,72 +63,34 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 
 				// Helpers for building static images should only be available for SSG
-				globalThis.astroImage = mode === 'ssg' ? {
-					addStaticImage,
-					filenameFormat
-				} : { };
+				globalThis.astroImage =
+					mode === 'ssg'
+						? {
+								addStaticImage,
+								filenameFormat,
+						  }
+						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
 				// Copy original assets to the output directory. In SSR, include all matching files in src
-				const assets = new Set<{from: string, to: string}>();
+				const assets = new Set<{ from: string; to: string }>();
 				if (mode === 'ssr') {
 					const srcPath = fileURLToPath(_config.srcDir);
-					const matches = await glob(`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`, { absolute: true });
+					const matches = await glob(
+						`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`,
+						{ absolute: true }
+					);
 					for (const match of matches) {
 						assets.add({
 							from: match,
-							to: match.replace(fileURLToPath(_config.srcDir), fileURLToPath(dir))
+							to: match.replace(fileURLToPath(_config.srcDir), fileURLToPath(dir)),
 						});
 					}
 				}
 
-				for await (const [filename, transform] of staticImages) {
-					const loader = globalThis?.astroImage?.loader;
-			
-					if (!loader || !('transform' in loader)) {
-						// this should never be hit, how was a staticImage added without an SSR service?
-						return;
-					}
-			
-					let inputBuffer: Buffer | undefined = undefined;
-					let outputFile: string;
-			
-					if (isRemoteImage(transform.src)) {
-						// try to load the remote image
-						inputBuffer = await loadRemoteImage(transform.src);
-			
-						// filename is already hashed, output it to the integration's main output directory
-						const outputFileURL = new URL(
-							path.join('./', OUTPUT_DIR, path.basename(filename)),
-							dir
-						);
-						outputFile = fileURLToPath(outputFileURL);
-					} else {
-						// read the file by absolute path
-						const inputFileURL = new URL(`.${transform.src}`, _config.srcDir);
-						const inputFile = fileURLToPath(inputFileURL);
-						inputBuffer = await loadLocalImage(inputFile);
-			
-						// keep the src-relative directory structure
-						const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), dir);
-						outputFile = fileURLToPath(outputFileURL);
-			
-						// include the original asset in dist
-						assets.add({
-							from: inputFile,
-							to: inputFile.replace(fileURLToPath(_config.srcDir), fileURLToPath(dir))
-						});
-					}
-			
-					if (!inputBuffer) {
-						// eslint-disable-next-line no-console
-						console.warn(`"${transform.src}" image could not be fetched`);
-						continue;
-					}
-			
-					const { data } = await loader.transform(inputBuffer, transform);
-					ensureDir(path.dirname(outputFile));
-					await fs.writeFile(outputFile, data);
+				const loader = globalThis?.astroImage?.loader;
+				if (loader && 'transform' in loader && staticImages.size > 0) {
+					await generateImages({ loader, staticImages, srcDir: _config.srcDir, outDir: dir });
 				}
 
 				// copy all static image assets to dist
@@ -144,4 +101,4 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 		},
 	};
-};
+}

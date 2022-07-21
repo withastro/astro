@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import type { OutputFormat, TransformOptions } from '../types.js';
 
 export function isOutputFormat(value: string): value is OutputFormat {
@@ -9,17 +9,13 @@ export function isAspectRatioString(value: string): value is `${number}:${number
 	return /^\d*:\d*$/.test(value);
 }
 
-export function ensureDir(dir: string) {
-	fs.mkdirSync(dir, { recursive: true });
-}
-
 export function isRemoteImage(src: string) {
 	return /^http(s?):\/\//.test(src);
 }
 
 export async function loadLocalImage(src: string) {
 	try {
-		return await fs.promises.readFile(src);
+		return await fs.readFile(src);
 	} catch {
 		return undefined;
 	}

@@ -1,8 +1,13 @@
+import fs from 'fs';
 import path from 'path';
 import { OUTPUT_DIR } from '../constants.js';
 import { isRemoteImage } from './images.js';
 import { shorthash } from './shorthash.js';
 import type { TransformOptions } from '../types.js';
+
+export function ensureDir(dir: string) {
+	fs.mkdirSync(dir, { recursive: true });
+}
 
 export function propsToFilename({ src, width, height, format }: TransformOptions) {
 	const ext = path.extname(src);
