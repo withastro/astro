@@ -97,7 +97,7 @@ export async function renderMarkdown(
 			rehypeEscape,
 			rehypeIslands,
 			rehypeCollectHeaders,
-		] : [rehypeRaw])
+		] : [rehypeCollectHeaders, rehypeRaw])
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
 	let result: string;
