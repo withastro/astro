@@ -569,7 +569,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// support object styles for better JSX compat
-	if (key === 'style' && typeof value === 'object') {
+	if (key === 'style' && !(value instanceof HTMLString) && typeof value === 'object') {
 		return markHTMLString(` ${key}="${toStyleString(value)}"`);
 	}
 
@@ -619,9 +619,10 @@ export function spreadAttributes(
 }
 
 // Adds CSS variables to an inline style tag
-export function defineStyleVars(defs: Record<any, any>[]) {
+export function defineStyleVars(defs: Record<any, any>|Record<any, any>[]) {
 	let output = '';
-	for (const vars of defs) {
+	let arr = !Array.isArray(defs) ? [defs] : defs;
+	for (const vars of arr) {
 		for (const [key, value] of Object.entries(vars)) {
 			if (value || value === 0) {
 				output += `--${key}: ${value};`;
@@ -631,11 +632,18 @@ export function defineStyleVars(defs: Record<any, any>[]) {
 	return markHTMLString(output);
 }
 
+// converts (most) arbitrary strings to valid JS identifiers
+const toIdent = (k: string) =>
+  k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
+    if (/[^\w]|\s/.test(match)) return '';
+    return index === 0 ? match : match.toUpperCase();
+  });
+
 // Adds variables to an inline script.
 export async function defineScriptVars(vars: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
-		output += `let ${key} = ${JSON.stringify(value)};\n`;
+		output += `let ${toIdent(key)} = ${JSON.stringify(value)};\n`;
 	}
 	return markHTMLString(output);
 }
