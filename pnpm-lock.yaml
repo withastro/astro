@@ -1070,6 +1070,14 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
+  packages/astro/test/fixtures/alias-tsconfig:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      astro: link:../../..
+
   packages/astro/test/fixtures/api-routes:
     specifiers:
       astro: workspace:*
