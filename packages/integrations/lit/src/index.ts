@@ -13,11 +13,7 @@ function getViteConfiguration() {
 			exclude: ['@astrojs/lit/server.js'],
 		},
 		ssr: {
-			external: [
-				'lit-element',
-				'@lit-labs/ssr',
-				'@astrojs/lit',
-			],
+			external: ['lit-element', '@lit-labs/ssr', '@astrojs/lit'],
 		},
 	};
 }
