@@ -1,9 +1,11 @@
+import remarkShikiTwoslash from 'remark-shiki-twoslash';
+import { nodeTypes } from '@mdx-js/mdx';
+import rehypeRaw from 'rehype-raw';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
-import rehypePrettyCode from 'rehype-pretty-code';
 import rehypePrism from '@mapbox/rehype-prism';
 import { getFileInfo } from './utils.js';
 
@@ -35,7 +37,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins);
 
 				if (config.markdown.syntaxHighlight === 'shiki') {
-					rehypePlugins.push(rehypePrettyCode);
+					remarkPlugins.push([
+						// Default export still requires ".default" chaining for some reason
+						// Workarounds tried:
+						// - "import * as remarkShikiTwoslash"
+						// - "import { default as remarkShikiTwoslash }"
+						(remarkShikiTwoslash as any).default,
+						config.markdown.shikiConfig,
+					]);
+					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 				}
 
 				if (config.markdown.syntaxHighlight === 'prism') {
