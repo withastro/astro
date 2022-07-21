@@ -16,6 +16,14 @@ Published on: {new Intl.DateTimeFormat('en', {dateStyle: 'long'}).format(publish
 
 <Counter client:idle>This is a **counter**!</Counter>
 
-```js
-export const code = true
+## Syntax highlighting
+
+We also support syntax highlighting in MDX out-of-the-box! This example uses our default [Shiki theme](https://github.com/shikijs/shiki). See full configuration options in [our markdown documentation](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting).
+
+```astro
+---
+const weSupportAstro = true
+---
+
+<h1>Love seeing this theme out of the box!</h1>
 ```
