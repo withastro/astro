@@ -114,38 +114,14 @@ async function handle404Response(
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ) {
-	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRoot = site ? site.pathname : '/';
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
-	let html = '';
-	if (pathname === '/' && !pathname.startsWith(devRoot)) {
-		html = subpathNotUsedTemplate(devRoot, pathname);
-	} else {
-		// HACK: redirect without the base path for assets in publicDir
-		const redirectTo =
-			req.method === 'GET' &&
-			config.base !== '/' &&
-			pathname.startsWith(config.base) &&
-			pathname.replace(config.base, '/');
 
-		if (redirectTo && redirectTo !== '/') {
-			const response = new Response(null, {
-				status: 302,
-				headers: {
-					Location: redirectTo,
-				},
-			});
-			await writeWebResponse(res, response);
-			return;
-		}
-
-		html = notFoundTemplate({
-			statusCode: 404,
-			title: 'Not found',
-			tabTitle: '404: Not Found',
-			pathname,
-		});
-	}
+	const html = notFoundTemplate({
+		statusCode: 404,
+		title: 'Not found',
+		tabTitle: '404: Not Found',
+		pathname,
+	});
 	writeHtmlResponse(res, 404, html);
 }
 
@@ -179,6 +155,44 @@ function log404(logging: LogOptions, pathname: string) {
 	info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
 }
 
+export function baseMiddleware(
+	config: AstroConfig,
+	logging: LogOptions
+): vite.Connect.NextHandleFunction {
+	const site = config.site ? new URL(config.base, config.site) : undefined;
+	const devRoot = site ? site.pathname : '/';
+
+	return function devBaseMiddleware(req, res, next) {
+		const url = req.url!;
+
+		const pathname = decodeURI(new URL(url, 'http://vitejs.dev').pathname);
+
+		if (pathname.startsWith(devRoot)) {
+			req.url = url.replace(devRoot, '/');
+			return next();
+		}
+
+		if (pathname === '/' || pathname === '/index.html') {
+			log404(logging, pathname);
+			const html = subpathNotUsedTemplate(devRoot, pathname);
+			return writeHtmlResponse(res, 404, html);
+		}
+
+		if (req.headers.accept?.includes('text/html')) {
+			log404(logging, pathname);
+			const html = notFoundTemplate({
+				statusCode: 404,
+				title: 'Not found',
+				tabTitle: '404: Not Found',
+				pathname,
+			});
+			return writeHtmlResponse(res, 404, html);
+		}
+
+		next();
+	};
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -190,8 +204,6 @@ async function handleRequest(
 	res: http.ServerResponse
 ) {
 	const reqStart = performance.now();
-	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = isBuildingToSSR(config);
 	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
@@ -199,10 +211,12 @@ async function handleRequest(
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
-	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
+
+	// Add config.base back to url before passing it to SSR
+	url.pathname = config.base.substring(0, config.base.length - 1) + url.pathname;
 
 	// HACK! @astrojs/image uses query params for the injected route in `dev`
-	if (!buildingToSSR && rootRelativeUrl !== '/_image') {
+	if (!buildingToSSR && pathname !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.
@@ -236,13 +250,9 @@ async function handleRequest(
 
 	let filePath: URL | undefined;
 	try {
-		if (!pathname.startsWith(devRoot)) {
-			log404(logging, pathname);
-			return handle404Response(origin, config, req, res);
-		}
 		// Attempt to match the URL to a valid page route.
 		// If that fails, switch the response to a 404 response.
-		let route = matchRoute(rootRelativeUrl, manifest);
+		let route = matchRoute(pathname, manifest);
 		const statusCode = route ? 200 : 404;
 
 		if (!route) {
@@ -264,7 +274,7 @@ async function handleRequest(
 			mod,
 			route,
 			routeCache,
-			pathname: rootRelativeUrl,
+			pathname: pathname,
 			logging,
 			ssr: isBuildingToSSR(config),
 		});
@@ -289,7 +299,7 @@ async function handleRequest(
 					logging,
 					mode: 'development',
 					origin,
-					pathname: rootRelativeUrl,
+					pathname: pathname,
 					request,
 					route: routeCustom404,
 					routeCache,
@@ -307,7 +317,7 @@ async function handleRequest(
 			logging,
 			mode: 'development',
 			origin,
-			pathname: rootRelativeUrl,
+			pathname: pathname,
 			route,
 			routeCache,
 			viteServer,
@@ -390,6 +400,12 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 					route: '',
 					handle: forceTextCSSForStylesMiddleware,
 				});
+				if (config.base !== '/') {
+					viteServer.middlewares.stack.unshift({
+						route: '',
+						handle: baseMiddleware(config, logging),
+					});
+				}
 				viteServer.middlewares.use(async (req, res) => {
 					if (!req.url || !req.method) {
 						throw new Error('Incomplete request');

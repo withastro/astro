@@ -1618,6 +1618,12 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
+  packages/astro/test/fixtures/public-base-404:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/react-component:
     specifiers:
       '@astrojs/react': workspace:*
