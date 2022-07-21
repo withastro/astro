@@ -161,7 +161,7 @@ export async function render(
 	});
 
 	let response = await coreRender({
-		adapterName: astroConfig.adapter?.name,
+		adapterName: astroConfig.deploy?.name,
 		links,
 		styles,
 		logging,

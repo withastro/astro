@@ -1,6 +1,4 @@
-import { createRequire } from 'node:module';
 import type { AstroUserConfig } from '../@types/astro';
-const require = createRequire(import.meta.url);
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
@@ -84,7 +82,7 @@ export function eventCliSession(
 						typeof p === 'string' ? p : typeof p
 					) ?? []),
 				] as string[],
-				adapter: userConfig?.adapter?.name ?? null,
+				adapter: userConfig?.deploy?.name ?? null,
 				integrations: (userConfig?.integrations ?? []).filter(Boolean).map((i: any) => i?.name),
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build
