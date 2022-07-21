@@ -182,7 +182,9 @@ const $$content = ${JSON.stringify(content)}
 ${setup}`.trim();
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
-					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
+					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${
+						renderOpts.mode === 'md' ? `<Fragment set:html={${JSON.stringify(astroResult)}} />` : astroResult
+					}\n\n</Layout>`;
 				} else {
 					astroResult = `${prelude}\n${astroResult}`;
 				}
