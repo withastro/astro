@@ -274,6 +274,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 
+				// Prefer live reload to HMR in `.astro` files
+				if (!resolvedConfig.isProduction) {
+					SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
+				}
+
 				const astroMetadata: AstroPluginMetadata['astro'] = {
 					clientOnlyComponents: transformResult.clientOnlyComponents,
 					hydratedComponents: transformResult.hydratedComponents,
