@@ -1,20 +1,20 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import fs from 'fs/promises';
 import path from 'path';
+import glob from 'tiny-glob';
 import { fileURLToPath } from 'url';
 import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
-import sharp from './loaders/sharp.js';
+import { filenameFormat, propsToFilename } from './utils/paths.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
 import {
 	ensureDir,
 	isRemoteImage,
 	loadLocalImage,
 	loadRemoteImage,
-	propsToFilename,
-} from './utils.js';
+} from './utils/images.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
-export * from './get-image.js';
-export * from './get-picture.js';
+export * from './lib/get-image.js';
+export * from './lib/get-picture.js';
 
 const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
 	const resolvedOptions = {
@@ -26,6 +26,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 	const staticImages = new Map<string, TransformOptions>();
 
 	let _config: AstroConfig;
+	let mode: 'ssr' | 'ssg';
 
 	function getViteConfiguration() {
 		return {
@@ -35,7 +36,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
-			},
+			}
 		};
 	}
 
@@ -46,40 +47,9 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				_config = config;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
-				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
+				mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
 
 				updateConfig({ vite: getViteConfiguration() });
-
-				// Used to cache all images rendered to HTML
-				// Added to globalThis to share the same map in Node and Vite
-				function addStaticImage(transform: TransformOptions) {
-					staticImages.set(propsToFilename(transform), transform);
-				}
-
-				// TODO: Add support for custom, user-provided filename format functions
-				function filenameFormat(transform: TransformOptions, searchParams: URLSearchParams) {
-					if (mode === 'ssg') {
-						return isRemoteImage(transform.src)
-							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
-							: path.join(
-									OUTPUT_DIR,
-									path.dirname(transform.src),
-									path.basename(propsToFilename(transform))
-							  );
-					} else {
-						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
-					}
-				}
-
-				// Initialize the integration's globalThis namespace
-				// This is needed to share scope between Node and Vite
-				globalThis.astroImage = {
-					loader: undefined, // initialized in first getImage() call
-					ssrLoader: sharp,
-					command,
-					addStaticImage,
-					filenameFormat,
-				};
 
 				if (mode === 'ssr') {
 					injectRoute({
@@ -89,9 +59,38 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					});
 				}
 			},
+			'astro:server:setup': async() => {
+				globalThis.astroImage = { };
+			},
+			'astro:build:setup': () => {
+				// Used to cache all images rendered to HTML
+				// Added to globalThis to share the same map in Node and Vite
+				function addStaticImage(transform: TransformOptions) {
+					staticImages.set(propsToFilename(transform), transform);
+				}
+
+				// Helpers for building static images should only be available for SSG
+				globalThis.astroImage = mode === 'ssg' ? {
+					addStaticImage,
+					filenameFormat
+				} : { };
+			},
 			'astro:build:done': async ({ dir }) => {
+				// Copy original assets to the output directory. In SSR, include all matching files in src
+				const assets = new Set<{from: string, to: string}>();
+				if (mode === 'ssr') {
+					const srcPath = fileURLToPath(_config.srcDir);
+					const matches = await glob(`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`, { absolute: true });
+					for (const match of matches) {
+						assets.add({
+							from: match,
+							to: match.replace(fileURLToPath(_config.srcDir), fileURLToPath(dir))
+						});
+					}
+				}
+
 				for await (const [filename, transform] of staticImages) {
-					const loader = globalThis.astroImage.loader;
+					const loader = globalThis?.astroImage?.loader;
 
 					if (!loader || !('transform' in loader)) {
 						// this should never be hit, how was a staticImage added without an SSR service?
@@ -105,18 +104,27 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 						// try to load the remote image
 						inputBuffer = await loadRemoteImage(transform.src);
 
+						// filename is already hashed, output it to the integration's main output directory
 						const outputFileURL = new URL(
 							path.join('./', OUTPUT_DIR, path.basename(filename)),
 							dir
 						);
 						outputFile = fileURLToPath(outputFileURL);
 					} else {
+						// read the file by absolute path
 						const inputFileURL = new URL(`.${transform.src}`, _config.srcDir);
 						const inputFile = fileURLToPath(inputFileURL);
 						inputBuffer = await loadLocalImage(inputFile);
 
+						// keep the src-relative directory structure
 						const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), dir);
 						outputFile = fileURLToPath(outputFileURL);
+
+						// include the original asset in dist
+						assets.add({
+							from: inputFile,
+							to: inputFile.replace(fileURLToPath(_config.srcDir), fileURLToPath(dir))
+						});
 					}
 
 					if (!inputBuffer) {
@@ -128,6 +136,12 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					const { data } = await loader.transform(inputBuffer, transform);
 					ensureDir(path.dirname(outputFile));
 					await fs.writeFile(outputFile, data);
+				}
+
+				// copy all static image assets to dist
+				for await (const { from, to } of assets) {
+					await ensureDir(path.dirname(to));
+					await fs.copyFile(from, to);
 				}
 			},
 		},

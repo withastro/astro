@@ -1,7 +1,5 @@
 import fs from 'fs';
-import path from 'path';
-import { shorthash } from './shorthash.js';
-import type { OutputFormat, TransformOptions } from './types';
+import type { OutputFormat, TransformOptions } from '../types.js';
 
 export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
@@ -43,26 +41,6 @@ export async function loadRemoteImage(src: string) {
 
 export async function loadImage(src: string) {
 	return isRemoteImage(src) ? await loadRemoteImage(src) : await loadLocalImage(src);
-}
-
-export function propsToFilename({ src, width, height, format }: TransformOptions) {
-	const ext = path.extname(src);
-	let filename = src.replace(ext, '');
-
-	// for remote images, add a hash of the full URL to dedupe images with the same filename
-	if (isRemoteImage(src)) {
-		filename += `-${shorthash(src)}`;
-	}
-
-	if (width && height) {
-		return `${filename}_${width}x${height}.${format}`;
-	} else if (width) {
-		return `${filename}_${width}w.${format}`;
-	} else if (height) {
-		return `${filename}_${height}h.${format}`;
-	}
-
-	return format ? src.replace(ext, format) : src;
 }
 
 export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {

@@ -54,6 +54,7 @@
     "@types/etag": "^1.8.1",
     "@types/sharp": "^0.30.4",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "tiny-glob": "^0.2.9"
   }
 }

@@ -3,7 +3,7 @@ import etag from 'etag';
 import { lookup } from 'mrmime';
 // @ts-ignore
 import loader from 'virtual:image-loader';
-import { isRemoteImage, loadRemoteImage } from '../utils.js';
+import { isRemoteImage, loadRemoteImage } from '../utils/images.js';
 
 export const get: APIRoute = async ({ request }) => {
 	try {
