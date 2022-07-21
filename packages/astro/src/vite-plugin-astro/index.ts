@@ -363,6 +363,6 @@ ${source}
 }
 
 function appendSourceMap(content: string, map?: string) {
-	// if (!map) return content;
+	if (!map) return content;
 	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(map).toString('base64')}`
 }
