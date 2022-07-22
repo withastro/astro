@@ -9,10 +9,8 @@ describe('API routes', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/api-route/',
-			experimental: {
-				ssr: true,
-			},
-			adapter: nodejs(),
+			output: 'server',
+			deploy: nodejs(),
 		});
 		await fixture.build();
 	});
