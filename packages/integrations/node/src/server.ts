@@ -12,21 +12,28 @@ export function createExports(manifest: SSRManifest) {
 	const app = new NodeApp(manifest);
 	return {
 		async handler(req: IncomingMessage, res: ServerResponse, next?: (err?: unknown) => void) {
-			const route = app.match(req);
+			try {
+				const route = app.match(req);
 
-			if (route) {
-				try {
-					const response = await app.render(req);
-					await writeWebResponse(res, response);
-				} catch (err: unknown) {
-					if (next) {
-						next(err);
-					} else {
-						throw err;
+				if (route) {
+					try {
+						const response = await app.render(req);
+						await writeWebResponse(res, response);
+					} catch (err: unknown) {
+						if (next) {
+							next(err);
+						} else {
+							throw err;
+						}
 					}
+				} else if (next) {
+					return next();
 				}
-			} else if (next) {
-				return next();
+			} catch(err: unknown) {
+				if(!res.headersSent) {
+					res.writeHead(500, `Server error`);
+					res.end();
+				}
 			}
 		},
 	};
