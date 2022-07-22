@@ -18,7 +18,7 @@ describe('HTML Page', () => {
 
 		it('works', async () => {
 			const html = await fixture.readFile('/index.html');
-			const $ = cheerio.load(html)
+			const $ = cheerio.load(html);
 
 			const h1 = $('h1');
 
@@ -43,7 +43,7 @@ describe('HTML Page', () => {
 			expect(res.status).to.equal(200);
 
 			const html = await res.text();
-			const $ = cheerio.load(html)
+			const $ = cheerio.load(html);
 
 			const h1 = $('h1');
 

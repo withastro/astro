@@ -24,10 +24,10 @@ describe('HTML Escape', () => {
 			expect(div.text()).to.equal('${foo}');
 
 			const span = $('span');
-			expect(span.attr('${attr}')).to.equal("");
+			expect(span.attr('${attr}')).to.equal('');
 
 			const ce = $('custom-element');
-			expect(ce.attr('x-data')).to.equal("`${test}`");
+			expect(ce.attr('x-data')).to.equal('`${test}`');
 
 			const script = $('script');
 			expect(script.text()).to.equal('console.log(`hello ${"world"}!`)');
@@ -57,10 +57,10 @@ describe('HTML Escape', () => {
 			expect(div.text()).to.equal('${foo}');
 
 			const span = $('span');
-			expect(span.attr('${attr}')).to.equal("");
+			expect(span.attr('${attr}')).to.equal('');
 
 			const ce = $('custom-element');
-			expect(ce.attr('x-data')).to.equal("`${test}`");
+			expect(ce.attr('x-data')).to.equal('`${test}`');
 
 			const script = $('script');
 			expect(script.text()).to.equal('console.log(`hello ${"world"}!`)');

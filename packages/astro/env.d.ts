@@ -27,7 +27,7 @@ declare module '*.md' {
 	export default load;
 }
 
-declare module "*.html" {
-  const Component: { render(opts: { slots: Record<string, string> }): string };
-  export default Component;
+declare module '*.html' {
+	const Component: { render(opts: { slots: Record<string, string> }): string };
+	export default Component;
 }

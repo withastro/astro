@@ -9,6 +9,6 @@ export default function html() {
 		async transform(source: string, id: string) {
 			if (!id.endsWith('.html')) return;
 			return await transform(source, id);
-		}
-	}
+		},
+	};
 }

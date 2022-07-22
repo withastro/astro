@@ -1,9 +1,9 @@
-import type { Plugin } from 'unified';
 import type { Root, RootContent } from 'hast';
 import type MagicString from 'magic-string';
+import type { Plugin } from 'unified';
 import { visit } from 'unist-util-visit';
 
-import { replaceAttribute, needsEscape, escape } from './utils.js';
+import { escape, needsEscape, replaceAttribute } from './utils.js';
 
 const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 	return (tree, file) => {
@@ -17,7 +17,7 @@ const rehypeEscape: Plugin<[{ s: MagicString }], Root> = ({ s }) => {
 					const newKey = needsEscape(key) ? escape(key) : key;
 					const newValue = needsEscape(value) ? escape(value) : value;
 					if (newKey === key && newValue === value) continue;
-					replaceAttribute(s, node, key, (value === '') ? newKey : `${newKey}="${newValue}"`);
+					replaceAttribute(s, node, key, value === '' ? newKey : `${newKey}="${newValue}"`);
 				}
 			}
 		});
