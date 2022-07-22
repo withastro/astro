@@ -12,10 +12,8 @@ describe('Astro.clientAddress', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
-				experimental: {
-					ssr: true,
-				},
-				adapter: testAdapter(),
+				mode: 'server',
+				deploy: testAdapter(),
 			});
 		});
 

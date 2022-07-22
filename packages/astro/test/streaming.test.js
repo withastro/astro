@@ -12,10 +12,8 @@ describe('Streaming', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
-			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			deploy: testAdapter(),
+			mode: 'server'
 		});
 	});
 
@@ -81,10 +79,8 @@ describe('Streaming disabled', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
-			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			deploy: testAdapter(),
+			mode: 'server',
 			server: {
 				streaming: false,
 			},
