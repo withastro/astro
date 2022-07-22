@@ -506,6 +506,7 @@ importers:
       prismjs: ^1.28.0
       prompts: ^2.4.2
       recast: ^0.20.5
+      rehype: ^12.0.1
       resolve: ^1.22.0
       rollup: ^2.75.6
       sass: ^1.52.2
@@ -519,6 +520,8 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
+      unist-util-visit: ^4.1.0
+      vfile: ^5.3.2
       vite: 3.0.2
       yargs-parser: ^21.0.1
       zod: ^3.17.3
@@ -566,6 +569,7 @@ importers:
       prismjs: 1.28.0
       prompts: 2.4.2
       recast: 0.20.5
+      rehype: 12.0.1
       resolve: 1.22.1
       rollup: 2.76.0
       semver: 7.3.7
@@ -577,6 +581,8 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
+      unist-util-visit: 4.1.0
+      vfile: 5.3.4
       vite: 3.0.2_sass@1.53.0
       yargs-parser: 21.0.1
       zod: 3.17.3
@@ -1521,6 +1527,30 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/hmr-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/html-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/html-escape:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/html-page:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/html-slots:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -9547,7 +9577,7 @@ packages:
     dev: true
 
   /concat-map/0.0.1:
-    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
 
   /concurrently/7.2.2:
     resolution: {integrity: sha512-DcQkI0ruil5BA/g7Xy3EWySGrFJovF5RYAYxwGvv9Jf9q9B1v3jPFP2tl6axExNf1qgF30kjoNYrangZ0ey4Aw==}
@@ -14217,6 +14247,15 @@ packages:
       unist-util-visit: 4.1.0
     dev: true
 
+  /rehype-parse/8.0.4:
+    resolution: {integrity: sha512-MJJKONunHjoTh4kc3dsM1v3C9kGrrxvA3U8PxZlP2SjH8RNUSrb+lF7Y0KVaUDnGH2QZ5vAn7ulkiajM9ifuqg==}
+    dependencies:
+      '@types/hast': 2.3.4
+      hast-util-from-parse5: 7.1.0
+      parse5: 6.0.1
+      unified: 10.1.2
+    dev: false
+
   /rehype-raw/6.1.1:
     resolution: {integrity: sha512-d6AKtisSRtDRX4aSPsJGTfnzrX2ZkHQLE5kiUuGOeEoLpbEulFF4hj0mLPbsa+7vmguDKOVVEQdHKDSwoaIDsQ==}
     dependencies:
@@ -14250,6 +14289,15 @@ packages:
     dependencies:
       '@jsdevtools/rehype-toc': 3.0.2
     dev: true
+
+  /rehype/12.0.1:
+    resolution: {integrity: sha512-ey6kAqwLM3X6QnMDILJthGvG1m1ULROS9NT4uG9IDCuv08SFyLlreSuvOa//DgEvbXx62DS6elGVqusWhRUbgw==}
+    dependencies:
+      '@types/hast': 2.3.4
+      rehype-parse: 8.0.4
+      rehype-stringify: 9.0.3
+      unified: 10.1.2
+    dev: false
 
   /remark-code-titles/0.1.2:
     resolution: {integrity: sha512-KsHQbaI4FX8Ozxqk7YErxwmBiveUqloKuVqyPG2YPLHojpgomodWgRfG4B+bOtmn/5bfJ8khw4rR0lvgVFl2Uw==}

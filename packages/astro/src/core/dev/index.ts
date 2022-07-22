@@ -45,14 +45,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 			mode: 'development',
 			server: { host },
 			optimizeDeps: {
-				include: [
-					'astro/client/idle.js',
-					'astro/client/load.js',
-					'astro/client/visible.js',
-					'astro/client/media.js',
-					'astro/client/only.js',
-					...rendererClientEntries,
-				],
+				include: rendererClientEntries,
 			},
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }

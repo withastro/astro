@@ -11,6 +11,7 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import htmlVitePlugin from '../vite-plugin-html/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import { createCustomViteLogger } from './errors.js';
@@ -73,6 +74,7 @@ export async function createVite(
 			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
 			markdownVitePlugin({ config: astroConfig }),
+			htmlVitePlugin(),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),

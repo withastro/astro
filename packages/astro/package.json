@@ -125,6 +125,7 @@
     "prismjs": "^1.28.0",
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
+    "rehype": "^12.0.1",
     "resolve": "^1.22.0",
     "rollup": "^2.75.6",
     "semver": "^7.3.7",
@@ -136,6 +137,8 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
+    "unist-util-visit": "^4.1.0",
+    "vfile": "^5.3.2",
     "vite": "3.0.2",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"

@@ -210,6 +210,21 @@ export async function renderComponent(
 		return markHTMLString(children);
 	}
 
+	if (Component && typeof Component === 'object' && (Component as any)['astro:html']) {
+		const children: Record<string, string> = {};
+		if (slots) {
+			await Promise.all(
+				Object.entries(slots).map(([key, value]) =>
+					renderSlot(result, value as string).then((output) => {
+						children[key] = output;
+					})
+				)
+			);
+		}
+		const html = (Component as any).render({ slots: children });
+		return markHTMLString(html);
+	}
+
 	if (Component && (Component as any).isAstroComponentFactory) {
 		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
@@ -265,6 +280,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 			)
 		);
 	}
+
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
