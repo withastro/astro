@@ -24,12 +24,6 @@ export default function vercelStatic(): AstroIntegration {
 				_config = config;
 			},
 			'astro:build:start': async ({ buildConfig }) => {
-				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
-					throw new Error(
-						`The enviroment variable "ENABLE_VC_BUILD" was not found. Make sure you have it set to "1" in your Vercel project.\nLearn how to set enviroment variables here: https://vercel.com/docs/concepts/projects/environment-variables`
-					);
-				}
-
 				buildConfig.staticMode = true;
 
 				// Ensure to have `.vercel/output` empty.
