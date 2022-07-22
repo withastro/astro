@@ -703,7 +703,7 @@ export interface AstroUserConfig {
 		 * @see https://docs.astro.build/en/guides/integrations-guide/mdx/
 		 * Default: false
 		 */
-		 astroFlavoredMarkdown?: boolean;
+		astroFlavoredMarkdown?: boolean;
 	};
 }
 

@@ -59,7 +59,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 
 		if (vnode.type) {
 			if (typeof vnode.type === 'function' && (vnode.type as any)['astro:renderer']) {
-				skipAstroJSXCheck.add(vnode.type)
+				skipAstroJSXCheck.add(vnode.type);
 			}
 			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
@@ -91,7 +91,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				}
 				if (!isVNode(child)) {
 					_slots.default.push(child);
-					return
+					return;
 				}
 				if ('slot' in child.props) {
 					_slots[child.props.slot] = [...(_slots[child.props.slot] ?? []), child];
@@ -110,10 +110,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			const slotPromises = [];
 			const slots: Record<string, any> = {};
 			for (const [key, value] of Object.entries(_slots)) {
-				slotPromises.push(renderJSX(result, value).then(output => {
-					if (output.toString().trim().length === 0) return;
-					slots[key] = () => output;
-				}))
+				slotPromises.push(
+					renderJSX(result, value).then((output) => {
+						if (output.toString().trim().length === 0) return;
+						slots[key] = () => output;
+					})
+				);
 			}
 			await Promise.all(slotPromises);
 

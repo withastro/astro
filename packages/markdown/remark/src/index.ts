@@ -29,7 +29,7 @@ export const DEFAULT_REHYPE_PLUGINS = [];
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
-	opts: MarkdownRenderingOptions,
+	opts: MarkdownRenderingOptions
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,

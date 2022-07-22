@@ -67,10 +67,7 @@ describe('strictness in Astro-flavored markdown', () => {
 	});
 
 	it('should allow attribute names starting with "@" after attribute names', async () => {
-		const { code } = await renderAstroMd(
-			`<button disabled @click="handleClick">Test</button>`,
-			{}
-		);
+		const { code } = await renderAstroMd(`<button disabled @click="handleClick">Test</button>`, {});
 
 		chai.expect(code.trim()).to.equal(`<button disabled @click="handleClick">Test</button>`);
 	});

@@ -175,7 +175,7 @@ export async function render(
 		logging,
 		markdown: {
 			...astroConfig.markdown,
-			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
 		},
 		mod,
 		mode,

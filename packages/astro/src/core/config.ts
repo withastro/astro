@@ -52,7 +52,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	vite: {},
 	legacy: {
 		astroFlavoredMarkdown: false,
-	}
+	},
 };
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
@@ -214,7 +214,10 @@ export const AstroConfigSchema = z.object({
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
 	legacy: z
 		.object({
-			astroFlavoredMarkdown: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
+			astroFlavoredMarkdown: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
 		})
 		.optional()
 		.default({}),
