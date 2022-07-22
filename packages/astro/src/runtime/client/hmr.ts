@@ -2,7 +2,10 @@
 if (import.meta.hot) {
 	import.meta.hot.on('vite:beforeUpdate', async (payload) => {
 		for (const file of payload.updates) {
-			if (file.acceptedPath.includes('svelte&type=style') || file.acceptedPath.includes('astro&type=style')) {
+			if (
+				file.acceptedPath.includes('svelte&type=style') ||
+				file.acceptedPath.includes('astro&type=style')
+			) {
 				// This will only be called after the svelte component has hydrated in the browser.
 				// At this point Vite is tracking component style updates, we need to remove
 				// styles injected by Astro for the component in favor of Vite's internal HMR.

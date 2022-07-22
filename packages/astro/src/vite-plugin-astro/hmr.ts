@@ -1,8 +1,8 @@
+import { fileURLToPath } from 'node:url';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import type { HmrContext, ModuleNode, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
-import { fileURLToPath } from 'node:url';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { invalidateCompilation, isCached } from './compile.js';
@@ -50,15 +50,15 @@ export async function trackCSSDependencies(
 	}
 }
 
-const PKG_PREFIX = new URL('../../', import.meta.url)
-const isPkgFile = (id: string|null) => {
-	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname)
-}
+const PKG_PREFIX = new URL('../../', import.meta.url);
+const isPkgFile = (id: string | null) => {
+	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname);
+};
 
 export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
 	// Invalidate the compilation cache so it recompiles
 	invalidateCompilation(config, ctx.file);
-	
+
 	// Skip monorepo files to avoid console spam
 	if (isPkgFile(ctx.file)) {
 		return;
