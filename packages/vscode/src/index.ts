@@ -59,22 +59,32 @@ export async function activate(context: ExtensionContext) {
 	// Restart the language server if any critical files that are outside our jurisdiction got changed (tsconfig, jsconfig etc)
 	workspace.onDidSaveTextDocument(async (doc: TextDocument) => {
 		const fileName = doc.fileName.split(/\/|\\/).pop() ?? doc.fileName;
-		if (
-			[/^tsconfig\.json$/, /^jsconfig\.json$/, /^astro\.config\.(js|cjs|mjs|ts)$/].some((regex) => regex.test(fileName))
-		) {
+		if ([/^tsconfig\.json$/, /^jsconfig\.json$/].some((regex) => regex.test(fileName))) {
 			await restartClient(false);
 		}
 	});
 
 	workspace.onDidChangeTextDocument((params: TextDocumentChangeEvent) => {
 		if (
-			['vue', 'svelte', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(
+			['vue', 'svelte', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'json', 'jsonc'].includes(
 				params.document.languageId
 			)
 		) {
+			// For [j|t]sconfig, we currently handle updates by restarting the client as we need to rebuild the TypeScript
+			// language service whenever the config changes. In the future the server will handle this by itself, but for now
+			// we can't update the snapshot for those files without causing an error since the client tries to
+			// reload and send the notification at the same time
+			if (
+				['json', 'jsonc'].includes(params.document.languageId) &&
+				params.document.fileName.startsWith('tsconfig') &&
+				params.document.fileName.startsWith('jsconfig')
+			) {
+				return;
+			}
+
 			getLSClient().sendNotification('$/onDidChangeNonAstroFile', {
 				uri: params.document.uri.toString(true),
-				// We only support partial changes for JS/TS files
+				// Partial changes are not supported for Vue and Svelte files
 				changes: ['vue', 'svelte'].includes(params.document.languageId)
 					? undefined
 					: params.contentChanges.map((c) => ({
