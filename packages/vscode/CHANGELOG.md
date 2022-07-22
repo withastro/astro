@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.20.2
+
+### Patch Changes
+
+- bd47f6e: Fix changes to an Astro config file causing the extension to crash, fixed JSON modules not being updated properly
+
 ## 0.20.1
 
 ### Patch Changes
