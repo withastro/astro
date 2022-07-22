@@ -2082,6 +2082,7 @@ importers:
       mrmime: ^1.0.0
       sharp: ^0.30.6
       slash: ^4.0.0
+      tiny-glob: ^0.2.9
     dependencies:
       etag: 1.8.1
       image-size: 1.0.2
@@ -2094,6 +2095,7 @@ importers:
       '@types/sharp': 0.30.4
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      tiny-glob: 0.2.9
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:
@@ -2106,6 +2108,16 @@ importers:
       astro: link:../../../../../astro
 
   packages/integrations/image/test/fixtures/basic-picture:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
+  packages/integrations/image/test/fixtures/rotation:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*

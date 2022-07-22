@@ -1,5 +1,6 @@
 import slash from 'slash';
-import { ROUTE_PATTERN } from './constants.js';
+import { ROUTE_PATTERN } from '../constants.js';
+import sharp from '../loaders/sharp.js';
 import {
 	ImageAttributes,
 	ImageMetadata,
@@ -7,8 +8,8 @@ import {
 	isSSRService,
 	OutputFormat,
 	TransformOptions,
-} from './types.js';
-import { isRemoteImage, parseAspectRatio } from './utils.js';
+} from '../types.js';
+import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -97,24 +98,35 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 /**
  * Gets the HTML attributes required to build an `<img />` for the transformed image.
  *
- * @param loader @type {ImageService} The image service used for transforming images.
  * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
 export async function getImage(
-	loader: ImageService,
 	transform: GetImageTransform
 ): Promise<ImageAttributes> {
-	globalThis.astroImage.loader = loader;
+	if (!transform.src) {
+		throw new Error('[@astrojs/image] `src` is required');
+	}
+
+	let loader = globalThis.astroImage?.loader;
+
+	if (!loader) {
+		// @ts-ignore
+		const { default: mod } = await import('virtual:image-loader');
+		loader = mod as ImageService;
+		globalThis.astroImage = globalThis.astroImage || {};
+		globalThis.astroImage.loader = loader;
+	}
 
 	const resolved = await resolveTransform(transform);
 
 	const attributes = await loader.getImageAttributes(resolved);
 
-	const isDev = globalThis.astroImage.command === 'dev';
+	// @ts-ignore
+	const isDev = import.meta.env.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 
-	const _loader = isDev && isLocalImage ? globalThis.astroImage.ssrLoader : loader;
+	const _loader = isDev && isLocalImage ? sharp : loader;
 
 	if (!_loader) {
 		throw new Error('@astrojs/image: loader not found!');
@@ -125,11 +137,11 @@ export async function getImage(
 		const { searchParams } = _loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
-		if (globalThis?.astroImage) {
+		if (globalThis.astroImage?.addStaticImage) {
 			globalThis.astroImage.addStaticImage(resolved);
 		}
 
-		const src = globalThis?.astroImage
+		const src = globalThis.astroImage?.filenameFormat
 			? globalThis.astroImage.filenameFormat(resolved, searchParams)
 			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
 

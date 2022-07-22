@@ -4,14 +4,12 @@ import { getImage } from './get-image.js';
 import {
 	ImageAttributes,
 	ImageMetadata,
-	ImageService,
 	OutputFormat,
 	TransformOptions,
-} from './types.js';
-import { parseAspectRatio } from './utils.js';
+} from '../types.js';
+import { parseAspectRatio } from '../utils/images.js';
 
 export interface GetPictureParams {
-	loader: ImageService;
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
 	widths: number[];
 	formats: OutputFormat[];
@@ -46,7 +44,15 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 }
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
-	const { loader, src, widths, formats } = params;
+	const { src, widths } = params;
+	
+	if (!src) {
+		throw new Error('[@astrojs/image] `src` is required');
+	}
+
+	if (!widths || !Array.isArray(widths)) {
+		throw new Error('[@astrojs/image] at least one `width` is required');
+	}
 
 	const aspectRatio = await resolveAspectRatio(params);
 
@@ -57,7 +63,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 	async function getSource(format: OutputFormat) {
 		const imgs = await Promise.all(
 			widths.map(async (width) => {
-				const img = await getImage(loader, {
+				const img = await getImage({
 					src,
 					format,
 					width,
@@ -76,7 +82,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 	// always include the original image format
 	const allFormats = await resolveFormats(params);
 
-	const image = await getImage(loader, {
+	const image = await getImage({
 		src,
 		width: Math.max(...widths),
 		aspectRatio,
