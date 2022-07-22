@@ -47,7 +47,6 @@ export function transformSlots(vnode: AstroVNode) {
 			})
 			.filter((v) => v !== Empty);
 	}
-	console.log(slots);
 	Object.assign(vnode.props, slots);
 }
 
