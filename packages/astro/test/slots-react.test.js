@@ -54,14 +54,14 @@ describe('Slots: React', () => {
 		});
 	});
 
-	describe.only('For MDX Pages', () => {
+	describe('For MDX Pages', () => {
 		it('Renders default slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
 			expect($('#content').text().trim()).to.equal('Hello world!');
 		});
 
-		it.only('Renders named slot', async () => {
+		it('Renders named slot', async () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
 			expect($('#named').text().trim()).to.equal('Fallback / Named');
