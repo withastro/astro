@@ -3,12 +3,13 @@ import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-describe('PostCSS', () => {
+describe('PostCSS', function () {
 	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none`;
 
 	let fixture;
 	let bundledCSS;
 	before(async () => {
+		this.timeout(45000); // test needs a little more time in CI
 		fixture = await loadFixture({
 			root: './fixtures/postcss',
 		});

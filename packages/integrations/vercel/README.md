@@ -63,24 +63,9 @@ import vercel from '@astrojs/vercel/static';
 You can deploy by CLI (`vercel deploy`) or by connecting your new repo in the [Vercel Dashboard](https://vercel.com/). Alternatively, you can create a production build locally:
 
 ```sh
-ENABLE_VC_BUILD=1 astro build
+astro build
 vercel deploy --prebuilt
 ```
-
-**Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) must be enabled.** You must enable it yourself by setting the environment variable: `ENABLE_VC_BUILD=1`. 
-
-```js
-// vercel.json
-{
-  "build": {
-    "env": {
-      "ENABLE_VC_BUILD": "1"
-    }
-  }
-}
-```
-
-[Learn more about setting enviroment variables in Vercel](https://vercel.com/docs/concepts/projects/environment-variables).
 
 ## Configuration
 

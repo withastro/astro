@@ -58,7 +58,8 @@ export function fixViteErrorMessage(_err: unknown, server: ViteDevServer, filePa
 			const content = fs.readFileSync(fileURLToPath(filePath)).toString();
 			const lns = content.split('\n');
 			const line = lns.findIndex((ln) => ln.includes(importName));
-			const column = lns[line].indexOf(importName);
+			if (line == -1) return err;
+			const column = lns[line]?.indexOf(importName);
 			if (!(err as any).id) {
 				(err as any).id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`;
 			}
