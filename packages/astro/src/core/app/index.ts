@@ -25,6 +25,10 @@ export { deserializeManifest } from './common.js';
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 
+export interface MatchOptions {
+	matchNotFound?: boolean | undefined;
+}
+
 export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
@@ -46,17 +50,30 @@ export class App {
 		this.#routeCache = new RouteCache(this.#logging);
 		this.#streaming = streaming;
 	}
-	match(request: Request): RouteData | undefined {
+	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
 		// ignore requests matching public assets
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
-		return matchRoute(url.pathname, this.#manifestData);
+		let routeData = matchRoute(url.pathname, this.#manifestData);
+
+		if(routeData) {
+			return routeData;
+		} else if(matchNotFound) {
+			return matchRoute('/404', this.#manifestData);
+		} else {
+			return undefined;
+		}
 	}
 	async render(request: Request, routeData?: RouteData): Promise<Response> {
+		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
+			if (!routeData) {
+				defaultStatus = 404;
+				routeData = this.match(request, { matchNotFound: true });
+			}
 			if (!routeData) {
 				return new Response(null, {
 					status: 404,
@@ -65,12 +82,25 @@ export class App {
 			}
 		}
 
-		const mod = this.#manifest.pageMap.get(routeData.component)!;
+		let mod = this.#manifest.pageMap.get(routeData.component)!;
 
 		if (routeData.type === 'page') {
-			return this.#renderPage(request, routeData, mod);
+			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
+
+			// If there was a 500 error, try sending the 500 page.
+			if(response.status === 500) {
+				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
+				if(fiveHundredRouteData) {
+					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+					try {
+						let fiveHundredResponse = await this.#renderPage(request, fiveHundredRouteData, mod, 500);
+						return fiveHundredResponse;
+					} catch {}
+				}
+			}
+			return response;
 		} else if (routeData.type === 'endpoint') {
-			return this.#callEndpoint(request, routeData, mod);
+			return this.#callEndpoint(request, routeData, mod, defaultStatus);
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
@@ -79,7 +109,8 @@ export class App {
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
+		mod: ComponentInstance,
+		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
@@ -128,6 +159,7 @@ export class App {
 				ssr: true,
 				request,
 				streaming: this.#streaming,
+				status
 			});
 
 			return response;
@@ -143,7 +175,8 @@ export class App {
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
+		mod: ComponentInstance,
+		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
@@ -155,6 +188,7 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
+			status
 		});
 
 		if (result.type === 'response') {
