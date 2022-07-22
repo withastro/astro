@@ -173,7 +173,10 @@ export async function render(
 		links,
 		styles,
 		logging,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown
+		},
 		mod,
 		mode,
 		origin,

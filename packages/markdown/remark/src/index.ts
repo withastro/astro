@@ -29,24 +29,23 @@ export const DEFAULT_REHYPE_PLUGINS = [];
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
-	opts: MarkdownRenderingOptions = {}
+	opts: MarkdownRenderingOptions,
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,
-		mode = 'mdx',
 		syntaxHighlight = 'shiki',
 		shikiConfig = {},
 		remarkPlugins = [],
 		rehypePlugins = [],
+		isAstroFlavoredMd = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
-	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
+		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
@@ -75,7 +74,7 @@ export async function renderMarkdown(
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: isMDX
+				passThrough: isAstroFlavoredMd
 					? [
 							'raw',
 							'mdxFlowExpression',
@@ -94,7 +93,7 @@ export async function renderMarkdown(
 
 	parser
 		.use(
-			isMDX
+			isAstroFlavoredMd
 				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeaders]
 				: [rehypeCollectHeaders, rehypeRaw]
 		)
