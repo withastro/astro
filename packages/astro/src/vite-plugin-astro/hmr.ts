@@ -2,6 +2,7 @@ import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import type { HmrContext, ModuleNode, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import { fileURLToPath } from 'node:url';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { invalidateCompilation, isCached } from './compile.js';
@@ -49,21 +50,31 @@ export async function trackCSSDependencies(
 	}
 }
 
+const PKG_PREFIX = new URL('../../', import.meta.url)
+const isPkgFile = (id: string|null) => {
+	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname)
+}
+
 export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
 	// Invalidate the compilation cache so it recompiles
 	invalidateCompilation(config, ctx.file);
+	
+	// Skip monorepo files to avoid console spam
+	if (isPkgFile(ctx.file)) {
+		return;
+	}
 
 	// go through each of these modules importers and invalidate any .astro compilation
 	// that needs to be rerun.
 	const filtered = new Set<ModuleNode>(ctx.modules);
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
-		// This is always the HMR script, we skip it to avoid spamming
-		// the browser console with HMR updates about this file
-		if (mod.id?.endsWith('.astro?html-proxy&index=0.js')) {
+		// Skip monorepo files to avoid console spam
+		if (isPkgFile(mod.id ?? mod.file)) {
 			filtered.delete(mod);
 			continue;
 		}
+
 		if (mod.file && isCached(config, mod.file)) {
 			filtered.add(mod);
 			files.add(mod.file);
