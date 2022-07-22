@@ -68,7 +68,7 @@ describe('Slots: Vue', () => {
 		});
 
 		it('Converts dash-case slot to camelCase', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+			const html = await fixture.readFile('/markdown/index.html');
 			const $ = cheerio.load(html);
 			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
 		});

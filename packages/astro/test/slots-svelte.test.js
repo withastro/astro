@@ -67,8 +67,8 @@ describe('Slots: Svelte', () => {
 			expect($('#named').text().trim()).to.equal('Fallback / Named');
 		});
 
-		it('Converts dash-case slot to camelCase', async () => {
-			const html = await fixture.readFile('/mdx/index.html');
+		it('Preserves dash-case slot', async () => {
+			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
 			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
 		});
