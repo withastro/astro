@@ -50,6 +50,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
+	legacy: {
+		astroFlavoredMarkdown: false,
+	}
 };
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
@@ -172,9 +175,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-			// TODO: This should probably be updated to something more like "md" | "astro"
-			mode: z.enum(['md', 'mdx']).default('mdx'),
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
@@ -212,6 +212,12 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
+	legacy: z
+		.object({
+			astroFlavoredMarkdown: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
+		})
+		.optional()
+		.default({}),
 });
 
 /** Turn raw config values into normalized values */

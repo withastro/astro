@@ -6,4 +6,7 @@ import svelte from "@astrojs/svelte";
 export default defineConfig({
   integrations: [preact(), svelte()],
   site: 'https://astro.build/',
+	legacy: {
+		astroFlavoredMarkdown: true,
+	}
 });

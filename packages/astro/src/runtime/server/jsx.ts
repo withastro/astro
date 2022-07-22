@@ -19,6 +19,9 @@ let consoleFilterRefs = 0;
 export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 	switch (true) {
 		case vnode instanceof HTMLString:
+			if (vnode.toString().trim() === '') {
+				return '';
+			}
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
@@ -55,6 +58,9 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 		}
 
 		if (vnode.type) {
+			if (typeof vnode.type === 'function' && (vnode.type as any)['astro:renderer']) {
+				skipAstroJSXCheck.add(vnode.type)
+			}
 			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
@@ -76,7 +82,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 
 			const { children = null, ...props } = vnode.props ?? {};
-			const slots: Record<string, any> = {
+			const _slots: Record<string, any> = {
 				default: [],
 			};
 			function extractSlots(child: any): any {
@@ -84,19 +90,32 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					return child.map((c) => extractSlots(c));
 				}
 				if (!isVNode(child)) {
-					return slots.default.push(child);
+					_slots.default.push(child);
+					return
 				}
 				if ('slot' in child.props) {
-					slots[child.props.slot] = [...(slots[child.props.slot] ?? []), child];
+					_slots[child.props.slot] = [...(_slots[child.props.slot] ?? []), child];
 					delete child.props.slot;
 					return;
 				}
-				slots.default.push(child);
+				_slots.default.push(child);
 			}
 			extractSlots(children);
-			for (const [key, value] of Object.entries(slots)) {
-				slots[key] = () => renderJSX(result, value);
+			for (const [key, value] of Object.entries(props)) {
+				if (value['$$slot']) {
+					_slots[key] = value;
+					delete props[key];
+				}
 			}
+			const slotPromises = [];
+			const slots: Record<string, any> = {};
+			for (const [key, value] of Object.entries(_slots)) {
+				slotPromises.push(renderJSX(result, value).then(output => {
+					if (output.toString().trim().length === 0) return;
+					slots[key] = () => output;
+				}))
+			}
+			await Promise.all(slotPromises);
 
 			let output: string | AsyncIterable<string>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {

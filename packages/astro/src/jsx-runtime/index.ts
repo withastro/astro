@@ -29,23 +29,24 @@ export function transformSlots(vnode: AstroVNode) {
 		delete child.props.slot;
 		delete vnode.props.children;
 	}
-	if (!Array.isArray(vnode.props.children)) return;
-	// Handle many children with slot attributes
-	vnode.props.children = vnode.props.children
-		.map((child) => {
-			if (!isVNode(child)) return child;
-			if (!('slot' in child.props)) return child;
-			const name = toSlotName(child.props.slot);
-			if (Array.isArray(slots[name])) {
-				slots[name].push(child);
-			} else {
-				slots[name] = [child];
-				slots[name]['$$slot'] = true;
-			}
-			delete child.props.slot;
-			return Empty;
-		})
-		.filter((v) => v !== Empty);
+	if (Array.isArray(vnode.props.children)) {
+		// Handle many children with slot attributes
+		vnode.props.children = vnode.props.children
+			.map((child) => {
+				if (!isVNode(child)) return child;
+				if (!('slot' in child.props)) return child;
+				const name = toSlotName(child.props.slot);
+				if (Array.isArray(slots[name])) {
+					slots[name].push(child);
+				} else {
+					slots[name] = [child];
+					slots[name]['$$slot'] = true;
+				}
+				delete child.props.slot;
+				return Empty;
+			})
+			.filter((v) => v !== Empty);
+	}
 	Object.assign(vnode.props, slots);
 }
 

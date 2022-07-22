@@ -137,7 +137,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
-				const isMDX = renderOpts.mode === 'mdx';
+				const isAstroFlavoredMd = config.legacy.astroFlavoredMarkdown;
 
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
@@ -149,7 +149,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
 				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
-				if (isMDX) {
+				if (isAstroFlavoredMd) {
 					markdownContent = markdownContent.replace(
 						/<\s*!--([^-->]*)(.*?)-->/gs,
 						(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
@@ -159,6 +159,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				let renderResult = await renderMarkdown(markdownContent, {
 					...renderOpts,
 					fileURL: fileUrl,
+					isAstroFlavoredMd,
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
@@ -168,9 +169,9 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const prelude = `---
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
-${isMDX && components ? `import * from '${components}';` : ''}
+${isAstroFlavoredMd && components ? `import * from '${components}';` : ''}
 ${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
-${isMDX ? setup : ''}
+${isAstroFlavoredMd ? setup : ''}
 
 const slugger = new Slugger();
 function $$slug(value) {
@@ -178,7 +179,7 @@ function $$slug(value) {
 }
 
 const $$content = ${JSON.stringify(
-					isMDX
+					isAstroFlavoredMd
 						? content
 						: // Avoid stripping "setup" and "components"
 						  // in plain MD mode
@@ -186,11 +187,11 @@ const $$content = ${JSON.stringify(
 				)}
 ---`;
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
-${isMDX ? setup : ''}`.trim();
+${isAstroFlavoredMd ? setup : ''}`.trim();
 
 				// Wrap with set:html fragment to skip
 				// JSX expressions and components in "plain" md mode
-				if (!isMDX) {
+				if (!isAstroFlavoredMd) {
 					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`;
 				}
 

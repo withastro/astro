@@ -38,7 +38,6 @@ describe('Astro Markdown - plain MD mode', () => {
 				root: './fixtures/astro-markdown-md-mode/',
 				markdown: {
 					syntaxHighlight: 'prism',
-					mode: 'md',
 				},
 			});
 			await fixture.build();

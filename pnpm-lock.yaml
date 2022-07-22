@@ -1714,19 +1714,23 @@ importers:
 
   packages/astro/test/fixtures/slots-preact:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/preact': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
   packages/astro/test/fixtures/slots-react:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/react': workspace:*
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/react': link:../../../../integrations/react
       astro: link:../../..
       react: 18.2.0
@@ -1734,25 +1738,31 @@ importers:
 
   packages/astro/test/fixtures/slots-solid:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/solid-js': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
   packages/astro/test/fixtures/slots-svelte:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/svelte': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
   packages/astro/test/fixtures/slots-vue:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/vue': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
