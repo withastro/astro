@@ -100,8 +100,8 @@ describe('getStaticPaths - numeric route params', () => {
 
 			const canonical = $('link[rel=canonical]');
 			expect(canonical.attr('href')).to.equal(
-				`https://mysite.dev/posts/${page}/`,
-				`doesn't trim the /${page}/ route param`
+				`https://mysite.dev/posts/${page}`,
+				`doesn't trim the /${page} route param`
 			);
 		}
 	});
