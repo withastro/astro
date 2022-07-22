@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-describe('PostCSS', () => {
+describe('PostCSS', function () {
 	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none`;
 
 	let fixture;
