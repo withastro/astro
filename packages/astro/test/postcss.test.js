@@ -9,6 +9,7 @@ describe('PostCSS', () => {
 	let fixture;
 	let bundledCSS;
 	before(async () => {
+		this.timeout(45000); // test needs a little more time in CI
 		fixture = await loadFixture({
 			root: './fixtures/postcss',
 		});
