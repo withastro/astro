@@ -213,20 +213,6 @@ export async function renderComponent(
 	if (Component && (Component as any).isAstroComponentFactory) {
 		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
-			// If this component added any define:vars styles and the head has already been
-			// sent out, we need to include those inline.
-			if (result.styles.size && alreadyHeadRenderedResults.has(result)) {
-				let styles = Array.from(result.styles);
-				result.styles.clear();
-				for (const style of styles) {
-					if ('define:vars' in style.props) {
-						// We only want to render the property value and not the full stylesheet
-						// which is bundled in the head.
-						style.children = '';
-						yield markHTMLString(renderElement('style', style));
-					}
-				}
-			}
 			yield* iterable;
 		}
 
@@ -583,7 +569,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	}
 
 	// support object styles for better JSX compat
-	if (key === 'style' && typeof value === 'object') {
+	if (key === 'style' && !(value instanceof HTMLString) && typeof value === 'object') {
 		return markHTMLString(` ${key}="${toStyleString(value)}"`);
 	}
 
@@ -633,19 +619,31 @@ export function spreadAttributes(
 }
 
 // Adds CSS variables to an inline style tag
-export function defineStyleVars(selector: string, vars: Record<any, any>) {
-	let output = '\n';
-	for (const [key, value] of Object.entries(vars)) {
-		output += `  --${key}: ${value};\n`;
+export function defineStyleVars(defs: Record<any, any>|Record<any, any>[]) {
+	let output = '';
+	let arr = !Array.isArray(defs) ? [defs] : defs;
+	for (const vars of arr) {
+		for (const [key, value] of Object.entries(vars)) {
+			if (value || value === 0) {
+				output += `--${key}: ${value};`;
+			}
+		}
 	}
-	return markHTMLString(`${selector} {${output}}`);
+	return markHTMLString(output);
 }
+
+// converts (most) arbitrary strings to valid JS identifiers
+const toIdent = (k: string) =>
+  k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
+    if (/[^\w]|\s/.test(match)) return '';
+    return index === 0 ? match : match.toUpperCase();
+  });
 
 // Adds variables to an inline script.
 export function defineScriptVars(vars: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
-		output += `let ${key} = ${JSON.stringify(value)};\n`;
+		output += `let ${toIdent(key)} = ${JSON.stringify(value)};\n`;
 	}
 	return markHTMLString(output);
 }
@@ -945,11 +943,6 @@ function renderElement(
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
 	if (defineVars) {
 		if (name === 'style') {
-			if (props['is:global']) {
-				children = defineStyleVars(`:root`, defineVars) + '\n' + children;
-			} else {
-				children = defineStyleVars(`.astro-${astroId}`, defineVars) + '\n' + children;
-			}
 			delete props['is:global'];
 			delete props['is:scoped'];
 		}

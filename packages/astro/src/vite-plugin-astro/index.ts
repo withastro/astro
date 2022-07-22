@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
@@ -175,17 +175,29 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						}
 					}
 
-					return {
-						code:
-							hoistedScript.type === 'inline'
-								? hoistedScript.code!
-								: `import "${hoistedScript.src!}";`,
+					let result: SourceDescription & { meta: any } = {
+						code: '',
 						meta: {
 							vite: {
-								lang: 'ts',
-							},
-						},
+								lang: 'ts'
+							}
+						}
 					};
+
+					switch (hoistedScript.type) {
+						case 'inline': {
+							let { code, map } = hoistedScript
+							result.code = appendSourceMap(code, map);
+							break;
+						}
+						case 'external': {
+							const { src } = hoistedScript
+							result.code = `import "${src}"`;
+							break;
+						}
+					}
+					
+					return result
 				}
 				default:
 					return null;
@@ -348,4 +360,9 @@ ${source}
 			return handleHotUpdate.call(this, context, config, logging);
 		},
 	};
+}
+
+function appendSourceMap(content: string, map?: string) {
+	if (!map) return content;
+	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(map).toString('base64')}`
 }
