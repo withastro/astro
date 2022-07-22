@@ -183,7 +183,7 @@ export function isPage(file: URL, config: AstroConfig): boolean {
 }
 
 export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
-	return config.mode === 'static' && !config._ctx.adapter;
+	return config.mode === 'server' && !config._ctx.adapter;
 }
 
 export function emoji(char: string, fallback: string) {
