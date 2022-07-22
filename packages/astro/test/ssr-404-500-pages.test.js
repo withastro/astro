@@ -15,7 +15,7 @@ describe('404 and 500 pages', () => {
 			},
 			adapter: testAdapter(),
 		});
-		await fixture.build({  });
+		await fixture.build({});
 	});
 
 	it('404 page returned when a route does not match', async () => {

@@ -5,7 +5,16 @@ import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 export type EndpointOptions = Pick<
 	RenderOptions,
-	'logging' | 'origin' | 'request' | 'route' | 'routeCache' | 'pathname' | 'route' | 'site' | 'ssr' | 'status'
+	| 'logging'
+	| 'origin'
+	| 'request'
+	| 'route'
+	| 'routeCache'
+	| 'pathname'
+	| 'route'
+	| 'site'
+	| 'ssr'
+	| 'status'
 >;
 
 type EndpointCallResult =

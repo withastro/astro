@@ -108,7 +108,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		ssr,
 		streaming,
-		status = 200
+		status = 200,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -150,7 +150,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		scripts,
 		ssr,
 		streaming,
-		status
+		status,
 	});
 
 	// Support `export const components` for `MDX` pages

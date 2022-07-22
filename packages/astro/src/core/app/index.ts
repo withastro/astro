@@ -58,9 +58,9 @@ export class App {
 		}
 		let routeData = matchRoute(url.pathname, this.#manifestData);
 
-		if(routeData) {
+		if (routeData) {
 			return routeData;
-		} else if(matchNotFound) {
+		} else if (matchNotFound) {
 			return matchRoute('/404', this.#manifestData);
 		} else {
 			return undefined;
@@ -88,12 +88,17 @@ export class App {
 			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
 
 			// If there was a 500 error, try sending the 500 page.
-			if(response.status === 500) {
+			if (response.status === 500) {
 				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
-				if(fiveHundredRouteData) {
+				if (fiveHundredRouteData) {
 					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
 					try {
-						let fiveHundredResponse = await this.#renderPage(request, fiveHundredRouteData, mod, 500);
+						let fiveHundredResponse = await this.#renderPage(
+							request,
+							fiveHundredRouteData,
+							mod,
+							500
+						);
 						return fiveHundredResponse;
 					} catch {}
 				}
@@ -159,7 +164,7 @@ export class App {
 				ssr: true,
 				request,
 				streaming: this.#streaming,
-				status
+				status,
 			});
 
 			return response;
@@ -188,7 +193,7 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
-			status
+			status,
 		});
 
 		if (result.type === 'response') {
