@@ -85,6 +85,7 @@ export interface RenderOptions {
 	ssr: boolean;
 	streaming: boolean;
 	request: Request;
+	status?: number;
 }
 
 export async function render(opts: RenderOptions): Promise<Response> {
@@ -107,6 +108,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		ssr,
 		streaming,
+		status = 200
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -148,6 +150,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		scripts,
 		ssr,
 		streaming,
+		status
 	});
 
 	// Support `export const components` for `MDX` pages

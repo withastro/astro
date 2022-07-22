@@ -19,19 +19,14 @@ export function createExports(manifest: SSRManifest) {
 			return env.ASSETS.fetch(assetRequest);
 		}
 
-		if (app.match(request)) {
+		let routeData = app.match(request, { matchNotFound: true });
+		if (routeData) {
 			Reflect.set(
 				request,
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
-			return app.render(request);
-		}
-
-		// 404
-		const _404Request = new Request(`${origin}/404`, request);
-		if (app.match(_404Request)) {
-			return app.render(_404Request);
+			return app.render(request, routeData);
 		}
 
 		return new Response(null, {
