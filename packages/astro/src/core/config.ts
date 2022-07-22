@@ -15,6 +15,7 @@ import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
+import { LogOptions, warn } from './logger/core.js';
 
 load.use([loadTypeScript]);
 
@@ -222,7 +223,8 @@ export const AstroConfigSchema = z.object({
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string
+	cmd: string,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
@@ -258,6 +260,13 @@ export async function validateConfig(
 		}
 		process.exit(1);
 	}
+
+	if('adapter' in userConfig) {
+		warn(logging, `The "adapter" config has been renamed to "deploy". Please update your config file.`);
+		userConfig.deploy = userConfig.adapter;
+		delete userConfig.adapter;
+	}
+	
 
 	let legacyConfigKey: string | undefined;
 	for (const key of Object.keys(userConfig)) {
@@ -383,6 +392,7 @@ interface LoadConfigOptions {
 	flags?: Flags;
 	cmd: string;
 	validate?: boolean;
+	logging: LogOptions;
 }
 
 /**
@@ -454,7 +464,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		userConfig = config.value;
 		userConfigPath = config.filePath;
 	}
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
 
 	return {
 		astroConfig,
@@ -500,7 +510,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
+	return resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
@@ -508,10 +518,11 @@ export async function resolveConfig(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
-	cmd: string
+	cmd: string,
+	logging: LogOptions,
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
+	const validatedConfig = await validateConfig(mergedConfig, root, cmd, logging);
 
 	return validatedConfig;
 }

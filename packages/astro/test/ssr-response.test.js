@@ -10,10 +10,8 @@ describe('Using Astro.response in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-response/',
-			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			deploy: testAdapter(),
+			mode: 'server'
 		});
 		await fixture.build();
 	});

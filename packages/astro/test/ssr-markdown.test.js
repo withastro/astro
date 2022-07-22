@@ -10,10 +10,8 @@ describe('Markdown pages in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-markdown/',
-			experimental: {
-				ssr: true,
-			},
-			adapter: testAdapter(),
+			mode: 'server',
+			deploy: testAdapter(),
 		});
 		await fixture.build();
 	});

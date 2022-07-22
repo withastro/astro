@@ -10,10 +10,8 @@ describe('SSR with Large Array and client rendering', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/large-array/',
-			experimental: {
-				ssr: true,
-			},
-			adapter: testAdapter(),
+			mode: 'server',
+			deploy: testAdapter(),
 		});
 		await fixture.build();
 	});
