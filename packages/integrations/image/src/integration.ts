@@ -13,7 +13,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	};
 
 	// During SSG builds, this is used to track all transformed images required.
-	const staticImages = new Map<string, TransformOptions>();
+	const staticImages = new Map<string, Map<string, TransformOptions>>();
 
 	let _config: AstroConfig;
 	let mode: 'ssr' | 'ssg';
@@ -56,7 +56,13 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
 				function addStaticImage(transform: TransformOptions) {
-					staticImages.set(propsToFilename(transform), transform);
+					const srcTranforms = staticImages.has(transform.src)
+						? staticImages.get(transform.src)!
+						: new Map<string, TransformOptions>();
+
+					srcTranforms.set(propsToFilename(transform), transform);
+
+					staticImages.set(transform.src, srcTranforms);
 				}
 
 				// Helpers for building static images should only be available for SSG

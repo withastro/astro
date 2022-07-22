@@ -8,7 +8,7 @@ import type { SSRImageService, TransformOptions } from '../types.js';
 
 export interface SSGBuildParams {
 	loader: SSRImageService;
-	staticImages: Map<string, TransformOptions>;
+	staticImages: Map<string, Map<string, TransformOptions>>;
 	srcDir: URL;
 	outDir: URL;
 }
@@ -21,17 +21,8 @@ export async function ssgBuild({
 }: SSGBuildParams) {
 	const inputFiles = new Set<string>();
 
-	// group transforms by unique original sources, allowing the Buffer to be reused for each transform
-	const groups = Array.from(staticImages.entries()).reduce((acc, [filename, transform]) => {
-		const srcGroup = acc.get(transform.src) || new Map<string, TransformOptions>();
-		srcGroup.set(filename, transform);
-		acc.set(transform.src, srcGroup);
-
-		return acc;
-	}, new Map<string, Map<string, TransformOptions>>());
-
 	// process transforms one original image file at a time
-	for await (const [src, transformsMap] of groups) {
+	for await (const [src, transformsMap] of staticImages) {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
 
