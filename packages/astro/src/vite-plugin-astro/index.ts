@@ -268,14 +268,15 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
-
-					SUFFIX += `\nif (import.meta.hot) {
-						import.meta.hot.accept(mod => mod);
-					}`;
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
+				}
+
+				// Prefer live reload to HMR in `.astro` files
+				if (!resolvedConfig.isProduction) {
+					SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
 				}
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {

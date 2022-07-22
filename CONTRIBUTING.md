@@ -31,6 +31,13 @@ In [#2254](https://github.com/withastro/astro/pull/2254) a `.git-blame-ignore-re
 git config --local blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
+To automatically handle merge conflicts in `pnpm-lock.yaml`, you should run the following commands locally.
+
+```shell
+pnpm add -g @pnpm/merge-driver
+pnpx npm-merge-driver install --driver-name pnpm-merge-driver --driver "pnpm-merge-driver %A %O %B %P" --files pnpm-lock.yaml
+```
+
 ### Development
 
 ```shell
