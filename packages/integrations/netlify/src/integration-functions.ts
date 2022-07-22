@@ -35,6 +35,10 @@ function netlifyFunctions({
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter({ binaryMediaTypes }));
 				_config = config;
+
+				if(config.mode === 'static') {
+					console.warn(`@astrojs/netlify does not support static mode.`);
+				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');

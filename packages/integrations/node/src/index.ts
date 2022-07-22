@@ -12,8 +12,12 @@ export default function createIntegration(): AstroIntegration {
 	return {
 		name: '@astrojs/node',
 		hooks: {
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
+
+				if(config.mode === 'static') {
+					console.warn(`@astrojs/node does not support static mode.`);
+				}
 			},
 		},
 	};

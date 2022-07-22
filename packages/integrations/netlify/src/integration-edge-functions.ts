@@ -135,6 +135,10 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());
 				_config = config;
+
+				if(config.mode === 'static') {
+					console.warn(`@astrojs/netlify does not support static mode.`);
+				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				_buildConfig = buildConfig;

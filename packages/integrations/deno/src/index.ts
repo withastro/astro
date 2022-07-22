@@ -29,8 +29,12 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/deno',
 		hooks: {
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(args));
+
+				if(config.mode === 'static') {
+					console.warn(`@astrojs/deno does not support static mode.`);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				_buildConfig = buildConfig;

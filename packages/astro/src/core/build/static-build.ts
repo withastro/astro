@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir } from '../../core/util.js';
+import { emptyDir, removeDir, isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -25,7 +25,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
 	// Verify this app is buildable.
-	if(opts.astroConfig.mode === 'server' && !opts.astroConfig._ctx.adapter) {
+	if(isModeServerWithNoAdapter(opts.astroConfig)) {
 		throw new Error(`Cannot use mode: 'server' without an adapter. Please install and configure an adapter by setting it on the deploy configuration.
 		
 export default {

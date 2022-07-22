@@ -101,15 +101,7 @@ class AstroBuilder {
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
-		const getPrettyDeployTarget = (adapter: AstroAdapter | undefined) => {
-			if (adapter?.name === 'node') {
-				return 'node.js (generic)';
-			}
-			if (adapter?.name) {
-				return adapter?.name;
-			}
-			return 'unknown';
-		}
+		const getPrettyDeployTarget = (adapter: AstroAdapter | undefined) => adapter?.name || 'unknown';
 		info(this.logging, 'build', `build target: ${colors.green(this.config.mode)}`);
 		info(this.logging, 'build', `deploy target: ${colors.green(getPrettyDeployTarget(this.config._ctx.adapter))}`);
 		info(this.logging, 'build', 'Collecting build info...');
