@@ -80,7 +80,6 @@
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.23.0",
     "@octokit/action": "^3.18.1",
-    "@pnpm/merge-driver": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "del": "^6.1.1",
