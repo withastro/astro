@@ -66,7 +66,9 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		}
 		const request = new Request(rawUrl, init);
 
-		if (!app.match(request)) {
+		let routeData = app.match(request, { matchNotFound: true });
+
+		if (!routeData) {
 			return {
 				statusCode: 404,
 				body: 'Not found',
@@ -76,7 +78,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		const ip = headers['x-nf-client-connection-ip'];
 		Reflect.set(request, clientAddressSymbol, ip);
 
-		const response: Response = await app.render(request);
+		const response: Response = await app.render(request, routeData);
 		const responseHeaders = Object.fromEntries(response.headers.entries());
 
 		const responseContentType = parseContentType(responseHeaders['content-type']);
