@@ -42,6 +42,7 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	request: Request;
+	status: number;
 }
 
 function getFunctionExpression(slot: any) {
@@ -119,7 +120,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		headers.set('Content-Type', 'text/html');
 	}
 	const response: ResponseInit = {
-		status: 200,
+		status: args.status,
 		statusText: 'OK',
 		headers,
 	};
