@@ -10,7 +10,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (opts.astroConfig.mode === 'static') {
+			if (opts.astroConfig.output === 'static') {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},

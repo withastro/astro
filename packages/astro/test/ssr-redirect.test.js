@@ -9,7 +9,7 @@ describe('Astro.redirect', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-redirect/',
-			mode: 'server',
+			output: 'server',
 			deploy: testAdapter(),
 		});
 		await fixture.build();

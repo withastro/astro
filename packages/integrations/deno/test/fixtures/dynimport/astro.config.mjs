@@ -3,5 +3,5 @@ import deno from '@astrojs/deno';
 
 export default defineConfig({
 	deploy: deno(),
-	mode: 'server',
+	output: 'server',
 })

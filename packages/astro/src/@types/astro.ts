@@ -638,8 +638,26 @@ export interface AstroUserConfig {
 	 */
 	deploy?: AstroIntegration;
 
-	// TODO: Document
-	mode?: 'static' | 'server';
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Output
+	 * @description
+	 * 
+	 * Specifies the output target for builds. 
+	 * 
+	 * - 'static' - Building a static site to be deploy to any static host.
+	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 * 
+	 * ```js
+	 * import { defineConfig } from 'astro/config';
+	 * 
+	 * export default defineConfig({
+	 *   output: 'static'
+	 * })
+	 * ```
+	 */
+	output?: 'static' | 'server';
 
 
 	/**

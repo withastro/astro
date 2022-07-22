@@ -11,7 +11,7 @@ describe('Using Astro.response in SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-response/',
 			deploy: testAdapter(),
-			mode: 'server'
+			output: 'server'
 		});
 		await fixture.build();
 	});

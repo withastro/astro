@@ -4,7 +4,7 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 describe('AstroConfig - config.mode', () => {
-	describe(`mode: 'server'`, () => {
+	describe(`output: 'server'`, () => {
 		describe('deploy config provided', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
@@ -14,7 +14,7 @@ describe('AstroConfig - config.mode', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					deploy: testAdapter(),
-					mode: 'server',
+					output: 'server',
 				});
 				await fixture.build();
 			});
@@ -38,7 +38,7 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					mode: 'server'
+					output: 'server'
 				});
 				
 			});
@@ -58,7 +58,7 @@ describe('AstroConfig - config.mode', () => {
 		});
 	});
 
-	describe(`mode: 'static'`, () => {
+	describe(`output: 'static'`, () => {
 		describe('Deploy config omitted', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
@@ -67,7 +67,7 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					mode: 'static'
+					output: 'static'
 				});
 				await fixture.build();
 			});
@@ -92,7 +92,7 @@ describe('AstroConfig - config.mode', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					deploy: testAdapter(),
-					mode: 'server'
+					output: 'server'
 				});
 				await fixture.build();
 			});

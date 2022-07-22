@@ -5,5 +5,5 @@ import react from '@astrojs/react';
 export default defineConfig({
 	deploy: deno(),
 	integrations: [react()],
-	mode: 'server',
+	output: 'server',
 })

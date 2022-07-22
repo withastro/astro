@@ -37,7 +37,7 @@ import deno from '@astrojs/deno';
 
 export default defineConfig({
   // ...
-  mode: 'server',
+  output: 'server',
   deploy: deno()
 });
 ```
@@ -70,7 +70,7 @@ import { defineConfig } from 'astro/config';
 import deno from '@astrojs/deno';
 
 export default defineConfig({
-  mode: 'server',
+  output: 'server',
   deploy: deno({
     //options go here
   })
@@ -87,7 +87,7 @@ export default defineConfig({
   import deno from '@astrojs/deno';
 
   export default defineConfig({
-    mode: 'server',
+    output: 'server',
     deploy: deno({
       start: false
     })
@@ -118,7 +118,7 @@ export default defineConfig({
   import deno from '@astrojs/deno';
 
   export default defineConfig({
-    mode: 'server',
+    output: 'server',
     deploy: deno({
       port: 8081,
       hostname: 'myhost'

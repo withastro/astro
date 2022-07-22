@@ -5,5 +5,5 @@ export default defineConfig({
 	deploy: netlifyEdgeFunctions({
 		dist: new URL('./dist/', import.meta.url),
 	}),
-	mode: 'server',
+	output: 'server',
 })

@@ -102,7 +102,7 @@ class AstroBuilder {
 		await runHookBuildStart({ config: this.config, buildConfig });
 
 		const getPrettyDeployTarget = (adapter: AstroAdapter | undefined) => adapter?.name || 'unknown';
-		info(this.logging, 'build', `build target: ${colors.green(this.config.mode)}`);
+		info(this.logging, 'build', `build target: ${colors.green(this.config.output)}`);
 		info(this.logging, 'build', `deploy target: ${colors.green(getPrettyDeployTarget(this.config._ctx.adapter))}`);
 		info(this.logging, 'build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
@@ -113,7 +113,7 @@ class AstroBuilder {
 			origin,
 			routeCache: this.routeCache,
 			viteServer,
-			ssr: this.config.mode === 'server',
+			ssr: this.config.output === 'server',
 		});
 
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
@@ -174,7 +174,7 @@ class AstroBuilder {
 				logging: this.logging,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
-				buildMode: this.config.mode,
+				buildMode: this.config.output,
 			});
 		}
 	}

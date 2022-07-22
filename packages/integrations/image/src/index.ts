@@ -46,7 +46,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				_config = config;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
-				const mode: 'server' | 'static' = command === 'dev' ? 'server' : config.mode;
+				const output: 'server' | 'static' = command === 'dev' ? 'server' : config.output;
 
 				updateConfig({ vite: getViteConfiguration() });
 
@@ -58,7 +58,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 
 				// TODO: Add support for custom, user-provided filename format functions
 				function filenameFormat(transform: TransformOptions, searchParams: URLSearchParams) {
-					if (mode === 'static') {
+					if (output === 'static') {
 						return isRemoteImage(transform.src)
 							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
 							: path.join(
@@ -81,7 +81,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					filenameFormat,
 				};
 
-				if (mode === 'server') {
+				if (output === 'server') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint:

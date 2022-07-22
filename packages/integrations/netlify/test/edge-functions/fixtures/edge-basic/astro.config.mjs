@@ -7,5 +7,5 @@ export default defineConfig({
 		dist: new URL('./dist/', import.meta.url),
 	}),
 	integrations: [react()],
-	mode: 'server',
+	output: 'server',
 })

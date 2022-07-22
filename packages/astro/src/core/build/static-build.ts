@@ -26,10 +26,10 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Verify this app is buildable.
 	if(isModeServerWithNoAdapter(opts.astroConfig)) {
-		throw new Error(`Cannot use mode: 'server' without an adapter. Please install and configure an adapter by setting it on the deploy configuration.
+		throw new Error(`Cannot use output: 'server' without an adapter. Please install and configure an adapter by setting it on the deploy configuration.
 		
 export default {
-	mode: 'static',
+	output: 'static',
 	adapter: netlify(),
 }`)
 	}
@@ -69,7 +69,7 @@ export default {
 	info(
 		opts.logging,
 		'build',
-		`Building ${astroConfig.mode} entrypoints...`
+		`Building ${astroConfig.output} entrypoints...`
 	);
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
@@ -90,7 +90,7 @@ export default {
 	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
-	if (astroConfig.mode === 'static') {
+	if (astroConfig.output === 'static') {
 		try {
 			await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		} finally {
@@ -107,7 +107,7 @@ export default {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
-	const ssr = astroConfig.mode === 'server';
+	const ssr = astroConfig.output === 'server';
 	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
 
 	const viteBuildConfig: ViteConfigWithSSR = {
@@ -151,7 +151,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig.mode === 'server' && vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
+			opts.astroConfig.output === 'server' && vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
 			vitePluginAnalyzer(opts.astroConfig, internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
@@ -181,7 +181,7 @@ async function clientBuild(
 ) {
 	const { astroConfig, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = astroConfig.mode === 'server';
+	const ssr = astroConfig.output === 'server';
 	const out = ssr ? opts.buildConfig.client : astroConfig.outDir;
 
 	// Nothing to do if there is no client-side JS.
@@ -282,7 +282,7 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const serverRoot = opts.astroConfig.mode === 'static'
+	const serverRoot = opts.astroConfig.output === 'static'
 		? opts.buildConfig.client
 		: opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;

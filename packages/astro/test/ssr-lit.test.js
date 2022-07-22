@@ -10,7 +10,7 @@ describe('Lit integration in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/lit-element/',
-			mode: 'server',
+			output: 'server',
 			deploy: testAdapter(),
 		});
 		await fixture.build();

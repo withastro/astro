@@ -189,7 +189,7 @@ export async function runHookBuildDone({
 	pages: string[];
 	routes: RouteData[];
 }) {
-	const dir = config.mode === 'server' ? buildConfig.client : config.outDir;
+	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {

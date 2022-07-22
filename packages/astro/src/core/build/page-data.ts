@@ -68,7 +68,7 @@ export async function collectPagesData(
 			};
 
 			clearInterval(routeCollectionLogTimeout);
-			if (astroConfig.mode === 'static') {
+			if (astroConfig.output === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',

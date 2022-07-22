@@ -183,7 +183,7 @@ export async function render(
 		route,
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
-		ssr: astroConfig.mode === 'server',
+		ssr: astroConfig.output === 'server',
 		streaming: true,
 	});
 

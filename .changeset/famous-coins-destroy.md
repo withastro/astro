@@ -18,7 +18,7 @@ This change introduces a new configuration option `mode`. Mode can be either
 
 The default, `static`, can be omitted from your config file.
 
-If you want to use SSR you now need to provide `mode: 'server'` *in addition* to an adapter.
+If you want to use SSR you now need to provide `output: 'server'` *in addition* to an adapter.
 
 The `adapter` configuration has been renamed to `deploy`. In the future adapters will support configuring a static site as well!
 
@@ -31,6 +31,6 @@ import netlify from '@astrojs/netlify/functions';
 export default defineConfig({
 -  adapter: netlify(),
 +  deploy: netlify(),
-+  mode: 'server',
++  output: 'server',
 });
 ```

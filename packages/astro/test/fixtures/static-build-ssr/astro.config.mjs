@@ -3,5 +3,5 @@ import nodejs from '@astrojs/node';
 
 export default defineConfig({
 	deploy: nodejs(),
-	mode: 'server',
+	output: 'server',
 });

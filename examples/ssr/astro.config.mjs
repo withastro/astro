@@ -4,7 +4,7 @@ import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-	mode: 'server',
+	output: 'server',
 	deploy: node(),
 	integrations: [svelte()],
 });

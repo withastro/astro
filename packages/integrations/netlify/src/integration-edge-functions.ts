@@ -136,7 +136,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				setAdapter(getAdapter());
 				_config = config;
 
-				if(config.mode === 'static') {
+				if(config.output === 'static') {
 					console.warn(`@astrojs/netlify does not support static mode.`);
 				}
 			},

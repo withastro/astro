@@ -97,7 +97,7 @@ export async function generatePages(
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
-	const ssr = opts.astroConfig.mode === 'server';
+	const ssr = opts.astroConfig.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
@@ -207,7 +207,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = opts.astroConfig.mode === 'server';
+	const ssr = opts.astroConfig.output === 'server';
 	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
 	const options: RenderOptions = {
 		adapterName: undefined,

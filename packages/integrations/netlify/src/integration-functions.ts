@@ -36,7 +36,7 @@ function netlifyFunctions({
 				setAdapter(getAdapter({ binaryMediaTypes }));
 				_config = config;
 
-				if(config.mode === 'static') {
+				if(config.output === 'static') {
 					console.warn(`@astrojs/netlify does not support static mode.`);
 				}
 			},

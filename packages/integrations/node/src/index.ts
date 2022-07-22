@@ -15,7 +15,7 @@ export default function createIntegration(): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 
-				if(config.mode === 'static') {
+				if(config.output === 'static') {
 					console.warn(`@astrojs/node does not support static mode.`);
 				}
 			},

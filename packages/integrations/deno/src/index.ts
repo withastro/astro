@@ -32,7 +32,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(args));
 
-				if(config.mode === 'static') {
+				if(config.output === 'static') {
 					console.warn(`@astrojs/deno does not support static mode.`);
 				}
 			},

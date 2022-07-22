@@ -124,7 +124,7 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
-	mode: z
+	output: z
 	.union([z.literal('static'), z.literal('server')])
 	.optional()
 	.default('static'),

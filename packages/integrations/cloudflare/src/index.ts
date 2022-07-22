@@ -22,7 +22,7 @@ export default function createIntegration(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 
-				if(config.mode === 'static') {
+				if(config.output === 'static') {
 					console.warn(`@astrojs/cloudflare does not support static mode.`);
 				}
 			},
