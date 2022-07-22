@@ -19,6 +19,9 @@ let consoleFilterRefs = 0;
 export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 	switch (true) {
 		case vnode instanceof HTMLString:
+			if (vnode.toString().trim() === '') {
+				return '';
+			}
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
@@ -94,8 +97,13 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				slots.default.push(child);
 			}
 			extractSlots(children);
-			for (const [key, value] of Object.entries(slots)) {
-				slots[key] = () => renderJSX(result, value);
+			for await (const [key, value] of Object.entries(props)) {
+				if (value['$$slot']) {
+					slots[key] = await renderJSX(result, value);
+				}
+			}
+			for await (const [key, value] of Object.entries(slots)) {
+				slots[key] = await renderJSX(result, value);
 			}
 
 			let output: string | AsyncIterable<string>;
