@@ -101,9 +101,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
-export async function getImage(
-	transform: GetImageTransform
-): Promise<ImageAttributes> {
+export async function getImage(transform: GetImageTransform): Promise<ImageAttributes> {
 	if (!transform.src) {
 		throw new Error('[@astrojs/image] `src` is required');
 	}

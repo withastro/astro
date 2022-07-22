@@ -6,10 +6,9 @@ import { ensureDir } from '../utils/paths.js';
 
 async function globImages(dir: URL) {
 	const srcPath = fileURLToPath(dir);
-	return await glob(
-		`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`,
-		{ absolute: true }
-	);
+	return await glob(`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`, {
+		absolute: true,
+	});
 }
 
 export interface SSRBuildParams {

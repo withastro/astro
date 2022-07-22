@@ -3,8 +3,8 @@ import type { PluginContext } from 'rollup';
 import slash from 'slash';
 import { pathToFileURL } from 'url';
 import type { Plugin, ResolvedConfig } from 'vite';
-import { metadata } from './utils/metadata.js';
 import type { IntegrationOptions } from './types.js';
+import { metadata } from './utils/metadata.js';
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
@@ -60,6 +60,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			};
 
 			return `export default ${JSON.stringify(output)}`;
-		}
+		},
 	};
 }

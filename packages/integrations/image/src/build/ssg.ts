@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { OUTPUT_DIR } from '../constants.js';
-import { ensureDir } from '../utils/paths.js';
-import { isRemoteImage, loadRemoteImage, loadLocalImage } from '../utils/images.js';
 import type { SSRImageService, TransformOptions } from '../types.js';
+import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
+import { ensureDir } from '../utils/paths.js';
 
 export interface SSGBuildParams {
 	loader: SSRImageService;
@@ -13,12 +13,7 @@ export interface SSGBuildParams {
 	outDir: URL;
 }
 
-export async function ssgBuild({
-	loader,
-	staticImages,
-	srcDir,
-	outDir,
-}: SSGBuildParams) {
+export async function ssgBuild({ loader, staticImages, srcDir, outDir }: SSGBuildParams) {
 	const inputFiles = new Set<string>();
 
 	// process transforms one original image file at a time
@@ -51,10 +46,7 @@ export async function ssgBuild({
 			let outputFile: string;
 
 			if (isRemoteImage(src)) {
-				const outputFileURL = new URL(
-					path.join('./', OUTPUT_DIR, path.basename(filename)),
-					outDir
-				);
+				const outputFileURL = new URL(path.join('./', OUTPUT_DIR, path.basename(filename)), outDir);
 				outputFile = fileURLToPath(outputFileURL);
 			} else {
 				const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), outDir);

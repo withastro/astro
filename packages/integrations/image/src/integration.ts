@@ -2,8 +2,8 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { ssgBuild } from './build/ssg.js';
 import { ssrBuild } from './build/ssr.js';
 import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
-import {  filenameFormat, propsToFilename } from './utils/paths.js';
 import { IntegrationOptions, TransformOptions } from './types.js';
+import { filenameFormat, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {

@@ -1,13 +1,8 @@
 import { lookup } from 'mrmime';
 import { extname } from 'path';
-import { getImage } from './get-image.js';
-import {
-	ImageAttributes,
-	ImageMetadata,
-	OutputFormat,
-	TransformOptions,
-} from '../types.js';
+import { ImageAttributes, ImageMetadata, OutputFormat, TransformOptions } from '../types.js';
 import { parseAspectRatio } from '../utils/images.js';
+import { getImage } from './get-image.js';
 
 export interface GetPictureParams {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -45,7 +40,7 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
 	const { src, widths } = params;
-	
+
 	if (!src) {
 		throw new Error('[@astrojs/image] `src` is required');
 	}

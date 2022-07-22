@@ -71,7 +71,9 @@ describe('SSR images - build', function () {
 		});
 
 		it('includes the original images', () => {
-			['/assets/social.jpg', '/assets/social.png', '/assets/blog/introducing-astro.jpg'].map(verifyImage);
+			['/assets/social.jpg', '/assets/social.png', '/assets/blog/introducing-astro.jpg'].map(
+				verifyImage
+			);
 		});
 	});
 

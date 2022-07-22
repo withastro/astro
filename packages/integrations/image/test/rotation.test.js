@@ -33,16 +33,20 @@ describe('Image rotation', function () {
 			it('includes <img> attributes', () => {
 				for (let i = 0; i < 9; i++) {
 					const image = $(`#landscape-${i}`);
-	
+
 					expect(image.attr('src')).to.equal(`/_image/assets/Landscape_${i}_1800x1200.jpg`);
 					expect(image.attr('width')).to.equal('1800');
 					expect(image.attr('height')).to.equal('1200');
 				}
 			});
-	
+
 			it('built the optimized image', () => {
 				for (let i = 0; i < 9; i++) {
-					verifyImage(`/_image/assets/Landscape_${i}_1800x1200.jpg`, { width: 1800, height: 1200, type: 'jpg' });
+					verifyImage(`/_image/assets/Landscape_${i}_1800x1200.jpg`, {
+						width: 1800,
+						height: 1200,
+						type: 'jpg',
+					});
 				}
 			});
 		});
@@ -51,16 +55,20 @@ describe('Image rotation', function () {
 			it('includes <img> attributes', () => {
 				for (let i = 0; i < 9; i++) {
 					const image = $(`#portrait-${i}`);
-	
+
 					expect(image.attr('src')).to.equal(`/_image/assets/Portrait_${i}_1200x1800.jpg`);
 					expect(image.attr('width')).to.equal('1200');
 					expect(image.attr('height')).to.equal('1800');
 				}
 			});
-	
+
 			it('built the optimized image', () => {
 				for (let i = 0; i < 9; i++) {
-					verifyImage(`/_image/assets/Portrait_${i}_1200x1800.jpg`, { width: 1200, height: 1800, type: 'jpg' });
+					verifyImage(`/_image/assets/Portrait_${i}_1200x1800.jpg`, {
+						width: 1200,
+						height: 1800,
+						type: 'jpg',
+					});
 				}
 			});
 		});

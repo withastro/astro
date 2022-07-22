@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { OUTPUT_DIR } from '../constants.js';
+import type { TransformOptions } from '../types.js';
 import { isRemoteImage } from './images.js';
 import { shorthash } from './shorthash.js';
-import type { TransformOptions } from '../types.js';
 
 export function ensureDir(dir: string) {
 	fs.mkdirSync(dir, { recursive: true });
@@ -32,9 +32,5 @@ export function propsToFilename({ src, width, height, format }: TransformOptions
 export function filenameFormat(transform: TransformOptions) {
 	return isRemoteImage(transform.src)
 		? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
-		: path.join(
-				OUTPUT_DIR,
-				path.dirname(transform.src),
-				path.basename(propsToFilename(transform))
-			);
+		: path.join(OUTPUT_DIR, path.dirname(transform.src), path.basename(propsToFilename(transform)));
 }
