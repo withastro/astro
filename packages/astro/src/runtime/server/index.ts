@@ -619,7 +619,7 @@ export function spreadAttributes(
 }
 
 // Adds CSS variables to an inline style tag
-export function defineStyleVars(defs: Record<any, any>|Record<any, any>[]) {
+export function defineStyleVars(defs: Record<any, any> | Record<any, any>[]) {
 	let output = '';
 	let arr = !Array.isArray(defs) ? [defs] : defs;
 	for (const vars of arr) {
@@ -634,10 +634,10 @@ export function defineStyleVars(defs: Record<any, any>|Record<any, any>[]) {
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-  k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
-    if (/[^\w]|\s/.test(match)) return '';
-    return index === 0 ? match : match.toUpperCase();
-  });
+	k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
+		if (/[^\w]|\s/.test(match)) return '';
+		return index === 0 ? match : match.toUpperCase();
+	});
 
 // Adds variables to an inline script.
 export function defineScriptVars(vars: Record<any, any>) {

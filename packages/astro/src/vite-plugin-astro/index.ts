@@ -179,25 +179,25 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						code: '',
 						meta: {
 							vite: {
-								lang: 'ts'
-							}
-						}
+								lang: 'ts',
+							},
+						},
 					};
 
 					switch (hoistedScript.type) {
 						case 'inline': {
-							let { code, map } = hoistedScript
+							let { code, map } = hoistedScript;
 							result.code = appendSourceMap(code, map);
 							break;
 						}
 						case 'external': {
-							const { src } = hoistedScript
+							const { src } = hoistedScript;
 							result.code = `import "${src}"`;
 							break;
 						}
 					}
-					
-					return result
+
+					return result;
 				}
 				default:
 					return null;
@@ -364,5 +364,7 @@ ${source}
 
 function appendSourceMap(content: string, map?: string) {
 	if (!map) return content;
-	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(map).toString('base64')}`
+	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+		map
+	).toString('base64')}`;
 }
