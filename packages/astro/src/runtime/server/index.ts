@@ -640,7 +640,7 @@ const toIdent = (k: string) =>
   });
 
 // Adds variables to an inline script.
-export async function defineScriptVars(vars: Record<any, any>) {
+export function defineScriptVars(vars: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
 		output += `let ${toIdent(key)} = ${JSON.stringify(value)};\n`;
