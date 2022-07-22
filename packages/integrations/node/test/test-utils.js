@@ -23,7 +23,7 @@ export function createRequestAndResponse(reqOptions) {
 
 	let res = httpMocks.createResponse({
 		eventEmitter: EventEmitter,
-		req
+		req,
 	});
 
 	let done = toPromise(res);
@@ -32,7 +32,7 @@ export function createRequestAndResponse(reqOptions) {
 }
 
 export function toPromise(res) {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		res.on('end', () => {
 			let chunks = res._getChunks();
 			resolve(chunks);
