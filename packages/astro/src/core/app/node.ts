@@ -14,7 +14,7 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: string): Requ
 	let request = new Request(url, {
 		method: req.method || 'GET',
 		headers: new Headers(entries),
-		body
+		body,
 	});
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);
@@ -27,23 +27,23 @@ export class NodeApp extends App {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req));
 	}
 	render(req: IncomingMessage | Request) {
-		if('on' in req) {
+		if ('on' in req) {
 			let body: string | undefined = undefined;
 			let reqBodyComplete = new Promise((resolve, reject) => {
-				req.on('data', d => {
-					if(body === undefined) {
+				req.on('data', (d) => {
+					if (body === undefined) {
 						body = '';
 					}
-					if(d instanceof Buffer) {
+					if (d instanceof Buffer) {
 						body += d.toString('utf-8');
-					} else if(typeof d === 'string') {
+					} else if (typeof d === 'string') {
 						body += d;
 					}
 				});
 				req.on('end', () => {
 					resolve(body);
 				});
-				req.on('error', err => {
+				req.on('error', (err) => {
 					reject(err);
 				});
 			});

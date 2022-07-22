@@ -29,8 +29,8 @@ export function createExports(manifest: SSRManifest) {
 				} else if (next) {
 					return next();
 				}
-			} catch(err: unknown) {
-				if(!res.headersSent) {
+			} catch (err: unknown) {
+				if (!res.headersSent) {
 					res.writeHead(500, `Server error`);
 					res.end();
 				}
