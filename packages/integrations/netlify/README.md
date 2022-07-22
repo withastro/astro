@@ -37,7 +37,8 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
-	adapter: netlify(),
+  mode: 'server',
+	deploy: netlify(),
 });
 ```
 
@@ -51,7 +52,8 @@ import { defineConfig } from 'astro/config';
 + import netlify from '@astrojs/netlify/edge-functions';
 
 export default defineConfig({
-	adapter: netlify(),
+  mode: 'server',
+	deploy: netlify(),
 });
 ```
 ## Usage
@@ -83,7 +85,8 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
-  adapter: netlify({
+  mode: 'server',
+  deploy: netlify({
     dist: new URL('./dist/', import.meta.url)
   })
 });
