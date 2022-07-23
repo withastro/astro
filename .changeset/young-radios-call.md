@@ -1,7 +1,6 @@
 ---
-'@example/docs': minor
-'astro': minor
+'astro': patch
 '@astrojs/markdown-remark': minor
 ---
 
-Renamed getHeaders() to getHeadings(), according to RFC #208.
+**BREAKING** Renamed Markdown utility function `getHeaders()` to `getHeadings()`.
