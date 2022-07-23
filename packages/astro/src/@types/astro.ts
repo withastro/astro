@@ -1,5 +1,5 @@
 import type {
-	MarkdownHeader,
+	MarkdownHeading,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
 	RehypePlugins,
@@ -16,6 +16,14 @@ import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type { SSRManifest } from '../core/app/types';
+export type {
+	MarkdownHeading,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -783,7 +791,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
 	compiledContent(): Promise<string>;
-	getHeaders(): Promise<MarkdownHeader[]>;
+	getHeadings(): Promise<MarkdownHeading[]>;
+	/** @deprecated Renamed to `getHeadings()` */
+	getHeaders(): void;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
 		frontmatter: MarkdownContent<T>;
