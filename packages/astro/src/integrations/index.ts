@@ -45,6 +45,8 @@ export async function runHookConfigSetup({
 				command,
 				addRenderer(renderer: AstroRenderer) {
 					updatedConfig._ctx.renderers.push(renderer);
+					// Important: sort renderers alphabetically to ensure rendering errors are independent of user's config order
+					updatedConfig._ctx.renderers = updatedConfig._ctx.renderers.sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
 				},
 				injectScript: (stage, content) => {
 					updatedConfig._ctx.scripts.push({ stage, content });
