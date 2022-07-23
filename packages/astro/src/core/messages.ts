@@ -83,12 +83,13 @@ export function devStart({
 	if (networkLogging === 'host-to-expose') {
 		network = `${networkPrefix}${dim('use --host to expose')}`;
 	} else if (networkLogging === 'visible') {
+		const nodeVersion = Number(process.version.substring(1, process.version.indexOf(".", 5)));
 		const ipv4Networks = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
 			.filter(
 				(networkInterface) =>
 					networkInterface?.address &&
-					networkInterface?.family === (Number(process.version.substring(1, 5)) < 18.1 ? 'IPv4' : 4)
+					networkInterface?.family === ((nodeVersion < 18 || nodeVersion >= 18.4) ? 'IPv4' : 4)
 			);
 		for (let { address } of ipv4Networks) {
 			if (address.includes('127.0.0.1')) {
