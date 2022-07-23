@@ -62,6 +62,10 @@ describe('SSG pictures', function () {
 				verifyImage('_image/assets/social_506x253.webp', { width: 506, height: 253, type: 'webp' });
 				verifyImage('_image/assets/social_506x253.jpg', { width: 506, height: 253, type: 'jpg' });
 			});
+
+			it('dist includes original image', () => {
+				verifyImage('assets/social.jpg', { width: 2024, height: 1012, type: 'jpg' });
+			});
 		});
 
 		describe('Inline imports', () => {

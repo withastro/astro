@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import sizeOf from 'image-size';
-import { ImageMetadata, InputFormat } from './types';
+import { ImageMetadata, InputFormat } from '../types.js';
 
 export async function metadata(src: string): Promise<ImageMetadata | undefined> {
 	const file = await fs.readFile(src);
