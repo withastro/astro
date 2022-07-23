@@ -3,7 +3,9 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { MarkdownHeading } from 'astro';
 
-const TableOfContents: FunctionalComponent<{ headings: MarkdownHeading[] }> = ({ headings = [] }) => {
+const TableOfContents: FunctionalComponent<{ headings: MarkdownHeading[] }> = ({
+	headings = [],
+}) => {
 	const itemOffsets = useRef([]);
 	const [activeId, setActiveId] = useState<string>(undefined);
 	useEffect(() => {
