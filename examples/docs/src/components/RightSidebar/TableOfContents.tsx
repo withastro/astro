@@ -1,11 +1,11 @@
 import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
+import { MarkdownHeading } from 'astro';
 
-const TableOfContents: FunctionalComponent<{ headings: any[] }> = ({ headings = [] }) => {
+const TableOfContents: FunctionalComponent<{ headings: MarkdownHeading[] }> = ({ headings = [] }) => {
 	const itemOffsets = useRef([]);
 	const [activeId, setActiveId] = useState<string>(undefined);
-
 	useEffect(() => {
 		const getItemOffsets = () => {
 			const titles = document.querySelectorAll('article :is(h1, h2, h3, h4)');

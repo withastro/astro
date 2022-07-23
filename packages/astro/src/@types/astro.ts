@@ -16,6 +16,14 @@ import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type { SSRManifest } from '../core/app/types';
+export type {
+	MarkdownHeading,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
