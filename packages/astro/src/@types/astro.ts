@@ -697,12 +697,17 @@ export interface AstroUserConfig {
 	devOptions?: never;
 
 	legacy?: {
-		/**
-		 * Enable components and JSX expressions in markdown
-		 * Consider our MDX integration before applying this flag!
-		 * @see https://docs.astro.build/en/guides/integrations-guide/mdx/
-		 * Default: false
-		 */
+	 /**
+		 * @docs
+		 * @name astroFlavoredMarkdown
+		 * @type {boolean}
+		 * @default `false`
+		 * @description
+		 * Enable components and JSX expressions in Markdown 
+		 * 
+		 * :::deprecated
+		 * Set `legacy.astroFlavoredMarkdown: true` to continue using components and JSX in `.md` until you have fully-transitioned to our [MDX integration](/en/guides/integrations-guide/mdx/).
+		 * :::
 		astroFlavoredMarkdown?: boolean;
 	};
 }
