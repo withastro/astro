@@ -78,6 +78,8 @@ export default function envVitePlugin({
 				privateEnv = getPrivateEnv(config, astroConfig);
 				if (privateEnv) {
 					privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
+					privateEnv.SSR = JSON.stringify(true);
+					privateEnv.BASE_URL = astroConfig.base ? `'${astroConfig.base}'` : undefined;
 					const entries = Object.entries(privateEnv).map(([key, value]) => [
 						`import.meta.env.${key}`,
 						value,
@@ -86,6 +88,8 @@ export default function envVitePlugin({
 					// These additional replacements are needed to match Vite
 					replacements = Object.assign(replacements, {
 						'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
+						'import.meta.env.SSR': JSON.stringify(true),
+						'import.meta.env.BASE_URL': astroConfig.base ? `'${astroConfig.base}'` : undefined,
 						// This catches destructed `import.meta.env` calls,
 						// BUT we only want to inject private keys referenced in the file.
 						// We overwrite this value on a per-file basis.

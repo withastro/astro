@@ -69,8 +69,6 @@ export interface CLIFlags {
 	host?: string | boolean;
 	port?: number;
 	config?: string;
-	experimentalSsr?: boolean;
-	experimentalIntegrations?: boolean;
 	drafts?: boolean;
 }
 
@@ -87,11 +85,29 @@ export interface BuildConfig {
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
 export interface AstroGlobal extends AstroGlobalPartial {
-	/** Canonical URL of the current page. If the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option is set, its origin will be the origin of this URL.
+	/**
+	 * Canonical URL of the current page.
+	 * @deprecated Use `Astro.url` instead.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrocanonicalurl)
+	 * Example:
+	 * ```astro
+	 * ---
+	 * const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+	 * ---
+	 * ```
 	 */
 	canonicalURL: URL;
+	/** The address (usually IP address) of the user. Used with SSR only.
+	 *
+	 */
+	clientAddress: string;
+	/**
+	 * A full URL object of the request URL.
+	 * Equivalent to: `new URL(Astro.request.url)`
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
+	 */
+	url: URL;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
@@ -222,11 +238,9 @@ export interface AstroGlobalPartial {
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
 	 *
-	 * If `site` is undefined, the URL object will instead be built from `localhost`
-	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
-	site: URL;
+	site: URL | undefined;
 }
 
 type ServerConfig = {
@@ -498,9 +512,9 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
-		 * Control if markdown draft pages should be included in the build.
+		 * Control whether Markdown draft pages should be included in the build.
 		 *
-		 * A markdown page is considered a draft if it includes `draft: true` in its front matter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
+		 * A Markdown page is considered a draft if it includes `draft: true` in its frontmatter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
 		 *
 		 * ```js
 		 * {
@@ -518,7 +532,7 @@ export interface AstroUserConfig {
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
-		 * Shiki configuration options. See [the markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
+		 * Shiki configuration options. See [the Markdown configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for usage.
 		 */
 		shikiConfig?: Partial<ShikiConfig>;
 
@@ -585,11 +599,22 @@ export interface AstroUserConfig {
 	};
 
 	/**
-	 * @name adapter
-	 * @type {AstroIntegration}
-	 * @default `undefined`
+	 * @docs
+	 * @kind heading
+	 * @name Adapter
 	 * @description
-	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
 	 */
 	adapter?: AstroIntegration;
 
@@ -648,20 +673,6 @@ export interface AstroUserConfig {
 	 */
 	vite?: ViteUserConfig;
 
-	experimental?: {
-		/**
-		 * Enable support for 3rd-party integrations.
-		 * Default: false
-		 */
-		integrations?: boolean;
-
-		/**
-		 * Enable support for 3rd-party SSR adapters.
-		 * Default: false
-		 */
-		ssr?: boolean;
-	};
-
 	// Legacy options to be removed
 
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
@@ -684,8 +695,16 @@ export interface AstroUserConfig {
 	buildOptions?: never;
 	/** @deprecated `devOptions` has been renamed to `server` */
 	devOptions?: never;
-	/** @deprecated `experimentalIntegrations` has been renamed to `experimental: { integrations: true }` */
-	experimentalIntegrations?: never;
+
+	legacy?: {
+		/**
+		 * Enable components and JSX expressions in markdown
+		 * Consider our MDX integration before applying this flag!
+		 * @see https://docs.astro.build/en/guides/integrations-guide/mdx/
+		 * Default: false
+		 */
+		astroFlavoredMarkdown?: boolean;
+	};
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
@@ -726,6 +745,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		pageExtensions: string[];
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
@@ -736,7 +756,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 export type AsyncRendererComponentFn<U> = (
 	Component: any,
 	props: any,
-	children: string | undefined,
+	slots: Record<string, string>,
 	metadata?: AstroComponentMetadata
 ) => Promise<U>;
 
@@ -772,13 +792,12 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	}>;
 }
 
-export type GetHydrateCallback = () => Promise<
-	(element: Element, innerHTML: string | null) => void | Promise<void>
->;
+export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
  * getStaticPaths() options
- * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
  */ export interface GetStaticPathsOptions {
 	paginate: PaginateFunction;
 	/**
@@ -793,6 +812,18 @@ export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
 };
+
+/**
+ * Return an array of pages to generate for a [dynamic route](https://docs.astro.build/en/core-concepts/routing/#dynamic-routes). (**SSG Only**)
+ *
+ * [Astro Reference](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
+ */
+export type GetStaticPaths = (
+	options: GetStaticPathsOptions
+) =>
+	| Promise<GetStaticPathsResult | GetStaticPathsResult[]>
+	| GetStaticPathsResult
+	| GetStaticPathsResult[];
 
 export interface HydrateOptions {
 	name: string;
@@ -821,7 +852,8 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
 
 /**
  * The `content` prop given to a Layout
- * https://docs.astro.build/guides/markdown-content/#markdown-layouts
+ *
+ * [Astro reference](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts)
  */
 export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
@@ -829,7 +861,8 @@ export type MarkdownContent<T extends Record<string, any> = Record<string, any>>
 
 /**
  * paginate() Options
- * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#paginate)
  */
 export interface PaginateOptions {
 	/** the number of items per-page (default: `10`) */
@@ -841,8 +874,9 @@ export interface PaginateOptions {
 }
 
 /**
- * Page Prop
- * Docs: https://docs.astro.build/guides/pagination/#using-the-page-prop
+ * Represents a single page of data in a paginated collection
+ *
+ * [Astro reference](https://docs.astro.build/en/reference/api-reference/#the-pagination-page-prop)
  */
 export interface Page<T = any> {
 	/** result */
@@ -870,7 +904,7 @@ export interface Page<T = any> {
 	};
 }
 
-export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
+export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | number | undefined>;
 
@@ -924,6 +958,11 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 	};
 }
 
+export type HookParameters<
+	Hook extends keyof AstroIntegration['hooks'],
+	Fn = AstroIntegration['hooks'][Hook]
+> = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
+
 export interface AstroIntegration {
 	/** The name of the integration. */
 	name: string;
@@ -940,7 +979,7 @@ export interface AstroIntegration {
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
-		}) => void;
+		}) => void | Promise<void>;
 		'astro:config:done'?: (options: {
 			config: AstroConfig;
 			setAdapter: (adapter: AstroAdapter) => void;

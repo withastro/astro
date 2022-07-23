@@ -3,7 +3,13 @@ import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as npath from 'path';
 import { fileURLToPath } from 'url';
+import type { Plugin as VitePlugin } from 'vite';
 import { createRedirects } from './shared.js';
+
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: {},
+};`;
 
 export function getAdapter(): AstroAdapter {
 	return {
@@ -77,6 +83,9 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		format: 'esm',
 		bundle: true,
 		external: ['@astrojs/markdown-remark'],
+		banner: {
+			js: SHIM,
+		},
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
@@ -97,12 +106,31 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 	return {
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
-			'astro:config:setup': ({ config }) => {
+			'astro:config:setup': ({ config, updateConfig }) => {
 				if (dist) {
 					config.outDir = dist;
 				} else {
 					config.outDir = new URL('./dist/', config.root);
 				}
+
+				// Add a plugin that shims the global environment.
+				const injectPlugin: VitePlugin = {
+					name: '@astrojs/netlify/plugin-inject',
+					generateBundle(_options, bundle) {
+						if (_buildConfig.serverEntry in bundle) {
+							const chunk = bundle[_buildConfig.serverEntry];
+							if (chunk && chunk.type === 'chunk') {
+								chunk.code = `globalThis.process = { argv: [], env: {}, };${chunk.code}`;
+							}
+						}
+					},
+				};
+
+				updateConfig({
+					vite: {
+						plugins: [injectPlugin],
+					},
+				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());

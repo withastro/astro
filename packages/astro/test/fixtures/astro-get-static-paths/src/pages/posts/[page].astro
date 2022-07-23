@@ -14,6 +14,7 @@ export async function getStaticPaths() {
 };
 
 const { page } = Astro.params
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="en">
@@ -21,7 +22,7 @@ const { page } = Astro.params
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title>Posts Page {page}</title>
-		<link rel="canonical" href={Astro.canonicalURL.href}>
+		<link rel="canonical" href={canonicalURL.href}>
 	</head>
 	<body>
 		<h1>Welcome to page {page}</h1>

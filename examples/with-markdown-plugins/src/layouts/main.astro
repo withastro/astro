@@ -1,10 +1,10 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 const { content } = Astro.props;
 ---
 
-<html lang={content.lang || 'en'}>
+<html lang={content.lang || "en"}>
 	<head>
 		<meta charset="utf-8" />
 
@@ -27,7 +27,6 @@ const { content } = Astro.props;
 			<header>
 				<nav class="nav">
 					<a href="/">Home</a>
-					<a href="/about">About</a>
 				</nav>
 			</header>
 			<slot />

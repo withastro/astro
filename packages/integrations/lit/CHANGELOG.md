@@ -1,5 +1,29 @@
 # @astrojs/lit
 
+## 0.3.1
+
+### Patch Changes
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+## 0.3.0
+
+### Minor Changes
+
+- [#3652](https://github.com/withastro/astro/pull/3652) [`7373d61c`](https://github.com/withastro/astro/commit/7373d61cdcaedd64bf5fd60521b157cfa4343558) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds support for passing named slots from `.astro` => Lit components.
+
+  All slots are treated as Light DOM content.
+
+## 0.2.0
+
+### Minor Changes
+
+- [#3625](https://github.com/withastro/astro/pull/3625) [`f5afaf24`](https://github.com/withastro/astro/commit/f5afaf24984ee7d4d6e908a7eeed17f5ca18c61e) Thanks [@matthewp](https://github.com/matthewp)! - Conform to Constructor based rendering
+
+  This changes `@astrojs/lit` to conform to the way rendering happens in all other frameworks. Instead of using the tag name `<my-element client:load>` you use the imported constructor function, `<MyElement client:load>` like you would do with any other framework.
+
+  Support for `tag-name` syntax had to be removed due to the fact that it was a runtime feature that was not statically analyzable. To improve build performance, we have removed all runtime based component discovery. Using the imported Constructor name allows Astro to discover what components need to be built and bundled for production without ever running your file.
+
 ## 0.1.5
 
 ### Patch Changes

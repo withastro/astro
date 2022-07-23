@@ -13,6 +13,11 @@ export default async function run() {
 			await copy(...args);
 			break;
 		}
+		case 'prebuild': {
+			const { default: prebuild } = await import('./cmd/prebuild.js');
+			await prebuild(...args);
+			break;
+		}
 	}
 }
 

@@ -1,4 +1,5 @@
 ---
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang="en">
@@ -7,6 +8,6 @@
 </head>
 <body>
   <h1>Page not found</h1>
-	<p>{Astro.canonicalURL.pathname}</p>
+	<p>{canonicalURL.pathname}</p>
 </body>
 </html>

@@ -1,16 +1,20 @@
 import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
+import type { PluginContext, SourceMapInput } from 'rollup';
 import type { AstroConfig } from '../@types/astro';
 import type { TransformHook } from './styles';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'url';
+import { AstroErrorCodes } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { transformWithVite } from './styles.js';
 
 type CompilationCache = Map<string, CompileResult>;
-type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
+type CompileResult = TransformResult & {
+	rawCSSDeps: Set<string>;
+	source: string;
+};
 
 /**
  * Note: this is currently needed because Astro is directly using a Vite internal CSS transform. This gives us
@@ -33,13 +37,24 @@ function safelyReplaceImportPlaceholder(code: string) {
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
-interface CompileProps {
+export interface CompileProps {
 	config: AstroConfig;
 	filename: string;
 	moduleId: string;
 	source: string;
 	ssr: boolean;
 	viteTransform: TransformHook;
+	pluginContext: PluginContext;
+}
+
+function getNormalizedID(filename: string): string {
+	try {
+		const filenameURL = new URL(`file://${filename}`);
+		return fileURLToPath(filenameURL);
+	} catch (err) {
+		// Not a real file, so just use the provided filename as the normalized id
+		return filename;
+	}
 }
 
 async function compile({
@@ -49,10 +64,9 @@ async function compile({
 	source,
 	ssr,
 	viteTransform,
+	pluginContext,
 }: CompileProps): Promise<CompileResult> {
-	const filenameURL = new URL(`file://${filename}`);
-	const normalizedID = fileURLToPath(filenameURL);
-
+	const normalizedID = getNormalizedID(filename);
 	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
 
@@ -63,9 +77,7 @@ async function compile({
 		// For Windows compat, prepend the module ID with `/@fs`
 		pathname: `/@fs${prependForwardSlash(moduleId)}`,
 		projectRoot: config.root.toString(),
-		site: config.site
-			? new URL(config.base, config.site).toString()
-			: `http://localhost:${config.server.port}/`,
+		site: config.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(
@@ -98,6 +110,7 @@ async function compile({
 					id: normalizedID,
 					transformHook: viteTransform,
 					ssr,
+					pluginContext,
 				});
 
 				let map: SourceMapInput | undefined;
@@ -117,14 +130,28 @@ async function compile({
 				return null;
 			}
 		},
-	});
-
-	// throw CSS transform errors here if encountered
-	if (cssTransformError) throw cssTransformError;
+	})
+		.catch((err) => {
+			// throw compiler errors here if encountered
+			err.code = err.code || AstroErrorCodes.UnknownCompilerError;
+			throw err;
+		})
+		.then((result) => {
+			// throw CSS transform errors here if encountered
+			if (cssTransformError) {
+				(cssTransformError as any).code =
+					(cssTransformError as any).code || AstroErrorCodes.UnknownCompilerCSSError;
+				throw cssTransformError;
+			}
+			return result;
+		});
 
 	const compileResult: CompileResult = Object.create(transformResult, {
 		rawCSSDeps: {
 			value: rawCSSDeps,
+		},
+		source: {
+			value: source,
 		},
 	});
 
@@ -133,6 +160,13 @@ async function compile({
 
 export function isCached(config: AstroConfig, filename: string) {
 	return configCache.has(config) && configCache.get(config)!.has(filename);
+}
+
+export function getCachedSource(config: AstroConfig, filename: string): string | null {
+	if (!isCached(config, filename)) return null;
+	let src = configCache.get(config)!.get(filename);
+	if (!src) return null;
+	return src.source;
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {

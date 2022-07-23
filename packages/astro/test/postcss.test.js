@@ -3,12 +3,13 @@ import * as cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-describe('PostCSS', () => {
+describe('PostCSS', function () {
 	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none`;
 
 	let fixture;
 	let bundledCSS;
 	before(async () => {
+		this.timeout(45000); // test needs a little more time in CI
 		fixture = await loadFixture({
 			root: './fixtures/postcss',
 		});
@@ -23,24 +24,25 @@ describe('PostCSS', () => {
 			.replace('/n', '');
 	});
 
+	/** All test cases check whether nested styles (i.e. &.nested {}) are correctly transformed */
 	it('works in Astro page styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`.astro-page.astro-[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.astro-page(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Astro component styles', () => {
-		expect(bundledCSS).to.match(new RegExp(`.astro-component.astro-[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.astro-component(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in JSX', () => {
-		expect(bundledCSS).to.match(new RegExp(`.solid[^{]*${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.solid(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Vue', () => {
-		expect(bundledCSS).to.match(new RegExp(`.vue[^{]*${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.vue(\.(\w|-)*)*\.nested`));
 	});
 
 	it('works in Svelte', () => {
-		expect(bundledCSS).to.match(new RegExp(`.svelte.s[^{]+${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`\.svelte(\.(\w|-)*)*\.nested`));
 	});
 
 	it('ignores CSS in public/', async () => {

@@ -20,12 +20,12 @@ export default function createCollectHeaders() {
 
 				let text = '';
 				let isJSX = false;
-				visit(node, (child, _, parent) => {
+				visit(node, (child, __, parent) => {
 					if (child.type === 'element' || parent == null) {
 						return;
 					}
 					if (child.type === 'raw') {
-						if (child.value.startsWith('\n<') || child.value.endsWith('>\n')) {
+						if (child.value.match(/^\n?<.*>\n?$/)) {
 							return;
 						}
 					}
@@ -53,7 +53,11 @@ export default function createCollectHeaders() {
 							node as any
 						).value = `<${node.tagName} id={${node.properties.id}}>${raw}</${node.tagName}>`;
 					} else {
-						node.properties.id = slugger.slug(text);
+						let slug = slugger.slug(text);
+
+						if (slug.endsWith('-')) slug = slug.slice(0, -1);
+
+						node.properties.id = slug;
 					}
 				}
 

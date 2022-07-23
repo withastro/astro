@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
+import type { AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -14,7 +14,7 @@ import {
 } from '../../integrations/index.js';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { fixViteErrorMessage } from '../errors.js';
-import { debug, info, levels, timerMessage, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -24,7 +24,7 @@ import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
-	mode?: string;
+	mode?: RuntimeMode;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
 }
@@ -39,7 +39,7 @@ export default async function build(config: AstroConfig, options: BuildOptions):
 class AstroBuilder {
 	private config: AstroConfig;
 	private logging: LogOptions;
-	private mode = 'production';
+	private mode: RuntimeMode = 'production';
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
@@ -73,13 +73,13 @@ class AstroBuilder {
 				mode: this.mode,
 				server: {
 					hmr: false,
-					middlewareMode: 'ssr',
+					middlewareMode: true,
 				},
+				appType: 'custom',
 			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		await runHookConfigDone({ config: this.config });
-		warnIfUsingExperimentalSSR(logging, this.config);
 		const viteServer = await vite.createServer(viteConfig);
 		debug('build', timerMessage('Vite started', this.timer.viteStart));
 		return { viteConfig, viteServer };
@@ -114,18 +114,6 @@ class AstroBuilder {
 			ssr: isBuildingToSSR(this.config),
 		});
 
-		// Filter pages by using conditions based on their frontmatter.
-		Object.entries(allPages).forEach(([page, data]) => {
-			if ('frontmatter' in data.preload[1]) {
-				// TODO: add better type inference to data.preload[1]
-				const frontmatter = (data.preload[1] as any).frontmatter;
-				if (Boolean(frontmatter.draft) && !this.config.markdown.drafts) {
-					debug('build', timerMessage(`Skipping draft page ${page}`, this.timer.loadStart));
-					delete allPages[page];
-				}
-			}
-		});
-
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
 
 		// The names of each pages
@@ -140,17 +128,24 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		await staticBuild({
-			allPages,
-			astroConfig: this.config,
-			logging: this.logging,
-			manifest: this.manifest,
-			origin: this.origin,
-			pageNames,
-			routeCache: this.routeCache,
-			viteConfig,
-			buildConfig,
-		});
+		try {
+			await staticBuild({
+				allPages,
+				astroConfig: this.config,
+				logging: this.logging,
+				manifest: this.manifest,
+				mode: this.mode,
+				origin: this.origin,
+				pageNames,
+				routeCache: this.routeCache,
+				viteConfig,
+				buildConfig,
+			});
+		} catch (err: unknown) {
+			// If the build doesn't complete, still shutdown the Vite server so the process doesn't hang.
+			await viteServer.close();
+			throw err;
+		}
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();

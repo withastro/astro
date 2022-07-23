@@ -3,8 +3,8 @@ import './Solid.css';
 
 export default function Counter() {
   return (
-    <div class="solid">
-      Solid
+    <div class="solid nested">
+			Solid
     </div>
   );
 }

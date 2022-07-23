@@ -1,5 +1,17 @@
 # @astrojs/rss
 
+## 0.2.2
+
+### Patch Changes
+
+- [#3956](https://github.com/withastro/astro/pull/3956) [`57e529e4c`](https://github.com/withastro/astro/commit/57e529e4c13f3e7829311ac6f92682eb6333fd96) Thanks [@esafev](https://github.com/esafev)! - Throw the error when 'site' option is missing
+
+## 0.2.1
+
+### Patch Changes
+
+- [#3913](https://github.com/withastro/astro/pull/3913) [`cd2dbfedb`](https://github.com/withastro/astro/commit/cd2dbfedb15969274df40b1c41b6680ea8885e8d) Thanks [@matthewp](https://github.com/matthewp)! - Adds error messages for missing required fields
+
 ## 0.2.0
 
 ### Minor Changes

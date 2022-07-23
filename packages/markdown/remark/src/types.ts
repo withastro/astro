@@ -41,6 +41,7 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	$?: {
 		scopedClassName: string | null;
 	};
+	isAstroFlavoredMd?: boolean;
 }
 
 export interface MarkdownHeader {

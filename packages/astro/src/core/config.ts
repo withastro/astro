@@ -34,6 +34,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	server: {
 		host: false,
 		port: 3000,
+		streaming: true,
 	},
 	style: { postcss: { options: {}, plugins: [] } },
 	integrations: [],
@@ -49,9 +50,8 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
-	experimental: {
-		ssr: false,
-		integrations: false,
+	legacy: {
+		astroFlavoredMarkdown: false,
 	},
 };
 
@@ -89,7 +89,6 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'markdownOptions',
 	'buildOptions',
 	'devOptions',
-	'experimentalIntegrations',
 ]);
 
 export const AstroConfigSchema = z.object({
@@ -118,11 +117,7 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.url()
 		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val))
-		.refine((val) => !val || new URL(val).pathname.length <= 1, {
-			message:
-				'"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
-		}),
+		.transform((val) => (val ? appendForwardSlash(val) : val)),
 	base: z
 		.string()
 		.optional()
@@ -180,9 +175,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-			// TODO: This should probably be updated to something more like "md" | "astro"
-			mode: z.enum(['md', 'mdx']).default('mdx'),
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
@@ -220,10 +212,12 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z
+	legacy: z
 		.object({
-			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
-			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
+			astroFlavoredMarkdown: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
 		})
 		.optional()
 		.default({}),
@@ -315,6 +309,7 @@ export async function validateConfig(
 						.optional()
 						.default(ASTRO_CONFIG_DEFAULTS.server.host),
 					port: z.number().optional().default(ASTRO_CONFIG_DEFAULTS.server.port),
+					streaming: z.boolean().optional().default(true),
 				})
 				.optional()
 				.default({})
@@ -338,24 +333,20 @@ export async function validateConfig(
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: { scripts: [], renderers: [], injectedRoutes: [], adapter: undefined },
+		_ctx: {
+			pageExtensions: ['.astro', '.md', '.html'],
+			scripts: [],
+			renderers: [],
+			injectedRoutes: [],
+			adapter: undefined,
+		},
 	};
-	// Final-Pass Validation (perform checks that require the full config object)
-	if (
-		!result.experimental?.integrations &&
-		!result.integrations.every((int) => int.name.startsWith('@astrojs/'))
-	) {
-		throw new Error(
-			[
-				`Astro integrations are still experimental.`,
-				``,
-				`Only official "@astrojs/*" integrations are currently supported.`,
-				`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
-				`Breaking changes may occur in this API before Astro v1.0 is released.`,
-				``,
-			].join('\n')
-		);
+	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
+		const { default: jsxRenderer } = await import('../jsx/renderer.js');
+		(result._ctx.renderers as any[]).unshift(jsxRenderer);
 	}
+
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
@@ -369,11 +360,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
-		experimentalIntegrations:
-			typeof flags.experimentalIntegrations === 'boolean'
-				? flags.experimentalIntegrations
-				: undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -381,13 +367,8 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
 	astroConfig.server = astroConfig.server || {};
-	astroConfig.experimental = astroConfig.experimental || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.experimentalSsr === 'boolean')
-		astroConfig.experimental.ssr = flags.experimentalSsr;
-	if (typeof flags.experimentalIntegrations === 'boolean')
-		astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
@@ -439,6 +420,7 @@ export async function resolveConfigURL(
 
 interface OpenConfigResult {
 	userConfig: AstroUserConfig;
+	userConfigPath: string | undefined;
 	astroConfig: AstroConfig;
 	flags: CLIFlags;
 	root: string;
@@ -475,12 +457,14 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	}
 	if (config) {
 		userConfig = config.value;
+		userConfigPath = config.filePath;
 	}
 	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
 		astroConfig,
 		userConfig,
+		userConfigPath,
 		flags,
 		root,
 	};

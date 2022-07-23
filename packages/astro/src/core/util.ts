@@ -8,6 +8,9 @@ import type { ErrorPayload } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { removeTrailingForwardSlash } from './path.js';
 
+// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
+export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
@@ -76,7 +79,10 @@ export function createSafeError(err: any): Error {
 /** generate code frame from esbuild error */
 export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
 	if (!loc) return '';
-	const lines = eol.lf(src).split('\n');
+	const lines = eol
+		.lf(src)
+		.split('\n')
+		.map((ln) => ln.replace(/\t/g, '  '));
 	// grab 2 lines before, and 3 lines after focused line
 	const visibleLines = [];
 	for (let n = -2; n <= 2; n++) {
@@ -95,16 +101,16 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 		output += isFocusedLine ? '> ' : '  ';
 		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
 		if (isFocusedLine)
-			output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(
-				' '
-			)}^\n`;
+			output += `${Array.from({ length: gutterWidth }).join(' ')}  | ${Array.from({
+				length: loc.column,
+			}).join(' ')}^\n`;
 	}
 	return output;
 }
 
-export function resolveDependency(dep: string, astroConfig: AstroConfig) {
+export function resolveDependency(dep: string, projectRoot: URL) {
 	const resolved = resolve.sync(dep, {
-		basedir: fileURLToPath(astroConfig.root),
+		basedir: fileURLToPath(projectRoot),
 	});
 	// For Windows compat, we need a fully resolved `file://` URL string
 	return pathToFileURL(resolved).toString();
@@ -149,25 +155,39 @@ export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
 }
 
+function isInPagesDir(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	return file.toString().startsWith(pagesDir.toString());
+}
+
+function isPublicRoute(file: URL, config: AstroConfig): boolean {
+	const pagesDir = resolvePages(config);
+	const parts = file.toString().replace(pagesDir.toString(), '').split('/').slice(1);
+	for (const part of parts) {
+		if (part.startsWith('_')) return false;
+	}
+	return true;
+}
+
+function endsWithPageExt(file: URL, config: AstroConfig): boolean {
+	for (const ext of config._ctx.pageExtensions) {
+		if (file.toString().endsWith(ext)) return true;
+	}
+	return false;
+}
+
+export function isPage(file: URL, config: AstroConfig): boolean {
+	if (!isInPagesDir(file, config)) return false;
+	if (!isPublicRoute(file, config)) return false;
+	return endsWithPageExt(file, config);
+}
+
 export function isBuildingToSSR(config: AstroConfig): boolean {
 	const adapter = config._ctx.adapter;
 	if (!adapter) return false;
 
 	if (typeof adapter.serverEntrypoint === 'string') {
-		if (!adapter.name.startsWith('@astrojs/') && !config.experimental.ssr) {
-			throw new Error(
-				[
-					`Server-side rendering (SSR) is still experimental.`,
-					``,
-					`Only official "@astrojs/*" adapters are currently supported.`,
-					`To enable SSR for 3rd-party adapters, use the "--experimental-ssr" flag.`,
-					`Breaking changes may occur in this API before Astro v1.0 is released.`,
-					``,
-				].join('\n')
-			);
-		} else {
-			return true;
-		}
+		return true;
 	} else {
 		return false;
 	}

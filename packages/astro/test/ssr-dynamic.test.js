@@ -18,6 +18,12 @@ describe('Dynamic pages in SSR', () => {
 		await fixture.build();
 	});
 
+	async function matchRoute(path) {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('https://example.com' + path);
+		return app.match(request);
+	}
+
 	async function fetchHTML(path) {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com' + path);
@@ -49,5 +55,10 @@ describe('Dynamic pages in SSR', () => {
 	it('Dynamic API routes work', async () => {
 		const json = await fetchJSON('/api/products/33');
 		expect(json.id).to.equal('33');
+	});
+
+	it('Public assets take priority', async () => {
+		const favicon = await matchRoute('/favicon.ico');
+		expect(favicon).to.equal(undefined);
 	});
 });

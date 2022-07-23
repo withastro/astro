@@ -9,6 +9,8 @@ function isCustomElementTag(name) {
 function getCustomElementConstructor(name) {
 	if (typeof customElements !== 'undefined' && isCustomElementTag(name)) {
 		return customElements.get(name) || null;
+	} else if (typeof name === 'function') {
+		return name;
 	}
 	return null;
 }
@@ -24,7 +26,11 @@ async function check(Component, _props, _children) {
 	return !!(await isLitElement(Component));
 }
 
-function* render(tagName, attrs, children) {
+function* render(Component, attrs, slots) {
+	let tagName = Component;
+	if (typeof tagName !== 'string') {
+		tagName = Component[Symbol.for('tagName')];
+	}
 	const instance = new LitElementRenderer(tagName);
 
 	// LitElementRenderer creates a new element instance, so copy over.
@@ -51,15 +57,23 @@ function* render(tagName, attrs, children) {
 		yield* shadowContents;
 		yield '</template>';
 	}
-	yield children || ''; // don’t print “undefined” as string
+	if (slots) {
+		for (const [slot, value] of Object.entries(slots)) {
+			if (slot === 'default') {
+				yield `<astro-slot>${value || ''}</astro-slot>`;
+			} else {
+				yield `<astro-slot slot="${slot}">${value || ''}</astro-slot>`;
+			}
+		}
+	}
 	yield `</${tagName}>`;
 }
 
-async function renderToStaticMarkup(Component, props, children) {
+async function renderToStaticMarkup(Component, props, slots) {
 	let tagName = Component;
 
 	let out = '';
-	for (let chunk of render(tagName, props, children)) {
+	for (let chunk of render(tagName, props, slots)) {
 		out += chunk;
 	}
 

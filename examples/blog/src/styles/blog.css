@@ -32,6 +32,8 @@
 	--color-red-rgb: 255, 22, 57;
 	--color-yellow: #ffbe2d;
 	--color-yellow-rgb: 255, 190, 45;
+
+	--content-max-width: 70ch;
 }
 
 :root {
@@ -77,7 +79,6 @@ body {
 
 * {
 	box-sizing: border-box;
-	margin: 0;
 }
 
 :root {
@@ -101,7 +102,7 @@ body {
 .wrapper {
 	margin-left: auto;
 	margin-right: auto;
-	max-width: 65em;
+	max-width: var(--content-max-width);
 	padding-left: 2rem;
 	padding-right: 2rem;
 	width: 100%;

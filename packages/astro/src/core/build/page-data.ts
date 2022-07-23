@@ -8,7 +8,6 @@ import * as colors from 'kleur/colors';
 import { fileURLToPath } from 'url';
 import { debug } from '../logger/core.js';
 import { removeTrailingForwardSlash } from '../path.js';
-import { preload as ssrPreload } from '../render/dev/index.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
 import { matchRoute } from '../routing/match.js';
 import { isBuildingToSSR } from '../util.js';
@@ -58,7 +57,7 @@ export async function collectPagesData(
 					'build',
 					`${colors.bold(
 						route.component
-					)} is taking a bit longer to import. This is common for larger "Astro.glob(...)" or "import.meta.globEager(...)" calls, for instance. Hang tight!`
+					)} is taking a bit longer to import. This is common for larger "Astro.glob(...)" or "import.meta.glob(...)" calls, for instance. Hang tight!`
 				);
 				clearInterval(routeCollectionLogTimeout);
 			}, 10000);
@@ -70,31 +69,18 @@ export async function collectPagesData(
 				moduleSpecifier: '',
 				css: new Set(),
 				hoistedScript: undefined,
-				scripts: new Set(),
-				preload: await ssrPreload({
-					astroConfig,
-					filePath: new URL(`./${route.component}`, astroConfig.root),
-					viteServer,
-				})
-					.then((routes) => {
-						clearInterval(routeCollectionLogTimeout);
-						if (buildMode === 'static') {
-							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-							debug(
-								'build',
-								`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`
-							);
-						} else {
-							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
-						}
-						return routes;
-					})
-					.catch((err) => {
-						clearInterval(routeCollectionLogTimeout);
-						debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
-						throw err;
-					}),
 			};
+
+			clearInterval(routeCollectionLogTimeout);
+			if (buildMode === 'static') {
+				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+				debug(
+					'build',
+					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`
+				);
+			} else {
+				debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
+			}
 			continue;
 		}
 		// dynamic route:
@@ -144,12 +130,6 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
-			scripts: new Set(),
-			preload: await ssrPreload({
-				astroConfig,
-				filePath: new URL(`./${route.component}`, astroConfig.root),
-				viteServer,
-			}),
 		};
 	}
 

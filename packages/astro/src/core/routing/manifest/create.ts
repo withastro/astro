@@ -7,6 +7,7 @@ import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { warn } from '../../logger/core.js';
+import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
 const require = createRequire(import.meta.url);
@@ -165,7 +166,11 @@ export function createRouteManifest(
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set(['.astro', '.md']);
+	const validPageExtensions: Set<string> = new Set([
+		'.astro',
+		'.md',
+		...config._ctx.pageExtensions,
+	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
 	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
@@ -290,7 +295,7 @@ export function createRouteManifest(
 		const isDynamic = (str: string) => str?.[0] === '[';
 		const normalize = (str: string) => str?.substring(1, str?.length - 1);
 
-		const segments = name
+		const segments = removeLeadingForwardSlash(name)
 			.split(path.sep)
 			.filter(Boolean)
 			.map((s: string) => {

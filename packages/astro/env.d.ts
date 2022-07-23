@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference path="./client.d.ts" />
 
 type Astro = import('astro').AstroGlobal;
 
@@ -25,4 +25,9 @@ declare module '*.md' {
 
 	const load: MD['default'];
 	export default load;
+}
+
+declare module '*.html' {
+	const Component: { render(opts: { slots: Record<string, string> }): string };
+	export default Component;
 }

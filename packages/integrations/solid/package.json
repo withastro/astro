@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "0.1.4",
+  "version": "0.4.1",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -12,12 +12,13 @@
     "directory": "packages/integrations/solid"
   },
   "keywords": [
+    "astro-integration",
     "astro-component",
     "renderer",
     "solid"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/guides/integrations-guide/solid-js/",
   "exports": {
     ".": "./dist/index.js",
     "./*": "./*",
@@ -39,9 +40,9 @@
     "solid-js": "^1.4.3"
   },
   "peerDependencies": {
-    "solid-js": "^1.3.6"
+    "solid-js": "^1.4.3"
   },
   "engines": {
-    "node": "^14.15.0 || >=16.0.0"
+    "node": "^14.18.0 || >=16.12.0"
   }
 }

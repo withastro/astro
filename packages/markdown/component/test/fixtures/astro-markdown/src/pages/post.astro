@@ -1,0 +1,16 @@
+---
+import Markdown from '@astrojs/markdown-component';
+import Layout from '../layouts/content.astro';
+import Example from '../components/Example.jsx';
+
+const title = 'My Blog Post';
+const description = 'This is a post about some stuff.';
+---
+
+<Markdown>
+	## Interesting Topic
+
+	<div id="first">Some content</div>
+
+	<Example></Example>
+</Markdown>

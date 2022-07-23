@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import type { HtmlTagDescriptor, ViteDevServer } from 'vite';
+import type { ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
 	AstroRenderer,
@@ -11,13 +11,13 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR } from '../../util.js';
+import { isBuildingToSSR, isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
-import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
-import { injectTags } from './html.js';
+import { resolveClientDevPath } from './resolve.js';
+import { getScriptsForURL } from './scripts.js';
 
 export interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -43,10 +43,6 @@ export interface SSROptions {
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
-
-export type RenderResponse =
-	| { type: 'html'; html: string; response: ResponseInit }
-	| { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -98,7 +94,7 @@ export async function render(
 	renderers: SSRLoadedRenderer[],
 	mod: ComponentInstance,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const {
 		astroConfig,
 		filePath,
@@ -112,12 +108,10 @@ export async function render(
 		viteServer,
 	} = ssrOpts;
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(
-		mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
-	);
+	const scripts = await getScriptsForURL(filePath, astroConfig, viteServer);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development') {
+	if (isPage(filePath, astroConfig) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -156,29 +150,42 @@ export async function render(
 
 	let styles = new Set<SSRElement>();
 	[...stylesMap].forEach(([url, content]) => {
-		// The URL is only used by HMR for Svelte components
-		// See src/runtime/client/hmr.ts for more details
+		// Vite handles HMR for styles injected as scripts
+		scripts.add({
+			props: {
+				type: 'module',
+				src: url,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
+		// But we still want to inject the styles to avoid FOUC
 		styles.add({
 			props: {
-				'data-astro-injected': svelteStylesRE.test(url) ? url : true,
+				'data-astro-injected': url,
 			},
 			children: content,
 		});
 	});
 
-	let content = await coreRender({
+	let response = await coreRender({
+		adapterName: astroConfig.adapter?.name,
 		links,
 		styles,
 		logging,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		mod,
+		mode,
 		origin,
 		pathname,
 		scripts,
 		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
 		async resolve(s: string) {
 			if (s.startsWith('/@fs')) {
-				return s;
+				return resolveClientDevPath(s);
 			}
 			return '/@id' + prependForwardSlash(s);
 		},
@@ -188,34 +195,16 @@ export async function render(
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
 		ssr: isBuildingToSSR(astroConfig),
+		streaming: true,
 	});
 
-	if (route?.type === 'endpoint' || content.type === 'response') {
-		return content;
-	}
-
-	// inject tags
-	const tags: HtmlTagDescriptor[] = [];
-
-	// add injected tags
-	let html = injectTags(content.html, tags);
-
-	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + content;
-	}
-
-	return {
-		type: 'html',
-		html,
-		response: content.response,
-	};
+	return response;
 }
 
 export async function ssr(
 	preloadedComponent: ComponentPreload,
 	ssrOpts: SSROptions
-): Promise<RenderResponse> {
+): Promise<Response> {
 	const [renderers, mod] = preloadedComponent;
 	return await render(renderers, mod, ssrOpts); // NOTE: without "await", errors won’t get caught below
 }

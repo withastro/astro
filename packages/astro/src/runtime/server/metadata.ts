@@ -1,5 +1,3 @@
-import { hydrationSpecifier } from './util.js';
-
 interface ModuleInfo {
 	module: Record<string, any>;
 	specifier: string;
@@ -39,7 +37,15 @@ export class Metadata {
 	}
 
 	resolvePath(specifier: string): string {
-		return specifier.startsWith('.') ? new URL(specifier, this.mockURL).pathname : specifier;
+		if (specifier.startsWith('.')) {
+			const resolved = new URL(specifier, this.mockURL).pathname;
+			// Vite does not resolve .jsx -> .tsx when coming from the client, so clip the extension.
+			if (resolved.startsWith('/@fs') && resolved.endsWith('.jsx')) {
+				return resolved.slice(0, resolved.length - 4);
+			}
+			return resolved;
+		}
+		return specifier;
 	}
 
 	getPath(Component: any): string | null {
@@ -50,83 +56,6 @@ export class Metadata {
 	getExport(Component: any): string | null {
 		const metadata = this.getComponentMetadata(Component);
 		return metadata?.componentExport || null;
-	}
-
-	/**
-	 * Gets the paths of all hydrated components within this component
-	 * and children components.
-	 */
-	*hydratedComponentPaths() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const component of metadata.hydratedComponents) {
-				const path = metadata.getPath(component);
-				if (path && !found.has(path)) {
-					found.add(path);
-					yield path;
-				}
-			}
-		}
-	}
-
-	*clientOnlyComponentPaths() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const component of metadata.clientOnlyComponents) {
-				const path = metadata.resolvePath(component);
-				if (path && !found.has(path)) {
-					found.add(path);
-					yield path;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Gets all of the hydration specifiers used within this component.
-	 */
-	*hydrationDirectiveSpecifiers() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const directive of metadata.hydrationDirectives) {
-				if (!found.has(directive)) {
-					found.add(directive);
-					yield hydrationSpecifier(directive);
-				}
-			}
-		}
-	}
-
-	*hoistedScriptPaths() {
-		for (const metadata of this.deepMetadata()) {
-			let i = 0,
-				pathname = metadata.mockURL.pathname;
-			while (i < metadata.hoisted.length) {
-				// Strip off the leading "/@fs" added during compilation.
-				yield `${pathname.replace('/@fs', '')}?astro&type=script&index=${i}`;
-				i++;
-			}
-		}
-	}
-
-	private *deepMetadata(): Generator<Metadata, void, unknown> {
-		// Yield self
-		yield this;
-		// Keep a Set of metadata objects so we only yield them out once.
-		const seen = new Set<Metadata>();
-		for (const { module: mod } of this.modules) {
-			if (typeof mod.$$metadata !== 'undefined') {
-				const md = mod.$$metadata as Metadata;
-				// Call children deepMetadata() which will yield the child metadata
-				// and any of its children metadatas
-				for (const childMetdata of md.deepMetadata()) {
-					if (!seen.has(childMetdata)) {
-						seen.add(childMetdata);
-						yield childMetdata;
-					}
-				}
-			}
-		}
 	}
 
 	private getComponentMetadata(Component: any): ComponentMetadata | null {

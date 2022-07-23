@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/vue": "workspace:*",
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*"
   }
 }

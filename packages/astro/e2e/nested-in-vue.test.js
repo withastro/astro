@@ -1,12 +1,7 @@
-import { test as base, expect } from '@playwright/test';
-import { loadFixture } from './test-utils.js';
+import { expect } from '@playwright/test';
+import { testFactory } from './test-utils.js';
 
-const test = base.extend({
-	astro: async ({}, use) => {
-		const fixture = await loadFixture({ root: './fixtures/nested-in-vue/' });
-		await use(fixture);
-	},
-});
+const test = testFactory({ root: './fixtures/nested-in-vue/' });
 
 let devServer;
 
