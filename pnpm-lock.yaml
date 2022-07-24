@@ -2076,7 +2076,7 @@ importers:
       '@types/sharp': ^0.30.4
       astro: workspace:*
       astro-scripts: workspace:*
-      etag-webcrypto: ^0.0.2
+      etag-webcrypto: ^0.0.3
       image-size: ^1.0.1
       image-type: ^4.1.0
       mrmime: ^1.0.0
@@ -2084,7 +2084,7 @@ importers:
       slash: ^4.0.0
       tiny-glob: ^0.2.9
     dependencies:
-      etag-webcrypto: 0.0.2
+      etag-webcrypto: 0.0.3
       image-size: 1.0.2
       image-type: 4.1.0
       mrmime: 1.0.1
@@ -10629,8 +10629,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /etag-webcrypto/0.0.2:
-    resolution: {integrity: sha512-yHMmcYSHC3zFvL2EnzBRD2GFufsds/OmwzEQWSlHWMwsksUcP70zYozm6Y4ev7PK+GTHSWIaN3m42q/tOEMDzg==}
+  /etag-webcrypto/0.0.3:
+    resolution: {integrity: sha512-WzTLf2Y+f+YW25CT+g0mKbTVPKy0v+vthKKoGabV0Pu4/1LTQzkfivkWu4MEmd62B86PA6/buUg6QWkRqgb42A==}
     engines: {node: '>= 0.6'}
     dependencies:
       '@peculiar/webcrypto': 1.4.0
