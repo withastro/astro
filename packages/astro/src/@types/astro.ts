@@ -709,6 +709,7 @@ export interface AstroUserConfig {
 		 * :::caution[Deprecated]
 		 * Set `legacy.astroFlavoredMarkdown: true` to continue using components and JSX in `.md` until you have fully-transitioned to our [MDX integration](/en/guides/integrations-guide/mdx/).
 		 * :::
+		 */
 		astroFlavoredMarkdown?: boolean;
 	};
 }
