@@ -2072,11 +2072,10 @@ importers:
 
   packages/integrations/image:
     specifiers:
-      '@types/etag': ^1.8.1
       '@types/sharp': ^0.30.4
       astro: workspace:*
       astro-scripts: workspace:*
-      etag-webcrypto: ^0.0.3
+      etag-webcrypto: ^0.0.7
       image-size: ^1.0.1
       image-type: ^4.1.0
       mrmime: ^1.0.0
@@ -2084,14 +2083,13 @@ importers:
       slash: ^4.0.0
       tiny-glob: ^0.2.9
     dependencies:
-      etag-webcrypto: 0.0.3
+      etag-webcrypto: 0.0.7
       image-size: 1.0.2
       image-type: 4.1.0
       mrmime: 1.0.1
       sharp: 0.30.7
       slash: 4.0.0
     devDependencies:
-      '@types/etag': 1.8.1
       '@types/sharp': 0.30.4
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -8222,12 +8220,6 @@ packages:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: false
 
-  /@types/etag/1.8.1:
-    resolution: {integrity: sha512-bsKkeSqN7HYyYntFRAmzcwx/dKW4Wa+KVMTInANlI72PWLQmOpZu96j0OqHZGArW4VQwCmJPteQlXaUDeOB0WQ==}
-    dependencies:
-      '@types/node': 18.0.6
-    dev: true
-
   /@types/extend/3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
     dev: true
@@ -10629,8 +10621,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /etag-webcrypto/0.0.3:
-    resolution: {integrity: sha512-WzTLf2Y+f+YW25CT+g0mKbTVPKy0v+vthKKoGabV0Pu4/1LTQzkfivkWu4MEmd62B86PA6/buUg6QWkRqgb42A==}
+  /etag-webcrypto/0.0.7:
+    resolution: {integrity: sha512-doEK0Y/yjsItb97aJ1j+MnSVwKefI+34wTtRfEwxflnBeNSlhLORyMdS+HdCUPKoXs/RXncMZ9omt3CXml+2YA==}
     engines: {node: '>= 0.6'}
     dependencies:
       '@peculiar/webcrypto': 1.4.0

@@ -5,7 +5,14 @@ import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
+/**
+ * @typedef {import('../../../astro/test/test-utils.js').Fixture} Fixture
+ */
+
 describe('SSR images - build', function () {
+	/**
+	 * @type {Fixture}
+	 */
 	let fixture;
 
 	function verifyImage(pathname) {

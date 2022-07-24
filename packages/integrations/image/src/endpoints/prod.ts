@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import etag from 'etag-webcrypto';
+import { etag } from 'etag-webcrypto';
 import { lookup } from 'mrmime';
 import { fileURLToPath } from 'url';
 // @ts-ignore
@@ -29,13 +29,12 @@ export const get: APIRoute = async ({ request }) => {
 		}
 
 		const { data, format } = await loader.transform(inputBuffer, transform);
-
 		return new Response(data, {
 			status: 200,
 			headers: {
 				'Content-Type': lookup(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
-				ETag: etag(inputBuffer),
+				ETag: await etag(inputBuffer),
 				Date: new Date().toUTCString(),
 			},
 		});
