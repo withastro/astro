@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import etag from 'etag';
+import etag from 'etag-webcrypto';
 import { lookup } from 'mrmime';
 import { fileURLToPath } from 'url';
 // @ts-ignore

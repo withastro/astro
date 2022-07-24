@@ -43,7 +43,7 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
-    "etag": "^1.8.1",
+    "etag-webcrypto": "^0.0.2",
     "image-size": "^1.0.1",
     "image-type": "^4.1.0",
     "mrmime": "^1.0.0",
