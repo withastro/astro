@@ -702,6 +702,7 @@ export interface AstroUserConfig {
 		 * @name astroFlavoredMarkdown
 		 * @type {boolean}
 		 * @default `false`
+		 * @since 1.0.0-rc
 		 * @description
 		 * Enable components and JSX expressions in Markdown 
 		 * 
