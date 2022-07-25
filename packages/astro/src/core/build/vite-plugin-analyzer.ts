@@ -10,7 +10,6 @@ import { getTopLevelPages } from './graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
 
 export function vitePluginAnalyzer(
-	astroConfig: AstroConfig,
 	internals: BuildInternals
 ): VitePlugin {
 	function hoistedScriptScanner() {

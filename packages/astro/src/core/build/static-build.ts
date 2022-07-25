@@ -154,7 +154,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			// SSR needs to be last
 			opts.astroConfig.output === 'server' &&
 				vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
-			vitePluginAnalyzer(opts.astroConfig, internals),
+			vitePluginAnalyzer(internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,

@@ -145,8 +145,10 @@ function buildManifest(
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
+	if(!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
 		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	}
 
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.astroConfig._ctx.adapter!.name,
