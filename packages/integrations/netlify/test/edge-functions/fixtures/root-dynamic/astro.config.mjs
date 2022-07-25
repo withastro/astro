@@ -5,7 +5,5 @@ export default defineConfig({
 	adapter: netlifyEdgeFunctions({
 		dist: new URL('./dist/', import.meta.url),
 	}),
-	experimental: {
-		ssr: true
-	}
+	output: 'server',
 })

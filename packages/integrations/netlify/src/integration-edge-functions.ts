@@ -135,6 +135,11 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());
 				_config = config;
+
+				if(config.output === 'static') {
+					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
+					console.warn(`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`);
+		}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				_buildConfig = buildConfig;
