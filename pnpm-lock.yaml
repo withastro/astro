@@ -493,7 +493,7 @@ importers:
       html-entities: ^2.3.3
       html-escaper: ^3.0.3
       kleur: ^4.1.4
-      magic-string: ^0.25.9
+      magic-string: ^0.26.2
       micromorph: ^0.1.2
       mime: ^3.0.0
       mocha: ^9.2.2
@@ -557,7 +557,7 @@ importers:
       html-entities: 2.3.3
       html-escaper: 3.0.3
       kleur: 4.1.5
-      magic-string: 0.25.9
+      magic-string: 0.26.2
       micromorph: 0.1.2
       mime: 3.0.0
       ora: 6.1.2
