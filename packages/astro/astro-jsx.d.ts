@@ -666,6 +666,7 @@ declare namespace astroHTML.JSX {
 		/** @deprecated */
 		frameborder?: number | string | undefined | null;
 		height?: number | string | undefined | null;
+		loading?: 'eager' | 'lazy' | undefined | null;
 		/** @deprecated */
 		marginheight?: number | string | undefined | null;
 		/** @deprecated */
@@ -679,7 +680,7 @@ declare namespace astroHTML.JSX {
 		src?: string | undefined | null;
 		srcdoc?: string | undefined | null;
 		width?: number | string | undefined | null;
-		loading?: 'eager' | 'lazy' | undefined | null;
+		
 	}
 
 	interface ImgHTMLAttributes extends HTMLAttributes {
