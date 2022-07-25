@@ -15,7 +15,7 @@ export default function createIntegration(): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 
-				if(config.output === 'static') {
+				if (config.output === 'static') {
 					console.warn(`[@astrojs/Node] \`output: "server"\` is required to use this adapter.`);
 				}
 			},
