@@ -132,30 +132,10 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 				scriptOffset,
 				{
 					...tsPreferences,
-					// File extensions are required inside script tags, however TypeScript can't return completions with the `ts`
-					// extension, so what we'll do instead is force `minimal` (aka, no extension) and manually add the extensions
-					importModuleSpecifierEnding: 'minimal',
 					triggerCharacter: validTriggerCharacter,
 				},
 				formatOptions
 			);
-
-			if (completions) {
-				// Manually adds file extensions to js and ts files
-				completions.entries = completions?.entries.map((comp) => {
-					if (
-						comp.kind === ScriptElementKind.scriptElement &&
-						(comp.kindModifiers === '.js' || comp.kindModifiers === '.ts')
-					) {
-						return {
-							...comp,
-							name: comp.name + comp.kindModifiers,
-						};
-					} else {
-						return comp;
-					}
-				});
-			}
 		} else {
 			// PERF: Getting TS completions is fairly slow and I am currently not sure how to speed it up
 			// As such, we'll try to avoid getting them when unneeded, such as when we're doing HTML stuff
@@ -204,7 +184,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		const fragment = await tsDoc.createFragment();
 		const existingImports = this.getExistingImports(document);
 		const completionItems = completions.entries
-			.filter(this.isValidCompletion)
+			.filter(isValidCompletion)
 			.map((entry: ts.CompletionEntry) =>
 				this.toCompletionItem(
 					fragment,
@@ -387,15 +367,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		};
 	}
 
-	private isValidCompletion(completion: ts.CompletionEntry): boolean {
-		// Remove completion for default exported function
-		if (completion.name === 'default' && completion.kindModifiers == ScriptElementKindModifier.exportedModifier) {
-			return false;
-		}
-
-		return true;
-	}
-
 	private getCompletionDocument(compDetail: ts.CompletionEntryDetails) {
 		const { sourceDisplay, documentation: tsDocumentation, displayParts } = compDetail;
 		let detail: string = removeAstroComponentSuffix(ts.displayPartsToString(displayParts));
@@ -534,4 +505,38 @@ export function codeActionChangeToTextEdit(
 	}
 
 	return TextEdit.replace(range, change.newText);
+}
+
+// When Svelte components are imported, we have to reference the svelte2tsx's types to properly type the component
+// An unfortunate downside of this is that it polutes completions, so let's filter those internal types manually
+const svelte2tsxTypes = new Set([
+	'Svelte2TsxComponent',
+	'Svelte2TsxComponentConstructorParameters',
+	'SvelteComponentConstructor',
+	'SvelteActionReturnType',
+	'SvelteTransitionConfig',
+	'SvelteTransitionReturnType',
+	'SvelteAnimationReturnType',
+	'SvelteWithOptionalProps',
+	'SvelteAllProps',
+	'SveltePropsAnyFallback',
+	'SvelteSlotsAnyFallback',
+	'SvelteRestProps',
+	'SvelteSlots',
+	'SvelteStore',
+]);
+
+function isValidCompletion(completion: ts.CompletionEntry): boolean {
+	// Remove completion for default exported function
+	const isDefaultExport =
+		completion.name === 'default' && completion.kindModifiers == ScriptElementKindModifier.exportedModifier;
+
+	// Remove completion for svelte2tsx internal types
+	const isSvelte2tsxCompletion = completion.name.startsWith('__sveltets_') || svelte2tsxTypes.has(completion.name);
+
+	if (isDefaultExport || isSvelte2tsxCompletion) {
+		return false;
+	}
+
+	return true;
 }

@@ -20,17 +20,18 @@ import {
 	isInComponentStartTag,
 	isInsideExpression,
 	isInsideFrontmatter,
+	isInTagName,
 	isPossibleComponent,
 } from '../../core/documents/utils';
 import { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
-import { astroAttributes, astroDirectives, classListAttribute } from './features/astro-attributes';
+import { astroAttributes, astroDirectives, astroElements, classListAttribute } from './features/astro-attributes';
 import { removeDataAttrCompletion } from './utils';
 
 export class HTMLPlugin implements Plugin {
 	__name = 'html';
 
 	private lang = getLanguageService({
-		customDataProviders: [astroAttributes, classListAttribute],
+		customDataProviders: [astroAttributes, astroElements, classListAttribute],
 	});
 	private attributeOnlyLang = getLanguageService({
 		customDataProviders: [astroAttributes],
@@ -108,12 +109,19 @@ export class HTMLPlugin implements Plugin {
 
 		// If we're in a component starting tag, we do not want HTML language completions
 		// as HTML attributes are not valid for components
-		const results = isInComponentStartTag(html, document.offsetAt(position))
-			? removeDataAttrCompletion(this.attributeOnlyLang.doComplete(document, position, html).items)
-			: this.lang.doComplete(document, position, html).items;
+		const inComponentTag = isInComponentStartTag(html, offset);
+		const inTagName = isInTagName(html, offset);
+
+		const results =
+			inComponentTag && !inTagName
+				? removeDataAttrCompletion(this.attributeOnlyLang.doComplete(document, position, html).items)
+				: // We filter items with no documentation to prevent duplicates with our own defined script and style tags
+				  this.lang.doComplete(document, position, html).items.filter((item) => item.documentation !== undefined);
+
+		const langCompletions = inComponentTag ? [] : this.getLangCompletions(results);
 
 		return CompletionList.create(
-			[...results, ...this.getLangCompletions(results), ...emmetResults.items],
+			[...results, ...langCompletions, ...emmetResults.items],
 			// Emmet completions change on every keystroke, so they are never complete
 			emmetResults.items.length > 0
 		);

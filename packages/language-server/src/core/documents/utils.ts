@@ -134,6 +134,14 @@ export function isInComponentStartTag(html: HTMLDocument, offset: number): boole
 }
 
 /**
+ * Return if a given offset is inside the name of a tag
+ */
+export function isInTagName(html: HTMLDocument, offset: number): boolean {
+	const node = html.findNodeAt(offset);
+	return offset > node.start && offset < node.start + (node.tag?.length ?? 0);
+}
+
+/**
  * Return true if a specific node could be a component.
  * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */

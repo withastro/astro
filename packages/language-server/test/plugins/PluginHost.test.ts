@@ -1,9 +1,12 @@
 import { expect } from 'chai';
+import { join } from 'path';
 import sinon from 'sinon';
 import { Color, CompletionTriggerKind } from 'vscode-languageserver';
 import { CompletionItem, Location, LocationLink, Position, Range, TextDocumentItem } from 'vscode-languageserver-types';
+import { ConfigManager } from '../../src/core/config';
 import { AstroDocument, DocumentManager } from '../../src/core/documents';
-import { PluginHost, PluginHostConfig } from '../../src/plugins';
+import { AstroPlugin, HTMLPlugin, PluginHost, PluginHostConfig, TypeScriptPlugin } from '../../src/plugins';
+import { openDocument } from '../utils';
 
 describe('PluginHost', () => {
 	const textDocument: TextDocumentItem = {
@@ -57,6 +60,56 @@ describe('PluginHost', () => {
 			},
 			undefined
 		);
+	});
+
+	describe('getCompletions plugins filtering', () => {
+		function setupPluginHost(filePath: string) {
+			const path = join(__dirname, 'fixtures', 'pluginHostCompletions');
+			const configManager = new ConfigManager();
+			const docManager = new DocumentManager((document) => new AstroDocument(document.uri, document.text));
+			const pluginHost = new PluginHost(docManager);
+
+			pluginHost.registerPlugin(new HTMLPlugin(configManager));
+			pluginHost.registerPlugin(new AstroPlugin(docManager, configManager, [path]));
+			pluginHost.registerPlugin(new TypeScriptPlugin(docManager, configManager, [path]));
+
+			const document = openDocument(filePath, path, docManager);
+
+			return {
+				document,
+				docManager,
+				pluginHost,
+			};
+		}
+
+		it('filters out TS completions inside Astro component starting tag', async () => {
+			const { pluginHost, document } = setupPluginHost('astroAndTS.astro');
+			const pos = Position.create(5, 16);
+
+			const completions = await pluginHost.getCompletions(document, pos);
+			const labels = completions.items.map((item) => item.label);
+
+			expect(labels).to.deep.equal(['set:html', 'set:text', 'is:raw']);
+		});
+
+		it('filters out TS completions inside framework component starting tag', async () => {
+			const { pluginHost, document } = setupPluginHost('astroAndTS.astro');
+			const pos = Position.create(6, 14);
+
+			const completions = await pluginHost.getCompletions(document, pos);
+			const labels = completions.items.map((item) => item.label);
+
+			expect(labels).to.deep.equal([
+				'set:html',
+				'set:text',
+				'is:raw',
+				'client:load',
+				'client:idle',
+				'client:visible',
+				'client:media',
+				'client:only',
+			]);
+		});
 	});
 
 	describe('getCompletions (incomplete)', () => {

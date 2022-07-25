@@ -88,21 +88,16 @@ export class PluginHost {
 
 		if (html && ts) {
 			const inComponentStartTag = isInComponentStartTag(document.html, document.offsetAt(position));
-			if (!inComponentStartTag) {
+
+			// If the HTML plugin returned completions, it's highly likely that TS ones are duplicate
+			if (html.result.items.length > 0) {
 				ts.result.items = [];
 			}
 
-			// If the Astro plugin has completions for us, don't show TypeScript's as they're most likely duplicates
+			// Inside components, if the Astro plugin has completions we don't want the TS ones are they're duplicates
 			if (astro && astro.result.items.length > 0 && inComponentStartTag) {
 				ts.result.items = [];
 			}
-
-			ts.result.items = ts.result.items.map((item) => {
-				if (item.sortText != '-1') {
-					item.sortText = 'Z' + (item.sortText || '');
-				}
-				return item;
-			});
 		}
 
 		let flattenedCompletions = completions.flatMap((completion) => completion.result.items);

@@ -22,7 +22,7 @@ export function createEnvironment(filePath: string, baseDir: string, pathPrefix?
 	return { document, docManager, configManager, fixturesDir: pathToUrl(fixtureDir) };
 }
 
-function openDocument(filePath: string, baseDir: string, docManager: DocumentManager) {
+export function openDocument(filePath: string, baseDir: string, docManager: DocumentManager) {
 	const path = join(baseDir, filePath);
 
 	if (!ts.sys.fileExists(path) || !path) {
