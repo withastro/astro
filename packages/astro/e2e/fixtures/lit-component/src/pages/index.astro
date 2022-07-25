@@ -1,5 +1,5 @@
 ---
-import '../components/Counter.js';
+import MyCounter from '../components/Counter.js';
 
 const someProps = {
 	count: 0,
@@ -11,16 +11,16 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
-		<my-counter id="client-idle" {...someProps} client:idle>
+		<MyCounter id="client-idle" {...someProps} client:idle>
 			<h1>Hello, client:idle!</h1>
-		</my-counter>
+		</MyCounter>
 
-		<my-counter id="client-load" {...someProps} client:load>
+		<MyCounter id="client-load" {...someProps} client:load>
 			<h1>Hello, client:load!</h1>
-		</my-counter>
+		</MyCounter>
 
-    <my-counter id="client-visible" {...someProps} client:visible>
+    <MyCounter id="client-visible" {...someProps} client:visible>
 			<h1>Hello, client:visible!</h1>
-		</my-counter>
+		</MyCounter>
   </body>
 </html>

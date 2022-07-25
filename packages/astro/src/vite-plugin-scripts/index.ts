@@ -1,4 +1,4 @@
-import { Plugin as VitePlugin } from 'vite';
+import { Plugin as VitePlugin, ConfigEnv } from 'vite';
 import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
@@ -12,8 +12,14 @@ export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStag
 export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ config }: { config: AstroConfig }): VitePlugin {
+	let env: ConfigEnv | undefined = undefined;
 	return {
 		name: 'astro:scripts',
+
+		config(_config, _env) {
+			env = _env;
+		},
+
 		async resolveId(id) {
 			if (id.startsWith(SCRIPT_ID_PREFIX)) {
 				return id;
@@ -43,21 +49,14 @@ export default function astroScriptsPlugin({ config }: { config: AstroConfig }):
 			return null;
 		},
 		buildStart(options) {
-			// We only want to inject this script if we are building
-			// for the frontend AND some hydrated components exist in
-			// the final build. We can detect this by looking for a
-			// `astro/client/*` input, which signifies both conditions are met.
-			const hasHydratedComponents =
-				Array.isArray(options.input) &&
-				options.input.some((input) => input.startsWith('astro/client'));
 			const hasHydrationScripts = config._ctx.scripts.some((s) => s.stage === 'before-hydration');
-			if (hasHydratedComponents && hasHydrationScripts) {
+			if (hasHydrationScripts && env?.command === 'build' && !env?.ssrBuild) {
 				this.emitFile({
 					type: 'chunk',
 					id: BEFORE_HYDRATION_SCRIPT_ID,
 					name: BEFORE_HYDRATION_SCRIPT_ID,
 				});
 			}
-		},
+		}
 	};
 }
