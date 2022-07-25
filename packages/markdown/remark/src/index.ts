@@ -1,7 +1,7 @@
 import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
 
 import { loadPlugins } from './load-plugins.js';
-import createCollectHeaders from './rehype-collect-headers.js';
+import createCollectHeadings from './rehype-collect-headings.js';
 import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
@@ -29,24 +29,23 @@ export const DEFAULT_REHYPE_PLUGINS = [];
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
 	content: string,
-	opts: MarkdownRenderingOptions = {}
+	opts: MarkdownRenderingOptions
 ): Promise<MarkdownRenderingResult> {
 	let {
 		fileURL,
-		mode = 'mdx',
 		syntaxHighlight = 'shiki',
 		shikiConfig = {},
 		remarkPlugins = [],
 		rehypePlugins = [],
+		isAstroFlavoredMd = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
-	const isMDX = mode === 'mdx';
-	const { headers, rehypeCollectHeaders } = createCollectHeaders();
+	const { headings, rehypeCollectHeadings } = createCollectHeadings();
 
 	let parser = unified()
 		.use(markdown)
-		.use(isMDX ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
+		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
@@ -75,7 +74,7 @@ export async function renderMarkdown(
 			markdownToHtml as any,
 			{
 				allowDangerousHtml: true,
-				passThrough: isMDX
+				passThrough: isAstroFlavoredMd
 					? [
 							'raw',
 							'mdxFlowExpression',
@@ -94,9 +93,9 @@ export async function renderMarkdown(
 
 	parser
 		.use(
-			isMDX
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeaders]
-				: [rehypeCollectHeaders, rehypeRaw]
+			isAstroFlavoredMd
+				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeadings]
+				: [rehypeCollectHeadings, rehypeRaw]
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
@@ -114,7 +113,7 @@ export async function renderMarkdown(
 	}
 
 	return {
-		metadata: { headers, source: content, html: result.toString() },
+		metadata: { headings, source: content, html: result.toString() },
 		code: result.toString(),
 	};
 }

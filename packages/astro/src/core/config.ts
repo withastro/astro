@@ -51,6 +51,9 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
+	legacy: {
+		astroFlavoredMarkdown: false,
+	},
 };
 
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
@@ -125,9 +128,18 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-	.union([z.literal('static'), z.literal('server')])
-	.optional()
-	.default('static'),
+		.union([z.literal('static'), z.literal('server')])
+		.optional()
+		.default('static'),
+	deploy: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default(ASTRO_CONFIG_DEFAULTS.integrations)
+	),
 	build: z
 		.object({
 			format: z
@@ -154,14 +166,6 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	integrations: z.preprocess(
-		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
-		// validate
-		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default(ASTRO_CONFIG_DEFAULTS.integrations)
-	),
 	style: z
 		.object({
 			postcss: z
@@ -176,9 +180,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-			// TODO: This should probably be updated to something more like "md" | "astro"
-			mode: z.enum(['md', 'mdx']).default('mdx'),
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
@@ -216,7 +217,15 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	deploy: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	legacy: z
+		.object({
+			astroFlavoredMarkdown: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
+		})
+		.optional()
+		.default({}),
 });
 
 /** Turn raw config values into normalized values */
@@ -261,12 +270,14 @@ export async function validateConfig(
 		process.exit(1);
 	}
 
-	if('adapter' in userConfig) {
-		warn(logging, `The "adapter" config has been renamed to "deploy". Please update your config file.`);
+	if ('adapter' in userConfig) {
+		warn(
+			logging,
+			`The "adapter" config has been renamed to "deploy". Please update your config file.`
+		);
 		userConfig.deploy = userConfig.adapter;
 		delete userConfig.adapter;
 	}
-	
 
 	let legacyConfigKey: string | undefined;
 	for (const key of Object.keys(userConfig)) {
@@ -464,7 +475,13 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		userConfig = config.value;
 		userConfigPath = config.filePath;
 	}
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
+	const astroConfig = await resolveConfig(
+		userConfig,
+		root,
+		flags,
+		configOptions.cmd,
+		configOptions.logging
+	);
 
 	return {
 		astroConfig,
@@ -519,7 +536,7 @@ export async function resolveConfig(
 	root: string,
 	flags: CLIFlags = {},
 	cmd: string,
-	logging: LogOptions,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
 	const validatedConfig = await validateConfig(mergedConfig, root, cmd, logging);

@@ -1,6 +1,6 @@
 import sharp from 'sharp';
-import type { OutputFormat, SSRImageService, TransformOptions } from '../types';
-import { isAspectRatioString, isOutputFormat } from '../utils.js';
+import type { OutputFormat, SSRImageService, TransformOptions } from '../types.js';
+import { isAspectRatioString, isOutputFormat } from '../utils/images.js';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
@@ -83,6 +83,9 @@ class SharpService implements SSRImageService {
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
 		const sharpImage = sharp(inputBuffer, { failOnError: false });
+
+		// always call rotate to adjust for EXIF data orientation
+		sharpImage.rotate();
 
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);

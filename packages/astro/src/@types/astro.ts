@@ -1,5 +1,5 @@
 import type {
-	MarkdownHeader,
+	MarkdownHeading,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
 	RehypePlugins,
@@ -15,6 +15,14 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
+export type {
+	MarkdownHeading,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -528,27 +536,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `mdx`
-		 * @description
-		 * Control whether Markdown processing is done using MDX or not.
-		 *
-		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" Markdown processor. This field allows you to control that behavior.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Use non-MDX processor for Markdown files
-		 *     mode: 'md',
-		 *   }
-		 * }
-		 * ```
-		 */
-		mode?: 'md' | 'mdx';
-
-		/**
-		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
@@ -737,6 +724,16 @@ export interface AstroUserConfig {
 	buildOptions?: never;
 	/** @deprecated `devOptions` has been renamed to `server` */
 	devOptions?: never;
+
+	legacy?: {
+		/**
+		 * Enable components and JSX expressions in markdown
+		 * Consider our MDX integration before applying this flag!
+		 * @see https://docs.astro.build/en/guides/integrations-guide/mdx/
+		 * Default: false
+		 */
+		astroFlavoredMarkdown?: boolean;
+	};
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
@@ -815,7 +812,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
 	compiledContent(): Promise<string>;
-	getHeaders(): Promise<MarkdownHeader[]>;
+	getHeadings(): Promise<MarkdownHeading[]>;
+	/** @deprecated Renamed to `getHeadings()` */
+	getHeaders(): void;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
 		frontmatter: MarkdownContent<T>;

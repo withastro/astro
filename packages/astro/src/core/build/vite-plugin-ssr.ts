@@ -153,7 +153,10 @@ function buildManifest(
 		routes,
 		site: astroConfig.site,
 		base: astroConfig.base,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		pageMap: null as any,
 		renderers: [],
 		entryModules,

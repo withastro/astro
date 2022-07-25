@@ -4,14 +4,14 @@ import TableOfContents from "../RightSidebar/TableOfContents.tsx";
 
 const { content, githubEditUrl } = Astro.props;
 const title = content.title;
-const headers = content.astro.headers;
+const headings = content.astro.headings;
 ---
 
 <article id="article" class="content">
 	<section class="main-section">
 		<h1 class="content-title" id="overview">{title}</h1>
 		<nav class="block sm:hidden">
-			<TableOfContents client:media="(max-width: 50em)" {headers} />
+			<TableOfContents client:media="(max-width: 50em)" {headings} />
 		</nav>
 		<slot />
 	</section>
