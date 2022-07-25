@@ -21,6 +21,11 @@ export default function createIntegration(): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+
+				if(config.output === 'static') {
+					console.warn(`[@astrojs/cloudflare] \`output: "server"\` is required to use this adapter.`);
+					console.warn(`[@astrojs/cloudflare] Otherwise, this adapter is not required to deploy a static site to Cloudflare.`);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				_buildConfig = buildConfig;
