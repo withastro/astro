@@ -23,9 +23,7 @@ export default function vercelStatic(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 			},
-			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.staticMode = true;
-
+			'astro:build:start': async () => {
 				// Ensure to have `.vercel/output` empty.
 				// This is because, when building to static, outDir = .vercel/output/static/,
 				// so .vercel/output itself won't get cleaned.
