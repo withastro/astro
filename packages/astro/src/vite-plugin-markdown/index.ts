@@ -123,8 +123,12 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 							return load().then((m) => m.default(...args));
 						}
 						Content.isAstroComponentFactory = true;
+						export function getHeadings() {
+							return load().then((m) => m.metadata.headings);
+						}
 						export function getHeaders() {
-							return load().then((m) => m.metadata.headers);
+							console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
+							return load().then((m) => m.metadata.headings);
 						};`,
 					map: null,
 				};

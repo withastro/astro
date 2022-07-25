@@ -1,5 +1,5 @@
 import type {
-	MarkdownHeader,
+	MarkdownHeading,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
 	RehypePlugins,
@@ -15,6 +15,14 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
+export type {
+	MarkdownHeading,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -76,7 +84,6 @@ export interface BuildConfig {
 	client: URL;
 	server: URL;
 	serverEntry: string;
-	staticMode: boolean | undefined;
 }
 
 /**
@@ -418,6 +425,50 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name adapter
+     * @typeraw {AstroIntegration}
+	 * @see output
+	 * @description
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
+	 */
+	 adapter?: AstroIntegration;
+
+	 /**
+	  * @docs
+	  * @name output
+	  * @type {('static' | 'server')}
+	  * @default `'static'`
+	  * @see adapter
+	  * @description
+	  * 
+	  * Specifies the output target for builds. 
+	  * 
+	  * - 'static' - Building a static site to be deploy to any static host.
+	  * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	  * 
+	  * ```js
+	  * import { defineConfig } from 'astro/config';
+	  * 
+	  * export default defineConfig({
+	  *   output: 'static'
+	  * })
+	  * ```
+	  */
+	 output?: 'static' | 'server';
+ 
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name Build Options
 	 */
@@ -601,26 +652,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Adapter
-	 * @description
-	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
-	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
-	 *
-	 * ```js
-	 * import netlify from '@astrojs/netlify/functions';
-	 * {
-	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
-	 * }
-	 * ```
-	 */
-	adapter?: AstroIntegration;
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Integrations
 	 * @description
 	 *
@@ -752,7 +783,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
-	adapter?: AstroIntegration;
+
 	// Private:
 	// We have a need to pass context based on configured state,
 	// that is different from the user-exposed configuration.
@@ -796,7 +827,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
 	compiledContent(): Promise<string>;
-	getHeaders(): Promise<MarkdownHeader[]>;
+	getHeadings(): Promise<MarkdownHeading[]>;
+	/** @deprecated Renamed to `getHeadings()` */
+	getHeaders(): void;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
 		frontmatter: MarkdownContent<T>;

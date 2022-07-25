@@ -29,7 +29,7 @@ describe('Imported markdown CSS', function () {
 			expect(importedAstroComponent?.name).to.equal('h2');
 			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
 
-			expect(bundledCSS).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
+			expect(bundledCSS).to.include(`h2:where(.${cssClass}){color:#00f}`);
 		});
 	});
 	describe('dev', () => {
@@ -53,7 +53,7 @@ describe('Imported markdown CSS', function () {
 			const cssClass = $(importedAstroComponent).attr('class')?.split(/\s+/)?.[0];
 
 			const allInjectedStyles = $('style[data-astro-injected]').text().replace(/\s*/g, '');
-			expect(allInjectedStyles).to.match(new RegExp(`h2.${cssClass}{color:#00f}`));
+			expect(allInjectedStyles).to.include(`h2:where(.${cssClass}){color:#00f}`);
 		});
 	});
 });

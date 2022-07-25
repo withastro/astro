@@ -44,14 +44,14 @@ export interface MarkdownRenderingOptions extends AstroMarkdownOptions {
 	isAstroFlavoredMd?: boolean;
 }
 
-export interface MarkdownHeader {
+export interface MarkdownHeading {
 	depth: number;
 	slug: string;
 	text: string;
 }
 
 export interface MarkdownMetadata {
-	headers: MarkdownHeader[];
+	headings: MarkdownHeading[];
 	source: string;
 	html: string;
 }

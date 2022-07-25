@@ -13,9 +13,7 @@ describe('Streaming', () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
 			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			output: 'server'
 		});
 	});
 
@@ -82,9 +80,7 @@ describe('Streaming disabled', () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
 			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			server: {
 				streaming: false,
 			},

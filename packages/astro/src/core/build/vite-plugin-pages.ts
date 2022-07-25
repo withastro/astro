@@ -1,6 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { pagesVirtualModuleId, resolvedPagesVirtualModuleId } from '../app/index.js';
-import { isBuildingToSSR } from '../util.js';
 import { addRollupInput } from './add-rollup-input.js';
 import type { BuildInternals } from './internal.js';
 import { eachPageData } from './internal.js';
@@ -11,7 +10,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (!isBuildingToSSR(opts.astroConfig)) {
+			if (opts.astroConfig.output === 'static') {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},

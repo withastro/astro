@@ -10,7 +10,6 @@ import { debug } from '../logger/core.js';
 import { removeTrailingForwardSlash } from '../path.js';
 import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
 import { matchRoute } from '../routing/match.js';
-import { isBuildingToSSR } from '../util.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -36,9 +35,6 @@ export async function collectPagesData(
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
 	const builtPaths = new Set<string>();
-
-	const buildMode = isBuildingToSSR(astroConfig) ? 'ssr' : 'static';
-
 	const dataCollectionLogTimeout = setInterval(() => {
 		info(opts.logging, 'build', 'The data collection step may take longer for larger projects...');
 		clearInterval(dataCollectionLogTimeout);
@@ -72,7 +68,7 @@ export async function collectPagesData(
 			};
 
 			clearInterval(routeCollectionLogTimeout);
-			if (buildMode === 'static') {
+			if (astroConfig.output === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',

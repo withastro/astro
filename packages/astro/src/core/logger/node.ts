@@ -125,7 +125,6 @@ export const logger = {
 };
 
 export function enableVerboseLogging() {
-	//debugPackage.enable('*,-babel');
 	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
 	debug(
 		'cli',

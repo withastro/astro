@@ -1,7 +1,7 @@
 import type { MarkdownRenderingOptions, MarkdownRenderingResult } from './types';
 
 import { loadPlugins } from './load-plugins.js';
-import createCollectHeaders from './rehype-collect-headers.js';
+import createCollectHeadings from './rehype-collect-headings.js';
 import rehypeEscape from './rehype-escape.js';
 import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
@@ -41,7 +41,7 @@ export async function renderMarkdown(
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
 	const scopedClassName = opts.$?.scopedClassName;
-	const { headers, rehypeCollectHeaders } = createCollectHeaders();
+	const { headings, rehypeCollectHeadings } = createCollectHeadings();
 
 	let parser = unified()
 		.use(markdown)
@@ -94,8 +94,8 @@ export async function renderMarkdown(
 	parser
 		.use(
 			isAstroFlavoredMd
-				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeaders]
-				: [rehypeCollectHeaders, rehypeRaw]
+				? [rehypeJsx, rehypeExpressions, rehypeEscape, rehypeIslands, rehypeCollectHeadings]
+				: [rehypeCollectHeadings, rehypeRaw]
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
@@ -113,7 +113,7 @@ export async function renderMarkdown(
 	}
 
 	return {
-		metadata: { headers, source: content, html: result.toString() },
+		metadata: { headings, source: content, html: result.toString() },
 		code: result.toString(),
 	};
 }

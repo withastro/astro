@@ -46,7 +46,7 @@ describe('CSS', function () {
 				expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
 				// 2. check CSS
-				const expected = `.blue.${scopedClass}{color:#b0e0e6}.color\\\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`;
+				const expected = `.blue:where(.${scopedClass}){color:#b0e0e6}.color\\\\:blue:where(.${scopedClass}){color:#b0e0e6}.visible:where(.${scopedClass}){display:block}`;
 				expect(bundledCSS).to.include(expected);
 			});
 
@@ -69,11 +69,11 @@ describe('CSS', function () {
 			});
 
 			it('<style lang="sass">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1.astro-[^{]*{color:#90ee90}'));
+				expect(bundledCSS).to.match(new RegExp('h1\\:where\\(.astro-[^{]*{color:#90ee90}'));
 			});
 
 			it('<style lang="scss">', async () => {
-				expect(bundledCSS).to.match(new RegExp('h1.astro-[^{]*{color:#ff69b4}'));
+				expect(bundledCSS).to.match(new RegExp('h1\\:where\\(.astro-[^{]*{color:#ff69b4}'));
 			});
 		});
 
@@ -308,10 +308,10 @@ describe('CSS', function () {
 		it('resolves Astro styles', async () => {
 			const allInjectedStyles = $('style[data-astro-injected]').text();
 
-			expect(allInjectedStyles).to.contain('.linked-css.astro-');
-			expect(allInjectedStyles).to.contain('.linked-sass.astro-');
-			expect(allInjectedStyles).to.contain('.linked-scss.astro-');
-			expect(allInjectedStyles).to.contain('.wrapper.astro-');
+			expect(allInjectedStyles).to.contain('.linked-css:where(.astro-');
+			expect(allInjectedStyles).to.contain('.linked-sass:where(.astro-');
+			expect(allInjectedStyles).to.contain('.linked-scss:where(.astro-');
+			expect(allInjectedStyles).to.contain('.wrapper:where(.astro-');
 		});
 
 		it('resolves Styles from React', async () => {

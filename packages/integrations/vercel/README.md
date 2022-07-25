@@ -25,7 +25,7 @@ First, install the `@astrojs/vercel` package using your package manager. If you'
 npm install @astrojs/vercel
 ```
 
-Then, install this adapter in your `astro.config.*` file using the `adapter` property (note the import from `@astrojs/vercel/serverless` - see [targets](#targets)).
+Then, install this adapter in your `astro.config.*` file using the `deploy` property (note the import from `@astrojs/vercel/serverless` - see [targets](#targets)).
 
  __`astro.config.mjs`__
 
@@ -34,6 +34,7 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
+  output: 'server',
 	adapter: vercel()
 });
 ```

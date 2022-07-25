@@ -116,6 +116,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const headers = new Headers();
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
+		headers.set('Content-Type', 'text/html');
 	} else {
 		headers.set('Content-Type', 'text/html');
 	}

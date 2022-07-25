@@ -2,13 +2,13 @@ import Slugger from 'github-slugger';
 import { toHtml } from 'hast-util-to-html';
 import { visit } from 'unist-util-visit';
 
-import type { MarkdownHeader, RehypePlugin } from './types.js';
+import type { MarkdownHeading, RehypePlugin } from './types.js';
 
-export default function createCollectHeaders() {
-	const headers: MarkdownHeader[] = [];
+export default function createCollectHeadings() {
+	const headings: MarkdownHeading[] = [];
 	const slugger = new Slugger();
 
-	function rehypeCollectHeaders(): ReturnType<RehypePlugin> {
+	function rehypeCollectHeadings(): ReturnType<RehypePlugin> {
 		return function (tree) {
 			visit(tree, (node) => {
 				if (node.type !== 'element') return;
@@ -61,13 +61,13 @@ export default function createCollectHeaders() {
 					}
 				}
 
-				headers.push({ depth, slug: node.properties.id, text });
+				headings.push({ depth, slug: node.properties.id, text });
 			});
 		};
 	}
 
 	return {
-		headers,
-		rehypeCollectHeaders,
+		headings,
+		rehypeCollectHeadings,
 	};
 }

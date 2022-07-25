@@ -18,7 +18,7 @@ import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
-import { getOutputFilename, isBuildingToSSR } from '../util.js';
+import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
@@ -97,7 +97,7 @@ export async function generatePages(
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
-	const ssr = isBuildingToSSR(opts.astroConfig);
+	const ssr = opts.astroConfig.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
@@ -207,7 +207,7 @@ async function generatePath(
 		}
 	}
 
-	const ssr = isBuildingToSSR(opts.astroConfig);
+	const ssr = opts.astroConfig.output === 'server';
 	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
 	const options: RenderOptions = {
 		adapterName: undefined,

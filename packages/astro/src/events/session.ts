@@ -1,6 +1,4 @@
-import { createRequire } from 'node:module';
 import type { AstroUserConfig } from '../@types/astro';
-const require = createRequire(import.meta.url);
 
 const EVENT_SESSION = 'ASTRO_CLI_SESSION_STARTED';
 
