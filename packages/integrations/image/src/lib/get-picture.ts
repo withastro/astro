@@ -1,5 +1,5 @@
 import { lookup } from 'mrmime';
-import { extname } from 'path';
+import { extname } from 'node:path';
 import { ImageAttributes, ImageMetadata, OutputFormat, TransformOptions } from '../types.js';
 import { parseAspectRatio } from '../utils/images.js';
 import { getImage } from './get-image.js';

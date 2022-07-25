@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import sizeOf from 'image-size';
 import { ImageMetadata, InputFormat } from '../types.js';
 

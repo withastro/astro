@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro';
 import etag from 'etag';
 import { lookup } from 'mrmime';
-import { fileURLToPath } from 'url';
 // @ts-ignore
 import loader from 'virtual:image-loader';
 import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
@@ -20,8 +19,9 @@ export const get: APIRoute = async ({ request }) => {
 		if (isRemoteImage(transform.src)) {
 			inputBuffer = await loadRemoteImage(transform.src);
 		} else {
-			const pathname = fileURLToPath(new URL(`../client${transform.src}`, import.meta.url));
-			inputBuffer = await loadLocalImage(pathname);
+			const clientRoot = new URL('../client/', import.meta.url);
+			const localPath = new URL('.' + transform.src, clientRoot);
+			inputBuffer = await loadLocalImage(localPath.pathname);
 		}
 
 		if (!inputBuffer) {
