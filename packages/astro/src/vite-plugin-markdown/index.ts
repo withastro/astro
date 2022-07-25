@@ -8,6 +8,8 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { warn } from '../core/logger/core.js';
 import { resolvePages } from '../core/util.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
@@ -17,6 +19,7 @@ import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
+	logging: LogOptions;
 }
 
 const MARKDOWN_IMPORT_FLAG = '?mdImport';
@@ -34,7 +37,7 @@ function safeMatter(source: string, id: string) {
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
 // logic in how that is done.
-export default function markdown({ config }: AstroPluginOptions): Plugin {
+export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -170,6 +173,16 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				content.astro = metadata;
 				content.url = getFileInfo(id, config).fileUrl;
 				content.file = filename;
+
+				// Warn when attempting to use setup without the legacy flag
+				if (setup && !isAstroFlavoredMd) {
+					warn(
+						logging,
+						'markdown',
+						`The setup: property in frontmatter only works with the legacy.astroFlavoredMarkdown flag enabled.`
+					);
+				}
+
 				const prelude = `---
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
@@ -188,8 +201,16 @@ const $$content = ${JSON.stringify(
 						: // Avoid stripping "setup" and "components"
 						  // in plain MD mode
 						  { ...content, setup, components }
-				)}
+				)};
+
+Object.defineProperty($$content.astro, 'headers', {
+	get() {
+		console.warn('content.astro.headers has been removed and replaced with content.astro.headings.');
+		return undefined;
+	}
+});
 ---`;
+
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
 ${isAstroFlavoredMd ? setup : ''}`.trim();
 
