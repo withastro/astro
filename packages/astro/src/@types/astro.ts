@@ -426,7 +426,7 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @name adapter
-     * @typeraw {AstroIntegration}
+	 * @typeraw {AstroIntegration}
 	 * @see output
 	 * @description
 	 *
@@ -442,31 +442,31 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	 adapter?: AstroIntegration;
+	adapter?: AstroIntegration;
 
-	 /**
-	  * @docs
-	  * @name output
-	  * @type {('static' | 'server')}
-	  * @default `'static'`
-	  * @see adapter
-	  * @description
-	  * 
-	  * Specifies the output target for builds. 
-	  * 
-	  * - 'static' - Building a static site to be deploy to any static host.
-	  * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
-	  * 
-	  * ```js
-	  * import { defineConfig } from 'astro/config';
-	  * 
-	  * export default defineConfig({
-	  *   output: 'static'
-	  * })
-	  * ```
-	  */
-	 output?: 'static' | 'server';
- 
+	/**
+	 * @docs
+	 * @name output
+	 * @type {('static' | 'server')}
+	 * @default `'static'`
+	 * @see adapter
+	 * @description
+	 *
+	 * Specifies the output target for builds.
+	 *
+	 * - 'static' - Building a static site to be deploy to any static host.
+	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 *
+	 * ```js
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   output: 'static'
+	 * })
+	 * ```
+	 */
+	output?: 'static' | 'server';
+
 	/**
 	 * @docs
 	 * @kind heading
@@ -703,7 +703,7 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	vite?: ViteUserConfig;
-	
+
 	/**
 	 * @docs
 	 * @kind heading
@@ -714,15 +714,15 @@ export interface AstroUserConfig {
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
 	legacy?: {
-	 /**
+		/**
 		 * @docs
 		 * @name legacy.astroFlavoredMarkdown
 		 * @type {boolean}
 		 * @default `false`
 		 * @since 1.0.0-rc
 		 * @description
-		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files. 
-		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/). 
+		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
+		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
 		 */
 		astroFlavoredMarkdown?: boolean;
 	};

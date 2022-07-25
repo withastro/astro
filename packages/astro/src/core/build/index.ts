@@ -1,11 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type {
-	AstroAdapter,
-	AstroConfig,
-	BuildConfig,
-	ManifestData,
-	RuntimeMode,
-} from '../../@types/astro';
+import type { AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';

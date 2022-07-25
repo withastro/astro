@@ -13,9 +13,9 @@ import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
+import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
-import { LogOptions, warn } from './logger/core.js';
 
 load.use([loadTypeScript]);
 

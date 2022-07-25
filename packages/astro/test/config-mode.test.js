@@ -38,9 +38,8 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					output: 'server'
+					output: 'server',
 				});
-				
 			});
 
 			it('Throws during the build', async () => {
@@ -48,7 +47,7 @@ describe('AstroConfig - config.mode', () => {
 				try {
 					await fixture.build();
 					built = true;
-				} catch(err) {
+				} catch (err) {
 					expect(err).to.be.an.instanceOf(Error);
 					expect(err.message).to.match(/without an adapter/);
 				}
@@ -67,7 +66,7 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					output: 'static'
+					output: 'static',
 				});
 				await fixture.build();
 			});
@@ -76,7 +75,7 @@ describe('AstroConfig - config.mode', () => {
 				let html;
 				try {
 					html = await fixture.readFile('/index.html');
-				} catch(err) {
+				} catch (err) {
 					expect(false).to.equal(true, 'Couldnt find the file, which mean it did not build.');
 				}
 				expect(html.length).to.be.greaterThan(0);
@@ -92,7 +91,7 @@ describe('AstroConfig - config.mode', () => {
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
 					adapter: testAdapter(),
-					output: 'server'
+					output: 'server',
 				});
 				await fixture.build();
 			});

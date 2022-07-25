@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir, isModeServerWithNoAdapter } from '../../core/util.js';
+import { emptyDir, isModeServerWithNoAdapter, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -25,7 +25,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
 	// Verify this app is buildable.
-	if(isModeServerWithNoAdapter(opts.astroConfig)) {
+	if (isModeServerWithNoAdapter(opts.astroConfig)) {
 		throw new Error(`Cannot use \`output: 'server'\` without an adapter.
 Install and configure the appropriate server adapter for your final deployment.
 Example:
@@ -36,7 +36,7 @@ Example:
     output: 'server',
     adapter: netlify(),
   }
-`)
+`);
 	}
 
 	// The pages to be built for rendering purposes.
@@ -71,11 +71,7 @@ Example:
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
-	info(
-		opts.logging,
-		'build',
-		`Building ${astroConfig.output} entrypoints...`
-	);
+	info(opts.logging, 'build', `Building ${astroConfig.output} entrypoints...`);
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
@@ -156,7 +152,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig.output === 'server' && vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
+			opts.astroConfig.output === 'server' &&
+				vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
 			vitePluginAnalyzer(opts.astroConfig, internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
@@ -287,9 +284,8 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
-	const serverRoot = opts.astroConfig.output === 'static'
-		? opts.buildConfig.client
-		: opts.buildConfig.server;
+	const serverRoot =
+		opts.astroConfig.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);
 	const clientAssets = new URL('./assets/', clientRoot);

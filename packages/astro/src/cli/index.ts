@@ -132,7 +132,12 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig, userConfigPath } = await openConfig({ cwd: root, flags, cmd, logging });
+	let { astroConfig, userConfig, userConfigPath } = await openConfig({
+		cwd: root,
+		flags,
+		cmd,
+		logging,
+	});
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:

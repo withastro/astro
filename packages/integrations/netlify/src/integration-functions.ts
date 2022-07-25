@@ -36,9 +36,11 @@ function netlifyFunctions({
 				setAdapter(getAdapter({ binaryMediaTypes }));
 				_config = config;
 
-				if(config.output === 'static') {
+				if (config.output === 'static') {
 					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
-					console.warn(`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`);
+					console.warn(
+						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
+					);
 				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {

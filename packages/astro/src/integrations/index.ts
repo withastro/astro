@@ -21,7 +21,7 @@ export async function runHookConfigSetup({
 }): Promise<AstroConfig> {
 	// An adapter is an integration, so if one is provided push it.
 	if (_config.adapter) {
-	 	_config.integrations.push(_config.adapter);
+		_config.integrations.push(_config.adapter);
 	}
 
 	let updatedConfig: AstroConfig = { ..._config };
@@ -89,7 +89,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 	}
 }
 
-export async function runHookServerSetup({ 
+export async function runHookServerSetup({
 	config,
 	server,
 }: {

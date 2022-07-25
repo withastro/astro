@@ -13,7 +13,7 @@ describe('Streaming', () => {
 		fixture = await loadFixture({
 			root: './fixtures/streaming/',
 			adapter: testAdapter(),
-			output: 'server'
+			output: 'server',
 		});
 	});
 
