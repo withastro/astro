@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import glob from 'tiny-glob';
 import { fileURLToPath } from 'node:url';
+import glob from 'tiny-glob';
 import { ensureDir } from '../utils/paths.js';
 
 async function globImages(dir: URL) {

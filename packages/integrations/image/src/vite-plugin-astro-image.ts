@@ -1,7 +1,7 @@
 import type { AstroConfig } from 'astro';
+import { pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import slash from 'slash';
-import { pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './types.js';
 import { metadata } from './utils/metadata.js';

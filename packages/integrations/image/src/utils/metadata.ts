@@ -1,5 +1,5 @@
-import fs from 'node:fs/promises';
 import sizeOf from 'image-size';
+import fs from 'node:fs/promises';
 import { ImageMetadata, InputFormat } from '../types.js';
 
 export async function metadata(src: string): Promise<ImageMetadata | undefined> {
