@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import type { OutputFormat, TransformOptions } from '../types.js';
 
 export function isOutputFormat(value: string): value is OutputFormat {
