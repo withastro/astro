@@ -1,6 +1,5 @@
 import type { PluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroConfig } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../../vite-plugin-astro/types';
 
@@ -9,9 +8,7 @@ import { resolveClientDevPath } from '../../core/render/dev/resolve.js';
 import { getTopLevelPages } from './graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
 
-export function vitePluginAnalyzer(
-	internals: BuildInternals
-): VitePlugin {
+export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 	function hoistedScriptScanner() {
 		const uniqueHoistedIds = new Map<string, string>();
 		const pageScripts = new Map<string, Set<string>>();

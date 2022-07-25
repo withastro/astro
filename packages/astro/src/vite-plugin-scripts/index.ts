@@ -1,4 +1,4 @@
-import { Plugin as VitePlugin, ConfigEnv } from 'vite';
+import { ConfigEnv, Plugin as VitePlugin } from 'vite';
 import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
@@ -57,6 +57,6 @@ export default function astroScriptsPlugin({ config }: { config: AstroConfig }):
 					name: BEFORE_HYDRATION_SCRIPT_ID,
 				});
 			}
-		}
+		},
 	};
 }

@@ -11,7 +11,7 @@ test.describe('Lit components', () => {
 	test.beforeEach(() => {
 		delete globalThis.window;
 	});
-	
+
 	test.describe('Development', () => {
 		let devServer;
 		const t = test.extend({});
@@ -19,7 +19,7 @@ test.describe('Lit components', () => {
 		t.beforeEach(async ({ astro }) => {
 			devServer = await astro.startDevServer();
 		});
-		
+
 		t.afterEach(async () => {
 			await devServer.stop();
 		});
@@ -110,12 +110,12 @@ test.describe('Lit components', () => {
 
 	test.describe('Production', () => {
 		let previewServer;
-		const t = test.extend({});		
+		const t = test.extend({});
 
 		t.beforeAll(async ({ astro }) => {
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
-			process.stdout.cursorTo = () => {};	
+			process.stdout.cursorTo = () => {};
 			await astro.build();
 		});
 
