@@ -33,7 +33,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				setAdapter(getAdapter(args));
 
 				if(config.output === 'static') {
-					console.warn(`@astrojs/deno does not support static mode.`);
+					console.warn(`[@astrojs/deno] \`output: "server"\` is required to use this adapter.`);
+					console.warn(`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`);
 				}
 			},
 			'astro:build:start': ({ buildConfig }) => {

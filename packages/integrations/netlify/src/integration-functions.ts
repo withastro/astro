@@ -37,7 +37,8 @@ function netlifyFunctions({
 				_config = config;
 
 				if(config.output === 'static') {
-					console.warn(`@astrojs/netlify does not support static mode.`);
+					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
+					console.warn(`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`);
 				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
