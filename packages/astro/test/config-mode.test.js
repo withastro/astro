@@ -13,7 +13,7 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					deploy: testAdapter(),
+					adapter: testAdapter(),
 					output: 'server',
 				});
 				await fixture.build();
@@ -91,7 +91,7 @@ describe('AstroConfig - config.mode', () => {
 				fixture = await loadFixture({
 					// This is just a random fixture to test, doesn't matter.
 					root: './fixtures/astro-basic/',
-					deploy: testAdapter(),
+					adapter: testAdapter(),
 					output: 'server'
 				});
 				await fixture.build();

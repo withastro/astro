@@ -26,12 +26,17 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Verify this app is buildable.
 	if(isModeServerWithNoAdapter(opts.astroConfig)) {
-		throw new Error(`Cannot use output: 'server' without an adapter. Please install and configure an adapter by setting it on the deploy configuration.
-		
-export default {
-	output: 'static',
-	adapter: netlify(),
-}`)
+		throw new Error(`Cannot use \`output: 'server'\` without a deploy adapter.
+Install and configure the appropriate deploy adapter for your hosting platform.
+Example:
+
+  // astro.config.js
+  import netlify from '@astrojs/netlify';
+  export default {
+    output: 'server',
+    adapter: netlify(),
+  }
+`)
 	}
 
 	// The pages to be built for rendering purposes.

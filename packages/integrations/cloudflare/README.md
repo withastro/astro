@@ -10,7 +10,7 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   output: 'server',
-  deploy: cloudflare()
+  adapter: cloudflare()
 });
 ```
 

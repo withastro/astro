@@ -82,7 +82,7 @@ export function eventCliSession(
 						typeof p === 'string' ? p : typeof p
 					) ?? []),
 				] as string[],
-				adapter: userConfig?.deploy?.name ?? null,
+				adapter: userConfig?.adapter?.name ?? null,
 				integrations: (userConfig?.integrations ?? []).filter(Boolean).map((i: any) => i?.name),
 				trailingSlash: userConfig?.trailingSlash,
 				build: userConfig?.build

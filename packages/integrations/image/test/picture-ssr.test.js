@@ -18,7 +18,7 @@ describe('SSR pictures - build', function () {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basic-picture/',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 			output: 'server',
 		});
 		await fixture.build();
@@ -184,7 +184,7 @@ describe('SSR images - dev', function () {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basic-picture/',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 			output: 'server',
 		});
 

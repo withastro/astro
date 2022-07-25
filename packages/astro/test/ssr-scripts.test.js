@@ -10,7 +10,7 @@ describe('SSR Hydrated component scripts', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-scripts/',
 			output: 'server',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});

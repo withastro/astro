@@ -9,28 +9,25 @@
 '@astrojs/vercel': minor
 ---
 
-New `mode` configuration option
+New `output` configuration option
 
-This change introduces a new configuration option `mode`. Mode can be either
+This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
 
-* `static` - The default, when building a static site.
-* `server` - When building an app to be deployed for SSR (server-side rendering).
+* `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
+* `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
 
-The default, `static`, can be omitted from your config file.
+If `output` is omitted from your config, the default value `"static"` will be used.
 
-If you want to use SSR you now need to provide `output: 'server'` *in addition* to an adapter.
+When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will *adapt* your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
 
-The `adapter` configuration has been renamed to `deploy`. In the future adapters will support configuring a static site as well!
-
-For SSR make this change:
+To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
 
 ```diff
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
--  adapter: netlify(),
-+  deploy: netlify(),
-+  output: 'server',
+  adapter: netlify(),
++ output: 'server',
 });
 ```

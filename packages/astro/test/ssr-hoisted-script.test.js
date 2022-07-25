@@ -11,7 +11,7 @@ describe('Hoisted scripts in SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-hoisted-script/',
 			output: 'server',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});

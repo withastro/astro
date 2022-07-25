@@ -12,7 +12,7 @@ describe('Integration buildConfig hook', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-request/',
 			output: 'server',
-			deploy: {
+			adapter: {
 				name: 'my-ssr-adapter',
 				hooks: {
 					'astro:config:setup': ({ updateConfig }) => {

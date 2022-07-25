@@ -3,7 +3,7 @@ import deno from '@astrojs/deno';
 import react from '@astrojs/react';
 
 export default defineConfig({
-	deploy: deno(),
+	adapter: deno(),
 	integrations: [react()],
 	output: 'server',
 })

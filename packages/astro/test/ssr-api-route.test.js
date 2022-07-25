@@ -10,7 +10,7 @@ describe('API routes in SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-api-route/',
 			output: 'server',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});

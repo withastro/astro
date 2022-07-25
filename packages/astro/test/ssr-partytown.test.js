@@ -10,7 +10,7 @@ describe('Using the Partytown integration in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-partytown/',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 			output: 'server'
 		});
 		await fixture.build();

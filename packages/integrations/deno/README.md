@@ -38,7 +38,7 @@ import deno from '@astrojs/deno';
 export default defineConfig({
   // ...
   output: 'server',
-  deploy: deno()
+  adapter: deno()
 });
 ```
   
@@ -71,7 +71,7 @@ import deno from '@astrojs/deno';
 
 export default defineConfig({
   output: 'server',
-  deploy: deno({
+  adapter: deno({
     //options go here
   })
 });
@@ -88,7 +88,7 @@ export default defineConfig({
 
   export default defineConfig({
     output: 'server',
-    deploy: deno({
+    adapter: deno({
       start: false
     })
   });
@@ -119,7 +119,7 @@ export default defineConfig({
 
   export default defineConfig({
     output: 'server',
-    deploy: deno({
+    adapter: deno({
       port: 8081,
       hostname: 'myhost'
     })

@@ -38,7 +38,7 @@ import node from '@astrojs/node';
 export default defineConfig({
   // ...
   output: 'server',
-  deploy: node()
+  adapter: node()
 })
 ```
 

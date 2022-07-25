@@ -131,7 +131,7 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('static'), z.literal('server')])
 		.optional()
 		.default('static'),
-	deploy: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	integrations: z.preprocess(
 		// preprocess
 		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
@@ -268,15 +268,6 @@ export async function validateConfig(
 			// We tried, better to just exit.
 		}
 		process.exit(1);
-	}
-
-	if ('adapter' in userConfig) {
-		warn(
-			logging,
-			`The "adapter" config has been renamed to "deploy". Please update your config file.`
-		);
-		userConfig.deploy = userConfig.adapter;
-		delete userConfig.adapter;
 	}
 
 	let legacyConfigKey: string | undefined;

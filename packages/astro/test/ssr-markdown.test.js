@@ -11,7 +11,7 @@ describe('Markdown pages in SSR', () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-markdown/',
 			output: 'server',
-			deploy: testAdapter(),
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});

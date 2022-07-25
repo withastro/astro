@@ -10,7 +10,7 @@ describe('Base64 Responses', () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/base64-response/', import.meta.url).toString(),
 			output: 'server',
-			deploy: netlifyAdapter({
+			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/base64-response/dist/', import.meta.url),
 				binaryMediaTypes: ['font/otf'],
 			}),

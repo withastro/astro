@@ -16,7 +16,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	const staticImages = new Map<string, Map<string, TransformOptions>>();
 
 	let _config: AstroConfig;
-	let mode: 'ssr' | 'ssg';
+	let output: 'server' | 'static';
 
 	function getViteConfiguration() {
 		return {
@@ -37,11 +37,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				_config = config;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
-				mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
+				output = command === 'dev' ? 'server' : config.output;
 
 				updateConfig({ vite: getViteConfiguration() });
 
-				if (mode === 'ssr') {
+				if (output === 'server') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint:
@@ -67,7 +67,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 				// Helpers for building static images should only be available for SSG
 				globalThis.astroImage =
-					mode === 'ssg'
+					output === 'static'
 						? {
 								addStaticImage,
 								filenameFormat,
@@ -75,7 +75,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
-				if (mode === 'ssr') {
+				if (output === 'server') {
 					// for SSR builds, copy all image files from src to dist
 					// to make sure they are available for use in production
 					await ssrBuild({ srcDir: _config.srcDir, outDir: dir });
