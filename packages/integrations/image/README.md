@@ -222,6 +222,34 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
 
+### `getImage`
+
+This is the helper function used by the `<Image />` component to build `<img />` attributes for the transformed image. This helper can be used directly for more complex use cases that aren't currently supported by the `<Image />` component.
+
+This helper takes in an object with the same properties as the `<Image />` component and returns an object with attributes that should be included on the final `<img />` element.
+
+This can helpful if you need to add preload links to a page's `<head>`.
+
+```jsx
+---
+import { getImage } from '@astrojs/image';
+
+const { src } = await getImage('../assets/hero.png');
+---
+
+<html>
+  <head>
+    <link rel="preload" as="image" href={src}>
+  </head>
+</html>
+```
+
+### `getPicture`
+
+This is the helper function used by the `<Picture />` component to build multiple sizes and formats for responsive images. This helper can be used directly for more complex use cases that aren't currently supported by the `<Picture />` component.
+
+This helper takes in an object with the same properties as the `<Picture />` component and returns an object attributes that should be included on the final `<img />` element **and** a list of sources that should be used to render all `<source>`s for the `<picture>` element.
+
 ## Configuration
 
 The intergration can be configured to run with a different image service, either a hosted image service or a full image transformer that runs locally in your build or SSR deployment.
