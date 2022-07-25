@@ -680,7 +680,6 @@ declare namespace astroHTML.JSX {
 		src?: string | undefined | null;
 		srcdoc?: string | undefined | null;
 		width?: number | string | undefined | null;
-		
 	}
 
 	interface ImgHTMLAttributes extends HTMLAttributes {
