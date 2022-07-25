@@ -5,7 +5,5 @@ import react from '@astrojs/react';
 export default defineConfig({
 	adapter: deno(),
 	integrations: [react()],
-	experimental: {
-		ssr: true
-	}
+	output: 'server',
 })

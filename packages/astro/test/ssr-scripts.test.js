@@ -9,9 +9,7 @@ describe('SSR Hydrated component scripts', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-scripts/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build();

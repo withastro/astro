@@ -9,9 +9,7 @@ describe('Dynamic pages', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/dynamic-route/', import.meta.url).toString(),
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: netlifyAdapter({
 				dist: new URL('./fixtures/dynamic-route/dist/', import.meta.url),
 			}),

@@ -29,8 +29,13 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/deno',
 		hooks: {
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(args));
+
+				if(config.output === 'static') {
+					console.warn(`[@astrojs/deno] \`output: "server"\` is required to use this adapter.`);
+					console.warn(`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				_buildConfig = buildConfig;

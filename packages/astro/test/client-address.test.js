@@ -12,9 +12,7 @@ describe('Astro.clientAddress', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
-				experimental: {
-					ssr: true,
-				},
+				output: 'server',
 				adapter: testAdapter(),
 			});
 		});
@@ -67,9 +65,7 @@ describe('Astro.clientAddress', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
-				experimental: {
-					ssr: true,
-				},
+				output: 'server',
 				adapter: testAdapter({ provideAddress: false }),
 			});
 			await fixture.build();
@@ -90,6 +86,7 @@ describe('Astro.clientAddress', () => {
 		before(async () => {
 			fixture = await loadFixture({
 				root: './fixtures/client-address/',
+				output: 'static',
 			});
 		});
 

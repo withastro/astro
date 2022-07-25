@@ -11,7 +11,7 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR, isPage } from '../../util.js';
+import { isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
@@ -194,7 +194,7 @@ export async function render(
 		route,
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
-		ssr: isBuildingToSSR(astroConfig),
+		ssr: astroConfig.output === 'server',
 		streaming: true,
 	});
 

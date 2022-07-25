@@ -9,9 +9,7 @@ describe('SSR Assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-assets/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build();

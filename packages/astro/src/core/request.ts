@@ -56,7 +56,7 @@ export function createRequest({
 				warn(
 					logging,
 					'ssg',
-					`Headers are not exposed in static-site generation (SSG) mode. To enable reading headers you need to set an SSR adapter in your config.`
+					`Headers are not exposed in static (SSG) output mode. To enable headers: set \`output: "server"\` in your config file.`
 				);
 				return _headers;
 			},

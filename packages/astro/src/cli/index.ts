@@ -132,7 +132,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig, userConfigPath } = await openConfig({ cwd: root, flags, cmd });
+	let { astroConfig, userConfig, userConfigPath } = await openConfig({ cwd: root, flags, cmd, logging });
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -154,7 +154,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				watcher.on('add', async function restartServerOnNewConfigFile(addedFile: string) {
 					// if there was not a config before, attempt to resolve
 					if (!userConfigPath && addedFile.includes('astro.config')) {
-						const addedConfig = await openConfig({ cwd: root, flags, cmd });
+						const addedConfig = await openConfig({ cwd: root, flags, cmd, logging });
 						if (addedConfig.userConfigPath) {
 							info(logging, 'astro', 'Astro config detected. Restarting server...');
 							astroConfig = addedConfig.astroConfig;

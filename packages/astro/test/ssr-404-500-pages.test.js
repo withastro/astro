@@ -10,9 +10,7 @@ describe('404 and 500 pages', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-api-route-custom-404/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build({});

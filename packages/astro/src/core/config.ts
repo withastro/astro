@@ -15,6 +15,7 @@ import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
+import { LogOptions, warn } from './logger/core.js';
 
 load.use([loadTypeScript]);
 
@@ -92,7 +93,6 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 ]);
 
 export const AstroConfigSchema = z.object({
-	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	root: z
 		.string()
 		.optional()
@@ -127,6 +127,19 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	output: z
+		.union([z.literal('static'), z.literal('server')])
+		.optional()
+		.default('static'),
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default(ASTRO_CONFIG_DEFAULTS.integrations)
+	),
 	build: z
 		.object({
 			format: z
@@ -152,14 +165,6 @@ export const AstroConfigSchema = z.object({
 			})
 			.optional()
 			.default({})
-	),
-	integrations: z.preprocess(
-		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
-		// validate
-		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
 	style: z
 		.object({
@@ -227,7 +232,8 @@ export const AstroConfigSchema = z.object({
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string
+	cmd: string,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
@@ -388,6 +394,7 @@ interface LoadConfigOptions {
 	flags?: Flags;
 	cmd: string;
 	validate?: boolean;
+	logging: LogOptions;
 }
 
 /**
@@ -459,7 +466,13 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		userConfig = config.value;
 		userConfigPath = config.filePath;
 	}
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+	const astroConfig = await resolveConfig(
+		userConfig,
+		root,
+		flags,
+		configOptions.cmd,
+		configOptions.logging
+	);
 
 	return {
 		astroConfig,
@@ -505,7 +518,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
+	return resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
@@ -513,10 +526,11 @@ export async function resolveConfig(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
-	cmd: string
+	cmd: string,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
+	const validatedConfig = await validateConfig(mergedConfig, root, cmd, logging);
 
 	return validatedConfig;
 }
