@@ -6,16 +6,16 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger/core.js';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { warn } from '../core/logger/core.js';
 import { resolvePages } from '../core/util.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { warn } from '../core/logger/core.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -175,8 +175,12 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				content.file = filename;
 
 				// Warn when attempting to use setup without the legacy flag
-				if(setup && !isAstroFlavoredMd) {
-					warn(logging, 'markdown', `The setup: property in frontmatter only works with the legacy.astroFlavoredMarkdown flag enabled.`);
+				if (setup && !isAstroFlavoredMd) {
+					warn(
+						logging,
+						'markdown',
+						`The setup: property in frontmatter only works with the legacy.astroFlavoredMarkdown flag enabled.`
+					);
 				}
 
 				const prelude = `---
