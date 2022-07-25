@@ -2,6 +2,7 @@
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
+import os from 'os';
 import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
@@ -72,18 +73,21 @@ export async function main() {
 			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });
 			rejectProjectDir.fail();
 		}
-		const dirResponse = await prompts({
-			type: 'text',
-			name: 'directory',
-			message: 'Where would you like to create your new project?',
-			initial: './my-astro-site',
-			validate(value) {
-				if (!isEmpty(value)) {
-					return notEmptyMsg(value);
-				}
-				return true;
+		const dirResponse = await prompts(
+			{
+				type: 'text',
+				name: 'directory',
+				message: 'Where would you like to create your new project?',
+				initial: './my-astro-site',
+				validate(value) {
+					if (!isEmpty(value)) {
+						return notEmptyMsg(value);
+					}
+					return true;
+				},
 			},
-		});
+			{ onCancel: () => ora().info(dim('Operation cancelled. See you later, astronaut!')) }
+		);
 		cwd = dirResponse.directory;
 	}
 
@@ -91,20 +95,23 @@ export async function main() {
 		process.exit(1);
 	}
 
-	const options = await prompts([
-		{
-			type: 'select',
-			name: 'template',
-			message: 'Which template would you like to use?',
-			choices: TEMPLATES,
-		},
-	]);
+	const options = await prompts(
+		[
+			{
+				type: 'select',
+				name: 'template',
+				message: 'Which template would you like to use?',
+				choices: TEMPLATES,
+			},
+		],
+		{ onCancel: () => ora().info(dim('Operation cancelled. See you later, astronaut!')) }
+	);
 
 	if (!options.template) {
 		process.exit(1);
 	}
 
-	const templateSpinner = await loadWithRocketGradient('Copying project files...');
+	let templateSpinner = await loadWithRocketGradient('Copying project files...');
 
 	const hash = args.commit ? `#${args.commit}` : '';
 
@@ -133,22 +140,47 @@ export async function main() {
 			});
 			await emitter.clone(cwd);
 		} catch (err: any) {
+			templateSpinner.fail();
+
 			// degit is compiled, so the stacktrace is pretty noisy. Only report the stacktrace when using verbose mode.
 			logger.debug(err);
 			console.error(red(err.message));
 
-			// Warning for issue #655
-			if (err.message === 'zlib: unexpected end of file') {
+			// Warning for issue #655 and other corrupted cache issue
+			if (
+				err.message === 'zlib: unexpected end of file' ||
+				err.message === 'TAR_BAD_ARCHIVE: Unrecognized archive format'
+			) {
 				console.log(
 					yellow(
-						"This seems to be a cache related problem. Remove the folder '~/.degit/github/withastro' to fix this error."
+						'Local degit cache seems to be corrupted. For more information check out this issue: https://github.com/withastro/astro/issues/655. '
 					)
 				);
-				console.log(
-					yellow(
-						'For more information check out this issue: https://github.com/withastro/astro/issues/655'
-					)
-				);
+				const cacheIssueResponse = await prompts({
+					type: 'confirm',
+					name: 'cache',
+					message: 'Would you like us to clear the cache and try again?',
+					initial: true,
+				});
+
+				if (cacheIssueResponse.cache) {
+					const homeDirectory = os.homedir();
+					const cacheDir = path.join(homeDirectory, '.degit', 'github', 'withastro');
+
+					fs.rmSync(cacheDir, { recursive: true, force: true, maxRetries: 3 });
+
+					templateSpinner = await loadWithRocketGradient('Copying project files...');
+					try {
+						await emitter.clone(cwd);
+					} catch (e: any) {
+						logger.debug(e);
+						console.error(red(e.message));
+					}
+				} else {
+					console.log(
+						"Okay, no worries! To fix this manually, remove the folder '~/.degit/github/withastro' and rerun the command."
+					);
+				}
 			}
 
 			// Helpful message when encountering the "could not find commit hash for ..." error
@@ -163,9 +195,9 @@ export async function main() {
 						"If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"
 					)
 				);
+
+				process.exit(1);
 			}
-			templateSpinner.fail();
-			process.exit(1);
 		}
 
 		// Post-process in parallel
@@ -234,9 +266,12 @@ export async function main() {
 	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 
-	await logAndWait(
-		`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
-	);
+	// If the project dir is the current dir, no need to tell users to cd in the folder
+	if (projectDir !== '/') {
+		await logAndWait(
+			`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
+		);
+	}
 	await logAndWait(
 		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
 	);
@@ -246,7 +281,7 @@ export async function main() {
 		)} to your project using ${bold(cyan('astro add'))}`
 	);
 	await logAndWait('');
-	await logAndWait(`Stuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`, 1000);
+	await logAndWait(`Stuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`, 750);
 	await logAndWait(dim('Good luck out there, astronaut.'));
 	await logAndWait('', 300);
 }
