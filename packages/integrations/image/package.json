@@ -20,10 +20,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/image/",
   "exports": {
-    ".": {
-      "astro": "./components/index.js",
-      "import": "./dist/index.js"
-    },
+    ".": "./dist/index.js",
     "./sharp": "./dist/loaders/sharp.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
