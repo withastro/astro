@@ -425,6 +425,50 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name adapter
+     * @typeraw {AstroIntegration}
+	 * @see output
+	 * @description
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
+	 */
+	 adapter?: AstroIntegration;
+
+	 /**
+	  * @docs
+	  * @name output
+	  * @type {('static' | 'server')}
+	  * @default `'static'`
+	  * @see adapter
+	  * @description
+	  * 
+	  * Specifies the output target for builds. 
+	  * 
+	  * - 'static' - Building a static site to be deploy to any static host.
+	  * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	  * 
+	  * ```js
+	  * import { defineConfig } from 'astro/config';
+	  * 
+	  * export default defineConfig({
+	  *   output: 'static'
+	  * })
+	  * ```
+	  */
+	 output?: 'static' | 'server';
+ 
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name Build Options
 	 */
@@ -604,48 +648,6 @@ export interface AstroUserConfig {
 		 */
 		rehypePlugins?: RehypePlugins;
 	};
-
-	/**
-	 * @docs
-	 * @kind heading
-	 * @name Adapter
-	 * @description
-	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
-	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
-	 *
-	 * ```js
-	 * import netlify from '@astrojs/netlify/functions';
-	 * {
-	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
-	 * }
-	 * ```
-	 */
-	adapter?: AstroIntegration;
-
-	/**
-	 * @docs
-	 * @kind heading
-	 * @name Output
-	 * @description
-	 * 
-	 * Specifies the output target for builds. 
-	 * 
-	 * - 'static' - Building a static site to be deploy to any static host.
-	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
-	 * 
-	 * ```js
-	 * import { defineConfig } from 'astro/config';
-	 * 
-	 * export default defineConfig({
-	 *   output: 'static'
-	 * })
-	 * ```
-	 */
-	output?: 'static' | 'server';
-
 
 	/**
 	 * @docs

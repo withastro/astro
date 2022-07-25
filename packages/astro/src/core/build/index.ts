@@ -1,5 +1,11 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroAdapter, AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
+import type {
+	AstroAdapter,
+	AstroConfig,
+	BuildConfig,
+	ManifestData,
+	RuntimeMode,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -101,9 +107,10 @@ class AstroBuilder {
 		};
 		await runHookBuildStart({ config: this.config, buildConfig });
 
-		const getPrettyDeployTarget = (adapter: AstroAdapter | undefined) => adapter?.name || 'unknown';
-		info(this.logging, 'build', `build target: ${colors.green(this.config.output)}`);
-		info(this.logging, 'build', `deploy target: ${colors.green(getPrettyDeployTarget(this.config._ctx.adapter))}`);
+		info(this.logging, 'build', `output target: ${colors.green(this.config.output)}`);
+		if (this.config._ctx.adapter) {
+			info(this.logging, 'build', `deploy adapter: ${colors.green(this.config._ctx.adapter.name)}`);
+		}
 		info(this.logging, 'build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({

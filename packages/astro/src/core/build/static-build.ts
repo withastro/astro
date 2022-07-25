@@ -26,8 +26,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Verify this app is buildable.
 	if(isModeServerWithNoAdapter(opts.astroConfig)) {
-		throw new Error(`Cannot use \`output: 'server'\` without a deploy adapter.
-Install and configure the appropriate deploy adapter for your hosting platform.
+		throw new Error(`Cannot use \`output: 'server'\` without an adapter.
+Install and configure the appropriate server adapter for your final deployment.
 Example:
 
   // astro.config.js
