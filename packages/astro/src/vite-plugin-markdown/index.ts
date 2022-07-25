@@ -188,8 +188,16 @@ const $$content = ${JSON.stringify(
 						: // Avoid stripping "setup" and "components"
 						  // in plain MD mode
 						  { ...content, setup, components }
-				)}
+				)};
+
+Object.defineProperty($$content.astro, 'headers', {
+	get() {
+		console.warn('content.astro.headers has been removed and replaced with content.astro.headings.');
+		return undefined;
+	}
+});
 ---`;
+
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
 ${isAstroFlavoredMd ? setup : ''}`.trim();
 
