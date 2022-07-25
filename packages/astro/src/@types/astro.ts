@@ -719,7 +719,7 @@ export interface AstroUserConfig {
 		 * @name legacy.astroFlavoredMarkdown
 		 * @type {boolean}
 		 * @default `false`
-		 * @version 1.0.0-rc
+		 * @version 1.0.0-rc.1
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
