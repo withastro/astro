@@ -1,15 +1,12 @@
 import type { ViteDevServer } from 'vite';
-import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
+import type { AstroConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 import { info } from '../logger/core.js';
 import type { AllPagesData } from './types';
 
 import * as colors from 'kleur/colors';
-import { fileURLToPath } from 'url';
 import { debug } from '../logger/core.js';
-import { removeTrailingForwardSlash } from '../path.js';
-import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
-import { matchRoute } from '../routing/match.js';
+import { RouteCache } from '../render/route-cache.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -30,7 +27,7 @@ export interface CollectPagesDataResult {
 export async function collectPagesData(
 	opts: CollectPagesDataOptions
 ): Promise<CollectPagesDataResult> {
-	const { astroConfig, logging, manifest, origin, routeCache, viteServer } = opts;
+	const { astroConfig,  manifest } = opts;
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
@@ -61,7 +58,6 @@ export async function collectPagesData(
 			allPages[route.component] = {
 				component: route.component,
 				route,
-				paths: [route.pathname],
 				moduleSpecifier: '',
 				css: new Set(),
 				hoistedScript: undefined,
@@ -80,49 +76,9 @@ export async function collectPagesData(
 			continue;
 		}
 		// dynamic route:
-		const result = await getStaticPathsForRoute(opts, route)
-			.then((_result) => {
-				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
-				debug(
-					'build',
-					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-						`[${_result.staticPaths.length} ${label}]`
-					)}`
-				);
-				return _result;
-			})
-			.catch((err) => {
-				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-				throw err;
-			});
-		const finalPaths = result.staticPaths
-			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
-			.filter((staticPath) => {
-				// Remove empty or undefined paths
-				if (!staticPath) {
-					return false;
-				}
-
-				// The path hasn't been built yet, include it
-				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
-					return true;
-				}
-
-				// The path was already built once. Check the manifest to see if
-				// this route takes priority for the final URL.
-				// NOTE: The same URL may match multiple routes in the manifest.
-				// Routing priority needs to be verified here for any duplicate
-				// paths to ensure routing priority rules are enforced in the final build.
-				const matchedRoute = matchRoute(staticPath, manifest);
-				return matchedRoute === route;
-			});
-
-		finalPaths.map((staticPath) => builtPaths.add(removeTrailingForwardSlash(staticPath)));
-
 		allPages[route.component] = {
 			component: route.component,
 			route,
-			paths: finalPaths,
 			moduleSpecifier: '',
 			css: new Set(),
 			hoistedScript: undefined,
@@ -132,17 +88,4 @@ export async function collectPagesData(
 	clearInterval(dataCollectionLogTimeout);
 
 	return { assets, allPages };
-}
-
-async function getStaticPathsForRoute(
-	opts: CollectPagesDataOptions,
-	route: RouteData
-): Promise<RouteCacheEntry> {
-	const { astroConfig, logging, routeCache, ssr, viteServer } = opts;
-	if (!viteServer) throw new Error(`vite.createServer() not called!`);
-	const filePath = new URL(`./${route.component}`, astroConfig.root);
-	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	const result = await callGetStaticPaths({ mod, route, isValidate: false, logging, ssr });
-	routeCache.set(route, result);
-	return result;
 }

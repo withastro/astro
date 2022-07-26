@@ -1,7 +1,6 @@
 import glob from 'fast-glob';
 import fs from 'fs';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
-import type { RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
@@ -72,7 +71,7 @@ Example:
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
 	info(opts.logging, 'build', `Building ${astroConfig.output} entrypoints...`);
-	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
+	await ssrBuild(opts, internals, pageInput);
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
 	const rendererClientEntrypoints = opts.astroConfig._ctx.renderers
@@ -93,7 +92,7 @@ Example:
 	timer.generate = performance.now();
 	if (astroConfig.output === 'static') {
 		try {
-			await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
+			await generatePages(opts, internals);
 		} finally {
 			await cleanSsrOutput(opts);
 		}
