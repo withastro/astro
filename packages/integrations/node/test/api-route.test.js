@@ -31,4 +31,20 @@ describe('API routes', () => {
 		expect(json.length).to.equal(1);
 		expect(json[0].name).to.equal('Broccoli Soup');
 	});
+
+	it('Can get binary data', async () => {
+		const { handler } = await import('./fixtures/api-route/dist/server/entry.mjs');
+
+		let { req, res, done } = createRequestAndResponse({
+			method: 'POST',
+			url: '/binary',
+		});
+
+		handler(req, res);
+		req.send(Buffer.from(new Uint8Array([1, 2, 3, 4, 5])));
+
+		let [out] = await done;
+		let arr = Array.from(new Uint8Array(out.buffer));
+		expect(arr).to.deep.equal([5, 4, 3, 2, 1]);
+	});
 });
