@@ -666,6 +666,7 @@ declare namespace astroHTML.JSX {
 		/** @deprecated */
 		frameborder?: number | string | undefined | null;
 		height?: number | string | undefined | null;
+		loading?: 'eager' | 'lazy' | undefined | null;
 		/** @deprecated */
 		marginheight?: number | string | undefined | null;
 		/** @deprecated */

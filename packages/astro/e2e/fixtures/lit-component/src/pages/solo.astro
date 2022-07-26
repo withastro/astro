@@ -11,8 +11,8 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
-		<MyCounter id="client-media" {...someProps} client:media="(max-width: 50em)">
-			<h1>Hello, client:media!</h1>
+		<MyCounter {...someProps} client:idle>
+			<h1>Hello, client:idle!</h1>
 		</MyCounter>
   </body>
 </html>
