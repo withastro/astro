@@ -1,18 +1,4 @@
 /// <reference types="astro/astro-jsx" />
-import type { AstroIntegration } from 'astro';
-export * from './dist/index.js';
-
-interface ImageIntegration {
-	loader?: ImageService;
-	addStaticImage?: (transform: TransformOptions) => void;
-	filenameFormat?: (transform: TransformOptions, searchParams: URLSearchParams) => string;
-}
-
-declare global {
-	// eslint-disable-next-line no-var
-	var astroImage: ImageIntegration | undefined;
-}
-
 export type InputFormat =
 	| 'heic'
 	| 'heif'
@@ -25,23 +11,6 @@ export type InputFormat =
 	| 'gif';
 
 export type OutputFormat = 'avif' | 'jpeg' | 'png' | 'webp';
-
-/**
- * Converts a set of image transforms to the filename to use when building for static.
- *
- * This is only used for static production builds and ignored when an SSR adapter is used,
- * or in `astro dev` for static builds.
- */
-export type FilenameFormatter = (transform: TransformOptions) => string;
-
-export interface IntegrationOptions {
-	/**
-	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
-	 */
-	serviceEntryPoint?: string;
-}
-
-export default function image(options?: IntegrationOptions): AstroIntegration;
 
 /**
  * Defines the original image and transforms that need to be applied to it.
@@ -86,14 +55,11 @@ export interface TransformOptions {
 	aspectRatio?: number | `${number}:${number}`;
 }
 
-export type ImageAttributes = astroHTML.JSX.ImgHTMLAttributes;
-export type PictureAttributes = astroHTML.JSX.HTMLAttributes;
-
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
 	/**
 	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
-	getImageAttributes(transform: T): Promise<ImageAttributes>;
+	getImageAttributes(transform: T): Promise<astroHTML.JSX.ImgHTMLAttributes>;
 }
 
 export interface SSRImageService<T extends TransformOptions = TransformOptions>
@@ -101,7 +67,7 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions>
 	/**
 	 * Gets tthe HTML attributes needed for the server rendered `<img />` element.
 	 */
-	getImageAttributes(transform: T): Promise<Exclude<ImageAttributes, 'src'>>;
+	getImageAttributes(transform: T): Promise<Exclude<astroHTML.JSX.ImgHTMLAttributes, 'src'>>;
 	/**
 	 * Serializes image transformation properties to URLSearchParams, used to build
 	 * the final `src` that points to the self-hosted SSR endpoint.
@@ -130,9 +96,10 @@ export type ImageService<T extends TransformOptions = TransformOptions> =
 	| HostedImageService<T>
 	| SSRImageService<T>;
 
-export interface ImageMetadata {
-	src: string;
-	width: number;
-	height: number;
-	format: InputFormat;
+export function isHostedService(service: ImageService): service is ImageService {
+	return 'getImageSrc' in service;
+}
+
+export function isSSRService(service: ImageService): service is SSRImageService {
+	return 'transform' in service;
 }

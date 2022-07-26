@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import type { OutputFormat, SSRImageService, TransformOptions } from '../types.js';
+import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 import { isAspectRatioString, isOutputFormat } from '../utils/images.js';
 
 class SharpService implements SSRImageService {

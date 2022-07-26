@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { OUTPUT_DIR } from '../constants.js';
-import type { TransformOptions } from '../types.js';
+import type { TransformOptions } from '../loaders/index.js';
 import { isRemoteImage } from './images.js';
 import { shorthash } from './shorthash.js';
 
