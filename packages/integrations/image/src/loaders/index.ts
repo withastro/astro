@@ -65,7 +65,7 @@ export interface HostedImageService<T extends TransformOptions = TransformOption
 export interface SSRImageService<T extends TransformOptions = TransformOptions>
 	extends HostedImageService<T> {
 	/**
-	 * Gets tthe HTML attributes needed for the server rendered `<img />` element.
+	 * Gets the HTML attributes needed for the server rendered `<img />` element.
 	 */
 	getImageAttributes(transform: T): Promise<Exclude<astroHTML.JSX.ImgHTMLAttributes, 'src'>>;
 	/**
