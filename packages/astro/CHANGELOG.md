@@ -2,79 +2,27 @@
 
 ## 1.0.0-rc.1
 
-### Minor Changes
+The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug fixes, and a few breaking changes to be aware of.
 
-- [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
+### Breaking Changes
 
-  This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
+- Astro now uses Vite 3, which comes with its own [Migration Guide](https://vitejs.dev/guide/migration.html).
+- Components and JSX expressions in `.md` files is no longer supported by default. It can be enabled by setting the `legacy.astroFlavoredMarkdown` flag to `true`.
+  - We are deeply invested in `@astrojs/mdx` as a long-term replacement for using components in Markdown.
+- Astro scoped styles now respect their authored specificity (see [RFC0012](https://github.com/withastro/rfcs/blob/main/proposals/0012-scoped-css-with-preserved-specificity.md)). **Please visually inspect your site** after upgrading to confirm that styles are working as expected.
+- `Astro.canonicalURL` has been replaced by the new `Astro.url` helper.
+- The Markdown `headers` and `getHeaders()` utils have been renamed to `headings` and `getHeadings()`.
+- The deprecated `Markdown` component has been removed from core and is now available as `@astrojs/markdown-component`.
 
-  - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
-  - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
+### New Features
 
-  If `output` is omitted from your config, the default value `"static"` will be used.
-
-  When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
-
-  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
-
-  ```diff
-  import { defineConfig } from 'astro/config';
-  import netlify from '@astrojs/netlify/functions';
-
-  export default defineConfig({
-    adapter: netlify(),
-  + output: 'server',
-  });
-  ```
-
-* [#4018](https://github.com/withastro/astro/pull/4018) [`0cc6ede36`](https://github.com/withastro/astro/commit/0cc6ede362996b9faba57481a790d6eb7fba2045) Thanks [@okikio](https://github.com/okikio)! - Support for 404 and 500 pages in SSR
-
-- [#3992](https://github.com/withastro/astro/pull/3992) [`ccae43142`](https://github.com/withastro/astro/commit/ccae43142619cedd479c9879a9c0fcee92263213) Thanks [@matthewp](https://github.com/matthewp)! - Removes warnings for integrations/ssr
-
-* [#3973](https://github.com/withastro/astro/pull/3973) [`5a23483ef`](https://github.com/withastro/astro/commit/5a23483efb3ba614b05a00064f84415620605204) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for Astro.clientAddress
-
-  The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
-
-  ```astro
-  <div>Your address { Astro.clientAddress }</div>
-  ```
-
-  This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.
-
-- [#3570](https://github.com/withastro/astro/pull/3570) [`04070c0c1`](https://github.com/withastro/astro/commit/04070c0c12c00a3e17842ce48e36edc3f2c890a3) Thanks [@matthewp](https://github.com/matthewp)! - Bump to Vite 3!
-
-* [#4016](https://github.com/withastro/astro/pull/4016) [`00fab4ce1`](https://github.com/withastro/astro/commit/00fab4ce135eb799cac69140403d7724686733d6) Thanks [@bholmesdev](https://github.com/bholmesdev)! - The use of components and JSX expressions in Markdown are no longer supported by default.
-
-  For long term support, migrate to the `@astrojs/mdx` integration for MDX support (including `.mdx` pages!).
-
-  Not ready to migrate to MDX? Add the legacy flag to your Astro config to re-enable the previous Markdown support.
-
-  ```js
-  // https://astro.build/config
-  export default defineConfig({
-    legacy: {
-      astroFlavoredMarkdown: true,
-    },
-  });
-  ```
-
-- [#3986](https://github.com/withastro/astro/pull/3986) [`bccd88f0e`](https://github.com/withastro/astro/commit/bccd88f0ebe1fbf383c0cee4b27a4c24c72dea72) Thanks [@matthewp](https://github.com/matthewp)! - Move the Markdown component to its own package
-
-  This change moves the Markdown component into its own package where it will be maintained separately. All that needs to change from a user's perspective is the import statement:
-
-  ```astro
-  ---
-  import { Markdown } from 'astro/components';
-  ---
-  ```
-
-  Becomes:
-
-  ```astro
-  ---
-  import Markdown from '@astrojs/markdown-component';
-  ---
-  ```
+- `astro dev` HMR has been overhauled to provide more stable live reload behavior
+- `astro dev` error handling has been overhauled to provide a more seamless error handling experience
+- The new `output` configuration option builds to `'static' | 'server'` targets
+- `.html` components and pages are now supported
+- `.mdx` components and pages are now supported via `@astrojs/mdx`
+- `server` output now supports custom `404` and `500` pages
+- `server` output now exposes `Astro.clientAddress` to get the current IP address per request
 
 ### Patch Changes
 
