@@ -7,7 +7,7 @@ import { App } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-function createRequestFromNodeRequest(req: IncomingMessage, body?: string): Request {
+function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): Request {
 	let url = `http://${req.headers.host}${req.url}`;
 	let rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
