@@ -7,7 +7,7 @@ import { App } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-function createRequestFromNodeRequest(req: IncomingMessage, body?: string): Request {
+function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): Request {
 	let url = `http://${req.headers.host}${req.url}`;
 	let rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
@@ -28,17 +28,10 @@ export class NodeApp extends App {
 	}
 	render(req: IncomingMessage | Request) {
 		if ('on' in req) {
-			let body: string | undefined = undefined;
+			let body = Buffer.from([]);
 			let reqBodyComplete = new Promise((resolve, reject) => {
 				req.on('data', (d) => {
-					if (body === undefined) {
-						body = '';
-					}
-					if (d instanceof Buffer) {
-						body += d.toString('utf-8');
-					} else if (typeof d === 'string') {
-						body += d;
-					}
+					body = Buffer.concat([body, d]);
 				});
 				req.on('end', () => {
 					resolve(body);
