@@ -84,6 +84,7 @@ export interface BuildConfig {
 	client: URL;
 	server: URL;
 	serverEntry: string;
+	concurrency?: number;
 }
 
 /**

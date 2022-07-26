@@ -155,15 +155,31 @@ async function generatePage(
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
-	for (let i = 0; i < paths.length; i++) {
-		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
-		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
-		const filePath = getOutputFilename(opts.astroConfig, path);
-		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+	const concurrency = opts.buildConfig.concurrency || MAX_CONCURRENT_RENDERS;
+	if (concurrency > 1) {
+		info(opts.logging, null, `${magenta('⚠️')}  Building with ${concurrency} concurrent renders`);
+		const renderPromises = [];
+		// Throttle the paths to avoid overloading the CPU with too many tasks.
+		for (const tpaths of throttle(concurrency, paths)) {
+			for (const path of tpaths) {
+				renderPromises.push(generatePathThrottled(path, opts, generationOptions, timeStart));
+			}
+			// This blocks generating more paths until these complete.
+			await Promise.all(renderPromises);
+			// This empties the array without allocating a new one.
+			renderPromises.length = 0;
+		}
+	} else {
+		for (let i = 0; i < paths.length; i++) {
+			const path = paths[i];
+			await generatePath(path, opts, generationOptions);
+			const timeEnd = performance.now();
+			const timeChange = getTimeStat(timeStart, timeEnd);
+			const timeIncrease = `(+${timeChange})`;
+			const filePath = getOutputFilename(opts.astroConfig, path);
+			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+			info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		}
 	}
 }
 
@@ -246,6 +262,21 @@ interface GeneratePathOptions {
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
+}
+
+async function generatePathThrottled(
+	pathname: string,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions,
+	timeStart: number
+) {
+	await generatePath(pathname, opts, gopts);
+	const timeEnd = performance.now();
+	const timeChange = getTimeStat(timeStart, timeEnd);
+	const timeIncrease = `(+${timeChange})`;
+	const filePath = getOutputFilename(opts.astroConfig, pathname);
+	const lineIcon = '├─';
+	info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 }
 
 async function generatePath(
