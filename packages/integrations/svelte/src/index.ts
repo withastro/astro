@@ -38,6 +38,11 @@ function getViteConfiguration({
 		],
 	};
 
+	// Disable hot mode during the build
+	if(!isDev) {
+		defaultOptions.hot = false;
+	}
+
 	let resolvedOptions: Partial<Options>;
 
 	if (!options) {
