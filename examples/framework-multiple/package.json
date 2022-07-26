@@ -9,13 +9,13 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/lit": "^0.3.1",
+    "@astrojs/lit": "^0.3.2",
     "@astrojs/preact": "^0.5.2",
     "@astrojs/react": "^0.4.2",
     "@astrojs/solid-js": "^0.4.1",
-    "@astrojs/svelte": "^0.4.1",
-    "@astrojs/vue": "^0.4.1",
-    "astro": "^1.0.0-rc.0"
+    "@astrojs/svelte": "^0.5.0",
+    "@astrojs/vue": "^0.5.0",
+    "astro": "^1.0.0-rc.1"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",

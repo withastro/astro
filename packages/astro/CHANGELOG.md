@@ -1,5 +1,138 @@
 # astro
 
+## 1.0.0-rc.1
+
+### Minor Changes
+
+- [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
+
+  This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
+
+  - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
+  - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
+
+  If `output` is omitted from your config, the default value `"static"` will be used.
+
+  When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
+
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
+
+  export default defineConfig({
+    adapter: netlify(),
+  + output: 'server',
+  });
+  ```
+
+* [#4018](https://github.com/withastro/astro/pull/4018) [`0cc6ede36`](https://github.com/withastro/astro/commit/0cc6ede362996b9faba57481a790d6eb7fba2045) Thanks [@okikio](https://github.com/okikio)! - Support for 404 and 500 pages in SSR
+
+- [#3992](https://github.com/withastro/astro/pull/3992) [`ccae43142`](https://github.com/withastro/astro/commit/ccae43142619cedd479c9879a9c0fcee92263213) Thanks [@matthewp](https://github.com/matthewp)! - Removes warnings for integrations/ssr
+
+* [#3973](https://github.com/withastro/astro/pull/3973) [`5a23483ef`](https://github.com/withastro/astro/commit/5a23483efb3ba614b05a00064f84415620605204) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for Astro.clientAddress
+
+  The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
+
+  ```astro
+  <div>Your address { Astro.clientAddress }</div>
+  ```
+
+  This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.
+
+- [#3570](https://github.com/withastro/astro/pull/3570) [`04070c0c1`](https://github.com/withastro/astro/commit/04070c0c12c00a3e17842ce48e36edc3f2c890a3) Thanks [@matthewp](https://github.com/matthewp)! - Bump to Vite 3!
+
+* [#4016](https://github.com/withastro/astro/pull/4016) [`00fab4ce1`](https://github.com/withastro/astro/commit/00fab4ce135eb799cac69140403d7724686733d6) Thanks [@bholmesdev](https://github.com/bholmesdev)! - The use of components and JSX expressions in Markdown are no longer supported by default.
+
+  For long term support, migrate to the `@astrojs/mdx` integration for MDX support (including `.mdx` pages!).
+
+  Not ready to migrate to MDX? Add the legacy flag to your Astro config to re-enable the previous Markdown support.
+
+  ```js
+  // https://astro.build/config
+  export default defineConfig({
+    legacy: {
+      astroFlavoredMarkdown: true,
+    },
+  });
+  ```
+
+- [#3986](https://github.com/withastro/astro/pull/3986) [`bccd88f0e`](https://github.com/withastro/astro/commit/bccd88f0ebe1fbf383c0cee4b27a4c24c72dea72) Thanks [@matthewp](https://github.com/matthewp)! - Move the Markdown component to its own package
+
+  This change moves the Markdown component into its own package where it will be maintained separately. All that needs to change from a user's perspective is the import statement:
+
+  ```astro
+  ---
+  import { Markdown } from 'astro/components';
+  ---
+  ```
+
+  Becomes:
+
+  ```astro
+  ---
+  import Markdown from '@astrojs/markdown-component';
+  ---
+  ```
+
+### Patch Changes
+
+- [#3988](https://github.com/withastro/astro/pull/3988) [`9841c21e8`](https://github.com/withastro/astro/commit/9841c21e8ecc1ed2dbf46648355871800ac0b172) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix certain characters showing incorrectly in `astro check`
+
+* [#4000](https://github.com/withastro/astro/pull/4000) [`1c1b9da62`](https://github.com/withastro/astro/commit/1c1b9da624ec811e3e4a34b63f07bce61d2dcd04) Thanks [@tony-sull](https://github.com/tony-sull)! - public assets should always take priority over page routes in SSR deployments
+
+- [#4042](https://github.com/withastro/astro/pull/4042) [`7e5ac1f45`](https://github.com/withastro/astro/commit/7e5ac1f45c4865cfc04c658d18e70aedbae38772) Thanks [@matthewp](https://github.com/matthewp)! - Ensure the before-hydration scripts are built
+
+* [#3944](https://github.com/withastro/astro/pull/3944) [`e82ff13f1`](https://github.com/withastro/astro/commit/e82ff13f18e8776844555fe3acd2b366cf8f1e11) Thanks [@mihkeleidast](https://github.com/mihkeleidast)! - Add export keyword to astro config file stub created by add cli command
+
+- [#3942](https://github.com/withastro/astro/pull/3942) [`21462feb4`](https://github.com/withastro/astro/commit/21462feb4a27c1d9a9c29647daf2ea0de986ddf0) Thanks [@AllanChain](https://github.com/AllanChain)! - Use a base middleware for better base path handling in dev.
+
+* [#3991](https://github.com/withastro/astro/pull/3991) [`4dd341c8a`](https://github.com/withastro/astro/commit/4dd341c8a1a3ffe00916bb6c4d7cea7000c9d254) Thanks [@natemoo-re](https://github.com/natemoo-re)! - [#3859](https://github.com/withastro/astro/pull/3859) Overhaul Astro error handling, using Vite's built-in error overlay when possible
+
+- [#4024](https://github.com/withastro/astro/pull/4024) [`1215e731b`](https://github.com/withastro/astro/commit/1215e731b8a334fce364aca77bda1085f3679e57) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **BREAKING** Implement [RFC0012](https://github.com/withastro/rfcs/blob/main/proposals/0012-scoped-css-with-preserved-specificity.md) to preserve authored specificity for Astro scoped styles.
+
+  If you use a mix of global styles and Astro scoped styles, **please visually inspect your site** after upgrading to confirm that styles are working as expected.
+
+  If you previously relied on Astro's scoped styles to increase the specificity of your selectors, please update your selectors to use an additional class. For example, updating `div` to `div.my-class` will match the previous behavior.
+
+* [#4046](https://github.com/withastro/astro/pull/4046) [`c811be49a`](https://github.com/withastro/astro/commit/c811be49abf17b151e04b9a63126267065f53b3f) Thanks [@matthewp](https://github.com/matthewp)! - Adds warnings for legacy markdown behavior
+
+- [#4009](https://github.com/withastro/astro/pull/4009) [`01ba07d8f`](https://github.com/withastro/astro/commit/01ba07d8fa7eb67530b47b8530d65906f1aebf6e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Lit compat with Vite 3.0.1
+
+* [#4008](https://github.com/withastro/astro/pull/4008) [`399d7e269`](https://github.com/withastro/astro/commit/399d7e269834d11c046b390705a9a53d3738f3cf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Avoid parsing JSX, components, and Astro islands when using "plain" md mode. This brings `markdown.mode: 'md'` in-line with our docs description.
+
+- [#4047](https://github.com/withastro/astro/pull/4047) [`453c026aa`](https://github.com/withastro/astro/commit/453c026aa7f7825516e5816efc443fd9b0b6d74a) Thanks [@matthewp](https://github.com/matthewp)! - Perf: move getStaticPaths call during the build to during page generation
+
+* [#3974](https://github.com/withastro/astro/pull/3974) [`54865612e`](https://github.com/withastro/astro/commit/54865612ea412f3d6d9a986d9dc6d4bebb7c8a63) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added missing `media` attributes from the JSX definitions for the `meta` element
+
+- [#3932](https://github.com/withastro/astro/pull/3932) [`27ee8b97a`](https://github.com/withastro/astro/commit/27ee8b97ae3868d93bcd6c9302a401901394018f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Overhaul HMR handling for more stable live reload behavior
+
+* [#4044](https://github.com/withastro/astro/pull/4044) [`6f88597c3`](https://github.com/withastro/astro/commit/6f88597c36339a8c7760023f530293a2dceaf493) Thanks [@lostra01](https://github.com/lostra01)! - Added missing "loading" attribute to IFrameHTMLAttributes
+
+- [#3995](https://github.com/withastro/astro/pull/3995) [`b2b367c96`](https://github.com/withastro/astro/commit/b2b367c969493aaf21c974064beb241d05228066) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support YAML frontmatter in MDX files
+
+* [#3976](https://github.com/withastro/astro/pull/3976) [`fbef6a7f7`](https://github.com/withastro/astro/commit/fbef6a7f720d12697362d3f74c8c026c726d2ba3) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix `define:vars` bugs with both `style` and `script`
+
+- [#4023](https://github.com/withastro/astro/pull/4023) [`4ca6a0933`](https://github.com/withastro/astro/commit/4ca6a0933d92dd559327dd46a28712d918caebf7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Node adapter to accept a request body
+
+* [#4010](https://github.com/withastro/astro/pull/4010) [`d503c5bf3`](https://github.com/withastro/astro/commit/d503c5bf3db39afeecb28522861ac5d78c919408) Thanks [@matthewp](https://github.com/matthewp)! - Allow defining aliases with tsconfig
+
+- [#4032](https://github.com/withastro/astro/pull/4032) [`beddf073b`](https://github.com/withastro/astro/commit/beddf073b5222b92da172475f5b8a578bffa73a0) Thanks [@arimgibson](https://github.com/arimgibson)! - Fix: find a hosting network differently based on Node version -- adjusted for Node v18.4+
+
+* [#3867](https://github.com/withastro/astro/pull/3867) [`7250e4e86`](https://github.com/withastro/astro/commit/7250e4e86da41e7c662afa4b67f7cefc7da15e69) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for `.html` components and pages
+
+- [#3959](https://github.com/withastro/astro/pull/3959) [`ddefb172f`](https://github.com/withastro/astro/commit/ddefb172f66bcd646dd0b75a7ea8360157dd2ba0) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Deprecate Astro.canonicalURL, in favor of Astro.url instead.
+
+* [#3968](https://github.com/withastro/astro/pull/3968) [`95eaa207d`](https://github.com/withastro/astro/commit/95eaa207d8bd4cb5ca2cc1c6279a9bd4096b33d7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve warning logs on astro.config change
+
+- [#3959](https://github.com/withastro/astro/pull/3959) [`ddefb172f`](https://github.com/withastro/astro/commit/ddefb172f66bcd646dd0b75a7ea8360157dd2ba0) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add Astro.url helper for getting the request URL
+
+* [#4031](https://github.com/withastro/astro/pull/4031) [`6e27a5fdc`](https://github.com/withastro/astro/commit/6e27a5fdc21276cad26cd50e16a2709a40a7cbac) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **BREAKING** Renamed Markdown utility function `getHeaders()` to `getHeadings()`.
+
+* Updated dependencies [[`ba11b3399`](https://github.com/withastro/astro/commit/ba11b33996d79c32da947986edb0f32dbcc04aaf), [`399d7e269`](https://github.com/withastro/astro/commit/399d7e269834d11c046b390705a9a53d3738f3cf), [`00fab4ce1`](https://github.com/withastro/astro/commit/00fab4ce135eb799cac69140403d7724686733d6), [`6e27a5fdc`](https://github.com/withastro/astro/commit/6e27a5fdc21276cad26cd50e16a2709a40a7cbac)]:
+  - @astrojs/markdown-remark@0.13.0
+
 ## 1.0.0-beta.73
 
 ### Patch Changes

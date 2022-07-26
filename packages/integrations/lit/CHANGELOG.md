@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 0.3.2
+
+### Patch Changes
+
+- [#4009](https://github.com/withastro/astro/pull/4009) [`01ba07d8f`](https://github.com/withastro/astro/commit/01ba07d8fa7eb67530b47b8530d65906f1aebf6e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Lit compat with Vite 3.0.1
+
 ## 0.3.1
 
 ### Patch Changes

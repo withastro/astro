@@ -1,5 +1,49 @@
 # @astrojs/image
 
+## 0.2.0
+
+### Minor Changes
+
+- [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
+
+  This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
+
+  - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
+  - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
+
+  If `output` is omitted from your config, the default value `"static"` will be used.
+
+  When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
+
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
+
+  export default defineConfig({
+    adapter: netlify(),
+  + output: 'server',
+  });
+  ```
+
+* [#3570](https://github.com/withastro/astro/pull/3570) [`04070c0c1`](https://github.com/withastro/astro/commit/04070c0c12c00a3e17842ce48e36edc3f2c890a3) Thanks [@matthewp](https://github.com/matthewp)! - Bump to Vite 3!
+
+- [#4013](https://github.com/withastro/astro/pull/4013) [`ef9345767`](https://github.com/withastro/astro/commit/ef9345767b898b436acc6da32da4936b882fd926) Thanks [@tony-sull](https://github.com/tony-sull)! - - Fixes two bugs that were blocking SSR support when deployed to a hosting service
+  - The built-in `sharp` service now automatically rotates images based on EXIF data
+
+### Patch Changes
+
+- [#3961](https://github.com/withastro/astro/pull/3961) [`d73c04a9e`](https://github.com/withastro/astro/commit/d73c04a9e58c7d320cdb4f34604de76b30199778) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates the <Picture /> component to pass the `alt` attribute down to the <img> element
+
+* [#4021](https://github.com/withastro/astro/pull/4021) [`9aecf7c7c`](https://github.com/withastro/astro/commit/9aecf7c7c7211f34236d8dde624ca388310d3727) Thanks [@delucis](https://github.com/delucis)! - Handle EXIF orientation flag
+
+- [#4048](https://github.com/withastro/astro/pull/4048) [`e60d6d9c1`](https://github.com/withastro/astro/commit/e60d6d9c1df7d53613c2bf46c6cfc06ac04100c5) Thanks [@tony-sull](https://github.com/tony-sull)! - Removes Node's `fileURLToPath` dependency in the production SSR endpoint
+
+* [#4004](https://github.com/withastro/astro/pull/4004) [`ef9c4152b`](https://github.com/withastro/astro/commit/ef9c4152b2b399e25bf4e8aa7b37adcf6d0d8f17) Thanks [@sarah11918](https://github.com/sarah11918)! - [READMEs] removed "experimental" from astro add instructions
+
+- [#3980](https://github.com/withastro/astro/pull/3980) [`eaf187f2c`](https://github.com/withastro/astro/commit/eaf187f2c40493abec28113c742ef392c812d0e2) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixing TypeScript definition exports for image components
+
 ## 0.1.3
 
 ### Patch Changes
