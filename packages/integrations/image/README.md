@@ -63,6 +63,19 @@ export default {
 Then, restart the dev server.
 </details>
 
+### Update `tsconfig.json`
+
+For the best development experience, add the integrations type definitions to your project's `tsconfig.json` file.
+
+```json
+{
+  "compilerOptions": {
+    // Replace `astro/client` with `@astrojs/image/client`
+    "types": ["@astrojs/image/client"]
+  }
+}
+```
+
 ## Usage
 
 The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
