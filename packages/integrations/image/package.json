@@ -3,7 +3,7 @@
   "description": "Load and transform images in your Astro site.",
   "version": "0.2.0",
   "type": "module",
-  "types": "./types.d.ts",
+  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -25,13 +25,13 @@
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./client.d.ts"
   },
   "files": [
     "components",
     "dist",
-    "src",
-    "types.d.ts"
+    "src"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
