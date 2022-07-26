@@ -1,7 +1,8 @@
 import fs from 'fs';
+import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
+import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
@@ -9,23 +10,27 @@ import type {
 	EndpointHandler,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import * as colors from 'kleur/colors';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { joinPaths, prependForwardSlash, removeLeadingForwardSlash, removeTrailingForwardSlash } from '../../core/path.js';
+import {
+	joinPaths,
+	prependForwardSlash,
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
+import { callGetStaticPaths } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
+import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../render/route-cache.js';
-import { matchRoute } from '../routing/match.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
@@ -91,10 +96,7 @@ export function chunkIsPage(
 	return false;
 }
 
-export async function generatePages(
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-) {
+export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
@@ -103,7 +105,7 @@ export async function generatePages(
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
-	const builtPaths = new Set<string>;
+	const builtPaths = new Set<string>();
 
 	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
@@ -116,7 +118,7 @@ async function generatePage(
 	internals: BuildInternals,
 	pageData: PageBuildData,
 	ssrEntry: SingleFileBuiltModule,
-	builtPaths: Set<string>,
+	builtPaths: Set<string>
 ) {
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
@@ -169,10 +171,10 @@ async function getPathsForRoute(
 	pageData: PageBuildData,
 	mod: ComponentInstance,
 	opts: StaticBuildOptions,
-	builtPaths: Set<string>,
+	builtPaths: Set<string>
 ): Promise<Array<string>> {
 	let paths: Array<string> = [];
-	if(pageData.route.pathname) {
+	if (pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
 		builtPaths.add(pageData.route.pathname);
 	} else {
@@ -182,22 +184,22 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.astroConfig.output === 'server'
+			ssr: opts.astroConfig.output === 'server',
 		})
-		.then((_result) => {
-			const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
-			debug(
-				'build',
-				`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
-					`[${_result.staticPaths.length} ${label}]`
-				)}`
-			);
-			return _result;
-		})
-		.catch((err) => {
-			debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-			throw err;
-		});
+			.then((_result) => {
+				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
+				debug(
+					'build',
+					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+						`[${_result.staticPaths.length} ${label}]`
+					)}`
+				);
+				return _result;
+			})
+			.catch((err) => {
+				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+				throw err;
+			});
 
 		// Save the route cache so it doesn't get called again
 		opts.routeCache.set(route, result);
@@ -225,7 +227,7 @@ async function getPathsForRoute(
 			});
 
 		// Add each path to the builtPaths set, to avoid building it again later.
-		for(const staticPath of paths) {
+		for (const staticPath of paths) {
 			builtPaths.add(removeTrailingForwardSlash(staticPath));
 		}
 	}

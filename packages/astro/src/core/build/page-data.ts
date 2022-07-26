@@ -27,7 +27,7 @@ export interface CollectPagesDataResult {
 export async function collectPagesData(
 	opts: CollectPagesDataOptions
 ): Promise<CollectPagesDataResult> {
-	const { astroConfig,  manifest } = opts;
+	const { astroConfig, manifest } = opts;
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
