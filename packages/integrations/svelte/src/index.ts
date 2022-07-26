@@ -39,7 +39,7 @@ function getViteConfiguration({
 	};
 
 	// Disable hot mode during the build
-	if(!isDev) {
+	if (!isDev) {
 		defaultOptions.hot = false;
 	}
 
