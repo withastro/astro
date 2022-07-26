@@ -85,6 +85,7 @@ class AstroBuilder {
 			client: new URL('./client/', this.config.outDir),
 			server: new URL('./server/', this.config.outDir),
 			serverEntry: 'entry.mjs',
+			concurrency: this.config.build.concurrency,
 		};
 		await runHookBuildStart({ config: this.config, buildConfig, logging: this.logging });
 

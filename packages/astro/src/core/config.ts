@@ -149,6 +149,7 @@ export const AstroConfigSchema = z.object({
 				.union([z.literal('file'), z.literal('directory')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.format),
+			concurrency: z.number().optional().default(1),
 		})
 		.optional()
 		.default({}),
