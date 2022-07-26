@@ -1,17 +1,14 @@
 ---
-// Page 2!
-import Link from "../components/Link.jsx";
+const { content } = Astro.props;
 ---
-
-<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-		<title>Demo: Page 2</title>
+		<title>{content.title}</title>
 	</head>
 	<body>
-		<Link to="/" text="Go Home" />
+		<slot />
 	</body>
 </html>
