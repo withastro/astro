@@ -1,8 +1,8 @@
 ---
-import { getPicture } from '../src/index.js';
-import type { ImageMetadata, OutputFormat, TransformOptions } from '../src/index.js';
+import { getPicture } from '../dist/index.js';
+import type { ImageMetadata, OutputFormat, TransformOptions } from '../dist/index.js';
 
-export interface LocalImageProps extends
+interface LocalImageProps extends
 	Omit<astroHTML.JSX.HTMLAttributes, 'src' | 'width' | 'height'>,
 	Omit<TransformOptions, 'src'>,
 	Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
@@ -13,7 +13,7 @@ export interface LocalImageProps extends
 	formats?: OutputFormat[];
 }
 
-export interface RemoteImageProps extends
+interface RemoteImageProps extends
 	Omit<astroHTML.JSX.HTMLAttributes, 'src' | 'width' | 'height'>,
 	TransformOptions,
 	Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
