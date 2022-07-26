@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 0.5.0
+
+### Minor Changes
+
+- [#3570](https://github.com/withastro/astro/pull/3570) [`04070c0c1`](https://github.com/withastro/astro/commit/04070c0c12c00a3e17842ce48e36edc3f2c890a3) Thanks [@matthewp](https://github.com/matthewp)! - Bump to Vite 3!
+
 ## 0.4.1
 
 ### Patch Changes
