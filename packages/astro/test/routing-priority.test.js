@@ -103,7 +103,7 @@ describe('Routing priority', () => {
 			const html = await fixture.readFile('/de/index.html');
 			const $ = cheerioLoad(html);
 
-			expect($('h1').text()).to.equal('de/index.astro');
+			expect($('h1').text()).to.equal('de/index.astro (priority)');
 		});
 
 		it('matches /en to [lang]/index.astro', async () => {
@@ -169,7 +169,7 @@ describe('Routing priority', () => {
 			const html = await fixture.fetch('/de').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('h1').text()).to.equal('[lang]/index.astro');
+			expect($('h1').text()).to.equal('de/index.astro (priority)');
 			expect($('p').text()).to.equal('de');
 		});
 
@@ -177,7 +177,7 @@ describe('Routing priority', () => {
 			const html = await fixture.fetch('/de/').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('h1').text()).to.equal('[lang]/index.astro');
+			expect($('h1').text()).to.equal('de/index.astro (priority)');
 			expect($('p').text()).to.equal('de');
 		});
 
@@ -185,10 +185,10 @@ describe('Routing priority', () => {
 			const html = await fixture.fetch('/de/index.html').then((res) => res.text());
 			const $ = cheerioLoad(html);
 
-			expect($('h1').text()).to.equal('[lang]/index.astro');
+			expect($('h1').text()).to.equal('de/index.astro (priority)');
 			expect($('p').text()).to.equal('de');
 		});
-		
+
 		it('matches /en to [lang]/index.astro', async () => {
 			const html = await fixture.fetch('/en').then((res) => res.text());
 			const $ = cheerioLoad(html);
