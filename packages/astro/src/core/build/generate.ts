@@ -103,9 +103,10 @@ export async function generatePages(
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
+	const builtPaths = new Set<string>;
 
 	for (const pageData of eachPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry);
+		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
@@ -115,6 +116,7 @@ async function generatePage(
 	internals: BuildInternals,
 	pageData: PageBuildData,
 	ssrEntry: SingleFileBuiltModule,
+	builtPaths: Set<string>,
 ) {
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
@@ -149,7 +151,7 @@ async function generatePage(
 	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
 	// Get paths for the route, calling getStaticPaths if needed.
-	const paths = await getPathsForRoute(pageData, pageModule, opts);
+	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
 	for (let i = 0; i < paths.length; i++) {
 		const path = paths[i];
@@ -167,12 +169,13 @@ async function getPathsForRoute(
 	pageData: PageBuildData,
 	mod: ComponentInstance,
 	opts: StaticBuildOptions,
+	builtPaths: Set<string>,
 ): Promise<Array<string>> {
 	let paths: Array<string> = [];
 	if(pageData.route.pathname) {
 		paths.push(pageData.route.pathname);
+		builtPaths.add(pageData.route.pathname);
 	} else {
-		const builtPaths = new Set<string>();
 		const route = pageData.route;
 		const result = await callGetStaticPaths({
 			mod,
@@ -220,6 +223,11 @@ async function getPathsForRoute(
 				const matchedRoute = matchRoute(staticPath, opts.manifest);
 				return matchedRoute === route;
 			});
+
+		// Add each path to the builtPaths set, to avoid building it again later.
+		for(const staticPath of paths) {
+			builtPaths.add(removeTrailingForwardSlash(staticPath));
+		}
 	}
 
 	return paths;
