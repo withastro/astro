@@ -52,12 +52,15 @@ describe('getStaticPaths - 404 behavior', () => {
 });
 
 describe('getStaticPaths - route params type validation', () => {
-	let fixture;
-	let devServer;
+	let fixture, devServer;
 
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
 	});
 
 	it('resolves 200 on matching static path - string params', async () => {
