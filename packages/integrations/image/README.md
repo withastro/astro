@@ -343,28 +343,6 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 </details>
 
 <details>
-<summary><strong>Images in markdown</strong></summary>
-  
-  The `<Image />` component can also be used to optimize images in markdown pages. For local images imported from your project's `src` directory, use Astro's the `setup` frontmatter to import the image file.
-
-```jsx
----
-setup: |
-  import { Image } from '@astrojs/image/components'
-  import hero from '../../assets/blog/introducing-astro.jpg'
-title: Hello world!
-publishDate: 12 Sep 2021
-name: Nate Moore
-value: 128
-description: Just a Hello World Post!
----
-
-<Image src={hero} width={640} />
-<Image src="https://example.com/image.jpg" width={640} aspectRatio="16:9" />
-```
-</details>
-
-<details>
 <summary><strong>Responsive pictures</strong></summary>
 
   The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
