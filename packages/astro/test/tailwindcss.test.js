@@ -65,5 +65,13 @@ describe('Tailwind', () => {
 			const mdBundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
 			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
 		});
+
+		it('handles MDX pages (with integration)', async () => {
+			const html = await fixture.readFile('/mdx-page/index.html');
+			const $md = cheerio.load(html);
+			const bundledCSSHREF = $md('link[rel=stylesheet][href^=/assets/]').attr('href');
+			const mdBundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+			expect(mdBundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
+		});
 	});
 });
