@@ -179,7 +179,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 					warn(
 						logging,
 						'markdown',
-						`The setup: property in frontmatter only works with the legacy.astroFlavoredMarkdown flag enabled.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
 					);
 				}
 
@@ -205,8 +205,8 @@ const $$content = ${JSON.stringify(
 
 Object.defineProperty($$content.astro, 'headers', {
 	get() {
-		console.warn('content.astro.headers has been removed and replaced with content.astro.headings.');
-		return undefined;
+		console.warn('[${JSON.stringify(id)}] content.astro.headers is now content.astro.headings.');
+		return this.headings;
 	}
 });
 ---`;
