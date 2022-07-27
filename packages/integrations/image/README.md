@@ -179,7 +179,7 @@ For images in your project's repository, use the `src` relative to the `public` 
 <p>
 
 **Type:** `string`<br>
-**Default:** `undefined
+**Default:** `undefined`
 </p>
 
 If provided, the `alt` string will be included on the built `<img />` element.
