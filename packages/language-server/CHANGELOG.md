@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.20.3
+
+### Patch Changes
+
+- 081cf24: Fix completions not working inside script tags, fix duplicate completions in some cases, added completions for the slot element
+
 ## 0.20.1
 
 ### Patch Changes
