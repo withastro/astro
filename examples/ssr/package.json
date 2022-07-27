@@ -9,9 +9,9 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "@astrojs/node": "^0.1.6",
-    "@astrojs/svelte": "^0.4.1",
-    "astro": "^1.0.0-rc.0",
+    "@astrojs/node": "^0.2.0",
+    "@astrojs/svelte": "^0.5.0",
+    "astro": "^1.0.0-rc.1",
     "concurrently": "^7.2.1",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",

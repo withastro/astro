@@ -1,5 +1,38 @@
 # @astrojs/sitemap
 
+## 0.3.0
+
+### Minor Changes
+
+- [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
+
+  This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
+
+  - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
+  - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
+
+  If `output` is omitted from your config, the default value `"static"` will be used.
+
+  When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
+
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
+
+  export default defineConfig({
+    adapter: netlify(),
+  + output: 'server',
+  });
+  ```
+
+### Patch Changes
+
+- [#3978](https://github.com/withastro/astro/pull/3978) [`b37d7078a`](https://github.com/withastro/astro/commit/b37d7078a009869bf482912397a073dca490d3da) Thanks [@Chrissdroid](https://github.com/Chrissdroid)! - Update README to reflect `@astrojs/sitemap@0.2.0` changes
+
+* [#4004](https://github.com/withastro/astro/pull/4004) [`ef9c4152b`](https://github.com/withastro/astro/commit/ef9c4152b2b399e25bf4e8aa7b37adcf6d0d8f17) Thanks [@sarah11918](https://github.com/sarah11918)! - [READMEs] removed "experimental" from astro add instructions
+
 ## 0.2.6
 
 ### Patch Changes

@@ -1,5 +1,32 @@
 # @astrojs/markdown-remark
 
+## 0.13.0
+
+### Minor Changes
+
+- [`ba11b3399`](https://github.com/withastro/astro/commit/ba11b33996d79c32da947986edb0f32dbcc04aaf) Thanks [@RafidMuhymin](https://github.com/RafidMuhymin)! - fixed generated slugs in markdown that ends with a dash
+
+* [#4016](https://github.com/withastro/astro/pull/4016) [`00fab4ce1`](https://github.com/withastro/astro/commit/00fab4ce135eb799cac69140403d7724686733d6) Thanks [@bholmesdev](https://github.com/bholmesdev)! - The use of components and JSX expressions in Markdown are no longer supported by default.
+
+  For long term support, migrate to the `@astrojs/mdx` integration for MDX support (including `.mdx` pages!).
+
+  Not ready to migrate to MDX? Add the legacy flag to your Astro config to re-enable the previous Markdown support.
+
+  ```js
+  // https://astro.build/config
+  export default defineConfig({
+    legacy: {
+      astroFlavoredMarkdown: true,
+    },
+  });
+  ```
+
+- [#4031](https://github.com/withastro/astro/pull/4031) [`6e27a5fdc`](https://github.com/withastro/astro/commit/6e27a5fdc21276cad26cd50e16a2709a40a7cbac) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **BREAKING** Renamed Markdown utility function `getHeaders()` to `getHeadings()`.
+
+### Patch Changes
+
+- [#4008](https://github.com/withastro/astro/pull/4008) [`399d7e269`](https://github.com/withastro/astro/commit/399d7e269834d11c046b390705a9a53d3738f3cf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Avoid parsing JSX, components, and Astro islands when using "plain" md mode. This brings `markdown.mode: 'md'` in-line with our docs description.
+
 ## 0.12.0
 
 ### Minor Changes
