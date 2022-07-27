@@ -29,8 +29,8 @@ export default function vercelEdge(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 
-				if(config.output === 'static') {
-						throw new Error(`
+				if (config.output === 'static') {
+					throw new Error(`
 		[@astrojs/vercel] \`output: "server"\` is required to use the serverless adapter.
 	
 	`);
