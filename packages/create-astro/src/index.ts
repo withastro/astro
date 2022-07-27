@@ -142,7 +142,7 @@ export async function main() {
 
 			// degit does not return an error when an invalid template is provided, as such we need to handle this manually
 			// It's not very pretty, but to the user eye, we just return a nice message and nothing weird happened
-			if (fs.readdirSync(cwd).length === 0) {
+			if (isEmpty(cwd)) {
 				fs.rmdirSync(cwd);
 				throw new Error(`Error: The provided template (${cyan(options.template)}) does not exist`);
 			}
