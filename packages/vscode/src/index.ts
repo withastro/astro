@@ -74,10 +74,10 @@ export async function activate(context: ExtensionContext) {
 			// language service whenever the config changes. In the future the server will handle this by itself, but for now
 			// we can't update the snapshot for those files without causing an error since the client tries to
 			// reload and send the notification at the same time
+			const fileName = params.document.fileName.split(/\/|\\/).pop() ?? params.document.fileName;
 			if (
 				['json', 'jsonc'].includes(params.document.languageId) &&
-				params.document.fileName.startsWith('tsconfig') &&
-				params.document.fileName.startsWith('jsconfig')
+				(fileName.startsWith('tsconfig') || fileName.startsWith('jsconfig'))
 			) {
 				return;
 			}
