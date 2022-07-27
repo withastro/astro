@@ -1,8 +1,7 @@
 import type { APIRoute } from 'astro';
 import { lookup } from 'mrmime';
-// @ts-ignore
-import loader from 'virtual:image-loader';
-import { loadImage } from '../utils.js';
+import loader from '../loaders/sharp.js';
+import { loadImage } from '../utils/images.js';
 
 export const get: APIRoute = async ({ request }) => {
 	try {

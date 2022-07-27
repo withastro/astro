@@ -30,7 +30,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -40,7 +40,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Inline imports', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
 				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
@@ -58,16 +58,22 @@ describe('SSG images', function () {
 		});
 
 		describe('Remote images', () => {
-			it('includes src, width, and height attributes', () => {
+			// Hard-coding in the test! This should never change since the hash is based
+			// on the static `src` string
+			const HASH = 'Z1iI4xW';
+
+			it('includes <img> attributes', () => {
 				const image = $('#google');
 
-				expect(image.attr('src')).to.equal('/_image/googlelogo_color_272x92dp_544x184.webp');
+				expect(image.attr('src')).to.equal(
+					`/_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`
+				);
 				expect(image.attr('width')).to.equal('544');
 				expect(image.attr('height')).to.equal('184');
 			});
 
 			it('built the optimized image', () => {
-				verifyImage('_image/googlelogo_color_272x92dp_544x184.webp', {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`, {
 					width: 544,
 					height: 184,
 					type: 'webp',
@@ -91,7 +97,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
 				const src = image.attr('src');
@@ -121,7 +127,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Local images with inline imports', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
 				const src = image.attr('src');
@@ -151,7 +157,7 @@ describe('SSG images', function () {
 		});
 
 		describe('Remote images', () => {
-			it('includes src, width, and height attributes', () => {
+			it('includes <img> attributes', () => {
 				const image = $('#google');
 
 				const src = image.attr('src');

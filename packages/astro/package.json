@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-beta.70",
+  "version": "1.0.0-rc.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -27,6 +27,7 @@
     ".": "./astro.js",
     "./env": "./env.d.ts",
     "./client": "./client.d.ts",
+    "./client-base": "./client-base.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
@@ -35,7 +36,7 @@
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
-    "./components": "./components/index.js",
+    "./components": "./components/index.ts",
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
     "./internal/*": "./dist/runtime/server/*",
@@ -65,6 +66,7 @@
     "config.mjs",
     "env.d.ts",
     "client.d.ts",
+    "client-base.d.ts",
     "astro-jsx.d.ts",
     "README.md",
     "vendor"
@@ -76,17 +78,17 @@
     "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js --ignore **/errors.test.js && mocha --timeout 20000 **/lit-element.test.js && mocha --timeout 20000 **/errors.test.js",
+    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.18.2",
-    "@astrojs/language-server": "^0.13.4",
-    "@astrojs/markdown-remark": "^0.11.6",
-    "@astrojs/prism": "0.6.0",
-    "@astrojs/telemetry": "^0.4.0",
+    "@astrojs/compiler": "^0.22.1",
+    "@astrojs/language-server": "^0.20.0",
+    "@astrojs/markdown-remark": "^0.13.0",
+    "@astrojs/prism": "0.6.1",
+    "@astrojs/telemetry": "^0.4.1",
     "@astrojs/webapi": "^0.12.0",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
@@ -125,6 +127,7 @@
     "prismjs": "^1.28.0",
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
+    "rehype": "^12.0.1",
     "resolve": "^1.22.0",
     "rollup": "^2.75.6",
     "semver": "^7.3.7",
@@ -136,7 +139,9 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
-    "vite": "^2.9.14",
+    "unist-util-visit": "^4.1.0",
+    "vfile": "^5.3.2",
+    "vite": "3.0.2",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },
@@ -170,7 +175,7 @@
     "srcset-parse": "^1.1.0"
   },
   "engines": {
-    "node": "^14.20.0 || >=16.14.0",
+    "node": "^14.18.0 || >=16.12.0",
     "npm": ">=6.14.0"
   }
 }

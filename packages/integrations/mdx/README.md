@@ -78,9 +78,190 @@ To write your first MDX page in Astro, head to our [UI framework documentation][
 
 Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
+### Variables
+
+MDX supports `export` statements to add variables to your templates. These variables are accessible both from the template itself _and_ as named properties when importing the template somewhere else.
+
+For instance, you can export a `title` field from an MDX page or component to use as a heading with `{JSX expressions}`:
+
+```mdx
+export const title = 'My first MDX post'
+
+# {title}
+```
+
+This `title` will be accessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements as well:
+
+```astro
+---
+// src/pages/index.astro
+const posts = await Astro.glob('./*.mdx');
+---
+
+{posts.map(post => <p>{post.title}</p>)}
+```
+
+See [the official "how MDX works" guide](https://mdxjs.com/docs/using-mdx/#how-mdx-works) for more on MDX variables.
+
+### Frontmatter
+
+Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+
+For example, we can add a `title` and `publishDate` to an MDX page or component like so:
+
+```mdx
+---
+title: 'My first MDX post'
+publishDate: '21 September 2022'
+---
+
+# {frontmatter.title}
+```
+
+Now, this `title` and `publishDate` will be accessible from `import` and [glob](https://docs.astro.build/en/reference/api-reference/#astroglob) statements via the `frontmatter` property. This matches the behavior of [plain markdown in Astro](https://docs.astro.build/en/reference/api-reference/#markdown-files) as well!
+
+```astro
+---
+// src/pages/index.astro
+const posts = await Astro.glob('./*.mdx');
+---
+
+{posts.map(post => (
+  <Fragment>
+    <h2>{post.frontmatter.title}</h2>
+    <time>{post.frontmatter.publishDate}</time>
+  </Fragment>
+))}
+```
+
+### Syntax highlighting
+
+The MDX integration respects [your project's `markdown.syntaxHighlight` configuration](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting).
+
+We will highlight your code blocks with [Shiki](https://github.com/shikijs/shiki) by default [using Shiki twoslash](https://shikijs.github.io/twoslash/). You can customize [this remark plugin](https://www.npmjs.com/package/remark-shiki-twoslash) using the `markdown.shikiConfig` option in your `astro.config`. For example, you can apply a different built-in theme like so:
+
+```js
+// astro.config.mjs
+export default {
+  markdown: {
+    shikiConfig: {
+      theme: 'dracula',
+    },
+  },
+  integrations: [mdx()],
+}
+```
+
+Visit [our Shiki configuration docs](https://docs.astro.build/en/guides/markdown-content/#shiki-configuration) for more on using Shiki with Astro.
+
+#### Switch to Prism
+
+You can also use the [Prism](https://prismjs.com/) syntax highlighter by setting `markdown.syntaxHighlight` to `'prism'` in your `astro.config` like so:
+
+```js
+// astro.config.mjs
+export default {
+  markdown: {
+    syntaxHighlight: 'prism',
+  },
+  integrations: [mdx()],
+}
+```
+
+This applies a minimal Prism renderer with added support for `astro` code blocks. Visit [our "Prism configuration" docs](https://docs.astro.build/en/guides/markdown-content/#prism-configuration) for more on using Prism with Astro.
+
 ## Configuration
 
-There are currently no configuration options for the `@astrojs/mdx` integration. Please [open an issue](https://github.com/withastro/astro/issues/new/choose) if you have a compelling use case to share.
+<details>
+  <summary><strong>remarkPlugins</strong></summary>
+
+**Default plugins:** [remark-gfm](https://github.com/remarkjs/remark-gfm), [remark-smartypants](https://github.com/silvenon/remark-smartypants)
+
+[Remark plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) allow you to extend your Markdown with new capabilities. This includes [auto-generating a table of contents](https://github.com/remarkjs/remark-toc), [applying accessible emoji labels](https://github.com/florianeckerstorfer/remark-a11y-emoji), and more. We encourage you to browse [awesome-remark](https://github.com/remarkjs/awesome-remark) for a full curated list!
+
+We apply [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) by default. This brings some niceties like auto-generating clickable links from text (ex. `https://example.com`) and formatting quotes for readability. When applying your own plugins, you can choose to preserve or remove these defaults.
+
+To apply plugins _while preserving_ Astro's default plugins, use a nested `extends` object like so:
+
+```js
+// astro.config.mjs
+import remarkToc from 'remark-toc';
+
+export default {
+  integrations: [mdx({
+    // apply remark-toc alongside GitHub-flavored markdown and Smartypants
+    remarkPlugins: { extends: [remarkToc] },
+  })],
+}
+```
+
+To apply plugins _without_ Astro's defaults, you can apply a plain array:
+
+```js
+// astro.config.mjs
+import remarkToc from 'remark-toc';
+
+export default {
+  integrations: [mdx({
+    // apply remark-toc alone, removing other defaults
+    remarkPlugins: [remarkToc],
+  })],
+}
+```
+
+</details>
+
+<details>
+  <summary><strong>rehypePlugins</strong></summary>
+
+**Default plugins:** none
+
+[Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your Markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their Markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
+
+To apply rehype plugins, use the `rehypePlugins` configuration option like so:
+
+```js
+// astro.config.mjs
+import rehypeMinifyHtml from 'rehype-minify';
+
+export default {
+  integrations: [mdx({
+    rehypePlugins: [rehypeMinifyHtml],
+  })],
+}
+```
+</details>
+
+<details>
+  <summary><strong>frontmatterOptions</strong></summary>
+
+**Default:** `{ name: 'frontmatter' }`
+
+We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
+
+For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
+
+```js
+// astro.config.mjs
+export default {
+  integrations: [mdx({
+    frontmatterOptions: {
+      name: '',
+    }
+  })],
+}
+```
+
+```mdx
+---
+title: I'm just a variable now!
+---
+
+# {title}
+```
+
+See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
+</details>
 
 ## Examples
 

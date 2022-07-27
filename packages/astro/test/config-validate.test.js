@@ -61,25 +61,11 @@ describe('Config Validation', () => {
 			{ name: '@astrojs/c', hooks: {} },
 		]);
 	});
-	it('blocks third-party "integration" values', async () => {
-		const configError = await validateConfig(
-			{ integrations: [{ name: '@my-plugin/a' }] },
-			process.cwd()
-		).catch((err) => err);
-		expect(configError).to.be.instanceOf(Error);
-		expect(configError.message).to.include('Astro integrations are still experimental.');
-	});
 	it('ignores null or falsy "integration" values', async () => {
 		const configError = await validateConfig(
 			{ integrations: [null, undefined, false, '', ``] },
 			process.cwd()
 		).catch((err) => err);
 		expect(configError).to.be.not.instanceOf(Error);
-	});
-	it('allows third-party "integration" values with the --experimental-integrations flag', async () => {
-		await validateConfig(
-			{ integrations: [{ name: '@my-plugin/a' }], experimental: { integrations: true } },
-			process.cwd()
-		).catch((err) => err);
 	});
 });

@@ -5,7 +5,9 @@ export interface Props {
 	site: any;
 	canonicalURL: URL | string;
 }
-const { content = {}, canonicalURL } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { content = {} } = Astro.props;
 const formattedContentTitle = content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
 const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);

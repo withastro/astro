@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/tailwind": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.14",

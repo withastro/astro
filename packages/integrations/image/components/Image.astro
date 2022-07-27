@@ -1,14 +1,16 @@
 ---
 // @ts-ignore
-import loader from 'virtual:image-loader';
-import { getImage } from '../src/index.js';
-import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../src/types.js';
+import { getImage } from '../dist/index.js';
+import type { ImgHTMLAttributes } from './index.js';
+import type { ImageMetadata, TransformOptions, OutputFormat } from '../dist/index.js';
 
-export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
+interface LocalImageProps extends
+	Omit<TransformOptions, 'src'>,
+	Omit<ImgHTMLAttributes, | 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 }
 
-export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
 	src: string;
 	format: OutputFormat;
 	width: number;
@@ -19,7 +21,7 @@ export type Props = LocalImageProps | RemoteImageProps;
 
 const { loading = "lazy", decoding = "async", ...props } = Astro.props as Props;
 
-const attrs = await getImage(loader, props);
+const attrs = await getImage(props);
 ---
 
 <img {...attrs} {loading} {decoding} />

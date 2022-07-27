@@ -13,6 +13,7 @@ import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
+import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
 
@@ -50,9 +51,8 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		rehypePlugins: [],
 	},
 	vite: {},
-	experimental: {
-		ssr: false,
-		integrations: false,
+	legacy: {
+		astroFlavoredMarkdown: false,
 	},
 };
 
@@ -90,11 +90,9 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'markdownOptions',
 	'buildOptions',
 	'devOptions',
-	'experimentalIntegrations',
 ]);
 
 export const AstroConfigSchema = z.object({
-	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	root: z
 		.string()
 		.optional()
@@ -119,11 +117,7 @@ export const AstroConfigSchema = z.object({
 		.string()
 		.url()
 		.optional()
-		.transform((val) => (val ? appendForwardSlash(val) : val))
-		.refine((val) => !val || new URL(val).pathname.length <= 1, {
-			message:
-				'"site" must be a valid URL origin (ex: "https://example.com") but cannot contain a URL path (ex: "https://example.com/blog"). Use "base" to configure your deployed URL path',
-		}),
+		.transform((val) => (val ? appendForwardSlash(val) : val)),
 	base: z
 		.string()
 		.optional()
@@ -133,6 +127,19 @@ export const AstroConfigSchema = z.object({
 		.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
+	output: z
+		.union([z.literal('static'), z.literal('server')])
+		.optional()
+		.default('static'),
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default(ASTRO_CONFIG_DEFAULTS.integrations)
+	),
 	build: z
 		.object({
 			format: z
@@ -159,14 +166,6 @@ export const AstroConfigSchema = z.object({
 			.optional()
 			.default({})
 	),
-	integrations: z.preprocess(
-		// preprocess
-		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
-		// validate
-		z
-			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
-			.default(ASTRO_CONFIG_DEFAULTS.integrations)
-	),
 	style: z
 		.object({
 			postcss: z
@@ -181,9 +180,6 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	markdown: z
 		.object({
-			// NOTE: "mdx" allows us to parse/compile Astro components in markdown.
-			// TODO: This should probably be updated to something more like "md" | "astro"
-			mode: z.enum(['md', 'mdx']).default('mdx'),
 			drafts: z.boolean().default(false),
 			syntaxHighlight: z
 				.union([z.literal('shiki'), z.literal('prism'), z.literal(false)])
@@ -221,10 +217,12 @@ export const AstroConfigSchema = z.object({
 	vite: z
 		.custom<ViteUserConfig>((data) => data instanceof Object && !Array.isArray(data))
 		.default(ASTRO_CONFIG_DEFAULTS.vite),
-	experimental: z
+	legacy: z
 		.object({
-			ssr: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.ssr),
-			integrations: z.boolean().optional().default(ASTRO_CONFIG_DEFAULTS.experimental.integrations),
+			astroFlavoredMarkdown: z
+				.boolean()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.legacy.astroFlavoredMarkdown),
 		})
 		.optional()
 		.default({}),
@@ -234,7 +232,8 @@ export const AstroConfigSchema = z.object({
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string
+	cmd: string,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
@@ -341,7 +340,7 @@ export async function validateConfig(
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
-			pageExtensions: ['.astro', '.md'],
+			pageExtensions: ['.astro', '.md', '.html'],
 			scripts: [],
 			renderers: [],
 			injectedRoutes: [],
@@ -354,22 +353,6 @@ export async function validateConfig(
 		(result._ctx.renderers as any[]).unshift(jsxRenderer);
 	}
 
-	// Final-Pass Validation (perform checks that require the full config object)
-	if (
-		!result.experimental?.integrations &&
-		!result.integrations.every((int) => int.name.startsWith('@astrojs/'))
-	) {
-		throw new Error(
-			[
-				`Astro integrations are still experimental.`,
-				``,
-				`Only official "@astrojs/*" integrations are currently supported.`,
-				`To enable 3rd-party integrations, use the "--experimental-integrations" flag.`,
-				`Breaking changes may occur in this API before Astro v1.0 is released.`,
-				``,
-			].join('\n')
-		);
-	}
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
 }
@@ -383,11 +366,6 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
-		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : undefined,
-		experimentalIntegrations:
-			typeof flags.experimentalIntegrations === 'boolean'
-				? flags.experimentalIntegrations
-				: undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -395,13 +373,8 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
 	astroConfig.server = astroConfig.server || {};
-	astroConfig.experimental = astroConfig.experimental || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
-	if (typeof flags.experimentalSsr === 'boolean')
-		astroConfig.experimental.ssr = flags.experimentalSsr;
-	if (typeof flags.experimentalIntegrations === 'boolean')
-		astroConfig.experimental.integrations = flags.experimentalIntegrations;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
@@ -421,6 +394,7 @@ interface LoadConfigOptions {
 	flags?: Flags;
 	cmd: string;
 	validate?: boolean;
+	logging: LogOptions;
 }
 
 /**
@@ -453,6 +427,7 @@ export async function resolveConfigURL(
 
 interface OpenConfigResult {
 	userConfig: AstroUserConfig;
+	userConfigPath: string | undefined;
 	astroConfig: AstroConfig;
 	flags: CLIFlags;
 	root: string;
@@ -489,12 +464,20 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	}
 	if (config) {
 		userConfig = config.value;
+		userConfigPath = config.filePath;
 	}
-	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
+	const astroConfig = await resolveConfig(
+		userConfig,
+		root,
+		flags,
+		configOptions.cmd,
+		configOptions.logging
+	);
 
 	return {
 		astroConfig,
 		userConfig,
+		userConfigPath,
 		flags,
 		root,
 	};
@@ -535,7 +518,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd);
+	return resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
@@ -543,10 +526,11 @@ export async function resolveConfig(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
-	cmd: string
+	cmd: string,
+	logging: LogOptions
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
+	const validatedConfig = await validateConfig(mergedConfig, root, cmd, logging);
 
 	return validatedConfig;
 }

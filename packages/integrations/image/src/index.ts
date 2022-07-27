@@ -1,30 +1,45 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { OUTPUT_DIR, PKG_NAME, ROUTE_PATTERN } from './constants.js';
-import { IntegrationOptions, TransformOptions } from './types.js';
-import {
-	ensureDir,
-	isRemoteImage,
-	loadLocalImage,
-	loadRemoteImage,
-	propsToFilename,
-} from './utils.js';
+import { ssgBuild } from './build/ssg.js';
+import { ssrBuild } from './build/ssr.js';
+import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
+import { ImageService, TransformOptions } from './loaders/index.js';
+import { filenameFormat, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
-export * from './get-image.js';
-export * from './get-picture.js';
 
-const createIntegration = (options: IntegrationOptions = {}): AstroIntegration => {
+export { getImage } from './lib/get-image.js';
+export { getPicture } from './lib/get-picture.js';
+export * from './loaders/index.js';
+export type { ImageMetadata } from './vite-plugin-astro-image.js';
+
+interface ImageIntegration {
+	loader?: ImageService;
+	addStaticImage?: (transform: TransformOptions) => void;
+	filenameFormat?: (transform: TransformOptions, searchParams: URLSearchParams) => string;
+}
+
+declare global {
+	// eslint-disable-next-line no-var
+	var astroImage: ImageIntegration | undefined;
+}
+
+export interface IntegrationOptions {
+	/**
+	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
+	 */
+	serviceEntryPoint?: string;
+}
+
+export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/sharp',
 		...options,
 	};
 
 	// During SSG builds, this is used to track all transformed images required.
-	const staticImages = new Map<string, TransformOptions>();
+	const staticImages = new Map<string, Map<string, TransformOptions>>();
 
 	let _config: AstroConfig;
+	let output: 'server' | 'static';
 
 	function getViteConfiguration() {
 		return {
@@ -33,7 +48,7 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				include: ['image-size', 'sharp'],
 			},
 			ssr: {
-				noExternal: ['@astrojs/image'],
+				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
 			},
 		};
 	}
@@ -45,35 +60,11 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 				_config = config;
 
 				// Always treat `astro dev` as SSR mode, even without an adapter
-				const mode = command === 'dev' || config.adapter ? 'ssr' : 'ssg';
+				output = command === 'dev' ? 'server' : config.output;
 
 				updateConfig({ vite: getViteConfiguration() });
 
-				// Used to cache all images rendered to HTML
-				// Added to globalThis to share the same map in Node and Vite
-				(globalThis as any).addStaticImage = (transform: TransformOptions) => {
-					staticImages.set(propsToFilename(transform), transform);
-				};
-
-				// TODO: Add support for custom, user-provided filename format functions
-				(globalThis as any).filenameFormat = (
-					transform: TransformOptions,
-					searchParams: URLSearchParams
-				) => {
-					if (mode === 'ssg') {
-						return isRemoteImage(transform.src)
-							? path.join(OUTPUT_DIR, path.basename(propsToFilename(transform)))
-							: path.join(
-									OUTPUT_DIR,
-									path.dirname(transform.src),
-									path.basename(propsToFilename(transform))
-							  );
-					} else {
-						return `${ROUTE_PATTERN}?${searchParams.toString()}`;
-					}
-				};
-
-				if (mode === 'ssr') {
+				if (output === 'server') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
 						entryPoint:
@@ -81,44 +72,45 @@ const createIntegration = (options: IntegrationOptions = {}): AstroIntegration =
 					});
 				}
 			},
+			'astro:server:setup': async () => {
+				globalThis.astroImage = {};
+			},
+			'astro:build:setup': () => {
+				// Used to cache all images rendered to HTML
+				// Added to globalThis to share the same map in Node and Vite
+				function addStaticImage(transform: TransformOptions) {
+					const srcTranforms = staticImages.has(transform.src)
+						? staticImages.get(transform.src)!
+						: new Map<string, TransformOptions>();
+
+					srcTranforms.set(propsToFilename(transform), transform);
+
+					staticImages.set(transform.src, srcTranforms);
+				}
+
+				// Helpers for building static images should only be available for SSG
+				globalThis.astroImage =
+					output === 'static'
+						? {
+								addStaticImage,
+								filenameFormat,
+						  }
+						: {};
+			},
 			'astro:build:done': async ({ dir }) => {
-				for await (const [filename, transform] of staticImages) {
-					const loader = (globalThis as any).loader;
+				if (output === 'server') {
+					// for SSR builds, copy all image files from src to dist
+					// to make sure they are available for use in production
+					await ssrBuild({ srcDir: _config.srcDir, outDir: dir });
+				} else {
+					// for SSG builds, build all requested image transforms to dist
+					const loader = globalThis?.astroImage?.loader;
 
-					let inputBuffer: Buffer | undefined = undefined;
-					let outputFile: string;
-
-					if (isRemoteImage(transform.src)) {
-						// try to load the remote image
-						inputBuffer = await loadRemoteImage(transform.src);
-
-						const outputFileURL = new URL(
-							path.join('./', OUTPUT_DIR, path.basename(filename)),
-							dir
-						);
-						outputFile = fileURLToPath(outputFileURL);
-					} else {
-						const inputFileURL = new URL(`.${transform.src}`, _config.srcDir);
-						const inputFile = fileURLToPath(inputFileURL);
-						inputBuffer = await loadLocalImage(inputFile);
-
-						const outputFileURL = new URL(path.join('./', OUTPUT_DIR, filename), dir);
-						outputFile = fileURLToPath(outputFileURL);
+					if (loader && 'transform' in loader && staticImages.size > 0) {
+						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir });
 					}
-
-					if (!inputBuffer) {
-						// eslint-disable-next-line no-console
-						console.warn(`"${transform.src}" image could not be fetched`);
-						continue;
-					}
-
-					const { data } = await loader.transform(inputBuffer, transform);
-					ensureDir(path.dirname(outputFile));
-					await fs.writeFile(outputFile, data);
 				}
 			},
 		},
 	};
-};
-
-export default createIntegration;
+}

@@ -2,6 +2,7 @@ import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 import babel from '@babel/core';
 import * as eslexer from 'es-module-lexer';
@@ -10,6 +11,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
+import tagExportsPlugin from './tag.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
@@ -54,7 +56,7 @@ async function transformJSX({
 }: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
-	const plugins = [...(options.plugins || [])];
+	const plugins = [...(options.plugins || []), tagExportsPlugin({ rendererName: renderer.name })];
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
 		plugins,
@@ -70,6 +72,23 @@ async function transformJSX({
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
 	if (!result) return null;
+
+	if (renderer.name === 'astro:jsx') {
+		const { astro } = result.metadata as unknown as PluginMetadata;
+		return {
+			code: result.code || '',
+			map: result.map,
+			meta: {
+				astro,
+				vite: {
+					// Setting this vite metadata to `ts` causes Vite to resolve .js
+					// extensions to .ts files.
+					lang: 'ts',
+				},
+			},
+		};
+	}
+
 	return {
 		code: result.code || '',
 		map: result.map,

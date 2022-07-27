@@ -311,42 +311,42 @@ h2.heading {
 	margin-bottom: 0.5rem;
 }
 
-.header-link {
+.heading-link {
 	font-size: 1rem;
 	padding: 0.1rem 0 0.1rem 1rem;
 	border-left: 4px solid var(--theme-divider);
 }
 
-.header-link:hover,
-.header-link:focus {
+.heading-link:hover,
+.heading-link:focus {
 	border-left-color: var(--theme-accent);
 	color: var(--theme-accent);
 }
-.header-link:focus-within {
+.heading-link:focus-within {
 	color: var(--theme-text-light);
 	border-left-color: hsla(var(--color-gray-40), 1);
 }
-.header-link svg {
+.heading-link svg {
 	opacity: 0.6;
 }
-.header-link:hover svg {
+.heading-link:hover svg {
 	opacity: 0.8;
 }
-.header-link a {
+.heading-link a {
 	display: inline-flex;
 	gap: 0.5em;
 	width: 100%;
 	padding: 0.15em 0 0.15em 0;
 }
 
-.header-link.depth-3 {
+.heading-link.depth-3 {
 	padding-left: 2rem;
 }
-.header-link.depth-4 {
+.heading-link.depth-4 {
 	padding-left: 3rem;
 }
 
-.header-link a {
+.heading-link a {
 	font: inherit;
 	color: inherit;
 	text-decoration: none;

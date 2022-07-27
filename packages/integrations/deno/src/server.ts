@@ -22,8 +22,10 @@ export function start(manifest: SSRManifest, options: Options) {
 
 	const clientRoot = new URL('../client/', import.meta.url);
 	const app = new App(manifest);
-	const handler = async (request: Request) => {
+	const handler = async (request: Request, connInfo: any) => {
 		if (app.match(request)) {
+			let ip = connInfo?.remoteAddr?.hostname;
+			Reflect.set(request, Symbol.for('astro.clientAddress'), ip);
 			return await app.render(request);
 		}
 

@@ -13,6 +13,7 @@ export async function getStaticPaths() {
 const { allPosts } = Astro.props;
 const title = "Don’s Blog";
 const description = "An example blog on Astro";
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 /** filter posts by author, sort by date */
 const posts = allPosts
@@ -28,7 +29,7 @@ const author = authorData[posts[0].frontmatter.author];
 			{title}
 			{description}
 			image={posts[0].frontmatter.image}
-			canonicalURL={Astro.canonicalURL.toString()}
+			canonicalURL={canonicalURL.toString()}
 		/>
 
 		<style lang="scss">

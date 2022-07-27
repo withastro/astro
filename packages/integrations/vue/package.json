@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -33,8 +33,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^2.3.3",
-    "vite": "^2.9.10"
+    "@vitejs/plugin-vue": "^3.0.0",
+    "vite": "^3.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
@@ -45,6 +45,6 @@
     "vue": "^3.2.30"
   },
   "engines": {
-    "node": "^14.20.0 || >=16.14.0"
+    "node": "^14.18.0 || >=16.12.0"
   }
 }

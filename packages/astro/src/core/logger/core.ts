@@ -1,6 +1,5 @@
-import { bold, dim } from 'kleur/colors';
+import { dim } from 'kleur/colors';
 import stringWidth from 'string-width';
-import type { AstroConfig } from '../../@types/astro';
 
 interface LogWritable<T> {
 	write: (chunk: T) => boolean;
@@ -126,18 +125,4 @@ export function timerMessage(message: string, startTime: number = Date.now()) {
 	let timeDisplay =
 		timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
 	return `${message}   ${dim(timeDisplay)}`;
-}
-
-/**
- * A warning that SSR is experimental. Remove when we can.
- */
-export function warnIfUsingExperimentalSSR(opts: LogOptions, config: AstroConfig) {
-	if (config._ctx.adapter?.serverEntrypoint) {
-		warn(
-			opts,
-			'warning',
-			bold(`Warning:`),
-			`SSR support is still experimental and subject to API changes. If using in production, pin your dependencies to prevent accidental breakage.`
-		);
-	}
 }
