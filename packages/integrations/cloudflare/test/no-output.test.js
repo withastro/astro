@@ -15,11 +15,10 @@ describe('Missing output config', () => {
 		let error = undefined;
 		try {
 			await fixture.build();
-		} catch(err) {
+		} catch (err) {
 			error = err;
 		}
 		expect(error).to.not.be.equal(undefined);
 		expect(error.message).to.include(`output: "server"`);
 	});
 });
-
