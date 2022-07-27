@@ -2039,6 +2039,14 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/cloudflare/test/fixtures/no-output:
+    specifiers:
+      '@astrojs/cloudflare': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/cloudflare': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/deno:
     specifiers:
       astro: workspace:*
@@ -2430,6 +2438,14 @@ importers:
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+
+  packages/integrations/vercel/test/fixtures/no-output:
+    specifiers:
+      '@astrojs/vercel': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vercel': link:../../..
+      astro: link:../../../../../astro
 
   packages/integrations/vue:
     specifiers:
