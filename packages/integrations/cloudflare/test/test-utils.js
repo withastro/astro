@@ -11,7 +11,9 @@ export function loadFixture(config) {
 	return baseLoadFixture(config);
 }
 
-const wranglerPath = fileURLToPath(new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url));
+const wranglerPath = fileURLToPath(
+	new URL('../node_modules/wrangler/bin/wrangler.js', import.meta.url)
+);
 
 export function runCLI(basePath, { silent }) {
 	const script = fileURLToPath(new URL(`${basePath}/dist/_worker.js`, import.meta.url));
@@ -23,23 +25,26 @@ export function runCLI(basePath, { silent }) {
 	const timeout = 10000;
 
 	const ready = new Promise(async (resolve, reject) => {
-		const failed = setTimeout(() => reject(new Error(`Timed out starting the wrangler CLI`)), timeout);
+		const failed = setTimeout(
+			() => reject(new Error(`Timed out starting the wrangler CLI`)),
+			timeout
+		);
 
 		(async function () {
-			for(const msg of p.stderr) {
-				if(!silent) {
+			for (const msg of p.stderr) {
+				if (!silent) {
 					// eslint-disable-next-line
 					console.error(msg);
 				}
 			}
 		})();
 
-		for await(const msg of p.stdout) {
-			if(!silent) {
+		for await (const msg of p.stdout) {
+			if (!silent) {
 				// eslint-disable-next-line
 				console.log(msg);
 			}
-			if(msg.includes(`Listening on`)) {
+			if (msg.includes(`Listening on`)) {
 				break;
 			}
 		}
@@ -52,11 +57,11 @@ export function runCLI(basePath, { silent }) {
 		ready,
 		stop() {
 			p.kill();
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				p.addListener('exit', () => {
 					resolve();
 				});
-			})
-		}
-	}
+			});
+		},
+	};
 }
