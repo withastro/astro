@@ -1,8 +1,12 @@
 ---
 import { getPicture } from '../dist/index.js';
-import type { ImageAttributes, ImageMetadata, OutputFormat, PictureAttributes, TransformOptions } from '../dist/types';
+import type { ImgHTMLAttributes, HTMLAttributes } from './index.js';
+import type { ImageMetadata, OutputFormat, TransformOptions } from '../dist/index.js';
 
-export interface LocalImageProps extends Omit<PictureAttributes, 'src' | 'width' | 'height'>, Omit<TransformOptions, 'src'>, Pick<ImageAttributes, 'loading' | 'decoding'> {
+interface LocalImageProps extends
+	Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+	Omit<TransformOptions, 'src'>,
+	Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	alt?: string;
 	sizes: HTMLImageElement['sizes'];
@@ -10,7 +14,10 @@ export interface LocalImageProps extends Omit<PictureAttributes, 'src' | 'width'
 	formats?: OutputFormat[];
 }
 
-export interface RemoteImageProps extends Omit<PictureAttributes, 'src' | 'width' | 'height'>, TransformOptions, Pick<ImageAttributes, 'loading' | 'decoding'> {
+interface RemoteImageProps extends
+	Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+	TransformOptions,
+	Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: string;
 	alt?: string;
 	sizes: HTMLImageElement['sizes'];

@@ -1,13 +1,16 @@
 ---
 // @ts-ignore
 import { getImage } from '../dist/index.js';
-import type { ImageAttributes, ImageMetadata, TransformOptions, OutputFormat } from '../dist/types';
+import type { ImgHTMLAttributes } from './index.js';
+import type { ImageMetadata, TransformOptions, OutputFormat } from '../dist/index.js';
 
-export interface LocalImageProps extends Omit<TransformOptions, 'src'>, Omit<ImageAttributes, 'src' | 'width' | 'height'> {
+interface LocalImageProps extends
+	Omit<TransformOptions, 'src'>,
+	Omit<ImgHTMLAttributes, | 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 }
 
-export interface RemoteImageProps extends TransformOptions, ImageAttributes {
+interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
 	src: string;
 	format: OutputFormat;
 	width: number;
