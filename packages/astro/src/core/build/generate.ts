@@ -155,7 +155,7 @@ async function generatePage(
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
-	const concurrency = opts.buildConfig.concurrency || MAX_CONCURRENT_RENDERS;
+	const concurrency = opts.astroConfig.concurrency || MAX_CONCURRENT_RENDERS;
 	if (concurrency > 1) {
 		info(opts.logging, null, `${magenta('⚠️')}  Building with ${concurrency} concurrent renders`);
 		const renderPromises = [];
