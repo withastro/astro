@@ -75,8 +75,8 @@ export default function createIntegration(): AstroIntegration {
 					bundle: true,
 					minify: true,
 					banner: {
-						js: SHIM
-					}
+						js: SHIM,
+					},
 				});
 
 				// throw the server folder in the bin
