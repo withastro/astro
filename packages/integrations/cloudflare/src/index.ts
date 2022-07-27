@@ -11,6 +11,11 @@ export function getAdapter(): AstroAdapter {
 	};
 }
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: {},
+};`;
+
 export default function createIntegration(): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -69,6 +74,9 @@ export default function createIntegration(): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					minify: true,
+					banner: {
+						js: SHIM
+					}
 				});
 
 				// throw the server folder in the bin

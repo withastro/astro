@@ -28,7 +28,8 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.42",
+    "wrangler": "^2.0.23"
   },
   "devDependencies": {
     "astro": "workspace:*",
