@@ -9,7 +9,7 @@ import { createPlugin } from './vite-plugin-astro-image.js';
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
 export * from './loaders/index.js';
-export type { ImageMetadata} from './vite-plugin-astro-image.js';
+export type { ImageMetadata } from './vite-plugin-astro-image.js';
 
 interface ImageIntegration {
 	loader?: ImageService;

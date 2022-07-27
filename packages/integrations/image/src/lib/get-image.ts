@@ -1,13 +1,8 @@
 /// <reference types="astro/astro-jsx" />
 import slash from 'slash';
 import { ROUTE_PATTERN } from '../constants.js';
+import { ImageService, isSSRService, OutputFormat, TransformOptions } from '../loaders/index.js';
 import sharp from '../loaders/sharp.js';
-import {
-	ImageService,
-	isSSRService,
-	OutputFormat,
-	TransformOptions,
-} from '../loaders/index.js';
 import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
@@ -101,7 +96,9 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
-export async function getImage(transform: GetImageTransform): Promise<astroHTML.JSX.ImgHTMLAttributes> {
+export async function getImage(
+	transform: GetImageTransform
+): Promise<astroHTML.JSX.ImgHTMLAttributes> {
 	if (!transform.src) {
 		throw new Error('[@astrojs/image] `src` is required');
 	}

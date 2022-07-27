@@ -1,13 +1,4 @@
-type InputFormat =
-	| 'avif'
-	| 'gif'
-	| 'heic'
-	| 'heif'
-	| 'jpeg'
-	| 'jpg'
-	| 'png'
-	| 'tiff'
-	| 'webp';
+type InputFormat = 'avif' | 'gif' | 'heic' | 'heif' | 'jpeg' | 'jpg' | 'png' | 'tiff' | 'webp';
 
 interface ImageMetadata {
 	src: string;
