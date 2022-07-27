@@ -139,6 +139,13 @@ export async function main() {
 				logger.debug(info.message);
 			});
 			await emitter.clone(cwd);
+
+			// degit does not return an error when an invalid template is provided, as such we need to handle this manually
+			// It's not very pretty, but to the user eye, we just return a nice message and nothing weird happened
+			if (fs.readdirSync(cwd).length === 0) {
+				fs.rmdirSync(cwd);
+				throw new Error(`Error: The provided template (${cyan(options.template)}) does not exist`);
+			}
 		} catch (err: any) {
 			templateSpinner.fail();
 
@@ -195,9 +202,9 @@ export async function main() {
 						"If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"
 					)
 				);
-
-				process.exit(1);
 			}
+
+			process.exit(1);
 		}
 
 		// Post-process in parallel
@@ -214,12 +221,26 @@ export async function main() {
 	templateSpinner.text = green('Template copied!');
 	templateSpinner.succeed();
 
-	const installResponse = await prompts({
-		type: 'confirm',
-		name: 'install',
-		message: `Would you like to install ${pkgManager} dependencies? ${reset(dim('(recommended)'))}`,
-		initial: true,
-	});
+	const installResponse = await prompts(
+		{
+			type: 'confirm',
+			name: 'install',
+			message: `Would you like to install ${pkgManager} dependencies? ${reset(
+				dim('(recommended)')
+			)}`,
+			initial: true,
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim(
+						'Operation cancelled. Your project folder has already been created, however no dependencies have been installed'
+					)
+				);
+				process.exit(1);
+			},
+		}
+	);
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
@@ -242,12 +263,22 @@ export async function main() {
 		ora().info(dim(`No problem! Remember to install dependencies after setup.`));
 	}
 
-	const gitResponse = await prompts({
-		type: 'confirm',
-		name: 'git',
-		message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
-		initial: true,
-	});
+	const gitResponse = await prompts(
+		{
+			type: 'confirm',
+			name: 'git',
+			message: `Would you like to initialize a new git repository? ${reset(dim('(optional)'))}`,
+			initial: true,
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim('Operation cancelled. No worries, your project folder has already been created')
+				);
+				process.exit(1);
+			},
+		}
+	);
 
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
