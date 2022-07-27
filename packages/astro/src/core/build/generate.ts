@@ -39,26 +39,41 @@ import { getTimeStat } from './util.js';
 // system, possibly one that parallelizes if async IO is detected.
 const MAX_CONCURRENT_RENDERS = 1;
 
-// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
-function* throttle(max: number, inPaths: string[]) {
-	let tmp = [];
-	let i = 0;
-	for (let path of inPaths) {
-		tmp.push(path);
-		if (i === max) {
-			yield tmp;
-			// Empties the array, to avoid allocating a new one.
-			tmp.length = 0;
-			i = 0;
-		} else {
-			i++;
-		}
+async function* generatePathsConcurrently(
+	concurrency: number,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions,
+	timeStart: number,
+	pathsIterator: Iterable<string>,
+	routeType: RouteType
+) {
+	// Each async iterator is a worker.
+	// Sharing the iterator ensures that each worker gets unique tasks.
+	const asyncIterators = new Array<AsyncGenerator<void, void, unknown>>(concurrency);
+	for (let i = 0; i < concurrency; i++) {
+		asyncIterators[i] = (async function* () {
+			for (const pathname of pathsIterator) {
+				yield await generatePathThrottled(pathname, routeType, opts, gopts, timeStart);
+			}
+		})();
 	}
+	yield* raceAsyncIterators(asyncIterators);
+}
 
-	// If tmp has items in it, that means there were less than {max} paths remaining
-	// at the end, so we need to yield these too.
-	if (tmp.length) {
-		yield tmp;
+async function* raceAsyncIterators<T>(asyncIterators: AsyncIterator<T>[]) {
+	async function nextResultWithItsIterator(iterator: AsyncIterator<T>) {
+		return { result: await iterator.next(), iterator: iterator };
+	}
+	const promises = new Map(asyncIterators.map(iterator =>
+		[iterator, nextResultWithItsIterator(iterator)]));
+	while (promises.size) {
+		const { result, iterator } = await Promise.race(promises.values());
+		if (result.done) {
+			promises.delete(iterator);
+		} else {
+			promises.set(iterator, nextResultWithItsIterator(iterator));
+			yield result.value;
+		}
 	}
 }
 
@@ -159,16 +174,9 @@ async function generatePage(
 	const concurrency = opts.buildConfig.concurrency || MAX_CONCURRENT_RENDERS;
 	if (concurrency > 1) {
 		info(opts.logging, null, `${magenta('⚠️')}  Building with ${concurrency} concurrent renders`);
-		const renderPromises = [];
 		// Throttle the paths to avoid overloading the CPU with too many tasks.
-		for (const tpaths of throttle(concurrency, paths)) {
-			for (const path of tpaths) {
-				renderPromises.push(generatePathThrottled(path, pageData.route.type, opts, generationOptions, timeStart));
-			}
-			// This blocks generating more paths until these complete.
-			await Promise.all(renderPromises);
-			// This empties the array without allocating a new one.
-			renderPromises.length = 0;
+		for await (let _ of generatePathsConcurrently(concurrency, opts, generationOptions, timeStart, paths.values(), pageData.route.type)) {
+			// Do nothing.
 		}
 	} else {
 		for (let i = 0; i < paths.length; i++) {
