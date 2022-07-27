@@ -145,15 +145,20 @@ function buildManifest(
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
-		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
+			'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	}
 
 	const ssrManifest: SerializedSSRManifest = {
 		adapterName: opts.astroConfig._ctx.adapter!.name,
 		routes,
 		site: astroConfig.site,
 		base: astroConfig.base,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		pageMap: null as any,
 		renderers: [],
 		entryModules,

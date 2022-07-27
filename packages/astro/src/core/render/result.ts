@@ -42,6 +42,7 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	request: Request;
+	status: number;
 }
 
 function getFunctionExpression(slot: any) {
@@ -115,11 +116,12 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	const headers = new Headers();
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
+		headers.set('Content-Type', 'text/html');
 	} else {
 		headers.set('Content-Type', 'text/html');
 	}
 	const response: ResponseInit = {
-		status: 200,
+		status: args.status,
 		statusText: 'OK',
 		headers,
 	};

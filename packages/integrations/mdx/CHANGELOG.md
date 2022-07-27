@@ -1,5 +1,21 @@
 # @astrojs/mdx
 
+## 0.3.0
+
+### Minor Changes
+
+- [#3977](https://github.com/withastro/astro/pull/3977) [`19433eb4a`](https://github.com/withastro/astro/commit/19433eb4a4441522f68492ca914ad2ab4f061343) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add remarkPlugins and rehypePlugins to config, with the same default plugins as our standard Markdown parser
+
+* [#4002](https://github.com/withastro/astro/pull/4002) [`3b8a74452`](https://github.com/withastro/astro/commit/3b8a7445247221100462ba035f6778b43ea180e7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support Prism and Shiki syntax highlighting based on project config
+
+- [#3995](https://github.com/withastro/astro/pull/3995) [`b2b367c96`](https://github.com/withastro/astro/commit/b2b367c969493aaf21c974064beb241d05228066) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support YAML frontmatter in MDX files
+
+### Patch Changes
+
+- [#4050](https://github.com/withastro/astro/pull/4050) [`9ab66c4ba`](https://github.com/withastro/astro/commit/9ab66c4ba9bf2250990114c76b792f26d0694365) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add support for injected "page-ssr" scripts
+
+* [#3981](https://github.com/withastro/astro/pull/3981) [`61fec6304`](https://github.com/withastro/astro/commit/61fec63044e1585348e8405bee6fdf4dec635efa) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Include page url in MDX glob result
+
 ## 0.2.1
 
 ### Patch Changes

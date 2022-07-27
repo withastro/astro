@@ -22,12 +22,13 @@ export const createExports = (manifest: SSRManifest) => {
 			return res.end(err.reason || 'Invalid request body');
 		}
 
-		if (!app.match(request)) {
+		let routeData = app.match(request, { matchNotFound: true });
+		if (!routeData) {
 			res.statusCode = 404;
 			return res.end('Not found');
 		}
 
-		await setResponse(res, await app.render(request));
+		await setResponse(res, await app.render(request, routeData));
 	};
 
 	return { default: handler };

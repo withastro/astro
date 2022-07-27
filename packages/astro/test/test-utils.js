@@ -72,8 +72,14 @@ export async function loadFixture(inlineConfig) {
 		}
 	}
 
+	/** @type {import('../src/core/logger/core').LogOptions} */
+	const logging = {
+		dest: nodeLogDestination,
+		level: 'error',
+	};
+
 	// Load the config.
-	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
+	let config = await loadConfig({ cwd: fileURLToPath(cwd), logging });
 	config = merge(config, { ...inlineConfig, root: cwd });
 
 	// HACK: the inline config doesn't run through config validation where these normalizations usually occur
@@ -88,12 +94,6 @@ export async function loadFixture(inlineConfig) {
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
 		config._ctx.renderers.unshift(jsxRenderer);
 	}
-
-	/** @type {import('../src/core/logger/core').LogOptions} */
-	const logging = {
-		dest: nodeLogDestination,
-		level: 'error',
-	};
 
 	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
 	const telemetry = {

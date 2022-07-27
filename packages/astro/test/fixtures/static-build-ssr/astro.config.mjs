@@ -3,4 +3,5 @@ import nodejs from '@astrojs/node';
 
 export default defineConfig({
 	adapter: nodejs(),
+	output: 'server',
 });

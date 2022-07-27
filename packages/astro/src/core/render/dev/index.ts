@@ -11,7 +11,7 @@ import type {
 } from '../../../@types/astro';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
-import { isBuildingToSSR, isPage } from '../../util.js';
+import { isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
@@ -150,11 +150,19 @@ export async function render(
 
 	let styles = new Set<SSRElement>();
 	[...stylesMap].forEach(([url, content]) => {
-		// The URL is only used by HMR for Svelte components
-		// See src/runtime/client/hmr.ts for more details
+		// Vite handles HMR for styles injected as scripts
+		scripts.add({
+			props: {
+				type: 'module',
+				src: url,
+				'data-astro-injected': true,
+			},
+			children: '',
+		});
+		// But we still want to inject the styles to avoid FOUC
 		styles.add({
 			props: {
-				'data-astro-injected': svelteStylesRE.test(url) ? url : true,
+				'data-astro-injected': url,
 			},
 			children: content,
 		});
@@ -165,7 +173,10 @@ export async function render(
 		links,
 		styles,
 		logging,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		mod,
 		mode,
 		origin,
@@ -183,7 +194,7 @@ export async function render(
 		route,
 		routeCache,
 		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
-		ssr: isBuildingToSSR(astroConfig),
+		ssr: astroConfig.output === 'server',
 		streaming: true,
 	});
 

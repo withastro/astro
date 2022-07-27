@@ -14,8 +14,22 @@ describe('Directives', async () => {
 		const html = await fixture.readFile('/define-vars/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('script#inline')).to.have.lengthOf(1);
-		expect($('script#inline').toString()).to.include('let foo = "bar"');
+		expect($('script')).to.have.lengthOf(3);
+
+		let i = 0;
+		for (const script of $('script').toArray()) {
+			// Wrap script in scope ({}) to avoid redeclaration errors
+			expect($(script).text().at(0)).to.equal('{');
+			expect($(script).text().at(-1)).to.equal('}');
+			if (i < 2) {
+				// Inline defined variables
+				expect($(script).toString()).to.include('let foo = "bar"');
+			} else {
+				// Convert invalid keys to valid identifiers
+				expect($(script).toString()).to.include('let dashCase = "bar"');
+			}
+			i++;
+		}
 	});
 
 	it('Passes define:vars to style elements', async () => {
@@ -23,26 +37,13 @@ describe('Directives', async () => {
 		const $ = cheerio.load(html);
 
 		expect($('style')).to.have.lengthOf(2);
-		expect($('style').toString()).to.include('--bg: white;');
-		expect($('style').toString()).to.include('--fg: black;');
 
-		const scopedClass = $('html')
-			.attr('class')
-			.split(' ')
-			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
+		// Inject style attribute on top-level element in page
+		expect($('html').attr('style').toString()).to.include('--bg: white;');
+		expect($('html').attr('style').toString()).to.include('--fg: black;');
 
-		expect($($('style').get(0)).toString().replace(/\s+/g, '')).to.equal(
-			`<style>.${scopedClass}{--bg:white;--fg:black;}body{background:var(--bg);color:var(--fg)}</style>`
-		);
-
-		const scopedTitleClass = $('.title')
-			.attr('class')
-			.split(' ')
-			.find((name) => /^astro-[A-Za-z0-9-]+/.test(name));
-
-		expect($($('style').get(1)).toString().replace(/\s+/g, '')).to.equal(
-			`<style>.${scopedTitleClass}{--textColor:red;}</style>`
-		);
+		// Inject style attribute on top-level elements in component
+		expect($('h1').attr('style').toString()).to.include('--textColor: red;');
 	});
 
 	it('set:html', async () => {

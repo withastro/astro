@@ -1,5 +1,11 @@
 # @astrojs/partytown
 
+## 0.1.9
+
+### Patch Changes
+
+- [#4004](https://github.com/withastro/astro/pull/4004) [`ef9c4152b`](https://github.com/withastro/astro/commit/ef9c4152b2b399e25bf4e8aa7b37adcf6d0d8f17) Thanks [@sarah11918](https://github.com/sarah11918)! - [READMEs] removed "experimental" from astro add instructions
+
 ## 0.1.8
 
 ### Patch Changes

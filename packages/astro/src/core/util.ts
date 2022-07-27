@@ -182,15 +182,8 @@ export function isPage(file: URL, config: AstroConfig): boolean {
 	return endsWithPageExt(file, config);
 }
 
-export function isBuildingToSSR(config: AstroConfig): boolean {
-	const adapter = config._ctx.adapter;
-	if (!adapter) return false;
-
-	if (typeof adapter.serverEntrypoint === 'string') {
-		return true;
-	} else {
-		return false;
-	}
+export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
+	return config.output === 'server' && !config._ctx.adapter;
 }
 
 export function emoji(char: string, fallback: string) {

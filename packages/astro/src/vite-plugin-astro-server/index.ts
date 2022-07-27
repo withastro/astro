@@ -20,7 +20,7 @@ import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
+import { createSafeError, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
 interface AstroPluginOptions {
@@ -205,7 +205,7 @@ async function handleRequest(
 ) {
 	const reqStart = performance.now();
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = isBuildingToSSR(config);
+	const buildingToSSR = config.output === 'server';
 	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
 	// routing behavior matches production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
@@ -276,7 +276,7 @@ async function handleRequest(
 			routeCache,
 			pathname: pathname,
 			logging,
-			ssr: isBuildingToSSR(config),
+			ssr: config.output === 'server',
 		});
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(
@@ -350,31 +350,6 @@ async function handleRequest(
 	}
 }
 
-/**
- * Vite HMR sends requests for new CSS and those get returned as JS, but we want it to be CSS
- * since they are inside of a link tag for Astro.
- */
-const forceTextCSSForStylesMiddleware: vite.Connect.NextHandleFunction = function (req, res, next) {
-	if (req.url) {
-		// We are just using this to parse the URL to get the search params object
-		// so the second arg here doesn't matter
-		const url = new URL(req.url, 'https://astro.build');
-		// lang.css is a search param that exists on Astro, Svelte, and Vue components.
-		// We only want to override for astro files.
-		if (url.searchParams.has('astro') && url.searchParams.has('lang.css')) {
-			// Override setHeader so we can set the correct content-type for this request.
-			const setHeader = res.setHeader;
-			res.setHeader = function (key, value) {
-				if (key.toLowerCase() === 'content-type') {
-					return setHeader.call(this, key, 'text/css');
-				}
-				return setHeader.apply(this, [key, value]);
-			};
-		}
-	}
-	next();
-};
-
 export default function createPlugin({ config, logging }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
@@ -396,10 +371,6 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 				removeViteHttpMiddleware(viteServer.middlewares);
 
 				// Push this middleware to the front of the stack so that it can intercept responses.
-				viteServer.middlewares.stack.unshift({
-					route: '',
-					handle: forceTextCSSForStylesMiddleware,
-				});
 				if (config.base !== '/') {
 					viteServer.middlewares.stack.unshift({
 						route: '',

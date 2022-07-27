@@ -16,7 +16,6 @@ export type ViteID = string;
 
 export interface PageBuildData {
 	component: ComponentPath;
-	paths: string[];
 	route: RouteData;
 	moduleSpecifier: string;
 	css: Set<string>;

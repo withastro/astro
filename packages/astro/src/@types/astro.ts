@@ -1,5 +1,5 @@
 import type {
-	MarkdownHeader,
+	MarkdownHeading,
 	MarkdownMetadata,
 	MarkdownRenderingResult,
 	RehypePlugins,
@@ -15,6 +15,14 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
+export type {
+	MarkdownHeading,
+	MarkdownMetadata,
+	MarkdownRenderingResult,
+	RehypePlugins,
+	RemarkPlugins,
+	ShikiConfig,
+} from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
@@ -76,7 +84,6 @@ export interface BuildConfig {
 	client: URL;
 	server: URL;
 	serverEntry: string;
-	staticMode: boolean | undefined;
 }
 
 /**
@@ -418,6 +425,50 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
+	 * @name adapter
+	 * @typeraw {AstroIntegration}
+	 * @see output
+	 * @description
+	 *
+	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
+	 *
+	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
+	 *
+	 * ```js
+	 * import netlify from '@astrojs/netlify/functions';
+	 * {
+	 *   // Example: Build for Netlify serverless deployment
+	 * 	 adapter: netlify(),
+	 * }
+	 * ```
+	 */
+	adapter?: AstroIntegration;
+
+	/**
+	 * @docs
+	 * @name output
+	 * @type {('static' | 'server')}
+	 * @default `'static'`
+	 * @see adapter
+	 * @description
+	 *
+	 * Specifies the output target for builds.
+	 *
+	 * - 'static' - Building a static site to be deploy to any static host.
+	 * - 'server' - Building an app to be deployed to a host supporting SSR (server-side rendering).
+	 *
+	 * ```js
+	 * import { defineConfig } from 'astro/config';
+	 *
+	 * export default defineConfig({
+	 *   output: 'static'
+	 * })
+	 * ```
+	 */
+	output?: 'static' | 'server';
+
+	/**
+	 * @docs
 	 * @kind heading
 	 * @name Build Options
 	 */
@@ -529,27 +580,6 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name markdown.mode
-		 * @type {'md' | 'mdx'}
-		 * @default `mdx`
-		 * @description
-		 * Control whether Markdown processing is done using MDX or not.
-		 *
-		 * MDX processing enables you to use JSX inside your Markdown files. However, there may be instances where you don't want this behavior, and would rather use a "vanilla" Markdown processor. This field allows you to control that behavior.
-		 *
-		 * ```js
-		 * {
-		 *   markdown: {
-		 *     // Example: Use non-MDX processor for Markdown files
-		 *     mode: 'md',
-		 *   }
-		 * }
-		 * ```
-		 */
-		mode?: 'md' | 'mdx';
-
-		/**
-		 * @docs
 		 * @name markdown.shikiConfig
 		 * @typeraw {Partial<ShikiConfig>}
 		 * @description
@@ -622,26 +652,6 @@ export interface AstroUserConfig {
 	/**
 	 * @docs
 	 * @kind heading
-	 * @name Adapter
-	 * @description
-	 *
-	 * Deploy to your favorite server, serverless, or edge host with build adapters. Import one of our first-party adapters for [Netlify](https://docs.astro.build/en/guides/deploy/netlify/#adapter-for-ssredge), [Vercel](https://docs.astro.build/en/guides/deploy/vercel/#adapter-for-ssr), and more to engage Astro SSR.
-	 *
-	 * [See our Server-side Rendering guide](https://docs.astro.build/en/guides/server-side-rendering/) for more on SSR, and [our deployment guides](https://docs.astro.build/en/guides/deploy/) for a complete list of hosts.
-	 *
-	 * ```js
-	 * import netlify from '@astrojs/netlify/functions';
-	 * {
-	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
-	 * }
-	 * ```
-	 */
-	adapter?: AstroIntegration;
-
-	/**
-	 * @docs
-	 * @kind heading
 	 * @name Integrations
 	 * @description
 	 *
@@ -693,6 +703,29 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	vite?: ViteUserConfig;
+
+	/**
+	 * @docs
+	 * @kind heading
+	 * @name Legacy Flags
+	 * @description
+	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
+	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
+	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
+	 */
+	legacy?: {
+		/**
+		 * @docs
+		 * @name legacy.astroFlavoredMarkdown
+		 * @type {boolean}
+		 * @default `false`
+		 * @version 1.0.0-rc.1
+		 * @description
+		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
+		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 */
+		astroFlavoredMarkdown?: boolean;
+	};
 
 	// Legacy options to be removed
 
@@ -750,7 +783,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
-	adapter?: AstroIntegration;
+
 	// Private:
 	// We have a need to pass context based on configured state,
 	// that is different from the user-exposed configuration.
@@ -794,7 +827,9 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
 	compiledContent(): Promise<string>;
-	getHeaders(): Promise<MarkdownHeader[]>;
+	getHeadings(): Promise<MarkdownHeading[]>;
+	/** @deprecated Renamed to `getHeadings()` */
+	getHeaders(): void;
 	default: () => Promise<{
 		metadata: MarkdownMetadata;
 		frontmatter: MarkdownContent<T>;

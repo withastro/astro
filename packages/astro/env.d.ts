@@ -18,11 +18,18 @@ declare module '*.md' {
 	export const frontmatter: MD['frontmatter'];
 	export const file: MD['file'];
 	export const url: MD['url'];
-	export const getHeaders: MD['getHeaders'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
 	export const Content: MD['Content'];
 	export const rawContent: MD['rawContent'];
 	export const compiledContent: MD['compiledContent'];
 
 	const load: MD['default'];
 	export default load;
+}
+
+declare module '*.html' {
+	const Component: { render(opts: { slots: Record<string, string> }): string };
+	export default Component;
 }
