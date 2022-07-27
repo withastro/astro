@@ -206,7 +206,7 @@ See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/size
 
 The list of sizes that should be built for responsive images. This is combined with `aspectRatio` to calculate the final dimensions of each built image.
 
-```jsx
+```astro
 // Builds three images: 400x400, 800x800, and 1200x1200
 <Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" />
 ```
@@ -243,7 +243,7 @@ This helper takes in an object with the same properties as the `<Image />` compo
 
 This can helpful if you need to add preload links to a page's `<head>`.
 
-```jsx
+```astro
 ---
 import { getImage } from '@astrojs/image';
 
@@ -296,7 +296,7 @@ export default {
   
   Image files in your project's `src` directory can be imported in frontmatter and passed directly to the `<Image />` component. All other properties are optional and will default to the original image file's properties if not provided.
 
-```jsx
+```astro
 ---
 import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
@@ -324,7 +324,7 @@ import heroImage from '../assets/hero.png';
   
   Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
 
-```jsx
+```astro
 ---
 import { Image } from '@astrojs/image/components';
 
@@ -351,7 +351,7 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 
   For remote images, an `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
-```jsx
+```astro
 ---
 import { Picture } from '@astrojs/image/components';
 import hero from '../assets/hero.png';
