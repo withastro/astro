@@ -20,7 +20,7 @@ export function runCLI(basePath, { silent }) {
 	p.stderr.setEncoding('utf-8');
 	p.stdout.setEncoding('utf-8');
 
-	const timeout = 5000;
+	const timeout = 10000;
 
 	const ready = new Promise(async (resolve, reject) => {
 		const failed = setTimeout(() => reject(new Error(`Timed out starting the wrangler CLI`)), timeout);
