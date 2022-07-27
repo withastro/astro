@@ -67,7 +67,7 @@ describe('TypeScript Plugin#HoverProvider', () => {
 
 		expect(hoverInfo).to.deep.equal(<Hover>{
 			contents:
-				'```typescript\n(alias) function Sveltecomment(_props: typeof Props): any\nimport Sveltecomment\n```\n---\nMy super Svelte component!',
+				'```typescript\n(alias) function Sveltecomment(_props: typeof Component.props): any\nimport Sveltecomment\n```\n---\nMy super Svelte component!',
 			range: Range.create(4, 1, 4, 14),
 		});
 	});

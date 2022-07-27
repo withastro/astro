@@ -31,8 +31,8 @@
     "vscode-uri": "^3.0.3"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^0.2.1",
-    "@astrojs/vue": "^0.2.1",
+    "@astrojs/svelte": "^0.5.0",
+    "@astrojs/vue": "^0.5.0",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/sinon": "^10.0.11",

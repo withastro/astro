@@ -112,6 +112,24 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		]);
 	});
 
+	it('properly support optional props on Svelte components', async () => {
+		const { provider, document } = setup('svelteOptional.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+
+		expect(diagnostics).to.deep.equal([
+			{
+				code: 2322,
+				message:
+					"Type '{}' is not assignable to type 'IntrinsicAttributes & { notOptional: any; optional?: string; }'.\n  Property 'notOptional' is missing in type '{}' but required in type '{ notOptional: any; optional?: string; }'.",
+				range: Range.create(4, 1, 4, 20),
+				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+				tags: [],
+			},
+		]);
+	});
+
 	it('provide diagnostics for invalid framework components', async () => {
 		const { provider, document } = setup('frameworkComponentError.astro');
 
