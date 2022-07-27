@@ -1,13 +1,13 @@
 type InputFormat =
+	| 'avif'
+	| 'gif'
 	| 'heic'
 	| 'heif'
-	| 'avif'
 	| 'jpeg'
 	| 'jpg'
 	| 'png'
 	| 'tiff'
-	| 'webp'
-	| 'gif';
+	| 'webp';
 
 interface ImageMetadata {
 	src: string;
@@ -17,15 +17,7 @@ interface ImageMetadata {
 }
 
 // images
-declare module '*.jpg' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
-declare module '*.jpeg' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
-declare module '*.png' {
+declare module '*.avif' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
@@ -33,19 +25,31 @@ declare module '*.gif' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
-declare module '*.svg' {
+declare module '*.heic' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
-declare module '*.ico' {
+declare module '*.heif' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.jpeg' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.jpg' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.png' {
+	const metadata: ImageMetadata;
+	export default metadata;
+}
+declare module '*.tiff' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
 declare module '*.webp' {
-	const metadata: ImageMetadata;
-	export default metadata;
-}
-declare module '*.avif' {
 	const metadata: ImageMetadata;
 	export default metadata;
 }
