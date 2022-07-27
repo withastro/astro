@@ -246,7 +246,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 					if (!renderMarkdown) {
 						// The package is saved in this variable because Vite is too smart
 						// and will try to inline it in buildtime
-						let astroRemark = '@astrojs/markdown-remark';
+						let astroRemark = '@astrojs/';
+						astroRemark += 'markdown-remark';
 
 						renderMarkdown = (await import(astroRemark)).renderMarkdown;
 					}
