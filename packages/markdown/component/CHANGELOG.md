@@ -1,5 +1,11 @@
 # @astrojs/markdown-component
 
+## 0.2.1
+
+### Patch Changes
+
+- [#4085](https://github.com/withastro/astro/pull/4085) [`c15cb3663`](https://github.com/withastro/astro/commit/c15cb36636320012c7d0c9d6ac8620029da70b0b) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix TypeScript error when importing the component
+
 ## 0.2.0
 
 ### Minor Changes
