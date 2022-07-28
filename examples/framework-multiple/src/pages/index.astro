@@ -9,8 +9,6 @@ import SolidCounter from "../components/SolidCounter";
 import VueCounter from "../components/VueCounter.vue";
 import SvelteCounter from "../components/SvelteCounter.svelte";
 
-import "../components/LitCounter"
-
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
@@ -42,10 +40,6 @@ import "../components/LitCounter"
 			<SvelteCounter client:visible>
 				<h1>Hello from Svelte!</h1>
 			</SvelteCounter>
-
-			<my-counter client:visible>
-				<h1>Hello from Lit!</h1>
-			</my-counter>
 		</main>
 	</body>
 </html>
