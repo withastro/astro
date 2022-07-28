@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-/** A counter written in React */
+/** A counter written with React */
 export default function Counter({ children }) {
 	const [count, setCount] = useState(0);
 	const add = () => setCount((i) => i + 1);

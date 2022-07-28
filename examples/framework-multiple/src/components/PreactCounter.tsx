@@ -2,7 +2,7 @@
 
 import { useState } from 'preact/hooks';
 
-/** A counter written in Preact */
+/** A counter written with Preact */
 export default function PreactCounter({ children }) {
 	const [count, setCount] = useState(0);
 	const add = () => setCount((i) => i + 1);

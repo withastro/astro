@@ -1,5 +1,5 @@
 <!-- @component
-A counter in Svelte
+A counter written with Svelte
 -->
 <script lang="ts">
 	let count = 0;

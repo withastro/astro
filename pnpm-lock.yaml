@@ -74,19 +74,6 @@ importers:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
 
-  examples/blog-multiple-authors:
-    specifiers:
-      '@astrojs/preact': ^0.5.2
-      astro: ^1.0.0-rc.1
-      preact: ^10.7.3
-      sass: ^1.52.2
-    dependencies:
-      preact: 10.10.0
-    devDependencies:
-      '@astrojs/preact': link:../../packages/integrations/preact
-      astro: link:../../packages/astro
-      sass: 1.54.0
-
   examples/component:
     specifiers:
       astro: ^1.0.0-rc.1
@@ -167,9 +154,8 @@ importers:
       '@astrojs/solid-js': ^0.4.1
       '@astrojs/svelte': ^0.5.0
       '@astrojs/vue': ^0.5.0
-      '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^1.0.0-rc.1
-      lit: ^2.2.5
+      lit: ^2.1.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -177,7 +163,6 @@ importers:
       svelte: ^3.48.0
       vue: ^3.2.37
     dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.8
       preact: 10.10.0
       react: 18.2.0
@@ -192,9 +177,7 @@ importers:
       '@astrojs/solid-js': link:../../packages/integrations/solid
       '@astrojs/svelte': link:../../packages/integrations/svelte
       '@astrojs/vue': link:../../packages/integrations/vue
-      '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../packages/astro
-      lit: 2.2.7
 
   examples/framework-preact:
     specifiers:
@@ -8999,6 +8982,7 @@ packages:
 
   /@webcomponents/template-shadowroot/0.1.0:
     resolution: {integrity: sha512-ry84Vft6xtRBbd4M/ptRodbOLodV5AD15TYhyRghCRgIcJJKmYmJ2v2BaaWxygENwh6Uq3zTfGPmlckKT/GXsQ==}
+    dev: false
 
   /abbrev/1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
@@ -12405,6 +12389,7 @@ packages:
     resolution: {integrity: sha512-JhqiAwO1l03kRe68uBZ0i2x4ef2S5szY9vvP411nlrFZIpKK4/hwnhA/15bqbvxe1lV3ipBdhaOzHmyOk7QIRg==}
     dependencies:
       '@types/trusted-types': 2.0.2
+    dev: false
 
   /lit/2.2.8:
     resolution: {integrity: sha512-QjeNbi/H9LVIHR+u0OqsL+hs62a16m02JlJHYN48HcBuXyiPYR8JvzsTp5dYYS81l+b9Emp3UaGo82EheV0pog==}
