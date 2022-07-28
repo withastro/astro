@@ -3,9 +3,11 @@
 import "../styles/global.css";
 
 // Component Imports
-import ReactCounter from "../components/ReactCounter";
-import PreactCounter from "../components/PreactCounter";
+// For JSX components, all the common ways of exporting (under a namespace, specific export, default export etc) are supported!
+import * as react from "../components/ReactCounter";
+import { PreactCounter } from "../components/PreactCounter";
 import SolidCounter from "../components/SolidCounter";
+
 import VueCounter from "../components/VueCounter.vue";
 import SvelteCounter from "../components/SvelteCounter.svelte";
 
@@ -21,9 +23,9 @@ import SvelteCounter from "../components/SvelteCounter.svelte";
 	</head>
 	<body>
 		<main>
-			<ReactCounter client:visible>
+			<react.Counter client:visible>
 				<h1>Hello from React!</h1>
-			</ReactCounter>
+			</react.Counter>
 
 			<PreactCounter client:visible>
 				<h1>Hello from Preact!</h1>
