@@ -83,6 +83,38 @@ describe('Routing priority', () => {
 			expect($('h1').text()).to.equal('index.astro');
 		});
 
+		it('matches /slug-1 to [slug].astro', async () => {
+			const html = await fixture.readFile('/slug-1/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[slug].astro');
+			expect($('p').text()).to.equal('slug-1');
+		});
+
+		it('matches /slug-2 to [slug].astro', async () => {
+			const html = await fixture.readFile('/slug-2/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[slug].astro');
+			expect($('p').text()).to.equal('slug-2');
+		});
+
+		it('matches /page-1 to [page].astro', async () => {
+			const html = await fixture.readFile('/page-1/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[page].astro');
+			expect($('p').text()).to.equal('page-1');
+		});
+
+		it('matches /page-2 to [page].astro', async () => {
+			const html = await fixture.readFile('/page-2/index.html');
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[page].astro');
+			expect($('p').text()).to.equal('page-2');
+		});
+
 		it('matches /posts/post-1 to posts/[pid].astro', async () => {
 			const html = await fixture.readFile('/posts/post-1/index.html');
 			const $ = cheerioLoad(html);
@@ -147,6 +179,38 @@ describe('Routing priority', () => {
 			const $ = cheerioLoad(html);
 
 			expect($('h1').text()).to.equal('index.astro');
+		});
+
+		it('matches /slug-1 to /[slug].astro', async () => {
+			const html = await fixture.fetch('/slug-1').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[slug].astro');
+			expect($('p').text()).to.equal('slug-1');
+		});
+
+		it('matches /slug-2 to /[slug].astro', async () => {
+			const html = await fixture.fetch('/slug-2').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[slug].astro');
+			expect($('p').text()).to.equal('slug-2');
+		});
+
+		it('matches /page-1 to /[page].astro', async () => {
+			const html = await fixture.fetch('/page-1').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[page].astro');
+			expect($('p').text()).to.equal('page-1');
+		});
+
+		it('matches /page-2 to /[page].astro', async () => {
+			const html = await fixture.fetch('/page-2').then((res) => res.text());
+			const $ = cheerioLoad(html);
+
+			expect($('h1').text()).to.equal('[page].astro');
+			expect($('p').text()).to.equal('page-2');
 		});
 
 		it('matches /posts/post-1 to /posts/[pid].astro', async () => {
