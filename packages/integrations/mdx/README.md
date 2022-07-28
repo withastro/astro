@@ -134,6 +134,47 @@ const posts = await Astro.glob('./*.mdx');
 ))}
 ```
 
+### Layouts
+
+You can use the [MDX layout component](https://mdxjs.com/docs/using-mdx/#layout) to specify a layout component to wrap all page content. This is done with a default export statement at the end of your `.mdx` file:
+
+```mdx
+// src/pages/my-page.mdx
+
+export {default} from '../../layouts/BaseLayout.astro';
+```
+
+You can also import and use a [`<Layout />` component](/en/core-concepts/layouts/) for your MDX page content, and pass all the variables declared in frontmatter as props. 
+
+```mdx
+---
+// src/pages/posts/first-post.mdx
+
+title: 'My first MDX post'
+publishDate: '21 September 2022'
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+<BaseLayout {...frontmatter}>
+  # {frontmatter.title}
+
+  Welcome to my new Astro blog, using MDX!
+</BaseLayout>
+```
+Then, your values are available to you through `Astro.props` in your layout, and your MDX content will be injected into the page where your `<slot />` component is written:
+
+```astro
+---
+// src/layouts/BaseLayout.astro
+const { title, publishDate } = Astro.props;
+---
+<!-- -->
+<h1>{title}</h1>
+<slot />
+<p>Published on {publishDate}</p>
+<!-- -->
+```
+
 ### Syntax highlighting
 
 The MDX integration respects [your project's `markdown.syntaxHighlight` configuration](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting).

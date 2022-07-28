@@ -96,10 +96,14 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									// or otherwise refactored to not require copy-paste handling logic.
 									code += `\nimport "${'astro:scripts/page-ssr.js'}";`;
 
+									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
-										const { fileUrl } = getFileInfo(id, config);
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
 									}
+									if (!moduleExports.includes('file')) {
+										code += `\nexport const file = ${JSON.stringify(fileId)};`;
+									}
+
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
 										code += `\nif (import.meta.hot) {
