@@ -7,17 +7,11 @@ import onlyPrebuilt from '../client/only.prebuilt.js';
 import visiblePrebuilt from '../client/visible.prebuilt.js';
 import islandScript from './astro-island.prebuilt.js';
 
-// This is used to keep track of which requests (pages) have had the hydration script
-// appended. We only add the hydration script once per page, and since the SSRResult
-// object corresponds to one page request, we are using it as a key to know.
-const resultsWithHydrationScript = new WeakSet<SSRResult>();
-
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
-	if (resultsWithHydrationScript.has(result)) {
+	if(result._metadata.hasHydrationScript) {
 		return false;
 	}
-	resultsWithHydrationScript.add(result);
-	return true;
+	return result._metadata.hasHydrationScript = true;
 }
 
 export const hydrationScripts: Record<string, string> = {
@@ -28,17 +22,11 @@ export const hydrationScripts: Record<string, string> = {
 	visible: visiblePrebuilt,
 };
 
-const resultsWithDirectiveScript = new Map<string, WeakSet<SSRResult>>();
-
 export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: string): boolean {
-	if (!resultsWithDirectiveScript.has(directive)) {
-		resultsWithDirectiveScript.set(directive, new WeakSet());
-	}
-	const set = resultsWithDirectiveScript.get(directive)!;
-	if (set.has(result)) {
+	if(result._metadata.hasDirectives.has(directive)) {
 		return false;
 	}
-	set.add(result);
+	result._metadata.hasDirectives.add(directive);
 	return true;
 }
 

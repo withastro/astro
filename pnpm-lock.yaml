@@ -1556,6 +1556,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/hydration-race:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/test/fixtures/import-ts-with-js:
     specifiers:
       astro: workspace:*

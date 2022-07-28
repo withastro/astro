@@ -10,7 +10,7 @@ import type {
 } from '../../@types/astro';
 
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
-import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { extractDirectives, generateHydrateScript, HydrationMetadata } from './hydration.js';
 import { createResponse } from './response.js';
 import {
 	determineIfNeedsHydrationScript,
@@ -130,12 +130,16 @@ export function createComponent(cb: AstroComponentFactory) {
 	return cb;
 }
 
-export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {
+export async function renderSlot(result: any, slotted: string, fallback?: any): Promise<string> {
 	if (slotted) {
 		let iterator = _render(slotted);
 		let content = '';
 		for await (const chunk of iterator) {
-			content += chunk;
+			if((chunk as any).type === 'directive') {
+				content += stringifyChunk(result, chunk);
+			} else {
+				content += chunk;
+			}
 		}
 		return markHTMLString(content);
 	}
@@ -200,7 +204,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<string | AsyncIterable<string>> {
+): Promise<string | AsyncIterable<string | RenderInstruction>> {
 	Component = await Component;
 	if (Component === Fragment) {
 		const children = await renderSlot(result, slots?.default);
@@ -226,7 +230,7 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
+		async function* renderAstroComponentInline(): AsyncGenerator<string | RenderInstruction, void, undefined> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
 			yield* iterable;
 		}
@@ -245,9 +249,6 @@ export async function renderComponent(
 
 	const { hydration, isPage, props } = extractDirectives(_props);
 	let html = '';
-	let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-	let needsDirectiveScript =
-		hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 	if (hydration) {
 		metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
@@ -481,15 +482,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		island.props['await-children'] = '';
 	}
 
-	// Scripts to prepend
-	let prescriptType: PrescriptType = needsHydrationScript
-		? 'both'
-		: needsDirectiveScript
-		? 'directive'
-		: null;
-	let prescripts = getPrescripts(prescriptType, hydration.directive);
+	async function * renderAll() {
+		yield { type: 'directive', hydration, result };
+		yield markHTMLString(renderElement('astro-island', island, false));
+	}
 
-	return markHTMLString(prescripts + renderElement('astro-island', island, false));
+	return renderAll();
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -758,7 +756,7 @@ export async function renderToIterable(
 	componentFactory: AstroComponentFactory,
 	props: any,
 	children: any
-): Promise<AsyncIterable<string>> {
+): Promise<AsyncIterable<string | RenderInstruction>> {
 	const Component = await componentFactory(result, props, children);
 
 	if (!isAstroComponent(Component)) {
@@ -774,6 +772,35 @@ export async function renderToIterable(
 }
 
 const encoder = new TextEncoder();
+
+// Rendering produces either marked strings of HTML or instructions for hydration.
+// These directive instructions bubble all the way up to renderPage so that we
+// can ensure they are added only once, and as soon as possible.
+export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction) {
+	switch((chunk as any).type) {
+		case 'directive': {
+			const { hydration } = chunk as RenderInstruction;
+			let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+			let needsDirectiveScript =
+				hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
+
+			let prescriptType: PrescriptType = needsHydrationScript
+			? 'both'
+			: needsDirectiveScript
+			? 'directive'
+			: null;
+			if(prescriptType) {
+				let prescripts = getPrescripts(prescriptType, hydration.directive);
+				return markHTMLString(prescripts);
+			} else {
+				return '';
+			}
+		}
+		default: {
+			return chunk.toString();
+		}
+	}
+}
 
 export async function renderPage(
 	result: SSRResult,
@@ -814,6 +841,7 @@ export async function renderPage(
 		let init = result.response;
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
+
 		if (streaming) {
 			body = new ReadableStream({
 				start(controller) {
@@ -821,7 +849,8 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								let html = chunk.toString();
+								let html = stringifyChunk(result, chunk);
+
 								if (i === 0) {
 									if (!/<!doctype html/i.test(html)) {
 										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
@@ -842,13 +871,13 @@ export async function renderPage(
 			body = '';
 			let i = 0;
 			for await (const chunk of iterable) {
-				let html = chunk.toString();
+				let html = stringifyChunk(result, chunk);
 				if (i === 0) {
 					if (!/<!doctype html/i.test(html)) {
 						body += '<!DOCTYPE html>\n';
 					}
 				}
-				body += chunk;
+				body += html;
 				i++;
 			}
 			const bytes = encoder.encode(body);
@@ -901,13 +930,28 @@ export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string>
 	yield renderHead(result);
 }
 
+export interface RenderInstruction {
+	type: 'directive';
+	result: SSRResult;
+	hydration: HydrationMetadata;
+}
+
 export async function* renderAstroComponent(
 	component: InstanceType<typeof AstroComponent>
-): AsyncIterable<string> {
+): AsyncIterable<string | RenderInstruction> {
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
-				yield markHTMLString(chunk);
+				switch(chunk.type) {
+					case 'directive': {
+						yield chunk;
+						break;
+					}
+					default: {
+						yield markHTMLString(chunk);
+						break;
+					}
+				}
 			}
 		}
 	}

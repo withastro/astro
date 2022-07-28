@@ -1092,6 +1092,8 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
 }
 
 export interface SSRResult {

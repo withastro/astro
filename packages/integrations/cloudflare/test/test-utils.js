@@ -57,11 +57,6 @@ export function runCLI(basePath, { silent }) {
 		ready,
 		stop() {
 			p.kill();
-			return new Promise((resolve) => {
-				p.addListener('exit', () => {
-					resolve();
-				});
-			});
 		},
 	};
 }

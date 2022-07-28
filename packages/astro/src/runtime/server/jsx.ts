@@ -6,9 +6,11 @@ import {
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
+	RenderInstruction,
 	renderComponent,
 	renderToString,
 	spreadAttributes,
+	stringifyChunk,
 	voidElementNames,
 } from './index.js';
 
@@ -119,7 +121,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string>;
+			let output: string | AsyncIterable<string | RenderInstruction>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
@@ -137,7 +139,16 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					slots
 				);
 			}
-			return markHTMLString(output);
+			if(typeof output !== 'string' && Symbol.asyncIterator in output) {
+				let body = '';
+				for await (const chunk of output) {
+					let html = stringifyChunk(result, chunk);
+					body += html;
+				}
+				return markHTMLString(body);
+			} else {
+				return markHTMLString(output);
+			}
 		}
 	}
 	// numbers, plain objects, etc
