@@ -4,12 +4,13 @@ import type {
 	Params,
 	Props,
 	RouteData,
+	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderComponent, renderPage } from '../../runtime/server/index.js';
+import { renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -66,11 +67,13 @@ export async function getParamsAndProps(
 }
 
 export interface RenderOptions {
+	adapterName: string | undefined;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	markdown: MarkdownRenderingOptions;
 	mod: ComponentInstance;
+	mode: RuntimeMode;
 	origin: string;
 	pathname: string;
 	scripts: Set<SSRElement>;
@@ -80,17 +83,21 @@ export interface RenderOptions {
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	streaming: boolean;
 	request: Request;
+	status?: number;
 }
 
 export async function render(opts: RenderOptions): Promise<Response> {
 	const {
+		adapterName,
 		links,
 		styles,
 		logging,
 		origin,
 		markdown,
 		mod,
+		mode,
 		pathname,
 		scripts,
 		renderers,
@@ -100,6 +107,8 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		routeCache,
 		site,
 		ssr,
+		streaming,
+		status = 200,
 	} = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -124,10 +133,12 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
 	const result = createResult({
+		adapterName,
 		links,
 		styles,
 		logging,
 		markdown,
+		mode,
 		origin,
 		params,
 		props: pageProps,
@@ -138,13 +149,14 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		scripts,
 		ssr,
+		streaming,
+		status,
 	});
 
-	if (!Component.isAstroComponentFactory) {
-		const props: Record<string, any> = { ...(pageProps ?? {}), 'server:root': true };
-		const html = await renderComponent(result, Component.name, Component, props, null);
-		return new Response(html.toString(), result.response);
-	} else {
-		return await renderPage(result, Component, pageProps, null);
+	// Support `export const components` for `MDX` pages
+	if (typeof (mod as any).components === 'object') {
+		Object.assign(pageProps, { components: (mod as any).components });
 	}
+
+	return await renderPage(result, Component, pageProps, null, streaming);
 }

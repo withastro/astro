@@ -33,10 +33,10 @@ function convertToSerializedForm(value: any): [ValueOf<typeof PROP_TYPE>, any] {
 			return [PROP_TYPE.RegExp, (value as RegExp).source];
 		}
 		case '[object Map]': {
-			return [PROP_TYPE.Map, Array.from(value as Map<any, any>)];
+			return [PROP_TYPE.Map, JSON.stringify(serializeArray(Array.from(value as Map<any, any>)))];
 		}
 		case '[object Set]': {
-			return [PROP_TYPE.Set, Array.from(value as Set<any>)];
+			return [PROP_TYPE.Set, JSON.stringify(serializeArray(Array.from(value as Set<any>)))];
 		}
 		case '[object BigInt]': {
 			return [PROP_TYPE.BigInt, (value as bigint).toString()];

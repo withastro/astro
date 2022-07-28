@@ -2,7 +2,7 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { resolveConfig, loadConfig } from '../dist/core/config.js';
+import { loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -71,23 +71,29 @@ export async function loadFixture(inlineConfig) {
 			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
 		}
 	}
-	// Load the config.
-	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
-	config = merge(config, { ...inlineConfig, root: cwd });
-
-	// Note: the inline config doesn't run through config validation where these normalizations usually occur
-	if (typeof inlineConfig.site === 'string') {
-		config.site = new URL(inlineConfig.site);
-	}
-	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
-		config.base = inlineConfig.base + '/';
-	}
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
 	const logging = {
 		dest: nodeLogDestination,
 		level: 'error',
 	};
+
+	// Load the config.
+	let config = await loadConfig({ cwd: fileURLToPath(cwd), logging });
+	config = merge(config, { ...inlineConfig, root: cwd });
+
+	// HACK: the inline config doesn't run through config validation where these normalizations usually occur
+	if (typeof inlineConfig.site === 'string') {
+		config.site = new URL(inlineConfig.site);
+	}
+	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
+		config.base = inlineConfig.base + '/';
+	}
+	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
+		// Enable default JSX integration. It needs to come first, so unshift rather than push!
+		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
+		config._ctx.renderers.unshift(jsxRenderer);
+	}
 
 	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
 	const telemetry = {
@@ -121,6 +127,7 @@ export async function loadFixture(inlineConfig) {
 	// Also do it on process exit, just in case.
 	process.on('exit', resetAllFiles);
 
+	let fixtureId = new Date().valueOf();
 	let devServer;
 
 	return {
@@ -143,10 +150,10 @@ export async function loadFixture(inlineConfig) {
 		clean: async () => {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
 		},
-		loadTestAdapterApp: async () => {
-			const url = new URL('./server/entry.mjs', config.outDir);
+		loadTestAdapterApp: async (streaming) => {
+			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);
 			const { createApp, manifest } = await import(url);
-			const app = createApp();
+			const app = createApp(streaming);
 			app.manifest = manifest;
 			return app;
 		},

@@ -1,4 +1,3 @@
-import { transform } from '@astrojs/compiler';
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
@@ -9,14 +8,18 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { prependForwardSlash } from '../core/path.js';
-import { resolvePages, viteID } from '../core/util.js';
+import type { LogOptions } from '../core/logger/core.js';
+import { warn } from '../core/logger/core.js';
+import { resolvePages } from '../core/util.js';
+import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
+import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
+	logging: LogOptions;
 }
 
 const MARKDOWN_IMPORT_FLAG = '?mdImport';
@@ -34,7 +37,7 @@ function safeMatter(source: string, id: string) {
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
 // logic in how that is done.
-export default function markdown({ config }: AstroPluginOptions): Plugin {
+export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -61,9 +64,14 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		return false;
 	}
 
+	let viteTransform: TransformHook;
+
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
+		configResolved(_resolvedConfig) {
+			viteTransform = getViteTransform(_resolvedConfig);
+		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
@@ -85,7 +93,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			// In all other cases, we do nothing and rely on normal Vite resolution.
 			return undefined;
 		},
-		async load(id) {
+		async load(id, opts) {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
@@ -109,7 +117,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 						export function $$loadMetadata() {
 							return load().then((m) => m.$$metadata);
 						}
-						
+
 						// Deferred
 						export default async function load() {
 							return (await import(${JSON.stringify(fileId + MARKDOWN_CONTENT_FLAG)}));
@@ -118,8 +126,12 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 							return load().then((m) => m.default(...args));
 						}
 						Content.isAstroComponentFactory = true;
+						export function getHeadings() {
+							return load().then((m) => m.metadata.headings);
+						}
 						export function getHeaders() {
-							return load().then((m) => m.metadata.headers);
+							console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
+							return load().then((m) => m.metadata.headings);
 						};`,
 					map: null,
 				};
@@ -132,6 +144,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
+				const isAstroFlavoredMd = config.legacy.astroFlavoredMarkdown;
 
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
@@ -143,29 +156,70 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
 				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
-				markdownContent = markdownContent.replace(
-					/<\s*!--([^-->]*)(.*?)-->/gs,
-					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
-				);
+				if (isAstroFlavoredMd) {
+					markdownContent = markdownContent.replace(
+						/<\s*!--([^-->]*)(.*?)-->/gs,
+						(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
+					);
+				}
 
 				let renderResult = await renderMarkdown(markdownContent, {
 					...renderOpts,
 					fileURL: fileUrl,
+					isAstroFlavoredMd,
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
-				const prelude = `---
-import { slug as $$slug } from '@astrojs/markdown-remark/ssr-utils';
-${layout ? `import Layout from '${layout}';` : ''}
-${components ? `import * from '${components}';` : ''}
-${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
-${setup}
+				content.url = getFileInfo(id, config).fileUrl;
+				content.file = filename;
 
-const $$content = ${JSON.stringify(content)}
+				// Warn when attempting to use setup without the legacy flag
+				if (setup && !isAstroFlavoredMd) {
+					warn(
+						logging,
+						'markdown',
+						`[${id}] Astro now supports MDX! Support for components in ".md" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+					);
+				}
+
+				const prelude = `---
+import Slugger from 'github-slugger';
+${layout ? `import Layout from '${layout}';` : ''}
+${isAstroFlavoredMd && components ? `import * from '${components}';` : ''}
+${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
+${isAstroFlavoredMd ? setup : ''}
+
+const slugger = new Slugger();
+function $$slug(value) {
+	return slugger.slug(value);
+}
+
+const $$content = ${JSON.stringify(
+					isAstroFlavoredMd
+						? content
+						: // Avoid stripping "setup" and "components"
+						  // in plain MD mode
+						  { ...content, setup, components }
+				)};
+
+Object.defineProperty($$content.astro, 'headers', {
+	get() {
+		console.warn('[${JSON.stringify(id)}] content.astro.headers is now content.astro.headings.');
+		return this.headings;
+	}
+});
 ---`;
+
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
-${setup}`.trim();
+${isAstroFlavoredMd ? setup : ''}`.trim();
+
+				// Wrap with set:html fragment to skip
+				// JSX expressions and components in "plain" md mode
+				if (!isAstroFlavoredMd) {
+					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`;
+				}
+
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
 					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
@@ -174,21 +228,17 @@ ${setup}`.trim();
 				}
 
 				// Transform from `.astro` to valid `.ts`
-				let transformResult = await transform(astroResult, {
-					pathname: '/@fs' + prependForwardSlash(fileUrl.pathname),
-					projectRoot: config.root.toString(),
-					site: config.site
-						? new URL(config.base, config.site).toString()
-						: `http://localhost:${config.server.port}/`,
-					sourcefile: id,
-					sourcemap: 'inline',
-					// TODO: baseline flag
-					experimentalStaticExtraction: true,
-					internalURL: `/@fs${prependForwardSlash(
-						viteID(new URL('../runtime/server/index.js', import.meta.url))
-					)}`,
-				});
+				const compileProps: CompileProps = {
+					config,
+					filename,
+					moduleId: id,
+					source: astroResult,
+					ssr: Boolean(opts?.ssr),
+					viteTransform,
+					pluginContext: this,
+				};
 
+				let transformResult = await cachedCompilation(compileProps);
 				let { code: tsResult } = transformResult;
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};

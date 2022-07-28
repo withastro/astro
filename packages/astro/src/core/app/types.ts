@@ -25,6 +25,7 @@ export type SerializedRouteInfo = Omit<RouteInfo, 'routeData'> & {
 };
 
 export interface SSRManifest {
+	adapterName: string;
 	routes: RouteInfo[];
 	site?: string;
 	base?: string;

@@ -1,5 +1,298 @@
 # astro
 
+## 1.0.0-rc.1
+
+The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug fixes, and a few breaking changes to be aware of.
+
+### Breaking Changes
+
+- Astro now uses Vite 3, which comes with its own [Migration Guide](https://vitejs.dev/guide/migration.html).
+- Components and JSX expressions in `.md` files is no longer supported by default. It can be enabled by setting the `legacy.astroFlavoredMarkdown` flag to `true`.
+  - We are deeply invested in `@astrojs/mdx` as a long-term replacement for using components in Markdown.
+- Astro scoped styles now respect their authored specificity (see [RFC0012](https://github.com/withastro/rfcs/blob/main/proposals/0012-scoped-css-with-preserved-specificity.md)). **Please visually inspect your site** after upgrading to confirm that styles are working as expected.
+- `Astro.canonicalURL` has been replaced by the new `Astro.url` helper.
+- The Markdown `headers` and `getHeaders()` utils have been renamed to `headings` and `getHeadings()`.
+- The deprecated `Markdown` component has been removed from core and is now available as `@astrojs/markdown-component`.
+
+### New Features
+
+- `astro dev` HMR has been overhauled to provide more stable live reload behavior
+- `astro dev` error handling has been overhauled to provide a more seamless error handling experience
+- The new `output` configuration option builds to `'static' | 'server'` targets
+- `.html` components and pages are now supported
+- `.mdx` components and pages are now supported via `@astrojs/mdx`
+- `server` output now supports custom `404` and `500` pages
+- `server` output now exposes `Astro.clientAddress` to get the current IP address per request
+
+### Patch Changes
+
+- [#3988](https://github.com/withastro/astro/pull/3988) [`9841c21e8`](https://github.com/withastro/astro/commit/9841c21e8ecc1ed2dbf46648355871800ac0b172) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix certain characters showing incorrectly in `astro check`
+
+* [#4000](https://github.com/withastro/astro/pull/4000) [`1c1b9da62`](https://github.com/withastro/astro/commit/1c1b9da624ec811e3e4a34b63f07bce61d2dcd04) Thanks [@tony-sull](https://github.com/tony-sull)! - public assets should always take priority over page routes in SSR deployments
+
+- [#4042](https://github.com/withastro/astro/pull/4042) [`7e5ac1f45`](https://github.com/withastro/astro/commit/7e5ac1f45c4865cfc04c658d18e70aedbae38772) Thanks [@matthewp](https://github.com/matthewp)! - Ensure the before-hydration scripts are built
+
+* [#3944](https://github.com/withastro/astro/pull/3944) [`e82ff13f1`](https://github.com/withastro/astro/commit/e82ff13f18e8776844555fe3acd2b366cf8f1e11) Thanks [@mihkeleidast](https://github.com/mihkeleidast)! - Add export keyword to astro config file stub created by add cli command
+
+- [#3942](https://github.com/withastro/astro/pull/3942) [`21462feb4`](https://github.com/withastro/astro/commit/21462feb4a27c1d9a9c29647daf2ea0de986ddf0) Thanks [@AllanChain](https://github.com/AllanChain)! - Use a base middleware for better base path handling in dev.
+
+* [#3991](https://github.com/withastro/astro/pull/3991) [`4dd341c8a`](https://github.com/withastro/astro/commit/4dd341c8a1a3ffe00916bb6c4d7cea7000c9d254) Thanks [@natemoo-re](https://github.com/natemoo-re)! - [#3859](https://github.com/withastro/astro/pull/3859) Overhaul Astro error handling, using Vite's built-in error overlay when possible
+
+- [#4024](https://github.com/withastro/astro/pull/4024) [`1215e731b`](https://github.com/withastro/astro/commit/1215e731b8a334fce364aca77bda1085f3679e57) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **BREAKING** Implement [RFC0012](https://github.com/withastro/rfcs/blob/main/proposals/0012-scoped-css-with-preserved-specificity.md) to preserve authored specificity for Astro scoped styles.
+
+  If you use a mix of global styles and Astro scoped styles, **please visually inspect your site** after upgrading to confirm that styles are working as expected.
+
+  If you previously relied on Astro's scoped styles to increase the specificity of your selectors, please update your selectors to use an additional class. For example, updating `div` to `div.my-class` will match the previous behavior.
+
+* [#4046](https://github.com/withastro/astro/pull/4046) [`c811be49a`](https://github.com/withastro/astro/commit/c811be49abf17b151e04b9a63126267065f53b3f) Thanks [@matthewp](https://github.com/matthewp)! - Adds warnings for legacy markdown behavior
+
+- [#4009](https://github.com/withastro/astro/pull/4009) [`01ba07d8f`](https://github.com/withastro/astro/commit/01ba07d8fa7eb67530b47b8530d65906f1aebf6e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Lit compat with Vite 3.0.1
+
+* [#4008](https://github.com/withastro/astro/pull/4008) [`399d7e269`](https://github.com/withastro/astro/commit/399d7e269834d11c046b390705a9a53d3738f3cf) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Avoid parsing JSX, components, and Astro islands when using "plain" md mode. This brings `markdown.mode: 'md'` in-line with our docs description.
+
+- [#4047](https://github.com/withastro/astro/pull/4047) [`453c026aa`](https://github.com/withastro/astro/commit/453c026aa7f7825516e5816efc443fd9b0b6d74a) Thanks [@matthewp](https://github.com/matthewp)! - Perf: move getStaticPaths call during the build to during page generation
+
+* [#3974](https://github.com/withastro/astro/pull/3974) [`54865612e`](https://github.com/withastro/astro/commit/54865612ea412f3d6d9a986d9dc6d4bebb7c8a63) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added missing `media` attributes from the JSX definitions for the `meta` element
+
+- [#3932](https://github.com/withastro/astro/pull/3932) [`27ee8b97a`](https://github.com/withastro/astro/commit/27ee8b97ae3868d93bcd6c9302a401901394018f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Overhaul HMR handling for more stable live reload behavior
+
+* [#4044](https://github.com/withastro/astro/pull/4044) [`6f88597c3`](https://github.com/withastro/astro/commit/6f88597c36339a8c7760023f530293a2dceaf493) Thanks [@lostra01](https://github.com/lostra01)! - Added missing "loading" attribute to IFrameHTMLAttributes
+
+- [#3995](https://github.com/withastro/astro/pull/3995) [`b2b367c96`](https://github.com/withastro/astro/commit/b2b367c969493aaf21c974064beb241d05228066) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support YAML frontmatter in MDX files
+
+* [#3976](https://github.com/withastro/astro/pull/3976) [`fbef6a7f7`](https://github.com/withastro/astro/commit/fbef6a7f720d12697362d3f74c8c026c726d2ba3) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix `define:vars` bugs with both `style` and `script`
+
+- [#4023](https://github.com/withastro/astro/pull/4023) [`4ca6a0933`](https://github.com/withastro/astro/commit/4ca6a0933d92dd559327dd46a28712d918caebf7) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Node adapter to accept a request body
+
+* [#4010](https://github.com/withastro/astro/pull/4010) [`d503c5bf3`](https://github.com/withastro/astro/commit/d503c5bf3db39afeecb28522861ac5d78c919408) Thanks [@matthewp](https://github.com/matthewp)! - Allow defining aliases with tsconfig
+
+- [#4032](https://github.com/withastro/astro/pull/4032) [`beddf073b`](https://github.com/withastro/astro/commit/beddf073b5222b92da172475f5b8a578bffa73a0) Thanks [@arimgibson](https://github.com/arimgibson)! - Fix: find a hosting network differently based on Node version -- adjusted for Node v18.4+
+
+* [#3867](https://github.com/withastro/astro/pull/3867) [`7250e4e86`](https://github.com/withastro/astro/commit/7250e4e86da41e7c662afa4b67f7cefc7da15e69) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for `.html` components and pages
+
+- [#3959](https://github.com/withastro/astro/pull/3959) [`ddefb172f`](https://github.com/withastro/astro/commit/ddefb172f66bcd646dd0b75a7ea8360157dd2ba0) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Deprecate Astro.canonicalURL, in favor of Astro.url instead.
+
+* [#3968](https://github.com/withastro/astro/pull/3968) [`95eaa207d`](https://github.com/withastro/astro/commit/95eaa207d8bd4cb5ca2cc1c6279a9bd4096b33d7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve warning logs on astro.config change
+
+- [#3959](https://github.com/withastro/astro/pull/3959) [`ddefb172f`](https://github.com/withastro/astro/commit/ddefb172f66bcd646dd0b75a7ea8360157dd2ba0) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add Astro.url helper for getting the request URL
+
+* [#4031](https://github.com/withastro/astro/pull/4031) [`6e27a5fdc`](https://github.com/withastro/astro/commit/6e27a5fdc21276cad26cd50e16a2709a40a7cbac) Thanks [@natemoo-re](https://github.com/natemoo-re)! - **BREAKING** Renamed Markdown utility function `getHeaders()` to `getHeadings()`.
+
+* Updated dependencies [[`ba11b3399`](https://github.com/withastro/astro/commit/ba11b33996d79c32da947986edb0f32dbcc04aaf), [`399d7e269`](https://github.com/withastro/astro/commit/399d7e269834d11c046b390705a9a53d3738f3cf), [`00fab4ce1`](https://github.com/withastro/astro/commit/00fab4ce135eb799cac69140403d7724686733d6), [`6e27a5fdc`](https://github.com/withastro/astro/commit/6e27a5fdc21276cad26cd50e16a2709a40a7cbac)]:
+  - @astrojs/markdown-remark@0.13.0
+
+## 1.0.0-beta.73
+
+### Patch Changes
+
+- [#3937](https://github.com/withastro/astro/pull/3937) [`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e) Thanks [@delucis](https://github.com/delucis)! - Roll back supported Node engines
+
+* [#3588](https://github.com/withastro/astro/pull/3588) [`5d0edfc3b`](https://github.com/withastro/astro/commit/5d0edfc3b9a20bf68b16c463bbf9cbf31324143a) Thanks [@charlesvdv](https://github.com/charlesvdv)! - Fix missing props (url, file) in markdown layout
+
+- [#3960](https://github.com/withastro/astro/pull/3960) [`ceda294e1`](https://github.com/withastro/astro/commit/ceda294e133d4cc32e68488393287be6077fd3d5) Thanks [@matthewp](https://github.com/matthewp)! - Fixes hydration of maps/sets
+
+* [#3958](https://github.com/withastro/astro/pull/3958) [`8eba6d9d9`](https://github.com/withastro/astro/commit/8eba6d9d977920bdb0830cc219e636236433b2fd) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix JSX definitions being too strict as to what an element is, which lead to type issues in certain cases (Markdown imports, JSX components etc)
+
+- [#3915](https://github.com/withastro/astro/pull/3915) [`f5d4ebf0e`](https://github.com/withastro/astro/commit/f5d4ebf0e242a7d33fedfe924f9dea678a7e673c) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix metadata handling for building MDX files
+
+* [#3930](https://github.com/withastro/astro/pull/3930) [`3acb9ec26`](https://github.com/withastro/astro/commit/3acb9ec264de6ca6eecf49313c0f4d02c3908afa) Thanks [@matthewp](https://github.com/matthewp)! - Include hoisted scripts inside Astro.glob in dev
+
+- [#3906](https://github.com/withastro/astro/pull/3906) [`b37695c34`](https://github.com/withastro/astro/commit/b37695c34c84274af873cf5c69d484ee33c82098) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fixed many long-standing issues with `astro check`
+
+  - Fixed it not working on Windows at all
+  - Fixed red squiggles not showing in the proper place in certain contexts, notably with strings using non-latin characters
+  - Fixed IDE links pointing to the wrong line number and character
+  - Fixed line numbers being off by one
+  - Fixed IDE links not working when the project wasn't at the root of the folder
+
+  Additionally added some features:
+
+  - Added more pretty colors
+  - Fixed it not working at all on Windows
+  - Warnings and hints are now printed alongside errors
+  - Surrounding lines are now shown when relevant (aka not empty)
+
+* [#3955](https://github.com/withastro/astro/pull/3955) [`92b48b152`](https://github.com/withastro/astro/commit/92b48b1525f12663a4932dd6b63bc18f7f0f35fa) Thanks [@matthewp](https://github.com/matthewp)! - Set import.meta.env.BASE_URL in dev mode
+
+- [#3963](https://github.com/withastro/astro/pull/3963) [`5fde2fd8b`](https://github.com/withastro/astro/commit/5fde2fd8bcc7f10e8a449146fa89843f6e6b6aa3) Thanks [@matthewp](https://github.com/matthewp)! - Makes the Debug component's styles be inlined
+
+- Updated dependencies [[`31f9c0bf0`](https://github.com/withastro/astro/commit/31f9c0bf029ffa4b470e620f2c32e1370643e81e), [`07fb544da`](https://github.com/withastro/astro/commit/07fb544dab142a3d4bb9d0d878aab34eaea447b2)]:
+  - @astrojs/prism@0.6.1
+  - @astrojs/telemetry@0.4.1
+  - @astrojs/markdown-remark@0.12.0
+
+## 1.0.0-beta.72
+
+### Patch Changes
+
+- [#3922](https://github.com/withastro/astro/pull/3922) [`7094d6a45`](https://github.com/withastro/astro/commit/7094d6a45f06b61f2a35af3408380654f24fc8f5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle `false` in `class:list`
+
+* [#3927](https://github.com/withastro/astro/pull/3927) [`7c5c4106d`](https://github.com/withastro/astro/commit/7c5c4106d7b9d73103eb6e899f39125e630280ff) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Updated `astro/components` exports to a `.ts` file so it's automatically typed
+
+## 1.0.0-beta.71
+
+### Patch Changes
+
+- [#3918](https://github.com/withastro/astro/pull/3918) [`6a7a17f73`](https://github.com/withastro/astro/commit/6a7a17f735bd8a58cdc08f25a1442277aa7d2fb0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler`, fixing various edge cases around nested expressions, tables, and conditional slots. See the [`@astrojs/compiler@0.19.0 changelog`](https://github.com/withastro/compiler/blob/main/packages/compiler/CHANGELOG.md#0190) for more information.
+
+- Updated dependencies [[`01a55467d`](https://github.com/withastro/astro/commit/01a55467d561974f843a9e0cd6963af7c840abb9)]:
+  - @astrojs/markdown-remark@0.11.7
+
+## 1.0.0-beta.70
+
+### Patch Changes
+
+- [#3902](https://github.com/withastro/astro/pull/3902) [`d8af02a94`](https://github.com/withastro/astro/commit/d8af02a9443de5fa4cfe8e3ef7beddde9ef8cf09) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: markdown "require is not defined" issue
+
+* [#3914](https://github.com/withastro/astro/pull/3914) [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86) Thanks [@ran-dall](https://github.com/ran-dall)! - Rollback supported `node@16` version. Minimum versions are now `node@14.20.0` or `node@16.14.0`.
+
+* Updated dependencies [[`ca45c0c27`](https://github.com/withastro/astro/commit/ca45c0c270f5ca3f7d2fb113a235d415cecdb333), [`b48767985`](https://github.com/withastro/astro/commit/b48767985359bd359df8071324952ea5f2bc0d86)]:
+  - @astrojs/markdown-remark@0.11.6
+  - @astrojs/prism@0.6.0
+  - @astrojs/telemetry@0.4.0
+
+## 1.0.0-beta.69
+
+### Patch Changes
+
+- [#3830](https://github.com/withastro/astro/pull/3830) [`4097f0622`](https://github.com/withastro/astro/commit/4097f06226ab393280658e81c258593bc41452fe) Thanks [@delucis](https://github.com/delucis)! - Update funding link in README
+
+* [#3880](https://github.com/withastro/astro/pull/3880) [`402c4181d`](https://github.com/withastro/astro/commit/402c4181dcea8f7b741061452746f304cb952d77) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Fix rendering HTML comments in `mode="md"` configuration
+
+## 1.0.0-beta.68
+
+### Patch Changes
+
+- [#3883](https://github.com/withastro/astro/pull/3883) [`b4cb4a40d`](https://github.com/withastro/astro/commit/b4cb4a40df33b82bcd36e63bd488bd037e94dbc0) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Added "mode" to Astro config file TypeScript definitions
+
+- Updated dependencies [[`c4f6fdf37`](https://github.com/withastro/astro/commit/c4f6fdf3722b9bc2192cab735498f4e0c30c982e)]:
+  - @astrojs/telemetry@0.3.1
+
+## 1.0.0-beta.67
+
+### Patch Changes
+
+- [#3669](https://github.com/withastro/astro/pull/3669) [`93e1020b1`](https://github.com/withastro/astro/commit/93e1020b1e8549b08cf5646e1ebc3ae34e14ebc8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Tooling: reintroduce smoke test across example projects
+
+* [#3889](https://github.com/withastro/astro/pull/3889) [`5f4ecbad1`](https://github.com/withastro/astro/commit/5f4ecbad1bbcf3e08b399b23c70c7b766dac48e2) Thanks [@matthewp](https://github.com/matthewp)! - Allow defining Astro components in Vite plugins
+
+* Updated dependencies [[`93e1020b1`](https://github.com/withastro/astro/commit/93e1020b1e8549b08cf5646e1ebc3ae34e14ebc8)]:
+  - @astrojs/markdown-remark@0.11.5
+
+## 1.0.0-beta.66
+
+### Patch Changes
+
+- [#3891](https://github.com/withastro/astro/pull/3891) [`9cf7e4064`](https://github.com/withastro/astro/commit/9cf7e406412bcc9c1a17b57072dc1c4a1b94b635) Thanks [@matthewp](https://github.com/matthewp)! - Fix Safari client:visible refresh bug
+
+* [#3851](https://github.com/withastro/astro/pull/3851) [`21869a614`](https://github.com/withastro/astro/commit/21869a614a89446a25175e45580943c28ab7413c) Thanks [@matthewp](https://github.com/matthewp)! - Replaces vite/client types with astro/client
+
+- [#3871](https://github.com/withastro/astro/pull/3871) [`1cc5b7890`](https://github.com/withastro/astro/commit/1cc5b78905633608e5b07ad291f916f54e67feb1) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update supported `node` versions. Minimum versions are now `node@14.20.0` or `node@16.16.0`.
+
+* [#3892](https://github.com/withastro/astro/pull/3892) [`7c49096e8`](https://github.com/withastro/astro/commit/7c49096e864815d63179a467d9d3d89c76ccd523) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler` to latest
+
+* Updated dependencies [[`1cc5b7890`](https://github.com/withastro/astro/commit/1cc5b78905633608e5b07ad291f916f54e67feb1)]:
+  - @astrojs/prism@0.5.0
+  - @astrojs/telemetry@0.3.0
+  - @astrojs/markdown-remark@0.11.4
+
+## 1.0.0-beta.65
+
+### Patch Changes
+
+- [#3842](https://github.com/withastro/astro/pull/3842) [`08fa0772`](https://github.com/withastro/astro/commit/08fa0772abb49b892fa03198fa16964161b9618d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Docs: add complete "adapter" configuration reference
+
+* [#3860](https://github.com/withastro/astro/pull/3860) [`c2c4e5c2`](https://github.com/withastro/astro/commit/c2c4e5c238463a09d621237698a5399eb7b3e9ad) Thanks [@matthewp](https://github.com/matthewp)! - Fixes response.arrayBuffer() handling in large pages
+
+- [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+* [#3848](https://github.com/withastro/astro/pull/3848) [`502f0631`](https://github.com/withastro/astro/commit/502f0631317fe1b23582d4126c44f44cb0b0716f) Thanks [@matthewp](https://github.com/matthewp)! - Allow importing the Image component from @astrojs/image
+
+- [#3873](https://github.com/withastro/astro/pull/3873) [`957fb505`](https://github.com/withastro/astro/commit/957fb50541e15d3876a87f91cd52f29e10a92cc9) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix hydration for SSR components that return null
+
+* [#3801](https://github.com/withastro/astro/pull/3801) [`b84bd7db`](https://github.com/withastro/astro/commit/b84bd7db63c29aede9a63940e2e7dbdc7eca28db) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update JSX definitions with element specific types and added some missing attributes
+
+- [#3837](https://github.com/withastro/astro/pull/3837) [`5afb8076`](https://github.com/withastro/astro/commit/5afb807688750fce7024e630203fbc48dcef267a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix usage of slots inside expressions
+
+- Updated dependencies [[`eedb32c7`](https://github.com/withastro/astro/commit/eedb32c79716a8e04acd46cb2c74c5af112e016f)]:
+  - @astrojs/telemetry@0.2.5
+
+## 1.0.0-beta.64
+
+### Patch Changes
+
+- [#3821](https://github.com/withastro/astro/pull/3821) [`c2165c34`](https://github.com/withastro/astro/commit/c2165c34a76c183b3af6303526ae292a1f2426ce) Thanks [@matthewp](https://github.com/matthewp)! - Fix for putting the <head> into its own component
+
+* [#3841](https://github.com/withastro/astro/pull/3841) [`820a26dd`](https://github.com/withastro/astro/commit/820a26dde5cdc11b5bf430bc2a1e3b09084ae045) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: add default content type to endpoints with { body } shorthand
+
+- [#3839](https://github.com/withastro/astro/pull/3839) [`cd3f6348`](https://github.com/withastro/astro/commit/cd3f6348c4e918b5367587bce58d724aec44eddd) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `client:visible` directive in safari
+
+- Updated dependencies [[`e4b2dca1`](https://github.com/withastro/astro/commit/e4b2dca1f3f03bd951f1d623695631cebf638c67)]:
+  - @astrojs/telemetry@0.2.4
+
+## 1.0.0-beta.63
+
+### Patch Changes
+
+- [#3799](https://github.com/withastro/astro/pull/3799) [`5fe52737`](https://github.com/withastro/astro/commit/5fe52737cbb3676af69bb446afa7f3b53b78dc34) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix internal error for MDX integration
+
+## 1.0.0-beta.62
+
+### Patch Changes
+
+- [#3788](https://github.com/withastro/astro/pull/3788) [`f4943e0f`](https://github.com/withastro/astro/commit/f4943e0fbced044f0ba4435cb41d77b67c98e69f) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds support for the new `astrojs/image` integration
+
+## 1.0.0-beta.61
+
+### Patch Changes
+
+- [#3777](https://github.com/withastro/astro/pull/3777) [`976e1f17`](https://github.com/withastro/astro/commit/976e1f175a95ea39f737b8575e4fdf3c3d89e1ee) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds an option to disable HTTP streaming in Astro's production `App` server
+
+## 1.0.0-beta.60
+
+### Patch Changes
+
+- [#3779](https://github.com/withastro/astro/pull/3779) [`192c4bcf`](https://github.com/withastro/astro/commit/192c4bcfd69aa44f735866378d8ba08ba902d290) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue with throwAndExit not awaiting
+
+* [#3706](https://github.com/withastro/astro/pull/3706) [`032ad1c0`](https://github.com/withastro/astro/commit/032ad1c047a62dd663067cc562537d16f2872aa7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Internal changes needed to support `@astrojs/mdx`
+
+- [#3768](https://github.com/withastro/astro/pull/3768) [`913591d1`](https://github.com/withastro/astro/commit/913591d13761d7c99f4b5bf547942922736a9f3a) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue with unfriendly config validation error output
+
+- Updated dependencies [[`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378)]:
+  - @astrojs/telemetry@0.2.3
+
+## 1.0.0-beta.59
+
+### Patch Changes
+
+- [#3767](https://github.com/withastro/astro/pull/3767) [`1eab496e`](https://github.com/withastro/astro/commit/1eab496e9d733a13f3a2eb2129e90949b130901d) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates an error handler to expect updated `@astrojs/lit` behavior
+
+* [#3763](https://github.com/withastro/astro/pull/3763) [`54cd6b8d`](https://github.com/withastro/astro/commit/54cd6b8dd184fb0acb2facaa9b6843be59f9c57f) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes how `injectRoute` parses route patterns on Windows
+
+- [#3750](https://github.com/withastro/astro/pull/3750) [`dd176ca5`](https://github.com/withastro/astro/commit/dd176ca58d9ce8ab757075491568a014c0943de2) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add basic error reporting to astro telemetry
+
+- Updated dependencies [[`dd176ca5`](https://github.com/withastro/astro/commit/dd176ca58d9ce8ab757075491568a014c0943de2)]:
+  - @astrojs/telemetry@0.2.2
+
+## 1.0.0-beta.58
+
+### Patch Changes
+
+- [#3715](https://github.com/withastro/astro/pull/3715) [`4d6d8644`](https://github.com/withastro/astro/commit/4d6d8644e623522ca6c19dbb2078865b17044c38) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update "astro add" output to remove confusing multi-select prompt.
+
+* [#3715](https://github.com/withastro/astro/pull/3715) [`4d6d8644`](https://github.com/withastro/astro/commit/4d6d8644e623522ca6c19dbb2078865b17044c38) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update the help output to improve formatting
+
+- [#3713](https://github.com/withastro/astro/pull/3713) [`ebd7e7ad`](https://github.com/withastro/astro/commit/ebd7e7ad81e5245deffa331f11e5196ff1b21d84) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Update telemetry to support a more anonymized project id. `anonymousProjectId` is now hashed based on anonymous git data instead of your git remote URL.
+
+- Updated dependencies [[`ebd7e7ad`](https://github.com/withastro/astro/commit/ebd7e7ad81e5245deffa331f11e5196ff1b21d84)]:
+  - @astrojs/telemetry@0.2.0
+
+## 1.0.0-beta.57
+
+### Patch Changes
+
+- [#3724](https://github.com/withastro/astro/pull/3724) [`86635e03`](https://github.com/withastro/astro/commit/86635e035b209845b4e1cdf370a4c78451271b70) Thanks [@matthewp](https://github.com/matthewp)! - Fixes define:vars w/ styles used inside of components
+
 ## 1.0.0-beta.56
 
 ### Patch Changes

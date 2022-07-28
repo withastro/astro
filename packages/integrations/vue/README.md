@@ -6,7 +6,7 @@ This **[Astro integration][astro-integration]** enables server-side rendering an
 
 There are two ways to add integrations to your project. Let's try the most convenient option first!
 
-### (experimental) `astro add` command
+### `astro add` command
 
 Astro includes a CLI tool for adding first party integrations: `astro add`. This command will:
 1. (Optionally) Install all necessary dependencies and peer dependencies
@@ -29,7 +29,7 @@ If you run into any hiccups, [feel free to log an issue on our GitHub](https://g
 
 First, install the `@astrojs/vue` integration like so:
 
-```
+```sh
 npm install @astrojs/vue
 ```
 
@@ -41,7 +41,7 @@ npm install vue
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import vue from '@astrojs/vue';
@@ -68,7 +68,7 @@ Also check our [Astro Integration Documentation][astro-integration] for more on 
 
 This integration is powered by `@vitejs/plugin-vue`. To customize the Vue compiler, options can be provided to the integration. See the `@vitejs/plugin-vue` [docs](https://github.com/vitejs/vite/tree/main/packages/plugin-vue) for more details.
 
-__astro.config.mjs__
+__`astro.config.mjs`__
 
 ```js
 import vue from '@astrojs/vue';

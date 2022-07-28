@@ -1,16 +1,20 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Nav from '../components/Nav.astro';
-import authorData from '../data/authors.json';
+import MainHead from "../components/MainHead.astro";
+import Nav from "../components/Nav.astro";
 
 const { content } = Astro.props;
-let canonicalURL = Astro.canonicalURL;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<html lang={content.lang || 'en'}>
+<html lang={content.lang || "en"}>
 	<head>
 		<title>{content.title}</title>
-		<MainHead title={content.title} description={content.description} image={content.image} {canonicalURL} />
+		<MainHead
+			title={content.title}
+			description={content.description}
+			image={content.image}
+			{canonicalURL}
+		/>
 		<style lang="scss">
 			.title {
 				margin-top: 4rem;

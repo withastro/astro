@@ -1,6 +1,6 @@
 ---
-import { getLanguageFromURL } from '../../languages.ts';
-import { SIDEBAR } from '../../config.ts';
+import { getLanguageFromURL } from "../../languages.ts";
+import { SIDEBAR } from "../../config.ts";
 const { currentPage } = Astro.props;
 const currentPageMatch = currentPage.slice(1);
 const langCode = getLanguageFromURL(currentPage);
@@ -31,7 +31,10 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 					<ul>
 						{section.children.map((child) => (
 							<li class="nav-link">
-								<a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>
+								<a
+									href={`${Astro.site.pathname}${child.link}`}
+									aria-current={`${currentPageMatch === child.link ? "page" : "false"}`}
+								>
 									{child.text}
 								</a>
 							</li>
@@ -44,10 +47,10 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 </nav>
 
 <script is:inline>
-	window.addEventListener('DOMContentLoaded', (event) => {
+	window.addEventListener("DOMContentLoaded", (event) => {
 		var target = document.querySelector('[aria-current="page"]');
 		if (target && target.offsetTop > window.innerHeight - 100) {
-			document.querySelector('.nav-groups').scrollTop = target.offsetTop;
+			document.querySelector(".nav-groups").scrollTop = target.offsetTop;
 		}
 	});
 </script>
@@ -100,13 +103,13 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 		background-color: var(--theme-bg-hover);
 	}
 
-	.nav-link a[aria-current='page'] {
+	.nav-link a[aria-current="page"] {
 		color: var(--theme-text-accent);
 		background-color: var(--theme-bg-accent);
 		font-weight: 600;
 	}
 
-	:global(:root.theme-dark) .nav-link a[aria-current='page'] {
+	:global(:root.theme-dark) .nav-link a[aria-current="page"] {
 		color: hsla(var(--color-base-white), 100%, 1);
 	}
 

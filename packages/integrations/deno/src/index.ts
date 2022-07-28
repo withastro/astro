@@ -9,6 +9,11 @@ interface Options {
 	hostname?: string;
 }
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: Deno.env.toObject(),
+};`;
+
 export function getAdapter(args?: Options): AstroAdapter {
 	return {
 		name: '@astrojs/deno',
@@ -24,8 +29,15 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/deno',
 		hooks: {
-			'astro:config:done': ({ setAdapter }) => {
+			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(args));
+
+				if (config.output === 'static') {
+					console.warn(`[@astrojs/deno] \`output: "server"\` is required to use this adapter.`);
+					console.warn(
+						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
+					);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				_buildConfig = buildConfig;
@@ -63,6 +75,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					external: ['@astrojs/markdown-remark'],
+					banner: {
+						js: SHIM,
+					},
 				});
 
 				// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.

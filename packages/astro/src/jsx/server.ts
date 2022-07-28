@@ -34,10 +34,8 @@ export async function renderToStaticMarkup(
 	}
 
 	const { result } = this;
-	try {
-		const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
-		return { html };
-	} catch (e) {}
+	const html = await renderJSX(result, jsx(Component, { ...props, ...slots, children }));
+	return { html };
 }
 
 export default {

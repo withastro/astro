@@ -176,7 +176,7 @@ describe('Static build', () => {
 		for (const log of logs) {
 			if (
 				log.type === 'ssg' &&
-				/[hH]eaders are not exposed in static-site generation/.test(log.args[0])
+				/[hH]eaders are not exposed in static \(SSG\) output mode/.test(log.args[0])
 			) {
 				found = true;
 			}

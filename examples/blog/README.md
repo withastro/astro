@@ -18,9 +18,6 @@ Features:
 Inside of your Astro project, you'll see the following folders and files:
 
 ```
-├── README.md
-├── astro.config.mjs
-├── package.json
 ├── public
 │   ├── assets
 │   │   └── blog
@@ -28,24 +25,26 @@ Inside of your Astro project, you'll see the following folders and files:
 │   ├── favicon.ico
 │   ├── social.jpg
 │   └── social.png
-├── sandbox.config.json
 ├── src
 │   ├── components
 │   │   ├── Author.astro
 │   │   ├── BaseHead.astro
-│   │   ├── BlogHeader.astro
-│   │   ├── BlogPost.astro
 │   │   ├── BlogPostPreview.astro
-│   │   ├── Heading.astro
-│   │   └── Logo.astro
+│   │   ├── FollowMe.astro
+│   │   ├── Header.astro
+│   │   └── LikeButton.tsx
 │   ├── layouts
 │   │   └── BlogPost.astro
 │   ├── pages
 │   │   ├── index.astro
 │   │   └── posts
-│   │       └── index.md
+│   │       ├── interactive-content.md
+│   │       └── static-content.md
 │   └── styles
 │       └── blog.css
+├── astro.config.mjs
+├── README.md
+├── package.json
 └── tsconfig.json
 ```
 
@@ -60,7 +59,7 @@ Any static assets, like images, can be placed in the `public/` directory.
 All commands are run from the root of the project, from a terminal:
 
 | Command           | Action                                       |
-|:----------------  |:-------------------------------------------- |
+| :---------------- | :------------------------------------------- |
 | `npm install`     | Installs dependencies                        |
 | `npm run dev`     | Starts local dev server at `localhost:3000`  |
 | `npm run build`   | Build your production site to `./dist/`      |

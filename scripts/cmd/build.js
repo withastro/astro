@@ -12,7 +12,7 @@ const defaultConfig = {
 	format: 'esm',
 	platform: 'node',
 	target: 'node14',
-	sourcemap: 'inline',
+	sourcemap: false,
 	sourcesContent: false,
 };
 
@@ -47,6 +47,9 @@ export default async function build(...args) {
 		))
 	);
 
+	const noClean = args.includes('--no-clean-dist');
+	const forceCJS = args.includes('--force-cjs');
+
 	const {
 		type = 'module',
 		version,
@@ -54,17 +57,21 @@ export default async function build(...args) {
 	} = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
 	// expose PACKAGE_VERSION on process.env for CLI utils
 	config.define = { 'process.env.PACKAGE_VERSION': JSON.stringify(version) };
-	const format = type === 'module' ? 'esm' : 'cjs';
+	const format = type === 'module' && !forceCJS ? 'esm' : 'cjs';
+
 	const outdir = 'dist';
-	await clean(outdir);
+
+	if (!noClean) {
+		await clean(outdir);
+	}
 
 	if (!isDev) {
 		await esbuild.build({
 			...config,
-			sourcemap: false,
 			bundle: false,
 			entryPoints,
 			outdir,
+			outExtension: forceCJS ? { '.js': '.cjs' } : {},
 			format,
 		});
 		return;

@@ -1,0 +1,11 @@
+{
+  "name": "@test/astro-markdown-component",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/markdown-component": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

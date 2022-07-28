@@ -6,6 +6,11 @@ import { fileURLToPath } from 'url';
 import type { Plugin as VitePlugin } from 'vite';
 import { createRedirects } from './shared.js';
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: {},
+};`;
+
 export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/netlify/edge-functions',
@@ -78,6 +83,9 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		format: 'esm',
 		bundle: true,
 		external: ['@astrojs/markdown-remark'],
+		banner: {
+			js: SHIM,
+		},
 	});
 
 	// Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
@@ -127,6 +135,13 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());
 				_config = config;
+
+				if (config.output === 'static') {
+					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
+					console.warn(
+						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
+					);
+				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
 				_buildConfig = buildConfig;

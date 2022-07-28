@@ -10,9 +10,7 @@ describe('Markdown pages in SSR', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-markdown/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build();
@@ -30,11 +28,5 @@ describe('Markdown pages in SSR', () => {
 		const html = await fetchHTML('/post');
 		const $ = cheerioLoad(html);
 		expect($('#subheading').text()).to.equal('Subheading');
-	});
-
-	it('Renders the Markdown component correctly', async () => {
-		const html = await fetchHTML('/page');
-		const $ = cheerioLoad(html);
-		expect($('#something')).to.have.lengthOf(1);
 	});
 });

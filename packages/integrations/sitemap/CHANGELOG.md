@@ -1,5 +1,64 @@
 # @astrojs/sitemap
 
+## 0.3.0
+
+### Minor Changes
+
+- [#4015](https://github.com/withastro/astro/pull/4015) [`6fd161d76`](https://github.com/withastro/astro/commit/6fd161d7691cbf9d3ffa4646e46059dfd0940010) Thanks [@matthewp](https://github.com/matthewp)! - New `output` configuration option
+
+  This change introduces a new "output target" configuration option (`output`). Setting the output target lets you decide the format of your final build, either:
+
+  - `"static"` (default): A static site. Your final build will be a collection of static assets (HTML, CSS, JS) that you can deploy to any static site host.
+  - `"server"`: A dynamic server application. Your final build will be an application that will run in a hosted server environment, generating HTML dynamically for different requests.
+
+  If `output` is omitted from your config, the default value `"static"` will be used.
+
+  When using the `"server"` output target, you must also include a runtime adapter via the `adapter` configuration. An adapter will _adapt_ your final build to run on the deployed platform of your choice (Netlify, Vercel, Node.js, Deno, etc).
+
+  To migrate: No action is required for most users. If you currently define an `adapter`, you will need to also add `output: 'server'` to your config file to make it explicit that you are building a server. Here is an example of what that change would look like for someone deploying to Netlify:
+
+  ```diff
+  import { defineConfig } from 'astro/config';
+  import netlify from '@astrojs/netlify/functions';
+
+  export default defineConfig({
+    adapter: netlify(),
+  + output: 'server',
+  });
+  ```
+
+### Patch Changes
+
+- [#3978](https://github.com/withastro/astro/pull/3978) [`b37d7078a`](https://github.com/withastro/astro/commit/b37d7078a009869bf482912397a073dca490d3da) Thanks [@Chrissdroid](https://github.com/Chrissdroid)! - Update README to reflect `@astrojs/sitemap@0.2.0` changes
+
+* [#4004](https://github.com/withastro/astro/pull/4004) [`ef9c4152b`](https://github.com/withastro/astro/commit/ef9c4152b2b399e25bf4e8aa7b37adcf6d0d8f17) Thanks [@sarah11918](https://github.com/sarah11918)! - [READMEs] removed "experimental" from astro add instructions
+
+## 0.2.6
+
+### Patch Changes
+
+- [#3885](https://github.com/withastro/astro/pull/3885) [`bf5d1cc1e`](https://github.com/withastro/astro/commit/bf5d1cc1e71da38a14658c615e9481f2145cc6e7) Thanks [@delucis](https://github.com/delucis)! - Integration README fixes
+
+## 0.2.5
+
+### Patch Changes
+
+- [#3865](https://github.com/withastro/astro/pull/3865) [`1f9e4857`](https://github.com/withastro/astro/commit/1f9e4857ff2b2cb7db89d619618cdf546cd3b3dc) Thanks [@delucis](https://github.com/delucis)! - Small README fixes
+
+* [#3854](https://github.com/withastro/astro/pull/3854) [`b012ee55`](https://github.com/withastro/astro/commit/b012ee55b107dea0730286263b27d83e530fad5d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Support adapters and third party packages
+
+## 0.2.4
+
+### Patch Changes
+
+- [#3677](https://github.com/withastro/astro/pull/3677) [`8045c8ad`](https://github.com/withastro/astro/commit/8045c8ade16fe4306448b7f98a4560ef0557d378) Thanks [@Jutanium](https://github.com/Jutanium)! - Update READMEs
+
+## 0.2.3
+
+### Patch Changes
+
+- [#3723](https://github.com/withastro/astro/pull/3723) [`52f75369`](https://github.com/withastro/astro/commit/52f75369efe5a0a1b320478984c90b6727d52159) Thanks [@alextim](https://github.com/alextim)! - fix: if `serialize` function returns `undefined` for the passed entry, such entry will be excluded from sitemap
+
 ## 0.2.2
 
 ### Patch Changes

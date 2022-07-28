@@ -2,13 +2,14 @@
 
 An SSR adapter for use with Cloudflare Pages Functions targets. Write your code in Astro/Node and deploy to Cloudflare Pages.
 
-In your astro.config.mjs use:
+In your `astro.config.mjs` use:
 
 ```js
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
+  output: 'server',
   adapter: cloudflare()
 });
 ```
@@ -25,7 +26,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Streams
 
-Some integrations such as (react)[https://github.com/withastro/astro/tree/main/packages/integrations/react] rely on web streams. Currently Cloudflare Pages functions are in beta and don't support the `streams_enable_constructors` feature flag.
+Some integrations such as [React](https://github.com/withastro/astro/tree/main/packages/integrations/react) rely on web streams. Currently Cloudflare Pages functions are in beta and don't support the `streams_enable_constructors` feature flag.
 
 In order to work around this:
 - install the `"web-streams-polyfill"` package

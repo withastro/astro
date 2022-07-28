@@ -2,7 +2,6 @@ import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
 import fs from 'fs';
-import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
@@ -10,30 +9,13 @@ import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
+import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
-
-// Some packages are just external, and that’s the way it goes.
-const ALWAYS_EXTERNAL = new Set([
-	...builtinModules.map((name) => `node:${name}`),
-	'@sveltejs/vite-plugin-svelte',
-	'micromark-util-events-to-acorn',
-	'@astrojs/markdown-remark',
-	'node-fetch',
-	'prismjs',
-	'shiki',
-	'unified',
-	'whatwg-url',
-]);
-const ALWAYS_NOEXTERNAL = new Set([
-	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
-	'astro',
-	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
-	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
-	'@nanostores/preact',
-]);
+import { createCustomViteLogger } from './errors.js';
+import { resolveDependency } from './util.js';
 
 // note: ssr is still an experimental API hence the type omission from `vite`
 export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
@@ -44,20 +26,45 @@ interface CreateViteOptions {
 	mode: 'dev' | 'build';
 }
 
+const ALWAYS_NOEXTERNAL = new Set([
+	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
+	'astro',
+	// Vite fails on nested `.astro` imports without bundling
+	'astro/components',
+	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
+	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
+	'@nanostores/preact',
+	// fontsource packages are CSS that need to be processed
+	'@fontsource/*',
+]);
+
+function getSsrNoExternalDeps(projectRoot: URL): string[] {
+	let noExternalDeps = [];
+	for (const dep of ALWAYS_NOEXTERNAL) {
+		try {
+			resolveDependency(dep, projectRoot);
+			noExternalDeps.push(dep);
+		} catch {
+			// ignore dependency if *not* installed / present in your project
+			// prevents hard error from Vite!
+		}
+	}
+	return noExternalDeps;
+}
+
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: ViteConfigWithSSR,
 	{ astroConfig, logging, mode }: CreateViteOptions
 ): Promise<ViteConfigWithSSR> {
-	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
-	const astroPackages = await getAstroPackages(astroConfig);
+	const thirdPartyAstroPackages = await getAstroPackages(astroConfig);
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
-			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			entries: ['src/**/*'],
 			exclude: ['node-fetch'],
 		},
 		plugins: [
@@ -68,7 +75,8 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
-			markdownVitePlugin({ config: astroConfig }),
+			markdownVitePlugin({ config: astroConfig, logging }),
+			htmlVitePlugin(),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
@@ -80,7 +88,6 @@ export async function createVite(
 			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
 		},
 		server: {
-			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
 			hmr:
 				process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production'
 					? false
@@ -111,11 +118,10 @@ export async function createVite(
 					replacement: fileURLToPath(new URL('../@types/astro', import.meta.url)),
 				},
 			],
+			conditions: ['astro'],
 		},
-		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
-			external: [...ALWAYS_EXTERNAL],
-			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPackages],
+			noExternal: [...getSsrNoExternalDeps(astroConfig.root), ...thirdPartyAstroPackages],
 		},
 	};
 
@@ -128,7 +134,35 @@ export async function createVite(
 	let result = commonConfig;
 	result = vite.mergeConfig(result, astroConfig.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
+	if (result.plugins) {
+		sortPlugins(result.plugins);
+	}
+
+	result.customLogger = createCustomViteLogger(result.logLevel ?? 'warn');
+
 	return result;
+}
+
+function isVitePlugin(plugin: vite.PluginOption): plugin is vite.Plugin {
+	return Boolean(plugin?.hasOwnProperty('name'));
+}
+
+function findPluginIndexByName(pluginOptions: vite.PluginOption[], name: string): number {
+	return pluginOptions.findIndex(function (pluginOption) {
+		// Use isVitePlugin to ignore nulls, booleans, promises, and arrays
+		// CAUTION: could be a problem if a plugin we're searching for becomes async!
+		return isVitePlugin(pluginOption) && pluginOption.name === name;
+	});
+}
+
+function sortPlugins(pluginOptions: vite.PluginOption[]) {
+	// HACK: move mdxPlugin to top because it needs to run before internal JSX plugin
+	const mdxPluginIndex = findPluginIndexByName(pluginOptions, '@mdx-js/rollup');
+	if (mdxPluginIndex === -1) return;
+	const jsxPluginIndex = findPluginIndexByName(pluginOptions, 'astro:jsx');
+	const mdxPlugin = pluginOptions[mdxPluginIndex];
+	pluginOptions.splice(mdxPluginIndex, 1);
+	pluginOptions.splice(jsxPluginIndex, 0, mdxPlugin);
 }
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file

@@ -1,6 +1,6 @@
 ---
 // fetch all commits for just this page's path
-const path = 'docs/' + Astro.props.path;
+const path = "docs/" + Astro.props.path;
 const url = `https://api.github.com/repos/withastro/astro/commits?path=${path}`;
 const commitsURL = `https://github.com/withastro/astro/commits/main/${path}`;
 
@@ -8,16 +8,18 @@ async function getCommits(url) {
 	try {
 		const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN;
 		if (!token) {
-			throw new Error('Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.');
+			throw new Error(
+				'Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.'
+			);
 		}
 
-		const auth = `Basic ${Buffer.from(token, 'binary').toString('base64')}`;
+		const auth = `Basic ${Buffer.from(token, "binary").toString("base64")}`;
 
 		const res = await fetch(url, {
-			method: 'GET',
+			method: "GET",
 			headers: {
 				Authorization: auth,
-				'User-Agent': 'astro-docs/1.0',
+				"User-Agent": "astro-docs/1.0",
 			},
 		});
 
@@ -65,14 +67,22 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 		{recentContributors.map((item) => (
 			<li>
 				<a href={`https://github.com/${item.login}`}>
-					<img alt={`Contributor ${item.login}`} title={`Contributor ${item.login}`} width="64" height="64" src={`https://avatars.githubusercontent.com/u/${item.id}`} />
+					<img
+						alt={`Contributor ${item.login}`}
+						title={`Contributor ${item.login}`}
+						width="64"
+						height="64"
+						src={`https://avatars.githubusercontent.com/u/${item.id}`}
+					/>
 				</a>
 			</li>
 		))}
 	</ul>
 	{additionalContributors > 0 && (
 		<span>
-			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${additionalContributors > 1 ? 's' : ''}.`}</a>
+			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${
+				additionalContributors > 1 ? "s" : ""
+			}.`}</a>
 		</span>
 	)}
 	{unique.length === 0 && <a href={commitsURL}>Contributors</a>}

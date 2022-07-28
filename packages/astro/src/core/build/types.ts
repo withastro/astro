@@ -4,6 +4,7 @@ import type {
 	ComponentInstance,
 	ManifestData,
 	RouteData,
+	RuntimeMode,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -15,7 +16,6 @@ export type ViteID = string;
 
 export interface PageBuildData {
 	component: ComponentPath;
-	paths: string[];
 	route: RouteData;
 	moduleSpecifier: string;
 	css: Set<string>;
@@ -30,6 +30,7 @@ export interface StaticBuildOptions {
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;
+	mode: RuntimeMode;
 	origin: string;
 	pageNames: string[];
 	routeCache: RouteCache;

@@ -1,4 +1,4 @@
-import type { PluginContext } from 'rollup';
+import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
@@ -6,14 +6,13 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
-import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { resolvePages } from '../core/util.js';
 import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation, CompileProps } from './compile.js';
+import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
@@ -68,7 +67,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		configureServer(server) {
 			viteDevServer = server;
 		},
-		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
+		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {
 			// If resolving from an astro subresource such as a hoisted script,
 			// we need to resolve relative paths ourselves.
@@ -96,24 +95,25 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return id;
 			}
 		},
-		async load(this: PluginContext, id, opts) {
+		async load(id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
-			if (!id.endsWith('.astro') && !query.astro) {
+			if (!query.astro) {
 				return null;
 			}
-			// if we still get a relative path here, vite couldn't resolve the import
-			if (isRelativePath(parsedId.filename)) {
+			let filename = parsedId.filename;
+			// For CSS / hoisted scripts we need to load the source ourselves.
+			// It should be in the compilation cache at this point.
+			let raw = await this.resolve(filename, undefined);
+			if (!raw) {
 				return null;
 			}
 
-			const filename = normalizeFilename(parsedId.filename);
-			const fileUrl = new URL(`file://${filename}`);
-			let source = await fs.promises.readFile(fileUrl, 'utf-8');
-			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
-			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
+			let source = getCachedSource(config, raw.id);
+			if (!source) {
+				return null;
 			}
+
 			const compileProps: CompileProps = {
 				config,
 				filename,
@@ -123,8 +123,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				viteTransform,
 				pluginContext: this,
 			};
-			if (query.astro) {
-				if (query.type === 'style') {
+
+			switch (query.type) {
+				case 'style': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
@@ -144,7 +145,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					return {
 						code,
 					};
-				} else if (query.type === 'script') {
+				}
+				case 'script': {
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
@@ -173,19 +175,63 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						}
 					}
 
-					return {
-						code:
-							hoistedScript.type === 'inline'
-								? hoistedScript.code!
-								: `import "${hoistedScript.src!}";`,
+					let result: SourceDescription & { meta: any } = {
+						code: '',
 						meta: {
 							vite: {
 								lang: 'ts',
 							},
 						},
 					};
+
+					switch (hoistedScript.type) {
+						case 'inline': {
+							let { code, map } = hoistedScript;
+							result.code = appendSourceMap(code, map);
+							break;
+						}
+						case 'external': {
+							const { src } = hoistedScript;
+							result.code = `import "${src}"`;
+							break;
+						}
+					}
+
+					return result;
 				}
+				default:
+					return null;
 			}
+		},
+		async transform(this: PluginContext, source, id, opts) {
+			const parsedId = parseAstroRequest(id);
+			const query = parsedId.query;
+			if (!id.endsWith('.astro') || query.astro) {
+				return source;
+			}
+			// if we still get a relative path here, vite couldn't resolve the import
+			if (isRelativePath(parsedId.filename)) {
+				return source;
+			}
+
+			const filename = normalizeFilename(parsedId.filename);
+			let isPage = false;
+			try {
+				const fileUrl = new URL(`file://${filename}`);
+				isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
+			} catch {}
+			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
+				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
+			}
+			const compileProps: CompileProps = {
+				config,
+				filename,
+				moduleId: id,
+				source,
+				ssr: Boolean(opts?.ssr),
+				viteTransform,
+				pluginContext: this,
+			};
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);
@@ -222,14 +268,15 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
-
-					SUFFIX += `\nif (import.meta.hot) {
-						import.meta.hot.accept(mod => mod);
-					}`;
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
 					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
+				}
+
+				// Prefer live reload to HMR in `.astro` files
+				if (!resolvedConfig.isProduction) {
+					SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
 				}
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {
@@ -314,4 +361,11 @@ ${source}
 			return handleHotUpdate.call(this, context, config, logging);
 		},
 	};
+}
+
+function appendSourceMap(content: string, map?: string) {
+	if (!map) return content;
+	return `${content}\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,${Buffer.from(
+		map
+	).toString('base64')}`;
 }

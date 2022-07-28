@@ -2,22 +2,15 @@ import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
 import {
 	AstroConfig,
-	AstroIntegration,
 	AstroRenderer,
 	BuildConfig,
+	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
-import ssgAdapter from '../adapter-ssg/index.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
-import { isBuildingToSSR } from '../core/util.js';
-
-type Hooks<
-	Hook extends keyof AstroIntegration['hooks'],
-	Fn = AstroIntegration['hooks'][Hook]
-> = Fn extends (...args: any) => any ? Parameters<Fn>[0] : never;
 
 export async function runHookConfigSetup({
 	config: _config,
@@ -26,6 +19,7 @@ export async function runHookConfigSetup({
 	config: AstroConfig;
 	command: 'dev' | 'build';
 }): Promise<AstroConfig> {
+	// An adapter is an integration, so if one is provided push it.
 	if (_config.adapter) {
 		_config.integrations.push(_config.adapter);
 	}
@@ -45,7 +39,7 @@ export async function runHookConfigSetup({
 		 * ```
 		 */
 		if (integration?.hooks?.['astro:config:setup']) {
-			const hooks: Hooks<'astro:config:setup'> = {
+			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
 				addRenderer(renderer: AstroRenderer) {
@@ -62,13 +56,12 @@ export async function runHookConfigSetup({
 				},
 			};
 			// Semi-private `addPageExtension` hook
+			function addPageExtension(...input: (string | string[])[]) {
+				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
+				updatedConfig._ctx.pageExtensions.push(...exts);
+			}
 			Object.defineProperty(hooks, 'addPageExtension', {
-				value: (...input: (string | string[])[]) => {
-					const exts = (input.flat(Infinity) as string[]).map(
-						(ext) => `.${ext.replace(/^\./, '')}`
-					);
-					updatedConfig._ctx.pageExtensions.push(...exts);
-				},
+				value: addPageExtension,
 				writable: false,
 				enumerable: false,
 			});
@@ -86,22 +79,9 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 				setAdapter(adapter) {
 					if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
 						throw new Error(
-							`Adapter already set to ${config._ctx.adapter.name}. You can only have one adapter.`
+							`Integration "${integration.name}" conflicts with "${config._ctx.adapter.name}". You can only configure one deployment integration.`
 						);
 					}
-					config._ctx.adapter = adapter;
-				},
-			});
-		}
-	}
-	// Call the default adapter
-	if (!config._ctx.adapter) {
-		const integration = ssgAdapter();
-		config.integrations.push(integration);
-		if (integration?.hooks?.['astro:config:done']) {
-			await integration.hooks['astro:config:done']({
-				config,
-				setAdapter(adapter) {
 					config._ctx.adapter = adapter;
 				},
 			});
@@ -209,7 +189,7 @@ export async function runHookBuildDone({
 	pages: string[];
 	routes: RouteData[];
 }) {
-	const dir = isBuildingToSSR(config) ? buildConfig.client : config.outDir;
+	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {

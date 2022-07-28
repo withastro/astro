@@ -11,6 +11,7 @@ import type { RouteInfo, SSRManifest as Manifest } from './types';
 import mime from 'mime';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
+import { error } from '../logger/core.js';
 import { joinPaths, prependForwardSlash } from '../path.js';
 import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -24,6 +25,10 @@ export { deserializeManifest } from './common.js';
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
 
+export interface MatchOptions {
+	matchNotFound?: boolean | undefined;
+}
+
 export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
@@ -34,22 +39,41 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
+	#streaming: boolean;
 
-	constructor(manifest: Manifest) {
+	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(this.#logging);
+		this.#streaming = streaming;
 	}
-	match(request: Request): RouteData | undefined {
+	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
-		return matchRoute(url.pathname, this.#manifestData);
+		// ignore requests matching public assets
+		if (this.#manifest.assets.has(url.pathname)) {
+			return undefined;
+		}
+		let routeData = matchRoute(url.pathname, this.#manifestData);
+
+		if (routeData) {
+			return routeData;
+		} else if (matchNotFound) {
+			return matchRoute('/404', this.#manifestData);
+		} else {
+			return undefined;
+		}
 	}
 	async render(request: Request, routeData?: RouteData): Promise<Response> {
+		let defaultStatus = 200;
 		if (!routeData) {
 			routeData = this.match(request);
+			if (!routeData) {
+				defaultStatus = 404;
+				routeData = this.match(request, { matchNotFound: true });
+			}
 			if (!routeData) {
 				return new Response(null, {
 					status: 404,
@@ -58,12 +82,30 @@ export class App {
 			}
 		}
 
-		const mod = this.#manifest.pageMap.get(routeData.component)!;
+		let mod = this.#manifest.pageMap.get(routeData.component)!;
 
 		if (routeData.type === 'page') {
-			return this.#renderPage(request, routeData, mod);
+			let response = await this.#renderPage(request, routeData, mod, defaultStatus);
+
+			// If there was a 500 error, try sending the 500 page.
+			if (response.status === 500) {
+				const fiveHundredRouteData = matchRoute('/500', this.#manifestData);
+				if (fiveHundredRouteData) {
+					mod = this.#manifest.pageMap.get(fiveHundredRouteData.component)!;
+					try {
+						let fiveHundredResponse = await this.#renderPage(
+							request,
+							fiveHundredRouteData,
+							mod,
+							500
+						);
+						return fiveHundredResponse;
+					} catch {}
+				}
+			}
+			return response;
 		} else if (routeData.type === 'endpoint') {
-			return this.#callEndpoint(request, routeData, mod);
+			return this.#callEndpoint(request, routeData, mod, defaultStatus);
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
@@ -72,7 +114,8 @@ export class App {
 	async #renderPage(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
+		mod: ComponentInstance,
+		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
@@ -94,38 +137,51 @@ export class App {
 			}
 		}
 
-		const response = await render({
-			links,
-			logging: this.#logging,
-			markdown: manifest.markdown,
-			mod,
-			origin: url.origin,
-			pathname: url.pathname,
-			scripts,
-			renderers,
-			async resolve(specifier: string) {
-				if (!(specifier in manifest.entryModules)) {
-					throw new Error(`Unable to resolve [${specifier}]`);
-				}
-				const bundlePath = manifest.entryModules[specifier];
-				return bundlePath.startsWith('data:')
-					? bundlePath
-					: prependForwardSlash(joinPaths(manifest.base, bundlePath));
-			},
-			route: routeData,
-			routeCache: this.#routeCache,
-			site: this.#manifest.site,
-			ssr: true,
-			request,
-		});
+		try {
+			const response = await render({
+				adapterName: manifest.adapterName,
+				links,
+				logging: this.#logging,
+				markdown: manifest.markdown,
+				mod,
+				mode: 'production',
+				origin: url.origin,
+				pathname: url.pathname,
+				scripts,
+				renderers,
+				async resolve(specifier: string) {
+					if (!(specifier in manifest.entryModules)) {
+						throw new Error(`Unable to resolve [${specifier}]`);
+					}
+					const bundlePath = manifest.entryModules[specifier];
+					return bundlePath.startsWith('data:')
+						? bundlePath
+						: prependForwardSlash(joinPaths(manifest.base, bundlePath));
+				},
+				route: routeData,
+				routeCache: this.#routeCache,
+				site: this.#manifest.site,
+				ssr: true,
+				request,
+				streaming: this.#streaming,
+				status,
+			});
 
-		return response;
+			return response;
+		} catch (err) {
+			error(this.#logging, 'ssr', err);
+			return new Response(null, {
+				status: 500,
+				statusText: 'Internal server error',
+			});
+		}
 	}
 
 	async #callEndpoint(
 		request: Request,
 		routeData: RouteData,
-		mod: ComponentInstance
+		mod: ComponentInstance,
+		status = 200
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
@@ -137,6 +193,7 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			ssr: true,
+			status,
 		});
 
 		if (result.type === 'response') {
@@ -146,7 +203,9 @@ export class App {
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
 			if (mimeType) {
-				headers.set('Content-Type', mimeType);
+				headers.set('Content-Type', `${mimeType};charset=utf-8`);
+			} else {
+				headers.set('Content-Type', 'text/plain;charset=utf-8');
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());

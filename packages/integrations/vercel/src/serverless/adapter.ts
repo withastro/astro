@@ -28,14 +28,15 @@ export default function vercelEdge(): AstroIntegration {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+
+				if (config.output === 'static') {
+					throw new Error(`
+		[@astrojs/vercel] \`output: "server"\` is required to use the serverless adapter.
+	
+	`);
+				}
 			},
 			'astro:build:start': async ({ buildConfig }) => {
-				if (String(process.env.ENABLE_VC_BUILD) !== '1') {
-					throw new Error(
-						`The enviroment variable "ENABLE_VC_BUILD" was not found. Make sure you have it set to "1" in your Vercel project.\nLearn how to set enviroment variables here: https://vercel.com/docs/concepts/projects/environment-variables`
-					);
-				}
-
 				buildConfig.serverEntry = serverEntry = 'entry.js';
 				buildConfig.client = new URL('./static/', _config.outDir);
 				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
