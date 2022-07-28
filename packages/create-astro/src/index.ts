@@ -2,9 +2,9 @@
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import os from 'os';
 import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
+import os from 'os';
 import path from 'path';
 import prompts from 'prompts';
 import detectPackageManager from 'which-pm-runs';
