@@ -903,6 +903,8 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
  */
 export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
+	url: string | undefined;
+	file: string;
 };
 
 /**

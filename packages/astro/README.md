@@ -33,7 +33,7 @@ Visit our [offical documentation](https://docs.astro.build/).
 Having trouble? Get help in the official [Astro Discord](https://astro.build/chat).
 ## Contributing
 
-**New contributors welcome!** Check out our [Contributors Guide](CONTRIBUTING.md) for help getting started. 
+**New contributors welcome!** Check out our [Contributors Guide](/CONTRIBUTING.md) for help getting started. 
 
 Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll help you get your first contribution in no time!
 
