@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.0-rc.2
+
+### Patch Changes
+
+- [#4073](https://github.com/withastro/astro/pull/4073) [`13b4f8ad8`](https://github.com/withastro/astro/commit/13b4f8ad887d0d4e8efbf9f74185432f9cdf264e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of @fontsource packages
+
+* [#4045](https://github.com/withastro/astro/pull/4045) [`a397b981f`](https://github.com/withastro/astro/commit/a397b981f5f46dee85e6e00aa39633d018d4b9a2) Thanks [@tony-sull](https://github.com/tony-sull)! - Adding support for custom "astro/client" type definitions in `@astrojs/image`
+
+- [#4028](https://github.com/withastro/astro/pull/4028) [`c565465a9`](https://github.com/withastro/astro/commit/c565465a964ee14bf5d55c0a6eaf1091d3a68429) Thanks [@alfredogonzalezmartinez](https://github.com/alfredogonzalezmartinez)! - Add `url` and `file` properties to `MarkdownContent` type
+
+* [#4072](https://github.com/withastro/astro/pull/4072) [`a198028b0`](https://github.com/withastro/astro/commit/a198028b04234d0b8dcb0b6bcb47c5831d7a15f9) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Cloudflare throwing an error for process
+
+- [#4055](https://github.com/withastro/astro/pull/4055) [`44694d8a9`](https://github.com/withastro/astro/commit/44694d8a9084bb1b09840ec8967edd75fa033174) Thanks [@matthewp](https://github.com/matthewp)! - Handle binary data request bodies in the Node adapter
+
 ## 1.0.0-rc.1
 
 The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug fixes, and a few breaking changes to be aware of.
