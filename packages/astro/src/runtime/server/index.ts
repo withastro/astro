@@ -769,6 +769,35 @@ export async function renderToIterable(
 
 const encoder = new TextEncoder();
 
+// Rendering produces either marked strings of HTML or instructions for hydration.
+// These directive instructions bubble all the way up to renderPage so that we
+// can ensure they are added only once, and as soon as possible.
+export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction) {
+	switch((chunk as any).type) {
+		case 'directive': {
+			const { hydration } = chunk as RenderInstruction;
+			let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
+			let needsDirectiveScript =
+				hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
+
+			let prescriptType: PrescriptType = needsHydrationScript
+			? 'both'
+			: needsDirectiveScript
+			? 'directive'
+			: null;
+			if(prescriptType) {
+				let prescripts = getPrescripts(prescriptType, hydration.directive);
+				return markHTMLString(prescripts);
+			} else {
+				return '';
+			}
+		}
+		default: {
+			return chunk.toString();
+		}
+	}
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory,
@@ -809,35 +838,6 @@ export async function renderPage(
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
 
-		// Rendering produces either marked strings of HTML or instructions for hydration.
-		// These directive instructions bubble all the way up to renderPage so that we
-		// can ensure they are added only once, and as soon as possible.
-		function chunkToString(chunk: string | RenderInstruction) {
-			switch((chunk as any).type) {
-				case 'directive': {
-					const { hydration } = chunk as RenderInstruction;
-					let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
-					let needsDirectiveScript =
-						hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
-
-					let prescriptType: PrescriptType = needsHydrationScript
-					? 'both'
-					: needsDirectiveScript
-					? 'directive'
-					: null;
-					if(prescriptType) {
-						let prescripts = getPrescripts(prescriptType, hydration.directive);
-						return markHTMLString(prescripts);
-					} else {
-						return '';
-					}
-				}
-				default: {
-					return chunk.toString();
-				}
-			}
-		}
-
 		if (streaming) {
 			body = new ReadableStream({
 				start(controller) {
@@ -845,7 +845,7 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								let html = chunkToString(chunk);
+								let html = stringifyChunk(result, chunk);
 
 								if (i === 0) {
 									if (!/<!doctype html/i.test(html)) {
@@ -867,13 +867,13 @@ export async function renderPage(
 			body = '';
 			let i = 0;
 			for await (const chunk of iterable) {
-				let html = chunkToString(chunk);
+				let html = stringifyChunk(result, chunk);
 				if (i === 0) {
 					if (!/<!doctype html/i.test(html)) {
 						body += '<!DOCTYPE html>\n';
 					}
 				}
-				body += chunk;
+				body += html;
 				i++;
 			}
 			const bytes = encoder.encode(body);
@@ -926,7 +926,7 @@ export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string>
 	yield renderHead(result);
 }
 
-interface RenderInstruction {
+export interface RenderInstruction {
 	type: 'directive';
 	result: SSRResult;
 	hydration: HydrationMetadata;
