@@ -38,26 +38,39 @@ import { getTimeStat } from './util.js';
 // system, possibly one that parallelizes if async IO is detected.
 const MAX_CONCURRENT_RENDERS = 1;
 
-// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
-function* throttle(max: number, inPaths: string[]) {
-	let tmp = [];
-	let i = 0;
-	for (let path of inPaths) {
-		tmp.push(path);
-		if (i === max) {
-			yield tmp;
-			// Empties the array, to avoid allocating a new one.
-			tmp.length = 0;
-			i = 0;
-		} else {
-			i++;
-		}
+async function* generatePathsConcurrently(
+	concurrency: number,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions,
+	timeStart: number,
+	pathsIterator: Iterable<string>) {
+	// Each async iterator is a worker.
+	// Sharing the iterator ensures that each worker gets unique tasks.
+	const asyncIterators = new Array<AsyncGenerator<void, void, unknown>>(concurrency);
+	for (let i = 0; i < concurrency; i++) {
+		asyncIterators[i] = (async function* () {
+			for (const pathname of pathsIterator) {
+				yield await generatePathThrottled(pathname, opts, gopts, timeStart);
+			}
+		})();
 	}
+	yield* raceAsyncIterators(asyncIterators);
+}
 
-	// If tmp has items in it, that means there were less than {max} paths remaining
-	// at the end, so we need to yield these too.
-	if (tmp.length) {
-		yield tmp;
+async function* raceAsyncIterators<T>(asyncIterators: AsyncIterator<T>[]) {
+	async function nextResultWithItsIterator(iterator: AsyncIterator<T>) {
+		return { result: await iterator.next(), iterator: iterator };
+	}
+	const promises = new Map(asyncIterators.map(iterator =>
+		[iterator, nextResultWithItsIterator(iterator)]));
+	while (promises.size) {
+		const { result, iterator } = await Promise.race(promises.values());
+		if (result.done) {
+			promises.delete(iterator);
+		} else {
+			promises.set(iterator, nextResultWithItsIterator(iterator));
+			yield result.value;
+		}
 	}
 }
 
@@ -155,15 +168,24 @@ async function generatePage(
 	// Get paths for the route, calling getStaticPaths if needed.
 	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
 
-	for (let i = 0; i < paths.length; i++) {
-		const path = paths[i];
-		await generatePath(path, opts, generationOptions);
-		const timeEnd = performance.now();
-		const timeChange = getTimeStat(timeStart, timeEnd);
-		const timeIncrease = `(+${timeChange})`;
-		const filePath = getOutputFilename(opts.astroConfig, path);
-		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+	const concurrency = opts.astroConfig.concurrency || MAX_CONCURRENT_RENDERS;
+	if (concurrency > 1) {
+		info(opts.logging, null, `${magenta('⚠️')}  Building with ${concurrency} concurrent renders`);
+		// Throttle the paths to avoid overloading the CPU with too many tasks.
+		for await (let _ of generatePathsConcurrently(concurrency, opts, generationOptions, timeStart, paths.values())) {
+			// Do nothing.
+		}
+	} else {
+		for (let i = 0; i < paths.length; i++) {
+			const path = paths[i];
+			await generatePath(path, opts, generationOptions);
+			const timeEnd = performance.now();
+			const timeChange = getTimeStat(timeStart, timeEnd);
+			const timeIncrease = `(+${timeChange})`;
+			const filePath = getOutputFilename(opts.astroConfig, path);
+			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
+			info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
+		}
 	}
 }
 
@@ -246,6 +268,21 @@ interface GeneratePathOptions {
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
+}
+
+async function generatePathThrottled(
+	pathname: string,
+	opts: StaticBuildOptions,
+	gopts: GeneratePathOptions,
+	timeStart: number
+) {
+	await generatePath(pathname, opts, gopts);
+	const timeEnd = performance.now();
+	const timeChange = getTimeStat(timeStart, timeEnd);
+	const timeIncrease = `(+${timeChange})`;
+	const filePath = getOutputFilename(opts.astroConfig, pathname);
+	const lineIcon = '├─';
+	info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 }
 
 async function generatePath(

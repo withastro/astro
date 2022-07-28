@@ -140,6 +140,7 @@ export const AstroConfigSchema = z.object({
 			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
 			.default(ASTRO_CONFIG_DEFAULTS.integrations)
 	),
+	concurrency: z.number().optional().default(1),
 	build: z
 		.object({
 			format: z
