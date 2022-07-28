@@ -292,14 +292,12 @@ importers:
       astro: ^1.0.0-rc.2
       react: ^18.1.0
       react-dom: ^18.1.0
-      sass: ^1.52.2
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
-      sass: 1.54.0
 
   examples/with-markdown-plugins:
     specifiers:
