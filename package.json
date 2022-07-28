@@ -27,7 +27,6 @@
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
-    "compiled/*",
     "packages/markdown/*",
     "packages/integrations/*",
     "packages/*",
@@ -35,7 +34,6 @@
     "examples/component/demo",
     "examples/component/packages/*",
     "scripts",
-    "smoke/*",
     "packages/astro/test/fixtures/component-library-shared",
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
     "packages/astro/test/fixtures/static build/pkg"
@@ -90,6 +88,7 @@
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.7.0",
+    "prettier-plugin-astro": "^0.1.2",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
     "turbo": "1.2.5",
