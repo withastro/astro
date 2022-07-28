@@ -27,6 +27,7 @@
     ".": "./astro.js",
     "./env": "./env.d.ts",
     "./client": "./client.d.ts",
+    "./client-base": "./client-base.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
@@ -65,6 +66,7 @@
     "config.mjs",
     "env.d.ts",
     "client.d.ts",
+    "client-base.d.ts",
     "astro-jsx.d.ts",
     "README.md",
     "vendor"

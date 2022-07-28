@@ -34,6 +34,8 @@ const ALWAYS_NOEXTERNAL = new Set([
 	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
 	// Full explanation and related bug report: https://github.com/withastro/astro/pull/3667
 	'@nanostores/preact',
+	// fontsource packages are CSS that need to be processed
+	'@fontsource/*',
 ]);
 
 function getSsrNoExternalDeps(projectRoot: URL): string[] {

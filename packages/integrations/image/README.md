@@ -63,11 +63,205 @@ export default {
 Then, restart the dev server.
 </details>
 
+### Update `tsconfig.json`
+
+For the best development experience, add the integrations type definitions to your project's `tsconfig.json` file.
+
+```json
+{
+  "compilerOptions": {
+    // Replace `astro/client` with `@astrojs/image/client`
+    "types": ["@astrojs/image/client"]
+  }
+}
+```
+
 ## Usage
+
+The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
+
+### `<Image />`
 
 The built-in `<Image />` component is used to create an optimized `<img />` for both remote images hosted on other domains as well as local images imported from your project's `src` directory.
 
-The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
+In addition to the component-specific properties, any valid HTML attribute for the `<img />` included in the `<Image />` component will be included in the built `<img />`.
+
+#### src
+
+<p>
+
+**Type:** `string` | `ImageMetadata` | `Promise<ImageMetadata>`<br>
+**Required:** `true`
+</p>
+
+Source for the original image file.
+
+For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+
+#### format
+
+<p>
+
+**Type:** 'avif' | 'jpeg' | 'png' | 'webp'<br>
+**Default:** `undefined`
+</p>
+
+The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
+
+#### quality
+
+<p>
+
+**Type:** `number`<br>
+**Default:** `undefined`
+</p>
+
+The compression quality used during optimization. The image service will use a default quality if not provided.
+
+#### width
+
+<p>
+
+**Type:** `number`<br>
+**Default:** `undefined`
+</p>
+
+The desired width of the output image. Combine with `height` to crop the image to an exact size, or `aspectRatio` to automatically calculate and crop the height.
+
+Dimensions are optional for local images, the original image size will be used if not provided.
+
+For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+
+#### height
+
+<p>
+
+**Type:** `number`<br>
+**Default:** `undefined`
+</p>
+
+The desired height of the output image. Combine with `width` to crop the image to an exact size, or `aspectRatio` to automatically calculate and crop the width.
+
+Dimensions are optional for local images, the original image size will be used if not provided.
+
+For remote images, the integration needs to be able to calculate dimensions for the optimized image. This can be done by providing `width` and `height` or by providing one dimension and an `aspectRatio`.
+
+#### aspectRatio
+
+<p>
+
+**Type:** `number` | `string`<br>
+**Default:** `undefined`
+</p>
+
+The desired aspect ratio of the output image. Combine with either `width` or `height` to automatically calculate and crop the other dimension.
+
+A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
+
+A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
+
+### `<Picture /`>
+
+#### src
+
+<p>
+
+**Type:** `string` | `ImageMetadata` | `Promise<ImageMetadata>`<br>
+**Required:** `true`
+</p>
+
+Source for the original image file.
+
+For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+
+#### alt
+
+<p>
+
+**Type:** `string`<br>
+**Default:** `undefined`
+</p>
+
+If provided, the `alt` string will be included on the built `<img />` element.
+
+#### sizes
+
+<p>
+
+**Type:** `string`<br>
+**Required:** `true`
+</p>
+
+The HTMLImageElement property `sizes` allows you to specify the layout width of the image for each of a list of media conditions.
+
+See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes) for more details.
+
+#### widths
+
+<p>
+
+**Type:** `number[]`<br>
+**Reuqired:** `true`
+</p>
+
+The list of sizes that should be built for responsive images. This is combined with `aspectRatio` to calculate the final dimensions of each built image.
+
+```astro
+// Builds three images: 400x400, 800x800, and 1200x1200
+<Picture src={...} widths={[400, 800, 1200]} aspectRatio="1:1" />
+```
+
+#### aspectRatio
+
+<p>
+
+**Type:** `number` | `string`<br>
+**Required:** `true`
+</p>
+
+The desired aspect ratio of the output image. This is combined with `widhts` to calculate the final dimensions of each built image.
+
+A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
+
+A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
+
+#### formats
+
+<p>
+
+**Type:** Array<'avif' | 'jpeg' | 'png' | 'webp'><br>
+**Default:** `undefined`
+</p>
+
+The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
+
+### `getImage`
+
+This is the helper function used by the `<Image />` component to build `<img />` attributes for the transformed image. This helper can be used directly for more complex use cases that aren't currently supported by the `<Image />` component.
+
+This helper takes in an object with the same properties as the `<Image />` component and returns an object with attributes that should be included on the final `<img />` element.
+
+This can helpful if you need to add preload links to a page's `<head>`.
+
+```astro
+---
+import { getImage } from '@astrojs/image';
+
+const { src } = await getImage('../assets/hero.png');
+---
+
+<html>
+  <head>
+    <link rel="preload" as="image" href={src}>
+  </head>
+</html>
+```
+
+### `getPicture`
+
+This is the helper function used by the `<Picture />` component to build multiple sizes and formats for responsive images. This helper can be used directly for more complex use cases that aren't currently supported by the `<Picture />` component.
+
+This helper takes in an object with the same properties as the `<Picture />` component and returns an object attributes that should be included on the final `<img />` element **and** a list of sources that should be used to render all `<source>`s for the `<picture>` element.
 
 ## Configuration
 
@@ -102,7 +296,7 @@ export default {
   
   Image files in your project's `src` directory can be imported in frontmatter and passed directly to the `<Image />` component. All other properties are optional and will default to the original image file's properties if not provided.
 
-```html
+```astro
 ---
 import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
@@ -130,7 +324,7 @@ import heroImage from '../assets/hero.png';
   
   Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
 
-```html
+```astro
 ---
 import { Image } from '@astrojs/image/components';
 
@@ -149,28 +343,6 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 </details>
 
 <details>
-<summary><strong>Images in markdown</strong></summary>
-  
-  The `<Image />` component can also be used to optimize images in markdown pages. For local images imported from your project's `src` directory, use Astro's the `setup` frontmatter to import the image file.
-
-```html
----
-setup: |
-  import { Image } from '@astrojs/image/components'
-  import hero from '../../assets/blog/introducing-astro.jpg'
-title: Hello world!
-publishDate: 12 Sep 2021
-name: Nate Moore
-value: 128
-description: Just a Hello World Post!
----
-
-<Image src={hero} width={640} />
-<Image src="https://example.com/image.jpg" width={640} aspectRatio="16:9" />
-```
-</details>
-
-<details>
 <summary><strong>Responsive pictures</strong></summary>
 
   The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
@@ -179,7 +351,7 @@ description: Just a Hello World Post!
 
   For remote images, an `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
-```html
+```astro
 ---
 import { Picture } from '@astrojs/image/components';
 import hero from '../assets/hero.png';

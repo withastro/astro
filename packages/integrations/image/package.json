@@ -3,7 +3,7 @@
   "description": "Load and transform images in your Astro site.",
   "version": "0.2.0",
   "type": "module",
-  "types": "./dist/types.d.ts",
+  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -20,21 +20,18 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/image/",
   "exports": {
-    ".": {
-      "astro": "./components/index.js",
-      "import": "./dist/index.js"
-    },
+    ".": "./dist/index.js",
     "./sharp": "./dist/loaders/sharp.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./client.d.ts"
   },
   "files": [
     "components",
     "dist",
-    "src",
-    "types"
+    "client.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
