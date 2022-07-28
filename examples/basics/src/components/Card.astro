@@ -4,7 +4,8 @@ export interface Props {
 	body: string;
 	href: string;
 }
-const { href, title, body } = Astro.props;
+
+const { href, title, body } = Astro.props as Props;
 ---
 
 <li class="link-card">
@@ -69,6 +70,7 @@ const { href, title, body } = Astro.props;
 	}
 
 	.link-card:is(:hover, :focus-within) h2 span {
+		will-change: transform;
 		transform: translateX(2px);
 	}
 </style>

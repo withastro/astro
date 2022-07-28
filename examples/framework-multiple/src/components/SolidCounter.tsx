@@ -1,6 +1,8 @@
+/** @jsxImportSource solid-js */
+
 import { createSignal } from 'solid-js';
 
-/** a counter written with Solid */
+/** A counter written with Solid */
 export default function SolidCounter({ children }) {
 	const [count, setCount] = createSignal(0);
 	const add = () => setCount(count() + 1);

@@ -9,7 +9,7 @@
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from 'vue';
 export default {
 	setup() {
@@ -34,6 +34,7 @@ export default {
 	margin-top: 2em;
 	place-items: center;
 }
+
 .counter-message {
 	text-align: center;
 }
