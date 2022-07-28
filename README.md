@@ -55,6 +55,8 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |
 | [@astrojs/turbolinks](packages/integrations/turbolinks) | [![astro version](https://img.shields.io/npm/v/@astrojs/turbolinks.svg?label=%20)](packages/integrations/turbolinks/CHANGELOG.md) |
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6178/badge)](https://bestpractices.coreinfrastructure.org/projects/6178)
+
 Several official projects are maintained outside of this repo:
 
 | Project                                                             | Repository                                                              |
