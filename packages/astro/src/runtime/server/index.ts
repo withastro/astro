@@ -484,8 +484,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	return renderAll();
-
-	//return markHTMLString(prescripts + renderElement('astro-island', island, false));
 }
 
 /** Create the Astro.fetchContent() runtime function. */
