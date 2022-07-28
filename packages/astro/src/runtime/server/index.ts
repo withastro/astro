@@ -130,12 +130,16 @@ export function createComponent(cb: AstroComponentFactory) {
 	return cb;
 }
 
-export async function renderSlot(_result: any, slotted: string, fallback?: any): Promise<string> {
+export async function renderSlot(result: any, slotted: string, fallback?: any): Promise<string> {
 	if (slotted) {
 		let iterator = _render(slotted);
 		let content = '';
 		for await (const chunk of iterator) {
-			content += chunk;
+			if((chunk as any).type === 'directive') {
+				content += stringifyChunk(result, chunk);
+			} else {
+				content += chunk;
+			}
 		}
 		return markHTMLString(content);
 	}
