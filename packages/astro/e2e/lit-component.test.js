@@ -7,7 +7,7 @@ const test = testFactory({
 
 // TODO: configure playwright to handle web component APIs
 // https://github.com/microsoft/playwright/issues/14241
-test.describe('Lit components', () => {
+test.skip('Lit components', () => {
 	test.beforeEach(() => {
 		delete globalThis.window;
 	});
