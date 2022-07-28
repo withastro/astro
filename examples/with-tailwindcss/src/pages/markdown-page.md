@@ -1,5 +1,6 @@
 ---
 title: 'Markdown + Tailwind'
+layout: ../layouts/main.astro
 setup: |
   import Button from '../components/Button.astro';
 ---
