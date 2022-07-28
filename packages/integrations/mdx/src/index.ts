@@ -1,4 +1,5 @@
-import { nodeTypes } from '@mdx-js/mdx';
+import { nodeTypes, compile } from '@mdx-js/mdx';
+import matter from 'gray-matter';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -68,34 +69,53 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
+				const mdxCompilerOptions: MdxRollupPluginOptions = {
+					remarkPlugins,
+					rehypePlugins,
+					jsx: true,
+					jsxImportSource: 'astro',
+					// Note: disable `.md` support
+					format: 'mdx',
+					mdExtensions: [],
+				}
+
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...mdxPlugin({
-									remarkPlugins,
-									rehypePlugins,
-									jsx: true,
-									jsxImportSource: 'astro',
-									// Note: disable `.md` support
-									format: 'mdx',
-									mdExtensions: [],
-								}),
+								...mdxPlugin(mdxCompilerOptions),
+								// Override transform to inject layouts before MDX compilation
+								async transform(code: string, id: string) {
+									if (!id.endsWith('.mdx')) return;
+									
+									const { data: frontmatter } = matter(code);
+									if (frontmatter.layout) {
+										const { layout, ...content } = frontmatter;
+										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${
+											JSON.stringify(frontmatter.layout)
+										})).default;\nreturn <Layout content={${
+											JSON.stringify(content)
+										}}>{children}</Layout> }`
+									}
+
+									const { value: compiled } = await compile(code, mdxCompilerOptions);
+									return compiled;
+								}
 							},
 							{
 								name: '@astrojs/mdx',
 								transform(code: string, id: string) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
-
+									
 									// This adds support for injected "page-ssr" scripts in MDX files.
 									// TODO: This should only be happening on page entrypoints, not all imported MDX.
 									// TODO: This code is copy-pasted across all Astro/Vite plugins that deal with page
 									// entrypoints (.astro, .md, .mdx). This should be handled in some centralized place,
 									// or otherwise refactored to not require copy-paste handling logic.
 									code += `\nimport "${'astro:scripts/page-ssr.js'}";`;
-
+									
 									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
