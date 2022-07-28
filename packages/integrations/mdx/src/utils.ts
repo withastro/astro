@@ -24,9 +24,9 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 	const fileId = id.split('?')[0];
 	let fileUrl: string;
 	const isPage = fileId.includes('/pages/');
-	if(isPage) {
+	if (isPage) {
 		fileUrl = fileId.replace(/^.*?\/pages\//, sitePathname).replace(/(\/index)?\.mdx$/, '');
-	} else if(url && url.pathname.startsWith(config.root.pathname)) {
+	} else if (url && url.pathname.startsWith(config.root.pathname)) {
 		fileUrl = url.pathname.slice(config.root.pathname.length);
 	} else {
 		fileUrl = fileId;

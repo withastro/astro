@@ -24,6 +24,9 @@ describe('getStaticPaths', () => {
 		expect($('p').text()).to.equal('First mdx file');
 		expect($('#one').text()).to.equal('hello', 'Frontmatter included');
 		expect($('#url').text()).to.equal('/src/content/1.mdx', 'url is included');
-		expect($('#file').text()).to.contain('fixtures/mdx-get-static-paths/src/content/1.mdx', 'file is included');
+		expect($('#file').text()).to.contain(
+			'fixtures/mdx-get-static-paths/src/content/1.mdx',
+			'file is included'
+		);
 	});
 });
