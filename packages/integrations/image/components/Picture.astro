@@ -35,7 +35,7 @@ const { image, sources } = await getPicture({ src, widths, formats, aspectRatio 
 
 <picture {...attrs}>
 	{sources.map(attrs => (
-	<source {...attrs} {sizes}>))}
+	<source {...attrs} sizes={sizes}>))}
 	<img {...image} {loading} {decoding} {alt} />
 </picture>
 

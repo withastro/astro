@@ -14,7 +14,7 @@
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "format": "pnpm run format:code",
     "format:ci": "pnpm run format:imports && pnpm run format:code",
-    "format:code": "prettier -w . --cache",
+    "format:code": "prettier -w . --cache --plugin-search-dir=.",
     "format:imports": "organize-imports-cli ./packages/*/tsconfig.json ./packages/*/*/tsconfig.json",
     "test": "turbo run test --output-logs=new-only --concurrency=1",
     "test:match": "cd packages/astro && pnpm run test:match",
@@ -28,7 +28,6 @@
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
-    "compiled/*",
     "packages/markdown/*",
     "packages/integrations/*",
     "packages/*",
@@ -36,7 +35,6 @@
     "examples/component/demo",
     "examples/component/packages/*",
     "scripts",
-    "smoke/*",
     "packages/astro/test/fixtures/component-library-shared",
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
     "packages/astro/test/fixtures/static build/pkg"
@@ -91,6 +89,7 @@
     "execa": "^6.1.0",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.7.0",
+    "prettier-plugin-astro": "^0.1.2",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
     "turbo": "1.2.5",
