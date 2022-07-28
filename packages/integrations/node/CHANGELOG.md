@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 0.2.1
+
+### Patch Changes
+
+- [#4055](https://github.com/withastro/astro/pull/4055) [`44694d8a9`](https://github.com/withastro/astro/commit/44694d8a9084bb1b09840ec8967edd75fa033174) Thanks [@matthewp](https://github.com/matthewp)! - Handle binary data request bodies in the Node adapter
+
 ## 0.2.0
 
 ### Minor Changes
