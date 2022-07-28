@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 0.4.0
+
+### Minor Changes
+
+- [#4068](https://github.com/withastro/astro/pull/4068) [`54b33d50f`](https://github.com/withastro/astro/commit/54b33d50fdb995ac056461be7e2128d911624f2d) Thanks [@matthewp](https://github.com/matthewp)! - Add explicit errors when omitting output config
+
 ## 0.3.0
 
 ### Minor Changes
