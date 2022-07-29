@@ -1,4 +1,5 @@
-import { nodeTypes } from '@mdx-js/mdx';
+import { nodeTypes, compile as mdxCompile } from '@mdx-js/mdx';
+import { VFile } from 'vfile';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -12,8 +13,7 @@ import remarkSmartypants from 'remark-smartypants';
 import type { Plugin as VitePlugin } from 'vite';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo, getFrontmatter } from './utils.js';
-import type { MarkdownHeading } from './rehype-collect-headings.js';
-import createCollectHeadings from './rehype-collect-headings.js';
+import rehypeCollectHeadings from './rehype-collect-headings.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -29,6 +29,7 @@ type MdxOptions = {
 };
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
+const DEFAULT_REHYPE_PLUGINS = [rehypeCollectHeadings];
 
 function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
@@ -43,7 +44,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 				let remarkPlugins = handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS);
-				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins);
+				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS);
 
 				if (config.markdown.syntaxHighlight === 'shiki') {
 					remarkPlugins.push([
@@ -71,7 +72,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
-				const rollupPluginOpts: MdxRollupPluginOptions = {
+				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins,
 					rehypePlugins,
 					jsx: true,
@@ -81,42 +82,49 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					mdExtensions: [],
 				};
 
-				const { fileIdToHeadingsMap, rehypeCollectHeadings } = createCollectHeadings();
-
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...mdxPlugin(rollupPluginOpts),
-								// Override transform to inject layouts before MDX compilation
-								async transform(this, code, id) {
-									if (!id.endsWith('.mdx')) return;
+								...mdxPlugin(mdxPluginOpts),
+								// Override transform to alter code before MDX compilation
+								// ex. inject layouts
+								async transform(code, id) {
+									if (!id.endsWith('mdx')) return;
 
-									const rollupTransformOpts = { 
-										...rollupPluginOpts,
-										rehypePlugins: [...rehypePlugins, () => rehypeCollectHeadings(id)],
-									}
-									const mdxPluginTransform = mdxPlugin(rollupTransformOpts).transform?.bind(this);
 									// If user overrides our default YAML parser,
 									// do not attempt to parse the `layout` via gray-matter
-									if (mdxOptions.frontmatterOptions?.parsers) {
-										return mdxPluginTransform?.(code, id);
+									if (!mdxOptions.frontmatterOptions?.parsers) {
+										const frontmatter = getFrontmatter(code, id);
+										if (frontmatter.layout) {
+											const { layout, ...content } = frontmatter;
+											code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
+												frontmatter.layout
+											)})).default;\nreturn <Layout content={${JSON.stringify(
+												content
+											)}}>{children}</Layout> }`;
+										}
 									}
-									const frontmatter = getFrontmatter(code, id);
-									if (frontmatter.layout) {
-										const { layout, ...content } = frontmatter;
-										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
-											frontmatter.layout
-										)})).default;\nreturn <Layout content={${JSON.stringify(
-											content
-										)}}>{children}</Layout> }`;
+
+									const compiled = await mdxCompile(
+										new VFile({ value: code, path: id }),
+										mdxPluginOpts,
+									);
+									code = String(compiled.value);
+
+									if (compiled.data.headings) {
+										code += `\nexport function getHeadings() {\nreturn ${JSON.stringify(
+											compiled.data.headings,
+										)}\n}`;
 									}
-									return mdxPluginTransform?.(code, id);
+
+									return { code, map: compiled.map };
 								},
 							},
 							{
-								name: '@astrojs/mdx',
+								name: '@astrojs/mdx-postprocess',
+								// These transforms must happen *after* JSX runtime transformations
 								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
@@ -134,10 +142,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									}
 									if (!moduleExports.includes('file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
-									}
-									if (!moduleExports.includes('getHeadings')) {
-										const headings = fileIdToHeadingsMap.get(id) ?? [];
-										code += `\nexport function getHeadings() {\nreturn ${JSON.stringify(headings)}\n}`;
 									}
 
 									if (command === 'dev') {

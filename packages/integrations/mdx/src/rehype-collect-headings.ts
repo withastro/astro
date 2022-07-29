@@ -1,5 +1,6 @@
 import Slugger from 'github-slugger';
 import { visit } from 'unist-util-visit';
+import type { VFile } from 'vfile';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -7,60 +8,42 @@ export interface MarkdownHeading {
 	text: string;
 }
 
-export default function createCollectHeadings() {
-	const fileIdToHeadingsMap = new Map<string, MarkdownHeading[]>();
-	const slugger = new Slugger();
+const slugger = new Slugger();
 
-	function rehypeCollectHeadings(fileId: string) {
-		return function (tree: any) {
-			// Reset headings on each render
-			fileIdToHeadingsMap.set(fileId, []);
-			visit(tree, (node) => {
-				if (node.type !== 'element') return;
-				const { tagName } = node;
-				if (tagName[0] !== 'h') return;
-				const [_, level] = tagName.match(/h([0-6])/) ?? [];
-				if (!level) return;
-				const depth = Number.parseInt(level);
+export default function rehypeCollectHeadings() {
+	return function (tree: any, vfile: VFile) {
+		const headings: MarkdownHeading[] = [];
+		visit(tree, (node) => {
+			if (node.type !== 'element') return;
+			const { tagName } = node;
+			if (tagName[0] !== 'h') return;
+			const [_, level] = tagName.match(/h([0-6])/) ?? [];
+			if (!level) return;
+			const depth = Number.parseInt(level);
 
-				let text = '';
-				visit(node, (child, __, parent) => {
-					if (child.type === 'element' || parent == null) {
-						return;
-					}
-					if (child.type === 'raw' && child.value.match(/^\n?<.*>\n?$/)) {
-						return;
-					}
-					if (new Set(['text', 'raw', 'mdxTextExpression']).has(child.type)) {
-						text += child.value;
-					}
-				});
-
-				node.properties = node.properties || {};
-				if (typeof node.properties.id !== 'string') {
-					let slug = slugger.slug(text);
-					if (slug.endsWith('-')) {
-						slug = slug.slice(0, -1);
-					}
-					node.properties.id = slug;
+			let text = '';
+			visit(node, (child, __, parent) => {
+				if (child.type === 'element' || parent == null) {
+					return;
 				}
-				if (fileIdToHeadingsMap.has(fileId)) {
-
+				if (child.type === 'raw' && child.value.match(/^\n?<.*>\n?$/)) {
+					return;
 				}
-
-				fileIdToHeadingsMap.set(
-					fileId,
-					[
-						...(fileIdToHeadingsMap.get(fileId) ?? []),
-						{ depth, slug: node.properties.id, text },
-					],
-				);
+				if (new Set(['text', 'raw', 'mdxTextExpression']).has(child.type)) {
+					text += child.value;
+				}
 			});
-		};
-	}
 
-	return {
-		fileIdToHeadingsMap,
-		rehypeCollectHeadings,
+			node.properties = node.properties || {};
+			if (typeof node.properties.id !== 'string') {
+				let slug = slugger.slug(text);
+				if (slug.endsWith('-')) {
+					slug = slug.slice(0, -1);
+				}
+				node.properties.id = slug;
+			}
+			headings.push({ depth, slug: node.properties.id, text });
+		});
+		vfile.data.headings = headings;
 	};
 }
