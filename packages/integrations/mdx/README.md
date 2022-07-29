@@ -136,15 +136,37 @@ const posts = await Astro.glob('./*.mdx');
 
 ### Layouts
 
-You can use the [MDX layout component](https://mdxjs.com/docs/using-mdx/#layout) to specify a layout component to wrap all page content. This is done with a default export statement at the end of your `.mdx` file:
+Layouts can be applied [in the same way as standard Astro Markdown](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts). You can add a `layout` to [your frontmatter](#frontmatter) like so:
 
-```mdx
-// src/pages/my-page.mdx
-
-export {default} from '../../layouts/BaseLayout.astro';
+```yaml
+---
+layout: '../layouts/BaseLayout.astro' 
+title: 'My Blog Post'
+---
 ```
 
-You can also import and use a [`<Layout />` component](/en/core-concepts/layouts/) for your MDX page content, and pass all the variables declared in frontmatter as props. 
+Then, you can retrieve all other frontmatter properties from your layout via the `content` property, and render your MDX using the default [`<slot />`](https://docs.astro.build/en/core-concepts/astro-components/#slots):
+
+```astro
+---
+// src/layouts/BaseLayout.astro
+const { content } = Astro.props;
+---
+<html>
+  <head>
+    <title>{content.title}</title>
+  </head>
+  <body>
+    <h1>{content.title}</h1>
+    <!-- Rendered MDX will be passed into the default slot. -->
+    <slot />
+  </body>
+</html>
+```
+
+#### Importing layouts manually
+
+You may need to pass information to your layouts that does not (or cannot) exist in your frontmatter. In this case, you can import and use a [`<Layout />` component](https://docs.astro.build/en/core-concepts/layouts/) like any other component:
 
 ```mdx
 ---
@@ -155,9 +177,11 @@ publishDate: '21 September 2022'
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-<BaseLayout {...frontmatter}>
-  # {frontmatter.title}
+function fancyJsHelper() {
+  return "Try doing that with YAML!";
+}
 
+<BaseLayout title={frontmatter.title} fancyJsHelper={fancyJsHelper}>
   Welcome to my new Astro blog, using MDX!
 </BaseLayout>
 ```
@@ -166,12 +190,12 @@ Then, your values are available to you through `Astro.props` in your layout, and
 ```astro
 ---
 // src/layouts/BaseLayout.astro
-const { title, publishDate } = Astro.props;
+const { title, fancyJsHelper } = Astro.props;
 ---
 <!-- -->
 <h1>{title}</h1>
 <slot />
-<p>Published on {publishDate}</p>
+<p>{fancyJsHelper()}</p>
 <!-- -->
 ```
 
