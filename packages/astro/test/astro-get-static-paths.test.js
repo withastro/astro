@@ -14,9 +14,38 @@ describe('getStaticPaths - build calls', () => {
 		});
 		await fixture.build();
 	});
+
 	it('is only called once during build', () => {
 		// useless expect; if build() throws in setup then this test fails
 		expect(true).to.equal(true);
+	});
+});
+
+describe('getStaticPaths - dev calls', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+		
+		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		devServer.stop();
+	});
+
+	it('only calls getStaticPaths once', async () => {
+		let res = await fixture.fetch('/a');
+		expect(res.status).to.equal(200);
+
+		res = await fixture.fetch('/b');
+		expect(res.status).to.equal(200);
+		
+		res = await fixture.fetch('/c');
+		expect(res.status).to.equal(200);
 	});
 });
 
