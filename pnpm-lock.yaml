@@ -2182,6 +2182,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       es-module-lexer: ^0.10.5
+      github-slugger: ^1.4.0
       gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
@@ -2200,6 +2201,7 @@ importers:
       '@mdx-js/mdx': 2.1.2
       '@mdx-js/rollup': 2.1.2
       es-module-lexer: 0.10.5
+      github-slugger: 1.4.0
       gray-matter: 4.0.3
       prismjs: 1.28.0
       rehype-raw: 6.1.1
