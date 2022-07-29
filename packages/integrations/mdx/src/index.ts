@@ -1,4 +1,3 @@
-import type { Plugin as VitePlugin } from 'vite';
 import { nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
@@ -10,6 +9,7 @@ import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
+import type { Plugin as VitePlugin } from 'vite';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo, getFrontmatter } from './utils.js';
 
@@ -77,7 +77,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` support
 					format: 'mdx',
 					mdExtensions: [],
-				})
+				});
 
 				updateConfig({
 					vite: {
@@ -98,14 +98,14 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									const frontmatter = getFrontmatter(code, id);
 									if (frontmatter.layout) {
 										const { layout, ...content } = frontmatter;
-										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${
-											JSON.stringify(frontmatter.layout)
-										})).default;\nreturn <Layout content={${
-											JSON.stringify(content)
-										}}>{children}</Layout> }`
+										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
+											frontmatter.layout
+										)})).default;\nreturn <Layout content={${JSON.stringify(
+											content
+										)}}>{children}</Layout> }`;
 									}
 									return mdxPluginTransform?.(code, id);
-								}
+								},
 							},
 							{
 								name: '@astrojs/mdx',
