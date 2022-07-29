@@ -166,7 +166,7 @@ const { content } = Astro.props;
 
 #### Importing layouts manually
 
-You may need to pass information to your layouts that does not (or cannot) exist in your frontmatter. In this case, you can import and use a [`<Layout />` component](/en/core-concepts/layouts/) like any other component:
+You may need to pass information to your layouts that does not (or cannot) exist in your frontmatter. In this case, you can import and use a [`<Layout />` component](https://docs.astro.build/en/core-concepts/layouts/) like any other component:
 
 ```mdx
 ---
