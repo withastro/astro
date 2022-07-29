@@ -103,6 +103,22 @@ const posts = await Astro.glob('./*.mdx');
 
 See [the official "how MDX works" guide](https://mdxjs.com/docs/using-mdx/#how-mdx-works) for more on MDX variables.
 
+### Exported properties
+
+Alongside your [MDX variable exports](#variables), we generate a few helpful exports as well. These are accessible when importing an MDX file via `import` statements or [`Astro.glob`](https://docs.astro.build/en/reference/api-reference/#astroglob).
+
+#### `file`
+
+The absolute path to the MDX file (e.g. `home/user/projects/.../file.md`).
+
+#### `url`
+
+The browser-ready URL for MDX files under `src/pages/` (e.g. `en/guides/markdown-content/`). For all other MDX files, this will be `undefined`.
+
+#### `getHeadings()`
+
+A function that returns all headings (i.e. `h1 -> h6` elements) of an MDX file. The response follows this type: `{ depth: number; slug: string; text: string }[]`. The `slug` corresponds to the generated ID for a given heading, and can be used for anchor links.
+
 ### Frontmatter
 
 Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
