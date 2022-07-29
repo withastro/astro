@@ -4,6 +4,8 @@ import type { PageBuildData } from '../core/build/types';
 
 import crypto from 'crypto';
 import esbuild from 'esbuild';
+import browserslist from 'browserslist';
+import { resolveToEsbuildTarget } from 'esbuild-plugin-browserslist';
 import { Plugin as VitePlugin } from 'vite';
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
@@ -121,6 +123,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								const { code: minifiedCSS } = await esbuild.transform(output.source, {
 									loader: 'css',
 									minify: true,
+									target: resolveToEsbuildTarget(browserslist()),
 								});
 								output.source = minifiedCSS;
 							}

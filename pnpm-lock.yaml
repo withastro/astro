@@ -476,6 +476,7 @@ importers:
       ast-types: ^0.14.2
       astro-scripts: workspace:*
       boxen: ^6.2.1
+      browserslist: ^4.21.3
       chai: ^4.3.6
       cheerio: ^1.0.0-rc.11
       ci-info: ^3.3.1
@@ -485,6 +486,7 @@ importers:
       eol: ^0.9.1
       es-module-lexer: ^0.10.5
       esbuild: ^0.14.43
+      esbuild-plugin-browserslist: ^0.4.12
       estree-walker: ^3.0.1
       execa: ^6.1.0
       fast-glob: ^3.2.11
@@ -542,6 +544,7 @@ importers:
       '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.2
       ast-types: 0.14.2
       boxen: 6.2.1
+      browserslist: 4.21.3
       ci-info: 3.3.2
       common-ancestor-path: 1.0.1
       debug: 4.3.4
@@ -549,6 +552,7 @@ importers:
       eol: 0.9.1
       es-module-lexer: 0.10.5
       esbuild: 0.14.50
+      esbuild-plugin-browserslist: 0.4.12_ucsgve5lf2e3qpoin4pirift5u
       estree-walker: 3.0.1
       execa: 6.1.0
       fast-glob: 3.2.11
@@ -10696,6 +10700,21 @@ packages:
     os: [openbsd]
     requiresBuild: true
     optional: true
+
+  /esbuild-plugin-browserslist/0.4.12_ucsgve5lf2e3qpoin4pirift5u:
+    resolution: {integrity: sha512-Lm68qK/s4Gy1dCQpLtBcneeg4+5VedbKKh26r/0LE2GLfFsdRwtXnVhqw7Z/hYM/pPCN83NwAtx6gI2LRl9EIA==}
+    engines: {node: '>=12.13.0'}
+    peerDependencies:
+      browserslist: ^4.21.1
+      esbuild: ~0.14.47
+    dependencies:
+      browserslist: 4.21.3
+      debug: 4.3.4
+      esbuild: 0.14.50
+      zod: 3.17.10
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /esbuild-sunos-64/0.14.47:
     resolution: {integrity: sha512-uOeSgLUwukLioAJOiGYm3kNl+1wJjgJA8R671GYgcPgCx7QR73zfvYqXFFcIO93/nBdIbt5hd8RItqbbf3HtAQ==}
