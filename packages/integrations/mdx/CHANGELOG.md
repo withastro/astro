@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.3.1
+
+### Patch Changes
+
+- [#4076](https://github.com/withastro/astro/pull/4076) [`6120a71e5`](https://github.com/withastro/astro/commit/6120a71e5425ad55a17ddac800d64a3f50273bce) Thanks [@matthewp](https://github.com/matthewp)! - Ensure file and url are always present in MDX for Astro.glob
+
 ## 0.3.0
 
 ### Minor Changes
