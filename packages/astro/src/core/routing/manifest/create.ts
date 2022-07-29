@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData, RouteData, RoutePart } from '../../../@types/astro';
+import type { AstroConfig, InjectedRoute, ManifestData, RouteData, RoutePart } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
 import fs from 'fs';
@@ -159,6 +159,29 @@ function comparator(a: Item, b: Item) {
 	return a.file < b.file ? -1 : 1;
 }
 
+function injectedRouteToItem(
+	{ config, cwd }: { config: AstroConfig; cwd?: string },
+	{ pattern, entryPoint }: InjectedRoute
+): Item {
+	const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+
+	const ext = path.extname(pattern);
+
+	const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
+	const isPage = type === 'page';
+
+	return {
+		basename: pattern,
+		ext,
+		parts: getParts(pattern, resolved),
+		file: resolved,
+		isDir: false,
+		isIndex: true,
+		isPage,
+		routeSuffix: pattern.slice(pattern.indexOf('.'), -ext.length),
+	}
+}
+
 /** Create manifest of all static routes */
 export function createRouteManifest(
 	{ config, cwd }: { config: AstroConfig; cwd?: string },
@@ -288,7 +311,14 @@ export function createRouteManifest(
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
-	config?._ctx?.injectedRoutes?.forEach(({ pattern: name, entryPoint }) => {
+	config?._ctx?.injectedRoutes?.sort((a, b) =>
+		// sort injected routes in the same way as user-defined routes
+		comparator(
+			injectedRouteToItem({ config, cwd }, a),
+			injectedRouteToItem({ config, cwd}, b)
+		))
+		.reverse() // prepend to the routes array from lowest to highest priority
+		.forEach(({ pattern: name, entryPoint }) => {
 		const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
 		const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
@@ -336,7 +366,10 @@ export function createRouteManifest(
 			);
 		}
 
-		routes.push({
+		// the routes array was already sorted by priority,
+		// pushing to the front of the list ensure that injected routes
+		// are given priority over all user-provided routes
+		routes.unshift({
 			type,
 			route,
 			pattern,
