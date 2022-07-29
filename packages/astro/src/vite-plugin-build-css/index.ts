@@ -123,7 +123,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								const { code: minifiedCSS } = await esbuild.transform(output.source, {
 									loader: 'css',
 									minify: true,
-									target: resolveToEsbuildTarget(browserslist()),
+									target: resolveToEsbuildTarget(browserslist(), {
+										printUnknownTargets: false,
+									}),
 								});
 								output.source = minifiedCSS;
 							}
