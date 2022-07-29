@@ -12,6 +12,8 @@ import remarkSmartypants from 'remark-smartypants';
 import type { Plugin as VitePlugin } from 'vite';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo, getFrontmatter } from './utils.js';
+import type { MarkdownHeading } from './rehype-collect-headings.js';
+import createCollectHeadings from './rehype-collect-headings.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -69,7 +71,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
-				const configuredMdxPlugin = mdxPlugin({
+				const rollupPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins,
 					rehypePlugins,
 					jsx: true,
@@ -77,19 +79,25 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` support
 					format: 'mdx',
 					mdExtensions: [],
-				});
+				};
+
+				const { fileIdToHeadingsMap, rehypeCollectHeadings } = createCollectHeadings();
 
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...configuredMdxPlugin,
+								...mdxPlugin(rollupPluginOpts),
 								// Override transform to inject layouts before MDX compilation
 								async transform(this, code, id) {
 									if (!id.endsWith('.mdx')) return;
 
-									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
+									const rollupTransformOpts = { 
+										...rollupPluginOpts,
+										rehypePlugins: [...rehypePlugins, () => rehypeCollectHeadings(id)],
+									}
+									const mdxPluginTransform = mdxPlugin(rollupTransformOpts).transform?.bind(this);
 									// If user overrides our default YAML parser,
 									// do not attempt to parse the `layout` via gray-matter
 									if (mdxOptions.frontmatterOptions?.parsers) {
@@ -126,6 +134,11 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									}
 									if (!moduleExports.includes('file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
+									}
+									if (!moduleExports.includes('getHeadings')) {
+										const headings = fileIdToHeadingsMap.get(id) ?? [];
+										console.log({headings, id})
+										code += `\nexport function getHeadings() {\nreturn ${JSON.stringify(headings)}\n}`;
 									}
 
 									if (command === 'dev') {
