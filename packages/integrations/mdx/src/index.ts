@@ -1,6 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
 import { nodeTypes } from '@mdx-js/mdx';
-import matter from 'gray-matter';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -12,7 +11,7 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import remarkPrism from './remark-prism.js';
-import { getFileInfo } from './utils.js';
+import { getFileInfo, getFrontmatter } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -96,7 +95,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									if (mdxOptions.frontmatterOptions?.parsers) {
 										return mdxPluginTransform?.(code, id);
 									}
-									const { data: frontmatter } = matter(code);
+									const frontmatter = getFrontmatter(code, id);
 									if (frontmatter.layout) {
 										const { layout, ...content } = frontmatter;
 										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${
