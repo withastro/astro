@@ -2182,6 +2182,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       es-module-lexer: ^0.10.5
+      gray-matter: ^4.0.3
       linkedom: ^0.14.12
       mocha: ^9.2.2
       prismjs: ^1.28.0
@@ -2199,6 +2200,7 @@ importers:
       '@mdx-js/mdx': 2.1.2
       '@mdx-js/rollup': 2.1.2
       es-module-lexer: 0.10.5
+      gray-matter: 4.0.3
       prismjs: 1.28.0
       rehype-raw: 6.1.1
       remark-frontmatter: 4.0.1
@@ -9844,7 +9846,7 @@ packages:
     dev: true
 
   /concat-map/0.0.1:
-    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
 
   /concurrently/7.3.0:
     resolution: {integrity: sha512-IiDwm+8DOcFEInca494A8V402tNTQlJaYq78RF2rijOrKEk/AOHTxhN4U1cp7GYKYX5Q6Ymh1dLTBlzIMN0ikA==}

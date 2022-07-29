@@ -1,3 +1,4 @@
+import type { Plugin as VitePlugin } from 'vite';
 import { nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
@@ -10,7 +11,7 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import remarkPrism from './remark-prism.js';
-import { getFileInfo } from './utils.js';
+import { getFileInfo, getFrontmatter } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -68,24 +69,47 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
+				const configuredMdxPlugin = mdxPlugin({
+					remarkPlugins,
+					rehypePlugins,
+					jsx: true,
+					jsxImportSource: 'astro',
+					// Note: disable `.md` support
+					format: 'mdx',
+					mdExtensions: [],
+				})
+
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...mdxPlugin({
-									remarkPlugins,
-									rehypePlugins,
-									jsx: true,
-									jsxImportSource: 'astro',
-									// Note: disable `.md` support
-									format: 'mdx',
-									mdExtensions: [],
-								}),
+								...configuredMdxPlugin,
+								// Override transform to inject layouts before MDX compilation
+								async transform(this, code, id) {
+									if (!id.endsWith('.mdx')) return;
+
+									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
+									// If user overrides our default YAML parser,
+									// do not attempt to parse the `layout` via gray-matter
+									if (mdxOptions.frontmatterOptions?.parsers) {
+										return mdxPluginTransform?.(code, id);
+									}
+									const frontmatter = getFrontmatter(code, id);
+									if (frontmatter.layout) {
+										const { layout, ...content } = frontmatter;
+										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${
+											JSON.stringify(frontmatter.layout)
+										})).default;\nreturn <Layout content={${
+											JSON.stringify(content)
+										}}>{children}</Layout> }`
+									}
+									return mdxPluginTransform?.(code, id);
+								}
 							},
 							{
 								name: '@astrojs/mdx',
-								transform(code: string, id: string) {
+								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
 
@@ -113,7 +137,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									return code;
 								},
 							},
-						],
+						] as VitePlugin[],
 					},
 				});
 			},

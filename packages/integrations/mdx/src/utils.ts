@@ -1,4 +1,5 @@
-import type { AstroConfig } from 'astro';
+import type { AstroConfig, SSRError } from 'astro';
+import matter from 'gray-matter';
 
 function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
@@ -36,4 +37,24 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
 	return { fileId, fileUrl };
+}
+
+/**
+ * Match YAML exception handling from Astro core errors
+ * @see 'astro/src/core/errors.ts'
+ */ 
+export function getFrontmatter(code: string, id: string) {
+	try {
+		return matter(code).data;
+	} catch (e: any) {
+		if (e.name === 'YAMLException') {
+			const err: SSRError = e;
+			err.id = id;
+			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
+			err.message = e.reason;
+			throw err;
+		} else {
+			throw e;
+		}
+	}
 }
