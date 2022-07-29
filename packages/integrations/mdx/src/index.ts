@@ -1,4 +1,5 @@
-import { nodeTypes, compile } from '@mdx-js/mdx';
+import type { Plugin as VitePlugin } from 'vite';
+import { nodeTypes } from '@mdx-js/mdx';
 import matter from 'gray-matter';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
@@ -69,7 +70,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
-				const mdxCompilerOptions: MdxRollupPluginOptions = {
+				const configuredMdxPlugin = mdxPlugin({
 					remarkPlugins,
 					rehypePlugins,
 					jsx: true,
@@ -77,16 +78,16 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` support
 					format: 'mdx',
 					mdExtensions: [],
-				}
+				})
 
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...mdxPlugin(mdxCompilerOptions),
+								...configuredMdxPlugin,
 								// Override transform to inject layouts before MDX compilation
-								async transform(code: string, id: string) {
+								async transform(this, code, id) {
 									if (!id.endsWith('.mdx')) return;
 									
 									const { data: frontmatter } = matter(code);
@@ -98,14 +99,13 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											JSON.stringify(content)
 										}}>{children}</Layout> }`
 									}
-
-									const { value: compiled } = await compile(code, mdxCompilerOptions);
-									return compiled;
+									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
+									return mdxPluginTransform?.(code, id);
 								}
 							},
 							{
 								name: '@astrojs/mdx',
-								transform(code: string, id: string) {
+								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
 									
@@ -133,7 +133,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									return code;
 								},
 							},
-						],
+						] as VitePlugin[],
 					},
 				});
 			},
