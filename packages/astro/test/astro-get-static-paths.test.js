@@ -28,7 +28,7 @@ describe('getStaticPaths - dev calls', () => {
 	before(async () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
-		
+
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
@@ -43,7 +43,7 @@ describe('getStaticPaths - dev calls', () => {
 
 		res = await fixture.fetch('/b');
 		expect(res.status).to.equal(200);
-		
+
 		res = await fixture.fetch('/c');
 		expect(res.status).to.equal(200);
 	});
@@ -56,7 +56,7 @@ describe('getStaticPaths - 404 behavior', () => {
 	before(async () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
-		
+
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
@@ -121,7 +121,7 @@ describe('getStaticPaths - numeric route params', () => {
 	before(async () => {
 		// reset the flag used by [...calledTwiceTest].astro between each test
 		globalThis.isCalledOnce = false;
-		
+
 		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',

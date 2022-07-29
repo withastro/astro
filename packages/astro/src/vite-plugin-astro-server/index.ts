@@ -19,7 +19,7 @@ import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.j
 import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
-import { createRouteManifest, matchAllRoutes, matchRoute } from '../core/routing/index.js';
+import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { createSafeError, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
@@ -254,9 +254,7 @@ async function handleRequest(
 		if (config.output === 'server' && matches.length > 1) {
 			throw new Error(`Found multiple matching routes for "${pathname}"! When using \`output: 'server'\`, only one route in \`src/pages\` can match a given URL. Found:
 
-${
-	matches.map(({ component }) => `- ${component}`).join('\n')
-}
+${matches.map(({ component }) => `- ${component}`).join('\n')}
 `);
 		}
 
@@ -281,7 +279,7 @@ ${
 					filePath,
 					preloadedComponent,
 					mod,
-				}
+				};
 			}
 		}
 
@@ -300,12 +298,12 @@ ${
 			const filePath = new URL(`./${custom404.component}`, config.root);
 			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 			const [, mod] = preloadedComponent;
-				
+
 			return {
 				route: custom404,
 				filePath,
 				preloadedComponent,
-				mod
+				mod,
 			};
 		}
 

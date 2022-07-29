@@ -76,25 +76,25 @@ const routes = [
 	{
 		description: 'matches /injected to to-inject.astro',
 		url: '/injected',
-		h1: 'to-inject.astro'
+		h1: 'to-inject.astro',
 	},
 	{
 		description: 'matches /_injected to to-inject.astro',
 		url: '/_injected',
-		h1: 'to-inject.astro'
+		h1: 'to-inject.astro',
 	},
 	{
 		description: 'matches /injected-1 to [id].astro',
 		url: '/injected-1',
 		h1: '[id].astro',
-		p: 'injected-1'
+		p: 'injected-1',
 	},
 	{
 		description: 'matches /injected-2 to [id].astro',
 		url: '/injected-2',
 		h1: '[id].astro',
-		p: 'injected-2'
-	}
+		p: 'injected-2',
+	},
 ];
 
 function appendForwardSlash(path) {
@@ -147,7 +147,7 @@ describe('Routing priority', () => {
 			it(description, async () => {
 				const html = await fixture.fetch(url).then((res) => res.text());
 				const $ = cheerioLoad(html);
-	
+
 				expect($('h1').text()).to.equal(h1);
 
 				if (p) {
@@ -159,7 +159,7 @@ describe('Routing priority', () => {
 			it(`${description} (trailing slash)`, async () => {
 				const html = await fixture.fetch(appendForwardSlash(url)).then((res) => res.text());
 				const $ = cheerioLoad(html);
-	
+
 				expect($('h1').text()).to.equal(h1);
 
 				if (p) {
@@ -169,9 +169,11 @@ describe('Routing priority', () => {
 
 			// checks with index.html, ex: '/de/index.html' instead of '/de'
 			it(`${description} (index.html)`, async () => {
-				const html = await fixture.fetch(`${appendForwardSlash(url)}index.html`).then((res) => res.text());
+				const html = await fixture
+					.fetch(`${appendForwardSlash(url)}index.html`)
+					.then((res) => res.text());
 				const $ = cheerioLoad(html);
-	
+
 				expect($('h1').text()).to.equal(h1);
 
 				if (p) {
