@@ -4,6 +4,9 @@ import * as cheerio from 'cheerio';
 
 describe('getStaticPaths - build calls', () => {
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		const fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
@@ -22,6 +25,9 @@ describe('getStaticPaths - 404 behavior', () => {
 	let devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+		
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
@@ -55,6 +61,9 @@ describe('getStaticPaths - route params type validation', () => {
 	let fixture, devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
@@ -81,6 +90,9 @@ describe('getStaticPaths - numeric route params', () => {
 	let devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+		
 		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
