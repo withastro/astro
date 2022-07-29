@@ -15,7 +15,7 @@ export interface HydrationMetadata {
 	value: string;
 	componentUrl: string;
 	componentExport: { value: string };
-};
+}
 
 interface ExtractedProps {
 	isPage: boolean;

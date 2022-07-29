@@ -8,10 +8,10 @@ import visiblePrebuilt from '../client/visible.prebuilt.js';
 import islandScript from './astro-island.prebuilt.js';
 
 export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
-	if(result._metadata.hasHydrationScript) {
+	if (result._metadata.hasHydrationScript) {
 		return false;
 	}
-	return result._metadata.hasHydrationScript = true;
+	return (result._metadata.hasHydrationScript = true);
 }
 
 export const hydrationScripts: Record<string, string> = {
@@ -23,7 +23,7 @@ export const hydrationScripts: Record<string, string> = {
 };
 
 export function determinesIfNeedsDirectiveScript(result: SSRResult, directive: string): boolean {
-	if(result._metadata.hasDirectives.has(directive)) {
+	if (result._metadata.hasDirectives.has(directive)) {
 		return false;
 	}
 	result._metadata.hasDirectives.add(directive);

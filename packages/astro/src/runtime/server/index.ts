@@ -135,7 +135,7 @@ export async function renderSlot(result: any, slotted: string, fallback?: any): 
 		let iterator = _render(slotted);
 		let content = '';
 		for await (const chunk of iterator) {
-			if((chunk as any).type === 'directive') {
+			if ((chunk as any).type === 'directive') {
 				content += stringifyChunk(result, chunk);
 			} else {
 				content += chunk;
@@ -230,7 +230,11 @@ export async function renderComponent(
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
-		async function* renderAstroComponentInline(): AsyncGenerator<string | RenderInstruction, void, undefined> {
+		async function* renderAstroComponentInline(): AsyncGenerator<
+			string | RenderInstruction,
+			void,
+			undefined
+		> {
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
 			yield* iterable;
 		}
@@ -482,7 +486,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		island.props['await-children'] = '';
 	}
 
-	async function * renderAll() {
+	async function* renderAll() {
 		yield { type: 'directive', hydration, result };
 		yield markHTMLString(renderElement('astro-island', island, false));
 	}
@@ -777,7 +781,7 @@ const encoder = new TextEncoder();
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
 export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction) {
-	switch((chunk as any).type) {
+	switch ((chunk as any).type) {
 		case 'directive': {
 			const { hydration } = chunk as RenderInstruction;
 			let needsHydrationScript = hydration && determineIfNeedsHydrationScript(result);
@@ -785,11 +789,11 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 				hydration && determinesIfNeedsDirectiveScript(result, hydration.directive);
 
 			let prescriptType: PrescriptType = needsHydrationScript
-			? 'both'
-			: needsDirectiveScript
-			? 'directive'
-			: null;
-			if(prescriptType) {
+				? 'both'
+				: needsDirectiveScript
+				? 'directive'
+				: null;
+			if (prescriptType) {
 				let prescripts = getPrescripts(prescriptType, hydration.directive);
 				return markHTMLString(prescripts);
 			} else {
@@ -942,7 +946,7 @@ export async function* renderAstroComponent(
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of _render(value)) {
-				switch(chunk.type) {
+				switch (chunk.type) {
 					case 'directive': {
 						yield chunk;
 						break;

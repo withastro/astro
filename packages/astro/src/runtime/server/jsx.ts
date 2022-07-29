@@ -6,8 +6,8 @@ import {
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
-	RenderInstruction,
 	renderComponent,
+	RenderInstruction,
 	renderToString,
 	spreadAttributes,
 	stringifyChunk,
@@ -139,7 +139,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					slots
 				);
 			}
-			if(typeof output !== 'string' && Symbol.asyncIterator in output) {
+			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
 				let body = '';
 				for await (const chunk of output) {
 					let html = stringifyChunk(result, chunk);
