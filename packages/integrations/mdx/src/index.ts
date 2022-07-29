@@ -90,6 +90,12 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								async transform(this, code, id) {
 									if (!id.endsWith('.mdx')) return;
 									
+									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
+									// If user overrides our default YAML parser,
+									// do not attempt to parse the `layout` via gray-matter
+									if (mdxOptions.frontmatterOptions?.parsers) {
+										return mdxPluginTransform?.(code, id);
+									}
 									const { data: frontmatter } = matter(code);
 									if (frontmatter.layout) {
 										const { layout, ...content } = frontmatter;
@@ -99,7 +105,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											JSON.stringify(content)
 										}}>{children}</Layout> }`
 									}
-									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
 									return mdxPluginTransform?.(code, id);
 								}
 							},
