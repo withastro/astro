@@ -9,6 +9,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 
+import { ASTRO_VERSION } from '../../core/util.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { createResponse } from './response.js';
@@ -526,6 +527,7 @@ export function createAstro(
 	const projectRoot = new URL(projectRootStr);
 	return {
 		site,
+		generator: `Astro v${ASTRO_VERSION}`,
 		fetchContent: createDeprecatedFetchContentFn(),
 		glob: createAstroGlobFn(),
 		// INVESTIGATE is there a use-case for multi args?
