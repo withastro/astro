@@ -31,7 +31,9 @@ describe('CSS', function () {
 		});
 
 		it('browserslist is respected', async () => {
-			expect(bundledCSS).to.match(new RegExp('.class\\:where\\(.astro-[^{]*{top:0;right:0;bottom:0;left:0}'));
+			expect(bundledCSS).to.match(
+				new RegExp('.class\\:where\\(.astro-[^{]*{top:0;right:0;bottom:0;left:0}')
+			);
 		});
 	});
 });
