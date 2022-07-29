@@ -137,7 +137,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									}
 									if (!moduleExports.includes('getHeadings')) {
 										const headings = fileIdToHeadingsMap.get(id) ?? [];
-										console.log({headings, id})
 										code += `\nexport function getHeadings() {\nreturn ${JSON.stringify(headings)}\n}`;
 									}
 
