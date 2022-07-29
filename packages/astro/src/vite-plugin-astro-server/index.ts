@@ -19,7 +19,7 @@ import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.j
 import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
-import { createRouteManifest, matchRoute } from '../core/routing/index.js';
+import { createRouteManifest, matchAllRoutes, matchRoute } from '../core/routing/index.js';
 import { createSafeError, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
@@ -248,26 +248,81 @@ async function handleRequest(
 		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
 	});
 
-	let filePath: URL | undefined;
-	try {
-		// Attempt to match the URL to a valid page route.
-		// If that fails, switch the response to a 404 response.
-		let route = matchRoute(pathname, manifest);
-		const statusCode = route ? 200 : 404;
+	async function matchRoute() {
+		const matches = matchAllRoutes(pathname, manifest);
 
-		if (!route) {
-			log404(logging, pathname);
-			const custom404 = getCustom404Route(config, manifest);
-			if (custom404) {
-				route = custom404;
-			} else {
-				return handle404Response(origin, config, req, res);
+		if (config.output === 'server' && matches.length > 1) {
+			throw new Error(`Found multiple matching routes for "${pathname}"! When using \`output: 'server'\`, only one route in \`src/pages\` can match a given URL. Found:
+
+${
+	matches.map(({ component }) => `- ${component}`).join('\n')
+}
+`);
+		}
+
+		for await (const maybeRoute of matches) {
+			const filePath = new URL(`./${maybeRoute.component}`, config.root);
+			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			const [, mod] = preloadedComponent;
+			// attempt to get static paths
+			// if this fails, we have a bad URL match!
+			const paramsAndPropsRes = await getParamsAndProps({
+				mod,
+				route: maybeRoute,
+				routeCache,
+				pathname: pathname,
+				logging,
+				ssr: config.output === 'server',
+			});
+
+			if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
+				return {
+					route: maybeRoute,
+					filePath,
+					preloadedComponent,
+					mod,
+				}
 			}
 		}
 
-		filePath = new URL(`./${route.component}`, config.root);
-		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-		const [, mod] = preloadedComponent;
+		if (matches.length) {
+			warn(
+				logging,
+				'getStaticPaths',
+				`Route pattern matched, but no matching static path found. (${pathname})`
+			);
+		}
+
+		log404(logging, pathname);
+		const custom404 = getCustom404Route(config, manifest);
+
+		if (custom404) {
+			const filePath = new URL(`./${custom404.component}`, config.root);
+			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			const [, mod] = preloadedComponent;
+				
+			return {
+				route: custom404,
+				filePath,
+				preloadedComponent,
+				mod
+			};
+		}
+
+		return undefined;
+	}
+
+	let filePath: URL | undefined;
+	try {
+		const matchedRoute = await matchRoute();
+
+		if (!matchedRoute) {
+			return handle404Response(origin, config, req, res);
+		}
+
+		const { route, preloadedComponent, mod } = matchedRoute;
+		filePath = matchedRoute.filePath;
+
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		const paramsAndPropsRes = await getParamsAndProps({
@@ -278,38 +333,6 @@ async function handleRequest(
 			logging,
 			ssr: config.output === 'server',
 		});
-		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-			warn(
-				logging,
-				'getStaticPaths',
-				`Route pattern matched, but no matching static path found. (${pathname})`
-			);
-			log404(logging, pathname);
-			const routeCustom404 = getCustom404Route(config, manifest);
-			if (routeCustom404) {
-				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.root);
-				const preloadedCompCustom404 = await preload({
-					astroConfig: config,
-					filePath: filePathCustom404,
-					viteServer,
-				});
-				const result = await ssr(preloadedCompCustom404, {
-					astroConfig: config,
-					filePath: filePathCustom404,
-					logging,
-					mode: 'development',
-					origin,
-					pathname: pathname,
-					request,
-					route: routeCustom404,
-					routeCache,
-					viteServer,
-				});
-				return await writeSSRResult(result, res);
-			} else {
-				return handle404Response(origin, config, req, res);
-			}
-		}
 
 		const options: SSROptions = {
 			astroConfig: config,
