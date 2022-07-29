@@ -10,14 +10,16 @@ import { serializeListValue } from './util.js';
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
+export interface HydrationMetadata {
+	directive: string;
+	value: string;
+	componentUrl: string;
+	componentExport: { value: string };
+};
+
 interface ExtractedProps {
 	isPage: boolean;
-	hydration: {
-		directive: string;
-		value: string;
-		componentUrl: string;
-		componentExport: { value: string };
-	} | null;
+	hydration: HydrationMetadata | null;
 	props: Record<string | number, any>;
 }
 

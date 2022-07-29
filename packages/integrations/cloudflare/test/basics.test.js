@@ -25,7 +25,7 @@ describe('Basic app', () => {
 			let $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Testing');
 		} finally {
-			await stop();
+			stop();
 		}
 	});
 });
