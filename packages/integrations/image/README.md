@@ -229,7 +229,7 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 <p>
 
-**Type:** `Array<`avif` | `jpeg` | `png` | `webp`>`<br>
+**Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
 **Default:** `undefined`
 </p>
 
