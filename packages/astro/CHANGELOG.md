@@ -1,5 +1,13 @@
 # astro
 
+## 1.0.0-rc.3
+
+### Patch Changes
+
+- [#4087](https://github.com/withastro/astro/pull/4087) [`a0d1731a7`](https://github.com/withastro/astro/commit/a0d1731a7ea9c31c5285b8b7239b2e1e558c1028) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a couple routing bugs that could lead to routing differences in `dev` vs. `build` when using multiple dynamic routes
+
+* [#4080](https://github.com/withastro/astro/pull/4080) [`09c1e586e`](https://github.com/withastro/astro/commit/09c1e586ee8d903939903868e2a205f86dab8f11) Thanks [@matthewp](https://github.com/matthewp)! - Fixes race condition for rendering hydration scripts
+
 ## 1.0.0-rc.2
 
 ### Patch Changes
