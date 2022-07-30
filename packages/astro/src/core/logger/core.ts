@@ -32,7 +32,6 @@ export interface LogMessage {
 	type: string | null;
 	level: LoggerLevel;
 	message: string;
-	args: Array<any>;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -48,15 +47,14 @@ export function log(
 	opts: LogOptions,
 	level: LoggerLevel,
 	type: string | null,
-	...args: Array<any>
+	message: string,
 ) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
 	const event: LogMessage = {
 		type,
 		level,
-		args,
-		message: '',
+		message
 	};
 
 	// test if this level is enabled or not
@@ -68,26 +66,26 @@ export function log(
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
-export function info(opts: LogOptions, type: string | null, ...messages: Array<any>) {
-	return log(opts, 'info', type, ...messages);
+export function info(opts: LogOptions, type: string | null, message: string) {
+	return log(opts, 'info', type, message);
 }
 
 /** Emit a warning message. Useful for high-priority messages that aren't necessarily errors. */
-export function warn(opts: LogOptions, type: string | null, ...messages: Array<any>) {
-	return log(opts, 'warn', type, ...messages);
+export function warn(opts: LogOptions, type: string | null, message: string) {
+	return log(opts, 'warn', type, message);
 }
 
 /** Emit a error message, Useful when Astro can't recover from some error. */
-export function error(opts: LogOptions, type: string | null, ...messages: Array<any>) {
-	return log(opts, 'error', type, ...messages);
+export function error(opts: LogOptions, type: string | null, message: string) {
+	return log(opts, 'error', type, message);
 }
 
 type LogFn = typeof info | typeof warn | typeof error;
 
 export function table(opts: LogOptions, columns: number[]) {
 	return function logTable(logFn: LogFn, ...input: Array<any>) {
-		const messages = columns.map((len, i) => padStr(input[i].toString(), len));
-		logFn(opts, null, ...messages);
+		const message = columns.map((len, i) => padStr(input[i].toString(), len)).join(' ');
+		logFn(opts, null, message);
 	};
 }
 

@@ -1,5 +1,4 @@
 import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
-import { format as utilFormat } from 'util';
 import type { LogMessage } from './core.js';
 import { dateTimeFormat, levels } from './core.js';
 
@@ -33,7 +32,7 @@ export const consoleLogDestination = {
 			return reset(prefix);
 		}
 
-		let message = utilFormat(...event.args);
+		let message = event.message;
 		// For repeat messages, only update the message counter
 		if (message === lastMessage) {
 			lastMessageCount++;
