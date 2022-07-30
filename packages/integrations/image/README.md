@@ -102,7 +102,7 @@ For images in your project's repository, use the `src` relative to the `public` 
 
 <p>
 
-**Type:** `avif` | `jpeg` | `png` | `webp`<br>
+**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
