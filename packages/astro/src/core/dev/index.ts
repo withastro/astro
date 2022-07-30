@@ -31,7 +31,6 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
-	config = await runHookConfigSetup({ config, command: 'dev' });
 	const { host, port } = config.server;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
@@ -50,7 +49,6 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);
-	await runHookConfigDone({ config });
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config, server: viteServer });
 	await viteServer.listen(port);

@@ -1,12 +1,14 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import { fileURLToPath } from 'url';
 import type { Args } from './netlify-functions.js';
 import { createRedirects } from './shared.js';
 
-export function getAdapter(args: Args = {}): AstroAdapter {
+export function getAdapter(args: Args = {}, previewCommand: string[]): AstroAdapter {
 	return {
 		name: '@astrojs/netlify/functions',
 		serverEntrypoint: '@astrojs/netlify/netlify-functions.js',
 		exports: ['handler'],
+		previewCommand,
 		args,
 	};
 }
@@ -33,7 +35,12 @@ function netlifyFunctions({
 				}
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
-				setAdapter(getAdapter({ binaryMediaTypes }));
+				const previewCommand = [
+					'netlify',
+					'dev',
+					...(config.output === 'static' ? ['--dir', fileURLToPath(config.outDir)] : ['--functions', '.netlify/functions']),
+				];
+				setAdapter(getAdapter({ binaryMediaTypes }, previewCommand));
 				_config = config;
 
 				if (config.output === 'static') {

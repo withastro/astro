@@ -1,9 +1,10 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import {
+import type {
 	AstroConfig,
 	AstroRenderer,
 	BuildConfig,
+	CLICommand,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
@@ -17,7 +18,7 @@ export async function runHookConfigSetup({
 	command,
 }: {
 	config: AstroConfig;
-	command: 'dev' | 'build';
+	command: CLICommand;
 }): Promise<AstroConfig> {
 	// An adapter is an integration, so if one is provided push it.
 	if (_config.adapter) {

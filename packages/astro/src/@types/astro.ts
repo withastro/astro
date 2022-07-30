@@ -25,6 +25,18 @@ export type {
 } from '@astrojs/markdown-remark';
 export type { SSRManifest } from '../core/app/types';
 
+export type CLICommand =
+	| 'help'
+	| 'version'
+	| 'add'
+	| 'docs'
+	| 'dev'
+	| 'build'
+	| 'preview'
+	| 'reload'
+	| 'check'
+	| 'telemetry';
+
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
 	'client:idle'?: boolean;
@@ -963,6 +975,7 @@ export interface AstroAdapter {
 	serverEntrypoint?: string;
 	exports?: string[];
 	args?: any;
+	previewCommand: string[];
 }
 
 type Body = string;
@@ -1018,7 +1031,7 @@ export interface AstroIntegration {
 	hooks: {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
-			command: 'dev' | 'build';
+			command: CLICommand;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;

@@ -3,6 +3,7 @@
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import type { CLICommand } from '../@types/astro.js';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import { openConfig } from '../core/config.js';
@@ -15,22 +16,12 @@ import preview from '../core/preview/index.js';
 import { ASTRO_VERSION, createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
+import { runHookConfigDone, runHookConfigSetup } from '../integrations/index.js';
 import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand =
-	| 'help'
-	| 'version'
-	| 'add'
-	| 'docs'
-	| 'dev'
-	| 'build'
-	| 'preview'
-	| 'reload'
-	| 'check'
-	| 'telemetry';
 
 /** Display --help flag */
 function printAstroHelp() {
@@ -86,7 +77,7 @@ function resolveCommand(flags: Arguments): CLICommand {
  * NOTE: This function provides no error handling, so be sure
  * to present user-friendly error output where the fn is called.
  **/
-async function runCommand(cmd: string, flags: yargs.Arguments) {
+async function runCommand(cmd: CLICommand, flags: yargs.Arguments) {
 	const root = flags.root;
 
 	switch (cmd) {
@@ -139,6 +130,9 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		logging,
 	});
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
+
+	astroConfig = await runHookConfigSetup({ config: astroConfig, command: cmd });
+	await runHookConfigDone({ config: astroConfig });
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled

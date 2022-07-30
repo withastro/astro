@@ -65,7 +65,6 @@ class AstroBuilder {
 		const { logging } = this;
 		this.timer.init = performance.now();
 		this.timer.viteStart = performance.now();
-		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
 		this.manifest = createRouteManifest({ config: this.config }, this.logging);
 
 		const viteConfig = await createVite(
@@ -79,7 +78,6 @@ class AstroBuilder {
 			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
-		await runHookConfigDone({ config: this.config });
 		const viteServer = await vite.createServer(viteConfig);
 		debug('build', timerMessage('Vite started', this.timer.viteStart));
 		return { viteConfig, viteServer };

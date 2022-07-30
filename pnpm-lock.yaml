@@ -59,7 +59,10 @@ importers:
 
   examples/basics:
     specifiers:
+      '@astrojs/netlify': ^0.5.0
       astro: ^1.0.0-rc.3
+    dependencies:
+      '@astrojs/netlify': link:../../packages/integrations/netlify
     devDependencies:
       astro: link:../../packages/astro
 
