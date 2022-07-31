@@ -1,0 +1,90 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.3",
+  "serialNumber": "urn:uuid:0debacdc-7ac6-4310-a29a-500662bb508d",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2022-08-04T00:32:28.645Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "Node.js module",
+        "version": "3.10.4"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/prism@0.6.1",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "prism",
+      "version": "0.6.1",
+      "description": "Supports Prism highlighting in Astro projects",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/prism@0.6.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://astro.build"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/prismjs@1.28.0",
+      "author": "Lea Verou",
+      "name": "prismjs",
+      "version": "1.28.0",
+      "description": "Lightweight, robust, elegant syntax highlighting. A spin-off project from Dabblet.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/prismjs@1.28.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/PrismJS/prism#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/PrismJS/prism/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/PrismJS/prism.git"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/prismjs@1.28.0"
+    },
+    {
+      "ref": "pkg:npm/%40astrojs/prism@0.6.1",
+      "dependsOn": [
+        "pkg:npm/prismjs@1.28.0"
+      ]
+    }
+  ]
+}

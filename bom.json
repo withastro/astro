@@ -1,0 +1,1423 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.3",
+  "serialNumber": "urn:uuid:038470ec-f525-4028-b39d-aebc68b02291",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2022-08-04T00:32:27.966Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "Node.js module",
+        "version": "3.10.4"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "pkg:npm/root@0.0.0",
+      "name": "root",
+      "version": "0.0.0",
+      "description": "<p align=\"center\">   <img src=\"assets/social/banner-minimal.png\" alt=\"Astro logo\">   <br/><br/>   <a href=\"https://astro.build\">Astro</a> is a website build tool for the modern web &mdash;   <br/>   powerful developer experience meets lightweight output.   <br/><br/> </p>",
+      "purl": "pkg:npm/root@0.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/withastro/astro#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "webapi",
+      "version": "0.12.0",
+      "description": "Use Web APIs in Node",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/withastro/astro/tree/main/packages/webapi#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/node-fetch@3.2.9",
+      "author": "David Frank",
+      "name": "node-fetch",
+      "version": "3.2.9",
+      "description": "A light-weight module that brings Fetch API to node.js",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/node-fetch@3.2.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/node-fetch/node-fetch"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/node-fetch/node-fetch/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/node-fetch/node-fetch.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/abort-controller@3.0.0",
+      "author": "Toru Nagashima",
+      "name": "abort-controller",
+      "version": "3.0.0",
+      "description": "An implementation of WHATWG AbortController interface.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/abort-controller@3.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mysticatea/abort-controller#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mysticatea/abort-controller/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mysticatea/abort-controller.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/chai@4.3.6",
+      "author": "Jake Luer",
+      "name": "chai",
+      "version": "4.3.6",
+      "description": "BDD/TDD assertion library for node.js and the browser. Test framework agnostic.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/chai@4.3.6",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "http://chaijs.com"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/chaijs/chai/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/chaijs/chai.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/event-target-shim@6.0.2",
+      "author": "Toru Nagashima",
+      "name": "event-target-shim",
+      "version": "6.0.2",
+      "description": "An implementation of WHATWG EventTarget interface.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/event-target-shim@6.0.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mysticatea/event-target-shim"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mysticatea/event-target-shim/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mysticatea/event-target-shim.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/formdata-polyfill@4.0.10",
+      "author": "Jimmy Wärting",
+      "name": "formdata-polyfill",
+      "version": "4.0.10",
+      "description": "HTML5 `FormData` for Browsers and Node.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/formdata-polyfill@4.0.10",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jimmywarting/FormData#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/jimmywarting/FormData/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://jimmywarting@github.com/jimmywarting/FormData.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/fetch-blob@3.2.0",
+      "author": "Jimmy Wärting",
+      "name": "fetch-blob",
+      "version": "3.2.0",
+      "description": "Blob & File implementation in Node.js, originally from node-fetch.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/fetch-blob@3.2.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/node-fetch/fetch-blob#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/node-fetch/fetch-blob/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/node-fetch/fetch-blob.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/magic-string@0.25.9",
+      "author": "Rich Harris",
+      "name": "magic-string",
+      "version": "0.25.9",
+      "description": "Modify strings, generate sourcemaps",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/magic-string@0.25.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rich-harris/magic-string#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rich-harris/magic-string/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rich-harris/magic-string.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mocha@9.2.2",
+      "author": "TJ Holowaychuk",
+      "name": "mocha",
+      "version": "9.2.2",
+      "description": "simple, flexible, fun test framework",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/mocha@9.2.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://mochajs.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mochajs/mocha/issues/"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mochajs/mocha.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rollup@2.77.2",
+      "author": "Rich Harris",
+      "name": "rollup",
+      "version": "2.77.2",
+      "description": "Next-generation ES module bundler",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rollup@2.77.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://rollupjs.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/rollup/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/rollup.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rollup-plugin-terser@7.0.2",
+      "author": "Bogdan Chadkin",
+      "name": "rollup-plugin-terser",
+      "version": "7.0.2",
+      "description": "Rollup plugin to minify generated es bundle",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rollup-plugin-terser@7.0.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/TrySound/rollup-plugin-terser#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/TrySound/rollup-plugin-terser/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/TrySound/rollup-plugin-terser.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tslib@2.4.0",
+      "author": "Microsoft Corp.",
+      "name": "tslib",
+      "version": "2.4.0",
+      "description": "Runtime library for TypeScript helper functions",
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ],
+      "purl": "pkg:npm/tslib@2.4.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Microsoft/tslib.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/typescript@4.7.4",
+      "author": "Microsoft Corp.",
+      "name": "typescript",
+      "version": "4.7.4",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/typescript@4.7.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Microsoft/TypeScript.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+      "name": "urlpattern-polyfill",
+      "version": "1.0.0-rc5",
+      "description": "Polyfill for the proposed URLPattern API",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/kenchris/urlpattern-polyfill#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/kenchris/urlpattern-polyfill/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/kenchris/urlpattern-polyfill.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/web-streams-polyfill@3.2.1",
+      "author": "Mattias Buelens",
+      "name": "web-streams-polyfill",
+      "version": "3.2.1",
+      "description": "Web Streams, based on the WHATWG spec reference implementation",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/web-streams-polyfill@3.2.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/MattiasBuelens/web-streams-polyfill#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/MattiasBuelens/web-streams-polyfill/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/MattiasBuelens/web-streams-polyfill.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-alias@3.1.9",
+      "author": "Johannes Stein",
+      "group": "@rollup",
+      "name": "plugin-alias",
+      "version": "3.1.9",
+      "description": "Define and resolve aliases for bundle dependencies",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-alias@3.1.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/alias#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-inject@4.0.4",
+      "author": "Rich Harris",
+      "group": "@rollup",
+      "name": "plugin-inject",
+      "version": "4.0.4",
+      "description": "Scan modules for global variables and injects `import` statements where necessary",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-inject@4.0.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/inject#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+      "author": "Rich Harris",
+      "group": "@rollup",
+      "name": "plugin-node-resolve",
+      "version": "13.3.0",
+      "description": "Locate and bundle third-party dependencies in node_modules",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/node-resolve/#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+      "author": "Oskar Segersvärd",
+      "group": "@rollup",
+      "name": "plugin-typescript",
+      "version": "8.3.4",
+      "description": "Seamless integration between Rollup and TypeScript.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/typescript/#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/chai@4.3.1",
+      "group": "@types",
+      "name": "chai",
+      "version": "4.3.1",
+      "description": "TypeScript definitions for chai",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/chai@4.3.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/chai"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/mocha@9.1.1",
+      "group": "@types",
+      "name": "mocha",
+      "version": "9.1.1",
+      "description": "TypeScript definitions for mocha",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/mocha@9.1.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mocha"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/node@14.18.22",
+      "group": "@types",
+      "name": "node",
+      "version": "14.18.22",
+      "description": "TypeScript definitions for Node.js",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/node@14.18.22",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40ungap/structured-clone@0.3.4",
+      "author": "Andrea Giammarchi",
+      "group": "@ungap",
+      "name": "structured-clone",
+      "version": "0.3.4",
+      "description": "A structuredClone polyfill",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40ungap/structured-clone@0.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/ungap/structured-clone#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/ungap/structured-clone/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/ungap/structured-clone.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/del@6.1.1",
+      "author": "Sindre Sorhus",
+      "name": "del",
+      "version": "6.1.1",
+      "description": "Delete files and directories",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/del@6.1.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sindresorhus/del#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/sindresorhus/del/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/sindresorhus/del.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/esbuild@0.14.51",
+      "name": "esbuild",
+      "version": "0.14.51",
+      "description": "An extremely fast JavaScript and CSS bundler and minifier.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/esbuild@0.14.51",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/evanw/esbuild#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/evanw/esbuild/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/evanw/esbuild.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/eslint@8.20.0",
+      "author": "Nicholas C. Zakas",
+      "name": "eslint",
+      "version": "8.20.0",
+      "description": "An AST-based pattern checker for JavaScript.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/eslint@8.20.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://eslint.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/eslint/eslint/issues/"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/eslint/eslint.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/eslint-plugin-no-only-tests@2.6.0",
+      "author": "Levi Buzolic",
+      "name": "eslint-plugin-no-only-tests",
+      "version": "2.6.0",
+      "description": "ESLint rule for .only blocks in mocha tests",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/eslint-plugin-no-only-tests@2.6.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/levibuzolic/no-only-tests#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/levibuzolic/no-only-tests/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+ssh://git@github.com/levibuzolic/eslint-plugin-no-only-tests.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/eslint-config-prettier@8.5.0",
+      "author": "Simon Lydell",
+      "name": "eslint-config-prettier",
+      "version": "8.5.0",
+      "description": "Turns off all rules that are unnecessary or might conflict with Prettier.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/eslint-config-prettier@8.5.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/prettier/eslint-config-prettier#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/prettier/eslint-config-prettier/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/prettier/eslint-config-prettier.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/eslint-plugin-prettier@4.2.1",
+      "author": "Teddy Katz",
+      "name": "eslint-plugin-prettier",
+      "version": "4.2.1",
+      "description": "Runs prettier as an eslint rule",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/eslint-plugin-prettier@4.2.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/prettier/eslint-plugin-prettier#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/prettier/eslint-plugin-prettier/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/prettier/eslint-plugin-prettier.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/execa@6.1.0",
+      "author": "Sindre Sorhus",
+      "name": "execa",
+      "version": "6.1.0",
+      "description": "Process execution for humans",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/execa@6.1.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sindresorhus/execa#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/sindresorhus/execa/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/sindresorhus/execa.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/organize-imports-cli@0.10.0",
+      "author": "Georgii Dolzhykov",
+      "name": "organize-imports-cli",
+      "version": "0.10.0",
+      "description": "VS Code's 'Organize imports' executable from command line",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/organize-imports-cli@0.10.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/thorn0/organize-imports-cli#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/thorn0/organize-imports-cli/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/thorn0/organize-imports-cli.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/prettier@2.7.1",
+      "author": "James Long",
+      "name": "prettier",
+      "version": "2.7.1",
+      "description": "Prettier is an opinionated code formatter",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/prettier@2.7.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://prettier.io"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/prettier/prettier/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/prettier/prettier.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/pretty-bytes@6.0.0",
+      "author": "Sindre Sorhus",
+      "name": "pretty-bytes",
+      "version": "6.0.0",
+      "description": "Convert bytes to a human readable string: 1337 → 1.34 kB",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/pretty-bytes@6.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sindresorhus/pretty-bytes#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/sindresorhus/pretty-bytes/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/sindresorhus/pretty-bytes.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tiny-glob@0.2.9",
+      "author": "Terkel Gjervig",
+      "name": "tiny-glob",
+      "version": "0.2.9",
+      "description": "Tiny and extremely fast globbing",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/tiny-glob@0.2.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/terkelg/tiny-glob#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/terkelg/tiny-glob/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/terkelg/tiny-glob.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/turbo@1.2.5",
+      "name": "turbo",
+      "version": "1.2.5",
+      "description": "Turborepo is a high-performance build system for JavaScript and TypeScript codebases.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/turbo@1.2.5",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://turborepo.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/vercel/turborepo/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/vercel/turborepo.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40changesets/assemble-release-plan@5.1.3",
+      "group": "@changesets",
+      "name": "assemble-release-plan",
+      "version": "5.1.3",
+      "description": "Reads changesets and adds information on dependents that need bumping",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40changesets/assemble-release-plan@5.1.3",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/changesets/changesets/tree/main/packages/assemble-release-plan"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40changesets/changelog-github@0.4.4",
+      "group": "@changesets",
+      "name": "changelog-github",
+      "version": "0.4.4",
+      "description": "A changelog entry generator for GitHub that links to commits, PRs and users",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40changesets/changelog-github@0.4.4",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/changesets/changesets/tree/main/packages/changelog-github"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40changesets/cli@2.23.0",
+      "author": "Changesets Contributors",
+      "group": "@changesets",
+      "name": "cli",
+      "version": "2.23.0",
+      "description": "Organise your package versioning and publishing to make both contributors and maintainers happy",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40changesets/cli@2.23.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/changesets/changesets/tree/main/packages/cli"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40octokit/action@3.18.1",
+      "group": "@octokit",
+      "name": "action",
+      "version": "3.18.1",
+      "description": "GitHub API client for GitHub Actions",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40octokit/action@3.18.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/octokit/action.js#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/octokit/action.js/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/octokit/action.js.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40typescript-eslint/eslint-plugin@5.31.0",
+      "group": "@typescript-eslint",
+      "name": "eslint-plugin",
+      "version": "5.31.0",
+      "description": "TypeScript plugin for ESLint",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40typescript-eslint/eslint-plugin@5.31.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/typescript-eslint/typescript-eslint#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/typescript-eslint/typescript-eslint/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/typescript-eslint/typescript-eslint.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40typescript-eslint/parser@5.31.0",
+      "group": "@typescript-eslint",
+      "name": "parser",
+      "version": "5.31.0",
+      "description": "An ESLint custom parser which leverages TypeScript ESTree",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-2-Clause"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40typescript-eslint/parser@5.31.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/typescript-eslint/typescript-eslint#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/typescript-eslint/typescript-eslint/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/typescript-eslint/typescript-eslint.git"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/node-fetch@3.2.9"
+    },
+    {
+      "ref": "pkg:npm/abort-controller@3.0.0"
+    },
+    {
+      "ref": "pkg:npm/chai@4.3.6"
+    },
+    {
+      "ref": "pkg:npm/event-target-shim@6.0.2"
+    },
+    {
+      "ref": "pkg:npm/formdata-polyfill@4.0.10"
+    },
+    {
+      "ref": "pkg:npm/fetch-blob@3.2.0"
+    },
+    {
+      "ref": "pkg:npm/magic-string@0.25.9"
+    },
+    {
+      "ref": "pkg:npm/mocha@9.2.2"
+    },
+    {
+      "ref": "pkg:npm/rollup@2.77.2"
+    },
+    {
+      "ref": "pkg:npm/rollup-plugin-terser@7.0.2"
+    },
+    {
+      "ref": "pkg:npm/tslib@2.4.0"
+    },
+    {
+      "ref": "pkg:npm/typescript@4.7.4"
+    },
+    {
+      "ref": "pkg:npm/urlpattern-polyfill@1.0.0-rc5"
+    },
+    {
+      "ref": "pkg:npm/web-streams-polyfill@3.2.1"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-alias@3.1.9"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-inject@4.0.4"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-typescript@8.3.4"
+    },
+    {
+      "ref": "pkg:npm/%40types/chai@4.3.1"
+    },
+    {
+      "ref": "pkg:npm/%40types/mocha@9.1.1"
+    },
+    {
+      "ref": "pkg:npm/%40types/node@14.18.22"
+    },
+    {
+      "ref": "pkg:npm/%40ungap/structured-clone@0.3.4"
+    },
+    {
+      "ref": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "dependsOn": [
+        "pkg:npm/node-fetch@3.2.9",
+        "pkg:npm/abort-controller@3.0.0",
+        "pkg:npm/chai@4.3.6",
+        "pkg:npm/event-target-shim@6.0.2",
+        "pkg:npm/formdata-polyfill@4.0.10",
+        "pkg:npm/fetch-blob@3.2.0",
+        "pkg:npm/magic-string@0.25.9",
+        "pkg:npm/mocha@9.2.2",
+        "pkg:npm/rollup@2.77.2",
+        "pkg:npm/rollup-plugin-terser@7.0.2",
+        "pkg:npm/tslib@2.4.0",
+        "pkg:npm/typescript@4.7.4",
+        "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+        "pkg:npm/web-streams-polyfill@3.2.1",
+        "pkg:npm/%40rollup/plugin-alias@3.1.9",
+        "pkg:npm/%40rollup/plugin-inject@4.0.4",
+        "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+        "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+        "pkg:npm/%40types/chai@4.3.1",
+        "pkg:npm/%40types/mocha@9.1.1",
+        "pkg:npm/%40types/node@14.18.22",
+        "pkg:npm/%40ungap/structured-clone@0.3.4"
+      ]
+    },
+    {
+      "ref": "pkg:npm/del@6.1.1"
+    },
+    {
+      "ref": "pkg:npm/esbuild@0.14.51"
+    },
+    {
+      "ref": "pkg:npm/eslint@8.20.0"
+    },
+    {
+      "ref": "pkg:npm/eslint-plugin-no-only-tests@2.6.0"
+    },
+    {
+      "ref": "pkg:npm/eslint-config-prettier@8.5.0"
+    },
+    {
+      "ref": "pkg:npm/eslint-plugin-prettier@4.2.1"
+    },
+    {
+      "ref": "pkg:npm/execa@6.1.0"
+    },
+    {
+      "ref": "pkg:npm/organize-imports-cli@0.10.0"
+    },
+    {
+      "ref": "pkg:npm/prettier@2.7.1"
+    },
+    {
+      "ref": "pkg:npm/pretty-bytes@6.0.0"
+    },
+    {
+      "ref": "pkg:npm/tiny-glob@0.2.9"
+    },
+    {
+      "ref": "pkg:npm/turbo@1.2.5"
+    },
+    {
+      "ref": "pkg:npm/%40changesets/assemble-release-plan@5.1.3"
+    },
+    {
+      "ref": "pkg:npm/%40changesets/changelog-github@0.4.4"
+    },
+    {
+      "ref": "pkg:npm/%40changesets/cli@2.23.0"
+    },
+    {
+      "ref": "pkg:npm/%40octokit/action@3.18.1"
+    },
+    {
+      "ref": "pkg:npm/%40typescript-eslint/eslint-plugin@5.31.0"
+    },
+    {
+      "ref": "pkg:npm/%40typescript-eslint/parser@5.31.0"
+    },
+    {
+      "ref": "pkg:npm/root@0.0.0",
+      "dependsOn": [
+        "pkg:npm/%40astrojs/webapi@0.12.0",
+        "pkg:npm/del@6.1.1",
+        "pkg:npm/esbuild@0.14.51",
+        "pkg:npm/eslint@8.20.0",
+        "pkg:npm/eslint-plugin-no-only-tests@2.6.0",
+        "pkg:npm/eslint-config-prettier@8.5.0",
+        "pkg:npm/eslint-plugin-prettier@4.2.1",
+        "pkg:npm/execa@6.1.0",
+        "pkg:npm/organize-imports-cli@0.10.0",
+        "pkg:npm/prettier@2.7.1",
+        "pkg:npm/pretty-bytes@6.0.0",
+        "pkg:npm/tiny-glob@0.2.9",
+        "pkg:npm/turbo@1.2.5",
+        "pkg:npm/%40changesets/assemble-release-plan@5.1.3",
+        "pkg:npm/%40changesets/changelog-github@0.4.4",
+        "pkg:npm/%40changesets/cli@2.23.0",
+        "pkg:npm/%40octokit/action@3.18.1",
+        "pkg:npm/%40typescript-eslint/eslint-plugin@5.31.0",
+        "pkg:npm/%40typescript-eslint/parser@5.31.0"
+      ]
+    }
+  ]
+}

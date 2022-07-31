@@ -1,0 +1,2103 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.3",
+  "serialNumber": "urn:uuid:090d90de-8fd0-4013-a98c-6e57eef80286",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2022-08-04T00:32:40.245Z",
+    "tools": [
+      {
+        "vendor": "CycloneDX",
+        "name": "Node.js module",
+        "version": "3.10.4"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/markdown-remark@0.13.0",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "markdown-remark",
+      "version": "0.13.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/markdown-remark@0.13.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://astro.build"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/micromark-extension-mdx-jsx@1.0.3",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "micromark-extension-mdx-jsx",
+      "version": "1.0.3",
+      "description": "Less strict version of micromark-extension-mdx-jsx.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/micromark-extension-mdx-jsx@1.0.3",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://astro.build"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/micromark-extension-mdx-jsx/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/micromark-extension-mdx-jsx.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/prism@0.6.1",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "prism",
+      "version": "0.6.1",
+      "description": "Supports Prism highlighting in Astro projects",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/prism@0.6.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://astro.build"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/prismjs@1.28.0",
+      "author": "Lea Verou",
+      "name": "prismjs",
+      "version": "1.28.0",
+      "description": "Lightweight, robust, elegant syntax highlighting. A spin-off project from Dabblet.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/prismjs@1.28.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/PrismJS/prism#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/PrismJS/prism/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/PrismJS/prism.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/acorn@8.8.0",
+      "name": "acorn",
+      "version": "8.8.0",
+      "description": "ECMAScript parser",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/acorn@8.8.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/acornjs/acorn"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/acornjs/acorn/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/acornjs/acorn.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/acorn-jsx@5.3.2",
+      "name": "acorn-jsx",
+      "version": "5.3.2",
+      "description": "Modern, fast React.js JSX parser",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/acorn-jsx@5.3.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/acornjs/acorn-jsx"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/acornjs/acorn-jsx/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/acornjs/acorn-jsx.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/assert@2.0.0",
+      "name": "assert",
+      "version": "2.0.0",
+      "description": "The assert module from Node.js, for the browser.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/assert@2.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/browserify/commonjs-assert"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/browserify/commonjs-assert/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/browserify/commonjs-assert.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/github-slugger@1.4.0",
+      "author": "Dan Flettre",
+      "name": "github-slugger",
+      "version": "1.4.0",
+      "description": "Generate a slug just like GitHub does for markdown headings.",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "purl": "pkg:npm/github-slugger@1.4.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/Flet/github-slugger"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Flet/github-slugger/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Flet/github-slugger.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mdast-util-mdx-expression@1.3.0",
+      "author": "Titus Wormer",
+      "name": "mdast-util-mdx-expression",
+      "version": "1.3.0",
+      "description": "mdast extension to parse and serialize MDX (or MDX.js) expressions",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/mdast-util-mdx-expression@1.3.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/syntax-tree/mdast-util-mdx-expression#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/syntax-tree/mdast-util-mdx-expression/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/syntax-tree/mdast-util-mdx-expression.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mdast-util-mdx-jsx@1.2.0",
+      "author": "Titus Wormer",
+      "name": "mdast-util-mdx-jsx",
+      "version": "1.2.0",
+      "description": "mdast extension to parse and serialize MDX or MDX.js JSX",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/mdast-util-mdx-jsx@1.2.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/syntax-tree/mdast-util-mdx-jsx#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/syntax-tree/mdast-util-mdx-jsx/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/syntax-tree/mdast-util-mdx-jsx.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mdast-util-to-string@3.1.0",
+      "author": "Titus Wormer",
+      "name": "mdast-util-to-string",
+      "version": "3.1.0",
+      "description": "mdast utility to get the plain text content of a node",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/mdast-util-to-string@3.1.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/syntax-tree/mdast-util-to-string#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/syntax-tree/mdast-util-to-string/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/syntax-tree/mdast-util-to-string.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/micromark-extension-mdx-expression@1.0.3",
+      "author": "Titus Wormer",
+      "name": "micromark-extension-mdx-expression",
+      "version": "1.0.3",
+      "description": "micromark extension to support MDX or MDX JS expressions",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/micromark-extension-mdx-expression@1.0.3",
+      "externalReferences": [
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/micromark/micromark-extension-mdx-expression/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/micromark-extension-mdx-md@1.0.0",
+      "author": "Titus Wormer",
+      "name": "micromark-extension-mdx-md",
+      "version": "1.0.0",
+      "description": "micromark extension to turn some markdown features off for MDX",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/micromark-extension-mdx-md@1.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/micromark/micromark-extension-mdx-md#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/micromark/micromark-extension-mdx-md/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/micromark/micromark-extension-mdx-md.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/micromark-util-combine-extensions@1.0.0",
+      "author": "Titus Wormer",
+      "name": "micromark-util-combine-extensions",
+      "version": "1.0.0",
+      "description": "micromark utility to combine syntax or html extensions",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/micromark-util-combine-extensions@1.0.0",
+      "externalReferences": [
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/micromark/micromark/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/micromark/micromark/tree/main/packages/micromark-util-combine-extensions"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rehype-raw@6.1.1",
+      "author": "Titus Wormer",
+      "name": "rehype-raw",
+      "version": "6.1.1",
+      "description": "rehype plugin to reparse the tree (and raw nodes)",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rehype-raw@6.1.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rehypejs/rehype-raw#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rehypejs/rehype-raw/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rehypejs/rehype-raw.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rehype-stringify@9.0.3",
+      "author": "Titus Wormer",
+      "name": "rehype-stringify",
+      "version": "9.0.3",
+      "description": "rehype plugin to serialize HTML",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rehype-stringify@9.0.3",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rehypejs/rehype"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rehypejs/rehype/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/rehypejs/rehype/tree/main/packages/rehype-stringify"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/remark-gfm@3.0.1",
+      "author": "Titus Wormer",
+      "name": "remark-gfm",
+      "version": "3.0.1",
+      "description": "remark plugin to support GFM (autolink literals, footnotes, strikethrough, tables, tasklists)",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/remark-gfm@3.0.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/remarkjs/remark-gfm#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/remarkjs/remark-gfm/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/remarkjs/remark-gfm.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/remark-parse@10.0.1",
+      "author": "Titus Wormer",
+      "name": "remark-parse",
+      "version": "10.0.1",
+      "description": "remark plugin to add support for parsing markdown input",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/remark-parse@10.0.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://remark.js.org"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/remarkjs/remark/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/remarkjs/remark/tree/main/packages/remark-parse"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/remark-rehype@10.1.0",
+      "author": "Titus Wormer",
+      "name": "remark-rehype",
+      "version": "10.1.0",
+      "description": "remark plugin that turns markdown into HTML to support rehype",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/remark-rehype@10.1.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/remarkjs/remark-rehype#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/remarkjs/remark-rehype/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/remarkjs/remark-rehype.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/remark-smartypants@2.0.0",
+      "author": "Matija Marohnić",
+      "name": "remark-smartypants",
+      "version": "2.0.0",
+      "description": "remark plugin to implement SmartyPants",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/remark-smartypants@2.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/silvenon/remark-smartypants#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/silvenon/remark-smartypants/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/silvenon/remark-smartypants.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/shiki@0.10.1",
+      "author": "Pine Wu",
+      "name": "shiki",
+      "version": "0.10.1",
+      "description": "shiki",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/shiki@0.10.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/octref/shiki/tree/main/packages/shiki"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/octref/shiki/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/octref/shiki.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/unified@10.1.2",
+      "author": "Titus Wormer",
+      "name": "unified",
+      "version": "10.1.2",
+      "description": "Interface for parsing, inspecting, transforming, and serializing content through syntax trees",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/unified@10.1.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://unifiedjs.com"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/unifiedjs/unified/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/unifiedjs/unified.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/unist-util-map@3.1.1",
+      "author": "azu",
+      "name": "unist-util-map",
+      "version": "3.1.1",
+      "description": "unist utility to create a new tree by mapping all nodes",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/unist-util-map@3.1.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/syntax-tree/unist-util-map#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/syntax-tree/unist-util-map/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/syntax-tree/unist-util-map.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/unist-util-visit@4.1.0",
+      "author": "Titus Wormer",
+      "name": "unist-util-visit",
+      "version": "4.1.0",
+      "description": "unist utility to visit nodes",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/unist-util-visit@4.1.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/syntax-tree/unist-util-visit#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/syntax-tree/unist-util-visit/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/syntax-tree/unist-util-visit.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/vfile@5.3.4",
+      "author": "Titus Wormer",
+      "name": "vfile",
+      "version": "5.3.4",
+      "description": "Virtual file format for text processing",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/vfile@5.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/vfile/vfile#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/vfile/vfile/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/vfile/vfile.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/chai@4.3.6",
+      "author": "Jake Luer",
+      "name": "chai",
+      "version": "4.3.6",
+      "description": "BDD/TDD assertion library for node.js and the browser. Test framework agnostic.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/chai@4.3.6",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "http://chaijs.com"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/chaijs/chai/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/chaijs/chai.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/micromark-util-types@1.0.2",
+      "author": "Titus Wormer",
+      "name": "micromark-util-types",
+      "version": "1.0.2",
+      "description": "micromark utility with a couple of typescript types",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/micromark-util-types@1.0.2",
+      "externalReferences": [
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/micromark/micromark/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/micromark/micromark/tree/main/packages/micromark-util-types"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/mocha@9.2.2",
+      "author": "TJ Holowaychuk",
+      "name": "mocha",
+      "version": "9.2.2",
+      "description": "simple, flexible, fun test framework",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/mocha@9.2.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://mochajs.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mochajs/mocha/issues/"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mochajs/mocha.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/chai@4.3.1",
+      "group": "@types",
+      "name": "chai",
+      "version": "4.3.1",
+      "description": "TypeScript definitions for chai",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/chai@4.3.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/chai"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/github-slugger@1.3.0",
+      "group": "@types",
+      "name": "github-slugger",
+      "version": "1.3.0",
+      "description": "TypeScript definitions for github-slugger",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/github-slugger@1.3.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/hast@2.3.4",
+      "group": "@types",
+      "name": "hast",
+      "version": "2.3.4",
+      "description": "TypeScript definitions for Hast",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/hast@2.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/hast"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/mdast@3.0.10",
+      "group": "@types",
+      "name": "mdast",
+      "version": "3.0.10",
+      "description": "TypeScript definitions for Mdast",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/mdast@3.0.10",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mdast"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/mocha@9.1.1",
+      "group": "@types",
+      "name": "mocha",
+      "version": "9.1.1",
+      "description": "TypeScript definitions for mocha",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/mocha@9.1.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mocha"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/prismjs@1.26.0",
+      "group": "@types",
+      "name": "prismjs",
+      "version": "1.26.0",
+      "description": "TypeScript definitions for prismjs",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/prismjs@1.26.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/prismjs"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/unist@2.0.6",
+      "group": "@types",
+      "name": "unist",
+      "version": "2.0.6",
+      "description": "TypeScript definitions for Unist",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/unist@2.0.6",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/unist"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/astro-scripts@0.0.6",
+      "name": "astro-scripts",
+      "version": "0.0.6",
+      "purl": "pkg:npm/astro-scripts@0.0.6"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "author": "withastro",
+      "group": "@astrojs",
+      "name": "webapi",
+      "version": "0.12.0",
+      "description": "Use Web APIs in Node",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/withastro/astro/tree/main/packages/webapi#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/withastro/astro/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/withastro/astro.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/node-fetch@3.2.9",
+      "author": "David Frank",
+      "name": "node-fetch",
+      "version": "3.2.9",
+      "description": "A light-weight module that brings Fetch API to node.js",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/node-fetch@3.2.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/node-fetch/node-fetch"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/node-fetch/node-fetch/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/node-fetch/node-fetch.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/abort-controller@3.0.0",
+      "author": "Toru Nagashima",
+      "name": "abort-controller",
+      "version": "3.0.0",
+      "description": "An implementation of WHATWG AbortController interface.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/abort-controller@3.0.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mysticatea/abort-controller#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mysticatea/abort-controller/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mysticatea/abort-controller.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/event-target-shim@6.0.2",
+      "author": "Toru Nagashima",
+      "name": "event-target-shim",
+      "version": "6.0.2",
+      "description": "An implementation of WHATWG EventTarget interface.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/event-target-shim@6.0.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/mysticatea/event-target-shim"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/mysticatea/event-target-shim/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/mysticatea/event-target-shim.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/fetch-blob@3.2.0",
+      "author": "Jimmy Wärting",
+      "name": "fetch-blob",
+      "version": "3.2.0",
+      "description": "Blob & File implementation in Node.js, originally from node-fetch.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/fetch-blob@3.2.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/node-fetch/fetch-blob#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/node-fetch/fetch-blob/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/node-fetch/fetch-blob.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/formdata-polyfill@4.0.10",
+      "author": "Jimmy Wärting",
+      "name": "formdata-polyfill",
+      "version": "4.0.10",
+      "description": "HTML5 `FormData` for Browsers and Node.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/formdata-polyfill@4.0.10",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/jimmywarting/FormData#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/jimmywarting/FormData/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://jimmywarting@github.com/jimmywarting/FormData.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/magic-string@0.25.9",
+      "author": "Rich Harris",
+      "name": "magic-string",
+      "version": "0.25.9",
+      "description": "Modify strings, generate sourcemaps",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/magic-string@0.25.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rich-harris/magic-string#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rich-harris/magic-string/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rich-harris/magic-string.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rollup@2.77.2",
+      "author": "Rich Harris",
+      "name": "rollup",
+      "version": "2.77.2",
+      "description": "Next-generation ES module bundler",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rollup@2.77.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://rollupjs.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/rollup/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/rollup.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/rollup-plugin-terser@7.0.2",
+      "author": "Bogdan Chadkin",
+      "name": "rollup-plugin-terser",
+      "version": "7.0.2",
+      "description": "Rollup plugin to minify generated es bundle",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/rollup-plugin-terser@7.0.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/TrySound/rollup-plugin-terser#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/TrySound/rollup-plugin-terser/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/TrySound/rollup-plugin-terser.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tslib@2.4.0",
+      "author": "Microsoft Corp.",
+      "name": "tslib",
+      "version": "2.4.0",
+      "description": "Runtime library for TypeScript helper functions",
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ],
+      "purl": "pkg:npm/tslib@2.4.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Microsoft/tslib.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/typescript@4.7.4",
+      "author": "Microsoft Corp.",
+      "name": "typescript",
+      "version": "4.7.4",
+      "description": "TypeScript is a language for application scale JavaScript development",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/typescript@4.7.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.typescriptlang.org/"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Microsoft/TypeScript/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/Microsoft/TypeScript.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+      "name": "urlpattern-polyfill",
+      "version": "1.0.0-rc5",
+      "description": "Polyfill for the proposed URLPattern API",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/kenchris/urlpattern-polyfill#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/kenchris/urlpattern-polyfill/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/kenchris/urlpattern-polyfill.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/web-streams-polyfill@3.2.1",
+      "author": "Mattias Buelens",
+      "name": "web-streams-polyfill",
+      "version": "3.2.1",
+      "description": "Web Streams, based on the WHATWG spec reference implementation",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/web-streams-polyfill@3.2.1",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/MattiasBuelens/web-streams-polyfill#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/MattiasBuelens/web-streams-polyfill/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/MattiasBuelens/web-streams-polyfill.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-alias@3.1.9",
+      "author": "Johannes Stein",
+      "group": "@rollup",
+      "name": "plugin-alias",
+      "version": "3.1.9",
+      "description": "Define and resolve aliases for bundle dependencies",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-alias@3.1.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/alias#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-inject@4.0.4",
+      "author": "Rich Harris",
+      "group": "@rollup",
+      "name": "plugin-inject",
+      "version": "4.0.4",
+      "description": "Scan modules for global variables and injects `import` statements where necessary",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-inject@4.0.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/inject#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+      "author": "Rich Harris",
+      "group": "@rollup",
+      "name": "plugin-node-resolve",
+      "version": "13.3.0",
+      "description": "Locate and bundle third-party dependencies in node_modules",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/node-resolve/#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+      "author": "Oskar Segersvärd",
+      "group": "@rollup",
+      "name": "plugin-typescript",
+      "version": "8.3.4",
+      "description": "Seamless integration between Rollup and TypeScript.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/rollup/plugins/tree/master/packages/typescript/#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/rollup/plugins/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/rollup/plugins.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40types/node@14.18.22",
+      "group": "@types",
+      "name": "node",
+      "version": "14.18.22",
+      "description": "TypeScript definitions for Node.js",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40types/node@14.18.22",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/node"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/DefinitelyTyped/DefinitelyTyped.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/%40ungap/structured-clone@0.3.4",
+      "author": "Andrea Giammarchi",
+      "group": "@ungap",
+      "name": "structured-clone",
+      "version": "0.3.4",
+      "description": "A structuredClone polyfill",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40ungap/structured-clone@0.3.4",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/ungap/structured-clone#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/ungap/structured-clone/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/ungap/structured-clone.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/adm-zip@0.5.9",
+      "author": "Nasca Iacob",
+      "name": "adm-zip",
+      "version": "0.5.9",
+      "description": "Javascript implementation of zip for nodejs with support for electron original-fs. Allows user to create or extract zip files both in memory or to/from disk",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/adm-zip@0.5.9",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/cthackers/adm-zip"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/cthackers/adm-zip/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/cthackers/adm-zip.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/arg@5.0.2",
+      "author": "Josh Junon",
+      "name": "arg",
+      "version": "5.0.2",
+      "description": "Unopinionated, no-frills CLI argument parser",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/arg@5.0.2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/vercel/arg#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/vercel/arg/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/vercel/arg.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/esbuild@0.14.51",
+      "name": "esbuild",
+      "version": "0.14.51",
+      "description": "An extremely fast JavaScript and CSS bundler and minifier.",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/esbuild@0.14.51",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/evanw/esbuild#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/evanw/esbuild/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/evanw/esbuild.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/globby@12.2.0",
+      "author": "Sindre Sorhus",
+      "name": "globby",
+      "version": "12.2.0",
+      "description": "User-friendly glob matching",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/globby@12.2.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/sindresorhus/globby#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/sindresorhus/globby/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/sindresorhus/globby.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/kleur@4.1.5",
+      "author": "Luke Edwards",
+      "name": "kleur",
+      "version": "4.1.5",
+      "description": "The fastest Node.js library for formatting terminal text with ANSI colors~!",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/kleur@4.1.5",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/lukeed/kleur#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/lukeed/kleur/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/lukeed/kleur.git"
+        }
+      ]
+    },
+    {
+      "type": "framework",
+      "bom-ref": "pkg:npm/svelte@3.49.0",
+      "author": "Rich Harris",
+      "name": "svelte",
+      "version": "3.49.0",
+      "description": "Cybernetically enhanced web apps",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/svelte@3.49.0",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://svelte.dev"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/sveltejs/svelte/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/sveltejs/svelte.git"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:npm/tar@6.1.11",
+      "author": "Isaac Z. Schlueter",
+      "name": "tar",
+      "version": "6.1.11",
+      "description": "tar for node",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "purl": "pkg:npm/tar@6.1.11",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/npm/node-tar#readme"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/npm/node-tar/issues"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/npm/node-tar.git"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "pkg:npm/%40astrojs/micromark-extension-mdx-jsx@1.0.3"
+    },
+    {
+      "ref": "pkg:npm/prismjs@1.28.0"
+    },
+    {
+      "ref": "pkg:npm/%40astrojs/prism@0.6.1",
+      "dependsOn": [
+        "pkg:npm/prismjs@1.28.0"
+      ]
+    },
+    {
+      "ref": "pkg:npm/acorn@8.8.0"
+    },
+    {
+      "ref": "pkg:npm/acorn-jsx@5.3.2"
+    },
+    {
+      "ref": "pkg:npm/assert@2.0.0"
+    },
+    {
+      "ref": "pkg:npm/github-slugger@1.4.0"
+    },
+    {
+      "ref": "pkg:npm/mdast-util-mdx-expression@1.3.0"
+    },
+    {
+      "ref": "pkg:npm/mdast-util-mdx-jsx@1.2.0"
+    },
+    {
+      "ref": "pkg:npm/mdast-util-to-string@3.1.0"
+    },
+    {
+      "ref": "pkg:npm/micromark-extension-mdx-expression@1.0.3"
+    },
+    {
+      "ref": "pkg:npm/micromark-extension-mdx-md@1.0.0"
+    },
+    {
+      "ref": "pkg:npm/micromark-util-combine-extensions@1.0.0"
+    },
+    {
+      "ref": "pkg:npm/rehype-raw@6.1.1"
+    },
+    {
+      "ref": "pkg:npm/rehype-stringify@9.0.3"
+    },
+    {
+      "ref": "pkg:npm/remark-gfm@3.0.1"
+    },
+    {
+      "ref": "pkg:npm/remark-parse@10.0.1"
+    },
+    {
+      "ref": "pkg:npm/remark-rehype@10.1.0"
+    },
+    {
+      "ref": "pkg:npm/remark-smartypants@2.0.0"
+    },
+    {
+      "ref": "pkg:npm/shiki@0.10.1"
+    },
+    {
+      "ref": "pkg:npm/unified@10.1.2"
+    },
+    {
+      "ref": "pkg:npm/unist-util-map@3.1.1"
+    },
+    {
+      "ref": "pkg:npm/unist-util-visit@4.1.0"
+    },
+    {
+      "ref": "pkg:npm/vfile@5.3.4"
+    },
+    {
+      "ref": "pkg:npm/chai@4.3.6"
+    },
+    {
+      "ref": "pkg:npm/micromark-util-types@1.0.2"
+    },
+    {
+      "ref": "pkg:npm/mocha@9.2.2"
+    },
+    {
+      "ref": "pkg:npm/%40types/chai@4.3.1"
+    },
+    {
+      "ref": "pkg:npm/%40types/github-slugger@1.3.0"
+    },
+    {
+      "ref": "pkg:npm/%40types/hast@2.3.4"
+    },
+    {
+      "ref": "pkg:npm/%40types/mdast@3.0.10"
+    },
+    {
+      "ref": "pkg:npm/%40types/mocha@9.1.1"
+    },
+    {
+      "ref": "pkg:npm/%40types/prismjs@1.26.0"
+    },
+    {
+      "ref": "pkg:npm/%40types/unist@2.0.6"
+    },
+    {
+      "ref": "pkg:npm/node-fetch@3.2.9"
+    },
+    {
+      "ref": "pkg:npm/abort-controller@3.0.0"
+    },
+    {
+      "ref": "pkg:npm/event-target-shim@6.0.2"
+    },
+    {
+      "ref": "pkg:npm/fetch-blob@3.2.0"
+    },
+    {
+      "ref": "pkg:npm/formdata-polyfill@4.0.10"
+    },
+    {
+      "ref": "pkg:npm/magic-string@0.25.9"
+    },
+    {
+      "ref": "pkg:npm/rollup@2.77.2"
+    },
+    {
+      "ref": "pkg:npm/rollup-plugin-terser@7.0.2"
+    },
+    {
+      "ref": "pkg:npm/tslib@2.4.0"
+    },
+    {
+      "ref": "pkg:npm/typescript@4.7.4"
+    },
+    {
+      "ref": "pkg:npm/urlpattern-polyfill@1.0.0-rc5"
+    },
+    {
+      "ref": "pkg:npm/web-streams-polyfill@3.2.1"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-alias@3.1.9"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-inject@4.0.4"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-node-resolve@13.3.0"
+    },
+    {
+      "ref": "pkg:npm/%40rollup/plugin-typescript@8.3.4"
+    },
+    {
+      "ref": "pkg:npm/%40types/node@14.18.22"
+    },
+    {
+      "ref": "pkg:npm/%40ungap/structured-clone@0.3.4"
+    },
+    {
+      "ref": "pkg:npm/%40astrojs/webapi@0.12.0",
+      "dependsOn": [
+        "pkg:npm/node-fetch@3.2.9",
+        "pkg:npm/abort-controller@3.0.0",
+        "pkg:npm/event-target-shim@6.0.2",
+        "pkg:npm/fetch-blob@3.2.0",
+        "pkg:npm/formdata-polyfill@4.0.10",
+        "pkg:npm/magic-string@0.25.9",
+        "pkg:npm/rollup@2.77.2",
+        "pkg:npm/rollup-plugin-terser@7.0.2",
+        "pkg:npm/tslib@2.4.0",
+        "pkg:npm/typescript@4.7.4",
+        "pkg:npm/urlpattern-polyfill@1.0.0-rc5",
+        "pkg:npm/web-streams-polyfill@3.2.1",
+        "pkg:npm/%40rollup/plugin-alias@3.1.9",
+        "pkg:npm/%40rollup/plugin-inject@4.0.4",
+        "pkg:npm/%40rollup/plugin-node-resolve@13.3.0",
+        "pkg:npm/%40rollup/plugin-typescript@8.3.4",
+        "pkg:npm/%40types/node@14.18.22",
+        "pkg:npm/%40ungap/structured-clone@0.3.4"
+      ]
+    },
+    {
+      "ref": "pkg:npm/adm-zip@0.5.9"
+    },
+    {
+      "ref": "pkg:npm/arg@5.0.2"
+    },
+    {
+      "ref": "pkg:npm/esbuild@0.14.51"
+    },
+    {
+      "ref": "pkg:npm/globby@12.2.0"
+    },
+    {
+      "ref": "pkg:npm/kleur@4.1.5"
+    },
+    {
+      "ref": "pkg:npm/svelte@3.49.0"
+    },
+    {
+      "ref": "pkg:npm/tar@6.1.11"
+    },
+    {
+      "ref": "pkg:npm/astro-scripts@0.0.6",
+      "dependsOn": [
+        "pkg:npm/%40astrojs/webapi@0.12.0",
+        "pkg:npm/adm-zip@0.5.9",
+        "pkg:npm/arg@5.0.2",
+        "pkg:npm/esbuild@0.14.51",
+        "pkg:npm/globby@12.2.0",
+        "pkg:npm/kleur@4.1.5",
+        "pkg:npm/svelte@3.49.0",
+        "pkg:npm/tar@6.1.11"
+      ]
+    },
+    {
+      "ref": "pkg:npm/%40astrojs/markdown-remark@0.13.0",
+      "dependsOn": [
+        "pkg:npm/%40astrojs/micromark-extension-mdx-jsx@1.0.3",
+        "pkg:npm/%40astrojs/prism@0.6.1",
+        "pkg:npm/acorn@8.8.0",
+        "pkg:npm/acorn-jsx@5.3.2",
+        "pkg:npm/assert@2.0.0",
+        "pkg:npm/github-slugger@1.4.0",
+        "pkg:npm/mdast-util-mdx-expression@1.3.0",
+        "pkg:npm/mdast-util-mdx-jsx@1.2.0",
+        "pkg:npm/mdast-util-to-string@3.1.0",
+        "pkg:npm/micromark-extension-mdx-expression@1.0.3",
+        "pkg:npm/micromark-extension-mdx-md@1.0.0",
+        "pkg:npm/micromark-util-combine-extensions@1.0.0",
+        "pkg:npm/rehype-raw@6.1.1",
+        "pkg:npm/rehype-stringify@9.0.3",
+        "pkg:npm/remark-gfm@3.0.1",
+        "pkg:npm/remark-parse@10.0.1",
+        "pkg:npm/remark-rehype@10.1.0",
+        "pkg:npm/remark-smartypants@2.0.0",
+        "pkg:npm/shiki@0.10.1",
+        "pkg:npm/unified@10.1.2",
+        "pkg:npm/unist-util-map@3.1.1",
+        "pkg:npm/unist-util-visit@4.1.0",
+        "pkg:npm/vfile@5.3.4",
+        "pkg:npm/chai@4.3.6",
+        "pkg:npm/micromark-util-types@1.0.2",
+        "pkg:npm/mocha@9.2.2",
+        "pkg:npm/%40types/chai@4.3.1",
+        "pkg:npm/%40types/github-slugger@1.3.0",
+        "pkg:npm/%40types/hast@2.3.4",
+        "pkg:npm/%40types/mdast@3.0.10",
+        "pkg:npm/%40types/mocha@9.1.1",
+        "pkg:npm/%40types/prismjs@1.26.0",
+        "pkg:npm/%40types/unist@2.0.6",
+        "pkg:npm/astro-scripts@0.0.6"
+      ]
+    }
+  ]
+}
