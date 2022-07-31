@@ -43,6 +43,7 @@
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
     "./server/*": "./dist/runtime/server/*",
+    "./hooks": "./dist/runtime/server/hooks.js",
     "./vite-plugin-astro": "./dist/vite-plugin-astro/index.js",
     "./vite-plugin-astro/*": "./dist/vite-plugin-astro/*",
     "./vite-plugin-astro-postprocess": "./dist/vite-plugin-astro-postprocess/index.js",

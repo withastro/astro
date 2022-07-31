@@ -1,0 +1,12 @@
+---
+import Counter from './Counter';
+import Component from './Component.astro';
+---
+
+<div>
+	<Component />
+	<div>
+		<Component />
+		<Counter client:idle />
+	</div>
+</div>

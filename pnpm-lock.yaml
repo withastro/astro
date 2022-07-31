@@ -292,9 +292,13 @@ importers:
 
   examples/minimal:
     specifiers:
+      '@astrojs/preact': ^0.5.2
       astro: ^1.0.0-rc.1
+      preact: ^10.6.5
     devDependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
+      preact: 10.10.0
 
   examples/non-html-pages:
     specifiers:

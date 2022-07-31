@@ -9,6 +9,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 
+import { createContext, useContext } from './hooks.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { createResponse } from './response.js';
@@ -225,12 +226,26 @@ export async function renderComponent(
 		return markHTMLString(html);
 	}
 
+	if (Component && (Component as any)[Symbol.for('astro:context')]) {
+		const Context = Component as any;
+		async function* renderContext(): AsyncGenerator<string, void, undefined> {
+			let previousValue = Context.value;
+			if ('value' in _props) {
+				Context.value = _props.value;
+			}
+			yield await slots.default();
+			Context.value = previousValue;
+		}
+		return renderContext();
+	}
+
 	if (Component && (Component as any).isAstroComponentFactory) {
 		async function* renderAstroComponentInline(): AsyncGenerator<string, void, undefined> {
+			result._metadata.components.push(Component);
 			let iterable = await renderToIterable(result, Component as any, _props, slots);
 			yield* iterable;
+			result._metadata.components.pop();
 		}
-
 		return renderAstroComponentInline();
 	}
 
@@ -528,6 +543,8 @@ export function createAstro(
 		site,
 		fetchContent: createDeprecatedFetchContentFn(),
 		glob: createAstroGlobFn(),
+		createContext,
+		useContext,
 		// INVESTIGATE is there a use-case for multi args?
 		resolve(...segments: string[]) {
 			let resolved = segments.reduce((u, segment) => new URL(segment, u), referenceURL).pathname;

@@ -15,6 +15,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
+import { useContext } from '../runtime/server/hooks';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -248,6 +249,7 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
 	site: URL | undefined;
+	useContext: typeof useContext;
 }
 
 type ServerConfig = {
@@ -1090,6 +1092,7 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	components: any[];
 }
 
 export interface SSRResult {

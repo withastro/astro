@@ -1,4 +1,6 @@
 ---
+import Provider from '../components/Provider.astro';
+import Component from '../components/Component.astro';
 ---
 
 <html lang="en">
@@ -7,7 +9,38 @@
 		<meta name="viewport" content="width=device-width" />
 		<title>Astro</title>
 	</head>
+
 	<body>
 		<h1>Astro</h1>
+		<div style="color: red;">
+			<Component />
+			<Component />
+		</div>
+		<Provider color="red">
+				<Component />
+				<Provider color="blue">
+						<Component />
+						<Provider color="yellow">
+								<Component />
+								<Component />
+								<Component />
+						</Provider>
+						<Component />
+				</Provider>
+				<Component />
+		</Provider>
+			<Provider color="green">
+				<Component />
+					<Provider  color="orange">
+						<Component />
+							<Provider  color="pink">
+								<Component />
+								<Component />
+								<Component />
+							</Provider>
+						<Component />
+					</Provider>
+				<Component />
+			</Provider>
 	</body>
 </html>

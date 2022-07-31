@@ -1,0 +1,17 @@
+---
+import Context from "../test.js";
+
+const { color } = Astro.props;
+---
+
+<div>
+	<Context value={{ color }}>
+		<slot />
+	</Context>
+</div>
+
+<style define:vars={{ color }}>
+	div {
+		color: var(--color);
+	}
+</style>

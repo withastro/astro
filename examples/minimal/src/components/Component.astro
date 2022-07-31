@@ -1,0 +1,7 @@
+---
+import Context from '../test.js';
+
+const value = Astro.useContext(Context);
+---
+
+<div>{JSON.stringify(value, null, 2)}</div>

@@ -147,7 +147,6 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			slots: Record<string, any> | null
 		) {
 			const astroSlots = new Slots(result, slots);
-
 			const Astro = {
 				__proto__: astroGlobal,
 				get clientAddress() {
@@ -263,6 +262,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 		_metadata: {
 			renderers,
 			pathname,
+			components: [],
 		},
 		response,
 	};
