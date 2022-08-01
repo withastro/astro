@@ -2221,6 +2221,14 @@ importers:
       mocha: 9.2.2
       remark-toc: 8.0.1
 
+  packages/integrations/mdx/test/fixtures/mdx-page:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/netlify:
     specifiers:
       '@astrojs/webapi': ^0.12.0

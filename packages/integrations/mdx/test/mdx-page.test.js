@@ -9,8 +9,7 @@ describe('MDX Page', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: new URL('./fixtures/mdx-page/', import.meta.url),
-			integrations: [mdx()],
+			root: new URL('./fixtures/mdx-page/', import.meta.url)
 		});
 	});
 
