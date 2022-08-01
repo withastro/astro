@@ -1,13 +1,17 @@
-export function addAstro(Prism) {
+import Prism from 'prismjs';
+import loadLanguages from 'prismjs/components/index.js';
+
+function addAstro() {
 	if (Prism.languages.astro) {
 		return;
 	}
 
-	let scriptLang;
+	let scriptLang: string;
 	if (Prism.languages.typescript) {
 		scriptLang = 'typescript';
 	} else {
 		scriptLang = 'javascript';
+		// eslint-disable-next-line no-console
 		console.warn(
 			'Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.'
 		);
@@ -19,11 +23,7 @@ export function addAstro(Prism) {
 	let braces = /(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])*\})/.source;
 	let spread = /(?:\{<S>*\.{3}(?:[^{}]|<BRACES>)*\})/.source;
 
-	/**
-	 * @param {string} source
-	 * @param {string} [flags]
-	 */
-	function re(source, flags) {
+	function re(source: string, flags?: string) {
 		source = source
 			.replace(/<S>/g, function () {
 				return space;
@@ -40,16 +40,18 @@ export function addAstro(Prism) {
 	spread = re(spread).source;
 
 	Prism.languages.astro = Prism.languages.extend('markup', script);
-	Prism.languages.astro.tag.pattern = re(
+
+	(Prism.languages.astro as any).tag.pattern = re(
 		/<\/?(?:[\w.:-]+(?:<S>+(?:[\w.:$-]+(?:=(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s{'"/>=]+|<BRACES>))?|<SPREAD>))*<S>*\/?)?>/
 			.source
 	);
 
-	Prism.languages.astro.tag.inside['tag'].pattern = /^<\/?[^\s>\/]*/i;
-	Prism.languages.astro.tag.inside['attr-value'].pattern =
+	(Prism.languages.astro as any).tag.inside['tag'].pattern = /^<\/?[^\s>\/]*/i;
+	(Prism.languages.astro as any).tag.inside['attr-value'].pattern =
 		/=(?!\{)(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s'">]+)/i;
-	Prism.languages.astro.tag.inside['tag'].inside['class-name'] = /^[A-Z]\w*(?:\.[A-Z]\w*)*$/;
-	Prism.languages.astro.tag.inside['comment'] = script['comment'];
+	(Prism.languages.astro as any).tag.inside['tag'].inside['class-name'] =
+		/^[A-Z]\w*(?:\.[A-Z]\w*)*$/;
+	(Prism.languages.astro as any).tag.inside['comment'] = script['comment'];
 
 	Prism.languages.insertBefore(
 		'inside',
@@ -60,7 +62,7 @@ export function addAstro(Prism) {
 				inside: Prism.languages.astro,
 			},
 		},
-		Prism.languages.astro.tag
+		(Prism.languages.astro as any).tag
 	);
 
 	Prism.languages.insertBefore(
@@ -80,11 +82,11 @@ export function addAstro(Prism) {
 				alias: `language-${scriptLang}`,
 			},
 		},
-		Prism.languages.astro.tag
+		(Prism.languages.astro as any).tag
 	);
 
 	// The following will handle plain text inside tags
-	let stringifyToken = function (token) {
+	let stringifyToken = function (token: any) {
 		if (!token) {
 			return '';
 		}
@@ -97,8 +99,8 @@ export function addAstro(Prism) {
 		return token.content.map(stringifyToken).join('');
 	};
 
-	let walkTokens = function (tokens) {
-		let openedTags = [];
+	let walkTokens = function (tokens: any) {
+		let openedTags: any[] = [];
 		for (let i = 0; i < tokens.length; i++) {
 			let token = tokens[i];
 
@@ -169,7 +171,7 @@ export function addAstro(Prism) {
 						i--;
 					}
 
-					tokens[i] = new Prism.Token('plain-text', plainText, null, plainText);
+					tokens[i] = new Prism.Token('plain-text', plainText, undefined, plainText);
 				}
 			}
 
@@ -179,10 +181,49 @@ export function addAstro(Prism) {
 		}
 	};
 
-	Prism.hooks.add('after-tokenize', function (env) {
+	Prism.hooks.add('after-tokenize', function (env: any) {
 		if (env.language !== 'astro') {
 			return;
 		}
 		walkTokens(env.tokens);
 	});
+}
+
+const languageMap = new Map([['ts', 'typescript']]);
+
+export function runHighlighterWithAstro(lang: string | undefined, code: string) {
+	let classLanguage = `language-${lang}`;
+
+	if (!lang) {
+		lang = 'plaintext';
+	}
+
+	const ensureLoaded = (language: string) => {
+		if (language && !Prism.languages[language]) {
+			loadLanguages([language]);
+		}
+	};
+
+	if (languageMap.has(lang)) {
+		ensureLoaded(languageMap.get(lang)!);
+	} else if (lang === 'astro') {
+		ensureLoaded('typescript');
+		addAstro();
+	} else {
+		ensureLoaded('markup-templating'); // Prism expects this to exist for a number of other langs
+		ensureLoaded(lang);
+	}
+
+	if (lang && !Prism.languages[lang]) {
+		// eslint-disable-next-line no-console
+		console.warn(`Unable to load the language: ${lang}`);
+	}
+
+	const grammar = Prism.languages[lang];
+	let html = code;
+	if (grammar) {
+		html = Prism.highlight(code, grammar, lang);
+	}
+
+	return { classLanguage, html };
 }
