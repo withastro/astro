@@ -113,7 +113,7 @@ The absolute path to the MDX file (e.g. `home/user/projects/.../file.md`).
 
 #### `url`
 
-The browser-ready URL for MDX files under `src/pages/` (e.g. `en/guides/markdown-content/`). For all other MDX files, this will be `undefined`.
+The browser-ready URL for MDX files under `src/pages/`. For example, `src/pages/en/about.mdx` will provide a `url` of `/en/about/`. For MDX files outside of `src/pages`, `url` will be `undefined`.
 
 #### `getHeadings()`
 
