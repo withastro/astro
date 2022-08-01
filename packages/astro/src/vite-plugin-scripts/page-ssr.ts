@@ -2,7 +2,7 @@ import { Plugin as VitePlugin } from 'vite';
 import { AstroConfig } from '../@types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
 
-import { resolvePages } from '../core/util.js';
+import { isPage } from '../core/util.js';
 import ancestor from 'common-ancestor-path';
 import MagicString from 'magic-string';
 
@@ -17,29 +17,26 @@ export default function astroScriptsPostPlugin({ config }: { config: AstroConfig
 	}
 
 	return {
-		name: 'astro:scripts:post',
+		name: 'astro:scripts:page-ssr',
 		enforce: 'post',
 		
 		transform(this, code, id, options) {
 			if (!options?.ssr) return;
 
+			const hasInjectedScript = config._ctx.scripts.some((s) => s.stage === 'page-ssr');
+			if (!hasInjectedScript) return;
+
 			const filename = normalizeFilename(id);
-			let fileUrl: URL;
+			let fileURL: URL;
 			try {
-				fileUrl = new URL(`file://${filename}`);
+				fileURL = new URL(`file://${filename}`);
 			} catch (e) {
 				// If we can't construct a valid URL, exit early
 				return;
 			}
 
-			const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
-			if (!isPage) return;
-			const parts = fileUrl.pathname.slice(resolvePages(config).pathname.length).split('/');
-			for (const part of parts) {
-				if (part.startsWith('_')) return;
-			}
-			const hasInjectedScript = config._ctx.scripts.some((s) => s.stage === 'page-ssr');
-			if (!hasInjectedScript) return;
+			const fileIsPage = isPage(fileURL, config);
+			if (!fileIsPage) return;
 
 			const s = new MagicString(code, { filename });
 			s.prepend(`import '${PAGE_SSR_SCRIPT_ID}';\n`);
