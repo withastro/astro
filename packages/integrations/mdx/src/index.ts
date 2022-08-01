@@ -1,4 +1,5 @@
-import { nodeTypes } from '@mdx-js/mdx';
+import { nodeTypes, compile as mdxCompile } from '@mdx-js/mdx';
+import { VFile } from 'vfile';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -12,6 +13,7 @@ import remarkSmartypants from 'remark-smartypants';
 import type { Plugin as VitePlugin } from 'vite';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo, getFrontmatter } from './utils.js';
+import rehypeCollectHeadings from './rehype-collect-headings.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -27,6 +29,7 @@ type MdxOptions = {
 };
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
+const DEFAULT_REHYPE_PLUGINS = [rehypeCollectHeadings];
 
 function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
@@ -41,7 +44,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 				let remarkPlugins = handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS);
-				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins);
+				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS);
 
 				if (config.markdown.syntaxHighlight === 'shiki') {
 					remarkPlugins.push([
@@ -69,7 +72,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
-				const configuredMdxPlugin = mdxPlugin({
+				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins,
 					rehypePlugins,
 					jsx: true,
@@ -77,38 +80,47 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					// Note: disable `.md` support
 					format: 'mdx',
 					mdExtensions: [],
-				});
+				};
 
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...configuredMdxPlugin,
-								// Override transform to inject layouts before MDX compilation
-								async transform(this, code, id) {
-									if (!id.endsWith('.mdx')) return;
+								...mdxPlugin(mdxPluginOpts),
+								// Override transform to alter code before MDX compilation
+								// ex. inject layouts
+								async transform(code, id) {
+									if (!id.endsWith('mdx')) return;
 
-									const mdxPluginTransform = configuredMdxPlugin.transform?.bind(this);
 									// If user overrides our default YAML parser,
 									// do not attempt to parse the `layout` via gray-matter
-									if (mdxOptions.frontmatterOptions?.parsers) {
-										return mdxPluginTransform?.(code, id);
+									if (!mdxOptions.frontmatterOptions?.parsers) {
+										const frontmatter = getFrontmatter(code, id);
+										if (frontmatter.layout) {
+											const { layout, ...content } = frontmatter;
+											code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
+												frontmatter.layout
+											)})).default;\nreturn <Layout content={${JSON.stringify(
+												content
+											)}}>{children}</Layout> }`;
+										}
 									}
-									const frontmatter = getFrontmatter(code, id);
-									if (frontmatter.layout) {
-										const { layout, ...content } = frontmatter;
-										code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
-											frontmatter.layout
-										)})).default;\nreturn <Layout content={${JSON.stringify(
-											content
-										)}}>{children}</Layout> }`;
-									}
-									return mdxPluginTransform?.(code, id);
+
+									const compiled = await mdxCompile(
+										new VFile({ value: code, path: id }),
+										mdxPluginOpts
+									);
+
+									return {
+										code: String(compiled.value),
+										map: compiled.map,
+									};
 								},
 							},
 							{
-								name: '@astrojs/mdx',
+								name: '@astrojs/mdx-postprocess',
+								// These transforms must happen *after* JSX runtime transformations
 								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
