@@ -111,9 +111,11 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										new VFile({ value: code, path: id }),
 										mdxPluginOpts,
 									);
-									code = String(compiled.value);
 
-									return { code, map: compiled.map };
+									return { 
+										code: String(compiled.value),
+										map: compiled.map
+									};
 								},
 							},
 							{
