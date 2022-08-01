@@ -490,7 +490,6 @@ async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, 
 
 		return config as TryLoadConfigResult;
 	} catch(e) {
-		//console.log("THE REAL ERROR", e);
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
@@ -500,6 +499,7 @@ async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, 
 			throw e;
 		}
 
+		// Fallback to use Vite DevServer
 		const viteServer = await vite.createServer({});
 		try {
 			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
