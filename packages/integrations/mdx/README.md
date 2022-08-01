@@ -113,11 +113,13 @@ The absolute path to the MDX file (e.g. `home/user/projects/.../file.md`).
 
 #### `url`
 
-The browser-ready URL for MDX files under `src/pages/` (e.g. `en/guides/markdown-content/`). For all other MDX files, this will be `undefined`.
+The browser-ready URL for MDX files under `src/pages/`. For example, `src/pages/en/about.mdx` will provide a `url` of `/en/about/`. For MDX files outside of `src/pages`, `url` will be `undefined`.
 
 #### `getHeadings()`
 
-A function that returns all headings (i.e. `h1 -> h6` elements) of an MDX file. The response follows this type: `{ depth: number; slug: string; text: string }[]`. The `slug` corresponds to the generated ID for a given heading, and can be used for anchor links.
+**Returns:** `{ depth: number; slug: string; text: string }[]`
+
+A function that returns an array of all headings (i.e. `h1 -> h6` elements) in the MDX file. Each heading’s `slug` corresponds to the generated ID for a given heading and can be used for anchor links.
 
 ### Frontmatter
 
