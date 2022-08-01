@@ -117,7 +117,9 @@ The browser-ready URL for MDX files under `src/pages/` (e.g. `en/guides/markdown
 
 #### `getHeadings()`
 
-A function that returns all headings (i.e. `h1 -> h6` elements) of an MDX file. The response follows this type: `{ depth: number; slug: string; text: string }[]`. The `slug` corresponds to the generated ID for a given heading, and can be used for anchor links.
+**Returns:** `{ depth: number; slug: string; text: string }[]`
+
+A function that returns an array of all headings (i.e. `h1 -> h6` elements) in the MDX file. Each heading’s `slug` corresponds to the generated ID for a given heading and can be used for anchor links.
 
 ### Frontmatter
 
