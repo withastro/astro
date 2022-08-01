@@ -490,9 +490,6 @@ async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, 
 
 		return config as TryLoadConfigResult;
 	} catch(e) {
-		console.error = function(ee) {
-			console.log("I SHOULD NOT HAVE DONE THIS!");
-		}
 		//console.log("THE REAL ERROR", e);
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
