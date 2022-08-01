@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
+import { name as isValidIdentifierName } from 'estree-util-is-identifier-name';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
@@ -111,9 +112,32 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										new VFile({ value: code, path: id }),
 										mdxPluginOpts
 									);
+									let compiledValue = String(compiled.value);
+
+									if (Object.keys(compiled.data).length) {
+										try {
+											for (const [key, value] of Object.entries(compiled.data)) {
+												if (!isValidIdentifierName(key)) {
+													throw Error(`${JSON.stringify(key)} cannot be used as an export key.`);
+												}
+												compiledValue += `\nexport const ${key} = ${JSON.stringify(value)}`;
+											}
+										} catch (e) {
+											// Remark / rehype plugins could append to vfile.data for other purposes.
+											// If a user relies on a plugin that does this, we shouldn't fail their builds!
+											if (e instanceof Error) {
+												console.warn(
+													`[MDX] A plugin attempted to append file data that could not be serialized as an export. Full error:\n`,
+													e.message
+												);
+											} else {
+												throw e;
+											}
+										}
+									}
 
 									return {
-										code: String(compiled.value),
+										code: compiledValue,
 										map: compiled.map,
 									};
 								},
