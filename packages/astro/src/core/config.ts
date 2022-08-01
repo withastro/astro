@@ -457,7 +457,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	try {
 		const configURL = await resolveConfigURL(configOptions);
 		if(configURL) {
-			const mod = await loadWithVite(configURL);
+			const mod = await loadFileThatMightNeedTransformation(configURL);
 			if(mod?.default) {
 				config = {
 					filePath: fileURLToPath(configURL),
@@ -492,7 +492,10 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	};
 }
 
-async function loadWithVite(url: URL) {
+async function loadFileThatMightNeedTransformation(url: URL) {
+	if(/\.m?js/.test(url.pathname)) {
+		return import(url.toString());
+	}
 	const viteServer = await vite.createServer({});
 	const mod = await viteServer.ssrLoadModule(fileURLToPath(url));
 	await viteServer.close();
@@ -522,7 +525,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	try {
 		const configURL = await resolveConfigURL(configOptions);
 		if(configURL) {
-			const mod = await loadWithVite(configURL);
+			const mod = await loadFileThatMightNeedTransformation(configURL);
 			if(mod?.default) {
 				config = { value: mod.default };
 			}
