@@ -20,7 +20,8 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./Prism.astro": "./Prism.astro"
+    "./Prism.astro": "./Prism.astro",
+    "./dist/highlighter": "./dist/highlighter.js"
   },
   "keywords": [
     "astro",

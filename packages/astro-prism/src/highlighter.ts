@@ -1,6 +1,6 @@
 import Prism from 'prismjs';
 import loadLanguages from 'prismjs/components/index.js';
-import { addAstro } from './plugin';
+import { addAstro } from './plugin.js';
 
 const languageMap = new Map([['ts', 'typescript']]);
 
