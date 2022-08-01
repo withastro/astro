@@ -500,7 +500,10 @@ async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, 
 		}
 
 		// Fallback to use Vite DevServer
-		const viteServer = await vite.createServer({});
+		const viteServer = await vite.createServer({
+			server: { middlewareMode: true, hmr: false },
+			appType: 'custom'
+		});
 		try {
 			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
 
