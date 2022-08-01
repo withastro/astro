@@ -1,7 +1,7 @@
-import type { AstroConfig, SSRError } from 'astro';
 import type { Options as AcornOpts } from 'acorn';
-import type { MdxjsEsm } from 'mdast-util-mdx';
 import { parse } from 'acorn';
+import type { AstroConfig, SSRError } from 'astro';
+import type { MdxjsEsm } from 'mdast-util-mdx';
 
 import matter from 'gray-matter';
 

@@ -9,12 +9,12 @@ import { toString } from 'mdast-util-to-string';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 export function rehypeReadingTime() {
-  return function (tree) {
-		const readingTime = getReadingTime(toString(tree))
+	return function (tree) {
+		const readingTime = getReadingTime(toString(tree));
 		tree.children.unshift(
 			jsToTreeNode(`export const readingTime = ${JSON.stringify(readingTime)}`)
-		)
-  };
+		);
+	};
 }
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-rehype-plugins/', import.meta.url);
@@ -37,7 +37,7 @@ describe('MDX rehype plugins', () => {
 		it('removes default getHeadings', async () => {
 			const html = await fixture.readFile('/space-ipsum/index.html');
 			const { document } = parseHTML(html);
-	
+
 			const headings = [...document.querySelectorAll('h1, h2')];
 			expect(headings.length).to.be.greaterThan(0);
 			for (const heading of headings) {
@@ -47,7 +47,7 @@ describe('MDX rehype plugins', () => {
 
 		it('supports custom rehype plugins - reading time', async () => {
 			const readingTime = JSON.parse(await fixture.readFile('/reading-time.json'));
-	
+
 			expect(readingTime).to.not.be.null;
 			expect(readingTime.text).to.match(/^\d+ min read/);
 		});
@@ -70,7 +70,7 @@ describe('MDX rehype plugins', () => {
 		it('preserves default getHeadings', async () => {
 			const html = await fixture.readFile('/space-ipsum/index.html');
 			const { document } = parseHTML(html);
-	
+
 			const headings = [...document.querySelectorAll('h1, h2')];
 			expect(headings.length).to.be.greaterThan(0);
 			for (const heading of headings) {
