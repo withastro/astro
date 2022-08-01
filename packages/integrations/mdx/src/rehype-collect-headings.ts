@@ -8,9 +8,8 @@ export interface MarkdownHeading {
 	text: string;
 }
 
-const slugger = new Slugger();
-
 export default function rehypeCollectHeadings() {
+	const slugger = new Slugger();
 	return function (tree: any) {
 		const headings: MarkdownHeading[] = [];
 		visit(tree, (node) => {
