@@ -1,5 +1,17 @@
 # create-astro
 
+## 0.14.3
+
+### Patch Changes
+
+- [#4075](https://github.com/withastro/astro/pull/4075) [`cc10a5c8e`](https://github.com/withastro/astro/commit/cc10a5c8e03683e64514de75e535169c187ab847) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added better error handling when cancelling operations, providing bad templates and when there's a degit cache issue
+
+## 0.14.2
+
+### Patch Changes
+
+- [#3971](https://github.com/withastro/astro/pull/3971) [`e6e216061`](https://github.com/withastro/astro/commit/e6e2160614c9af320419a599c42211d0147760f4) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes support for using templates from any GitHub repository
+
 ## 0.14.1
 
 ### Patch Changes

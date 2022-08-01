@@ -80,4 +80,9 @@ describe('LitElement test', function () {
 		// has named slot content in lightdom
 		expect($(namedSlot).text()).to.equal('named');
 	});
+
+	it('Is able to build when behind getStaticPaths', async () => {
+		const dynamicPage = await fixture.readFile('/1/index.html');
+		expect(dynamicPage.length).to.be.greaterThan(0);
+	});
 });

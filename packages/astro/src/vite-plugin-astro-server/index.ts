@@ -5,9 +5,13 @@ import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import stripAnsi from 'strip-ansi';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import { collectErrorMetadata, fixViteErrorMessage } from '../core/errors.js';
+import {
+	collectErrorMetadata,
+	ErrorWithMetadata,
+	fixViteErrorMessage,
+	getViteErrorPayload,
+} from '../core/errors.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -15,10 +19,9 @@ import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.j
 import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
-import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import { createSafeError, isBuildingToSSR, resolvePages } from '../core/util.js';
+import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
+import { createSafeError, resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import serverErrorTemplate from '../template/5xx.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -111,38 +114,14 @@ async function handle404Response(
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ) {
-	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRoot = site ? site.pathname : '/';
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
-	let html = '';
-	if (pathname === '/' && !pathname.startsWith(devRoot)) {
-		html = subpathNotUsedTemplate(devRoot, pathname);
-	} else {
-		// HACK: redirect without the base path for assets in publicDir
-		const redirectTo =
-			req.method === 'GET' &&
-			config.base !== '/' &&
-			pathname.startsWith(config.base) &&
-			pathname.replace(config.base, '/');
 
-		if (redirectTo && redirectTo !== '/') {
-			const response = new Response(null, {
-				status: 302,
-				headers: {
-					Location: redirectTo,
-				},
-			});
-			await writeWebResponse(res, response);
-			return;
-		}
-
-		html = notFoundTemplate({
-			statusCode: 404,
-			title: 'Not found',
-			tabTitle: '404: Not Found',
-			pathname,
-		});
-	}
+	const html = notFoundTemplate({
+		statusCode: 404,
+		title: 'Not found',
+		tabTitle: '404: Not Found',
+		pathname,
+	});
 	writeHtmlResponse(res, 404, html);
 }
 
@@ -151,19 +130,18 @@ async function handle500Response(
 	origin: string,
 	req: http.IncomingMessage,
 	res: http.ServerResponse,
-	err: any
+	err: ErrorWithMetadata
 ) {
-	const pathname = decodeURI(new URL('./index.html', origin + req.url).pathname);
-	const html = serverErrorTemplate({
-		statusCode: 500,
-		title: 'Internal Error',
-		tabTitle: '500: Error',
-		message: stripAnsi(err.hint ?? err.message),
-		url: err.url || undefined,
-		stack: truncateString(stripAnsi(err.stack), 500),
-	});
-	const transformedHtml = await viteServer.transformIndexHtml(pathname, html);
-	writeHtmlResponse(res, 500, transformedHtml);
+	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200));
+	if (res.headersSent) {
+		res.end();
+	} else {
+		writeHtmlResponse(
+			res,
+			500,
+			`<title>${err.name}</title><script type="module" src="/@vite/client"></script>`
+		);
+	}
 }
 
 function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
@@ -177,6 +155,44 @@ function log404(logging: LogOptions, pathname: string) {
 	info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
 }
 
+export function baseMiddleware(
+	config: AstroConfig,
+	logging: LogOptions
+): vite.Connect.NextHandleFunction {
+	const site = config.site ? new URL(config.base, config.site) : undefined;
+	const devRoot = site ? site.pathname : '/';
+
+	return function devBaseMiddleware(req, res, next) {
+		const url = req.url!;
+
+		const pathname = decodeURI(new URL(url, 'http://vitejs.dev').pathname);
+
+		if (pathname.startsWith(devRoot)) {
+			req.url = url.replace(devRoot, '/');
+			return next();
+		}
+
+		if (pathname === '/' || pathname === '/index.html') {
+			log404(logging, pathname);
+			const html = subpathNotUsedTemplate(devRoot, pathname);
+			return writeHtmlResponse(res, 404, html);
+		}
+
+		if (req.headers.accept?.includes('text/html')) {
+			log404(logging, pathname);
+			const html = notFoundTemplate({
+				statusCode: 404,
+				title: 'Not found',
+				tabTitle: '404: Not Found',
+				pathname,
+			});
+			return writeHtmlResponse(res, 404, html);
+		}
+
+		next();
+	};
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -188,19 +204,19 @@ async function handleRequest(
 	res: http.ServerResponse
 ) {
 	const reqStart = performance.now();
-	const site = config.site ? new URL(config.base, config.site) : undefined;
-	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
-	const buildingToSSR = isBuildingToSSR(config);
+	const buildingToSSR = config.output === 'server';
 	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
 	// routing behavior matches production builds. This supports both file and directory
 	// build formats, and is necessary based on how the manifest tracks build targets.
 	const url = new URL(origin + req.url?.replace(/(index)?\.html$/, ''));
 	const pathname = decodeURI(url.pathname);
-	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
+
+	// Add config.base back to url before passing it to SSR
+	url.pathname = config.base.substring(0, config.base.length - 1) + url.pathname;
 
 	// HACK! @astrojs/image uses query params for the injected route in `dev`
-	if (!buildingToSSR && rootRelativeUrl !== '/_image') {
+	if (!buildingToSSR && pathname !== '/_image') {
 		// Prevent user from depending on search params when not doing SSR.
 		// NOTE: Create an array copy here because deleting-while-iterating
 		// creates bugs where not all search params are removed.
@@ -229,73 +245,92 @@ async function handleRequest(
 		body,
 		logging,
 		ssr: buildingToSSR,
+		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
 	});
 
-	try {
-		if (!pathname.startsWith(devRoot)) {
-			log404(logging, pathname);
-			return handle404Response(origin, config, req, res);
-		}
-		// Attempt to match the URL to a valid page route.
-		// If that fails, switch the response to a 404 response.
-		let route = matchRoute(rootRelativeUrl, manifest);
-		const statusCode = route ? 200 : 404;
+	async function matchRoute() {
+		const matches = matchAllRoutes(pathname, manifest);
 
-		if (!route) {
-			log404(logging, pathname);
-			const custom404 = getCustom404Route(config, manifest);
-			if (custom404) {
-				route = custom404;
-			} else {
-				return handle404Response(origin, config, req, res);
+		if (config.output === 'server' && matches.length > 1) {
+			throw new Error(`Found multiple matching routes for "${pathname}"! When using \`output: 'server'\`, only one route in \`src/pages\` can match a given URL. Found:
+
+${matches.map(({ component }) => `- ${component}`).join('\n')}
+`);
+		}
+
+		for await (const maybeRoute of matches) {
+			const filePath = new URL(`./${maybeRoute.component}`, config.root);
+			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			const [, mod] = preloadedComponent;
+			// attempt to get static paths
+			// if this fails, we have a bad URL match!
+			const paramsAndPropsRes = await getParamsAndProps({
+				mod,
+				route: maybeRoute,
+				routeCache,
+				pathname: pathname,
+				logging,
+				ssr: config.output === 'server',
+			});
+
+			if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
+				return {
+					route: maybeRoute,
+					filePath,
+					preloadedComponent,
+					mod,
+				};
 			}
 		}
 
-		const filePath = new URL(`./${route.component}`, config.root);
-		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-		const [, mod] = preloadedComponent;
+		if (matches.length) {
+			warn(
+				logging,
+				'getStaticPaths',
+				`Route pattern matched, but no matching static path found. (${pathname})`
+			);
+		}
+
+		log404(logging, pathname);
+		const custom404 = getCustom404Route(config, manifest);
+
+		if (custom404) {
+			const filePath = new URL(`./${custom404.component}`, config.root);
+			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			const [, mod] = preloadedComponent;
+
+			return {
+				route: custom404,
+				filePath,
+				preloadedComponent,
+				mod,
+			};
+		}
+
+		return undefined;
+	}
+
+	let filePath: URL | undefined;
+	try {
+		const matchedRoute = await matchRoute();
+
+		if (!matchedRoute) {
+			return handle404Response(origin, config, req, res);
+		}
+
+		const { route, preloadedComponent, mod } = matchedRoute;
+		filePath = matchedRoute.filePath;
+
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
 		const paramsAndPropsRes = await getParamsAndProps({
 			mod,
 			route,
 			routeCache,
-			pathname: rootRelativeUrl,
+			pathname: pathname,
 			logging,
-			ssr: isBuildingToSSR(config),
+			ssr: config.output === 'server',
 		});
-		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
-			warn(
-				logging,
-				'getStaticPaths',
-				`Route pattern matched, but no matching static path found. (${pathname})`
-			);
-			log404(logging, pathname);
-			const routeCustom404 = getCustom404Route(config, manifest);
-			if (routeCustom404) {
-				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.root);
-				const preloadedCompCustom404 = await preload({
-					astroConfig: config,
-					filePath: filePathCustom404,
-					viteServer,
-				});
-				const result = await ssr(preloadedCompCustom404, {
-					astroConfig: config,
-					filePath: filePathCustom404,
-					logging,
-					mode: 'development',
-					origin,
-					pathname: rootRelativeUrl,
-					request,
-					route: routeCustom404,
-					routeCache,
-					viteServer,
-				});
-				return await writeSSRResult(result, res);
-			} else {
-				return handle404Response(origin, config, req, res);
-			}
-		}
 
 		const options: SSROptions = {
 			astroConfig: config,
@@ -303,7 +338,7 @@ async function handleRequest(
 			logging,
 			mode: 'development',
 			origin,
-			pathname: rootRelativeUrl,
+			pathname: pathname,
 			route,
 			routeCache,
 			viteServer,
@@ -329,37 +364,12 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer);
-		const errorWithMetadata = collectErrorMetadata(_err);
+		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
-		handle500Response(viteServer, origin, req, res, err);
+		handle500Response(viteServer, origin, req, res, errorWithMetadata);
 	}
 }
-
-/**
- * Vite HMR sends requests for new CSS and those get returned as JS, but we want it to be CSS
- * since they are inside of a link tag for Astro.
- */
-const forceTextCSSForStylesMiddleware: vite.Connect.NextHandleFunction = function (req, res, next) {
-	if (req.url) {
-		// We are just using this to parse the URL to get the search params object
-		// so the second arg here doesn't matter
-		const url = new URL(req.url, 'https://astro.build');
-		// lang.css is a search param that exists on Astro, Svelte, and Vue components.
-		// We only want to override for astro files.
-		if (url.searchParams.has('astro') && url.searchParams.has('lang.css')) {
-			// Override setHeader so we can set the correct content-type for this request.
-			const setHeader = res.setHeader;
-			res.setHeader = function (key, value) {
-				if (key.toLowerCase() === 'content-type') {
-					return setHeader.call(this, key, 'text/css');
-				}
-				return setHeader.apply(this, [key, value]);
-			};
-		}
-	}
-	next();
-};
 
 export default function createPlugin({ config, logging }: AstroPluginOptions): vite.Plugin {
 	return {
@@ -382,10 +392,12 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 				removeViteHttpMiddleware(viteServer.middlewares);
 
 				// Push this middleware to the front of the stack so that it can intercept responses.
-				viteServer.middlewares.stack.unshift({
-					route: '',
-					handle: forceTextCSSForStylesMiddleware,
-				});
+				if (config.base !== '/') {
+					viteServer.middlewares.stack.unshift({
+						route: '',
+						handle: baseMiddleware(config, logging),
+					});
+				}
 				viteServer.middlewares.use(async (req, res) => {
 					if (!req.url || !req.method) {
 						throw new Error('Incomplete request');

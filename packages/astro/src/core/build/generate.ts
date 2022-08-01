@@ -1,7 +1,8 @@
 import fs from 'fs';
+import * as colors from 'kleur/colors';
 import { bgGreen, black, cyan, dim, green, magenta } from 'kleur/colors';
 import npath from 'path';
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
+import type { OutputAsset, OutputChunk } from 'rollup';
 import { fileURLToPath } from 'url';
 import type {
 	AstroConfig,
@@ -10,15 +11,22 @@ import type {
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { joinPaths, prependForwardSlash, removeLeadingForwardSlash } from '../../core/path.js';
+import {
+	joinPaths,
+	prependForwardSlash,
+	removeLeadingForwardSlash,
+	removeTrailingForwardSlash,
+} from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
+import { callGetStaticPaths } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
-import { getOutputFilename, isBuildingToSSR } from '../util.js';
+import { matchRoute } from '../routing/match.js';
+import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
@@ -59,7 +67,7 @@ function shouldSkipDraft(pageModule: ComponentInstance, astroConfig: AstroConfig
 		!astroConfig.markdown.drafts &&
 		// This is a draft post
 		'frontmatter' in pageModule &&
-		(pageModule as any).frontmatter.draft === true
+		(pageModule as any).frontmatter?.draft === true
 	);
 }
 
@@ -88,33 +96,29 @@ export function chunkIsPage(
 	return false;
 }
 
-export async function generatePages(
-	result: RollupOutput,
-	opts: StaticBuildOptions,
-	internals: BuildInternals,
-	facadeIdToPageDataMap: Map<string, PageBuildData>
-) {
+export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
-	const ssr = isBuildingToSSR(opts.astroConfig);
+	const ssr = opts.astroConfig.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
+	const builtPaths = new Set<string>();
 
 	for (const pageData of eachPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry);
+		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
 async function generatePage(
-	//output: OutputChunk,
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
 	pageData: PageBuildData,
-	ssrEntry: SingleFileBuiltModule
+	ssrEntry: SingleFileBuiltModule,
+	builtPaths: Set<string>
 ) {
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
@@ -148,16 +152,87 @@ async function generatePage(
 	const icon = pageData.route.type === 'page' ? green('▶') : magenta('λ');
 	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
-	for (let i = 0; i < pageData.paths.length; i++) {
-		const path = pageData.paths[i];
+	// Get paths for the route, calling getStaticPaths if needed.
+	const paths = await getPathsForRoute(pageData, pageModule, opts, builtPaths);
+
+	for (let i = 0; i < paths.length; i++) {
+		const path = paths[i];
 		await generatePath(path, opts, generationOptions);
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
 		const filePath = getOutputFilename(opts.astroConfig, path);
-		const lineIcon = i === pageData.paths.length - 1 ? '└─' : '├─';
+		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 	}
+}
+
+async function getPathsForRoute(
+	pageData: PageBuildData,
+	mod: ComponentInstance,
+	opts: StaticBuildOptions,
+	builtPaths: Set<string>
+): Promise<Array<string>> {
+	let paths: Array<string> = [];
+	if (pageData.route.pathname) {
+		paths.push(pageData.route.pathname);
+		builtPaths.add(pageData.route.pathname);
+	} else {
+		const route = pageData.route;
+		const result = await callGetStaticPaths({
+			mod,
+			route: pageData.route,
+			isValidate: false,
+			logging: opts.logging,
+			ssr: opts.astroConfig.output === 'server',
+		})
+			.then((_result) => {
+				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
+				debug(
+					'build',
+					`├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(
+						`[${_result.staticPaths.length} ${label}]`
+					)}`
+				);
+				return _result;
+			})
+			.catch((err) => {
+				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+				throw err;
+			});
+
+		// Save the route cache so it doesn't get called again
+		opts.routeCache.set(route, result);
+
+		paths = result.staticPaths
+			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
+			.filter((staticPath) => {
+				// Remove empty or undefined paths
+				if (!staticPath) {
+					return false;
+				}
+
+				// The path hasn't been built yet, include it
+				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
+					return true;
+				}
+
+				// The path was already built once. Check the manifest to see if
+				// this route takes priority for the final URL.
+				// NOTE: The same URL may match multiple routes in the manifest.
+				// Routing priority needs to be verified here for any duplicate
+				// paths to ensure routing priority rules are enforced in the final build.
+				const matchedRoute = matchRoute(staticPath, opts.manifest);
+				return matchedRoute === route;
+			});
+
+		// Add each path to the builtPaths set, to avoid building it again later.
+		for (const staticPath of paths) {
+			builtPaths.add(removeTrailingForwardSlash(staticPath));
+		}
+	}
+
+	return paths;
 }
 
 interface GeneratePathOptions {
@@ -207,13 +282,18 @@ async function generatePath(
 		}
 	}
 
-	const ssr = isBuildingToSSR(opts.astroConfig);
+	const ssr = opts.astroConfig.output === 'server';
 	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
 	const options: RenderOptions = {
+		adapterName: undefined,
 		links,
 		logging,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		mod,
+		mode: opts.mode,
 		origin,
 		pathname,
 		scripts,

@@ -10,9 +10,7 @@ describe('SSR Environment Variables', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/ssr-env/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: testAdapter(),
 		});
 		await fixture.build();

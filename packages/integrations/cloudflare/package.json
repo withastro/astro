@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare pages functions",
-  "version": "0.2.4",
+  "version": "0.4.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -24,10 +24,12 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.42"
+    "esbuild": "^0.14.42",
+    "wrangler": "^2.0.23"
   },
   "devDependencies": {
     "astro": "workspace:*",

@@ -8,6 +8,7 @@ describe('Custom 404', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/custom-404/',
+			site: 'http://example.com',
 		});
 	});
 
@@ -35,7 +36,7 @@ describe('Custom 404', () => {
 			$ = cheerio.load(html);
 
 			expect($('h1').text()).to.equal('Page not found');
-			expect($('p').text()).to.equal('/a/');
+			expect($('p').text()).to.equal('/a');
 		});
 	});
 });

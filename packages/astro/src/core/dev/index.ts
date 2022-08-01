@@ -11,7 +11,7 @@ import {
 	runHookServerStart,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger/core.js';
+import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
@@ -45,20 +45,12 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 			mode: 'development',
 			server: { host },
 			optimizeDeps: {
-				include: [
-					'astro/client/idle.js',
-					'astro/client/load.js',
-					'astro/client/visible.js',
-					'astro/client/media.js',
-					'astro/client/only.js',
-					...rendererClientEntries,
-				],
+				include: rendererClientEntries,
 			},
 		},
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);
 	await runHookConfigDone({ config });
-	warnIfUsingExperimentalSSR(options.logging, config);
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config, server: viteServer });
 	await viteServer.listen(port);

@@ -23,20 +23,6 @@ describe('Astro Markdown Shiki', () => {
 			expect($('pre').attr().style).to.equal('background-color: #0d1117; overflow-x: auto;');
 		});
 
-		it('Can render Astro <Markdown> with shiki', async () => {
-			const html = await fixture.readFile('/astro/index.html');
-			const $ = cheerio.load(html);
-
-			// There should be no HTML from Prism
-			expect($('.token')).to.have.lengthOf(0);
-
-			expect($('pre')).to.have.lengthOf(2);
-
-			expect($('span.line')).to.have.lengthOf(2);
-			expect($('span.line').get(0).children).to.have.lengthOf(1);
-			expect($('span.line').get(1).children).to.have.lengthOf(5);
-		});
-
 		it('Can render diff syntax with "user-select: none"', async () => {
 			const html = await fixture.readFile('/index.html');
 			const $ = cheerio.load(html);
@@ -63,15 +49,6 @@ describe('Astro Markdown Shiki', () => {
 				expect($('pre').hasClass('astro-code')).to.equal(true);
 				expect($('pre').attr().style).to.equal('background-color: #ffffff; overflow-x: auto;');
 			});
-
-			it('<Markdown /> component', async () => {
-				const html = await fixture.readFile('/astro/index.html');
-				const $ = cheerio.load(html);
-
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').hasClass('astro-code')).to.equal(true);
-				expect($('pre').attr().style).to.equal('background-color: #ffffff; overflow-x: auto;');
-			});
 		});
 
 		describe('Custom theme', async () => {
@@ -84,15 +61,6 @@ describe('Astro Markdown Shiki', () => {
 
 			it('Markdown file', async () => {
 				const html = await fixture.readFile('/index.html');
-				const $ = cheerio.load(html);
-
-				expect($('pre')).to.have.lengthOf(1);
-				expect($('pre').hasClass('astro-code')).to.equal(true);
-				expect($('pre').attr().style).to.equal('background-color: #FDFDFE; overflow-x: auto;');
-			});
-
-			it('<Markdown /> component', async () => {
-				const html = await fixture.readFile('/astro/index.html');
 				const $ = cheerio.load(html);
 
 				expect($('pre')).to.have.lengthOf(1);
@@ -125,21 +93,6 @@ describe('Astro Markdown Shiki', () => {
 				'<span style="color: #c9d1d9">This language does not exist</span>'
 			);
 		});
-
-		it('<Markdown /> component', async () => {
-			const html = await fixture.readFile('/astro/index.html');
-			const $ = cheerio.load(html);
-
-			const segments = $('.line').get(6).children;
-			expect(segments).to.have.lengthOf(3);
-			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
-			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
-
-			const unknownLang = $('.line').last().html();
-			expect(unknownLang).to.be.equal(
-				'<span style="color: #c9d1d9">This language does not exist</span>'
-			);
-		});
 	});
 
 	describe('Wrap', () => {
@@ -160,14 +113,6 @@ describe('Astro Markdown Shiki', () => {
 				expect($('pre')).to.have.lengthOf(1);
 				expect($('pre').attr('style')).to.equal(style);
 			});
-
-			it('<Markdown /> component', async () => {
-				const html = await fixture.readFile('/astro/index.html');
-				const $ = cheerio.load(html);
-
-				expect($('pre').get(0).attribs.style).to.equal(style);
-				expect($('pre').get(1).attribs.style).to.equal(style);
-			});
 		});
 	});
 
@@ -187,14 +132,6 @@ describe('Astro Markdown Shiki', () => {
 			expect($('pre')).to.have.lengthOf(1);
 			expect($('pre').attr('style')).to.equal(style);
 		});
-
-		it('<Markdown /> component', async () => {
-			const html = await fixture.readFile('/astro/index.html');
-			const $ = cheerio.load(html);
-
-			expect($('pre').get(0).attribs.style).to.equal(style);
-			expect($('pre').get(1).attribs.style).to.equal(style);
-		});
 	});
 
 	describe('wrap = null', () => {
@@ -212,14 +149,6 @@ describe('Astro Markdown Shiki', () => {
 
 			expect($('pre')).to.have.lengthOf(1);
 			expect($('pre').attr('style')).to.equal(style);
-		});
-
-		it('<Markdown /> component', async () => {
-			const html = await fixture.readFile('/astro/index.html');
-			const $ = cheerio.load(html);
-
-			expect($('pre').get(0).attribs.style).to.equal(style);
-			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
 	});
 });

@@ -1,14 +1,15 @@
 ---
 import Child from '../components/Child.astro';
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `http://example.com`);
 ---
 <html>
 <head>
   <title>Test</title>
-  <link rel="canonical" href={Astro.canonicalURL.href}>
+  <link rel="canonical" href={canonicalURL.href}>
 </head>
 <body>
-  <div id="pathname">{new URL(Astro.request.url).pathname}</div>
-  <div id="searchparams">{JSON.stringify(new URL(Astro.request.url).searchParams)}</div>
+  <div id="pathname">{Astro.url.pathname}</div>
+  <div id="searchparams">{JSON.stringify(Astro.url.searchParams)}</div>
   <a id="site" href={Astro.site}>Home</a>
 
   <Child />

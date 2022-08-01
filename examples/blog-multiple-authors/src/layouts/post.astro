@@ -1,10 +1,9 @@
 ---
 import MainHead from "../components/MainHead.astro";
 import Nav from "../components/Nav.astro";
-import authorData from "../data/authors.json";
 
 const { content } = Astro.props;
-let canonicalURL = Astro.canonicalURL;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <html lang={content.lang || "en"}>

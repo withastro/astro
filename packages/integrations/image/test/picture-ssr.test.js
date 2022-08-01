@@ -1,18 +1,25 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import sizeOf from 'image-size';
+import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
 describe('SSR pictures - build', function () {
 	let fixture;
 
+	function verifyImage(pathname) {
+		const url = new URL('./fixtures/basic-image/dist/client' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
+		const result = sizeOf(dist);
+		expect(result).not.be.be.undefined;
+	}
+
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 		});
 		await fixture.build();
 	});
@@ -33,7 +40,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -55,10 +62,10 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
-		// TODO: Track down why the fixture.fetch is failing with the test adapter
-		it.skip('built the optimized image', async () => {
+		it('built the optimized image', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -68,12 +75,19 @@ describe('SSR pictures - build', function () {
 
 			const image = $('#social-jpg img');
 
-			const res = await fixture.fetch(image.attr('src'));
+			const imgRequest = new Request(`http://example.com${image.attr('src')}`);
+			const imgResponse = await app.render(imgRequest);
 
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
+			expect(imgResponse.status).to.equal(200);
+			expect(imgResponse.headers.get('Content-Type')).to.equal('image/jpeg');
 
 			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+		});
+
+		it('includes the original images', () => {
+			['/assets/social.jpg', '/assets/social.png', '/assets/blog/introducing-astro.jpg'].map(
+				verifyImage
+			);
 		});
 	});
 
@@ -93,7 +107,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -115,6 +129,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});
 
@@ -134,7 +149,7 @@ describe('SSR pictures - build', function () {
 			// TODO: better coverage to verify source props
 		});
 
-		it('includes src, width, and height attributes', async () => {
+		it('includes <img> attributes', async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -156,6 +171,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('h')).to.equal('184');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
 });
@@ -169,9 +185,7 @@ describe('SSR images - dev', function () {
 		fixture = await loadFixture({
 			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 		});
 
 		devServer = await fixture.startDevServer();
@@ -207,6 +221,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
 		it('returns the optimized image', async () => {
@@ -245,6 +260,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});
 
@@ -273,6 +289,7 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('href')).to.equal(
 				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 			);
+			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
 });

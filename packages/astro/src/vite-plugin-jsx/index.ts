@@ -11,6 +11,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
+import tagExportsPlugin from './tag.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
@@ -55,7 +56,7 @@ async function transformJSX({
 }: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
-	const plugins = [...(options.plugins || [])];
+	const plugins = [...(options.plugins || []), tagExportsPlugin({ rendererName: renderer.name })];
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
 		plugins,

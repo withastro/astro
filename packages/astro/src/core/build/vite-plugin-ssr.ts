@@ -19,11 +19,7 @@ const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 const replaceExp = new RegExp(`['"](${manifestReplace})['"]`, 'g');
 
-export function vitePluginSSR(
-	buildOpts: StaticBuildOptions,
-	internals: BuildInternals,
-	adapter: AstroAdapter
-): VitePlugin {
+export function vitePluginSSR(internals: BuildInternals, adapter: AstroAdapter): VitePlugin {
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		enforce: 'post',
@@ -149,14 +145,20 @@ function buildManifest(
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
-		'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
+			'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	}
 
 	const ssrManifest: SerializedSSRManifest = {
+		adapterName: opts.astroConfig._ctx.adapter!.name,
 		routes,
 		site: astroConfig.site,
 		base: astroConfig.base,
-		markdown: astroConfig.markdown,
+		markdown: {
+			...astroConfig.markdown,
+			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+		},
 		pageMap: null as any,
 		renderers: [],
 		entryModules,

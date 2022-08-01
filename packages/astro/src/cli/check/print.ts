@@ -12,6 +12,7 @@ import {
 	yellow,
 } from 'kleur/colors';
 import stringWidth from 'string-width';
+import { fileURLToPath } from 'url';
 
 export function printDiagnostic(filePath: string, text: string, diag: Diagnostic): string {
 	let result = [];
@@ -19,9 +20,10 @@ export function printDiagnostic(filePath: string, text: string, diag: Diagnostic
 	// Lines and characters are 0-indexed, so we need to add 1 to the offset to get the actual line and character
 	const realStartLine = diag.range.start.line + 1;
 	const realStartCharacter = diag.range.start.character + 1;
+	const normalizedFilePath = fileURLToPath(new URL(filePath, 'file://'));
 
 	// IDE friendly path that user can CTRL+Click to open the file at a specific line / character
-	const IDEFilePath = `${bold(cyan(filePath))}:${bold(yellow(realStartLine))}:${bold(
+	const IDEFilePath = `${bold(cyan(normalizedFilePath))}:${bold(yellow(realStartLine))}:${bold(
 		yellow(realStartCharacter)
 	)}`;
 	result.push(

@@ -9,7 +9,8 @@ import RightSidebar from "../components/RightSidebar/RightSidebar.astro";
 import * as CONFIG from "../config";
 
 const { content = {} } = Astro.props;
-const currentPage = new URL(Astro.request.url).pathname;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const currentPage = Astro.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + currentFile;
 ---
@@ -17,7 +18,7 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 <html dir={content.dir ?? "ltr"} lang={content.lang ?? "en-us"} class="initial">
 	<head>
 		<HeadCommon />
-		<HeadSEO {content} canonicalURL={Astro.canonicalURL} />
+		<HeadSEO {content} canonicalURL={canonicalURL} />
 		<title>{content.title ? `${content.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}</title>
 		<style>
 			body {

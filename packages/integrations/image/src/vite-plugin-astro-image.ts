@@ -1,11 +1,18 @@
 import type { AstroConfig } from 'astro';
-import fs from 'fs/promises';
+import { pathToFileURL } from 'node:url';
 import type { PluginContext } from 'rollup';
 import slash from 'slash';
-import { pathToFileURL } from 'url';
 import type { Plugin, ResolvedConfig } from 'vite';
-import { metadata } from './metadata.js';
-import type { IntegrationOptions } from './types';
+import type { IntegrationOptions } from './index.js';
+import type { InputFormat } from './loaders/index.js';
+import { metadata } from './utils/metadata.js';
+
+export interface ImageMetadata {
+	src: string;
+	width: number;
+	height: number;
+	format: InputFormat;
+}
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
 	const filter = (id: string) =>
@@ -59,14 +66,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				...meta,
 				src: slash(src), // Windows compat
 			};
-
-			if (resolvedConfig.isProduction) {
-				this.emitFile({
-					fileName: output.src.replace(/^\//, ''),
-					source: await fs.readFile(id),
-					type: 'asset',
-				});
-			}
 
 			return `export default ${JSON.stringify(output)}`;
 		},

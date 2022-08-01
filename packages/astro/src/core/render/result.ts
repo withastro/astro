@@ -3,9 +3,9 @@ import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
-	Page,
 	Params,
 	Props,
+	RuntimeMode,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -13,7 +13,9 @@ import type {
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
-import { createCanonicalURL, isCSSRequest } from './util.js';
+import { isCSSRequest } from './util.js';
+
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 function onlyAvailableInSSR(name: string) {
 	return function _onlyAvailableInSSR() {
@@ -23,11 +25,13 @@ function onlyAvailableInSSR(name: string) {
 }
 
 export interface CreateResultArgs {
+	adapterName: string | undefined;
 	ssr: boolean;
 	streaming: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
+	mode: RuntimeMode;
 	params: Params;
 	pathname: string;
 	props: Props;
@@ -38,6 +42,7 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
 	request: Request;
+	status: number;
 }
 
 function getFunctionExpression(slot: any) {
@@ -104,24 +109,19 @@ class Slots {
 
 let renderMarkdown: any = null;
 
-function isPaginatedRoute({ page }: { page?: Page }) {
-	return page && 'currentPage' in page;
-}
-
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve, site } = args;
+	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
 
-	const paginated = isPaginatedRoute(pageProps);
 	const url = new URL(request.url);
-	const canonicalURL = createCanonicalURL('.' + pathname, site ?? url.origin, paginated);
 	const headers = new Headers();
 	if (args.streaming) {
 		headers.set('Transfer-Encoding', 'chunked');
+		headers.set('Content-Type', 'text/html');
 	} else {
 		headers.set('Content-Type', 'text/html');
 	}
 	const response: ResponseInit = {
-		status: 200,
+		status: args.status,
 		statusText: 'OK',
 		headers,
 	};
@@ -150,10 +150,25 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 			const Astro = {
 				__proto__: astroGlobal,
-				canonicalURL,
+				get clientAddress() {
+					if (!(clientAddressSymbol in request)) {
+						if (args.adapterName) {
+							throw new Error(
+								`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`
+							);
+						} else {
+							throw new Error(
+								`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
+							);
+						}
+					}
+
+					return Reflect.get(request, clientAddressSymbol);
+				},
 				params,
 				props,
 				request,
+				url,
 				redirect: args.ssr
 					? (path: string) => {
 							return new Response(null, {
@@ -200,6 +215,23 @@ ${extra}`
 				slots: astroSlots,
 			} as unknown as AstroGlobal;
 
+			Object.defineProperty(Astro, 'canonicalURL', {
+				get: function () {
+					warn(
+						args.logging,
+						'deprecation',
+						`${bold('Astro.canonicalURL')} is deprecated! Use \`Astro.url\` instead.
+Example:
+
+---
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+`
+					);
+					return new URL(this.request.url.pathname, this.site);
+				},
+			});
+
 			Object.defineProperty(Astro, '__renderMarkdown', {
 				// Ensure this API is not exposed to users
 				enumerable: false,
@@ -214,7 +246,8 @@ ${extra}`
 					if (!renderMarkdown) {
 						// The package is saved in this variable because Vite is too smart
 						// and will try to inline it in buildtime
-						let astroRemark = '@astrojs/markdown-remark';
+						let astroRemark = '@astrojs/';
+						astroRemark += 'markdown-remark';
 
 						renderMarkdown = (await import(astroRemark)).renderMarkdown;
 					}
@@ -230,6 +263,8 @@ ${extra}`
 		_metadata: {
 			renderers,
 			pathname,
+			hasHydrationScript: false,
+			hasDirectives: new Set(),
 		},
 		response,
 	};

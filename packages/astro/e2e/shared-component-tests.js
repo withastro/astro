@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { testFactory, getErrorOverlayMessage } from './test-utils.js';
 
 export function prepareTestFactory(opts) {
 	const test = testFactory(opts);

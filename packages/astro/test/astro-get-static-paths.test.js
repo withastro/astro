@@ -4,6 +4,9 @@ import * as cheerio from 'cheerio';
 
 describe('getStaticPaths - build calls', () => {
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		const fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
@@ -11,9 +14,38 @@ describe('getStaticPaths - build calls', () => {
 		});
 		await fixture.build();
 	});
+
 	it('is only called once during build', () => {
 		// useless expect; if build() throws in setup then this test fails
 		expect(true).to.equal(true);
+	});
+});
+
+describe('getStaticPaths - dev calls', () => {
+	let fixture;
+	let devServer;
+
+	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
+		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
+		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		devServer.stop();
+	});
+
+	it('only calls getStaticPaths once', async () => {
+		let res = await fixture.fetch('/a');
+		expect(res.status).to.equal(200);
+
+		res = await fixture.fetch('/b');
+		expect(res.status).to.equal(200);
+
+		res = await fixture.fetch('/c');
+		expect(res.status).to.equal(200);
 	});
 });
 
@@ -22,6 +54,9 @@ describe('getStaticPaths - 404 behavior', () => {
 	let devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
 	});
@@ -52,12 +87,18 @@ describe('getStaticPaths - 404 behavior', () => {
 });
 
 describe('getStaticPaths - route params type validation', () => {
-	let fixture;
-	let devServer;
+	let fixture, devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		fixture = await loadFixture({ root: './fixtures/astro-get-static-paths/' });
 		devServer = await fixture.startDevServer();
+	});
+
+	after(async () => {
+		await devServer.stop();
 	});
 
 	it('resolves 200 on matching static path - string params', async () => {
@@ -78,6 +119,9 @@ describe('getStaticPaths - numeric route params', () => {
 	let devServer;
 
 	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
 		fixture = await loadFixture({
 			root: './fixtures/astro-get-static-paths/',
 			site: 'https://mysite.dev/',
@@ -100,8 +144,8 @@ describe('getStaticPaths - numeric route params', () => {
 
 			const canonical = $('link[rel=canonical]');
 			expect(canonical.attr('href')).to.equal(
-				`https://mysite.dev/posts/${page}/`,
-				`doesn't trim the /${page}/ route param`
+				`https://mysite.dev/posts/${page}`,
+				`doesn't trim the /${page} route param`
 			);
 		}
 	});

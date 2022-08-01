@@ -12,7 +12,7 @@ import authorData from "../data/authors.json";
 // All variables are available to use in the HTML template below.
 let title = "Don’s Blog";
 let description = "An example blog on Astro";
-let canonicalURL = Astro.canonicalURL;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = await Astro.glob("./post/*.md");

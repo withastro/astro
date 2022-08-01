@@ -507,7 +507,7 @@ declare namespace astroHTML.JSX {
 		lang?: string | undefined | null;
 		slot?: string | undefined | null;
 		spellcheck?: 'true' | 'false' | boolean | undefined | null;
-		style?: string | undefined | null;
+		style?: string | Record<string, any> | undefined | null;
 		tabindex?: number | string | undefined | null;
 		title?: string | undefined | null;
 		translate?: 'yes' | 'no' | undefined | null;
@@ -666,6 +666,7 @@ declare namespace astroHTML.JSX {
 		/** @deprecated */
 		frameborder?: number | string | undefined | null;
 		height?: number | string | undefined | null;
+		loading?: 'eager' | 'lazy' | undefined | null;
 		/** @deprecated */
 		marginheight?: number | string | undefined | null;
 		/** @deprecated */
@@ -820,6 +821,7 @@ declare namespace astroHTML.JSX {
 		content?: string | URL | undefined | null;
 		'http-equiv'?: string | undefined | null;
 		name?: string | undefined | null;
+		media?: string | undefined | null;
 	}
 
 	interface MeterHTMLAttributes extends HTMLAttributes {
@@ -1016,7 +1018,7 @@ declare namespace astroHTML.JSX {
 		method?: string | undefined | null;
 		min?: number | string | undefined | null;
 		name?: string | undefined | null;
-		style?: string | undefined | null;
+		style?: string | Record<string, any> | undefined | null;
 		target?: string | undefined | null;
 		type?: string | undefined | null;
 		width?: number | string | undefined | null;

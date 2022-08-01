@@ -11,9 +11,7 @@ describe('Integration buildConfig hook', () => {
 		let _config;
 		fixture = await loadFixture({
 			root: './fixtures/ssr-request/',
-			experimental: {
-				ssr: true,
-			},
+			output: 'server',
 			adapter: {
 				name: 'my-ssr-adapter',
 				hooks: {

@@ -34,15 +34,4 @@ describe('Astro Markdown plugins', () => {
 		// teste 2: Added .title to h1
 		expect($('#hello-world').hasClass('title')).to.equal(true);
 	});
-
-	it('Can render Astro <Markdown> with plugins', async () => {
-		const html = await fixture.readFile('/astro/index.html');
-		const $ = cheerio.load(html);
-
-		// test 1: Added a TOC
-		expect($('.toc')).to.have.lengthOf(1);
-
-		// teste 2: Added .title to h1
-		expect($('#hello-world').hasClass('title')).to.equal(true);
-	});
 });

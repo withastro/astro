@@ -1,0 +1,21 @@
+---
+import Markdown from '@astrojs/markdown-component';
+import Layout from '../layouts/content.astro';
+
+---
+<style>
+	#root {
+		color: green;
+	}
+</style>
+<Layout>
+	<div id="root">
+		<Markdown>
+			## Interesting Topic
+
+			```js
+			const thing = () => {};
+			```
+		</Markdown>
+	</div>
+</Layout>
