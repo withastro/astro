@@ -52,15 +52,17 @@ function getCompatRenderer(): AstroRenderer {
 function getViteConfiguration(compat?: boolean): ViteUserConfig {
 	const viteConfig: ViteUserConfig = {
 		optimizeDeps: {
-			include: [
-				'@astrojs/preact/client.js',
-				'preact',
-				'preact/jsx-runtime',
-				'preact-render-to-string',
-			],
-			exclude: ['@astrojs/preact/server.js'],
-		},
-		ssr: {
+      include: [
+        '@astrojs/preact/client.js',
+        'preact',
+        'preact/jsx-runtime',
+      ],
+      exclude: ['@astrojs/preact/server.js']
+    },
+    resolve: {
+      dedupe: ['preact'],
+    },
+    ssr: {
 			external: ['preact-render-to-string'],
 		},
 	};
