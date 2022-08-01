@@ -441,7 +441,6 @@ importers:
       '@astrojs/compiler': ^0.22.1
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^0.13.0
-      '@astrojs/prism': 0.6.1
       '@astrojs/telemetry': ^0.4.1
       '@astrojs/webapi': ^0.12.0
       '@babel/core': ^7.18.2
@@ -528,7 +527,6 @@ importers:
       '@astrojs/compiler': 0.22.1
       '@astrojs/language-server': 0.20.3
       '@astrojs/markdown-remark': link:../markdown/remark
-      '@astrojs/prism': link:../astro-prism
       '@astrojs/telemetry': link:../telemetry
       '@astrojs/webapi': link:../webapi
       '@babel/core': 7.18.9
