@@ -135,7 +135,7 @@ export async function render(
 			});
 		} else if (script.stage === 'page' && isPage(filePath, astroConfig)) {
 			scripts.add({
-				props: { type: 'module', src: PAGE_SCRIPT_ID },
+				props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
 				children: '',
 			});
 		}
