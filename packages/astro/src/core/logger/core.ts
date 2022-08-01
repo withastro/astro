@@ -43,18 +43,13 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(
-	opts: LogOptions,
-	level: LoggerLevel,
-	type: string | null,
-	message: string,
-) {
+export function log(opts: LogOptions, level: LoggerLevel, type: string | null, message: string) {
 	const logLevel = opts.level;
 	const dest = opts.dest;
 	const event: LogMessage = {
 		type,
 		level,
-		message
+		message,
 	};
 
 	// test if this level is enabled or not
