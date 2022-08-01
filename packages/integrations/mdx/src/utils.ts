@@ -1,4 +1,8 @@
 import type { AstroConfig, SSRError } from 'astro';
+import type { Options as AcornOpts } from 'acorn';
+import type { MdxjsEsm } from 'mdast-util-mdx';
+import { parse } from 'acorn';
+
 import matter from 'gray-matter';
 
 function appendForwardSlash(path: string) {
@@ -57,4 +61,25 @@ export function getFrontmatter(code: string, id: string) {
 			throw e;
 		}
 	}
+}
+
+export function jsToTreeNode(
+	jsString: string,
+	acornOpts: AcornOpts = {
+		ecmaVersion: 'latest',
+		sourceType: 'module',
+	}
+): MdxjsEsm {
+	return {
+		type: 'mdxjsEsm',
+		value: '',
+		data: {
+			estree: {
+				body: [],
+				...parse(jsString, acornOpts),
+				type: 'Program',
+				sourceType: 'module',
+			},
+		},
+	};
 }

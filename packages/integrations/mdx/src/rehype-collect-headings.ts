@@ -1,6 +1,6 @@
 import Slugger from 'github-slugger';
 import { visit } from 'unist-util-visit';
-import { parse } from 'acorn';
+import { jsToTreeNode } from './utils.js';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -43,15 +43,8 @@ export default function rehypeCollectHeadings() {
 			}
 			headings.push({ depth, slug: node.properties.id, text });
 		});
-		tree.children.unshift({
-			type: 'mdxjsEsm',
-			value: '',
-			data: {
-				estree: parse(`export function getHeadings() { return ${JSON.stringify(headings)} }`, {
-					ecmaVersion: 'latest',
-					sourceType: 'module',
-				}),
-			},
-		});
+		tree.children.unshift(
+			jsToTreeNode(`export function getHeadings() { return ${JSON.stringify(headings)} }`)
+		);
 	};
 }
