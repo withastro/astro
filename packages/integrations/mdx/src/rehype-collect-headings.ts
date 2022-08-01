@@ -1,6 +1,6 @@
 import Slugger from 'github-slugger';
-import { valueToEstree } from 'estree-util-value-to-estree';
 import { visit } from 'unist-util-visit';
+import { parse } from 'acorn';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -48,37 +48,10 @@ export default function rehypeCollectHeadings() {
 			type: 'mdxjsEsm',
 			value: '',
 			data: {
-				estree: {
-					type: 'Program',
-					sourceType: 'module',
-					body: [
-						{
-							type: 'ExportNamedDeclaration',
-							declaration: {
-								type: 'FunctionDeclaration',
-								id: {
-									type: 'Identifier',
-									name: 'getHeadings',
-								},
-								expression: false,
-								generator: false,
-								async: false,
-								params: [],
-								body: {
-									type: 'BlockStatement',
-									body: [
-										{
-											type: 'ReturnStatement',
-											argument: valueToEstree(headings),
-										},
-									],
-								},
-							},
-							specifiers: [],
-							source: null,
-						},
-					],
-				},
+				estree: parse(
+					`export function getHeadings() { return ${JSON.stringify(headings)} }`,
+					{ ecmaVersion: 'latest', sourceType: 'module' },
+				),
 			},
 		})
 	};
