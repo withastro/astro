@@ -63,8 +63,10 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
       dedupe: ['preact'],
     },
     ssr: {
-			external: ['preact-render-to-string'],
-		},
+      optimizeDeps: {
+        include: ['preact-render-to-string'] 
+      }
+    }
 	};
 
 	if (compat) {
