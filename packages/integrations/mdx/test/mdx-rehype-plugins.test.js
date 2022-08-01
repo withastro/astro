@@ -1,21 +1,10 @@
 import mdx from '@astrojs/mdx';
-import { jsToTreeNode } from '../dist/utils.js';
 
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
-import getReadingTime from 'reading-time';
-import { toString } from 'mdast-util-to-string';
 
+import { rehypeReadingTime } from './test-utils.js';
 import { loadFixture } from '../../../astro/test/test-utils.js';
-
-export function rehypeReadingTime() {
-  return function (tree) {
-		const readingTime = getReadingTime(toString(tree))
-		tree.children.unshift(
-			jsToTreeNode(`export const readingTime = ${JSON.stringify(readingTime)}`)
-		)
-  };
-}
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-rehype-plugins/', import.meta.url);
 
