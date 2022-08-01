@@ -50,7 +50,6 @@ export async function* crawlGraph(
 					// but we should skip them--they aren't really imported. Without this,
 					// every hoisted script in the project is added to every page!
 					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(pathname))) {
-						importedModules.add(importedModule);
 						continue;
 					}
 					if (fileExtensionsToSSR.has(npath.extname(pathname))) {
