@@ -47,11 +47,11 @@ export default function rehypeCollectHeadings() {
 			type: 'mdxjsEsm',
 			value: '',
 			data: {
-				estree: parse(
-					`export function getHeadings() { return ${JSON.stringify(headings)} }`,
-					{ ecmaVersion: 'latest', sourceType: 'module' },
-				),
+				estree: parse(`export function getHeadings() { return ${JSON.stringify(headings)} }`, {
+					ecmaVersion: 'latest',
+					sourceType: 'module',
+				}),
 			},
-		})
+		});
 	};
 }

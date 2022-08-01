@@ -109,12 +109,12 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 
 									const compiled = await mdxCompile(
 										new VFile({ value: code, path: id }),
-										mdxPluginOpts,
+										mdxPluginOpts
 									);
 
-									return { 
+									return {
 										code: String(compiled.value),
-										map: compiled.map
+										map: compiled.map,
 									};
 								},
 							},
