@@ -1,5 +1,5 @@
 import mdx from '@astrojs/mdx';
-import { jsToTreeNode } from '@astrojs/mdx/utils';
+import { jsToTreeNode } from '../dist/utils.js';
 
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
