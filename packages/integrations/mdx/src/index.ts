@@ -113,12 +113,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									);
 									code = String(compiled.value);
 
-									if (compiled.data.headings) {
-										code += `\nexport function getHeadings() {\nreturn ${JSON.stringify(
-											compiled.data.headings,
-										)}\n}`;
-									}
-
 									return { code, map: compiled.map };
 								},
 							},

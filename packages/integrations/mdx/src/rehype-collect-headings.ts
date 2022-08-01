@@ -1,6 +1,6 @@
 import Slugger from 'github-slugger';
+import { valueToEstree } from 'estree-util-value-to-estree';
 import { visit } from 'unist-util-visit';
-import type { VFile } from 'vfile';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -11,7 +11,7 @@ export interface MarkdownHeading {
 const slugger = new Slugger();
 
 export default function rehypeCollectHeadings() {
-	return function (tree: any, vfile: VFile) {
+	return function (tree: any) {
 		const headings: MarkdownHeading[] = [];
 		visit(tree, (node) => {
 			if (node.type !== 'element') return;
@@ -44,6 +44,42 @@ export default function rehypeCollectHeadings() {
 			}
 			headings.push({ depth, slug: node.properties.id, text });
 		});
-		vfile.data.headings = headings;
+		tree.children.unshift({
+			type: 'mdxjsEsm',
+			value: '',
+			data: {
+				estree: {
+					type: 'Program',
+					sourceType: 'module',
+					body: [
+						{
+							type: 'ExportNamedDeclaration',
+							declaration: {
+								type: 'FunctionDeclaration',
+								id: {
+									type: 'Identifier',
+									name: 'getHeadings',
+								},
+								expression: false,
+								generator: false,
+								async: false,
+								params: [],
+								body: {
+									type: 'BlockStatement',
+									body: [
+										{
+											type: 'ReturnStatement',
+											argument: valueToEstree(headings),
+										},
+									],
+								},
+							},
+							specifiers: [],
+							source: null,
+						},
+					],
+				},
+			},
+		})
 	};
 }
