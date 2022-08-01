@@ -20,7 +20,6 @@
   },
   "exports": {
     ".": "./dist/index.js",
-    "./dist/internal": "./dist/internal.js",
     "./Prism.astro": "./Prism.astro"
   },
   "keywords": [

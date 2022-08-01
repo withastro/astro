@@ -16,10 +16,10 @@ import { Prism } from "@astrojs/prism"
 
 ## Internal
 
-This package exports a `runHighlighterWithAstro` function inside `internal.ts` to make sure the Astro language is loaded when highlighting code
+This package exports a `runHighlighterWithAstro` function to highlight while making sure the Astro language is loaded beforehand
 
 ```typescript
-import { runHighlighterWithAstro } from '@astrojs/prism/dist/internal';
+import { runHighlighterWithAstro } from '@astrojs/prism';
 
 runHighlighterWithAstro(`
   ---

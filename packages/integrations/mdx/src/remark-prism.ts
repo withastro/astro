@@ -1,4 +1,4 @@
-import { runHighlighterWithAstro } from '@astrojs/prism/dist/internal';
+import { runHighlighterWithAstro } from '@astrojs/prism';
 import { visit } from 'unist-util-visit';
 
 /**  */
