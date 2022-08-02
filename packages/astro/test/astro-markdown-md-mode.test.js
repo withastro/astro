@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, fixLineEndings } from './test-utils.js';
 
 describe('Astro Markdown - plain MD mode', () => {
 	let fixture;
@@ -23,6 +23,23 @@ describe('Astro Markdown - plain MD mode', () => {
 		const html = await fixture.readFile('/components/index.html');
 
 		expect(html).to.include('<counter client:load="" count="{0}">');
+	});
+
+	
+	it('Exposes raw markdown content', async () => {
+		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
+
+		expect(fixLineEndings(raw).trim()).to.equal(
+			`# Basic page\n\nLets make sure raw and compiled content look right!`
+		);
+	});
+
+	it('Exposes HTML parser for raw markdown content', async () => {
+		const { compiled } = JSON.parse(await fixture.readFile('/raw-content.json'));
+
+		expect(fixLineEndings(compiled).trim()).to.equal(
+			`<h1 id="basic-page">Basic page</h1>\n<p>Lets make sure raw and compiled content look right!</p>`
+		);
 	});
 
 	describe('syntax highlighting', async () => {
