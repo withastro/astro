@@ -281,7 +281,7 @@ async function generatePath(
 		scripts.add({
 			props: { type: 'module', src },
 			children: '',
-		})
+		});
 	}
 
 	// Add all injected scripts to the page.

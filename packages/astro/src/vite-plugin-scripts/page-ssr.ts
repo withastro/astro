@@ -2,9 +2,9 @@ import { Plugin as VitePlugin } from 'vite';
 import { AstroConfig } from '../@types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
 
-import { isPage } from '../core/util.js';
 import ancestor from 'common-ancestor-path';
 import MagicString from 'magic-string';
+import { isPage } from '../core/util.js';
 
 export default function astroScriptsPostPlugin({ config }: { config: AstroConfig }): VitePlugin {
 	function normalizeFilename(filename: string) {
@@ -19,7 +19,7 @@ export default function astroScriptsPostPlugin({ config }: { config: AstroConfig
 	return {
 		name: 'astro:scripts:page-ssr',
 		enforce: 'post',
-		
+
 		transform(this, code, id, options) {
 			if (!options?.ssr) return;
 
@@ -44,7 +44,7 @@ export default function astroScriptsPostPlugin({ config }: { config: AstroConfig
 			return {
 				code: s.toString(),
 				map: s.generateMap(),
-			}
+			};
 		},
 	};
 }

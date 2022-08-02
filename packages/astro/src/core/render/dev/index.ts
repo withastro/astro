@@ -9,8 +9,8 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { prependForwardSlash } from '../../../core/path.js';
+import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage } from '../../util.js';
 import { render as coreRender } from '../core.js';
