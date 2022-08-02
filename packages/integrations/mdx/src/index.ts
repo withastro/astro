@@ -1,4 +1,4 @@
-import { nodeTypes } from '@mdx-js/mdx';
+import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -9,8 +9,11 @@ import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
+import { VFile } from 'vfile';
+import type { Plugin as VitePlugin } from 'vite';
+import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
-import { getFileInfo } from './utils.js';
+import { getFileInfo, getFrontmatter } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -26,6 +29,7 @@ type MdxOptions = {
 };
 
 const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
+const DEFAULT_REHYPE_PLUGINS = [rehypeCollectHeadings];
 
 function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
@@ -40,7 +44,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 				let remarkPlugins = handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS);
-				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins);
+				let rehypePlugins = handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS);
 
 				if (config.markdown.syntaxHighlight === 'shiki') {
 					remarkPlugins.push([
@@ -48,7 +52,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 						// Workarounds tried:
 						// - "import * as remarkShikiTwoslash"
 						// - "import { default as remarkShikiTwoslash }"
-						(remarkShikiTwoslash as any).default,
+						(remarkShikiTwoslash as any).default ?? remarkShikiTwoslash,
 						config.markdown.shikiConfig,
 					]);
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
@@ -68,24 +72,56 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					},
 				]);
 
+				const mdxPluginOpts: MdxRollupPluginOptions = {
+					remarkPlugins,
+					rehypePlugins,
+					jsx: true,
+					jsxImportSource: 'astro',
+					// Note: disable `.md` support
+					format: 'mdx',
+					mdExtensions: [],
+				};
+
 				updateConfig({
 					vite: {
 						plugins: [
 							{
 								enforce: 'pre',
-								...mdxPlugin({
-									remarkPlugins,
-									rehypePlugins,
-									jsx: true,
-									jsxImportSource: 'astro',
-									// Note: disable `.md` support
-									format: 'mdx',
-									mdExtensions: [],
-								}),
+								...mdxPlugin(mdxPluginOpts),
+								// Override transform to alter code before MDX compilation
+								// ex. inject layouts
+								async transform(code, id) {
+									if (!id.endsWith('mdx')) return;
+
+									// If user overrides our default YAML parser,
+									// do not attempt to parse the `layout` via gray-matter
+									if (!mdxOptions.frontmatterOptions?.parsers) {
+										const frontmatter = getFrontmatter(code, id);
+										if (frontmatter.layout) {
+											const { layout, ...content } = frontmatter;
+											code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
+												frontmatter.layout
+											)})).default;\nreturn <Layout content={${JSON.stringify(
+												content
+											)}}>{children}</Layout> }`;
+										}
+									}
+
+									const compiled = await mdxCompile(
+										new VFile({ value: code, path: id }),
+										mdxPluginOpts
+									);
+
+									return {
+										code: String(compiled.value),
+										map: compiled.map,
+									};
+								},
 							},
 							{
-								name: '@astrojs/mdx',
-								transform(code: string, id: string) {
+								name: '@astrojs/mdx-postprocess',
+								// These transforms must happen *after* JSX runtime transformations
+								transform(code, id) {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
 
@@ -96,10 +132,14 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									// or otherwise refactored to not require copy-paste handling logic.
 									code += `\nimport "${'astro:scripts/page-ssr.js'}";`;
 
+									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
-										const { fileUrl } = getFileInfo(id, config);
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;
 									}
+									if (!moduleExports.includes('file')) {
+										code += `\nexport const file = ${JSON.stringify(fileId)};`;
+									}
+
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
 										code += `\nif (import.meta.hot) {
@@ -109,7 +149,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									return code;
 								},
 							},
-						],
+						] as VitePlugin[],
 					},
 				});
 			},

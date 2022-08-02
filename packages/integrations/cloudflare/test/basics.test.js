@@ -2,7 +2,7 @@ import { loadFixture, runCLI } from './test-utils.js';
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
-describe('Basic app', () => {
+describe.skip('Basic app', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
@@ -25,7 +25,7 @@ describe('Basic app', () => {
 			let $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Testing');
 		} finally {
-			await stop();
+			stop();
 		}
 	});
 });

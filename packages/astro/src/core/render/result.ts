@@ -263,6 +263,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 		_metadata: {
 			renderers,
 			pathname,
+			hasHydrationScript: false,
+			hasDirectives: new Set(),
 		},
 		response,
 	};

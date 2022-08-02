@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.0
+
+### Minor Changes
+
+- [#4045](https://github.com/withastro/astro/pull/4045) [`a397b981f`](https://github.com/withastro/astro/commit/a397b981f5f46dee85e6e00aa39633d018d4b9a2) Thanks [@tony-sull](https://github.com/tony-sull)! - Big improvements to the TypeScript and Language Tools support for `@astrojs/image` :tada:
+
 ## 0.2.0
 
 ### Minor Changes

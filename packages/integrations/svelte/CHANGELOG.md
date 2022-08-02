@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 0.5.1
+
+### Patch Changes
+
+- [#4057](https://github.com/withastro/astro/pull/4057) [`40251118f`](https://github.com/withastro/astro/commit/40251118f8a6b92b0e42aa3f57140319a848d425) Thanks [@matthewp](https://github.com/matthewp)! - Remove Svelte HMR warning during the build
+
 ## 0.5.0
 
 ### Minor Changes
