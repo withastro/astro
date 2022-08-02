@@ -1,5 +1,22 @@
 # @astrojs/mdx
 
+## 0.5.0
+
+### Minor Changes
+
+- [#4095](https://github.com/withastro/astro/pull/4095) [`40ef43a59`](https://github.com/withastro/astro/commit/40ef43a59b08a1a8fbcd9f4a53745a9636a4fbb9) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add IDs to MDX headings and expose via getHeadings() export
+
+* [#4114](https://github.com/withastro/astro/pull/4114) [`64432bcb8`](https://github.com/withastro/astro/commit/64432bcb873efd0e4297c00fc9583a1fe516dfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Refactor `@astrojs/mdx` and `@astrojs/markdown-remark` to use `@astrojs/prism` instead of duplicating the code
+
+### Patch Changes
+
+- [#4112](https://github.com/withastro/astro/pull/4112) [`e33fc9bc4`](https://github.com/withastro/astro/commit/e33fc9bc46ff0a30013deb6dc76e545e70cc3a3e) Thanks [@matthewp](https://github.com/matthewp)! - Fix MDX working with a ts config file
+
+* [#4049](https://github.com/withastro/astro/pull/4049) [`b60cc0538`](https://github.com/withastro/astro/commit/b60cc0538bc5c68dd411117780d20d892530789d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `injectScript` handling for non-Astro pages
+
+* Updated dependencies [[`64432bcb8`](https://github.com/withastro/astro/commit/64432bcb873efd0e4297c00fc9583a1fe516dfe7)]:
+  - @astrojs/prism@0.7.0
+
 ## 0.4.0
 
 ### Minor Changes
