@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^1.0.0-rc.3",
+    "astro": "^1.0.0-rc.4",
     "vite-plugin-pwa": "0.11.11",
     "workbox-window": "^6.5.3"
   }
