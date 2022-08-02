@@ -11,10 +11,11 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): 
 	let url = `http://${req.headers.host}${req.url}`;
 	let rawHeaders = req.headers as Record<string, any>;
 	const entries = Object.entries(rawHeaders);
+	const method = req.method || 'GET';
 	let request = new Request(url, {
-		method: req.method || 'GET',
+		method,
 		headers: new Headers(entries),
-		body,
+		body: ['HEAD', 'GET'].includes(method) ? null : body,
 	});
 	if (req.socket?.remoteAddress) {
 		Reflect.set(request, clientAddressSymbol, req.socket.remoteAddress);

@@ -1,7 +1,7 @@
 import npath from 'path';
 import vite from 'vite';
-import { STYLE_EXTENSIONS } from '../util.js';
 import { unwrapId } from '../../util.js';
+import { STYLE_EXTENSIONS } from '../util.js';
 
 /**
  * List of file extensions signalling we can (and should) SSR ahead-of-time
@@ -37,7 +37,7 @@ export async function* crawlGraph(
 		}
 		if (id === entry.id) {
 			scanned.add(id);
-			const entryIsStyle = STYLE_EXTENSIONS.has(npath.extname(id))
+			const entryIsStyle = STYLE_EXTENSIONS.has(npath.extname(id));
 			for (const importedModule of entry.importedModules) {
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
