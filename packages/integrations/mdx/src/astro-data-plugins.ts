@@ -1,22 +1,19 @@
 import type { VFile } from 'vfile';
 import type { MdxjsEsm } from 'mdast-util-mdx';
-import { safelyGetAstroExports } from 'astro/vite-plugin-utils';
+import { safelyGetAstroData } from 'astro/vite-plugin-utils';
 import { jsToTreeNode } from './utils.js';
 
-export function remarkInitializeAstroExports() {
+export function remarkInitializeAstroData() {
 	return function (tree: any, vfile: VFile) {
-		if (!vfile.data.astroExports) {
-			vfile.data.astroExports = {};
+		if (!vfile.data.astro) {
+			vfile.data.astro = { frontmatter: {} };
 		}
 	};
 }
 
 export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName = 'frontmatter') {
 	return function (tree: any, vfile: VFile) {
-		let frontmatter = pageFrontmatter;
-		if (vfile.data.astroExports) {
-			Object.assign(frontmatter, safelyGetAstroExports(vfile.data));
-		}
+		const frontmatter = { ...pageFrontmatter, ...safelyGetAstroData(vfile.data).frontmatter };
 		let exportNodes: MdxjsEsm[] = [];
 		if (!exportName) {
 			exportNodes = Object.entries(frontmatter).map(([k, v]) =>

@@ -1,10 +1,7 @@
 import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, AstroConfig } from 'astro';
-import {
-	remarkInitializeAstroExports,
-	rehypeApplyFrontmatterExport,
-} from './astro-exports-plugins.js';
+import { remarkInitializeAstroData, rehypeApplyFrontmatterExport } from './astro-data-plugins.js';
 import { parse as parseESM } from 'es-module-lexer';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
@@ -15,7 +12,7 @@ import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
-import { getFileInfo, getFrontmatter } from './utils.js';
+import { getFileInfo, parseFrontmatter } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
 
@@ -45,7 +42,7 @@ function getRemarkPlugins(
 ): MdxRollupPluginOptions['remarkPlugins'] {
 	let remarkPlugins = [
 		// Initialize vfile.data.astroExports before all plugins are run
-		remarkInitializeAstroExports,
+		remarkInitializeAstroData,
 		...handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
 	];
 	if (config.markdown.syntaxHighlight === 'shiki') {
@@ -105,7 +102,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								async transform(code, id) {
 									if (!id.endsWith('mdx')) return;
 
-									const { data: frontmatter, content: pageContent } = getFrontmatter(code, id);
+									let { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 									if (frontmatter.layout) {
 										const { layout, ...contentProp } = frontmatter;
 										code += `\n\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(

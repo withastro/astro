@@ -1,6 +1,5 @@
-import { name as isValidIdentifierName } from 'estree-util-is-identifier-name';
 import { Data } from 'vfile';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
 import { appendForwardSlash } from '../core/path.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
@@ -18,33 +17,29 @@ export function getFileInfo(id: string, config: AstroConfig) {
 	return { fileId, fileUrl };
 }
 
-function isValidJsonObject(obj: unknown): obj is object {
-	try {
-		// ensure object is JSON-serializable
-		JSON.stringify(obj);
-		return typeof obj === 'object' && obj !== null;
-	} catch {
-		return false;
+function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
+	if (typeof obj === 'object' && obj !== null && obj.hasOwnProperty('frontmatter')) {
+		const { frontmatter } = obj as any;
+		try {
+			// ensure frontmatter is JSON-serializable
+			JSON.stringify(frontmatter);
+		} catch {
+			return false;
+		}
+		return typeof frontmatter === 'object' && frontmatter !== null;
 	}
+	return false;
 }
 
-export function safelyGetAstroExports(vfileData: Data): object {
-	const { astroExports } = vfileData;
+export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
+	const { astro } = vfileData;
 
-	if (!astroExports) return {};
-	if (!isValidJsonObject(astroExports)) {
+	if (!astro) return { frontmatter: {} };
+	if (!isValidAstroData(astro)) {
 		throw Error(
-			`[Markdown] A remark or rehype plugin tried to append invalid file exports. Ensure "astroExports" is a JSON object!`
+			`[Markdown] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
 		);
 	}
-	for (const key of Object.keys(astroExports)) {
-		if (!isValidIdentifierName(key)) {
-			throw Error(
-				`[Markdown] A remark or rehype plugin provided an invalid export key: ${JSON.stringify(
-					key
-				)}.`
-			);
-		}
-	}
-	return astroExports;
+
+	return astro;
 }
