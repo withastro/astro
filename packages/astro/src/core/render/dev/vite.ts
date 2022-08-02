@@ -1,5 +1,6 @@
 import npath from 'path';
 import vite from 'vite';
+import { STYLE_EXTENSIONS } from '../util.js';
 import { unwrapId } from '../../util.js';
 
 /**
@@ -36,6 +37,7 @@ export async function* crawlGraph(
 		}
 		if (id === entry.id) {
 			scanned.add(id);
+			const entryIsStyle = STYLE_EXTENSIONS.has(npath.extname(id))
 			for (const importedModule of entry.importedModules) {
 				// some dynamically imported modules are *not* server rendered in time
 				// to only SSR modules that we can safely transform, we check against
@@ -43,6 +45,13 @@ export async function* crawlGraph(
 				if (importedModule.id) {
 					// use URL to strip special query params like "?content"
 					const { pathname } = new URL(`file://${importedModule.id}`);
+					// If the entry is a style, skip any modules that are not also styles.
+					// Tools like Tailwind might add HMR dependencies as `importedModules`
+					// but we should skip them--they aren't really imported. Without this,
+					// every hoisted script in the project is added to every page!
+					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(pathname))) {
+						continue;
+					}
 					if (fileExtensionsToSSR.has(npath.extname(pathname))) {
 						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
