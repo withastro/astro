@@ -33,8 +33,11 @@
     "@astrojs/prism": "^0.6.1",
     "@mdx-js/mdx": "^2.1.2",
     "@mdx-js/rollup": "^2.1.1",
+    "acorn": "^8.8.0",
     "es-module-lexer": "^0.10.5",
+    "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
+    "mdast-util-mdx": "^2.0.0",
     "prismjs": "^1.28.0",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
@@ -53,7 +56,9 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "linkedom": "^0.14.12",
+    "mdast-util-to-string": "^3.1.0",
     "mocha": "^9.2.2",
+    "reading-time": "^1.5.0",
     "remark-toc": "^8.0.1"
   },
   "engines": {
