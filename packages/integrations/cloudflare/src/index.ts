@@ -11,6 +11,11 @@ export function getAdapter(): AstroAdapter {
 	};
 }
 
+const SHIM = `globalThis.process = {
+	argv: [],
+	env: {},
+};`;
+
 export default function createIntegration(): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
@@ -23,12 +28,10 @@ export default function createIntegration(): AstroIntegration {
 				_config = config;
 
 				if (config.output === 'static') {
-					console.warn(
-						`[@astrojs/cloudflare] \`output: "server"\` is required to use this adapter.`
-					);
-					console.warn(
-						`[@astrojs/cloudflare] Otherwise, this adapter is not required to deploy a static site to Cloudflare.`
-					);
+					throw new Error(`
+  [@astrojs/cloudflare] \`output: "server"\` is required to use this adapter. Otherwise, this adapter is not necessary to deploy a static site to Cloudflare.
+
+`);
 				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
@@ -71,6 +74,9 @@ export default function createIntegration(): AstroIntegration {
 					format: 'esm',
 					bundle: true,
 					minify: true,
+					banner: {
+						js: SHIM,
+					},
 				});
 
 				// throw the server folder in the bin

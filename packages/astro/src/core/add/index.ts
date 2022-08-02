@@ -539,7 +539,6 @@ async function tryToInstallIntegrations({
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
 	if (installCommand === null) {
-		info(logging, null);
 		return UpdateResult.none;
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${
