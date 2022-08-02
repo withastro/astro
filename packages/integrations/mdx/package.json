@@ -43,7 +43,8 @@
     "remark-shiki-twoslash": "^3.1.0",
     "remark-smartypants": "^2.0.0",
     "shiki": "^0.10.1",
-    "unist-util-visit": "^4.1.0"
+    "unist-util-visit": "^4.1.0",
+    "vfile": "^5.3.2"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
