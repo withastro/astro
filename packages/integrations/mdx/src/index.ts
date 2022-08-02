@@ -52,7 +52,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 						// Workarounds tried:
 						// - "import * as remarkShikiTwoslash"
 						// - "import { default as remarkShikiTwoslash }"
-						(remarkShikiTwoslash as any).default,
+						(remarkShikiTwoslash as any).default ?? remarkShikiTwoslash,
 						config.markdown.shikiConfig,
 					]);
 					rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
