@@ -24,7 +24,7 @@ function safeMatter(source: string, id: string) {
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
 // logic in how that is done.
-export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
+export default function markdown({ config }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -34,7 +34,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const raw = safeMatter(code, id);
 				const renderResult = await renderMarkdown(raw.content, {
 					...config.markdown,
-					fileURL: fileUrl,
+					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
 				} as any);
 
