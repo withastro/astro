@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 0.7.0
+
+### Minor Changes
+
+- [#4114](https://github.com/withastro/astro/pull/4114) [`64432bcb8`](https://github.com/withastro/astro/commit/64432bcb873efd0e4297c00fc9583a1fe516dfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Refactor `@astrojs/mdx` and `@astrojs/markdown-remark` to use `@astrojs/prism` instead of duplicating the code
+
 ## 0.6.1
 
 ### Patch Changes
