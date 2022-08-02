@@ -9,11 +9,12 @@ import { toString } from 'mdast-util-to-string';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 export function rehypeReadingTime() {
-	return function (tree) {
+	return function (tree, vfile) {
 		const readingTime = getReadingTime(toString(tree));
 		tree.children.unshift(
 			jsToTreeNode(`export const readingTime = ${JSON.stringify(readingTime)}`)
 		);
+		vfile.data.astroExports['injectedReadingTime'] = readingTime;
 	};
 }
 
@@ -46,11 +47,18 @@ describe('MDX rehype plugins', () => {
 		});
 
 		it('supports custom rehype plugins - reading time', async () => {
-			const readingTime = JSON.parse(await fixture.readFile('/reading-time.json'));
+			const { readingTime } = JSON.parse(await fixture.readFile('/reading-time.json'));
 
 			expect(readingTime).to.not.be.null;
 			expect(readingTime.text).to.match(/^\d+ min read/);
 		});
+
+		it('supports custom vfile data with "astroExports" - reading time', async () => {
+			const { injectedReadingTime } = JSON.parse(await fixture.readFile('/reading-time.json'));
+
+			expect(injectedReadingTime).to.not.be.null;
+			expect(injectedReadingTime.text).to.match(/^\d+ min read/);
+		})
 	});
 
 	describe('with "extends"', () => {

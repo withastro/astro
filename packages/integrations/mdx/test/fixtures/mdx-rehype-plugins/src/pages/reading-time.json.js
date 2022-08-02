@@ -1,7 +1,7 @@
-import { readingTime } from './space-ipsum.mdx';
+import { readingTime, injectedReadingTime } from './space-ipsum.mdx';
 
 export function get() {
 	return {
-		body: JSON.stringify(readingTime),
+		body: JSON.stringify({ readingTime, injectedReadingTime }),
 	}
 }
