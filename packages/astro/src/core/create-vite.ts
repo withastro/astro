@@ -12,7 +12,7 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
-import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import markdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors.js';
