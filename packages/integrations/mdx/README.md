@@ -103,6 +103,24 @@ const posts = await Astro.glob('./*.mdx');
 
 See [the official "how MDX works" guide](https://mdxjs.com/docs/using-mdx/#how-mdx-works) for more on MDX variables.
 
+### Exported properties
+
+Alongside your [MDX variable exports](#variables), we generate a few helpful exports as well. These are accessible when importing an MDX file via `import` statements or [`Astro.glob`](https://docs.astro.build/en/reference/api-reference/#astroglob).
+
+#### `file`
+
+The absolute path to the MDX file (e.g. `home/user/projects/.../file.md`).
+
+#### `url`
+
+The browser-ready URL for MDX files under `src/pages/`. For example, `src/pages/en/about.mdx` will provide a `url` of `/en/about/`. For MDX files outside of `src/pages`, `url` will be `undefined`.
+
+#### `getHeadings()`
+
+**Returns:** `{ depth: number; slug: string; text: string }[]`
+
+A function that returns an array of all headings (i.e. `h1 -> h6` elements) in the MDX file. Each heading’s `slug` corresponds to the generated ID for a given heading and can be used for anchor links.
+
 ### Frontmatter
 
 Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
@@ -279,11 +297,26 @@ export default {
 <details>
   <summary><strong>rehypePlugins</strong></summary>
 
-**Default plugins:** none
+**Default plugins:** [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts)
 
 [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your Markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their Markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
 
-To apply rehype plugins, use the `rehypePlugins` configuration option like so:
+We apply our own [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin by default. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
+
+To apply rehype plugins _while preserving_ Astro's default plugins, use a nested `extends` object like so:
+
+```js
+// astro.config.mjs
+import rehypeMinifyHtml from 'rehype-minify';
+
+export default {
+  integrations: [mdx({
+    rehypePlugins: { extends: [rehypeMinifyHtml] },
+  })],
+}
+```
+
+To apply plugins _without_ Astro's defaults, you can apply a plain array:
 
 ```js
 // astro.config.mjs
