@@ -51,7 +51,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 						props[key] = value;
 					}
 				}
-				return await renderToString(result, vnode.type as any, props, slots);
+				return markHTMLString(await renderToString(result, vnode.type as any, props, slots));
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';
