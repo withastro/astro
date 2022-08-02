@@ -124,7 +124,7 @@ export default async function preview(
 					port++;
 					return listen(); // retry
 				} else {
-					error(logging, 'astro', err.stack);
+					error(logging, 'astro', err.stack || err.message);
 					httpServer?.removeListener('error', onError);
 					reject(err); // reject
 				}

@@ -9,8 +9,6 @@ import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
-import { resolvePages } from '../core/util.js';
-import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
@@ -215,14 +213,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 
 			const filename = normalizeFilename(parsedId.filename);
-			let isPage = false;
-			try {
-				const fileUrl = new URL(`file://${filename}`);
-				isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
-			} catch {}
-			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script src="${PAGE_SCRIPT_ID}" />`;
-			}
 			const compileProps: CompileProps = {
 				config,
 				filename,
@@ -268,10 +258,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
-				}
-				// Add handling to inject scripts into each page JS bundle, if needed.
-				if (isPage) {
-					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 
 				// Prefer live reload to HMR in `.astro` files

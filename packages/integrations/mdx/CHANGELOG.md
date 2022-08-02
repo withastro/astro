@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.4.0
+
+### Minor Changes
+
+- [#4088](https://github.com/withastro/astro/pull/4088) [`1743fe140`](https://github.com/withastro/astro/commit/1743fe140eb58d60e26cbd11a066bb60de046e0c) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support "layout" frontmatter property
+
 ## 0.3.1
 
 ### Patch Changes

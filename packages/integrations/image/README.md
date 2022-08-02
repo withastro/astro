@@ -102,7 +102,7 @@ For images in your project's repository, use the `src` relative to the `public` 
 
 <p>
 
-**Type:** 'avif' | 'jpeg' | 'png' | 'webp'<br>
+**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
@@ -201,7 +201,7 @@ See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/size
 <p>
 
 **Type:** `number[]`<br>
-**Reuqired:** `true`
+**Required:** `true`
 </p>
 
 The list of sizes that should be built for responsive images. This is combined with `aspectRatio` to calculate the final dimensions of each built image.
@@ -229,7 +229,7 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 <p>
 
-**Type:** Array<'avif' | 'jpeg' | 'png' | 'webp'><br>
+**Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
 **Default:** `undefined`
 </p>
 

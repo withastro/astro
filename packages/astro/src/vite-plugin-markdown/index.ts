@@ -10,11 +10,9 @@ import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
-import { resolvePages } from '../core/util.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
-import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
@@ -147,8 +145,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const isAstroFlavoredMd = config.legacy.astroFlavoredMarkdown;
 
 				const fileUrl = new URL(`file://${filename}`);
-				const isPage = fileUrl.pathname.startsWith(resolvePages(config).pathname);
-				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
 				let { data: frontmatter, content: markdownContent } = safeMatter(source, filename);
@@ -187,7 +183,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
 ${isAstroFlavoredMd && components ? `import * from '${components}';` : ''}
-${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
 ${isAstroFlavoredMd ? setup : ''}
 
 const slugger = new Slugger();
@@ -224,7 +219,8 @@ ${isAstroFlavoredMd ? setup : ''}`.trim();
 				if (/\bLayout\b/.test(imports)) {
 					astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
 				} else {
-					astroResult = `${prelude}\n${astroResult}`;
+					// Note: without a Layout, we need to inject `head` manually so `maybeRenderHead` runs
+					astroResult = `${prelude}\n<head></head>${astroResult}`;
 				}
 
 				// Transform from `.astro` to valid `.ts`

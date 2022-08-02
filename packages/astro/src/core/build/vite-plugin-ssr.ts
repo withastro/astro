@@ -8,7 +8,7 @@ import glob from 'fast-glob';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../integrations/index.js';
-import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
@@ -123,11 +123,18 @@ function buildManifest(
 	const { astroConfig } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
+	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
+	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
+	}
 
 	for (const pageData of eachPageData(internals)) {
 		const scripts: SerializedRouteInfo['scripts'] = [];
 		if (pageData.hoistedScript) {
 			scripts.unshift(pageData.hoistedScript);
+		}
+		if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
 		routes.push({
@@ -144,7 +151,6 @@ function buildManifest(
 	}
 
 	// HACK! Patch this special one.
-	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
 	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
 		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
 			'data:text/javascript;charset=utf-8,//[no before-hydration script]';
