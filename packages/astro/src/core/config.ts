@@ -11,12 +11,12 @@ import path from 'path';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath, pathToFileURL } from 'url';
+import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
 import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
-import * as vite from 'vite';
 
 load.use([loadTypeScript]);
 
@@ -410,8 +410,6 @@ export async function resolveConfigURL(
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
 
-	
-
 	if (flags?.config) {
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
@@ -478,7 +476,12 @@ interface TryLoadConfigResult {
 	filePath?: string;
 }
 
-async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, userConfigPath: string | undefined, root: string): Promise<TryLoadConfigResult | undefined> {
+async function tryLoadConfig(
+	configOptions: LoadConfigOptions,
+	flags: CLIFlags,
+	userConfigPath: string | undefined,
+	root: string
+): Promise<TryLoadConfigResult | undefined> {
 	try {
 		// Automatically load config file using Proload
 		// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
@@ -489,30 +492,30 @@ async function tryLoadConfig(configOptions: LoadConfigOptions, flags: CLIFlags, 
 		});
 
 		return config as TryLoadConfigResult;
-	} catch(e) {
+	} catch (e) {
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
 
 		const configURL = await resolveConfigURL(configOptions);
-		if(!configURL) {
+		if (!configURL) {
 			throw e;
 		}
 
 		// Fallback to use Vite DevServer
 		const viteServer = await vite.createServer({
 			server: { middlewareMode: true, hmr: false },
-			appType: 'custom'
+			appType: 'custom',
 		});
 		try {
 			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
 
-			if(mod?.default) {
+			if (mod?.default) {
 				return {
 					value: mod.default,
 					filePath: fileURLToPath(configURL),
 				};
-			};
+			}
 		} finally {
 			await viteServer.close();
 		}
