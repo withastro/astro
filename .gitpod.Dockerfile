@@ -1,4 +1,4 @@
-FROM gitpod/workspace-node
+FROM gitpod/workspace-node-lts
 
 # Install latest pnpm
 RUN pnpm i -g pnpm
