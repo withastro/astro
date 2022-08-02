@@ -45,23 +45,8 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				return {
 					code: `
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
-				${
-					layout
-						? `import Layout from ${JSON.stringify(
-								layout
-						  )};\nimport * as $$module from ${JSON.stringify(layout)};`
-						: ''
-				}
+				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
-				export const $$metadata = {
-					modules: [{ module: $$module, specifier: ${JSON.stringify(layout)}, assert: {} }],
-					hydratedComponents: [],
-					clientOnlyComponents: [],
-					hydrationDirectives: new Set([]),
-					hoisted: [],
-				};
-				console.log('working')
-				export const $$loadMetadata = () => $$metadata;
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};
