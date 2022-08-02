@@ -58,16 +58,16 @@ async function loadRenderer(
 	// it is explicitly marked as noExternal.
 	const noExternal = viteServer.config.ssr.noExternal;
 	if(noExternal === true || Array.isArray(noExternal) && noExternal.includes(renderer.serverEntrypoint)) {
-		const id = renderer.serverEntrypoint;
-		mod = (await import(id)) as SSRLoadedRendererServerModule;
-	} else {
-			// Vite modules can be out-of-date when using an un-resolved url
-	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
-	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
+		// Vite modules can be out-of-date when using an un-resolved url
+		// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
+		// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
 		const id =
 		viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ??
 		renderer.serverEntrypoint;
 		mod = (await viteServer.ssrLoadModule(id)) as SSRLoadedRendererServerModule;
+	}	else {
+		const id = renderer.serverEntrypoint;
+		mod = (await import(id)) as SSRLoadedRendererServerModule;
 	}
 
 	return Object.create(renderer, {
