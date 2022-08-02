@@ -2183,6 +2183,7 @@ importers:
       remark-toc: ^8.0.1
       shiki: ^0.10.1
       unist-util-visit: ^4.1.0
+      vfile: ^5.3.2
     dependencies:
       '@astrojs/prism': link:../../astro-prism
       '@mdx-js/mdx': 2.1.2
@@ -2199,6 +2200,7 @@ importers:
       remark-smartypants: 2.0.0
       shiki: 0.10.1
       unist-util-visit: 4.1.0
+      vfile: 5.3.4
     devDependencies:
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
