@@ -4,6 +4,7 @@ import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
+import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
@@ -44,8 +45,23 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				return {
 					code: `
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
-				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
+				${
+					layout
+						? `import Layout from ${JSON.stringify(
+								layout
+						  )};\nimport * as $$module from ${JSON.stringify(layout)};`
+						: ''
+				}
 
+				export const $$metadata = {
+					modules: [{ module: $$module, specifier: ${JSON.stringify(layout)}, assert: {} }],
+					hydratedComponents: [],
+					clientOnlyComponents: [],
+					hydrationDirectives: new Set([]),
+					hoisted: [],
+				};
+				console.log('working')
+				export const $$loadMetadata = () => $$metadata;
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};
@@ -58,7 +74,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
 					const contentFragment = h(Fragment, { 'set:html': ${JSON.stringify(html)} });
-					console.log(h(Layout, { content, children: contentFragment }))
 					return ${
 						layout
 							? `h(Layout, { content, 'server:root': true, children: contentFragment })`
@@ -67,6 +82,16 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				}
 				export default Content;
 				`,
+					meta: {
+						astro: {
+							hydratedComponents: [],
+							clientOnlyComponents: [],
+							scripts: [],
+						} as PluginMetadata['astro'],
+						vite: {
+							lang: 'ts',
+						},
+					},
 				};
 			}
 		},
