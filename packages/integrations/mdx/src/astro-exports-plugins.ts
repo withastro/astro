@@ -1,8 +1,9 @@
 import type { VFile } from 'vfile';
+import type { MdxjsEsm } from 'mdast-util-mdx';
 import { safelyGetAstroExports } from 'astro/vite-plugin-utils';
 import { jsToTreeNode } from './utils.js';
 
-export function initializeAstroExportsPlugin() {
+export function remarkInitializeAstroExports() {
 	return function (tree: any, vfile: VFile) {
 		if (!vfile.data.astroExports) {
 			vfile.data.astroExports = {};
@@ -10,14 +11,20 @@ export function initializeAstroExportsPlugin() {
 	};
 }
 
-export function applyAstroExportsPlugin() {
+export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName = 'frontmatter') {
 	return function (tree: any, vfile: VFile) {
+		let frontmatter = pageFrontmatter;
 		if (vfile.data.astroExports) {
-			const astroExports = safelyGetAstroExports(vfile.data);
-			const exportNodes = Object.entries(astroExports).map(([k, v]) =>
+			Object.assign(frontmatter, safelyGetAstroExports(vfile.data));
+		}
+		let exportNodes: MdxjsEsm[] = [];
+		if (!exportName) {
+			exportNodes = Object.entries(frontmatter).map(([k, v]) =>
 				jsToTreeNode(`export const ${k} = ${JSON.stringify(v)};`)
 			);
-			tree.children = exportNodes.concat(tree.children);
+		} else {
+			exportNodes = [jsToTreeNode(`export const ${exportName} = ${JSON.stringify(frontmatter)};`)];
 		}
+		tree.children = exportNodes.concat(tree.children);
 	};
 }

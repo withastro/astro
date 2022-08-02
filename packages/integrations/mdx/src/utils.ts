@@ -49,7 +49,7 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
  */
 export function getFrontmatter(code: string, id: string) {
 	try {
-		return matter(code).data;
+		return matter(code);
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: SSRError = e;
