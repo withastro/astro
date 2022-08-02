@@ -50,14 +50,32 @@ async function loadRenderer(
 	viteServer: ViteDevServer,
 	renderer: AstroRenderer
 ): Promise<SSRLoadedRenderer> {
-	// Vite modules can be out-of-date when using an un-resolved url
+	type SSRLoadedRendererServerModule = { default: SSRLoadedRenderer['ssr'] };
+
+	let mod: SSRLoadedRendererServerModule;
+	
+	// Prefer using Node built-in ESM import rather than Vite ssrLoadModule unless
+	// it is explicitly marked as noExternal.
+	const noExternal = viteServer.config.ssr.noExternal;
+	if(noExternal === true || Array.isArray(noExternal) && noExternal.includes(renderer.serverEntrypoint)) {
+		const id = renderer.serverEntrypoint;
+		mod = (await import(id)) as SSRLoadedRendererServerModule;
+	} else {
+			// Vite modules can be out-of-date when using an un-resolved url
 	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
 	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
-	const id =
+		const id =
 		viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ??
 		renderer.serverEntrypoint;
-	const mod = (await viteServer.ssrLoadModule(id)) as { default: SSRLoadedRenderer['ssr'] };
-	return { ...renderer, ssr: mod.default };
+		mod = (await viteServer.ssrLoadModule(id)) as SSRLoadedRendererServerModule;
+	}
+
+	return Object.create(renderer, {
+		ssr: {
+			enumerable: true,
+			value: mod.default
+		}
+	});
 }
 
 export async function loadRenderers(

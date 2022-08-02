@@ -56,12 +56,7 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 				'@astrojs/preact/client.js',
 				'preact',
 				'preact/jsx-runtime',
-				'preact-render-to-string',
 			],
-			exclude: ['@astrojs/preact/server.js'],
-		},
-		ssr: {
-			external: ['preact-render-to-string'],
 		},
 	};
 
