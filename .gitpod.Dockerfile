@@ -1,6 +1,8 @@
 FROM gitpod/workspace-node-lts
 
 # Install latest pnpm
+RUN export PNPM_HOME="/home/gitpod/.local/share/pnpm"
+RUN export PATH="$PNPM_HOME:$PATH"
 RUN pnpm i -g pnpm
 
 # Install deno in gitpod
