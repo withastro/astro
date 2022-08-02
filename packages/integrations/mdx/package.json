@@ -37,8 +37,6 @@
     "es-module-lexer": "^0.10.5",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
-    "mdast-util-mdx": "^2.0.0",
-    "prismjs": "^1.28.0",
     "rehype-raw": "^6.1.1",
     "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",

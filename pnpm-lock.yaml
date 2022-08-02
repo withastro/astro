@@ -441,7 +441,6 @@ importers:
       '@astrojs/compiler': ^0.22.1
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^0.13.0
-      '@astrojs/prism': 0.6.1
       '@astrojs/telemetry': ^0.4.1
       '@astrojs/webapi': ^0.12.0
       '@babel/core': ^7.18.2
@@ -503,7 +502,6 @@ importers:
       postcss: ^8.4.14
       postcss-load-config: ^3.1.4
       preferred-pm: ^3.0.3
-      prismjs: ^1.28.0
       prompts: ^2.4.2
       recast: ^0.20.5
       rehype: ^12.0.1
@@ -529,7 +527,6 @@ importers:
       '@astrojs/compiler': 0.22.1
       '@astrojs/language-server': 0.20.3
       '@astrojs/markdown-remark': link:../markdown/remark
-      '@astrojs/prism': link:../astro-prism
       '@astrojs/telemetry': link:../telemetry
       '@astrojs/webapi': link:../webapi
       '@babel/core': 7.18.9
@@ -566,7 +563,6 @@ importers:
       postcss: 8.4.14
       postcss-load-config: 3.1.4_postcss@8.4.14
       preferred-pm: 3.0.3
-      prismjs: 1.28.0
       prompts: 2.4.2
       recast: 0.20.5
       rehype: 12.0.1
@@ -617,9 +613,14 @@ importers:
 
   packages/astro-prism:
     specifiers:
+      '@types/prismjs': 1.26.0
+      astro-scripts: workspace:*
       prismjs: ^1.28.0
-    devDependencies:
+    dependencies:
       prismjs: 1.28.0
+    devDependencies:
+      '@types/prismjs': 1.26.0
+      astro-scripts: link:../../scripts
 
   packages/astro-rss:
     specifiers:
@@ -2186,10 +2187,8 @@ importers:
       github-slugger: ^1.4.0
       gray-matter: ^4.0.3
       linkedom: ^0.14.12
-      mdast-util-mdx: ^2.0.0
       mdast-util-to-string: ^3.1.0
       mocha: ^9.2.2
-      prismjs: ^1.28.0
       reading-time: ^1.5.0
       rehype-raw: ^6.1.1
       remark-frontmatter: ^4.0.1
@@ -2208,8 +2207,6 @@ importers:
       es-module-lexer: 0.10.5
       github-slugger: 1.4.0
       gray-matter: 4.0.3
-      mdast-util-mdx: 2.0.0
-      prismjs: 1.28.0
       rehype-raw: 6.1.1
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
@@ -2613,7 +2610,6 @@ importers:
       '@types/hast': ^2.3.4
       '@types/mdast': ^3.0.10
       '@types/mocha': ^9.1.1
-      '@types/prismjs': ^1.26.0
       '@types/unist': ^2.0.6
       acorn: ^8.7.1
       acorn-jsx: ^5.3.2
@@ -2629,7 +2625,6 @@ importers:
       micromark-util-combine-extensions: ^1.0.0
       micromark-util-types: ^1.0.2
       mocha: ^9.2.2
-      prismjs: ^1.28.0
       rehype-raw: ^6.1.1
       rehype-stringify: ^9.0.3
       remark-gfm: ^3.0.1
@@ -2654,7 +2649,6 @@ importers:
       micromark-extension-mdx-expression: 1.0.3
       micromark-extension-mdx-md: 1.0.0
       micromark-util-combine-extensions: 1.0.0
-      prismjs: 1.28.0
       rehype-raw: 6.1.1
       rehype-stringify: 9.0.3
       remark-gfm: 3.0.1
@@ -2672,7 +2666,6 @@ importers:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
       '@types/mocha': 9.1.1
-      '@types/prismjs': 1.26.0
       '@types/unist': 2.0.6
       astro-scripts: link:../../../scripts
       chai: 4.3.6
@@ -14525,6 +14518,7 @@ packages:
   /prismjs/1.28.0:
     resolution: {integrity: sha512-8aaXdYvl1F7iC7Xm1spqSaY/OJBpYW3v+KJ+F17iYxvdc8sfjW194COK5wVhMZX45tGteiBQgdvD/nhxcRwylw==}
     engines: {node: '>=6'}
+    dev: false
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
