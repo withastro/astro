@@ -9,6 +9,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
+import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { prependForwardSlash } from '../../../core/path.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage } from '../../util.js';
@@ -124,12 +125,18 @@ export async function render(
 			children: '',
 		});
 	}
+
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts
 	for (const script of astroConfig._ctx.scripts) {
 		if (script.stage === 'head-inline') {
 			scripts.add({
 				props: {},
 				children: script.content,
+			});
+		} else if (script.stage === 'page' && isPage(filePath, astroConfig)) {
+			scripts.add({
+				props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
+				children: '',
 			});
 		}
 	}

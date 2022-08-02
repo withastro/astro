@@ -125,13 +125,6 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									if (!id.endsWith('.mdx')) return;
 									const [, moduleExports] = parseESM(code);
 
-									// This adds support for injected "page-ssr" scripts in MDX files.
-									// TODO: This should only be happening on page entrypoints, not all imported MDX.
-									// TODO: This code is copy-pasted across all Astro/Vite plugins that deal with page
-									// entrypoints (.astro, .md, .mdx). This should be handled in some centralized place,
-									// or otherwise refactored to not require copy-paste handling logic.
-									code += `\nimport "${'astro:scripts/page-ssr.js'}";`;
-
 									const { fileUrl, fileId } = getFileInfo(id, config);
 									if (!moduleExports.includes('url')) {
 										code += `\nexport const url = ${JSON.stringify(fileUrl)};`;

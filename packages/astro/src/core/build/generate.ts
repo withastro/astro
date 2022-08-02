@@ -18,7 +18,7 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
-import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
+import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { render } from '../render/core.js';
@@ -271,6 +271,18 @@ async function generatePath(
 			: astroConfig.site;
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
+
+	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+		const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+		if (typeof hashedFilePath !== 'string') {
+			throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+		}
+		const src = prependForwardSlash(npath.posix.join(astroConfig.base, hashedFilePath));
+		scripts.add({
+			props: { type: 'module', src },
+			children: '',
+		})
+	}
 
 	// Add all injected scripts to the page.
 	for (const script of astroConfig._ctx.scripts) {
