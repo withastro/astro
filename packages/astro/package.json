@@ -136,7 +136,7 @@
     "tsconfig-resolver": "^3.0.1",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
-    "vite": "3.0.2",
+    "vite": "3.0.4",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },
