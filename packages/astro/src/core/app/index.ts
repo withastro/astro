@@ -168,8 +168,8 @@ export class App {
 			});
 
 			return response;
-		} catch (err) {
-			error(this.#logging, 'ssr', err);
+		} catch (err: any) {
+			error(this.#logging, 'ssr', err.stack || err.message || String(err));
 			return new Response(null, {
 				status: 500,
 				statusText: 'Internal server error',

@@ -8,6 +8,7 @@ import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, isModeServerWithNoAdapter, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
 import { generatePages } from './generate.js';
@@ -84,6 +85,10 @@ Example:
 		...rendererClientEntrypoints,
 		...internals.discoveredScripts,
 	]);
+
+	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+		clientInput.add(PAGE_SCRIPT_ID);
+	}
 
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	timer.clientBuild = performance.now();
