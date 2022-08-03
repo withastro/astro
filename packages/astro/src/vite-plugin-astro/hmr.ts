@@ -5,7 +5,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { invalidateCompilation, isCached } from './compile.js';
+import { cachedCompilation, invalidateCompilation, isCached } from './compile.js';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
@@ -55,9 +55,40 @@ const isPkgFile = (id: string | null) => {
 	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname);
 };
 
-export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
-	// Invalidate the compilation cache so it recompiles
-	invalidateCompilation(config, ctx.file);
+export interface HandleHotUpdateOptions {
+	config: AstroConfig;
+	logging: LogOptions;
+	compile: () => ReturnType<typeof cachedCompilation>;
+}
+
+export async function handleHotUpdate(
+	ctx: HmrContext,
+	{ config, logging, compile }: HandleHotUpdateOptions
+) {
+	let isStyleOnlyChange = false;
+	if (ctx.file.endsWith('.astro')) {
+		// Get the compiled result from the cache
+		const oldResult = await compile();
+		// But we also need a fresh, uncached result to compare it to
+		invalidateCompilation(config, ctx.file);
+		const newResult = await compile();
+		// If the hashes are identical, we assume only styles have changed
+		if (oldResult.scope === newResult.scope) {
+			isStyleOnlyChange = true;
+			// All styles are the same, we can skip an HMR update
+			const styles = new Set(newResult.css);
+			for (const style of oldResult.css) {
+				if (styles.has(style)) {
+					styles.delete(style);
+				}
+			}
+			if (styles.size === 0) {
+				return [];
+			}
+		}
+	} else {
+		invalidateCompilation(config, ctx.file);
+	}
 
 	// Skip monorepo files to avoid console spam
 	if (isPkgFile(ctx.file)) {
@@ -91,12 +122,21 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 	// Invalidate happens as a separate step because a single .astro file
 	// produces multiple CSS modules and we want to return all of those.
 	for (const file of files) {
+		if (isStyleOnlyChange && file === ctx.file) continue;
 		invalidateCompilation(config, file);
 	}
 
 	// Bugfix: sometimes style URLs get normalized and end with `lang.css=`
 	// These will cause full reloads, so filter them out here
 	const mods = ctx.modules.filter((m) => !m.url.endsWith('='));
+	const file = ctx.file.replace(config.root.pathname, '/');
+
+	// If only styles are changed, remove the component file from the update list
+	if (isStyleOnlyChange) {
+		info(logging, 'astro', msg.hmr({ file, style: true }));
+		// remove base file and hoisted scripts
+		return mods.filter((mod) => mod.id !== ctx.file && !mod.id?.endsWith('.ts'));
+	}
 
 	// Add hoisted scripts so these get invalidated
 	for (const mod of mods) {
@@ -106,9 +146,9 @@ export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logg
 			}
 		}
 	}
-	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 
-	const file = ctx.file.replace(config.root.pathname, '/');
+  // TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
+	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {

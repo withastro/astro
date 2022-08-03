@@ -142,6 +142,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					return {
 						code,
+						meta: {
+							vite: {
+								isSelfAccepting: true,
+							},
+						},
 					};
 				}
 				case 'script': {
@@ -342,9 +347,19 @@ ${source}
 				throw err;
 			}
 		},
-		async handleHotUpdate(context) {
+		async handleHotUpdate(this: PluginContext, context) {
 			if (context.server.config.isProduction) return;
-			return handleHotUpdate.call(this, context, config, logging);
+			const compileProps: CompileProps = {
+				config,
+				filename: context.file,
+				moduleId: context.file,
+				source: await context.read(),
+				ssr: true,
+				viteTransform,
+				pluginContext: this,
+			};
+			const compile = () => cachedCompilation(compileProps);
+			return handleHotUpdate.call(this, context, { config, logging, compile });
 		},
 	};
 }
