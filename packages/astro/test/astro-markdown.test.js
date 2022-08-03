@@ -68,6 +68,31 @@ describe('Astro Markdown', () => {
 		});
 	});
 
+
+	it('Passes frontmatter to layout via "content" and "frontmatter" props', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
+
+		const contentTitle = $('[data-content-title]');
+		const frontmatterTitle = $('[data-frontmatter-title]');
+
+		expect(contentTitle.text()).to.equal('With layout');
+		expect(frontmatterTitle.text()).to.equal('With layout');
+	});
+
+	it('Passes headings to layout via "headings" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
+
+		const headingSlugs = [...$('body').find('[data-headings] > li')].map(
+			(el) => $(el).text()
+		);
+
+		expect(headingSlugs.length).to.be.greaterThan(0);
+		expect(headingSlugs).to.contain('section-1');
+		expect(headingSlugs).to.contain('section-2');
+	});
+
 	describe('Vite env vars (#3412)', () => {
 		it('Allows referencing import.meta.env in content', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');

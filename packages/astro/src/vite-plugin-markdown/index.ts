@@ -71,7 +71,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 					const contentFragment = h(Fragment, { 'set:html': ${JSON.stringify(html)} });
 					return ${
 						layout
-							? `h(Layout, { content, 'server:root': true, children: contentFragment })`
+							? `h(Layout, { content, frontmatter: content, headings: getHeadings(), 'server:root': true, children: contentFragment })`
 							: `contentFragment`
 					};
 				}
