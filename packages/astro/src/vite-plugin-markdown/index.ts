@@ -42,6 +42,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				} as any);
 
 				const html = renderResult.code;
+				const { headings } = renderResult.metadata;
 				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
 				const { layout } = frontmatter;
 
@@ -58,6 +59,13 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				export function compiledContent() {
 					return ${JSON.stringify(html)};
 				}
+				export function getHeadings() {
+					return ${JSON.stringify(headings)};
+				}
+				export function getHeaders() {
+					console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
+					return getHeadings();
+				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
 					const contentFragment = h(Fragment, { 'set:html': ${JSON.stringify(html)} });
