@@ -7,6 +7,7 @@ import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { warn } from '../core/logger/core.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -22,7 +23,7 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-export default function markdown({ config }: AstroPluginOptions): Plugin {
+export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -45,6 +46,14 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { headings } = renderResult.metadata;
 				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
 				const { layout } = frontmatter;
+
+				if (frontmatter.setup) {
+					warn(
+						logging,
+						'markdown',
+						`[${id}] Astro now supports MDX! Support for components in ".md" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+					);
+				}
 
 				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
