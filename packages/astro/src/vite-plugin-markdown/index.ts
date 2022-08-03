@@ -22,9 +22,6 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-// TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
-// Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
-// logic in how that is done.
 export default function markdown({ config }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
