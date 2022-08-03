@@ -1634,6 +1634,22 @@ importers:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
+  packages/astro/test/fixtures/multiple-renderers:
+    specifiers:
+      '@astrojs/renderer-one': file:./renderers/one
+      '@astrojs/renderer-two': file:./renderers/two
+      astro: workspace:*
+    dependencies:
+      '@astrojs/renderer-one': file:packages/astro/test/fixtures/multiple-renderers/renderers/one
+      '@astrojs/renderer-two': file:packages/astro/test/fixtures/multiple-renderers/renderers/two
+      astro: link:../../..
+
+  packages/astro/test/fixtures/multiple-renderers/renderers/one:
+    specifiers: {}
+
+  packages/astro/test/fixtures/multiple-renderers/renderers/two:
+    specifiers: {}
+
   packages/astro/test/fixtures/page-level-styles:
     specifiers:
       astro: workspace:*
@@ -17078,4 +17094,16 @@ packages:
     resolution: {directory: packages/astro/test/fixtures/css-assets/packages/font-awesome, type: directory}
     name: '@astrojs/test-font-awesome-package'
     version: 0.0.1
+    dev: false
+
+  file:packages/astro/test/fixtures/multiple-renderers/renderers/one:
+    resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/one, type: directory}
+    name: '@astrojs/renderer-one'
+    version: 1.0.0
+    dev: false
+
+  file:packages/astro/test/fixtures/multiple-renderers/renderers/two:
+    resolution: {directory: packages/astro/test/fixtures/multiple-renderers/renderers/two, type: directory}
+    name: '@astrojs/renderer-two'
+    version: 1.0.0
     dev: false

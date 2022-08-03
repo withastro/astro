@@ -310,7 +310,9 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 				}
 			}
 
-			if (error) {
+			// If no renderer is found and there is an error, throw that error because
+			// it is likely a problem with the component code.
+			if (!renderer && error) {
 				throw error;
 			}
 		}
