@@ -10,7 +10,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderPage } from '../../runtime/server/index.js';
+import { renderPage, Fragment } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -156,6 +156,10 @@ export async function render(opts: RenderOptions): Promise<Response> {
 	// Support `export const components` for `MDX` pages
 	if (typeof (mod as any).components === 'object') {
 		Object.assign(pageProps, { components: (mod as any).components });
+	}
+
+	if (mod.default && mod.default.name.startsWith('MDX')) {
+		Object.assign(pageProps, { components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }) });
 	}
 
 	return await renderPage(result, Component, pageProps, null, streaming);
