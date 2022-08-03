@@ -137,9 +137,10 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				JSX_RENDERER_CACHE.set(config, jsxRenderers);
 			}
 
-			// Attempt: Single JSX renderer
-			// If we only have one renderer, we can skip a bunch of work!
-			if (jsxRenderers.size === 1) {
+			const astroRenderer = jsxRenderers.get('astro');
+
+			// Attempt: Astro renderer only - use for all cases
+			if (jsxRenderers.size === 1 && astroRenderer) {
 				// downlevel any non-standard syntax, but preserve JSX
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
@@ -147,10 +148,32 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					sourcefile: id,
 					sourcemap: 'inline',
 				});
+
 				return transformJSX({
 					code: jsxCode,
 					id,
-					renderer: [...jsxRenderers.values()][0],
+					renderer: astroRenderer,
+					mode,
+					ssr,
+				});
+			}
+
+			// Attempt: 1 JSX integration or Astro renderer + JSX integration
+			// If we only have one renderer, prefer that in all cases
+			if (jsxRenderers.size === 1 || (jsxRenderers.size === 2 && astroRenderer)) {
+				// downlevel any non-standard syntax, but preserve JSX
+				const { code: jsxCode } = await esbuild.transform(code, {
+					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+					jsx: 'preserve',
+					sourcefile: id,
+					sourcemap: 'inline',
+				});
+
+				const nonAstroRendererKey = [...jsxRenderers.keys()].find((k) => k !== 'astro')!;
+				return transformJSX({
+					code: jsxCode,
+					id,
+					renderer: jsxRenderers.get(nonAstroRendererKey)!,
 					mode,
 					ssr,
 				});
