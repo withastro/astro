@@ -42,7 +42,7 @@ describe('MDX frontmatter', () => {
 		expect(layoutParagraph).to.not.be.null;
 	});
 
-	it('passes frontmatter to layout via "content" prop', async () => {
+	it('passes frontmatter to layout via "content" and "frontmatter" props', async () => {
 		const fixture = await loadFixture({
 			root: FIXTURE_ROOT,
 			integrations: [mdx()],
@@ -52,9 +52,11 @@ describe('MDX frontmatter', () => {
 		const html = await fixture.readFile('/index.html');
 		const { document } = parseHTML(html);
 
-		const h1 = document.querySelector('h1');
+		const contentTitle = document.querySelector('[data-content-title]');
+		const frontmatterTitle = document.querySelector('[data-frontmatter-title]');
 
-		expect(h1.textContent).to.equal('Using YAML frontmatter');
+		expect(contentTitle.textContent).to.equal('Using YAML frontmatter');
+		expect(frontmatterTitle.textContent).to.equal('Using YAML frontmatter');
 	});
 
 	it('extracts frontmatter to "customFrontmatter" export when configured', async () => {
