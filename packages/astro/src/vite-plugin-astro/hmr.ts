@@ -67,18 +67,21 @@ export async function handleHotUpdate(
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro')) {
+		// Get the compiled result from the cache
 		const oldResult = await compile();
+		// But we also need a fresh, uncached result to compare it to
 		invalidateCompilation(config, ctx.file);
 		const newResult = await compile();
+		// If the hashes are identical, we assume only styles have changed
 		if (oldResult.scope === newResult.scope) {
 			isStyleOnlyChange = true;
-			const styles = new Set(oldResult.css);
-			for (const style of newResult.css) {
+			// All styles are the same, we can skip an HMR update
+			const styles = new Set(newResult.css);
+			for (const style of oldResult.css) {
 				if (styles.has(style)) {
 					styles.delete(style);
 				}
 			}
-			// All styles are the same, skip update
 			if (styles.size === 0) {
 				return [];
 			}
