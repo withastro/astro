@@ -9,7 +9,6 @@ import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { warn } from '../core/logger/core.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
@@ -142,7 +141,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
-				const isAstroFlavoredMd = config.legacy.astroFlavoredMarkdown;
 
 				const fileUrl = new URL(`file://${filename}`);
 
@@ -152,17 +150,15 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				// Turn HTML comments into JS comments while preventing nested `*/` sequences
 				// from ending the JS comment by injecting a zero-width space
 				// Inside code blocks, this is removed during renderMarkdown by the remark-escape plugin.
-				if (isAstroFlavoredMd) {
-					markdownContent = markdownContent.replace(
-						/<\s*!--([^-->]*)(.*?)-->/gs,
-						(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
-					);
-				}
+				markdownContent = markdownContent.replace(
+					/<\s*!--([^-->]*)(.*?)-->/gs,
+					(whole) => `{/*${whole.replace(/\*\//g, '*\u200b/')}*/}`
+				);
 
 				let renderResult = await renderMarkdown(markdownContent, {
 					...renderOpts,
 					fileURL: fileUrl,
-					isAstroFlavoredMd,
+					isAstroFlavoredMd: true,
 				} as any);
 				let { code: astroResult, metadata } = renderResult;
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
@@ -170,33 +166,18 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				content.url = getFileInfo(id, config).fileUrl;
 				content.file = filename;
 
-				// Warn when attempting to use setup without the legacy flag
-				if (setup && !isAstroFlavoredMd) {
-					warn(
-						logging,
-						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
-					);
-				}
-
 				const prelude = `---
 import Slugger from 'github-slugger';
 ${layout ? `import Layout from '${layout}';` : ''}
-${isAstroFlavoredMd && components ? `import * from '${components}';` : ''}
-${isAstroFlavoredMd ? setup : ''}
+${components ? `import * from '${components}';` : ''}
+${setup}
 
 const slugger = new Slugger();
 function $$slug(value) {
 	return slugger.slug(value);
 }
 
-const $$content = ${JSON.stringify(
-					isAstroFlavoredMd
-						? content
-						: // Avoid stripping "setup" and "components"
-						  // in plain MD mode
-						  { ...content, setup, components }
-				)};
+const $$content = ${JSON.stringify(content)};
 
 Object.defineProperty($$content.astro, 'headers', {
 	get() {
@@ -207,13 +188,7 @@ Object.defineProperty($$content.astro, 'headers', {
 ---`;
 
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
-${isAstroFlavoredMd ? setup : ''}`.trim();
-
-				// Wrap with set:html fragment to skip
-				// JSX expressions and components in "plain" md mode
-				if (!isAstroFlavoredMd) {
-					astroResult = `<Fragment set:html={${JSON.stringify(astroResult)}} />`;
-				}
+${setup}`.trim();
 
 				// If the user imported "Layout", wrap the content in a Layout
 				if (/\bLayout\b/.test(imports)) {
