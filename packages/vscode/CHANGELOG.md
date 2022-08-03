@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 0.20.4
+
+### Patch Changes
+
+- a3a13d1: Fix extension failing to send a notification when ts|jsconfig.json was updated
+- a04124c: Fixed syntax highlighting not working properly for components with @, \_ and . in them
+
 ## 0.20.3
 
 ### Patch Changes
