@@ -1,8 +1,7 @@
 ---
 import TableOfContents from "./TableOfContents";
 import MoreMenu from "./MoreMenu.astro";
-const { content, githubEditUrl } = Astro.props;
-const headings = content.astro.headings;
+const { content, headings, githubEditUrl } = Astro.props;
 ---
 
 <nav class="sidebar-nav" aria-labelledby="grid-right">
@@ -18,6 +17,7 @@ const headings = content.astro.headings;
 		position: sticky;
 		top: 0;
 	}
+
 	.sidebar-nav-inner {
 		height: 100%;
 		padding: 0;
