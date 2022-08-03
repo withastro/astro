@@ -15,7 +15,7 @@ else
 fi
 
 # Wait for VSCode to be ready (port 23000)
-gp await-port 23000 > /dev/null 2>&1
+gp ports await 23000 > /dev/null 2>&1
 
 echo "Loading example project:" $EXAMPLE_PROJECT
 

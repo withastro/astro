@@ -42,7 +42,6 @@
   "dependencies": {
     "etag": "^1.8.1",
     "image-size": "^1.0.1",
-    "image-type": "^4.1.0",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6",
     "slash": "^4.0.0",

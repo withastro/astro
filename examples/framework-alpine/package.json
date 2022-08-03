@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^1.0.0-rc.3"
+    "astro": "^1.0.0-rc.4"
   },
   "dependencies": {
     "alpinejs": "^3.10.2"
