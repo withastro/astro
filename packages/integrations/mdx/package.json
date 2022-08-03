@@ -14,7 +14,6 @@
   "keywords": [
     "astro-integration",
     "astro-component",
-    "renderer",
     "mdx"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
