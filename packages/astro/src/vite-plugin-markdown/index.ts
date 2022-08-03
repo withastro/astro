@@ -44,7 +44,13 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
+				const frontmatter = {
+					...raw.data,
+					url: fileUrl,
+					file: fileId,
+					// TODO: replace with error
+					astro: renderResult.metadata,
+				} as any;
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
@@ -77,6 +83,12 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
+					content.astro = {};
+					Object.defineProperty(content.astro, 'headings', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
+						}
+					});
 					const contentFragment = h(Fragment, { 'set:html': ${JSON.stringify(html)} });
 					return ${
 						layout
