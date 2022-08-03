@@ -93,6 +93,15 @@ describe('Astro Markdown', () => {
 		expect(headingSlugs).to.contain('section-2');
 	});
 
+	it('Exposes getHeadings() on glob imports', async () => {
+		const { headings } = JSON.parse(await fixture.readFile('/headings-glob.json'));
+
+		const headingSlugs = headings.map(heading => heading?.slug);
+
+		expect(headingSlugs).to.contain('section-1');
+		expect(headingSlugs).to.contain('section-2');
+	});
+
 	describe('Vite env vars (#3412)', () => {
 		it('Allows referencing import.meta.env in content', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');
