@@ -1,8 +1,9 @@
 {
-  "name": "@test/astro-markdown-md-mode",
+  "name": "@test/astro-markdown",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/preact": "workspace:*",
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*"
   }
