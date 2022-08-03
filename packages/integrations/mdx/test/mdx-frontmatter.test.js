@@ -14,7 +14,7 @@ describe('MDX frontmatter', () => {
 			integrations: [mdx()],
 		});
 		await fixture.build();
-	})
+	});
 	it('builds when "frontmatter.property" is in JSX expression', async () => {
 		expect(true).to.equal(true);
 	});
@@ -48,8 +48,9 @@ describe('MDX frontmatter', () => {
 		const html = await fixture.readFile('/with-headings/index.html');
 		const { document } = parseHTML(html);
 
-		const headingSlugs = [...document.querySelectorAll('[data-headings] > li')]
-			.map(el => el.textContent);
+		const headingSlugs = [...document.querySelectorAll('[data-headings] > li')].map(
+			(el) => el.textContent
+		);
 
 		expect(headingSlugs.length).to.be.greaterThan(0);
 		expect(headingSlugs).to.contain('section-1');
