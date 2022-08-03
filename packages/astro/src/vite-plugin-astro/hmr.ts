@@ -147,7 +147,7 @@ export async function handleHotUpdate(
 		}
 	}
 
-  // TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
+	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (isSelfAccepting) {
 		info(logging, 'astro', msg.hmr({ file }));
