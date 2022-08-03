@@ -196,7 +196,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 			}
 
-			if (!importSource && jsxRenderers.has('astro') && id.includes('.mdx')) {
+			if (!importSource && jsxRenderers.has('astro')) {
 				importSource = 'astro';
 			}
 
