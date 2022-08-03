@@ -361,7 +361,7 @@
     },
     "html:attribute": {
       "name": "meta.attribute.$1.html",
-      "match": "\\b(@?[a-zA-Z\\-:]+)(=?)",
+      "match": "([a-zA-Z\\-:@_.]+)(=?)",
       "captures": {
         "1": {
           "name": "entity.other.attribute-name.html"

@@ -1,0 +1,33 @@
+><!-- Test special characters inside attributes names -->
+#^^^^ source.astro comment.block.html punctuation.definition.comment.html punctuation.definition.comment.begin.html
+#    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro comment.block.html
+#                                                     ^^^ source.astro comment.block.html punctuation.definition.comment.html punctuation.definition.comment.end.html
+>
+><div @class></div>
+#^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.begin.html
+# ^^^ source.astro meta.tag.any.div.start.html entity.name.tag.html
+#    ^ source.astro meta.tag.any.div.start.html
+#     ^^^^^^ source.astro meta.tag.any.div.start.html meta.attribute.@class.html entity.other.attribute-name.html
+#           ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.end.html
+#            ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
+#              ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
+#                 ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
+><div class_name></div>
+#^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.begin.html
+# ^^^ source.astro meta.tag.any.div.start.html entity.name.tag.html
+#    ^ source.astro meta.tag.any.div.start.html
+#     ^^^^^^^^^^ source.astro meta.tag.any.div.start.html meta.attribute.class_name.html entity.other.attribute-name.html
+#               ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.end.html
+#                ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
+#                  ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
+#                     ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
+><div class.astro></div>
+#^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.begin.html
+# ^^^ source.astro meta.tag.any.div.start.html entity.name.tag.html
+#    ^ source.astro meta.tag.any.div.start.html
+#     ^^^^^^^^^^^ source.astro meta.tag.any.div.start.html meta.attribute.class.astro.html entity.other.attribute-name.html
+#                ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.end.html
+#                 ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
+#                   ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
+#                      ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
+>
