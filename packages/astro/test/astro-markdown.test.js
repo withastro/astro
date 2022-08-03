@@ -53,18 +53,45 @@ describe('Astro Markdown', () => {
 		});
 
 		it('handles Prism', async () => {
-			fixture = await loadFixture({
+			const prismFixture = await loadFixture({
 				root: FIXTURE_ROOT,
 				markdown: {
 					syntaxHighlight: 'prism',
 				},
 			});
-			await fixture.build();
+			await prismFixture.build();
 
-			const html = await fixture.readFile('/code-in-md/index.html');
+			const html = await prismFixture.readFile('/code-in-md/index.html');
 			const $ = cheerio.load(html);
 
 			expect($('pre.language-html').length).to.not.equal(0);
+		});
+	});
+
+	describe('Vite env vars (#3412)', () => {
+		it('Allows referencing import.meta.env in content', async () => {
+			const html = await fixture.readFile('/vite-env-vars/index.html');
+			const $ = cheerio.load(html);
+	
+			// test 1: referencing an existing var name
+			expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
+			expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
+			expect($('code').eq(3).text()).to.contain('site: import.meta.env.SITE');
+	
+			// // test 2: referencing a non-existing var name
+			expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
+			expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
+			expect($('code').eq(3).text()).to.contain('title: import.meta.env.TITLE');
+	
+			// // test 3: referencing `import.meta.env` itself (without any var name)
+			expect($('code').eq(2).text()).to.equal('import.meta.env');
+			expect($('li').eq(2).text()).to.equal('import.meta.env');
+			expect($('code').eq(3).text()).to.contain('// Use Vite env vars with import.meta.env');
+		});
+		it('Allows referencing import.meta.env in frontmatter', async () => {
+			const { title = '' } = JSON.parse(await fixture.readFile('/vite-env-vars-glob.json'));
+			expect(title).to.contain('import.meta.env.SITE');
+			expect(title).to.contain('import.meta.env.TITLE');
 		});
 	});
 });

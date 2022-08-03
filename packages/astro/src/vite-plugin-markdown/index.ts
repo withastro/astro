@@ -1,5 +1,6 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import matter from 'gray-matter';
+import fs from 'fs';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
@@ -28,11 +29,16 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
-		async transform(code, id) {
+		// Why not the "transform" hook instead of "load" + readFile?
+		// A: Vite transforms all "import.meta.env" references to their values before
+		// passing to the transform hook. This lets us get the truly raw value
+		// to escape "import.meta.env" ourselves.
+		async load(id) {
 			if (id.endsWith('.md')) {
 				const { fileId, fileUrl } = getFileInfo(id, config);
-				const raw = safeMatter(code, id);
-				const renderResult = await renderMarkdown(escapeViteEnvReferences(raw.content), {
+				const rawFile = String(await fs.promises.readFile(fileId));
+				const raw = safeMatter(rawFile, id);
+				const renderResult = await renderMarkdown(raw.content, {
 					...config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
@@ -42,8 +48,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
 				const { layout } = frontmatter;
 
-				return {
-					code: escapeViteEnvReferences(`
+				const code = escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
@@ -66,7 +71,9 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 					};
 				}
 				export default Content;
-				`),
+				`);
+				return {
+					code,
 					meta: {
 						astro: {
 							hydratedComponents: [],
