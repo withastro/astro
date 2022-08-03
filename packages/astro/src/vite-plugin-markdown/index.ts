@@ -32,7 +32,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			if (id.endsWith('.md')) {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 				const raw = safeMatter(code, id);
-				const renderResult = await renderMarkdown(raw.content, {
+				const renderResult = await renderMarkdown(escapeViteEnvReferences(raw.content), {
 					...config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
@@ -43,7 +43,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const { layout } = frontmatter;
 
 				return {
-					code: `
+					code: escapeViteEnvReferences(`
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
@@ -66,7 +66,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 					};
 				}
 				export default Content;
-				`,
+				`),
 					meta: {
 						astro: {
 							hydratedComponents: [],
@@ -81,4 +81,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 			}
 		},
 	};
+}
+
+// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
+// which prevents Vite from replacing strings like `import.meta.env.SITE`
+// in our JS representation of loaded Markdown files
+function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }
