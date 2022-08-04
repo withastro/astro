@@ -613,7 +613,7 @@ importers:
       mocha: 9.2.2
       sass: 1.54.1
       srcset-parse: 1.1.0
-      vitest: 0.20.3_sass@1.54.0
+      vitest: 0.20.3_sass@1.54.1
 
   packages/astro-prism:
     specifiers:
@@ -16622,7 +16622,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.1
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.6.2
+      '@types/node': 18.6.3
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.2
@@ -16637,7 +16637,7 @@ packages:
       - terser
     dev: true
 
-  /vitest/0.20.3_sass@1.54.0:
+  /vitest/0.20.3_sass@1.54.1:
     resolution: {integrity: sha512-cXMjTbZxBBUUuIF3PUzEGPLJWtIMeURBDXVxckSHpk7xss4JxkiiWh5cnIlfGyfJne2Ii3QpbiRuFL5dMJtljw==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
@@ -16664,13 +16664,13 @@ packages:
     dependencies:
       '@types/chai': 4.3.1
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.6.2
+      '@types/node': 18.6.3
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.2
       tinypool: 0.2.4
       tinyspy: 1.0.0
-      vite: 3.0.4_sass@1.54.0
+      vite: 3.0.4_sass@1.54.1
     transitivePeerDependencies:
       - less
       - sass
