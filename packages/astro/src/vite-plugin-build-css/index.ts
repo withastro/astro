@@ -8,10 +8,12 @@ import { Plugin as VitePlugin } from 'vite';
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { isCSSRequest } from '../core/render/util.js';
+import { AstroConfig } from '../@types/astro';
 
 interface PluginOptions {
 	internals: BuildInternals;
 	target: 'client' | 'server';
+	astroConfig: AstroConfig;
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
@@ -118,9 +120,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					for (const [, output] of Object.entries(bundle)) {
 						if (output.type === 'asset') {
 							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
+								const cssTarget = options.astroConfig.vite.build?.cssTarget;
 								const { code: minifiedCSS } = await esbuild.transform(output.source, {
 									loader: 'css',
 									minify: true,
+									...(cssTarget ? { target: cssTarget } : {}),
 								});
 								output.source = minifiedCSS;
 							}
