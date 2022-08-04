@@ -193,7 +193,7 @@ export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	} else {
 		id = idOrUrl;
 	}
-	return id.slice(config.srcDir.pathname.length);
+	return id.slice(slash(fileURLToPath(config.srcDir)).length);
 }
 
 export function emoji(char: string, fallback: string) {
