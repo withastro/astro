@@ -13,7 +13,7 @@ import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
-import remarkInitializeAstroExports from './remark-initialize-astro-exports.js';
+import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -46,7 +46,7 @@ export async function renderMarkdown(
 
 	let parser = unified()
 		.use(markdown)
-		.use(remarkInitializeAstroExports)
+		.use(remarkInitializeAstroData)
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
