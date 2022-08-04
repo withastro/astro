@@ -139,7 +139,7 @@ function buildManifest(
 
 		routes.push({
 			file: '',
-			links: Array.from(pageData.css),
+			links: Array.from(pageData.css).reverse(),
 			scripts: [
 				...scripts,
 				...astroConfig._ctx.scripts

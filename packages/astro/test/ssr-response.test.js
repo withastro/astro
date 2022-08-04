@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 

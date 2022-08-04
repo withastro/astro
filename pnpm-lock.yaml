@@ -1462,6 +1462,12 @@ importers:
   packages/astro/test/fixtures/css-assets/packages/font-awesome:
     specifiers: {}
 
+  packages/astro/test/fixtures/css-order:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/custom-404:
     specifiers:
       astro: workspace:*
