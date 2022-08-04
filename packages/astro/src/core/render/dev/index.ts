@@ -51,13 +51,7 @@ async function loadRenderer(
 	viteServer: ViteDevServer,
 	renderer: AstroRenderer
 ): Promise<SSRLoadedRenderer> {
-	// Vite modules can be out-of-date when using an un-resolved url
-	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
-	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
-	const id =
-		viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ??
-		renderer.serverEntrypoint;
-	const mod = (await viteServer.ssrLoadModule(id)) as { default: SSRLoadedRenderer['ssr'] };
+	const mod = (await viteServer.ssrLoadModule(renderer.serverEntrypoint)) as { default: SSRLoadedRenderer['ssr'] };
 	return { ...renderer, ssr: mod.default };
 }
 
