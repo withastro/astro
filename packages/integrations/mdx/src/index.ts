@@ -1,7 +1,7 @@
 import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration, AstroConfig } from 'astro';
-import { remarkInitializeAstroData, rehypeApplyFrontmatterExport } from './astro-data-plugins.js';
+import { remarkInitializeAstroData, rehypeApplyFrontmatterExport } from './astro-data-utils.js';
 import { parse as parseESM } from 'es-module-lexer';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
