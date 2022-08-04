@@ -30,7 +30,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	function nameifyPage(id: string) {
 		let rel = relativeToSrcDir(astroConfig, id);
 		// Remove pages, ex. blog/posts/something.astro
-		if(rel.startsWith('pages/')) {
+		if(rel.startsWith('pages' + npath.sep)) {
 			rel = rel.slice(6);
 		}
 		// Remove extension, ex. blog/posts/something
