@@ -28,7 +28,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName
 			exportNodes = Object.entries(frontmatter).map(([k, v]) => {
 				if (!isValidIdentifierName(k)) {
 					throw new Error(
-						`[MDX] A remark / rehype plugin tried to inject ${JSON.stringify(
+						`[MDX] A remark or rehype plugin tried to inject ${JSON.stringify(
 							k
 						)} as a top-level export, which is not a valid export name.`
 					);
@@ -62,7 +62,7 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
 	if (!astro) return { frontmatter: {} };
 	if (!isValidAstroData(astro)) {
 		throw Error(
-			`[Markdown] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
+			`[MDX] A remark or rehype plugin tried to add invalid frontmatter. Ensure "astro.frontmatter" is a JSON object!`
 		);
 	}
 
