@@ -5,10 +5,10 @@ import type { PageBuildData } from '../core/build/types';
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
+import { AstroConfig } from '../@types/astro';
 import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
 import { isCSSRequest } from '../core/render/util.js';
-import { AstroConfig } from '../@types/astro';
 
 interface PluginOptions {
 	internals: BuildInternals;
