@@ -69,6 +69,9 @@ async function transformJSX({
 		babelrc: false,
 		inputSourceMap: options.inputSourceMap,
 	});
+
+	console.log("AFTER", result?.code);
+
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
 	if (!result) return null;
