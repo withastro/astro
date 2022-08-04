@@ -241,6 +241,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option

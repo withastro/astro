@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -53,7 +53,8 @@
     "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
     "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
-    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*"
+    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
+    "./dist/jsx/*": "./dist/jsx/*"
   },
   "imports": {
     "#astro/*": "./dist/*.js"

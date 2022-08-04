@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -14,7 +14,6 @@
   "keywords": [
     "astro-integration",
     "astro-component",
-    "renderer",
     "mdx"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
