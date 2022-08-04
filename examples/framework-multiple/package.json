@@ -9,7 +9,6 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/lit": "^0.3.2",
     "@astrojs/preact": "^0.5.2",
     "@astrojs/react": "^0.4.2",
     "@astrojs/solid-js": "^0.4.1",
@@ -18,8 +17,6 @@
     "astro": "^1.0.0-rc.6"
   },
   "dependencies": {
-    "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.5",
     "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

@@ -74,19 +74,6 @@ importers:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
 
-  examples/blog-multiple-authors:
-    specifiers:
-      '@astrojs/preact': ^0.5.2
-      astro: ^1.0.0-rc.6
-      preact: ^10.7.3
-      sass: ^1.52.2
-    dependencies:
-      preact: 10.10.0
-    devDependencies:
-      '@astrojs/preact': link:../../packages/integrations/preact
-      astro: link:../../packages/astro
-      sass: 1.54.1
-
   examples/component:
     specifiers:
       astro: ^1.0.0-rc.6
@@ -137,11 +124,13 @@ importers:
 
   examples/framework-alpine:
     specifiers:
+      '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
       astro: ^1.0.0-rc.6
     dependencies:
       alpinejs: 3.10.3
     devDependencies:
+      '@types/alpinejs': 3.7.0
       astro: link:../../packages/astro
 
   examples/framework-lit:
@@ -159,15 +148,12 @@ importers:
 
   examples/framework-multiple:
     specifiers:
-      '@astrojs/lit': ^0.3.2
       '@astrojs/preact': ^0.5.2
       '@astrojs/react': ^0.4.2
       '@astrojs/solid-js': ^0.4.1
       '@astrojs/svelte': ^0.5.1
       '@astrojs/vue': ^0.5.0
-      '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^1.0.0-rc.6
-      lit: ^2.2.5
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -175,8 +161,6 @@ importers:
       svelte: ^3.48.0
       vue: ^3.2.37
     dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.2.8
       preact: 10.10.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -184,7 +168,6 @@ importers:
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
-      '@astrojs/lit': link:../../packages/integrations/lit
       '@astrojs/preact': link:../../packages/integrations/preact
       '@astrojs/react': link:../../packages/integrations/react
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -253,43 +236,6 @@ importers:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
 
-  examples/integrations-playground:
-    specifiers:
-      '@astrojs/lit': ^0.3.2
-      '@astrojs/partytown': ^0.1.9
-      '@astrojs/react': ^0.4.2
-      '@astrojs/sitemap': ^0.3.0
-      '@astrojs/solid-js': 0.4.1
-      '@astrojs/tailwind': ^0.2.5
-      '@astrojs/turbolinks': ^0.1.4
-      '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.0.0-rc.6
-      lit: ^2.2.5
-      preact: ^10.7.3
-      react: ^18.1.0
-      react-dom: ^18.1.0
-      solid-js: ^1.4.3
-      svelte: ^3.48.0
-      vue: ^3.2.37
-    dependencies:
-      '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.2.8
-      preact: 10.10.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      svelte: 3.49.0
-      vue: 3.2.37
-    devDependencies:
-      '@astrojs/lit': link:../../packages/integrations/lit
-      '@astrojs/partytown': link:../../packages/integrations/partytown
-      '@astrojs/react': link:../../packages/integrations/react
-      '@astrojs/sitemap': link:../../packages/integrations/sitemap
-      '@astrojs/solid-js': link:../../packages/integrations/solid
-      '@astrojs/tailwind': link:../../packages/integrations/tailwind
-      '@astrojs/turbolinks': link:../../packages/integrations/turbolinks
-      astro: link:../../packages/astro
-      solid-js: 1.4.8
-
   examples/minimal:
     specifiers:
       astro: ^1.0.0-rc.6
@@ -336,26 +282,18 @@ importers:
       unocss: 0.15.6
       vite-imagetools: 4.0.4
 
-  examples/starter:
-    specifiers:
-      astro: ^1.0.0-rc.6
-    devDependencies:
-      astro: link:../../packages/astro
-
   examples/subpath:
     specifiers:
       '@astrojs/react': ^0.4.2
       astro: ^1.0.0-rc.6
       react: ^18.1.0
       react-dom: ^18.1.0
-      sass: ^1.52.2
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
-      sass: 1.54.1
 
   examples/with-markdown-plugins:
     specifiers:
@@ -8378,6 +8316,12 @@ packages:
     dependencies:
       '@types/estree': 1.0.0
     dev: false
+
+  /@types/alpinejs/3.7.0:
+    resolution: {integrity: sha512-iMvJwgJHYFUlMOixKF68BmMQZbnxVA/erh1blbfhY8Z6u6oleEJViz8bye58roLOp8jyBNOsXtobyq7zR/7A2g==}
+    dependencies:
+      '@vue/reactivity': 3.2.37
+    dev: true
 
   /@types/babel__core/7.1.19:
     resolution: {integrity: sha512-WEOTgRsbYkvA/KCsDwVEGkd7WAr1e3g31VHQ8zy5gul/V1qKullU/BU5I68X5v7V3GnB9eotmom4v5a5gjxorw==}

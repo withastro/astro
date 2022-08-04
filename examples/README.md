@@ -1,6 +1,5 @@
 # Astro Examples Library
 
-
 The easiest way to check out one of these examples on your machine is by running this command in an empty directory:
 
 ```

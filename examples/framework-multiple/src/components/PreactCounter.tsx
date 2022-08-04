@@ -1,6 +1,8 @@
+/** @jsxImportSource preact */
+
 import { useState } from 'preact/hooks';
 
-/** a counter written in Preact */
+/** A counter written with Preact */
 export function PreactCounter({ children }) {
 	const [count, setCount] = useState(0);
 	const add = () => setCount((i) => i + 1);

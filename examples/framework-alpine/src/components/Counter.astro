@@ -2,10 +2,14 @@
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 
-const { initialCount = 0 } = Astro.props;
+export interface Props {
+	initialCount?: number;
+}
+
+const { initialCount = 0 } = Astro.props as Props;
 ---
 
-<div class="counter" x-data=`{ count: ${initialCount} }`>
+<div class="counter" x-data={`{ count: ${initialCount} }`}>
 	<button x-on:click="count--">-</button>
 	<pre x-text="count">{ initialCount }</pre>
 	<button x-on:click="count++">+</button>
@@ -23,6 +27,7 @@ const { initialCount = 0 } = Astro.props;
 		margin-top: 2em;
 		place-items: center;
 	}
+
 	.counter-message {
 		text-align: center;
 	}
