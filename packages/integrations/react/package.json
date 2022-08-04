@@ -23,8 +23,8 @@
     ".": "./dist/index.js",
     "./client.js": "./client.js",
     "./client-v17.js": "./client-v17.js",
-    "./server.js": "./server.js",
-    "./server-v17.js": "./server-v17.js",
+    "./server.js": "./dist-test/server.js",
+    "./server-v17.js": "./dist-test/server-v17.js",
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
