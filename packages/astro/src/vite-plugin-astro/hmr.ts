@@ -9,7 +9,7 @@ import { cachedCompilation, invalidateCompilation, isCached } from './compile.js
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
-	filename: string;
+	file: string;
 	id: string;
 	deps: Set<string>;
 }
@@ -18,33 +18,42 @@ export async function trackCSSDependencies(
 	this: RollupPluginContext,
 	opts: TrackCSSDependenciesOptions
 ): Promise<void> {
-	const { viteDevServer, filename, deps, id } = opts;
-	// Dev, register CSS dependencies for HMR.
+	const { viteDevServer, file, deps, id } = opts;
 	if (viteDevServer) {
-		const mod = viteDevServer.moduleGraph.getModuleById(id);
-		if (mod) {
+		// Track any CSS dependencies so that HMR is triggered when they change.
+		const { moduleGraph } = viteDevServer;
+		const thisModule = moduleGraph.getModuleById(id);
+		if (thisModule) {
+			const depModules = new Set<string | ModuleNode>();
 			const cssDeps = (
 				await Promise.all(
-					Array.from(deps).map((spec) => {
-						return this.resolve(spec, id);
-					})
+					Array.from(deps).map((dep) =>
+						this.resolve(dep, id, { skipSelf: true })
+					)
 				)
 			)
 				.filter(Boolean)
-				.map((dep) => (dep as ResolvedId).id);
-
-			const { moduleGraph } = viteDevServer;
-			// record deps in the module graph so edits to @import css can trigger
-			// main import to hot update
-			const depModules = new Set(mod.importedModules);
+				.map((dep) => dep?.id) as string[];
 			for (const dep of cssDeps) {
-				depModules.add(moduleGraph.createFileOnlyEntry(dep));
-			}
-
-			// Update the module graph, telling it about our CSS deps.
-			moduleGraph.updateModuleInfo(mod, depModules, new Map(), new Set(), new Set(), true);
-			for (const dep of cssDeps) {
+				for (const m of moduleGraph.getModulesByFile(dep) ?? []) {
+					if (m.id?.endsWith('?direct')) {
+						depModules.add(m);
+					}
+				}
 				this.addWatchFile(dep);
+			}
+			for (const styleMod of thisModule.importedModules) {
+				if (styleMod.file === file && styleMod.id?.endsWith('.css')) {
+					await moduleGraph.updateModuleInfo(
+						styleMod,
+						depModules,
+						null,
+						new Set(),
+						null,
+						true,
+						true
+					);
+				}
 			}
 		}
 	}

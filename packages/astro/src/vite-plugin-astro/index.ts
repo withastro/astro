@@ -129,14 +129,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 
 					const transformResult = await cachedCompilation(compileProps);
-
-					// Track any CSS dependencies so that HMR is triggered when they change.
-					await trackCSSDependencies.call(this, {
-						viteDevServer,
-						id,
-						filename,
-						deps: transformResult.rawCSSDeps,
-					});
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
@@ -246,28 +238,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				SUFFIX += `\nconst $$file = ${JSON.stringify(file)};\nconst $$url = ${JSON.stringify(
 					url
 				)};export { $$file as file, $$url as url };\n`;
-				// Add HMR handling in dev mode.
-				if (!resolvedConfig.isProduction) {
-					// HACK: extract dependencies from metadata until compiler static extraction handles them
-					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0];
-					const pattern = /specifier:\s*'([^']*)'/g;
-					const deps = new Set();
-					let match;
-					while ((match = pattern.exec(metadata)?.[1])) {
-						deps.add(match);
-					}
-
-					let i = 0;
-					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
-						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
-						i++;
-					}
-				}
 
 				// Prefer live reload to HMR in `.astro` files
 				if (!resolvedConfig.isProduction) {
 					SUFFIX += `\nif (import.meta.hot) { import.meta.hot.decline() }`;
+					await trackCSSDependencies.call(this, {
+						viteDevServer,
+						id,
+						file,
+						deps: transformResult.rawCSSDeps,
+					});
 				}
 
 				const astroMetadata: AstroPluginMetadata['astro'] = {
