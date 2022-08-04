@@ -4,7 +4,7 @@ import type {
 	MarkdownRenderingResult,
 	RehypePlugins,
 	RemarkPlugins,
-  RemarkRehype,
+	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
@@ -649,7 +649,7 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
-    /**
+		/**
 		 * @docs
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}

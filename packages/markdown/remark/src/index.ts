@@ -37,7 +37,7 @@ export async function renderMarkdown(
 		shikiConfig = {},
 		remarkPlugins = [],
 		rehypePlugins = [],
-    remarkRehype = {},
+		remarkRehype = {},
 		isAstroFlavoredMd = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
@@ -84,7 +84,7 @@ export async function renderMarkdown(
 							'mdxTextExpression',
 					  ]
 					: [],
-        ...remarkRehype,
+				...remarkRehype,
 			},
 		],
 	]);

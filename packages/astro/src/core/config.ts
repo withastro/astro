@@ -50,7 +50,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		},
 		remarkPlugins: [],
 		rehypePlugins: [],
-    remarkRehype: {},
+		remarkRehype: {},
 	},
 	vite: {},
 	legacy: {
@@ -214,10 +214,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.array()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
-      remarkRehype: z
-        .custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
-        .optional()
-        .default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
+			remarkRehype: z
+				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 		})
 		.default({}),
 	vite: z
