@@ -26,7 +26,8 @@
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
     "./package.json": "./package.json",
-    "./client": "./client.d.ts"
+    "./client": "./client.d.ts",
+    "./dist/endpoints/*": "./dist/endpoints/*"
   },
   "files": [
     "components",

@@ -50,7 +50,8 @@
     "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
     "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
-    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*"
+    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
+    "./dist/jsx/*": "./dist/jsx/*"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
