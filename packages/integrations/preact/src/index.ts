@@ -78,8 +78,12 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 				{ find: 'react-dom', replacement: 'preact/compat' },
 				{ find: 'react/jsx-runtime', replacement: 'preact/jsx-runtime' },
 			],
-			dedupe: ['preact/compat'],
+			dedupe: ['preact/compat', 'preact'],
 		};
+		if(!viteConfig.ssr.noExternal) viteConfig.ssr.noExternal = [];
+    viteConfig.ssr.noExternal.push(
+			...['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime']
+		);
 	}
 
 	return viteConfig;
