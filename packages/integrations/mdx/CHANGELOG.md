@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.6.0
+
+### Minor Changes
+
+- [#4134](https://github.com/withastro/astro/pull/4134) [`2968ba2b6`](https://github.com/withastro/astro/commit/2968ba2b6f00775b6e9872681b390cb466fdbfa2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add `headings` and `frontmatter` properties to layout props
+
 ## 0.5.0
 
 ### Minor Changes

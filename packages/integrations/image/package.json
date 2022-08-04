@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
