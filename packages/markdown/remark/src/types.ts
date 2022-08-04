@@ -1,7 +1,7 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
-import type { Options as RemarkRehypeOptions } from 'remark-rehype';
+import type { Options as RemarkRehypeOptions, all as Handlers, one as Handler } from 'remark-rehype';
 import type * as unified from 'unified';
 
 export type { Node } from 'unist';
@@ -20,7 +20,7 @@ export type RehypePlugin<PluginParameters extends any[] = any[]> = unified.Plugi
 
 export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlugin, any])[];
 
-export type RemarkRehype = Omit<RemarkRehypeOptions, "handlers" | "unknownHandler" >;
+export type RemarkRehype = Omit<RemarkRehypeOptions, "handlers" | "unknownHandler" > & { handlers: typeof Handlers } & { handler: typeof Handler };
 
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
