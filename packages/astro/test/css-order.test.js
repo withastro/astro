@@ -15,7 +15,7 @@ describe('CSS production ordering', () => {
 		let $ = cheerio.load(html);
 		let out = [];
 		$('link[rel=stylesheet]').each((i, el) => {
-			out.push($(el).attr('href'))
+			out.push($(el).attr('href'));
 		});
 		return out;
 	}
@@ -24,10 +24,12 @@ describe('CSS production ordering', () => {
 		let fixture = await loadFixture({ ...commonConfig });
 		await fixture.build();
 		staticHTML = await fixture.readFile('/one/index.html');
-		staticCSS = await Promise.all(getLinks(staticHTML).map(async (href) => {
-			const css = await fixture.readFile(href);
-			return { href, css };
-		}));
+		staticCSS = await Promise.all(
+			getLinks(staticHTML).map(async (href) => {
+				const css = await fixture.readFile(href);
+				return { href, css };
+			})
+		);
 	});
 
 	before(async () => {
@@ -42,15 +44,17 @@ describe('CSS production ordering', () => {
 		const request = new Request('http://example.com/one');
 		const response = await app.render(request);
 		serverHTML = await response.text();
-		serverCSS = await Promise.all(getLinks(serverHTML).map(async (href) => {
-			const css = await fixture.readFile(`/client${href}`);
-			return { href, css };
-		}));
+		serverCSS = await Promise.all(
+			getLinks(serverHTML).map(async (href) => {
+				const css = await fixture.readFile(`/client${href}`);
+				return { href, css };
+			})
+		);
 	});
 
 	it('is in the same order for output: server and static', async () => {
-		const staticContent = staticCSS.map(o => o.css);
-		const serverContent = serverCSS.map(o => o.css);
+		const staticContent = staticCSS.map((o) => o.css);
+		const serverContent = serverCSS.map((o) => o.css);
 
 		expect(staticContent).to.deep.equal(serverContent);
 	});
