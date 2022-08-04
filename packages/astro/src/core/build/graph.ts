@@ -26,11 +26,11 @@ export function* walkParentInfos(
 export function* getTopLevelPages(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo }
-): Generator<string, void, unknown> {
+): Generator<ModuleInfo, void, unknown> {
 	for (const info of walkParentInfos(id, ctx)) {
 		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-		if (importers.length <= 2 && importers[0] === resolvedPagesVirtualModuleId) {
-			yield info.id;
+		if (importers[0] === resolvedPagesVirtualModuleId) {
+			yield info;
 		}
 	}
 }
