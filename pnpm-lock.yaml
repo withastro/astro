@@ -30,7 +30,7 @@ importers:
       execa: ^6.1.0
       organize-imports-cli: ^0.10.0
       prettier: ^2.7.0
-      prettier-plugin-astro: ^0.1.2
+      prettier-plugin-astro: ^0.3.0
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
       turbo: 1.2.5
@@ -53,7 +53,7 @@ importers:
       execa: 6.1.0
       organize-imports-cli: 0.10.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.1.2
+      prettier-plugin-astro: 0.3.0
       pretty-bytes: 6.0.0
       tiny-glob: 0.2.9
       turbo: 1.2.5
@@ -14515,8 +14515,8 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-astro/0.1.2:
-    resolution: {integrity: sha512-1g3bvYQ+Qx9XutxCXUa/z1tn9S5/3DofF8TxTUXH0z2VFlqsCkNwcOHqOKsgZ27Szx5wSsWTqXkfeDG15SN9UA==}
+  /prettier-plugin-astro/0.3.0:
+    resolution: {integrity: sha512-ApEy5U3FPdylBa72L8k7W/h/zgegAyuHppDu9geVwFHzaaEQpaRCrT3Wt0nc6tNcbDaOgotBfcaUzMr0Cw6a8w==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
       '@astrojs/compiler': 0.19.0
@@ -15476,6 +15476,7 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
 
   /source-map/0.7.4:
     resolution: {integrity: sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==}
