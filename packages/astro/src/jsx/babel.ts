@@ -136,6 +136,7 @@ export default function astroJSX(): PluginObj {
 		visitor: {
 			Program: {
 				enter(path, state) {
+					const { file } = state;
 					if (!(state.file.metadata as PluginMetadata).astro) {
 						(state.file.metadata as PluginMetadata).astro = {
 							clientOnlyComponents: [],
@@ -143,6 +144,13 @@ export default function astroJSX(): PluginObj {
 							scripts: [],
 						};
 					}
+					if(!file.ast.comments) {
+						file.ast.comments = [];
+					}
+					file.ast.comments?.push({
+						type: 'CommentBlock',
+						value: '* @jsxImportSource astro '
+					});
 					path.node.body.splice(
 						0,
 						0,

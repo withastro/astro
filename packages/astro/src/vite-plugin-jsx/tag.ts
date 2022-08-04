@@ -20,7 +20,7 @@ export default function tagExportsWithRenderer({
 				// Inject `import { __astro_tag_component__ } from 'astro/server/index.js'`
 				enter(path) {
 					path.node.body.splice(
-						0,
+						1,
 						0,
 						t.importDeclaration(
 							[

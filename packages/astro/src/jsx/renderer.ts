@@ -1,7 +1,6 @@
 const renderer = {
 	name: 'astro:jsx',
 	serverEntrypoint: 'astro/jsx/server.js',
-	jsxImportSource: 'astro',
 	jsxTransformOptions: async () => {
 		const {
 			default: { default: jsx },
@@ -11,7 +10,7 @@ const renderer = {
 		return {
 			plugins: [
 				astroJSX(),
-				jsx({}, { throwIfNamespace: false, runtime: 'automatic', importSource: 'astro' }),
+				jsx({}, { throwIfNamespace: false, runtime: 'automatic' }),
 			],
 		};
 	},

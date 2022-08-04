@@ -14,6 +14,7 @@ import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
+const JSX_RENDERER_WITH_AUTO_CACHE = new WeakMap<AstroConfig, AstroRenderer[]>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
@@ -33,7 +34,7 @@ function getEsbuildLoader(fileExt: string): string {
 }
 
 function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
-	const renderersWithJSXSupport = renderers.filter((r) => r.jsxImportSource);
+	const renderersWithJSXSupport = renderers.filter((r) => r.jsxImportSource || r.jsxTransformOptions);
 	return new Map(
 		renderersWithJSXSupport.map((r) => [r.jsxImportSource, r] as [string, AstroRenderer])
 	);
@@ -69,8 +70,6 @@ async function transformJSX({
 		babelrc: false,
 		inputSourceMap: options.inputSourceMap,
 	});
-
-	console.log("AFTER", result?.code);
 
 	// TODO: Be more strict about bad return values here.
 	// Should we throw an error instead? Should we never return `{code: ""}`?
@@ -121,6 +120,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 
 			const { mode } = viteConfig;
 			let jsxRenderers = JSX_RENDERER_CACHE.get(config);
+			let jsxAutoRenderers = JSX_RENDERER_WITH_AUTO_CACHE.get(config);
 
 			// load renderers (on first run only)
 			if (!jsxRenderers) {
@@ -139,10 +139,19 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				}
 				JSX_RENDERER_CACHE.set(config, jsxRenderers);
 			}
+			if(!jsxAutoRenderers) {
+				jsxAutoRenderers = [];
+				for(const [,renderer] of jsxRenderers) {
+					if(renderer.jsxImportSource) {
+						jsxAutoRenderers.push(renderer);
+					}
+				}
+			}
 
 			// Attempt: Single JSX renderer
 			// If we only have one renderer, we can skip a bunch of work!
-			if (jsxRenderers.size === 1) {
+			if (jsxAutoRenderers.length === 1 || jsxRenderers.size === 1) {
+				const renderer = jsxAutoRenderers.length ? jsxAutoRenderers[0] : Array.from(jsxRenderers.values())[0];
 				// downlevel any non-standard syntax, but preserve JSX
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
@@ -153,7 +162,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				return transformJSX({
 					code: jsxCode,
 					id,
-					renderer: [...jsxRenderers.values()][0],
+					renderer,
 					mode,
 					ssr,
 				});

@@ -16,11 +16,10 @@ describe('MDX and React', () => {
 
 	it('can be used in the same project', async () => {
 		const html = await fixture.readFile('/index.html');
-		console.log(html);
-		/*const { document } = parseHTML(html);
+		const { document } = parseHTML(html);
 
-		const h1 = document.querySelector('h1');
+		const p = document.querySelector('p');
 
-		expect(h1.textContent).to.equal('Hello page!');*/
+		expect(p.textContent).to.equal('Hello world');
 	});
 });
