@@ -1,5 +1,52 @@
 # astro
 
+## 1.0.0-rc.6
+
+### Patch Changes
+
+- [#4149](https://github.com/withastro/astro/pull/4149) [`4d6475227`](https://github.com/withastro/astro/commit/4d6475227458f02361b62ff9603e79594bf7ec11) Thanks [@matthewp](https://github.com/matthewp)! - Fixes SSR CSS ordering to match static mode
+
+## 1.0.0-rc.5
+
+### Patch Changes
+
+- [#4108](https://github.com/withastro/astro/pull/4108) [`08432d5b0`](https://github.com/withastro/astro/commit/08432d5b01a5cab1bd8d962c30f77ab3827bc5aa) Thanks [@altano](https://github.com/altano)! - Allow globbed mdx files to have typed frontmatter
+
+* [#4125](https://github.com/withastro/astro/pull/4125) [`5f3b3b44d`](https://github.com/withastro/astro/commit/5f3b3b44db4171255eb35bfc12a2256784fdbb4b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix HMR of style blocks in Astro files. Updating a style block should no longer perform a full reload of the page.
+
+- [#4131](https://github.com/withastro/astro/pull/4131) [`09eca9be5`](https://github.com/withastro/astro/commit/09eca9be5e27e57d49e5af6a8fa9c4018ceb0b85) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of multiple renderers when one throws
+
+* [#4141](https://github.com/withastro/astro/pull/4141) [`65f2d3b4b`](https://github.com/withastro/astro/commit/65f2d3b4b1d31411ee2ea450478349413d8f4cf6) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix windows "bad package export" error
+
+- [#4063](https://github.com/withastro/astro/pull/4063) [`ec5518fe3`](https://github.com/withastro/astro/commit/ec5518fe308ffe281b9e92755dec85489a1c1760) Thanks [@vikpe](https://github.com/vikpe)! - Add `mdx` extension to default generated Tailwind config.
+
+## 1.0.0-rc.4
+
+### Patch Changes
+
+- [#4112](https://github.com/withastro/astro/pull/4112) [`e33fc9bc4`](https://github.com/withastro/astro/commit/e33fc9bc46ff0a30013deb6dc76e545e70cc3a3e) Thanks [@matthewp](https://github.com/matthewp)! - Fix MDX working with a ts config file
+
+* [#4049](https://github.com/withastro/astro/pull/4049) [`b60cc0538`](https://github.com/withastro/astro/commit/b60cc0538bc5c68dd411117780d20d892530789d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `injectScript` handling for non-Astro pages
+
+- [#4105](https://github.com/withastro/astro/pull/4105) [`9cc3a11c4`](https://github.com/withastro/astro/commit/9cc3a11c44eaf042bb3a982c812e1d8e839faf8f) Thanks [@dimitrov-adrian](https://github.com/dimitrov-adrian)! - Do not send `body` with `HEAD` or `GET` requests when using `server` output.
+
+* [#4114](https://github.com/withastro/astro/pull/4114) [`64432bcb8`](https://github.com/withastro/astro/commit/64432bcb873efd0e4297c00fc9583a1fe516dfe7) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Refactor `@astrojs/mdx` and `@astrojs/markdown-remark` to use `@astrojs/prism` instead of duplicating the code
+
+- [#4124](https://github.com/withastro/astro/pull/4124) [`2ee8e881d`](https://github.com/withastro/astro/commit/2ee8e881d47abecf24eeb25e7caac6f4616629ab) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade Vite to latest
+
+* [#4115](https://github.com/withastro/astro/pull/4115) [`26cc0bbf7`](https://github.com/withastro/astro/commit/26cc0bbf78320e1797de9b4562ace92c5c03b666) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix edge case with hoisted scripts and Tailwind during dev
+
+* Updated dependencies [[`64432bcb8`](https://github.com/withastro/astro/commit/64432bcb873efd0e4297c00fc9583a1fe516dfe7)]:
+  - @astrojs/markdown-remark@0.14.0
+
+## 1.0.0-rc.3
+
+### Patch Changes
+
+- [#4087](https://github.com/withastro/astro/pull/4087) [`a0d1731a7`](https://github.com/withastro/astro/commit/a0d1731a7ea9c31c5285b8b7239b2e1e558c1028) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a couple routing bugs that could lead to routing differences in `dev` vs. `build` when using multiple dynamic routes
+
+* [#4080](https://github.com/withastro/astro/pull/4080) [`09c1e586e`](https://github.com/withastro/astro/commit/09c1e586ee8d903939903868e2a205f86dab8f11) Thanks [@matthewp](https://github.com/matthewp)! - Fixes race condition for rendering hydration scripts
+
 ## 1.0.0-rc.2
 
 ### Patch Changes

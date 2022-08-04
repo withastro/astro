@@ -3,7 +3,6 @@ import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
-import { format as utilFormat } from 'util';
 import { dateTimeFormat, error, info, warn } from './core.js';
 
 type ConsoleStream = Writable & {
@@ -39,7 +38,8 @@ export const nodeLogDestination = new Writable({
 			return reset(prefix);
 		}
 
-		let message = utilFormat(...event.args);
+		// console.log({msg: event.message, args: event.args});
+		let message = event.message;
 		// For repeat messages, only update the message counter
 		if (message === lastMessage) {
 			lastMessageCount++;
@@ -90,7 +90,6 @@ export interface LogMessage {
 	type: string | null;
 	level: LoggerLevel;
 	message: string;
-	args: Array<any>;
 }
 
 export const levels: Record<LoggerLevel, number> = {

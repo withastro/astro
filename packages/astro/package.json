@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -50,7 +50,8 @@
     "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
     "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
-    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*"
+    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
+    "./dist/jsx/*": "./dist/jsx/*"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -86,8 +87,7 @@
   "dependencies": {
     "@astrojs/compiler": "^0.22.1",
     "@astrojs/language-server": "^0.20.0",
-    "@astrojs/markdown-remark": "^0.13.0",
-    "@astrojs/prism": "0.6.1",
+    "@astrojs/markdown-remark": "^0.14.0",
     "@astrojs/telemetry": "^0.4.1",
     "@astrojs/webapi": "^0.12.0",
     "@babel/core": "^7.18.2",
@@ -107,7 +107,6 @@
     "eol": "^0.9.1",
     "es-module-lexer": "^0.10.5",
     "esbuild": "^0.14.43",
-    "estree-walker": "^3.0.1",
     "execa": "^6.1.0",
     "fast-glob": "^3.2.11",
     "github-slugger": "^1.4.0",
@@ -116,7 +115,6 @@
     "html-escaper": "^3.0.3",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.9",
-    "micromorph": "^0.1.2",
     "mime": "^3.0.0",
     "ora": "^6.1.0",
     "path-browserify": "^1.0.1",
@@ -124,7 +122,6 @@
     "postcss": "^8.4.14",
     "postcss-load-config": "^3.1.4",
     "preferred-pm": "^3.0.3",
-    "prismjs": "^1.28.0",
     "prompts": "^2.4.2",
     "recast": "^0.20.5",
     "rehype": "^12.0.1",
@@ -134,14 +131,13 @@
     "shiki": "^0.10.1",
     "sirv": "^2.0.2",
     "slash": "^4.0.0",
-    "sourcemap-codec": "^1.4.8",
     "string-width": "^5.1.2",
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
-    "vite": "3.0.2",
+    "vite": "3.0.4",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },

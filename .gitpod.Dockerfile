@@ -1,7 +1,7 @@
 FROM gitpod/workspace-node
 
 # Install latest pnpm
-RUN pnpm i -g pnpm
+RUN curl -fsSL https://get.pnpm.io/install.sh | SHELL=`which bash` bash -
 
 # Install deno in gitpod
 RUN curl -fsSL https://deno.land/x/install/install.sh | sh

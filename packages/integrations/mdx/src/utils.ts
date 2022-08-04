@@ -1,4 +1,9 @@
-import type { AstroConfig } from 'astro';
+import type { Options as AcornOpts } from 'acorn';
+import { parse } from 'acorn';
+import type { AstroConfig, SSRError } from 'astro';
+import type { MdxjsEsm } from 'mdast-util-mdx';
+
+import matter from 'gray-matter';
 
 function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
@@ -36,4 +41,45 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
 		fileUrl = appendForwardSlash(fileUrl);
 	}
 	return { fileId, fileUrl };
+}
+
+/**
+ * Match YAML exception handling from Astro core errors
+ * @see 'astro/src/core/errors.ts'
+ */
+export function getFrontmatter(code: string, id: string) {
+	try {
+		return matter(code).data;
+	} catch (e: any) {
+		if (e.name === 'YAMLException') {
+			const err: SSRError = e;
+			err.id = id;
+			err.loc = { file: e.id, line: e.mark.line + 1, column: e.mark.column };
+			err.message = e.reason;
+			throw err;
+		} else {
+			throw e;
+		}
+	}
+}
+
+export function jsToTreeNode(
+	jsString: string,
+	acornOpts: AcornOpts = {
+		ecmaVersion: 'latest',
+		sourceType: 'module',
+	}
+): MdxjsEsm {
+	return {
+		type: 'mdxjsEsm',
+		value: '',
+		data: {
+			estree: {
+				body: [],
+				...parse(jsString, acornOpts),
+				type: 'Program',
+				sourceType: 'module',
+			},
+		},
+	};
 }

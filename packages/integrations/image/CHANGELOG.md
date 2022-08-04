@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.1
+
+### Patch Changes
+
+- [#4141](https://github.com/withastro/astro/pull/4141) [`65f2d3b4b`](https://github.com/withastro/astro/commit/65f2d3b4b1d31411ee2ea450478349413d8f4cf6) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix windows "bad package export" error
+
 ## 0.3.0
 
 ### Minor Changes

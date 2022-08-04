@@ -14,7 +14,7 @@
     "@astrojs/solid-js": "^0.4.1",
     "@astrojs/svelte": "^0.5.1",
     "@astrojs/vue": "^0.5.0",
-    "astro": "^1.0.0-rc.2"
+    "astro": "^1.0.0-rc.6"
   },
   "dependencies": {
     "preact": "^10.7.3",

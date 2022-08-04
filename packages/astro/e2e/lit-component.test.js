@@ -113,6 +113,7 @@ test.describe('Lit components', () => {
 		const t = test.extend({});
 
 		t.beforeAll(async ({ astro }) => {
+			delete globalThis.window;
 			// Playwright's Node version doesn't have these functions, so stub them.
 			process.stdout.clearLine = () => {};
 			process.stdout.cursorTo = () => {};

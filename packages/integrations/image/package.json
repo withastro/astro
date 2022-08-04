@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -26,7 +26,8 @@
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
     "./package.json": "./package.json",
-    "./client": "./client.d.ts"
+    "./client": "./client.d.ts",
+    "./dist/endpoints/*": "./dist/endpoints/*"
   },
   "files": [
     "components",
@@ -42,7 +43,6 @@
   "dependencies": {
     "etag": "^1.8.1",
     "image-size": "^1.0.1",
-    "image-type": "^4.1.0",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6",
     "slash": "^4.0.0",
