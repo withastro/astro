@@ -107,11 +107,9 @@ jobs:
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14, 16]
+        os: [ubuntu-latest, windows-latest]
+        node_version: [14, 16, 18]
         include:
-          - os: windows-latest
-            node_version: 14
           - os: macos-latest
             node_version: 14
       fail-fast: false
