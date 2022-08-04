@@ -28,8 +28,7 @@ export function* getTopLevelPages(
 	ctx: { getModuleInfo: GetModuleInfo }
 ): Generator<ModuleInfo, void, unknown> {
 	for (const info of walkParentInfos(id, ctx)) {
-		const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
-		if (importers[0] === resolvedPagesVirtualModuleId) {
+		if (info?.importers[0] === resolvedPagesVirtualModuleId) {
 			yield info;
 		}
 	}
