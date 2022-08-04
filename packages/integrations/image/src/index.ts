@@ -3,6 +3,7 @@ import { ssgBuild } from './build/ssg.js';
 import { ssrBuild } from './build/ssr.js';
 import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
 import { ImageService, TransformOptions } from './loaders/index.js';
+import type { LoggerLevel } from './utils/logger.js';
 import { filenameFormat, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
@@ -40,6 +41,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 	let _config: AstroConfig;
 	let output: 'server' | 'static';
+	let logLevel: LoggerLevel = 'info';
 
 	function getViteConfiguration() {
 		return {
@@ -72,8 +74,10 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					});
 				}
 			},
-			'astro:server:setup': async () => {
+			'astro:server:setup': async ({ server }) => {
 				globalThis.astroImage = {};
+				logLevel = server.config.logLevel as LoggerLevel;
+				console.log('logLevel', logLevel)
 			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
@@ -107,7 +111,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					const loader = globalThis?.astroImage?.loader;
 
 					if (loader && 'transform' in loader && staticImages.size > 0) {
-						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir });
+						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir, logLevel });
 					}
 				}
 			},

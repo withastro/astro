@@ -7,6 +7,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 - <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
+- <strong>[Debugging](#debugging)</strong>
 - <strong>[Configuration](#configuration)</strong>
 - <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
