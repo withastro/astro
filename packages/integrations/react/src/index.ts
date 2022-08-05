@@ -12,10 +12,9 @@ function getRenderer() {
 			: '@astrojs/react/server-v17.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
-			const {
-				default: { default: jsx },
-				// @ts-expect-error types not found
-			} = await import('@babel/plugin-transform-react-jsx');
+			// @ts-expect-error types not found
+			const babelPluginTransformReactJsxModule = await import('@babel/plugin-transform-react-jsx');
+			const jsx = babelPluginTransformReactJsxModule?.default?.default ?? babelPluginTransformReactJsxModule?.default;
 			return {
 				plugins: [
 					jsx(
