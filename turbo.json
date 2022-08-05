@@ -15,10 +15,7 @@
     },
     "test": {
       "outputs": [],
-      "dependsOn": [
-        "$RUNNER_OS",
-        "$NODE_VERSION"
-      ]
+      "dependsOn": ["$RUNNER_OS", "$NODE_VERSION"]
     },
     "benchmark": {
       "dependsOn": ["^build"],
