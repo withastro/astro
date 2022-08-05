@@ -3,6 +3,8 @@
     // Enable top-level await, and other modern ESM features.
     "target": "ESNext",
     "module": "ESNext",
+    // Needed for TypeScript intellisense in the template inside Vue files
+    "jsx": "preserve",
     // Enable node-style module resolution, for things like npm package imports.
     "moduleResolution": "node",
     // Enable JSON imports.

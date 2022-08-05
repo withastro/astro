@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.0-rc.6
+
+### Patch Changes
+
+- [#4149](https://github.com/withastro/astro/pull/4149) [`4d6475227`](https://github.com/withastro/astro/commit/4d6475227458f02361b62ff9603e79594bf7ec11) Thanks [@matthewp](https://github.com/matthewp)! - Fixes SSR CSS ordering to match static mode
+
 ## 1.0.0-rc.5
 
 ### Patch Changes
