@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-rc.5",
+  "version": "1.0.0-rc.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -32,7 +32,6 @@
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
-    "./internal": "./internal.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
@@ -49,6 +48,8 @@
     "./vite-plugin-astro-postprocess/*": "./dist/vite-plugin-astro-postprocess/*",
     "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
     "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
+    "./vite-plugin-markdown-legacy": "./dist/vite-plugin-markdown-legacy/index.js",
+    "./vite-plugin-markdown-legacy/*": "./dist/vite-plugin-markdown-legacy/*",
     "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
     "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*",
     "./dist/jsx/*": "./dist/jsx/*"
@@ -85,7 +86,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.22.1",
+    "@astrojs/compiler": "^0.23.1",
     "@astrojs/language-server": "^0.20.0",
     "@astrojs/markdown-remark": "^0.14.0",
     "@astrojs/telemetry": "^0.4.1",

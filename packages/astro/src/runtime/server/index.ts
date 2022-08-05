@@ -752,7 +752,7 @@ export async function renderToString(
 
 	let html = '';
 	for await (const chunk of renderAstroComponent(Component)) {
-		html += chunk;
+		html += stringifyChunk(result, chunk);
 	}
 	return html;
 }

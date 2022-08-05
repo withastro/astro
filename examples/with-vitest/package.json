@@ -1,0 +1,17 @@
+{
+  "name": "@example/with-vitest",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "astro": "^1.0.0-rc.4",
+    "vitest": "^0.20.3"
+  }
+}

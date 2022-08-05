@@ -117,8 +117,9 @@ export async function getImage(
 
 	const attributes = await loader.getImageAttributes(resolved);
 
+	// `.env` must be optional to support running in environments outside of `vite` (such as `astro.config`)
 	// @ts-ignore
-	const isDev = import.meta.env.DEV;
+	const isDev = import.meta.env?.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 
 	const _loader = isDev && isLocalImage ? sharp : loader;

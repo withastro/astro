@@ -13,6 +13,7 @@ import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
+import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
 
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
@@ -45,6 +46,7 @@ export async function renderMarkdown(
 
 	let parser = unified()
 		.use(markdown)
+		.use(remarkInitializeAstroData)
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
 	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
@@ -99,10 +101,9 @@ export async function renderMarkdown(
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 
-	let result: string;
+	let vfile: VFile;
 	try {
-		const vfile = await parser.process(input);
-		result = vfile.toString();
+		vfile = await parser.process(input);
 	} catch (err) {
 		// Ensure that the error message contains the input filename
 		// to make it easier for the user to fix the issue
@@ -113,8 +114,9 @@ export async function renderMarkdown(
 	}
 
 	return {
-		metadata: { headings, source: content, html: result.toString() },
-		code: result.toString(),
+		metadata: { headings, source: content, html: String(vfile.value) },
+		code: String(vfile.value),
+		vfile,
 	};
 }
 

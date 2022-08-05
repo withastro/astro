@@ -1110,3 +1110,5 @@ export interface SSRResult {
 	response: ResponseInit;
 	_metadata: SSRMetadata;
 }
+
+export type MarkdownAstroData = { frontmatter: object };

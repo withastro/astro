@@ -3,13 +3,15 @@
     // Enable top-level await, and other modern ESM features.
     "target": "ESNext",
     "module": "ESNext",
+    // Needed for TypeScript intellisense in the template inside Vue files
+    "jsx": "preserve",
     // Enable node-style module resolution, for things like npm package imports.
     "moduleResolution": "node",
     // Enable JSON imports.
     "resolveJsonModule": true,
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
-    // Add type definitions for our Astro runtime.
-    "types": ["astro/client"]
+    // Astro will directly run your TypeScript code, no transpilation needed.
+    "noEmit": true
   }
 }

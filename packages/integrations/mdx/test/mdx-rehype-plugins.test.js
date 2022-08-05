@@ -1,15 +1,15 @@
 import mdx from '@astrojs/mdx';
-import { jsToTreeNode } from '../dist/utils.js';
 
-import { expect } from 'chai';
-import { parseHTML } from 'linkedom';
 import getReadingTime from 'reading-time';
 import { toString } from 'mdast-util-to-string';
+import { expect } from 'chai';
+import { parseHTML } from 'linkedom';
+import { jsToTreeNode } from '../dist/utils.js';
 
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
-export function rehypeReadingTime() {
-	return function (tree) {
+function rehypeReadingTime() {
+	return function (tree, { data }) {
 		const readingTime = getReadingTime(toString(tree));
 		tree.children.unshift(
 			jsToTreeNode(`export const readingTime = ${JSON.stringify(readingTime)}`)
@@ -46,7 +46,7 @@ describe('MDX rehype plugins', () => {
 		});
 
 		it('supports custom rehype plugins - reading time', async () => {
-			const readingTime = JSON.parse(await fixture.readFile('/reading-time.json'));
+			const { readingTime } = JSON.parse(await fixture.readFile('/reading-time.json'));
 
 			expect(readingTime).to.not.be.null;
 			expect(readingTime.text).to.match(/^\d+ min read/);

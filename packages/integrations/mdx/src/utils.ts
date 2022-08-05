@@ -47,9 +47,9 @@ export function getFileInfo(id: string, config: AstroConfig): FileInfo {
  * Match YAML exception handling from Astro core errors
  * @see 'astro/src/core/errors.ts'
  */
-export function getFrontmatter(code: string, id: string) {
+export function parseFrontmatter(code: string, id: string) {
 	try {
-		return matter(code).data;
+		return matter(code);
 	} catch (e: any) {
 		if (e.name === 'YAMLException') {
 			const err: SSRError = e;
