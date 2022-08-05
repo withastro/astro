@@ -105,9 +105,9 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										const { layout, ...contentProp } = frontmatter;
 										code += `\n\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
 											frontmatter.layout
-										)})).default;\nreturn <Layout content={${JSON.stringify(
+										)})).default;\nconst frontmatter=${JSON.stringify(
 											contentProp
-										)}}>{children}</Layout> }`;
+										)};\nreturn <Layout frontmatter={frontmatter} content={frontmatter} headings={getHeadings()}>{children}</Layout> }`;
 									}
 
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
