@@ -46,14 +46,12 @@ function getRemarkPlugins(
 		...handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
 	];
 	if (config.markdown.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([
-			// Default export still requires ".default" chaining for some reason
-			// Workarounds tried:
-			// - "import * as remarkShikiTwoslash"
-			// - "import { default as remarkShikiTwoslash }"
-			(remarkShikiTwoslash as any).default,
-			config.markdown.shikiConfig,
-		]);
+		// Default export still requires ".default" chaining for some reason
+		// Workarounds tried:
+		// - "import * as remarkShikiTwoslash"
+		// - "import { default as remarkShikiTwoslash }"
+		const shikiTwoslash = (remarkShikiTwoslash as any).default ?? remarkShikiTwoslash;
+		remarkPlugins.push([shikiTwoslash, config.markdown.shikiConfig]);
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
