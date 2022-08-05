@@ -13,7 +13,10 @@ export function remarkInitializeAstroData() {
 	};
 }
 
-export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName = 'frontmatter') {
+export function rehypeApplyFrontmatterExport(
+	pageFrontmatter: Record<string, any>,
+	exportName = 'frontmatter'
+) {
 	return function (tree: any, vfile: VFile) {
 		if (!isValidIdentifierName(exportName)) {
 			throw new Error(
@@ -22,7 +25,8 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName
 				)} is not a valid frontmatter export name! Make sure "frontmatterOptions.name" could be used as a JS export (i.e. "export const frontmatterName = ...")`
 			);
 		}
-		const frontmatter = { ...pageFrontmatter, ...safelyGetAstroData(vfile.data).frontmatter };
+		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
+		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
 		let exportNodes: MdxjsEsm[] = [];
 		if (!exportName) {
 			exportNodes = Object.entries(frontmatter).map(([k, v]) => {

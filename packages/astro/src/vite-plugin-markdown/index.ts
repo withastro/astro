@@ -44,12 +44,14 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
+				const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
 				const frontmatter = {
+					...injectedFrontmatter,
 					...raw.data,
 					url: fileUrl,
 					file: fileId,
-					...safelyGetAstroData(renderResult.vfile.data).frontmatter,
 				} as any;
+
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
