@@ -1,13 +1,13 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
-import matter from 'gray-matter';
 import fs from 'fs';
+import matter from 'gray-matter';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
+import { warn } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { warn } from '../core/logger/core.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;

@@ -27,7 +27,6 @@ describe('Astro Markdown', () => {
 		expect(html).to.include('<counter client:load="" count="{0}">');
 	});
 
-	
 	it('Exposes raw markdown content', async () => {
 		const { raw } = JSON.parse(await fixture.readFile('/raw-content.json'));
 
@@ -68,7 +67,6 @@ describe('Astro Markdown', () => {
 		});
 	});
 
-
 	it('Passes frontmatter to layout via "content" and "frontmatter" props', async () => {
 		const html = await fixture.readFile('/with-layout/index.html');
 		const $ = cheerio.load(html);
@@ -84,9 +82,7 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/with-layout/index.html');
 		const $ = cheerio.load(html);
 
-		const headingSlugs = [...$('body').find('[data-headings] > li')].map(
-			(el) => $(el).text()
-		);
+		const headingSlugs = [...$('body').find('[data-headings] > li')].map((el) => $(el).text());
 
 		expect(headingSlugs.length).to.be.greaterThan(0);
 		expect(headingSlugs).to.contain('section-1');
@@ -96,7 +92,7 @@ describe('Astro Markdown', () => {
 	it('Exposes getHeadings() on glob imports', async () => {
 		const { headings } = JSON.parse(await fixture.readFile('/headings-glob.json'));
 
-		const headingSlugs = headings.map(heading => heading?.slug);
+		const headingSlugs = headings.map((heading) => heading?.slug);
 
 		expect(headingSlugs).to.contain('section-1');
 		expect(headingSlugs).to.contain('section-2');
@@ -106,17 +102,17 @@ describe('Astro Markdown', () => {
 		it('Allows referencing import.meta.env in content', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');
 			const $ = cheerio.load(html);
-	
+
 			// test 1: referencing an existing var name
 			expect($('code').eq(0).text()).to.equal('import.meta.env.SITE');
 			expect($('li').eq(0).text()).to.equal('import.meta.env.SITE');
 			expect($('code').eq(3).text()).to.contain('site: import.meta.env.SITE');
-	
+
 			// // test 2: referencing a non-existing var name
 			expect($('code').eq(1).text()).to.equal('import.meta.env.TITLE');
 			expect($('li').eq(1).text()).to.equal('import.meta.env.TITLE');
 			expect($('code').eq(3).text()).to.contain('title: import.meta.env.TITLE');
-	
+
 			// // test 3: referencing `import.meta.env` itself (without any var name)
 			expect($('code').eq(2).text()).to.equal('import.meta.env');
 			expect($('li').eq(2).text()).to.equal('import.meta.env');

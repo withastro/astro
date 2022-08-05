@@ -14,10 +14,10 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
+import jsxRenderer from '../jsx/renderer.js';
 import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
-import jsxRenderer from '../jsx/renderer.js';
 
 load.use([loadTypeScript]);
 
