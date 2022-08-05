@@ -8,7 +8,6 @@ import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
-import { warn } from '../core/logger/core.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
