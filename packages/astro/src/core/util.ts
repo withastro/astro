@@ -188,7 +188,7 @@ export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
 	let id: string;
-	if(typeof idOrUrl !== 'string') {
+	if (typeof idOrUrl !== 'string') {
 		id = unwrapId(viteID(idOrUrl));
 	} else {
 		id = idOrUrl;

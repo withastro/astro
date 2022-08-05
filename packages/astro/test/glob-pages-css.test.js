@@ -17,6 +17,5 @@ describe('Astro.glob on pages/ directory', () => {
 		let $ = cheerio.load(html);
 
 		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
-		
 	});
 });

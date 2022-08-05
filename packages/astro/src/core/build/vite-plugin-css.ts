@@ -1,16 +1,16 @@
 import type { GetModuleInfo, OutputChunk } from 'rollup';
+import type { AstroConfig } from '../../@types/astro';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
-import type { AstroConfig } from '../../@types/astro';
 
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import npath from 'path';
 import { Plugin as VitePlugin } from 'vite';
+import { isCSSRequest } from '../render/util.js';
+import { relativeToSrcDir } from '../util.js';
 import { getTopLevelPages, walkParentInfos } from './graph.js';
 import { getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
-import { relativeToSrcDir } from '../util.js';
-import { isCSSRequest } from '../render/util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -30,7 +30,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	function nameifyPage(id: string) {
 		let rel = relativeToSrcDir(astroConfig, id);
 		// Remove pages, ex. blog/posts/something.astro
-		if(rel.startsWith('pages/')) {
+		if (rel.startsWith('pages/')) {
 			rel = rel.slice(6);
 		}
 		// Remove extension, ex. blog/posts/something
@@ -43,14 +43,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx)).sort();
-		const proposedName = parents.map(page => nameifyPage(page.id)).join('-');
+		const proposedName = parents.map((page) => nameifyPage(page.id)).join('-');
 
 		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
-		if(proposedName.length <= MAX_NAME_LENGTH) {
+		if (proposedName.length <= MAX_NAME_LENGTH) {
 			return proposedName;
 		}
 
-		const hash = crypto.createHash('sha256');                
+		const hash = crypto.createHash('sha256');
 		for (const page of parents) {
 			hash.update(page.id, 'utf-8');
 		}
