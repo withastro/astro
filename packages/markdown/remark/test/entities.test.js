@@ -11,13 +11,10 @@ describe('entities', () => {
 	});
 
 	it('should not escape entities in code blocks twice in Astro-flavored markdown', async () => {
-		const { code } = await renderMarkdown(
-			`\`\`\`astro\n<h1>{x && x.name || ''}!</h1>\n\`\`\``,
-			{
-				isAstroFlavoredMd: true,
-				syntaxHighlight: false,
-			}
-		);
+		const { code } = await renderMarkdown(`\`\`\`astro\n<h1>{x && x.name || ''}!</h1>\n\`\`\``, {
+			isAstroFlavoredMd: true,
+			syntaxHighlight: false,
+		});
 
 		expect(code).to.equal(
 			`<pre is:raw><code class="language-astro">&lt;h1&gt;{x &amp;&amp; x.name || ''}!&lt;/h1&gt;\n</code></pre>`

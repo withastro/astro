@@ -1,4 +1,4 @@
-import { visit, SKIP } from 'unist-util-visit';
+import { SKIP, visit } from 'unist-util-visit';
 
 export function escapeEntities(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
