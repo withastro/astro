@@ -149,7 +149,6 @@ export async function render(
 			props: {
 				rel: 'stylesheet',
 				href,
-				'data-astro-injected': true,
 			},
 			children: '',
 		});
@@ -162,15 +161,12 @@ export async function render(
 			props: {
 				type: 'module',
 				src: url,
-				'data-astro-injected': true,
 			},
 			children: '',
 		});
 		// But we still want to inject the styles to avoid FOUC
 		styles.add({
-			props: {
-				'data-astro-injected': url,
-			},
+			props: {},
 			children: content,
 		});
 	});
