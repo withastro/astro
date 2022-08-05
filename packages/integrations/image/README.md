@@ -216,16 +216,14 @@ The list of sizes that should be built for responsive images. This is combined w
 <p>
 
 **Type:** `number` | `string`<br>
-**Required:** `true`
+**Default:** `undefined`
 </p>
 
-The desired aspect ratio of the output image. This is combined with `widhts` to calculate the final dimensions of each built image.
+The desired aspect ratio of the output image. This is combined with `widths` to calculate the final dimensions of each built image.
 
 A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
-
-#### formats
 
 <p>
 
