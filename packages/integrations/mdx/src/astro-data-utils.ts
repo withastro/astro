@@ -42,6 +42,10 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: object, exportName
 	};
 }
 
+/**
+ * Copied from markdown utils
+ * @see "vite-plugin-utils"
+ */
 function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
 	if (typeof obj === 'object' && obj !== null && obj.hasOwnProperty('frontmatter')) {
 		const { frontmatter } = obj as any;
@@ -56,6 +60,10 @@ function isValidAstroData(obj: unknown): obj is MarkdownAstroData {
 	return false;
 }
 
+/**
+ * Copied from markdown utils
+ * @see "vite-plugin-utils"
+ */
 export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
 	const { astro } = vfileData;
 
