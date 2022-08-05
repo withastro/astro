@@ -148,7 +148,7 @@ export async function render(
 		links.add({
 			props: {
 				rel: 'stylesheet',
-				href
+				href,
 			},
 			children: '',
 		});
