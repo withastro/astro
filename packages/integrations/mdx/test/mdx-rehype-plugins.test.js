@@ -1,10 +1,21 @@
 import mdx from '@astrojs/mdx';
 
+import getReadingTime from 'reading-time';
+import { toString } from 'mdast-util-to-string';
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
+import { jsToTreeNode } from '../dist/utils.js';
 
-import { rehypeReadingTime } from './test-utils.js';
 import { loadFixture } from '../../../astro/test/test-utils.js';
+
+function rehypeReadingTime() {
+	return function (tree, { data }) {
+		const readingTime = getReadingTime(toString(tree));
+		tree.children.unshift(
+			jsToTreeNode(`export const readingTime = ${JSON.stringify(readingTime)}`)
+		);
+	};
+}
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-rehype-plugins/', import.meta.url);
 
@@ -39,13 +50,6 @@ describe('MDX rehype plugins', () => {
 
 			expect(readingTime).to.not.be.null;
 			expect(readingTime.text).to.match(/^\d+ min read/);
-		});
-
-		it('supports custom vfile data with "astro.frontmatter" - reading time', async () => {
-			const { frontmatter = {} } = JSON.parse(await fixture.readFile('/reading-time.json'));
-	
-			expect(frontmatter.injectedReadingTime).to.not.be.null;
-			expect(frontmatter.injectedReadingTime.text).to.match(/^\d+ min read/);
 		});
 	});
 

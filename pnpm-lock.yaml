@@ -2226,6 +2226,20 @@ importers:
       reading-time: 1.5.0
       remark-toc: 8.0.1
 
+  packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+      mdast-util-to-string: ^3.1.0
+      reading-time: ^1.5.0
+      unist-util-visit: ^4.1.0
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      astro: link:../../../../../astro
+      mdast-util-to-string: 3.1.0
+      reading-time: 1.5.0
+      unist-util-visit: 4.1.0
+
   packages/integrations/mdx/test/fixtures/mdx-page:
     specifiers:
       '@astrojs/mdx': workspace:*

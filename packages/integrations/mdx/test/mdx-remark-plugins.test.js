@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import remarkToc from 'remark-toc';
-import { remarkTitle } from './test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-remark-plugins/', import.meta.url);
 
@@ -59,22 +58,5 @@ describe('MDX remark plugins', () => {
 		expect(tocLink1).to.not.be.null;
 		const autoGenLink = document.querySelector('a[href="https://handle-me-gfm.com"]');
 		expect(autoGenLink).to.not.be.null;
-	});
-
-	it('supports custom vfile data with "astro.frontmatter" - get title', async () => {
-		const fixture = await loadFixture({
-			root: FIXTURE_ROOT,
-			integrations: [
-				mdx({
-					remarkPlugins: [remarkTitle],
-				}),
-			],
-		});
-		await fixture.build();
-
-		const frontmatterByPage = JSON.parse(await fixture.readFile('/headings-glob.json'));
-		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
-		expect(titles).to.contain('GitHub-flavored Markdown test');
-		expect(titles).to.contain('TOC test');
 	});
 });
