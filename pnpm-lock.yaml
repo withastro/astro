@@ -1235,6 +1235,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-markdown-frontmatter-injection:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-markdown-plugins:
     specifiers:
       '@astrojs/preact': workspace:*
