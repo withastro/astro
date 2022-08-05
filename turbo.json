@@ -14,10 +14,11 @@
       "cache": false
     },
     "test": {
-      "outputs": []
-    },
-    "test:templates": {
-      "outputs": []
+      "outputs": [],
+      "dependsOn": [
+        "$RUNNER_OS",
+        "$NODE_VERSION"
+      ]
     },
     "benchmark": {
       "dependsOn": ["^build"],
