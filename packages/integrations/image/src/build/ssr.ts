@@ -6,8 +6,8 @@ import { ensureDir } from '../utils/paths.js';
 
 async function globImages(dir: URL) {
 	const srcPath = fileURLToPath(dir);
-	return await glob(`${srcPath}/**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}`, {
-		absolute: true,
+	return await glob('./**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}', {
+		cwd: fileURLToPath(dir)
 	});
 }
 
@@ -19,10 +19,11 @@ export interface SSRBuildParams {
 export async function ssrBuild({ srcDir, outDir }: SSRBuildParams) {
 	const images = await globImages(srcDir);
 
-	for await (const image of images) {
-		const to = image.replace(fileURLToPath(srcDir), fileURLToPath(outDir));
+	for (const image of images) {
+		const from = path.join(fileURLToPath(srcDir), image);
+		const to = path.join(fileURLToPath(outDir), image);
 
 		await ensureDir(path.dirname(to));
-		await fs.copyFile(image, to);
+		await fs.copyFile(from, to);
 	}
 }
