@@ -51,7 +51,9 @@ async function loadRenderer(
 	viteServer: ViteDevServer,
 	renderer: AstroRenderer
 ): Promise<SSRLoadedRenderer> {
-	const mod = (await viteServer.ssrLoadModule(renderer.serverEntrypoint)) as { default: SSRLoadedRenderer['ssr'] };
+	const mod = (await viteServer.ssrLoadModule(renderer.serverEntrypoint)) as {
+		default: SSRLoadedRenderer['ssr'];
+	};
 	return { ...renderer, ssr: mod.default };
 }
 
