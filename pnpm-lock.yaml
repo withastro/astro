@@ -1199,6 +1199,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-head:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-jsx:
     specifiers:
       astro: workspace:*
@@ -1207,11 +1213,9 @@ importers:
 
   packages/astro/test/fixtures/astro-markdown:
     specifiers:
-      '@astrojs/preact': workspace:*
       '@astrojs/svelte': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
@@ -1225,14 +1229,6 @@ importers:
     specifiers:
       astro: workspace:*
     dependencies:
-      astro: link:../../..
-
-  packages/astro/test/fixtures/astro-markdown-md-mode:
-    specifiers:
-      '@astrojs/svelte': workspace:*
-      astro: workspace:*
-    dependencies:
-      '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-markdown-plugins:
@@ -1344,6 +1340,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-slots:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/client-address:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -1479,6 +1481,12 @@ importers:
       '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
+  packages/astro/test/fixtures/glob-pages-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/hmr-css:
     specifiers:
       astro: workspace:*
@@ -1564,6 +1572,16 @@ importers:
       astro: workspace:*
     dependencies:
       '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+
+  packages/astro/test/fixtures/legacy-astro-flavored-markdown:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@astrojs/svelte': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
 
   packages/astro/test/fixtures/legacy-build:

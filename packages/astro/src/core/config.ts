@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
+import jsxRenderer from '../jsx/renderer.js';
 
 load.use([loadTypeScript]);
 
@@ -343,16 +344,11 @@ export async function validateConfig(
 		_ctx: {
 			pageExtensions: ['.astro', '.md', '.html'],
 			scripts: [],
-			renderers: [],
+			renderers: [jsxRenderer],
 			injectedRoutes: [],
 			adapter: undefined,
 		},
 	};
-	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
-		// Enable default JSX integration. It needs to come first, so unshift rather than push!
-		const { default: jsxRenderer } = await import('../jsx/renderer.js');
-		(result._ctx.renderers as any[]).unshift(jsxRenderer);
-	}
 
 	// If successful, return the result as a verified AstroConfig object.
 	return result;

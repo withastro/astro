@@ -1,4 +1,4 @@
-import { rawContent, compiledContent } from './basic.md';
+import { rawContent, compiledContent } from '../imported-md/with-components.md';
 
 export async function get() {
 	return {

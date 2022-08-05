@@ -1,5 +1,6 @@
 ---
 title: Referencing Vite Env Vars like import.meta.env.SITE, import.meta.env.TITLE and import.meta.env
+layout: ../layouts/content.astro
 ---
 
 ## Referencing the full name of Vite env vars
@@ -28,3 +29,7 @@ export const get = () => rss({
 	items: import.meta.glob('./**/*.md'),
 });
 ```
+
+## Usage in frontmatter
+
+> frontmatter.title: {frontmatter.title}

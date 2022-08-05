@@ -12,6 +12,7 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
@@ -76,7 +77,9 @@ export async function createVite(
 			// the build to run very slow as the filewatcher is triggered often.
 			mode !== 'build' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
-			markdownVitePlugin({ config: astroConfig, logging }),
+			astroConfig.legacy.astroFlavoredMarkdown
+				? legacyMarkdownVitePlugin({ config: astroConfig, logging })
+				: markdownVitePlugin({ config: astroConfig, logging }),
 			htmlVitePlugin(),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
