@@ -59,6 +59,8 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				import { Fragment, jsx as h } from 'astro/jsx-runtime';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
+				const html = ${JSON.stringify(html)};
+
 				export const frontmatter = ${JSON.stringify(frontmatter)};
 				export const file = ${JSON.stringify(fileId)};
 				export const url = ${JSON.stringify(fileUrl)};
@@ -66,7 +68,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 					return ${JSON.stringify(raw.content)};
 				}
 				export function compiledContent() {
-					return ${JSON.stringify(html)};
+					return html;
 				}
 				export function getHeadings() {
 					return ${JSON.stringify(headings)};
@@ -83,7 +85,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
 						}
 					});
-					const contentFragment = h(Fragment, { 'set:html': ${JSON.stringify(html)} });
+					const contentFragment = h(Fragment, { 'set:html': html });
 					return ${
 						layout
 							? `h(Layout, { content, frontmatter: content, headings: getHeadings(), 'server:root': true, children: contentFragment })`
