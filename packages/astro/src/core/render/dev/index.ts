@@ -51,13 +51,9 @@ async function loadRenderer(
 	viteServer: ViteDevServer,
 	renderer: AstroRenderer
 ): Promise<SSRLoadedRenderer> {
-	// Vite modules can be out-of-date when using an un-resolved url
-	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
-	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
-	const id =
-		viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ??
-		renderer.serverEntrypoint;
-	const mod = (await viteServer.ssrLoadModule(id)) as { default: SSRLoadedRenderer['ssr'] };
+	const mod = (await viteServer.ssrLoadModule(renderer.serverEntrypoint)) as {
+		default: SSRLoadedRenderer['ssr'];
+	};
 	return { ...renderer, ssr: mod.default };
 }
 
@@ -149,7 +145,6 @@ export async function render(
 			props: {
 				rel: 'stylesheet',
 				href,
-				'data-astro-injected': true,
 			},
 			children: '',
 		});
@@ -162,15 +157,12 @@ export async function render(
 			props: {
 				type: 'module',
 				src: url,
-				'data-astro-injected': true,
 			},
 			children: '',
 		});
 		// But we still want to inject the styles to avoid FOUC
 		styles.add({
-			props: {
-				'data-astro-injected': url,
-			},
+			props: {},
 			children: content,
 		});
 	});

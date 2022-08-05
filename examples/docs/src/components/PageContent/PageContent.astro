@@ -2,9 +2,8 @@
 import MoreMenu from "../RightSidebar/MoreMenu.astro";
 import TableOfContents from "../RightSidebar/TableOfContents";
 
-const { content, githubEditUrl } = Astro.props;
+const { content, headings, githubEditUrl } = Astro.props;
 const title = content.title;
-const headings = content.astro.headings;
 ---
 
 <article id="article" class="content">
@@ -29,9 +28,11 @@ const headings = content.astro.headings;
 		display: flex;
 		flex-direction: column;
 	}
-	.content > section {
+
+	.content>section {
 		margin-bottom: 4rem;
 	}
+
 	.block {
 		display: block;
 	}
