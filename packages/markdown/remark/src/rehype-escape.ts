@@ -1,4 +1,4 @@
-import { visit } from 'unist-util-visit';
+import { visit, SKIP } from 'unist-util-visit';
 
 export function escapeEntities(value: string): string {
 	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -14,8 +14,9 @@ export default function rehypeEscape(): any {
 				visit(el, 'raw', (raw) => {
 					raw.value = escapeEntities(raw.value);
 				});
+				// Do not visit children to prevent double escaping
+				return SKIP;
 			}
-			return el;
 		});
 	};
 }
