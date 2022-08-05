@@ -294,23 +294,26 @@ export async function main() {
 		{
 			type: 'select',
 			name: 'typescript',
-			message:
-				'Astro is a TypeScript-first framework. How strict would you like the typechecking to be?',
+			message: 'How would you like to setup TypeScript?',
 			choices: [
 				{
 					title: 'Relaxed',
-					description: "Not a big fan of TypeScript? No issues, we'll keep this kind",
 					value: 'default',
 				},
 				{
 					title: 'Strict (recommended)',
-					description: 'Will enable `strict`',
+					description: 'Enable `strict` typechecking rules',
 					value: 'strict',
 				},
 				{
-					title: 'Stricter',
-					description: 'Will enable `strict` and some stricter settings',
+					title: 'Strictest',
+					description: 'Enable all typechecking rules',
 					value: 'stricter',
+				},
+				{
+					title: 'I prefer not to use TypeScript',
+					description: `That's cool too!`,
+					value: 'optout',
 				},
 			],
 		},
@@ -318,7 +321,7 @@ export async function main() {
 			onCancel: () => {
 				ora().info(
 					dim(
-						'Operation cancelled. No worries, your project folder has already been created and TypeScript settings have been set to "Relaxed"'
+						'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
 					)
 				);
 				process.exit(1);
@@ -326,6 +329,17 @@ export async function main() {
 		}
 	);
 
+	if (tsResponse.typescript === 'optout') {
+		console.log(``);
+		ora().warn(yellow(bold(`Astro ❤️ TypeScript!`)));
+		console.log(`  Astro supports TypeScript inside of ".astro" component scripts, so`);
+		console.log(`  we still need to create some TypeScript-related files in your project.`);
+		console.log(`  You can safely ignore these files, but don't delete them!`);
+		console.log(dim('  (ex: tsconfig.json, src/types.d.ts)'));
+		console.log(``);
+		tsResponse.typescript = 'default';
+		await wait(300);
+	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
