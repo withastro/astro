@@ -14,7 +14,9 @@ function getRenderer() {
 		jsxTransformOptions: async () => {
 			// @ts-expect-error types not found
 			const babelPluginTransformReactJsxModule = await import('@babel/plugin-transform-react-jsx');
-			const jsx = babelPluginTransformReactJsxModule?.default?.default ?? babelPluginTransformReactJsxModule?.default;
+			const jsx =
+				babelPluginTransformReactJsxModule?.default?.default ??
+				babelPluginTransformReactJsxModule?.default;
 			return {
 				plugins: [
 					jsx(
