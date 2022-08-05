@@ -7,7 +7,7 @@ import { ensureDir } from '../utils/paths.js';
 async function globImages(dir: URL) {
 	const srcPath = fileURLToPath(dir);
 	return await glob('./**/*.{heic,heif,avif,jpeg,jpg,png,tiff,webp,gif}', {
-		cwd: fileURLToPath(dir)
+		cwd: fileURLToPath(dir),
 	});
 }
 
