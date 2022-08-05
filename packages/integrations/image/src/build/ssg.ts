@@ -55,7 +55,7 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 
 		const transforms = Array.from(transformsMap.entries());
 
-		debug({ level: logLevel, message: `${green('▶')} ${src}` });
+		debug({ level: logLevel, prefix: false, message: `${green('▶')} ${src}` });
 		let timeStart = performance.now();
 
 		if (inputFile) {
@@ -67,7 +67,7 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 			const timeChange = getTimeStat(timeStart, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			const pathRelative = inputFile.replace(fileURLToPath(srcDir), '');
-			debug({ level: logLevel, message: `  ${cyan('└─')} ${dim(`(original) ${pathRelative}`)} ${dim(timeIncrease)}` });
+			debug({ level: logLevel, prefix: false, message: `  ${cyan('└─')} ${dim(`(original) ${pathRelative}`)} ${dim(timeIncrease)}` });
 		}
 
 		// process each transformed versiono of the
@@ -93,9 +93,9 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 			const timeChange = getTimeStat(timeStart, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			const pathRelative = outputFile.replace(fileURLToPath(outDir), '');
-			debug({ level: logLevel, message: `  ${cyan('└─')} ${dim(pathRelative)} ${dim(timeIncrease)}` });
+			debug({ level: logLevel, prefix: false, message: `  ${cyan('└─')} ${dim(pathRelative)} ${dim(timeIncrease)}` });
 		}
 	}
 
-	info({ level: logLevel, message: (dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`)) });
+	info({ level: logLevel, prefix: false, message: (dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`)) });
 }

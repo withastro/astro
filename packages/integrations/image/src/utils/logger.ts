@@ -1,5 +1,5 @@
 // eslint-disable no-console
-import { bold, cyan, dim, red, reset, yellow } from 'kleur/colors';
+import { bold, cyan, dim, green, red, yellow } from 'kleur/colors';
 
 const PREFIX = '[@astrojs/image]';
 
@@ -24,6 +24,8 @@ export type LoggerEvent = 'info' | 'warn' | 'error';
 export interface LogMessage {
 	level: LoggerLevel;
 	message: string;
+	prefix?: boolean;
+	timestamp?: boolean;
 }
 
 export const levels: Record<LoggerLevel, number> = {
@@ -34,10 +36,35 @@ export const levels: Record<LoggerLevel, number> = {
 	silent: 90,
 };
 
+function getPrefix(level: LoggerLevel, timestamp: boolean) {
+	let prefix = '';
+
+	if (timestamp) {
+		prefix += dim(dateTimeFormat.format(new Date()) + ' ');
+	}
+
+	switch (level) {
+		case 'debug':
+			prefix += bold(green(`[${PREFIX}]`));
+			break;
+		case 'info':
+			prefix += bold(cyan(`[${PREFIX}]`));
+			break;
+		case 'warn':
+			prefix += bold(yellow(`[${PREFIX}]`));
+			break;
+		case 'error':
+			prefix += bold(red(`[${PREFIX}]`));
+			break;
+	}
+
+	return prefix;
+}
+
 const log = (_level: LoggerLevel, dest: (message: string) => void) =>
-	({ message, level }: LogMessage) => {
+	({ message, level, prefix = true, timestamp = true }: LogMessage) => {
 		if (levels[_level] >= levels[level]) {
-			dest(message)
+			dest(`${prefix ? getPrefix(level, timestamp) : ''}${message}`);
 		}
 	}
 
@@ -45,3 +72,4 @@ export const info = log('info', console.info);
 export const debug = log('debug', console.debug);
 export const warn = log('warn', console.warn);
 export const error = log('error', console.error);
+
