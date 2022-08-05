@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
-import { loadFixture, fixLineEndings, remarkTitle, rehypeReadingTime } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 const FIXTURE_ROOT = './fixtures/astro-markdown-frontmatter-injection/';
 
@@ -10,10 +9,6 @@ describe('Astro Markdown - frontmatter injection', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: FIXTURE_ROOT,
-			markdown: {
-				remarkPlugins: [remarkTitle],
-				rehypePlugins: [rehypeReadingTime],
-			}
 		});
 		await fixture.build();
 	});
