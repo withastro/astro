@@ -7,7 +7,7 @@ import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
-import { getFileInfo } from '../vite-plugin-utils/index.js';
+import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -44,7 +44,14 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
+				const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
+				const frontmatter = {
+					...injectedFrontmatter,
+					...raw.data,
+					url: fileUrl,
+					file: fileId,
+				} as any;
+
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
@@ -94,6 +101,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				}
 				export default Content;
 				`);
+
 				return {
 					code,
 					meta: {

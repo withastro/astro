@@ -1231,6 +1231,18 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-markdown-frontmatter-injection:
+    specifiers:
+      astro: workspace:*
+      mdast-util-to-string: ^3.1.0
+      reading-time: ^1.5.0
+      unist-util-visit: ^4.1.0
+    dependencies:
+      astro: link:../../..
+      mdast-util-to-string: 3.1.0
+      reading-time: 1.5.0
+      unist-util-visit: 4.1.0
+
   packages/astro/test/fixtures/astro-markdown-plugins:
     specifiers:
       '@astrojs/preact': workspace:*
@@ -2183,6 +2195,7 @@ importers:
       remark-toc: ^8.0.1
       shiki: ^0.10.1
       unist-util-visit: ^4.1.0
+      vfile: ^5.3.2
     dependencies:
       '@astrojs/prism': link:../../astro-prism
       '@mdx-js/mdx': 2.1.2
@@ -2199,6 +2212,7 @@ importers:
       remark-smartypants: 2.0.0
       shiki: 0.10.1
       unist-util-visit: 4.1.0
+      vfile: 5.3.4
     devDependencies:
       '@types/chai': 4.3.1
       '@types/mocha': 9.1.1
@@ -2211,6 +2225,20 @@ importers:
       mocha: 9.2.2
       reading-time: 1.5.0
       remark-toc: 8.0.1
+
+  packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+      mdast-util-to-string: ^3.1.0
+      reading-time: ^1.5.0
+      unist-util-visit: ^4.1.0
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      astro: link:../../../../../astro
+      mdast-util-to-string: 3.1.0
+      reading-time: 1.5.0
+      unist-util-visit: 4.1.0
 
   packages/integrations/mdx/test/fixtures/mdx-page:
     specifiers:
@@ -14710,7 +14738,6 @@ packages:
 
   /reading-time/1.5.0:
     resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
-    dev: true
 
   /recast/0.20.5:
     resolution: {integrity: sha512-E5qICoPoNL4yU0H0NoBDntNB0Q5oMSNh9usFctYniLBluTthi3RsQVBXIJNbApOlvSwW/RGxIuokPcAc59J5fQ==}
