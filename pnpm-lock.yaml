@@ -2220,6 +2220,16 @@ importers:
       '@astrojs/mdx': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/mdx/test/fixtures/mdx-plus-react:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
   packages/integrations/netlify:
     specifiers:
       '@astrojs/webapi': ^0.12.0

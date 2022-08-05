@@ -1,0 +1,8 @@
+{
+  "name": "@test/mdx-plus-react",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/react": "workspace:*"
+  }
+}
