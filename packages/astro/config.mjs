@@ -39,5 +39,5 @@ export function getViteConfig(inlineConfig) {
 		);
 		await runHookConfigDone({ config });
 		return mergeConfig(viteConfig, inlineConfig);
-	}
+	};
 }
