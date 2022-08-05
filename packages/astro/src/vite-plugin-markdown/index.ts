@@ -44,13 +44,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 
 				const html = renderResult.code;
 				const { headings } = renderResult.metadata;
-				const frontmatter = {
-					...raw.data,
-					url: fileUrl,
-					file: fileId,
-					// TODO: replace with error
-					astro: renderResult.metadata,
-				} as any;
+				const frontmatter = { ...raw.data, url: fileUrl, file: fileId } as any;
 				const { layout } = frontmatter;
 
 				if (frontmatter.setup) {
