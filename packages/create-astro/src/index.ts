@@ -7,6 +7,7 @@ import ora from 'ora';
 import os from 'os';
 import path from 'path';
 import prompts from 'prompts';
+import url from 'url';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
@@ -284,8 +285,59 @@ export async function main() {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (gitResponse.git) {
 		await execaCommand('git init', { cwd });
+		ora().succeed('Git repository created!');
 	} else {
 		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
+	}
+
+	const tsResponse = await prompts(
+		{
+			type: 'select',
+			name: 'typescript',
+			message:
+				'Astro is a TypeScript-first framework. How strict would you like the typechecking to be?',
+			choices: [
+				{
+					title: 'Relaxed',
+					description: "Not a big fan of TypeScript? No issues, we'll keep this kind",
+					value: 'default',
+				},
+				{
+					title: 'Strict (recommended)',
+					description: 'Will enable `strict`',
+					value: 'strict',
+				},
+				{
+					title: 'Stricter',
+					description: 'Will enable `strict` and some stricter settings',
+					value: 'stricter',
+				},
+			],
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim(
+						'Operation cancelled. No worries, your project folder has already been created and TypeScript settings have been set to "Relaxed"'
+					)
+				);
+				process.exit(1);
+			},
+		}
+	);
+
+	if (args.dryRun) {
+		ora().info(dim(`--dry-run enabled, skipping.`));
+	} else if (tsResponse.typescript) {
+		fs.copyFileSync(
+			path.join(
+				url.fileURLToPath(new URL('..', import.meta.url)),
+				'tsconfigs',
+				`tsconfig.${tsResponse.typescript}.json`
+			),
+			path.join(cwd, 'tsconfig.json')
+		);
+		ora().succeed('TypeScript settings applied!');
 	}
 
 	ora().succeed('Setup complete.');
