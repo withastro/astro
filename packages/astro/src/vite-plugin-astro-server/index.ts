@@ -411,8 +411,8 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			if (opts.ssr) return;
 			if (!id.includes('vite/dist/client/client.mjs')) return;
 			return code
-					.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
-					.replace(/\[vite\]/g, '[astro]')
-		}
+				.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
+				.replace(/\[vite\]/g, '[astro]');
+		},
 	};
 }
