@@ -16571,7 +16571,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.1
       '@types/chai-subset': 1.3.3
-      '@types/node': 18.6.3
+      '@types/node': 18.6.4
       chai: 4.3.6
       debug: 4.3.4
       local-pkg: 0.4.2
