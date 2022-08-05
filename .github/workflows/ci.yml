@@ -109,7 +109,8 @@ jobs:
     strategy:
       matrix:
         OS: [ubuntu-latest, windows-latest]
-        NODE_VERSION: [14, 16, 18]
+        # TODO: Enable node@18!
+        NODE_VERSION: [14, 16]
         include:
           - os: macos-latest
             NODE_VERSION: 14
