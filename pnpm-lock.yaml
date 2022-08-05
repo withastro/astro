@@ -438,7 +438,6 @@ importers:
       html-escaper: ^3.0.3
       kleur: ^4.1.4
       magic-string: ^0.25.9
-      mdast-util-to-string: ^3.1.0
       mime: ^3.0.0
       mocha: ^9.2.2
       ora: ^6.1.0
@@ -448,7 +447,6 @@ importers:
       postcss-load-config: ^3.1.4
       preferred-pm: ^3.0.3
       prompts: ^2.4.2
-      reading-time: ^1.5.0
       recast: ^0.20.5
       rehype: ^12.0.1
       resolve: ^1.22.0
@@ -549,9 +547,7 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
-      mdast-util-to-string: 3.1.0
       mocha: 9.2.2
-      reading-time: 1.5.0
       sass: 1.54.3
       srcset-parse: 1.1.0
 
@@ -1238,8 +1234,14 @@ importers:
   packages/astro/test/fixtures/astro-markdown-frontmatter-injection:
     specifiers:
       astro: workspace:*
+      mdast-util-to-string: ^3.1.0
+      reading-time: ^1.5.0
+      unist-util-visit: ^4.1.0
     dependencies:
       astro: link:../../..
+      mdast-util-to-string: 3.1.0
+      reading-time: 1.5.0
+      unist-util-visit: 4.1.0
 
   packages/astro/test/fixtures/astro-markdown-plugins:
     specifiers:
@@ -14712,7 +14714,6 @@ packages:
 
   /reading-time/1.5.0:
     resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
-    dev: true
 
   /recast/0.20.5:
     resolution: {integrity: sha512-E5qICoPoNL4yU0H0NoBDntNB0Q5oMSNh9usFctYniLBluTthi3RsQVBXIJNbApOlvSwW/RGxIuokPcAc59J5fQ==}
