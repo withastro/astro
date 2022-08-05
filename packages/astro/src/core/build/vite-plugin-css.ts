@@ -1,29 +1,58 @@
 import type { GetModuleInfo, OutputChunk } from 'rollup';
-import { BuildInternals } from '../core/build/internal';
-import type { PageBuildData } from '../core/build/types';
+import type { BuildInternals } from './internal';
+import type { PageBuildData, StaticBuildOptions } from './types';
+import type { AstroConfig } from '../../@types/astro';
 
 import crypto from 'crypto';
 import esbuild from 'esbuild';
+import npath from 'path';
 import { Plugin as VitePlugin } from 'vite';
-import { AstroConfig } from '../@types/astro';
-import { getTopLevelPages, walkParentInfos } from '../core/build/graph.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from '../core/build/internal.js';
-import { isCSSRequest } from '../core/render/util.js';
+import { getTopLevelPages, walkParentInfos } from './graph.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
+import { relativeToSrcDir } from '../util.js';
+import { isCSSRequest } from '../render/util.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
+	buildOptions: StaticBuildOptions;
 	target: 'client' | 'server';
 	astroConfig: AstroConfig;
 }
 
-export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
-	const { internals } = options;
+// Arbitrary magic number, can change.
+const MAX_NAME_LENGTH = 70;
 
-	function createHashOfPageParents(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
+export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
+	const { internals, buildOptions } = options;
+	const { astroConfig } = buildOptions;
+
+	// Turn a page location into a name to be used for the CSS file.
+	function nameifyPage(id: string) {
+		let rel = relativeToSrcDir(astroConfig, id);
+		// Remove pages, ex. blog/posts/something.astro
+		if(rel.startsWith('pages/')) {
+			rel = rel.slice(6);
+		}
+		// Remove extension, ex. blog/posts/something
+		const ext = npath.extname(rel);
+		const noext = rel.slice(0, rel.length - ext.length);
+		// Replace slashes with dashes, ex. blog-posts-something
+		const named = noext.replace(/\//g, '-');
+		return named;
+	}
+
+	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx)).sort();
-		const hash = crypto.createHash('sha256');
+		const proposedName = parents.map(page => nameifyPage(page.id)).join('-');
+
+		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
+		if(proposedName.length <= MAX_NAME_LENGTH) {
+			return proposedName;
+		}
+
+		const hash = crypto.createHash('sha256');                
 		for (const page of parents) {
-			hash.update(page, 'utf-8');
+			hash.update(page.id, 'utf-8');
 		}
 		return hash.digest('hex').slice(0, 8);
 	}
@@ -37,12 +66,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		}
 	}
 
-	const CSS_PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
-	const CSS_MINIFY_PLUGIN_NAME = '@astrojs/rollup-plugin-build-css-minify';
-
 	return [
 		{
-			name: CSS_PLUGIN_NAME,
+			name: 'astro:rollup-plugin-build-css',
 
 			outputOptions(outputOptions) {
 				const manualChunks = outputOptions.manualChunks || Function.prototype;
@@ -62,7 +88,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					// For CSS, create a hash of all of the pages that use it.
 					// This causes CSS to be built into shared chunks when used by multiple pages.
 					if (isCSSRequest(id)) {
-						return createHashOfPageParents(id, args[0]);
+						return createNameForParentPages(id, args[0]);
 					}
 				};
 			},
@@ -96,7 +122,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
-									for (const pageViteID of getTopLevelPages(id, this)) {
+									for (const pageInfo of getTopLevelPages(id, this)) {
+										const pageViteID = pageInfo.id;
 										const pageData = getPageDataByViteID(internals, pageViteID);
 										for (const importedCssImport of meta.importedCss) {
 											pageData?.css.add(importedCssImport);
@@ -110,7 +137,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 			},
 		},
 		{
-			name: CSS_MINIFY_PLUGIN_NAME,
+			name: 'astro:rollup-plugin-build-css-minify',
 			enforce: 'post',
 			async generateBundle(_outputOptions, bundle) {
 				// Minify CSS in each bundle ourselves, since server builds are not minified

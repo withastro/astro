@@ -186,6 +186,16 @@ export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
 	return config.output === 'server' && !config._ctx.adapter;
 }
 
+export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
+	let id: string;
+	if(typeof idOrUrl !== 'string') {
+		id = unwrapId(viteID(idOrUrl));
+	} else {
+		id = idOrUrl;
+	}
+	return id.slice(slash(fileURLToPath(config.srcDir)).length);
+}
+
 export function emoji(char: string, fallback: string) {
 	return process.platform !== 'win32' ? char : fallback;
 }

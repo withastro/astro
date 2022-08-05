@@ -7,7 +7,7 @@ import { BuildInternals, createBuildInternals } from '../../core/build/internal.
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, isModeServerWithNoAdapter, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
@@ -151,6 +151,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginInternals(input, internals),
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
+				buildOptions: opts,
 				internals,
 				target: 'server',
 				astroConfig,
@@ -233,6 +234,7 @@ async function clientBuild(
 			vitePluginInternals(input, internals),
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
+				buildOptions: opts,
 				internals,
 				target: 'client',
 				astroConfig,
