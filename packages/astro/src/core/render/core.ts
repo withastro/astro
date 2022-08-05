@@ -10,7 +10,7 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { renderPage, Fragment } from '../../runtime/server/index.js';
+import { Fragment, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -157,10 +157,12 @@ export async function render(opts: RenderOptions): Promise<Response> {
 	if (typeof (mod as any).components === 'object') {
 		Object.assign(pageProps, { components: (mod as any).components });
 	}
-	
+
 	// HACK: expose `Fragment` for all MDX components
 	if (typeof mod.default === 'function' && mod.default.name.startsWith('MDX')) {
-		Object.assign(pageProps, { components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }) });
+		Object.assign(pageProps, {
+			components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }),
+		});
 	}
 
 	return await renderPage(result, Component, pageProps, null, streaming);
