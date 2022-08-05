@@ -34,7 +34,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		async load(id) {
 			if (id.endsWith('.md')) {
 				const { fileId, fileUrl } = getFileInfo(id, config);
-				const rawFile = String(await fs.promises.readFile(fileId));
+				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 				const renderResult = await renderMarkdown(raw.content, {
 					...config.markdown,
