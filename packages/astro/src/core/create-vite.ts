@@ -24,7 +24,7 @@ export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
 interface CreateViteOptions {
 	astroConfig: AstroConfig;
 	logging: LogOptions;
-	mode: 'dev' | 'build';
+	mode: 'dev' | 'build' | string;
 }
 
 const ALWAYS_NOEXTERNAL = new Set([
@@ -74,7 +74,7 @@ export async function createVite(
 			astroScriptsPlugin({ config: astroConfig }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
+			mode !== 'build' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
 			markdownVitePlugin({ config: astroConfig, logging }),
 			htmlVitePlugin(),
