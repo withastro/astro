@@ -49,7 +49,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 					...raw.data,
 					url: fileUrl,
 					file: fileId,
-					...safelyGetAstroData(renderResult.vfile.data),
+					...safelyGetAstroData(renderResult.vfile.data).frontmatter,
 				} as any;
 				const { layout } = frontmatter;
 
