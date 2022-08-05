@@ -2,7 +2,7 @@ import { AstroDocument } from '../../core/documents';
 import { dirname, resolve } from 'path';
 import ts from 'typescript';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import { AstroVersion, getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
+import { getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
@@ -112,14 +112,20 @@ async function createLanguageService(
 
 	const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, compilerOptions);
 
+	const scriptFileNames: string[] = [];
+
+	if (astroVersion.exist) {
+		const astroDir = dirname(require.resolve('astro', { paths: [workspacePath] }));
+
+		scriptFileNames.push(...['./env.d.ts', './astro-jsx.d.ts'].map((f) => ts.sys.resolvePath(resolve(astroDir, f))));
+	}
+
 	let languageServerDirectory: string;
 	try {
 		languageServerDirectory = dirname(require.resolve('@astrojs/language-server'));
 	} catch (e) {
 		languageServerDirectory = __dirname;
 	}
-
-	const scriptFileNames: string[] = [];
 
 	// Before Astro 1.0, JSX definitions were inside of the language-server instead of inside Astro
 	// TODO: Remove this and astro-jsx.d.ts in types when we consider having support for Astro < 1.0 unnecessary
@@ -293,26 +299,7 @@ async function createLanguageService(
 	}
 
 	function getParsedTSConfig() {
-		let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {
-			compilerOptions: getDefaultCompilerOptions(astroVersion),
-		};
-
-		// If our user has types in their config but it doesn't include the types needed for Astro, add them to the config
-		if (configJson.compilerOptions?.types) {
-			if (!configJson.compilerOptions?.types.includes('astro/env')) {
-				configJson.compilerOptions.types.push('astro/env');
-			}
-
-			if (
-				(astroVersion.major >= 1 || astroVersion.full.startsWith('0.0.0-rc-')) &&
-				astroVersion.full !== '1.0.0-beta.0' &&
-				!configJson.compilerOptions?.types.includes('astro/astro-jsx')
-			) {
-				configJson.compilerOptions.types.push('astro/astro-jsx');
-			}
-		} else {
-			configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(astroVersion), configJson.compilerOptions);
-		}
+		let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {};
 
 		// Delete include so that .astro files don't get mistakenly excluded by the user
 		delete configJson.include;
@@ -361,21 +348,6 @@ async function createLanguageService(
 			},
 		};
 	}
-}
-
-/**
- * Default compiler configuration used when the user doesn't have any
- */
-function getDefaultCompilerOptions(astroVersion: AstroVersion): ts.CompilerOptions {
-	const types = ['astro/env'];
-
-	if ((astroVersion.major >= 1 && astroVersion.full !== '1.0.0-beta.0') || astroVersion.full.startsWith('0.0.0-rc-')) {
-		types.push('astro/astro-jsx');
-	}
-
-	return {
-		types: types,
-	};
 }
 
 function getDefaultExclude(): string[] {
