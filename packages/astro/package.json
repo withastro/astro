@@ -20,9 +20,6 @@
       ],
       "app/*": [
         "./dist/types/core/app/*"
-      ],
-      "compat": [
-        "./dist/types/compat/index"
       ]
     }
   },
@@ -35,7 +32,6 @@
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
-    "./compat": "./dist/compat/index.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
