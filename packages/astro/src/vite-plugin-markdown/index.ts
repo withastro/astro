@@ -101,6 +101,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				}
 				export default Content;
 				`);
+
 				return {
 					code,
 					meta: {

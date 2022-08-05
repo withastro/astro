@@ -29,4 +29,12 @@ describe('Astro Markdown - frontmatter injection', () => {
 			expect(readingTime.text).match(/^\d+ min read/);
 		}
 	});
+
+	it('overrides injected frontmatter with user frontmatter', async () => {
+		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
+		const readingTimes = frontmatterByPage.map((frontmatter = {}) => frontmatter.injectedReadingTime?.text);
+		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
+		expect(titles).to.contain('Overridden title');
+		expect(readingTimes).to.contain('A lotta minutes read');
+	});
 });
