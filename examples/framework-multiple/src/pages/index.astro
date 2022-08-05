@@ -1,12 +1,13 @@
 ---
 // Style Imports
 import "../styles/global.css";
+
 // Component Imports
-import { A, B as Renamed } from "../components";
-import * as react from "../components/ReactCounter.jsx";
-import { PreactCounter } from "../components/PreactCounter.tsx";
-import PreactSFC from "../components/PreactSFC.tsx";
-import SolidCounter from "../components/SolidCounter.tsx";
+// For JSX components, all the common ways of exporting (under a namespace, specific export, default export etc) are supported!
+import * as react from "../components/ReactCounter";
+import { PreactCounter } from "../components/PreactCounter";
+import SolidCounter from "../components/SolidCounter";
+
 import VueCounter from "../components/VueCounter.vue";
 import SvelteCounter from "../components/SvelteCounter.svelte";
 
@@ -23,29 +24,24 @@ import SvelteCounter from "../components/SvelteCounter.svelte";
 	<body>
 		<main>
 			<react.Counter client:visible>
-				<h1>Hello React!</h1>
-				<p>What's up?</p>
+				<h1>Hello from React!</h1>
 			</react.Counter>
 
 			<PreactCounter client:visible>
-				<h1>Hello Preact!</h1>
+				<h1>Hello from Preact!</h1>
 			</PreactCounter>
 
 			<SolidCounter client:visible>
-				<h1>Hello Solid!</h1>
+				<h1>Hello from Solid!</h1>
 			</SolidCounter>
 
 			<VueCounter client:visible>
-				<h1>Hello Vue!</h1>
+				<h1>Hello from Vue!</h1>
 			</VueCounter>
 
 			<SvelteCounter client:visible>
-				<h1>Hello Svelte!</h1>
+				<h1>Hello from Svelte!</h1>
 			</SvelteCounter>
-
-			<A />
-
-			<Renamed />
 		</main>
 	</body>
 </html>

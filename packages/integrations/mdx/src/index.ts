@@ -99,7 +99,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										const frontmatter = getFrontmatter(code, id);
 										if (frontmatter.layout) {
 											const { layout, ...content } = frontmatter;
-											code += `\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
+											code += `\n\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
 												frontmatter.layout
 											)})).default;\nconst frontmatter=${JSON.stringify(
 												content
