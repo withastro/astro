@@ -120,7 +120,7 @@ export async function render(
 		scripts.add({
 			props: {
 				type: 'module',
-				src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname,
+				src: '/@id/astro/runtime/client/hmr.js',
 			},
 			children: '',
 		});

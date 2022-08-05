@@ -9,10 +9,7 @@ import type {
 import { debug, LogOptions, warn } from '../logger/core.js';
 
 import { stringifyParams } from '../routing/params.js';
-import {
-	validateGetStaticPathsModule,
-	validateGetStaticPathsResult,
-} from '../routing/validation.js';
+import { validateDynamicRouteModule, validateGetStaticPathsResult } from '../routing/validation.js';
 import { generatePaginateFunction } from './paginate.js';
 
 interface CallGetStaticPathsOptions {
@@ -30,21 +27,28 @@ export async function callGetStaticPaths({
 	route,
 	ssr,
 }: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
-	validateGetStaticPathsModule(mod, { ssr });
-
-	let staticPaths: GetStaticPathsResult = [];
-	if (mod.getStaticPaths) {
-		staticPaths = (
-			await mod.getStaticPaths({
-				paginate: generatePaginateFunction(route),
-				rss() {
-					throw new Error(
-						'The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead. See https://docs.astro.build/en/guides/rss/'
-					);
-				},
-			})
-		).flat();
+	validateDynamicRouteModule(mod, { ssr, logging });
+	// No static paths in SSR mode. Return an empty RouteCacheEntry.
+	if (ssr) {
+		return { staticPaths: Object.assign([], { keyed: new Map() }) };
 	}
+	// Add a check here to my TypeScript happy.
+	// This is already checked in validateDynamicRouteModule().
+	if (!mod.getStaticPaths) {
+		throw new Error('Unexpected Error.');
+	}
+	// Calculate your static paths.
+	let staticPaths: GetStaticPathsResult = [];
+	staticPaths = (
+		await mod.getStaticPaths({
+			paginate: generatePaginateFunction(route),
+			rss() {
+				throw new Error(
+					'The RSS helper has been removed from getStaticPaths! Try the new @astrojs/rss package instead. See https://docs.astro.build/en/guides/rss/'
+				);
+			},
+		})
+	).flat();
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
