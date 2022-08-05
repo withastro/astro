@@ -22,7 +22,9 @@ describe('MDX frontmatter injection', () => {
 
 	it('rehype supports custom vfile data - reading time', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
-		const readingTimes = frontmatterByPage.map((frontmatter = {}) => frontmatter.injectedReadingTime);
+		const readingTimes = frontmatterByPage.map(
+			(frontmatter = {}) => frontmatter.injectedReadingTime
+		);
 		expect(readingTimes.length).to.be.greaterThan(0);
 		for (let readingTime of readingTimes) {
 			expect(readingTime).to.not.be.null;
@@ -32,7 +34,9 @@ describe('MDX frontmatter injection', () => {
 
 	it('overrides injected frontmatter with user frontmatter', async () => {
 		const frontmatterByPage = JSON.parse(await fixture.readFile('/glob.json'));
-		const readingTimes = frontmatterByPage.map((frontmatter = {}) => frontmatter.injectedReadingTime?.text);
+		const readingTimes = frontmatterByPage.map(
+			(frontmatter = {}) => frontmatter.injectedReadingTime?.text
+		);
 		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
 		expect(titles).to.contain('Overridden title');
 		expect(readingTimes).to.contain('1000 min read');

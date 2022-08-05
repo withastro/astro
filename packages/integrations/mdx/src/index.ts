@@ -1,7 +1,6 @@
 import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroIntegration, AstroConfig } from 'astro';
-import { remarkInitializeAstroData, rehypeApplyFrontmatterExport } from './astro-data-utils.js';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
@@ -10,6 +9,7 @@ import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
+import { rehypeApplyFrontmatterExport, remarkInitializeAstroData } from './astro-data-utils.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';

@@ -1,8 +1,7 @@
-import { name as isValidIdentifierName } from 'estree-util-is-identifier-name';
-import type { VFile } from 'vfile';
-import type { MdxjsEsm } from 'mdast-util-mdx';
 import type { MarkdownAstroData } from 'astro';
-import type { Data } from 'vfile';
+import { name as isValidIdentifierName } from 'estree-util-is-identifier-name';
+import type { MdxjsEsm } from 'mdast-util-mdx';
+import type { Data, VFile } from 'vfile';
 import { jsToTreeNode } from './utils.js';
 
 export function remarkInitializeAstroData() {
