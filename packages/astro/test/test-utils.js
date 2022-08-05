@@ -2,6 +2,9 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import getReadingTime from 'reading-time';
+import { toString } from 'mdast-util-to-string';
+import { visit } from 'unist-util-visit';
 import { loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
@@ -266,4 +269,21 @@ export const isWindows = os.platform() === 'win32';
 
 export function fixLineEndings(str) {
 	return str.replace(/\r\n/g, '\n');
+}
+
+export function rehypeReadingTime() {
+	return function (tree, { data }) {
+		const readingTime = getReadingTime(toString(tree));
+		data.astro.frontmatter.injectedReadingTime = readingTime;
+	};
+}
+
+export function remarkTitle() {
+	return function (tree, { data }) {
+		visit(tree, ['heading'], (node) => {
+			if (node.depth === 1) {
+				data.astro.frontmatter.title = toString(node.children);
+			}
+		});
+	};
 }
