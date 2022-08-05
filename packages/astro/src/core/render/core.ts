@@ -158,8 +158,8 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		Object.assign(pageProps, { components: (mod as any).components });
 	}
 	
-	// HACK: pass `Fragment` in as a component to all MDX components
-	if (mod.default && mod.default.name.startsWith('MDX')) {
+	// HACK: expose `Fragment` for all MDX components
+	if (typeof mod.default === 'function' && mod.default.name.startsWith('MDX')) {
 		Object.assign(pageProps, { components: Object.assign((pageProps?.components as any) ?? {}, { Fragment }) });
 	}
 
