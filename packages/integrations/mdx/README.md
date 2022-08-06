@@ -297,26 +297,11 @@ export default {
 <details>
   <summary><strong>rehypePlugins</strong></summary>
 
-**Default plugins:** [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts)
-
 [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your Markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their Markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
 
-We apply our own [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin by default. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
+We apply our own (non-overridable) [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
 
-To apply rehype plugins _while preserving_ Astro's default plugins, use a nested `extends` object like so:
-
-```js
-// astro.config.mjs
-import rehypeMinifyHtml from 'rehype-minify';
-
-export default {
-  integrations: [mdx({
-    rehypePlugins: { extends: [rehypeMinifyHtml] },
-  })],
-}
-```
-
-To apply plugins _without_ Astro's defaults, you can apply a plain array:
+To apply additional rehype plugins, pass an array to the `rehypePlugins` option like so:
 
 ```js
 // astro.config.mjs
