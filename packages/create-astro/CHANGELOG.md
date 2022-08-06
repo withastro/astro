@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.15.1
+
+### Patch Changes
+
+- [#4183](https://github.com/withastro/astro/pull/4183) [`77c018e51`](https://github.com/withastro/astro/commit/77c018e5159e9084304ca650487b6e99c828d3cf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix relaxed and default TypeScript settings not working
+
 ## 0.15.0
 
 ### Minor Changes
