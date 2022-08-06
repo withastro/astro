@@ -34,17 +34,6 @@ describe('MDX rehype plugins', () => {
 			await fixture.build();
 		});
 
-		it('removes default getHeadings', async () => {
-			const html = await fixture.readFile('/space-ipsum/index.html');
-			const { document } = parseHTML(html);
-
-			const headings = [...document.querySelectorAll('h1, h2')];
-			expect(headings.length).to.be.greaterThan(0);
-			for (const heading of headings) {
-				expect(heading.id).to.be.empty;
-			}
-		});
-
 		it('supports custom rehype plugins - reading time', async () => {
 			const { readingTime } = JSON.parse(await fixture.readFile('/reading-time.json'));
 
