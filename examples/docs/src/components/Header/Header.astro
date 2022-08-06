@@ -1,11 +1,11 @@
 ---
-import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from "../../languages";
-import * as CONFIG from "../../config";
-import AstroLogo from "./AstroLogo.astro";
-import SkipToContent from "./SkipToContent.astro";
-import SidebarToggle from "./SidebarToggle";
-import LanguageSelect from "./LanguageSelect";
-import Search from "./Search";
+import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages';
+import * as CONFIG from '../../config';
+import AstroLogo from './AstroLogo.astro';
+import SkipToContent from './SkipToContent.astro';
+import SidebarToggle from './SidebarToggle';
+import LanguageSelect from './LanguageSelect';
+import Search from './Search';
 
 const { currentPage } = Astro.props;
 const lang = currentPage && getLanguageFromURL(currentPage);
@@ -20,7 +20,7 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 		<div class="logo flex">
 			<a href="/">
 				<AstroLogo size={40} />
-				<h1>{CONFIG.SITE.title ?? "Documentation"}</h1>
+				<h1>{CONFIG.SITE.title ?? 'Documentation'}</h1>
 			</a>
 		</div>
 		<div style="flex-grow: 1;"></div>

@@ -1,10 +1,10 @@
 ---
-import MainHead from "../components/MainHead.astro";
-import Footer from "../components/Footer/index.jsx";
-import Nav from "../components/Nav/index.jsx";
-import PortfolioPreview from "../components/PortfolioPreview/index.jsx";
+import MainHead from '../components/MainHead.astro';
+import Footer from '../components/Footer/index.jsx';
+import Nav from '../components/Nav/index.jsx';
+import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-const projects = (await Astro.glob("./project/**/*.md"))
+const projects = (await Astro.glob('./project/**/*.md'))
 	.filter(({ frontmatter }) => !!frontmatter.publishDate)
 	.sort(
 		(a, b) =>

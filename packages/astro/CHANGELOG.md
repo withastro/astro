@@ -374,13 +374,14 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ---
   import LoadTodos from '../components/LoadTodos.astro';
   ---
+
   <html>
-  <head>
-  <title>App</title>
-  </head>
-  <body>
-    <LoadTodos />
-  </body>
+    <head>
+      <title>App</title>
+    </head>
+    <body>
+      <LoadTodos />
+    </body>
   </html>
   ```
 
@@ -390,12 +391,11 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```astro
   <ul>
-    {(async function * () {
-      for(const number of numbers) {
+    {(async function* () {
+      for (const number of numbers) {
         await wait(1000);
-
-        yield <li>Number: {number}</li>
-        yield '\n'
+        yield <li>Number: {number}</li>;
+        yield '\n';
       }
     })()}
   </ul>
@@ -2586,7 +2586,9 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   ```astro
   ---
   import Debug from 'astro/debug';
-  const obj = { /* ... */ }
+  const obj = {
+    /* ... */
+  };
   ---
 
   <Debug {obj} />

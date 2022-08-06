@@ -1,6 +1,6 @@
 ---
-import { getLanguageFromURL } from "../../languages";
-import { SIDEBAR } from "../../config";
+import { getLanguageFromURL } from '../../languages';
+import { SIDEBAR } from '../../config';
 const { currentPage } = Astro.props;
 const currentPageMatch = currentPage.slice(1);
 const langCode = getLanguageFromURL(currentPage);
@@ -9,7 +9,7 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 	// If the first item is not a section header, create a new container section.
 	if (i === 0) {
 		if (!item.header) {
-			const pesudoSection = { text: "" };
+			const pesudoSection = { text: '' };
 			col.push({ ...pesudoSection, children: [] });
 		}
 	}
@@ -33,7 +33,7 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 							<li class="nav-link">
 								<a
 									href={`${Astro.site.pathname}${child.link}`}
-									aria-current={`${currentPageMatch === child.link ? "page" : "false"}`}
+									aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}
 								>
 									{child.text}
 								</a>
@@ -47,10 +47,10 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 </nav>
 
 <script is:inline>
-	window.addEventListener("DOMContentLoaded", (event) => {
+	window.addEventListener('DOMContentLoaded', (event) => {
 		var target = document.querySelector('[aria-current="page"]');
 		if (target && target.offsetTop > window.innerHeight - 100) {
-			document.querySelector(".nav-groups").scrollTop = target.offsetTop;
+			document.querySelector('.nav-groups').scrollTop = target.offsetTop;
 		}
 	});
 </script>
@@ -103,13 +103,13 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 		background-color: var(--theme-bg-hover);
 	}
 
-	.nav-link a[aria-current="page"] {
+	.nav-link a[aria-current='page'] {
 		color: var(--theme-text-accent);
 		background-color: var(--theme-bg-accent);
 		font-weight: 600;
 	}
 
-	:global(:root.theme-dark) .nav-link a[aria-current="page"] {
+	:global(:root.theme-dark) .nav-link a[aria-current='page'] {
 		color: hsla(var(--color-base-white), 100%, 1);
 	}
 

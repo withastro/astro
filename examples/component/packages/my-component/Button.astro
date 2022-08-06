@@ -7,7 +7,7 @@ const { type, ...props } = {
 	...Astro.props,
 } as Props;
 
-props.type = type || "button";
+props.type = type || 'button';
 ---
 
 <button {...props}><slot /></button>

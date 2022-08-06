@@ -8,9 +8,11 @@ export interface Props {
 }
 
 const { class: className, lang, code } = Astro.props as Props;
-const { classLanguage, html } = runHighlighterWithAstro(lang, code)
+const { classLanguage, html } = runHighlighterWithAstro(lang, code);
 ---
 
-<pre class={[className, classLanguage].join(' ')}>
-	<code class={classLanguage}><Fragment set:html={html} /></code>
+<pre
+	class={[className, classLanguage].join(
+		' '
+	)}>	<code class={classLanguage}><Fragment set:html={html} /></code>
 </pre>
