@@ -309,7 +309,7 @@ import rehypeMinifyHtml from 'rehype-minify';
 
 export default {
   integrations: [mdx({
-    rehypePlugins: { extends: [rehypeMinifyHtml] },
+    rehypePlugins: [rehypeMinifyHtml],
   })],
 }
 ```
