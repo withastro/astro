@@ -711,7 +711,7 @@ export interface AstroUserConfig {
 	 * @name Legacy Flags
 	 * @description
 	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
-	 * These flags allow you to opt in to deprecated or otherwise outdated behavior of Astro
+	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
 	legacy?: {
