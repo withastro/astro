@@ -25,7 +25,8 @@
   },
   "files": [
     "dist",
-    "create-astro.js"
+    "create-astro.js",
+    "tsconfigs"
   ],
   "dependencies": {
     "chalk": "^5.0.1",

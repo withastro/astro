@@ -7,6 +7,7 @@ import ora from 'ora';
 import os from 'os';
 import path from 'path';
 import prompts from 'prompts';
+import url from 'url';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
@@ -284,8 +285,73 @@ export async function main() {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (gitResponse.git) {
 		await execaCommand('git init', { cwd });
+		ora().succeed('Git repository created!');
 	} else {
 		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
+	}
+
+	const tsResponse = await prompts(
+		{
+			type: 'select',
+			name: 'typescript',
+			message: 'How would you like to setup TypeScript?',
+			choices: [
+				{
+					title: 'Relaxed',
+					value: 'default',
+				},
+				{
+					title: 'Strict (recommended)',
+					description: 'Enable `strict` typechecking rules',
+					value: 'strict',
+				},
+				{
+					title: 'Strictest',
+					description: 'Enable all typechecking rules',
+					value: 'stricter',
+				},
+				{
+					title: 'I prefer not to use TypeScript',
+					description: `That's cool too!`,
+					value: 'optout',
+				},
+			],
+		},
+		{
+			onCancel: () => {
+				ora().info(
+					dim(
+						'Operation cancelled. Your project folder has been created but no TypeScript configuration file was created.'
+					)
+				);
+				process.exit(1);
+			},
+		}
+	);
+
+	if (tsResponse.typescript === 'optout') {
+		console.log(``);
+		ora().warn(yellow(bold(`Astro ❤️ TypeScript!`)));
+		console.log(`  Astro supports TypeScript inside of ".astro" component scripts, so`);
+		console.log(`  we still need to create some TypeScript-related files in your project.`);
+		console.log(`  You can safely ignore these files, but don't delete them!`);
+		console.log(dim('  (ex: tsconfig.json, src/types.d.ts)'));
+		console.log(``);
+		tsResponse.typescript = 'default';
+		await wait(300);
+	}
+	if (args.dryRun) {
+		ora().info(dim(`--dry-run enabled, skipping.`));
+	} else if (tsResponse.typescript) {
+		fs.copyFileSync(
+			path.join(
+				url.fileURLToPath(new URL('..', import.meta.url)),
+				'tsconfigs',
+				`tsconfig.${tsResponse.typescript}.json`
+			),
+			path.join(cwd, 'tsconfig.json')
+		);
+		ora().succeed('TypeScript settings applied!');
 	}
 
 	ora().succeed('Setup complete.');
