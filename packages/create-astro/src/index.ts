@@ -343,14 +343,16 @@ export async function main() {
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
-		fs.copyFileSync(
-			path.join(
-				url.fileURLToPath(new URL('..', import.meta.url)),
-				'tsconfigs',
-				`tsconfig.${tsResponse.typescript}.json`
-			),
-			path.join(cwd, 'tsconfig.json')
-		);
+		if (tsResponse.typescript !== 'default') {
+			fs.copyFileSync(
+				path.join(
+					url.fileURLToPath(new URL('..', import.meta.url)),
+					'tsconfigs',
+					`tsconfig.${tsResponse.typescript}.json`
+				),
+				path.join(cwd, 'tsconfig.json')
+			);
+		}
 		ora().succeed('TypeScript settings applied!');
 	}
 
