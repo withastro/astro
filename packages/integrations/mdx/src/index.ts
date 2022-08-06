@@ -27,8 +27,11 @@ type MdxOptions = {
 	frontmatterOptions?: RemarkMdxFrontmatterOptions;
 };
 
-const DEFAULT_REMARK_PLUGINS = [remarkGfm, remarkSmartypants];
-const DEFAULT_REHYPE_PLUGINS = [rehypeCollectHeadings];
+const DEFAULT_REMARK_PLUGINS: MdxRollupPluginOptions['remarkPlugins'] = [
+	remarkGfm,
+	remarkSmartypants,
+];
+const DEFAULT_REHYPE_PLUGINS: MdxRollupPluginOptions['rehypePlugins'] = [];
 
 function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
@@ -68,6 +71,8 @@ function getRehypePlugins(
 	if (config.markdown.syntaxHighlight === 'shiki' || config.markdown.syntaxHighlight === 'prism') {
 		rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
 	}
+	// getHeadings() is guaranteed by TS, so we can't allow user to override
+	rehypePlugins.push(rehypeCollectHeadings);
 
 	return rehypePlugins;
 }
