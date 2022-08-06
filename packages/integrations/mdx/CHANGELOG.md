@@ -1,5 +1,19 @@
 # @astrojs/mdx
 
+## 0.7.0
+
+### Minor Changes
+
+- [#4176](https://github.com/withastro/astro/pull/4176) [`2675b8633`](https://github.com/withastro/astro/commit/2675b8633c5d5c45b237ec87940d5eaf1bfb1b4b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support frontmatter injection for MD and MDX using remark and rehype plugins
+
+### Patch Changes
+
+- [#4181](https://github.com/withastro/astro/pull/4181) [`77cede720`](https://github.com/withastro/astro/commit/77cede720b09bce34f29c3d2d8b505311ce876b1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Make collect-headings rehype plugin non-overridable
+
+* [#4174](https://github.com/withastro/astro/pull/4174) [`8eb3a8c6d`](https://github.com/withastro/astro/commit/8eb3a8c6d9554707963c3a3bc36ed8b68d3cf0fb) Thanks [@matthewp](https://github.com/matthewp)! - Allows using React with automatic imports alongside MDX
+
+- [#4145](https://github.com/withastro/astro/pull/4145) [`c7efcf57e`](https://github.com/withastro/astro/commit/c7efcf57e00a0fcde3bc9f813e3cc59902bd484c) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a missing newline bug when `layout` was set.
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.15.0
+
+### Minor Changes
+
+- [#4179](https://github.com/withastro/astro/pull/4179) [`d344f9e3e`](https://github.com/withastro/astro/commit/d344f9e3ec1f69ad4d7efd433b3523ad5413b726) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a step to configure how strict TypeScript should be
+
 ## 0.14.3
 
 ### Patch Changes

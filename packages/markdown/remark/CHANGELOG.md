@@ -1,5 +1,15 @@
 # @astrojs/markdown-remark
 
+## 0.14.1
+
+### Patch Changes
+
+- [#4176](https://github.com/withastro/astro/pull/4176) [`2675b8633`](https://github.com/withastro/astro/commit/2675b8633c5d5c45b237ec87940d5eaf1bfb1b4b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support frontmatter injection for MD and MDX using remark and rehype plugins
+
+* [#4137](https://github.com/withastro/astro/pull/4137) [`471c6f784`](https://github.com/withastro/astro/commit/471c6f784e21399676c8b2002665ffdf83a1c59e) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Speed up internal markdown builds with new vite-plugin markdown
+
+- [#4169](https://github.com/withastro/astro/pull/4169) [`16034f0dd`](https://github.com/withastro/astro/commit/16034f0dd5b3683e9e022dbd413e85bd18d2b031) Thanks [@hippotastic](https://github.com/hippotastic)! - Fix double-escaping of non-highlighted code blocks in Astro-flavored markdown
+
 ## 0.14.0
 
 ### Minor Changes
