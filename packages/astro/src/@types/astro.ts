@@ -710,8 +710,8 @@ export interface AstroUserConfig {
 	 * @kind heading
 	 * @name Legacy Flags
 	 * @description
-	 * To help some users migrate between versions of Astro, we occasionally introduce `legacy` flags.
-	 * These flags allow you to opt in to some deprecated or otherwise outdated behavior of Astro
+	 * To help some users migrate between versions of Astro, we will introduce `legacy` flags.
+	 * These flags allow you to opt in to deprecated or otherwise outdated behavior of Astro
 	 * in the latest version, so that you can continue to upgrade and take advantage of new Astro releases.
 	 */
 	legacy?: {
@@ -722,8 +722,17 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 1.0.0-rc.1
 		 * @description
-		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
+		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Standard Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 * 
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [astro.config.mjs]{/en/guides/configuring-astro/} configuration file.
+		 * 
+		 * {
+		 *  legacy: {
+		 *    	//example: Add support for legacy .md files
+		 * 			astroFlavoredMarkdown: true,
+		 * 		},
+		 * 	}
 		 */
 		astroFlavoredMarkdown?: boolean;
 	};
