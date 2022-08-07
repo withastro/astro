@@ -3,8 +3,8 @@ import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
-import http from 'http';
 import fs from 'fs';
+import http from 'http';
 import { performance } from 'perf_hooks';
 import sirv from 'sirv';
 import { fileURLToPath } from 'url';
@@ -80,7 +80,7 @@ export default async function preview(
 				req.url = '/' + req.url?.replace(baseURL.pathname, '');
 				staticFileServer(req, res, () => {
 					const errorPagePath = fileURLToPath(config.outDir + '/404.html');
-					if (fs.statSync(errorPagePath)) {
+					if (fs.existsSync(errorPagePath)) {
 						res.statusCode = 404;
 						res.setHeader('Content-Type', 'text/html;charset=utf-8');
 						res.end(fs.readFileSync(errorPagePath));
