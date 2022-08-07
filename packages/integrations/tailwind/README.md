@@ -130,6 +130,8 @@ export default {
   })],
 }
 ```
+
+You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
 </details>
 
 ## Examples
