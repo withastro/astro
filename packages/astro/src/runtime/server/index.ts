@@ -34,8 +34,6 @@ import { Renderer } from './render/index.js';
 
 import { addAttribute } from './render/index.js';
 
-export const ClientOnlyPlaceholder = 'astro-client-only';
-
 // Used in creating the component. aka the main export.
 export function createComponent(cb: AstroComponentFactory) {
 	// Add a flag to this callback to mark it as an Astro component
