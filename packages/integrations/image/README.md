@@ -59,9 +59,16 @@ export default {
 ``` 
 Then, restart the dev server.
 
-### Update `tsconfig.json`
+### Update `env.d.ts`
 
-For the best development experience, add the integrations type definitions to your project's `tsconfig.json` file.
+For the best development experience, add the integrations type definitions to your project's `env.d.ts` file.
+
+```typescript
+// Replace `astro/client` with `@astrojs/image/client`
+/// <reference types="@astrojs/image/client" />
+```
+
+Or, alternatively if your project is using the types through a `tsconfig.json`
 
 ```json
 {
