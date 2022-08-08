@@ -9,7 +9,6 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 
-import { ASTRO_VERSION } from '../../core/util.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, HydrationMetadata } from './hydration.js';
 import { createResponse } from './response.js';
@@ -39,6 +38,8 @@ const htmlBooleanAttributes =
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
+// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
+const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
