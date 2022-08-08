@@ -335,8 +335,6 @@ title: I'm just a variable now!
 # {title}
 ```
 
-See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
-
 ## Examples
 
 - The [Astro MDX example](https://github.com/withastro/astro/tree/latest/examples/with-mdx) shows how to use MDX files in your Astro project.
