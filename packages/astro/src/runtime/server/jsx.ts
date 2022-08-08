@@ -2,7 +2,6 @@
 import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
-	ClientOnlyPlaceholder,
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
@@ -13,6 +12,8 @@ import {
 	stringifyChunk,
 	voidElementNames,
 } from './index.js';
+
+const ClientOnlyPlaceholder = 'astro-client-only';
 
 const skipAstroJSXCheck = new WeakSet();
 let originalConsoleError: any;

@@ -1,8 +1,9 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
 import { pathToFileURL } from 'node:url';
-import { ClientOnlyPlaceholder } from '../runtime/server/index.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
+
+const ClientOnlyPlaceholder = 'astro-client-only';
 
 function isComponent(tagName: string) {
 	return (
