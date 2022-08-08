@@ -121,7 +121,7 @@ A function that returns an array of all headings (i.e. `h1 -> h6` elements) in t
 
 ### Frontmatter
 
-Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+Astro also supports YAML-based frontmatter out-of-the-box. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
 
 For example, we can add a `title` and `publishDate` to an MDX page or component like so:
 
@@ -149,6 +149,40 @@ const posts = await Astro.glob('./*.mdx');
   </Fragment>
 ))}
 ```
+
+### Inject frontmatter via remark or rehype plugins
+
+You may want to inject frontmatter properties across all of your MDX files. By using a [remark](#remarkPlugins) or [rehype](#remarkplugins) plugin, you can generate these properties based on a file’s contents.
+
+You can append to the `data.astro.frontmatter` property from your plugin’s `file` argument like so:
+
+```js
+// example-remark-plugin.mjs
+export function exampleRemarkPlugin() {
+  // All remark and rehype plugins return a separate function
+  return function (tree, file) {
+    file.data.astro.frontmatter.customProperty = 'Generated property';
+  }
+}
+```
+
+After applying this plugin to your MDX integration config:
+
+```js
+// astro.config.mjs
+import mdx from '@astrojs/mdx';
+import { exampleRemarkPlugin } from './example-remark-plugin.mjs';
+
+export default {
+  integrations: [
+    mdx({
+      remarkPlugins: [exampleRemarkPlugin],
+    }),
+  ],
+};
+```
+
+…every MDX file will have `customProperty` in its frontmatter! See [our Markdown documentation](https://docs.astro.build/en/guides/markdown-content/#injecting-frontmatter) for more usage instructions and a [reading time plugin example](https://docs.astro.build/en/guides/markdown-content/#example-calculate-reading-time).
 
 ### Layouts
 
@@ -310,9 +344,9 @@ export default {
 
 ### frontmatterOptions
 
-**Default:** `{ name: 'frontmatter' }`
+**Default:** `'frontmatter'`
 
-We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
+We parse all [YAML](https://yaml.org/) frontmatter found in code fences `---` to a named export. This is `frontmatter` by default, but can be customized using `frontmatterOptions.name`.
 
 For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
 
@@ -334,8 +368,6 @@ title: I'm just a variable now!
 
 # {title}
 ```
-
-See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
 
 ## Examples
 
