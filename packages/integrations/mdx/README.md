@@ -121,7 +121,7 @@ A function that returns an array of all headings (i.e. `h1 -> h6` elements) in t
 
 ### Frontmatter
 
-Astro also supports YAML-based frontmatter out-of-the-box. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+Astro also supports YAML-based frontmatter out-of-the-box. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export.
 
 For example, we can add a `title` and `publishDate` to an MDX page or component like so:
 
@@ -340,33 +340,6 @@ export default {
     rehypePlugins: [rehypeMinifyHtml],
   })],
 }
-```
-
-### frontmatterOptions
-
-**Default:** `'frontmatter'`
-
-We parse all [YAML](https://yaml.org/) frontmatter found in code fences `---` to a named export. This is `frontmatter` by default, but can be customized using `frontmatterOptions.name`.
-
-For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
-
-```js
-// astro.config.mjs
-export default {
-  integrations: [mdx({
-    frontmatterOptions: {
-      name: '',
-    }
-  })],
-}
-```
-
-```mdx
----
-title: I'm just a variable now!
----
-
-# {title}
 ```
 
 ## Examples
