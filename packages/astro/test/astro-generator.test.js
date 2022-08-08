@@ -19,12 +19,5 @@ describe('Astro generator', () => {
 
 			expect($('meta[name="generator"]').attr('content')).to.match(/^Astro v/);
 		});
-
-		it('Works as a Component', async () => {
-			const html = await fixture.readFile(`/component/index.html`);
-			const $ = cheerio.load(html);
-
-			expect($('meta[name="generator"]').attr('content')).to.match(/^Astro v/);
-		});
 	});
 });
