@@ -1,5 +1,8 @@
 import type { AstroGlobalPartial } from '../../@types/astro';
 
+// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
+const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+
 /** Create the Astro.fetchContent() runtime function. */
 function createDeprecatedFetchContentFn() {
 	return () => {
@@ -34,6 +37,7 @@ export function createAstro(
 	const projectRoot = new URL(projectRootStr);
 	return {
 		site,
+		generator: `Astro v${ASTRO_VERSION}`,
 		fetchContent: createDeprecatedFetchContentFn(),
 		glob: createAstroGlobFn(),
 		// INVESTIGATE is there a use-case for multi args?
