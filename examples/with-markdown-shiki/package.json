@@ -6,10 +6,11 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.13.0",
-    "astro": "^1.0.0-rc.1"
+    "@astrojs/markdown-remark": "^0.14.1",
+    "astro": "^1.0.0-rc.7"
   }
 }

@@ -241,6 +241,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
@@ -723,6 +724,17 @@ export interface AstroUserConfig {
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 *
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).
+		 *
+		 * ```js
+		 * {
+		 *   legacy: {
+		 *     // Example: Add support for legacy Markdown features
+		 *     astroFlavoredMarkdown: true,
+		 *   },
+		 * }
+		 * ```
 		 */
 		astroFlavoredMarkdown?: boolean;
 	};
@@ -903,6 +915,8 @@ export interface MarkdownParserResponse extends MarkdownRenderingResult {
  */
 export type MarkdownContent<T extends Record<string, any> = Record<string, any>> = T & {
 	astro: MarkdownMetadata;
+	url: string | undefined;
+	file: string;
 };
 
 /**
@@ -1090,6 +1104,8 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
+	hasHydrationScript: boolean;
+	hasDirectives: Set<string>;
 }
 
 export interface SSRResult {
@@ -1105,3 +1121,5 @@ export interface SSRResult {
 	response: ResponseInit;
 	_metadata: SSRMetadata;
 }
+
+export type MarkdownAstroData = { frontmatter: object };

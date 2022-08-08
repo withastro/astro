@@ -1,6 +1,7 @@
 import sizeOf from 'image-size';
 import fs from 'node:fs/promises';
-import { ImageMetadata, InputFormat } from '../types.js';
+import { InputFormat } from '../loaders/index.js';
+import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export async function metadata(src: string): Promise<ImageMetadata | undefined> {
 	const file = await fs.readFile(src);

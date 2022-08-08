@@ -1,15 +1,10 @@
+/// <reference types="astro/astro-jsx" />
 import slash from 'slash';
 import { ROUTE_PATTERN } from '../constants.js';
+import { ImageService, isSSRService, OutputFormat, TransformOptions } from '../loaders/index.js';
 import sharp from '../loaders/sharp.js';
-import {
-	ImageAttributes,
-	ImageMetadata,
-	ImageService,
-	isSSRService,
-	OutputFormat,
-	TransformOptions,
-} from '../types.js';
 import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
+import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -101,7 +96,9 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
  * @param transform @type {TransformOptions} The transformations requested for the optimized image.
  * @returns @type {ImageAttributes} The HTML attributes to be included on the built `<img />` element.
  */
-export async function getImage(transform: GetImageTransform): Promise<ImageAttributes> {
+export async function getImage(
+	transform: GetImageTransform
+): Promise<astroHTML.JSX.ImgHTMLAttributes> {
 	if (!transform.src) {
 		throw new Error('[@astrojs/image] `src` is required');
 	}
@@ -120,8 +117,9 @@ export async function getImage(transform: GetImageTransform): Promise<ImageAttri
 
 	const attributes = await loader.getImageAttributes(resolved);
 
+	// `.env` must be optional to support running in environments outside of `vite` (such as `astro.config`)
 	// @ts-ignore
-	const isDev = import.meta.env.DEV;
+	const isDev = import.meta.env?.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 
 	const _loader = isDev && isLocalImage ? sharp : loader;

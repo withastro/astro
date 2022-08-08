@@ -1,9 +1,9 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.2.0",
+  "version": "0.3.2",
   "type": "module",
-  "types": "./dist/types.d.ts",
+  "types": "./dist/index.d.ts",
   "author": "withastro",
   "license": "MIT",
   "repository": {
@@ -20,21 +20,19 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/image/",
   "exports": {
-    ".": {
-      "astro": "./components/index.js",
-      "import": "./dist/index.js"
-    },
+    ".": "./dist/index.js",
     "./sharp": "./dist/loaders/sharp.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./client.d.ts",
+    "./dist/*": "./dist/*"
   },
   "files": [
     "components",
     "dist",
-    "src",
-    "types"
+    "client.d.ts"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -45,7 +43,6 @@
   "dependencies": {
     "etag": "^1.8.1",
     "image-size": "^1.0.1",
-    "image-type": "^4.1.0",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6",
     "slash": "^4.0.0",

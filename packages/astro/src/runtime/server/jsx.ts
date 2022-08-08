@@ -7,8 +7,10 @@ import {
 	HTMLString,
 	markHTMLString,
 	renderComponent,
+	RenderInstruction,
 	renderToString,
 	spreadAttributes,
+	stringifyChunk,
 	voidElementNames,
 } from './index.js';
 
@@ -49,12 +51,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 						props[key] = value;
 					}
 				}
-				return await renderToString(result, vnode.type as any, props, slots);
+				return markHTMLString(await renderToString(result, vnode.type as any, props, slots));
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';
 			case typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder:
-				return await renderElement(result, vnode.type as string, vnode.props ?? {});
+				return markHTMLString(await renderElement(result, vnode.type as string, vnode.props ?? {}));
 		}
 
 		if (vnode.type) {
@@ -119,7 +121,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string>;
+			let output: string | AsyncIterable<string | RenderInstruction>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
@@ -137,7 +139,16 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 					slots
 				);
 			}
-			return markHTMLString(output);
+			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
+				let body = '';
+				for await (const chunk of output) {
+					let html = stringifyChunk(result, chunk);
+					body += html;
+				}
+				return markHTMLString(body);
+			} else {
+				return markHTMLString(output);
+			}
 		}
 	}
 	// numbers, plain objects, etc

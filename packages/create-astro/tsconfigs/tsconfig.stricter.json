@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // Enable top-level await, and other modern ESM features.
+    "target": "ESNext",
+    "module": "ESNext",
+    // Enable node-style module resolution, for things like npm package imports.
+    "moduleResolution": "node",
+    // Enable JSON imports.
+    "resolveJsonModule": true,
+    // Enable stricter transpilation for better output.
+    "isolatedModules": true,
+    // Astro will directly run your TypeScript code, no transpilation needed.
+    "noEmit": true,
+    // Enable strict type checking.
+    "strict": true,
+    // Error when a value import is only used as a type.
+    "importsNotUsedAsValues": "error",
+    // Report errors for fallthrough cases in switch statements
+    "noFallthroughCasesInSwitch": true,
+    // Force functions designed to override their parent class to be specified as `override`.
+    "noImplicitOverride": true,
+    // Force functions to specify that they can return `undefined` if a possibe code path does not return a value.
+    "noImplicitReturns": true,
+    // Report an error when a variable is declared but never used.
+    "noUnusedLocals": true,
+    // Report an error when a parameter is declared but never used.
+    "noUnusedParameters": true,
+    // Force the usage of the indexed syntax to access fields declared using an index signature.
+    "noUncheckedIndexedAccess": true,
+    // Report an error when the value `undefined` is given to an optional property that doesn't specify `undefined` as a valid value.
+    "exactOptionalPropertyTypes": true
+  }
+}

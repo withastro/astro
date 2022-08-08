@@ -1,16 +1,16 @@
 ---
-import Header from "../components/Header.astro";
-import Container from "../components/Container.astro";
-import { getCart } from "../api";
-import { isLoggedIn } from "../models/user";
+import Header from '../components/Header.astro';
+import Container from '../components/Container.astro';
+import { getCart } from '../api';
+import { isLoggedIn } from '../models/user';
 
 if (!isLoggedIn(Astro.request)) {
-	return Astro.redirect("/");
+	return Astro.redirect('/');
 }
 
 // They must be logged in.
 
-const user = { name: "test" }; // getUser?
+const user = { name: 'test' }; // getUser?
 const cart = await getCart(Astro.request);
 ---
 

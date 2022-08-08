@@ -9,7 +9,7 @@
     "resolveJsonModule": true,
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
-    // Add type definitions for our Astro runtime.
-    "types": ["astro/client"]
+    // Astro will directly run your TypeScript code, no transpilation needed.
+    "noEmit": true
   }
 }

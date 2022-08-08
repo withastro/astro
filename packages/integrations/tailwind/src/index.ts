@@ -3,7 +3,6 @@ import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
 import path from 'path';
 import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
-// @ts-expect-error "resolveConfig.js" isn't typed
 import resolveConfig from 'tailwindcss/resolveConfig.js';
 import { fileURLToPath } from 'url';
 

@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import type { OutputFormat, TransformOptions } from '../types.js';
+import type { OutputFormat, TransformOptions } from '../loaders/index.js';
 
 export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
@@ -13,7 +13,7 @@ export function isRemoteImage(src: string) {
 	return /^http(s?):\/\//.test(src);
 }
 
-export async function loadLocalImage(src: string) {
+export async function loadLocalImage(src: string | URL) {
 	try {
 		return await fs.readFile(src);
 	} catch {

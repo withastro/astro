@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { OUTPUT_DIR } from '../constants.js';
-import type { SSRImageService, TransformOptions } from '../types.js';
+import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { ensureDir } from '../utils/paths.js';
 
