@@ -1,5 +1,23 @@
 # create-astro
 
+## 0.15.1
+
+### Patch Changes
+
+- [#4183](https://github.com/withastro/astro/pull/4183) [`77c018e51`](https://github.com/withastro/astro/commit/77c018e5159e9084304ca650487b6e99c828d3cf) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix relaxed and default TypeScript settings not working
+
+## 0.15.0
+
+### Minor Changes
+
+- [#4179](https://github.com/withastro/astro/pull/4179) [`d344f9e3e`](https://github.com/withastro/astro/commit/d344f9e3ec1f69ad4d7efd433b3523ad5413b726) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add a step to configure how strict TypeScript should be
+
+## 0.14.3
+
+### Patch Changes
+
+- [#4075](https://github.com/withastro/astro/pull/4075) [`cc10a5c8e`](https://github.com/withastro/astro/commit/cc10a5c8e03683e64514de75e535169c187ab847) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Added better error handling when cancelling operations, providing bad templates and when there's a degit cache issue
+
 ## 0.14.2
 
 ### Patch Changes

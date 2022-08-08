@@ -1,6 +1,6 @@
 # @astrojs/cloudflare
 
-An SSR adapter for use with Cloudflare Pages Functions targets. Write your code in Astro/Node and deploy to Cloudflare Pages.
+An SSR adapter for use with Cloudflare Pages Functions targets. Write your code in Astro/Javascript and deploy to Cloudflare Pages.
 
 In your `astro.config.mjs` use:
 

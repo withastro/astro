@@ -1,0 +1,12 @@
+{
+  "name": "@test/mdx-frontmatter-injection",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "mdast-util-to-string": "^3.1.0",
+    "reading-time": "^1.5.0",
+    "unist-util-visit": "^4.1.0"
+  }
+}

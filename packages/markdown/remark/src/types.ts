@@ -2,6 +2,7 @@ import type * as hast from 'hast';
 import type * as mdast from 'mdast';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type * as unified from 'unified';
+import type { VFile } from 'vfile';
 
 export type { Node } from 'unist';
 
@@ -58,5 +59,6 @@ export interface MarkdownMetadata {
 
 export interface MarkdownRenderingResult {
 	metadata: MarkdownMetadata;
+	vfile: VFile;
 	code: string;
 }

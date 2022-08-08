@@ -1,6 +1,10 @@
-# To be removed with ".astro" parsing is ready
-# Also, be sure to remove "pluginSearchDirs" from config
-**/*.astro
+# Ignoring these files for now due to https://github.com/withastro/compiler/issues/318
+examples/basics/src/layouts
+examples/blog/src/layouts
+examples/with-nanostores/src/layouts
+
+# Ignoring this file for now due to https://github.com/withastro/compiler/issues/485
+packages/markdown/component/Markdown.astro
 
 # Deep Directories
 **/dist

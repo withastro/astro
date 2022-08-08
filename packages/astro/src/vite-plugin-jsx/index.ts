@@ -137,9 +137,31 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				JSX_RENDERER_CACHE.set(config, jsxRenderers);
 			}
 
-			// Attempt: Single JSX renderer
+			const astroRenderer = jsxRenderers.get('astro');
+
+			// Shortcut: only use Astro renderer for MD and MDX files
+			if ((id.includes('.mdx') || id.includes('.md')) && astroRenderer) {
+				const { code: jsxCode } = await esbuild.transform(code, {
+					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+					jsx: 'preserve',
+					sourcefile: id,
+					sourcemap: 'inline',
+				});
+				return transformJSX({
+					code: jsxCode,
+					id,
+					renderer: astroRenderer,
+					mode,
+					ssr,
+				});
+			}
+
+			// Attempt: Single JSX integration
 			// If we only have one renderer, we can skip a bunch of work!
-			if (jsxRenderers.size === 1) {
+			const nonAstroJsxRenderers = new Map(
+				[...jsxRenderers.entries()].filter(([key]) => key !== 'astro')
+			);
+			if (nonAstroJsxRenderers.size === 1) {
 				// downlevel any non-standard syntax, but preserve JSX
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
@@ -150,7 +172,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				return transformJSX({
 					code: jsxCode,
 					id,
-					renderer: [...jsxRenderers.values()][0],
+					renderer: [...nonAstroJsxRenderers.values()][0],
 					mode,
 					ssr,
 				});
@@ -194,10 +216,6 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 						break;
 					}
 				}
-			}
-
-			if (!importSource && jsxRenderers.has('astro') && id.includes('.mdx')) {
-				importSource = 'astro';
 			}
 
 			// if JSX renderer found, then use that

@@ -4,9 +4,9 @@ import { getImage } from '../dist/index.js';
 import type { ImgHTMLAttributes } from './index.js';
 import type { ImageMetadata, TransformOptions, OutputFormat } from '../dist/index.js';
 
-interface LocalImageProps extends
-	Omit<TransformOptions, 'src'>,
-	Omit<ImgHTMLAttributes, | 'src' | 'width' | 'height'> {
+interface LocalImageProps
+	extends Omit<TransformOptions, 'src'>,
+		Omit<ImgHTMLAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 }
 
@@ -19,7 +19,7 @@ interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttrib
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const { loading = "lazy", decoding = "async", ...props } = Astro.props as Props;
+const { loading = 'lazy', decoding = 'async', ...props } = Astro.props as Props;
 
 const attrs = await getImage(props);
 ---

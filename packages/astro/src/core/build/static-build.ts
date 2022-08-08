@@ -7,7 +7,7 @@ import { BuildInternals, createBuildInternals } from '../../core/build/internal.
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, isModeServerWithNoAdapter, removeDir } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
 import { generatePages } from './generate.js';
@@ -15,6 +15,7 @@ import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 import { vitePluginAnalyzer } from './vite-plugin-analyzer.js';
+import { rollupPluginAstroBuildCSS } from './vite-plugin-css.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
@@ -85,6 +86,10 @@ Example:
 		...internals.discoveredScripts,
 	]);
 
+	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+		clientInput.add(PAGE_SCRIPT_ID);
+	}
+
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	timer.clientBuild = performance.now();
 	await clientBuild(opts, internals, clientInput);
@@ -146,8 +151,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			vitePluginInternals(input, internals),
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
+				buildOptions: opts,
 				internals,
 				target: 'server',
+				astroConfig,
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
@@ -207,6 +214,7 @@ async function clientBuild(
 			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
 		},
 		build: {
+			...viteConfig.build,
 			emptyOutDir: false,
 			minify: 'esbuild',
 			outDir: fileURLToPath(out),
@@ -227,8 +235,10 @@ async function clientBuild(
 			vitePluginInternals(input, internals),
 			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
+				buildOptions: opts,
 				internals,
 				target: 'client',
+				astroConfig,
 			}),
 			...(viteConfig.plugins || []),
 		],

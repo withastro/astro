@@ -47,8 +47,8 @@ export function reload({ file }: { file: string }): string {
 	return `${green('reload'.padStart(PREFIX_PADDING))} ${file}`;
 }
 
-export function hmr({ file }: { file: string }): string {
-	return `${green('update'.padStart(PREFIX_PADDING))} ${file}`;
+export function hmr({ file, style = false }: { file: string; style?: boolean }): string {
+	return `${green('update'.padStart(PREFIX_PADDING))} ${file}${style ? ` ${dim('style')}` : ''}`;
 }
 
 /** Display dev server host and startup time */
