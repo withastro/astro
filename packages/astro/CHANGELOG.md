@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.0-rc.8
+
+### Patch Changes
+
+- [#4012](https://github.com/withastro/astro/pull/4012) [`f207c417e`](https://github.com/withastro/astro/commit/f207c417e08b2b5ad27cf185888b02392bb568e0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds `Astro.generator` which can be used to add a [`<meta name="generator">`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator) tag.
+
+* [#4201](https://github.com/withastro/astro/pull/4201) [`25d36d955`](https://github.com/withastro/astro/commit/25d36d955899f2fba7c5a2e4f04bbe7c95a2146b) Thanks [@matthewp](https://github.com/matthewp)! - Adds warning in dev when using client: directive on Astro component
+
+- [#4203](https://github.com/withastro/astro/pull/4203) [`ec376369a`](https://github.com/withastro/astro/commit/ec376369a84d20bc3079800ae8e8296c96fcf627) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure JSX does not reference server entrypoint
+
+* [#4195](https://github.com/withastro/astro/pull/4195) [`28ab273a3`](https://github.com/withastro/astro/commit/28ab273a3d0a1ecea84bd83591d5b5f3b212de4f) Thanks [@bluwy](https://github.com/bluwy)! - Fix client build sourcemap generation
+
+- [#4189](https://github.com/withastro/astro/pull/4189) [`5e71a8720`](https://github.com/withastro/astro/commit/5e71a8720e17b576ec12ac993f7e6b3d38fb9c8c) Thanks [@jablonski](https://github.com/jablonski)! - Fix custom 404 pages when using `astro preview` (#4113)
+
 ## 1.0.0-rc.7
 
 ### Minor Changes

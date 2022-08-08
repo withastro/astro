@@ -1,5 +1,15 @@
 # @astrojs/mdx
 
+## 0.8.0
+
+### Minor Changes
+
+- [#4204](https://github.com/withastro/astro/pull/4204) [`4c2ca5352`](https://github.com/withastro/astro/commit/4c2ca5352d0c4119ed2a9e5e0b78ce71eb1b414a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove `frontmatterOptions` from MDX config
+
+### Patch Changes
+
+- [#4205](https://github.com/withastro/astro/pull/4205) [`6c9736cbc`](https://github.com/withastro/astro/commit/6c9736cbc90162f1de3ebccd7cfe98332749b639) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add frontmatter injection instructions to README
+
 ## 0.7.0
 
 ### Minor Changes
