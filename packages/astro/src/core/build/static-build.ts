@@ -214,6 +214,7 @@ async function clientBuild(
 			exclude: [...(viteConfig.optimizeDeps?.exclude ?? [])],
 		},
 		build: {
+			...viteConfig.build,
 			emptyOutDir: false,
 			minify: 'esbuild',
 			outDir: fileURLToPath(out),
