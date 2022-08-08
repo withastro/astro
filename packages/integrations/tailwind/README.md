@@ -125,6 +125,8 @@ export default {
 }
 ```
 
+You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
+
 ## Examples
 
 - The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
