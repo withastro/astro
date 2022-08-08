@@ -184,7 +184,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest]
+        OS: [ubuntu-latest, windows-latest]
         NODE_VERSION: [14]
     env:
       NODE_VERSION: ${{ matrix.NODE_VERSION }}
