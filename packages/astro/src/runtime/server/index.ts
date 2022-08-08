@@ -6,6 +6,7 @@ export {
 } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
+export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
 import type { AstroComponentFactory } from './render/index.js';
 
 import { Renderer } from './render/index.js';

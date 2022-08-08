@@ -1,5 +1,6 @@
 import { renderTemplate } from './astro.js';
 
+export type { RenderInstruction } from './types';
 export { renderSlot } from './any.js';
 export { renderTemplate, renderAstroComponent, renderToString } from './astro.js';
 export { stringifyChunk, Fragment, Renderer } from './common.js';
