@@ -150,6 +150,40 @@ const posts = await Astro.glob('./*.mdx');
 ))}
 ```
 
+### Inject frontmatter via remark or rehype plugins
+
+You may want to inject frontmatter properties across all of your MDX files. By using a [remark](#remarkPlugins) or [rehype](#remarkplugins) plugin, you can generate these properties based on a file’s contents.
+
+You can append to the `data.astro.frontmatter` property from your plugin’s `file` argument like so:
+
+```js
+// example-remark-plugin.mjs
+export function exampleRemarkPlugin() {
+  // All remark and rehype plugins return a separate function
+  return function (tree, file) {
+    file.data.astro.frontmatter.customProperty = 'Generated property';
+  }
+}
+```
+
+After applying this plugin to your MDX integration config:
+
+```js
+// astro.config.mjs
+import mdx from '@astrojs/mdx';
+import { exampleRemarkPlugin } from './example-remark-plugin.mjs';
+
+export default {
+  integrations: [
+    mdx({
+      remarkPlugins: [exampleRemarkPlugin],
+    }),
+  ],
+};
+```
+
+…every MDX file will have `customProperty` in its frontmatter! See [our Markdown documentation](https://docs.astro.build/en/guides/markdown-content/#injecting-frontmatter) for more usage instructions and a [reading time plugin example](https://docs.astro.build/en/guides/markdown-content/#example-calculate-reading-time).
+
 ### Layouts
 
 Layouts can be applied [in the same way as standard Astro Markdown](https://docs.astro.build/en/guides/markdown-content/#markdown-layouts). You can add a `layout` to [your frontmatter](#frontmatter) like so:
