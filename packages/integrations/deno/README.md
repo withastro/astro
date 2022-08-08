@@ -77,55 +77,51 @@ export default defineConfig({
 });
 ```
 
-<details>
-  <summary><strong>start</strong></summary>
+### start
 
-  This adapter automatically starts a server when it is imported. You can turn this off with the `start` option:
+This adapter automatically starts a server when it is imported. You can turn this off with the `start` option:
 
-  ```js
-  import { defineConfig } from 'astro/config';
-  import deno from '@astrojs/deno';
+```js
+import { defineConfig } from 'astro/config';
+import deno from '@astrojs/deno';
 
-  export default defineConfig({
-    output: 'server',
-    adapter: deno({
-      start: false
-    })
-  });
-  ```
-
-  If you disable this, you need to write your own Deno web server. Import and call `handle` from the generated entry script to render requests:
-
-  ```ts
-  import { serve } from "https://deno.land/std@0.132.0/http/server.ts";
-  import { handle } from './dist/entry.mjs';
-
-  serve((req: Request) => {
-    // Check the request, maybe do static file handling here.
-
-    return handle(req);
-  });
-  ```
-</details>
-
-<details>
-  <summary><strong>port</strong> and <strong>hostname</strong></summary>
-
-  You can set the port (default: `8085`) and hostname (default: `0.0.0.0`) for the deno server to use. If `start` is false, this has no effect; your own server must configure the port and hostname.
-
-  ```js
-  import { defineConfig } from 'astro/config';
-  import deno from '@astrojs/deno';
-
-  export default defineConfig({
-    output: 'server',
-    adapter: deno({
-      port: 8081,
-      hostname: 'myhost'
-    })
-  });
+export default defineConfig({
+  output: 'server',
+  adapter: deno({
+    start: false
+  })
+});
 ```
-</details>
+
+If you disable this, you need to write your own Deno web server. Import and call `handle` from the generated entry script to render requests:
+
+```ts
+import { serve } from "https://deno.land/std@0.132.0/http/server.ts";
+import { handle } from './dist/entry.mjs';
+
+serve((req: Request) => {
+  // Check the request, maybe do static file handling here.
+
+  return handle(req);
+});
+```
+
+### port and hostname
+
+You can set the port (default: `8085`) and hostname (default: `0.0.0.0`) for the deno server to use. If `start` is false, this has no effect; your own server must configure the port and hostname.
+
+```js
+import { defineConfig } from 'astro/config';
+import deno from '@astrojs/deno';
+
+export default defineConfig({
+  output: 'server',
+  adapter: deno({
+    port: 8081,
+    hostname: 'myhost'
+  })
+});
+```
 
 ## Examples
 

@@ -20,33 +20,30 @@ Check out [“What is MDX?”](https://mdxjs.com/docs/what-is-mdx/), a deep-dive
 
 ## Installation
 
-<details>
-  <summary>Quick Install</summary>
+### Quick Install
 
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
-  ```sh
-  # Using NPM
-  npx astro add mdx
-  # Using Yarn
-  yarn astro add mdx
-  # Using PNPM
-  pnpx astro add mdx
-  ```
+```sh
+# Using NPM
+npx astro add mdx
+# Using Yarn
+yarn astro add mdx
+# Using PNPM
+pnpx astro add mdx
+```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
 
 Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-</details>
 
-<details>
-  <summary>Manual Install</summary>
+### Manual Install
 
 First, install the `@astrojs/mdx` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
-  ```sh
-  npm install @astrojs/mdx
-  ```
+```sh
+npm install @astrojs/mdx
+```
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
@@ -63,11 +60,14 @@ export default defineConfig({
 ```
 
 Finally, restart the dev server.
-</details>
 
 ## Usage
 
-To write your first MDX page in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+You can [add MDX pages to your project](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. 
+
+### Components
+
+To use components in your MDX pages in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
 - 🪆 opportunities to mix and nest frameworks together
@@ -75,8 +75,6 @@ To write your first MDX page in Astro, head to our [UI framework documentation][
 [**Client Directives**](https://docs.astro.build/en/reference/directives-reference/#client-directives) are still required in `.mdx` files.
 
 > **Note**: `.mdx` files adhere to strict JSX syntax rather than Astro's HTML-like syntax.
-
-Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 ### Variables
 
@@ -255,8 +253,7 @@ This applies a minimal Prism renderer with added support for `astro` code blocks
 
 ## Configuration
 
-<details>
-  <summary><strong>remarkPlugins</strong></summary>
+### remarkPlugins
 
 **Default plugins:** [remark-gfm](https://github.com/remarkjs/remark-gfm), [remark-smartypants](https://github.com/silvenon/remark-smartypants)
 
@@ -292,10 +289,7 @@ export default {
 }
 ```
 
-</details>
-
-<details>
-  <summary><strong>rehypePlugins</strong></summary>
+### rehypePlugins</strong>
 
 [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your Markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their Markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
 
@@ -313,10 +307,8 @@ export default {
   })],
 }
 ```
-</details>
 
-<details>
-  <summary><strong>frontmatterOptions</strong></summary>
+### frontmatterOptions
 
 **Default:** `{ name: 'frontmatter' }`
 
@@ -344,7 +336,6 @@ title: I'm just a variable now!
 ```
 
 See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
-</details>
 
 ## Examples
 

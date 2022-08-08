@@ -75,8 +75,7 @@ The [Netlify Blog post on Astro](https://www.netlify.com/blog/how-to-deploy-astr
 
 To configure this adapter, pass an object to the `netlify()` function call in `astro.config.mjs` - there's only one possible configuration option:
 
-<details>
-  <summary><strong>dist</strong></summary>
+### dist
 
 We build to the `dist` directory at the base of your project. To change this, use the `dist` option:
 
@@ -99,12 +98,7 @@ And then point to the dist in your `netlify.toml`:
 directory = "dist/functions"
 ```
 
-</details>
-
-<details>
-  <summary>
-    <strong>binaryMediaTypes</strong>
-  </summary>
+### binaryMediaTypes
 
 > This option is only needed for the Functions adapter and is not needed for Edge Functions.
 
@@ -127,7 +121,6 @@ export function get() {
   });
 }
 ```
-</details>
 
 ## Examples
 

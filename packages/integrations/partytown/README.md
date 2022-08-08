@@ -22,27 +22,24 @@ The Astro Partytown integration installs Partytown for you and makes sure it's e
 
 ## Installation
 
-<details>
-  <summary>Quick Install</summary>
+### Quick Install
   
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
   
-  ```sh
-  # Using NPM
-  npx astro add partytown
-  # Using Yarn
-  yarn astro add partytown
-  # Using PNPM
-  pnpx astro add partytown
-  ```
+```sh
+# Using NPM
+npx astro add partytown
+# Using Yarn
+yarn astro add partytown
+# Using PNPM
+pnpx astro add partytown
+```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
   
 Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-</details>
 
-<details>
-  <summary>Manual Install</summary>
+### Manual Install
   
 First, install the `@astrojs/partytown` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
@@ -63,7 +60,6 @@ export default defineConfig({
 ```
   
 Then, restart the dev server.
-</details>
 
 ## Usage
 
@@ -94,12 +90,11 @@ export default defineConfig({
 
 This mirrors the [Partytown config object](https://partytown.builder.io/configuration), but only `debug` and `forward` are exposed by this integration.
 
-<details>
-  <summary><strong>config.debug</strong></summary>
+### config.debug
 
-  Partytown ships with a `debug` mode; enable or disable it by passing `true` or `false` to `config.debug`. If [`debug` mode](https://partytown.builder.io/debugging) is enabled, it will output detailed logs to the browser console. 
+Partytown ships with a `debug` mode; enable or disable it by passing `true` or `false` to `config.debug`. If [`debug` mode](https://partytown.builder.io/debugging) is enabled, it will output detailed logs to the browser console. 
 
-  If this option isn't set, `debug` mode will be on by default in [dev](https://docs.astro.build/en/reference/cli-reference/#astro-dev) or [preview](https://docs.astro.build/en/reference/cli-reference/#astro-preview) mode. 
+If this option isn't set, `debug` mode will be on by default in [dev](https://docs.astro.build/en/reference/cli-reference/#astro-dev) or [preview](https://docs.astro.build/en/reference/cli-reference/#astro-preview) mode. 
 
 __`astro.config.mjs`__
 
@@ -111,10 +106,8 @@ export default defineConfig({
   
 })
 ```
-</details>
 
-<details>
-  <summary><strong>config.forward</strong></summary>
+### config.forward
   
   Third-party scripts typically add variables to the `window` object so that you can communicate with them throughout your site. But when a script is loaded in a web-worker, it doesn't have access to that global `window` object.
 
@@ -135,11 +128,8 @@ export default defineConfig ({
   })],
 })
 ```
-</details>
 
 ## Examples
-
-- The [integrations playground template](https://github.com/withastro/astro/tree/latest/examples/integrations-playground?on=github) comes with Astro Partytown installed, with a demo script that shows how Partytown moves intensive operations off of the main thread.
 
 - [Browse projects with Astro Partytown on GitHub](https://github.com/search?q=%22@astrojs/partytown%22+filename:package.json&type=Code) for more examples! 
 
