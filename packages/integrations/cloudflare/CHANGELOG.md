@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 0.5.0
+
+### Minor Changes
+
+- [#3806](https://github.com/withastro/astro/pull/3806) [`f4c571bdb`](https://github.com/withastro/astro/commit/f4c571bdb0bbcd0dfed68a484dfbfe274f8a5f45) Thanks [@nrgnrg](https://github.com/nrgnrg)! - add support for compiling functions to a functions directory rather than `_worker.js`
+
 ## 0.4.0
 
 ### Minor Changes
@@ -44,7 +50,7 @@
   The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
 
   ```astro
-  <div>Your address {Astro.clientAddress}</div>
+
   ```
 
   This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.

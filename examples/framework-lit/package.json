@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@astrojs/lit": "^0.3.2",
-    "astro": "^1.0.0-rc.7"
+    "astro": "^1.0.0-rc.8"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
