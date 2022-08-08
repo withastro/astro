@@ -18,7 +18,8 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./dist/server.js",
+    "./server.advanced.js": "./dist/server.advanced.js",
+    "./server.directory.js": "./dist/server.directory.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -28,11 +29,11 @@
     "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
-    "esbuild": "^0.14.42",
-    "wrangler": "^2.0.23"
+    "esbuild": "^0.14.42"
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "wrangler": "^2.0.23"
   }
 }

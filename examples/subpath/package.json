@@ -6,12 +6,12 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/react": "^0.4.2",
-    "astro": "^1.0.0-rc.3",
-    "sass": "^1.52.2"
+    "@astrojs/react": "^0.4.3",
+    "astro": "^1.0.0-rc.7"
   },
   "dependencies": {
     "react": "^18.1.0",

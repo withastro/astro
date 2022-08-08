@@ -21,7 +21,7 @@ export const get: APIRoute = async ({ request }) => {
 		} else {
 			const clientRoot = new URL('../client/', import.meta.url);
 			const localPath = new URL('.' + transform.src, clientRoot);
-			inputBuffer = await loadLocalImage(localPath.pathname);
+			inputBuffer = await loadLocalImage(localPath);
 		}
 
 		if (!inputBuffer) {

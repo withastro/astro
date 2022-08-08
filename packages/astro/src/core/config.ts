@@ -11,8 +11,10 @@ import path from 'path';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
 import { fileURLToPath, pathToFileURL } from 'url';
+import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
+import jsxRenderer from '../jsx/renderer.js';
 import { LogOptions } from './logger/core.js';
 import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
 import { arraify, isObject } from './util.js';
@@ -342,16 +344,11 @@ export async function validateConfig(
 		_ctx: {
 			pageExtensions: ['.astro', '.md', '.html'],
 			scripts: [],
-			renderers: [],
+			renderers: [jsxRenderer],
 			injectedRoutes: [],
 			adapter: undefined,
 		},
 	};
-	if (result.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
-		// Enable default JSX integration. It needs to come first, so unshift rather than push!
-		const { default: jsxRenderer } = await import('../jsx/renderer.js');
-		(result._ctx.renderers as any[]).unshift(jsxRenderer);
-	}
 
 	// If successful, return the result as a verified AstroConfig object.
 	return result;
@@ -413,6 +410,7 @@ export async function resolveConfigURL(
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
 	}
+
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	const configPath = await resolve('astro', {
@@ -447,21 +445,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 		);
 	}
 
-	// Automatically load config file using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	let config;
-	try {
-		config = await load('astro', {
-			mustExist: !!userConfigPath,
-			cwd: root,
-			filePath: userConfigPath,
-		});
-	} catch (err) {
-		if (err instanceof ProloadError && flags.config) {
-			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
-		}
-		throw err;
-	}
+	const config = await tryLoadConfig(configOptions, flags, userConfigPath, root);
 	if (config) {
 		userConfig = config.value;
 		userConfigPath = config.filePath;
@@ -483,6 +467,57 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	};
 }
 
+interface TryLoadConfigResult {
+	value: Record<string, any>;
+	filePath?: string;
+}
+
+async function tryLoadConfig(
+	configOptions: LoadConfigOptions,
+	flags: CLIFlags,
+	userConfigPath: string | undefined,
+	root: string
+): Promise<TryLoadConfigResult | undefined> {
+	try {
+		// Automatically load config file using Proload
+		// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+		const config = await load('astro', {
+			mustExist: !!userConfigPath,
+			cwd: root,
+			filePath: userConfigPath,
+		});
+
+		return config as TryLoadConfigResult;
+	} catch (e) {
+		if (e instanceof ProloadError && flags.config) {
+			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+		}
+
+		const configURL = await resolveConfigURL(configOptions);
+		if (!configURL) {
+			throw e;
+		}
+
+		// Fallback to use Vite DevServer
+		const viteServer = await vite.createServer({
+			server: { middlewareMode: true, hmr: false },
+			appType: 'custom',
+		});
+		try {
+			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
+
+			if (mod?.default) {
+				return {
+					value: mod.default,
+					filePath: fileURLToPath(configURL),
+				};
+			}
+		} finally {
+			await viteServer.close();
+		}
+	}
+}
+
 /**
  * Attempt to load an `astro.config.mjs` file
  * @deprecated
@@ -500,21 +535,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 		);
 	}
 
-	// Automatically load config file using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	let config;
-	try {
-		config = await load('astro', {
-			mustExist: !!userConfigPath,
-			cwd: root,
-			filePath: userConfigPath,
-		});
-	} catch (err) {
-		if (err instanceof ProloadError && flags.config) {
-			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
-		}
-		throw err;
-	}
+	const config = await tryLoadConfig(configOptions, flags, userConfigPath, root);
 	if (config) {
 		userConfig = config.value;
 	}

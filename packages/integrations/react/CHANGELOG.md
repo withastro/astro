@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 0.4.3
+
+### Patch Changes
+
+- [#4174](https://github.com/withastro/astro/pull/4174) [`8eb3a8c6d`](https://github.com/withastro/astro/commit/8eb3a8c6d9554707963c3a3bc36ed8b68d3cf0fb) Thanks [@matthewp](https://github.com/matthewp)! - Allows using React with automatic imports alongside MDX
+
 ## 0.4.2
 
 ### Patch Changes

@@ -41,7 +41,7 @@ const ALIASES = new Map([
 const ASTRO_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
 const TAILWIND_CONFIG_STUB = `/** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: ['./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}'],
+	content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
 	theme: {
 		extend: {},
 	},
@@ -539,7 +539,6 @@ async function tryToInstallIntegrations({
 	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
 	if (installCommand === null) {
-		info(logging, null);
 		return UpdateResult.none;
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${

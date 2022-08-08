@@ -310,7 +310,9 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 				}
 			}
 
-			if (error) {
+			// If no renderer is found and there is an error, throw that error because
+			// it is likely a problem with the component code.
+			if (!renderer && error) {
 				throw error;
 			}
 		}
@@ -750,7 +752,7 @@ export async function renderToString(
 
 	let html = '';
 	for await (const chunk of renderAstroComponent(Component)) {
-		html += chunk;
+		html += stringifyChunk(result, chunk);
 	}
 	return html;
 }

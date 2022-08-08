@@ -12,7 +12,7 @@
 			const response = await fetch(`/about.json`);
 			const data = await response.json();
 			document.getElementById(
-				"result"
+				'result'
 			).innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
 		</script>
 	</body>

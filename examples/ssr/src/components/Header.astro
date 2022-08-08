@@ -1,14 +1,14 @@
 ---
-import TextDecorationSkip from "./TextDecorationSkip.astro";
-import Cart from "./Cart.svelte";
-import { getCart } from "../api";
+import TextDecorationSkip from './TextDecorationSkip.astro';
+import Cart from './Cart.svelte';
+import { getCart } from '../api';
 
 const cart = await getCart(Astro.request);
 const cartCount = cart.items.reduce((sum, item) => sum + item.count, 0);
 ---
 
 <style>
-	@import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
+	@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
 
 	header {
 		margin: 1rem 2rem;
@@ -18,7 +18,7 @@ const cartCount = cart.items.reduce((sum, item) => sum + item.count, 0);
 
 	h1 {
 		margin: 0;
-		font-family: "Lobster", cursive;
+		font-family: 'Lobster', cursive;
 		color: black;
 	}
 

@@ -1,13 +1,13 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import BlogPostPreview from "../components/BlogPostPreview.astro";
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import BlogPostPreview from '../components/BlogPostPreview.astro';
 
-let title = "Example Blog";
-let description = "The perfect starter for your perfect blog.";
+let title = 'Example Blog';
+let description = 'The perfect starter for your perfect blog.';
 
 // Use Astro.glob to fetch all post with associated frontmatter
-const unsortedPosts = await Astro.glob("./posts/*.md");
+const unsortedPosts = await Astro.glob('./posts/*.md');
 const posts = unsortedPosts.sort(function (a, b) {
 	return (
 		new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
