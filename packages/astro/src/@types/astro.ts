@@ -249,6 +249,16 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
 	site: URL | undefined;
+	/**
+	 * Returns a string with the current version of Astro.
+	 *
+	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
+	 *
+	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
+	 */
+	generator: string;
 }
 
 type ServerConfig = {
