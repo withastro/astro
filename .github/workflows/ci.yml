@@ -24,6 +24,7 @@ env:
   FORCE_COLOR: true
   ASTRO_TELEMETRY_DISABLED: true
 
+
 jobs:
   lint:
     name: Lint
@@ -79,8 +80,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14]
+        OS: [ubuntu-latest]
+        NODE_VERSION: [14]
       fail-fast: true
     steps:
       - name: Checkout
@@ -89,10 +90,10 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup node@${{ matrix.node_version }}
+      - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: ${{ matrix.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -102,19 +103,20 @@ jobs:
         run: pnpm run build
 
   test:
-    name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    name: 'Test: ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14, 16]
+        OS: [ubuntu-latest, windows-latest]
+        # TODO: Enable node@18!
+        NODE_VERSION: [14, 16]
         include:
-          - os: windows-latest
-            node_version: 14
           - os: macos-latest
-            node_version: 14
+            NODE_VERSION: 14
       fail-fast: false
+    env:
+      NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -122,10 +124,10 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup node@${{ matrix.node_version }}
+      - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: ${{ matrix.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Use Deno
@@ -143,15 +145,17 @@ jobs:
         run: pnpm run test
 
   e2e:
-    name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    name: 'Test (E2E): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node_version: [14]
+        OS: [ubuntu-latest, windows-latest]
+        NODE_VERSION: [14]
       fail-fast: false
+    env:
+      NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -159,10 +163,10 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup node@${{ matrix.node_version }}
+      - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: ${{ matrix.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -175,13 +179,15 @@ jobs:
         run: pnpm run test:e2e
 
   smoke:
-    name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    name: 'Test (Smoke): ${{ matrix.os }} (node@${{ matrix.NODE_VERSION }})'
     runs-on: ${{ matrix.os }}
     needs: build
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14]
+        OS: [ubuntu-latest]
+        NODE_VERSION: [14]
+    env:
+      NODE_VERSION: ${{ matrix.NODE_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -189,10 +195,10 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Setup node@${{ matrix.node_version }}
+      - name: Setup node@${{ matrix.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node_version }}
+          node-version: ${{ matrix.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Checkout docs

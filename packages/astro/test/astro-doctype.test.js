@@ -24,7 +24,7 @@ describe('Doctype', () => {
 		expect(html).to.match(/^<!DOCTYPE html>/i);
 	});
 
-	it('Preserves user provided doctype', async () => {
+	it.skip('Preserves user provided doctype', async () => {
 		const html = await fixture.readFile('/preserve/index.html');
 
 		// test that Doctype included was preserved

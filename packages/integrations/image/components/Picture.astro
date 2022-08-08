@@ -3,10 +3,10 @@ import { getPicture } from '../dist/index.js';
 import type { ImgHTMLAttributes, HTMLAttributes } from './index.js';
 import type { ImageMetadata, OutputFormat, TransformOptions } from '../dist/index.js';
 
-interface LocalImageProps extends
-	Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
-	Omit<TransformOptions, 'src'>,
-	Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
+interface LocalImageProps
+	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+		Omit<TransformOptions, 'src'>,
+		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
 	alt?: string;
 	sizes: HTMLImageElement['sizes'];
@@ -14,10 +14,10 @@ interface LocalImageProps extends
 	formats?: OutputFormat[];
 }
 
-interface RemoteImageProps extends
-	Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
-	TransformOptions,
-	Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
+interface RemoteImageProps
+	extends Omit<HTMLAttributes, 'src' | 'width' | 'height'>,
+		TransformOptions,
+		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: string;
 	alt?: string;
 	sizes: HTMLImageElement['sizes'];
@@ -28,14 +28,23 @@ interface RemoteImageProps extends
 
 export type Props = LocalImageProps | RemoteImageProps;
 
-const { src, alt, sizes, widths, aspectRatio, formats = ['avif', 'webp'], loading = 'lazy', decoding = 'async', ...attrs } = Astro.props as Props;
+const {
+	src,
+	alt,
+	sizes,
+	widths,
+	aspectRatio,
+	formats = ['avif', 'webp'],
+	loading = 'lazy',
+	decoding = 'async',
+	...attrs
+} = Astro.props as Props;
 
 const { image, sources } = await getPicture({ src, widths, formats, aspectRatio });
 ---
 
 <picture {...attrs}>
-	{sources.map(attrs => (
-	<source {...attrs} {sizes}>))}
+	{sources.map((attrs) => <source {...attrs} {sizes} />)}
 	<img {...image} {loading} {decoding} {alt} />
 </picture>
 

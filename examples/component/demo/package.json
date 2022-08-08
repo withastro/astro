@@ -6,10 +6,11 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
     "@example/my-component": "workspace:*",
-    "astro": "^1.0.0-rc.1"
+    "astro": "^1.0.0-rc.7"
   }
 }

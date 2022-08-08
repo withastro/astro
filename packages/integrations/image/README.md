@@ -102,7 +102,7 @@ For images in your project's repository, use the `src` relative to the `public` 
 
 <p>
 
-**Type:** 'avif' | 'jpeg' | 'png' | 'webp'<br>
+**Type:** `'avif' | 'jpeg' | 'png' | 'webp'`<br>
 **Default:** `undefined`
 </p>
 
@@ -201,7 +201,7 @@ See [MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/size
 <p>
 
 **Type:** `number[]`<br>
-**Reuqired:** `true`
+**Required:** `true`
 </p>
 
 The list of sizes that should be built for responsive images. This is combined with `aspectRatio` to calculate the final dimensions of each built image.
@@ -216,20 +216,18 @@ The list of sizes that should be built for responsive images. This is combined w
 <p>
 
 **Type:** `number` | `string`<br>
-**Required:** `true`
+**Default:** `undefined`
 </p>
 
-The desired aspect ratio of the output image. This is combined with `widhts` to calculate the final dimensions of each built image.
+The desired aspect ratio of the output image. This is combined with `widths` to calculate the final dimensions of each built image.
 
 A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4`.
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
-#### formats
-
 <p>
 
-**Type:** Array<'avif' | 'jpeg' | 'png' | 'webp'><br>
+**Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
 **Default:** `undefined`
 </p>
 

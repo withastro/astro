@@ -82,7 +82,7 @@ class SharpService implements SSRImageService {
 	}
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
-		const sharpImage = sharp(inputBuffer, { failOnError: false });
+		const sharpImage = sharp(inputBuffer, { failOnError: false, pages: -1 });
 
 		// always call rotate to adjust for EXIF data orientation
 		sharpImage.rotate();

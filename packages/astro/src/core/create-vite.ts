@@ -12,8 +12,10 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
+import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors.js';
 import { resolveDependency } from './util.js';
 
@@ -23,7 +25,7 @@ export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
 interface CreateViteOptions {
 	astroConfig: AstroConfig;
 	logging: LogOptions;
-	mode: 'dev' | 'build';
+	mode: 'dev' | 'build' | string;
 }
 
 const ALWAYS_NOEXTERNAL = new Set([
@@ -73,13 +75,16 @@ export async function createVite(
 			astroScriptsPlugin({ config: astroConfig }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
+			mode !== 'build' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
-			markdownVitePlugin({ config: astroConfig, logging }),
+			astroConfig.legacy.astroFlavoredMarkdown
+				? legacyMarkdownVitePlugin({ config: astroConfig, logging })
+				: markdownVitePlugin({ config: astroConfig, logging }),
 			htmlVitePlugin(),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig }),
+			astroScriptsPageSSRPlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.publicDir),
 		root: fileURLToPath(astroConfig.root),

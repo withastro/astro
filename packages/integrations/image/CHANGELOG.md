@@ -1,5 +1,29 @@
 # @astrojs/image
 
+## 0.3.2
+
+### Patch Changes
+
+- [#4140](https://github.com/withastro/astro/pull/4140) [`4678a3f35`](https://github.com/withastro/astro/commit/4678a3f358840db853db55b753b329ae592a589c) Thanks [@jackmerrill](https://github.com/jackmerrill)! - Added support for GIF to Animated WEBP images
+
+* [#4173](https://github.com/withastro/astro/pull/4173) [`581120818`](https://github.com/withastro/astro/commit/5811208182fb70fad730b0e495d054ba970b9353) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug related to local image files in SSR builds on Windows
+
+- [#4147](https://github.com/withastro/astro/pull/4147) [`c039ea93a`](https://github.com/withastro/astro/commit/c039ea93a1372d954f924a1e6a019a834d1eeb7a) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Enable usage outside of vite contexts, such as the config file
+
+* [#4146](https://github.com/withastro/astro/pull/4146) [`97cf0cd89`](https://github.com/withastro/astro/commit/97cf0cd893b950a48ffa631247528b4b4ad73109) Thanks [@crutchcorn](https://github.com/crutchcorn)! - Export all "dist" files
+
+## 0.3.1
+
+### Patch Changes
+
+- [#4141](https://github.com/withastro/astro/pull/4141) [`65f2d3b4b`](https://github.com/withastro/astro/commit/65f2d3b4b1d31411ee2ea450478349413d8f4cf6) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix windows "bad package export" error
+
+## 0.3.0
+
+### Minor Changes
+
+- [#4045](https://github.com/withastro/astro/pull/4045) [`a397b981f`](https://github.com/withastro/astro/commit/a397b981f5f46dee85e6e00aa39633d018d4b9a2) Thanks [@tony-sull](https://github.com/tony-sull)! - Big improvements to the TypeScript and Language Tools support for `@astrojs/image` :tada:
+
 ## 0.2.0
 
 ### Minor Changes

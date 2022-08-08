@@ -1,0 +1,7 @@
+{
+  "name": "@test/mdx-page",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*"
+  }
+}
