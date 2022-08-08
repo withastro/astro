@@ -178,17 +178,17 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 
 export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
 	const { config, filename } = props;
-	let cache: CompilationCache;
-	if (!configCache.has(config)) {
-		cache = new Map();
-		configCache.set(config, cache);
-	} else {
-		cache = configCache.get(config)!;
-	}
-	if (cache.has(filename)) {
-		return cache.get(filename)!;
-	}
+	// let cache: CompilationCache;
+	// if (!configCache.has(config)) {
+	// 	cache = new Map();
+	// 	configCache.set(config, cache);
+	// } else {
+	// 	cache = configCache.get(config)!;
+	// }
+	// if (cache.has(filename)) {
+	// 	return cache.get(filename)!;
+	// }
 	const compileResult = await compile(props);
-	cache.set(filename, compileResult);
+	// cache.set(filename, compileResult);
 	return compileResult;
 }

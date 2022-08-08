@@ -2,12 +2,11 @@ export function defineConfig(config) {
 	return config;
 }
 
-export function getViteConfig(inlineConfig) {
+export function getViteConfig(inlineConfig = {}) {
 	// Return an async Vite config getter which exposes a resolved `mode` and `command`
 	return async ({ mode, command }) => {
 		// Vite `command` is `serve | build`, but Astro uses `dev | build`
 		const cmd = command === 'serve' ? 'dev' : command;
-
 		// Use dynamic import to avoid pulling in deps unless used
 		const [
 			{ mergeConfig },

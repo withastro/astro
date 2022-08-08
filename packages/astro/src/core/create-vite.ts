@@ -75,7 +75,7 @@ export async function createVite(
 			astroScriptsPlugin({ config: astroConfig }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && astroViteServerPlugin({ config: astroConfig, logging }),
+			mode == 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
 			envVitePlugin({ config: astroConfig }),
 			astroConfig.legacy.astroFlavoredMarkdown
 				? legacyMarkdownVitePlugin({ config: astroConfig, logging })

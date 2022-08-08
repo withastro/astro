@@ -15,6 +15,9 @@
   "types": "./dist/types/@types/astro.d.ts",
   "typesVersions": {
     "*": {
+      "test": [
+        "./test.d.ts"
+      ],
       "app": [
         "./dist/types/core/app/index"
       ],
@@ -29,6 +32,9 @@
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
+    "./test": "./dist/core/test/index.js",
+    "./test.d.ts": "./test.d.ts",
+    "./test/setup": "./dist/core/test/setup.js",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",

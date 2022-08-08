@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    // Preact specific settings
-    "jsx": "react-jsx",
-    "jsxImportSource": "preact",
     // Enable top-level await, and other modern ESM features.
     "target": "ESNext",
     "module": "ESNext",
@@ -12,7 +9,7 @@
     "resolveJsonModule": true,
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
-    // Add type definitions for our Astro runtime.
-    "types": ["astro/client"]
+    // Astro will directly run your TypeScript code, no transpilation needed.
+    "noEmit": true
   }
 }

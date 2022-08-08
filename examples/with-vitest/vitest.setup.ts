@@ -1,0 +1,1 @@
+import 'astro/test/setup';

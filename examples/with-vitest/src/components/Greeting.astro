@@ -1,0 +1,5 @@
+---
+const { enthusiasm } = Astro.props;
+const punctuation = enthusiasm === 0 ? '.' : enthusiasm > 9 ? '!' : '';
+---
+<h1>Hello <slot>world</slot>{punctuation}</h1>
