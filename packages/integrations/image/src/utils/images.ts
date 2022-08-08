@@ -13,7 +13,7 @@ export function isRemoteImage(src: string) {
 	return /^http(s?):\/\//.test(src);
 }
 
-export async function loadLocalImage(src: string) {
+export async function loadLocalImage(src: string | URL) {
 	try {
 		return await fs.readFile(src);
 	} catch {

@@ -39,13 +39,19 @@ function repairShikiTheme(html: string): string {
 	// Replace "shiki" class naming with "astro"
 	html = html.replace('<pre class="shiki"', '<pre class="astro-code"');
 	// Replace "shiki" css variable naming with "astro".
-	html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
+	html = html.replace(
+		/style="(background-)?color: var\(--shiki-/g,
+		'style="$1color: var(--astro-code-'
+	);
 	// Handle code wrapping
 	// if wrap=null, do nothing.
 	if (wrap === false) {
 		html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
 	} else if (wrap === true) {
-		html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+		html = html.replace(
+			/style="(.*?)"/,
+			'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"'
+		);
 	}
 	return html;
 }

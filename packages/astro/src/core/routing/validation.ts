@@ -4,10 +4,6 @@ import { warn } from '../logger/core.js';
 
 const VALID_PARAM_TYPES = ['string', 'number', 'undefined'];
 
-interface ValidationOptions {
-	ssr: boolean;
-}
-
 /** Throws error for invalid parameter in getStaticPaths() response */
 export function validateGetStaticPathsParameter([key, value]: [string, any]) {
 	if (!VALID_PARAM_TYPES.includes(typeof value)) {
@@ -17,14 +13,28 @@ export function validateGetStaticPathsParameter([key, value]: [string, any]) {
 	}
 }
 
-/** Throw error for deprecated/malformed APIs */
-export function validateGetStaticPathsModule(mod: ComponentInstance, { ssr }: ValidationOptions) {
+/** Warn or error for deprecated or malformed route components */
+export function validateDynamicRouteModule(
+	mod: ComponentInstance,
+	{
+		ssr,
+		logging,
+	}: {
+		ssr: boolean;
+		logging: LogOptions;
+	}
+) {
 	if ((mod as any).createCollection) {
 		throw new Error(`[createCollection] deprecated. Please use getStaticPaths() instead.`);
 	}
-	if (!mod.getStaticPaths && !ssr) {
+	if (ssr && mod.getStaticPaths) {
+		warn(logging, 'getStaticPaths', 'getStaticPaths() is ignored when "output: server" is set.');
+	}
+	if (!ssr && !mod.getStaticPaths) {
 		throw new Error(
-			`[getStaticPaths] getStaticPaths() function is required. Make sure that you \`export\` the function from your component.`
+			`[getStaticPaths] getStaticPaths() function is required.
+Make sure that you \`export\` a \`getStaticPaths\` function from your dynamic route.
+Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build. `
 		);
 	}
 }

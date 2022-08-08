@@ -67,11 +67,11 @@ export default function envVitePlugin({
 			const ssr = options?.ssr === true;
 
 			if (!ssr) {
-				return source;
+				return;
 			}
 
 			if (!source.includes('import.meta') || !/\benv\b/.test(source)) {
-				return source;
+				return;
 			}
 
 			if (typeof privateEnv === 'undefined') {
@@ -110,9 +110,9 @@ export default function envVitePlugin({
 				}
 			}
 
-			if (!privateEnv || !pattern) return source;
+			if (!privateEnv || !pattern) return;
 			const references = getReferencedPrivateKeys(source, privateEnv);
-			if (references.size === 0) return source;
+			if (references.size === 0) return;
 
 			// Find matches for *private* env and do our own replacement.
 			const s = new MagicString(source);
@@ -133,7 +133,10 @@ export default function envVitePlugin({
 				s.overwrite(start, end, replacement);
 			}
 
-			return s.toString();
+			return {
+				code: s.toString(),
+				map: s.generateMap(),
+			};
 		},
 	};
 }
