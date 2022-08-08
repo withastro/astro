@@ -17,15 +17,14 @@ describe('Astro generator', () => {
 			const html = await fixture.readFile(`/index.html`);
 			const $ = cheerio.load(html);
 
-			expect($('meta[name="generator"]').attr("content")).to.match(/^Astro v/);
+			expect($('meta[name="generator"]').attr('content')).to.match(/^Astro v/);
 		});
 
 		it('Works as a Component', async () => {
 			const html = await fixture.readFile(`/component/index.html`);
 			const $ = cheerio.load(html);
 
-			expect($('meta[name="generator"]').attr("content")).to.match(/^Astro v/);
+			expect($('meta[name="generator"]').attr('content')).to.match(/^Astro v/);
 		});
-
 	});
 });
