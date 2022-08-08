@@ -1,19 +1,21 @@
 import type { SSRResult } from '../../../@types/astro';
-import type { RenderInstruction } from './types';
 import type { AstroComponentFactory } from './index';
+import type { RenderInstruction } from './types';
 
-import { HydrationDirectiveProps } from '../hydration.js';
-import { stringifyChunk } from './common.js';
 import { markHTMLString } from '../escape.js';
+import { HydrationDirectiveProps } from '../hydration.js';
 import { renderChild } from './any.js';
+import { stringifyChunk } from './common.js';
 
 // In dev mode, check props and make sure they are valid for an Astro component
 function validateComponentProps(props: any, displayName: string) {
-	if(import.meta.env?.DEV && props != null) {
-		for(const prop of Object.keys(props)) {
-			if(HydrationDirectiveProps.has(prop)) {
+	if (import.meta.env?.DEV && props != null) {
+		for (const prop of Object.keys(props)) {
+			if (HydrationDirectiveProps.has(prop)) {
 				// eslint-disable-next-line
-				console.warn(`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`);
+				console.warn(
+					`You are attempting to render <${displayName} ${prop} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+				);
 			}
 		}
 	}

@@ -1,11 +1,11 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 
+import { createResponse } from '../response.js';
 import { isAstroComponent, renderAstroComponent } from './astro.js';
 import { stringifyChunk } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
-import { createResponse } from '../response.js';
 
 const encoder = new TextEncoder();
 

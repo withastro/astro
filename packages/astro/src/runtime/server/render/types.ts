@@ -1,5 +1,5 @@
 import type { SSRResult } from '../../../@types/astro';
-import type  { HydrationMetadata } from '../hydration.js';
+import type { HydrationMetadata } from '../hydration.js';
 
 export interface RenderInstruction {
 	type: 'directive';

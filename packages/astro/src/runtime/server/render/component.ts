@@ -1,17 +1,13 @@
-import type {
-	AstroComponentMetadata,
-	SSRLoadedRenderer,
-	SSRResult,
-} from '../../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
+import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
-import { Fragment, Renderer } from './common.js';
-import { markHTMLString } from '../escape.js';
 import { renderSlot } from './any.js';
-import { renderToIterable, renderAstroComponent, renderTemplate } from './astro.js';
+import { renderAstroComponent, renderTemplate, renderToIterable } from './astro.js';
+import { Fragment, Renderer } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -38,10 +34,10 @@ function getComponentType(Component: unknown): ComponentType {
 	if (Component === Fragment) {
 		return 'fragment';
 	}
-	if(Component && typeof Component === 'object' && (Component as any)['astro:html']) {
+	if (Component && typeof Component === 'object' && (Component as any)['astro:html']) {
 		return 'html';
 	}
-	if(Component && (Component as any).isAstroComponentFactory) {
+	if (Component && (Component as any).isAstroComponentFactory) {
 		return 'astro-factory';
 	}
 	return 'unknown';
@@ -56,7 +52,7 @@ export async function renderComponent(
 ): Promise<string | AsyncIterable<string | RenderInstruction>> {
 	Component = await Component;
 
-	switch(getComponentType(Component)) {
+	switch (getComponentType(Component)) {
 		case 'fragment': {
 			const children = await renderSlot(result, slots?.default);
 			if (children == null) {

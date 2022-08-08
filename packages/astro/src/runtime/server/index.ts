@@ -1,3 +1,5 @@
+export { createAstro } from './astro-global.js';
+export { renderEndpoint } from './endpoint.js';
 export {
 	escapeHTML,
 	HTMLString,
@@ -6,32 +8,29 @@ export {
 } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
-export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
-import type { AstroComponentFactory } from './render/index.js';
-
-import { Renderer } from './render/index.js';
-import { markHTMLString } from './escape.js';
-
-export { createAstro } from './astro-global.js';
 export {
 	addAttribute,
-	voidElementNames,
 	defineScriptVars,
+	Fragment,
 	maybeRenderHead,
 	renderAstroComponent,
 	renderComponent,
+	Renderer as Renderer,
 	renderHead,
 	renderHTMLElement,
 	renderPage,
 	renderSlot,
-	renderTemplate,
 	renderTemplate as render,
+	renderTemplate,
 	renderToString,
 	stringifyChunk,
-	Fragment,
-	Renderer as Renderer
+	voidElementNames,
 } from './render/index.js';
-export { renderEndpoint } from './endpoint.js';
+export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
+import type { AstroComponentFactory } from './render/index.js';
+
+import { markHTMLString } from './escape.js';
+import { Renderer } from './render/index.js';
 
 import { addAttribute } from './render/index.js';
 

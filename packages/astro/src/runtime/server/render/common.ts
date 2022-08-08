@@ -6,12 +6,11 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-PrescriptType,
+	PrescriptType,
 } from '../scripts.js';
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
-
 
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we

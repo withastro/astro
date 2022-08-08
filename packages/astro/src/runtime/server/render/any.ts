@@ -1,5 +1,5 @@
+import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
-import { markHTMLString, HTMLString, escapeHTML } from '../escape.js';
 import { stringifyChunk } from './common.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {

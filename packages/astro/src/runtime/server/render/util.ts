@@ -1,6 +1,6 @@
 import type { SSRElement } from '../../../@types/astro';
 
-import { markHTMLString, HTMLString } from '../escape.js';
+import { HTMLString, markHTMLString } from '../escape.js';
 import { serializeListValue } from '../util.js';
 
 export const voidElementNames =
