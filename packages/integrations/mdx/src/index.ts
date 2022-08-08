@@ -4,7 +4,6 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import type { RemarkMdxFrontmatterOptions } from 'remark-mdx-frontmatter';
 import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import { VFile } from 'vfile';
@@ -19,12 +18,6 @@ type WithExtends<T> = T | { extends: T };
 type MdxOptions = {
 	remarkPlugins?: WithExtends<MdxRollupPluginOptions['remarkPlugins']>;
 	rehypePlugins?: WithExtends<MdxRollupPluginOptions['rehypePlugins']>;
-	/**
-	 * Configure the remark-mdx-frontmatter plugin
-	 * @see https://github.com/remcohaszing/remark-mdx-frontmatter#options for a full list of options
-	 * @default {{ name: 'frontmatter' }}
-	 */
-	frontmatterOptions?: RemarkMdxFrontmatterOptions;
 };
 
 const DEFAULT_REMARK_PLUGINS: MdxRollupPluginOptions['remarkPlugins'] = [
@@ -119,11 +112,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										...mdxPluginOpts,
 										rehypePlugins: [
 											...(mdxPluginOpts.rehypePlugins ?? []),
-											() =>
-												rehypeApplyFrontmatterExport(
-													frontmatter,
-													mdxOptions.frontmatterOptions?.name
-												),
+											() => rehypeApplyFrontmatterExport(frontmatter),
 										],
 									});
 

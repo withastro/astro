@@ -56,21 +56,4 @@ describe('MDX frontmatter', () => {
 		expect(headingSlugs).to.contain('section-1');
 		expect(headingSlugs).to.contain('section-2');
 	});
-
-	it('extracts frontmatter to "customFrontmatter" export when configured', async () => {
-		const customFixture = await loadFixture({
-			root: new URL('./fixtures/mdx-custom-frontmatter-name/', import.meta.url),
-			integrations: [
-				mdx({
-					frontmatterOptions: {
-						name: 'customFrontmatter',
-					},
-				}),
-			],
-		});
-		await customFixture.build();
-
-		const { titles } = JSON.parse(await customFixture.readFile('/glob.json'));
-		expect(titles).to.include('Using YAML frontmatter');
-	});
 });
