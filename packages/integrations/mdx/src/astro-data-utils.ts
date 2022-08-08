@@ -16,7 +16,9 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 	return function (tree: any, vfile: VFile) {
 		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
 		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
-		const exportNodes = [jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`)];
+		const exportNodes = [
+			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+		];
 		tree.children = exportNodes.concat(tree.children);
 	};
 }
