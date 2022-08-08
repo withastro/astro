@@ -6,10 +6,6 @@
 
 - [#4012](https://github.com/withastro/astro/pull/4012) [`f207c417e`](https://github.com/withastro/astro/commit/f207c417e08b2b5ad27cf185888b02392bb568e0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds `Astro.generator` which can be used to add a [`<meta name="generator">`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator) tag.
 
-  ```astro
-
-  ```
-
 * [#4201](https://github.com/withastro/astro/pull/4201) [`25d36d955`](https://github.com/withastro/astro/commit/25d36d955899f2fba7c5a2e4f04bbe7c95a2146b) Thanks [@matthewp](https://github.com/matthewp)! - Adds warning in dev when using client: directive on Astro component
 
 - [#4203](https://github.com/withastro/astro/pull/4203) [`ec376369a`](https://github.com/withastro/astro/commit/ec376369a84d20bc3079800ae8e8296c96fcf627) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure JSX does not reference server entrypoint
