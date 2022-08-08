@@ -121,7 +121,7 @@ A function that returns an array of all headings (i.e. `h1 -> h6` elements) in t
 
 ### Frontmatter
 
-Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+Astro also supports YAML-based frontmatter out-of-the-box. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
 
 For example, we can add a `title` and `publishDate` to an MDX page or component like so:
 
@@ -310,9 +310,9 @@ export default {
 
 ### frontmatterOptions
 
-**Default:** `{ name: 'frontmatter' }`
+**Default:** `'frontmatter'`
 
-We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
+We parse all [YAML](https://yaml.org/) frontmatter found in code fences `---` to a named export. This is `frontmatter` by default, but can be customized using `frontmatterOptions.name`.
 
 For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
 
