@@ -1024,6 +1024,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 		check: AsyncRendererComponentFn<boolean>;
 		renderToStaticMarkup: AsyncRendererComponentFn<{
 			html: string;
+			attrs?: Record<string, string>;
 		}>;
 	};
 }
