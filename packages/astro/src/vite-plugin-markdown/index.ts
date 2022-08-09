@@ -97,7 +97,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
 						}
 					});
-					Object.defineProperty(content.astro, 'headings', {
+					Object.defineProperty(content.astro, 'source', {
 						get() {
 							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
 						}
@@ -112,7 +112,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 									rawContent,
 									compiledContent,
 									'server:root': true,
-									children: contentFragment,
+									children: contentFragment
 								})`
 							: `contentFragment`
 					};
