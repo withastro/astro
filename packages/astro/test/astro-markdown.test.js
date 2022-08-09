@@ -89,6 +89,28 @@ describe('Astro Markdown', () => {
 		expect(headingSlugs).to.contain('section-2');
 	});
 
+	it('Passes compiled content to layout via "compiledContent" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
+
+		const compiledContent = $('[data-compiled-content]');
+
+		expect(fixLineEndings(compiledContent.text()).trim()).to.equal(
+			`<h2 id="section-1">Section 1</h2>\n<h2 id="section-2">Section 2</h2>`
+		);
+	});
+
+	it('Passes raw content to layout via "rawContent" prop', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
+
+		const rawContent = $('[data-raw-content]');
+
+		expect(fixLineEndings(rawContent.text()).trim()).to.equal(
+			`## Section 1\n\n## Section 2`
+		);
+	});
+
 	it('Exposes getHeadings() on glob imports', async () => {
 		const { headings } = JSON.parse(await fixture.readFile('/headings-glob.json'));
 
