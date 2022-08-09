@@ -20,7 +20,8 @@ Astro v1.0 includes a few new features and improvements since our original beta 
 
 - `Astro.canonicalURL` has been deprecated. Please use [`Astro.url`](https://docs.astro.build/en/reference/api-reference/#astrourl) to construct your own canonical URL.
 - [CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) is now preserved for scoped styles. See the [migration guide](https://docs.astro.build/en/migrate/#changed-scoped-css-specificity) for more details.
-  > **Warning**: Please visually inspect your site output to make sure everything is styled as expected. If not, find your scoped style and increase the selector specificity manually to match the old behavior.
+  > **Warning**
+  > Please visually inspect your site output to make sure everything is styled as expected. If not, find your scoped style and increase the selector specificity manually to match the old behavior.
 - Components and JSX in Markdown has been deprecated. For long-term support you should migrate to the [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration. See the [migration guide](https://docs.astro.build/en/migrate/#deprecated-components-and-jsx-in-markdown) for more details.
 - The previously deprecated `<Markdown>` component has been removed. It is now available as a separate package, [`@astrojs/markdown-component`](https://github.com/withastro/astro/tree/main/packages/markdown/component).
 
