@@ -908,12 +908,10 @@ importers:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
-      downshift: ^6.1.7
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
-      downshift: 6.1.7
       preact: 10.10.1
 
   packages/astro/e2e/fixtures/preact-component:
@@ -1672,6 +1670,24 @@ importers:
       postcss: 8.4.16
     devDependencies:
       postcss-preset-env: 7.7.2_postcss@8.4.16
+
+  packages/astro/test/fixtures/preact-compat-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@test/react-lib': workspace:*
+      astro: workspace:*
+      preact: ^10.10.1
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@test/react-lib': link:packages/react-lib
+      astro: link:../../..
+      preact: 10.10.1
+
+  packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
+    specifiers:
+      react: ^18.2.0
+    dependencies:
+      react: 18.2.0
 
   packages/astro/test/fixtures/preact-component:
     specifiers:
@@ -9938,10 +9954,6 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: true
 
-  /compute-scroll-into-view/1.0.17:
-    resolution: {integrity: sha512-j4dx+Fb0URmzbwwMUrhqWM2BEWHdFGx+qZ9qqASHRPqvTYdqvWnHg0H1hIbcyLnvgnoNAVMlwkepyqM3DaIFUg==}
-    dev: false
-
   /concat-map/0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
@@ -10393,21 +10405,6 @@ packages:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
     engines: {node: '>=10'}
     dev: true
-
-  /downshift/6.1.7:
-    resolution: {integrity: sha512-cVprZg/9Lvj/uhYRxELzlu1aezRcgPWBjTvspiGTVEU64gF5pRdSRKFVLcxqsZC637cLAGMbL40JavEfWnqgNg==}
-    peerDependencies:
-      react: '>=16.12.0'
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.18.9
-      compute-scroll-into-view: 1.0.17
-      prop-types: 15.8.1
-      react-is: 17.0.2
-      tslib: 2.4.0
-    dev: false
 
   /dset/3.1.2:
     resolution: {integrity: sha512-g/M9sqy3oHe477Ar4voQxWtaPIFw1jTdKZuomOjhCcBx9nHUNn0pu6NopuFFrTh/TRZIKEj+76vLWFu9BNKk+Q==}
@@ -14701,10 +14698,6 @@ packages:
 
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
-    dev: false
-
-  /react-is/17.0.2:
-    resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: false
 
   /react-lifecycles-compat/3.0.4:
