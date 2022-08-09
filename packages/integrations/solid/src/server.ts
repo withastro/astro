@@ -10,8 +10,8 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 	return typeof html === 'string';
 }
 
-function renderToStaticMarkup(this: RendererContext, Component: any, props: Record<string, any>, { default: children, ...slotted }: any, metadata: any) {
-	const renderId = metadata.hydrate ? incrementId(getContext(this.result)) : '';
+function renderToStaticMarkup(this: RendererContext, Component: any, props: Record<string, any>, { default: children, ...slotted }: any, metadata?: undefined | Record<string, any>) {
+	const renderId = metadata?.hydrate ? incrementId(getContext(this.result)) : '';
 
 	const html = renderToString(() => {
 		const slots: Record<string, any> = {};
