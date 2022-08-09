@@ -1,5 +1,13 @@
 # @astrojs/markdown-component
 
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
 ## 0.2.1
 
 ### Patch Changes
@@ -19,9 +27,9 @@
   ```js
   // https://astro.build/config
   export default defineConfig({
-    legacy: {
-      astroFlavoredMarkdown: true,
-    },
+  	legacy: {
+  		astroFlavoredMarkdown: true,
+  	},
   });
   ```
 
@@ -30,15 +38,9 @@
   This change moves the Markdown component into its own package where it will be maintained separately. All that needs to change from a user's perspective is the import statement:
 
   ```astro
-  ---
-  import { Markdown } from 'astro/components';
-  ---
   ```
 
   Becomes:
 
   ```astro
-  ---
-  import Markdown from '@astrojs/markdown-component';
-  ---
   ```

@@ -1,5 +1,18 @@
 # @astrojs/markdown-remark
 
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/prism@1.0.0
+
 ## 0.14.1
 
 ### Patch Changes
@@ -36,9 +49,9 @@
   ```js
   // https://astro.build/config
   export default defineConfig({
-    legacy: {
-      astroFlavoredMarkdown: true,
-    },
+  	legacy: {
+  		astroFlavoredMarkdown: true,
+  	},
   });
   ```
 
@@ -382,10 +395,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 

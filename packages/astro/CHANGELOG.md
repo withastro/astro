@@ -1,5 +1,37 @@
 # astro
 
+## 1.0.0
+
+> Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+> **Note**: If you need help migrating an existing Astro project to the new Astro v1.0, check out our updated [Migration Guide](https://docs.astro.build/en/migrate/) and [full documentation website](https://docs.astro.build/).
+
+### Features
+
+Astro v1.0 includes a few new features and improvements since our original beta announcement back in April, including:
+
+- [SSR Builds](https://docs.astro.build/en/guides/server-side-rendering/): Server output is now stable and available for production use.
+- [Image Optimization](https://docs.astro.build/en/guides/integrations-guide/image/): New `<Image />` and `<Picture />` components available with [`@astrojs/image`](https://docs.astro.build/en/guides/integrations-guide/image/).
+- [MDX Support](https://docs.astro.build/en/guides/integrations-guide/mdx/): A standard syntax for mixing UI components in Markdown is available with [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/).
+- [Vite 3.0](https://vitejs.dev/blog/announcing-vite3.html): An upgrade to our internal build engine, Vite.
+
+### Breaking Changes
+
+- `Astro.canonicalURL` has been deprecated. Please use [`Astro.url`](https://docs.astro.build/en/reference/api-reference/#astrourl) to construct your own canonical URL.
+- [CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) is now preserved for scoped styles. See the [migration guide](https://docs.astro.build/en/migrate/#changed-scoped-css-specificity) for more details.
+  > **Warning**: Please visually inspect your site output to make sure everything is styled as expected. If not, find your scoped style and increase the selector specificity manually to match the old behavior.
+- Components and JSX in Markdown has been deprecated. For long-term support you should migrate to the [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration. See the [migration guide](https://docs.astro.build/en/migrate/#deprecated-components-and-jsx-in-markdown) for more details.
+- The previously deprecated `<Markdown>` component has been removed. It is now available as a separate package, [`@astrojs/markdown-component`](https://github.com/withastro/astro/tree/main/packages/markdown/component).
+
+> **Note**: If you are coming from v0.25 or earlier, make sure you have read and followed the [v0.26 Migration Guide](https://docs.astro.build/en/migrate/#migrate-to-v026), which contained several major breaking changes.
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/markdown-remark@1.0.0
+  - @astrojs/telemetry@1.0.0
+  - @astrojs/webapi@1.0.0
+
 ## 1.0.0-rc.8
 
 ### Patch Changes
@@ -461,15 +493,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```html
   <script>
-    interface Person {
-      name: string;
-    }
+  	interface Person {
+  		name: string;
+  	}
 
-    const person: Person = {
-      name: 'Astro',
-    };
+  	const person: Person = {
+  		name: 'Astro',
+  	};
 
-    console.log(person);
+  	console.log(person);
   </script>
   ```
 
@@ -568,9 +600,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   integration: [
-    // Only run `compress` integration when in production environments, etc...
-    // Note that `import.meta.env` is not available inside the `astro.config.mjs` file!
-    process.env.production ? compress() : null,
+  	// Only run `compress` integration when in production environments, etc...
+  	// Note that `import.meta.env` is not available inside the `astro.config.mjs` file!
+  	process.env.production ? compress() : null,
   ];
   ```
 
@@ -1176,7 +1208,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-    adapter: netlify(),
+  	adapter: netlify(),
   });
   ```
 
@@ -1196,7 +1228,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -1256,7 +1288,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import nodejs from '@astrojs/node';
 
   export default {
-    adapter: nodejs(),
+  	adapter: nodejs(),
   };
   ```
 
@@ -1352,7 +1384,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -1390,9 +1422,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -1412,7 +1444,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -1496,7 +1528,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -1520,9 +1552,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -1634,12 +1666,12 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1801,12 +1833,12 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -3144,10 +3176,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -3167,10 +3199,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

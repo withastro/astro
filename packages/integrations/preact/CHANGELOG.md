@@ -1,5 +1,13 @@
 # @astrojs/preact
 
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
 ## 0.5.2
 
 ### Patch Changes
@@ -67,20 +75,20 @@
   ```jsx
   // From .astro
   <Component>
-    <h2 slot="title">Hello world!</h2>
-    <h2 slot="slot-with-dash">Dash</h2>
-    <div>Default</div>
+  	<h2 slot="title">Hello world!</h2>
+  	<h2 slot="slot-with-dash">Dash</h2>
+  	<div>Default</div>
   </Component>;
 
   // For .jsx
   export default function Component({ title, slotWithDash, children }) {
-    return (
-      <>
-        <div id="title">{title}</div>
-        <div id="slot-with-dash">{slotWithDash}</div>
-        <div id="main">{children}</div>
-      </>
-    );
+  	return (
+  		<>
+  			<div id="title">{title}</div>
+  			<div id="slot-with-dash">{slotWithDash}</div>
+  			<div id="main">{children}</div>
+  		</>
+  	);
   }
   ```
 
