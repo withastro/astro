@@ -450,9 +450,35 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
 
+  ```astro
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
+  <html>
+    <head>
+      <title>App</title>
+    </head>
+    <body>
+      <LoadTodos />
+    </body>
+  </html>
+  ```
+
   In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
 
   As part of this Astro also now supports async iterables within its templates. This means you can do this:
+
+  ```astro
+  <ul>
+    {(async function* () {
+      for (const number of numbers) {
+        await wait(1000);
+        yield <li>Number: {number}</li>;
+        yield '\n';
+      }
+    })()}
+  </ul>
+  ```
 
   Which will stream out `<li>`s one at a time, waiting a second between each.
 
@@ -2591,6 +2617,12 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
 
+  ```astro
+  <script hoist>
+    // Anything goes here!
+  </script>
+  ```
+
 - Updated dependencies [5d2ea578]
   - @astrojs/parser@0.20.2
 
@@ -2677,7 +2709,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   <img src="../images/penguin.png" />
   ```
 
-  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
+  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`.
 
 - 239065e2: Adds support for client:only hydrator
 
@@ -3088,14 +3120,14 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
 - 1b73f95: Only show the buildOptions.site notice if not already set
 - fb78b76: Improve error handling for unsupported Node versions
-- d93f768: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
+- d93f768: Add support for components defined in Frontmatter.
 
 ## 0.17.1
 
 ### Patch Changes
 
 - 1e01251: Fixes bug with React renderer that would not hydrate correctly
-- 42a6ace: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
+- 42a6ace: Add support for components defined in Frontmatter.
 
 - Updated dependencies [1e01251]
   - @astrojs/renderer-react@0.1.5
