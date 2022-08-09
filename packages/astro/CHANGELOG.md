@@ -1,5 +1,11 @@
 # astro
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4222](https://github.com/withastro/astro/pull/4222) [`b5ef1c211`](https://github.com/withastro/astro/commit/b5ef1c2113693523f10479d472e855ab9c41395d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Add rawContent and compiledContent to MD layout props
+
 ## 1.0.0
 
 > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
@@ -450,18 +456,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
 
   ```astro
-  ---
-  import LoadTodos from '../components/LoadTodos.astro';
-  ---
 
-  <html>
-    <head>
-      <title>App</title>
-    </head>
-    <body>
-      <LoadTodos />
-    </body>
-  </html>
   ```
 
   In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
@@ -469,15 +464,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   As part of this Astro also now supports async iterables within its templates. This means you can do this:
 
   ```astro
-  <ul>
-    {(async function* () {
-      for (const number of numbers) {
-        await wait(1000);
-        yield <li>Number: {number}</li>;
-        yield '\n';
-      }
-    })()}
-  </ul>
+
   ```
 
   Which will stream out `<li>`s one at a time, waiting a second between each.
@@ -2618,9 +2605,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
 
   ```astro
-  <script hoist>
-    // Anything goes here!
-  </script>
+
   ```
 
 - Updated dependencies [5d2ea578]
