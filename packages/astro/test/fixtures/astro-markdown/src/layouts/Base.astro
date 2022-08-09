@@ -3,6 +3,8 @@ const {
 	content = { title: "content didn't work" },
 	frontmatter = { title: "frontmatter didn't work" },
 	headings = [],
+	compiledContent = () => '',
+	rawContent = () => '',
 } = Astro.props;
 ---
 
@@ -18,6 +20,8 @@ const {
 <body>
 	<p data-content-title>{content.title}</p>
 	<p data-frontmatter-title>{frontmatter.title}</p>
+	<p data-compiled-content>{compiledContent()}</p>
+	<p data-raw-content>{rawContent()}</p>
 	<p data-layout-rendered>Layout rendered!</p>
 	<ul data-headings>
 		{headings.map(heading => <li>{heading.slug}</li>)}
