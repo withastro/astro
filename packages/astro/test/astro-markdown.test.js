@@ -106,9 +106,7 @@ describe('Astro Markdown', () => {
 
 		const rawContent = $('[data-raw-content]');
 
-		expect(fixLineEndings(rawContent.text()).trim()).to.equal(
-			`## Section 1\n\n## Section 2`
-		);
+		expect(fixLineEndings(rawContent.text()).trim()).to.equal(`## Section 1\n\n## Section 2`);
 	});
 
 	it('Exposes getHeadings() on glob imports', async () => {
