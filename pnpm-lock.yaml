@@ -6,16 +6,12 @@ patchedDependencies:
   '@changesets/cli@2.23.0':
     hash: kcozqtpxuwjzskw6zg5royevn4
     path: patches/@changesets__cli@2.23.0.patch
-  '@changesets/assemble-release-plan@5.1.3':
-    hash: t3ywtunilq53oqooixy7kemkoi
-    path: patches/@changesets__assemble-release-plan@5.1.3.patch
 
 importers:
 
   .:
     specifiers:
       '@astrojs/webapi': workspace:*
-      '@changesets/assemble-release-plan': 5.1.3
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.23.0
       '@octokit/action': ^3.18.1
@@ -38,7 +34,6 @@ importers:
     dependencies:
       '@astrojs/webapi': link:packages/webapi
     devDependencies:
-      '@changesets/assemble-release-plan': 5.1.3_t3ywtunilq53oqooixy7kemkoi
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.23.0_kcozqtpxuwjzskw6zg5royevn4
       '@octokit/action': 3.18.1
@@ -4483,7 +4478,7 @@ packages:
       semver: 5.7.1
     dev: true
 
-  /@changesets/assemble-release-plan/5.1.3_t3ywtunilq53oqooixy7kemkoi:
+  /@changesets/assemble-release-plan/5.1.3:
     resolution: {integrity: sha512-I+TTkUoqvxBEuDLoJfJYKDXIJ+nyiTbVJ8KGhpXEsLq4N/ms/AStSbouJwF2d/p3cB+RCPr5+gXh31GSN4kA7w==}
     dependencies:
       '@babel/runtime': 7.18.9
@@ -4493,7 +4488,6 @@ packages:
       '@manypkg/get-packages': 1.1.3
       semver: 5.7.1
     dev: true
-    patched: true
 
   /@changesets/assemble-release-plan/5.2.0:
     resolution: {integrity: sha512-ewY24PEbSec2eKX0+KM7eyENA2hUUp6s4LF9p/iBxTtc+TX2Xbx5rZnlLKZkc8tpuQ3PZbyjLFXWhd1PP6SjCg==}
@@ -4528,7 +4522,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.18.9
       '@changesets/apply-release-plan': 6.0.4
-      '@changesets/assemble-release-plan': 5.1.3_t3ywtunilq53oqooixy7kemkoi
+      '@changesets/assemble-release-plan': 5.1.3
       '@changesets/changelog-git': 0.1.12
       '@changesets/config': 2.1.1
       '@changesets/errors': 0.1.4
