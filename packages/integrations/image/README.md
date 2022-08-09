@@ -228,6 +228,8 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+#### formats
+
 <p>
 
 **Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
