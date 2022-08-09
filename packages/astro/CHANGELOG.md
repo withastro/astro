@@ -25,8 +25,7 @@ Astro v1.0 includes a few new features and improvements since our original beta 
 - Components and JSX in Markdown has been deprecated. For long-term support you should migrate to the [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration. See the [migration guide](https://docs.astro.build/en/migrate/#deprecated-components-and-jsx-in-markdown) for more details.
 - The previously deprecated `<Markdown>` component has been removed. It is now available as a separate package, [`@astrojs/markdown-component`](https://github.com/withastro/astro/tree/main/packages/markdown/component).
 
-> **Note**
-> If you are coming from v0.25 or earlier, make sure you have read and followed the [v0.26 Migration Guide](https://docs.astro.build/en/migrate/#migrate-to-v026), which contained several major breaking changes.
+If you are coming from v0.25 or earlier, make sure you have read and followed the [v0.26 Migration Guide](https://docs.astro.build/en/migrate/#migrate-to-v026), which contained several major breaking changes.
 
 ### Patch Changes
 
