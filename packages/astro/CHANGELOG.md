@@ -493,15 +493,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```html
   <script>
-  	interface Person {
-  		name: string;
-  	}
+    interface Person {
+      name: string;
+    }
 
-  	const person: Person = {
-  		name: 'Astro',
-  	};
+    const person: Person = {
+      name: 'Astro',
+    };
 
-  	console.log(person);
+    console.log(person);
   </script>
   ```
 
@@ -600,9 +600,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   integration: [
-  	// Only run `compress` integration when in production environments, etc...
-  	// Note that `import.meta.env` is not available inside the `astro.config.mjs` file!
-  	process.env.production ? compress() : null,
+    // Only run `compress` integration when in production environments, etc...
+    // Note that `import.meta.env` is not available inside the `astro.config.mjs` file!
+    process.env.production ? compress() : null,
   ];
   ```
 
@@ -1208,7 +1208,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import netlify from '@astrojs/netlify/functions';
 
   export default defineConfig({
-  	adapter: netlify(),
+    adapter: netlify(),
   });
   ```
 
@@ -1228,7 +1228,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import nodejs from '@astrojs/node';
 
   export default {
-  	adapter: nodejs(),
+    adapter: nodejs(),
   };
   ```
 
@@ -1288,7 +1288,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import nodejs from '@astrojs/node';
 
   export default {
-  	adapter: nodejs(),
+    adapter: nodejs(),
   };
   ```
 
@@ -1384,7 +1384,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-  	renderers: [],
+    renderers: [],
   });
   ```
 
@@ -1422,9 +1422,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```json
   {
-  	"scripts": {
-  		"build": "astro build --legacy-build"
-  	}
+    "scripts": {
+      "build": "astro build --legacy-build"
+    }
   }
   ```
 
@@ -1444,7 +1444,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   if (Astro.slots.has('default')) {
-  	const content = await Astro.slots.render('default');
+    const content = await Astro.slots.render('default');
   }
   ```
 
@@ -1528,7 +1528,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```ts
   if (Astro.slots.has('default')) {
-  	const content = await Astro.slots.render('default');
+    const content = await Astro.slots.render('default');
   }
   ```
 
@@ -1552,9 +1552,9 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```json
   {
-  	"scripts": {
-  		"build": "astro build --legacy-build"
-  	}
+    "scripts": {
+      "build": "astro build --legacy-build"
+    }
   }
   ```
 
@@ -1666,12 +1666,12 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -1833,12 +1833,12 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -3176,10 +3176,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	markdownOptions: {
-  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-  	},
+    markdownOptions: {
+      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+    },
   };
   ```
 
@@ -3199,10 +3199,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	name: '@matthewp/my-renderer',
-  	server: './server.js',
-  	client: './client.js',
-  	hydrationPolyfills: ['./my-polyfill.js'],
+    name: '@matthewp/my-renderer',
+    server: './server.js',
+    client: './client.js',
+    hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

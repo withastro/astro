@@ -27,9 +27,9 @@
   ```js
   // https://astro.build/config
   export default defineConfig({
-  	legacy: {
-  		astroFlavoredMarkdown: true,
-  	},
+    legacy: {
+      astroFlavoredMarkdown: true,
+    },
   });
   ```
 
@@ -38,9 +38,11 @@
   This change moves the Markdown component into its own package where it will be maintained separately. All that needs to change from a user's perspective is the import statement:
 
   ```astro
+
   ```
 
   Becomes:
 
   ```astro
+
   ```
