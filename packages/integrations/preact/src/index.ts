@@ -80,10 +80,13 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 			],
 			dedupe: ['preact/compat', 'preact'],
 		};
-		if(!viteConfig.ssr.noExternal) viteConfig.ssr.noExternal = [];
-    viteConfig.ssr.noExternal.push(
-			...['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime']
-		);
+		// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
+		viteConfig.ssr!.noExternal = [
+			'react',
+			'react-dom',
+			'react-dom/test-utils',
+			'react/jsx-runtime',
+		];
 	}
 
 	return viteConfig;
