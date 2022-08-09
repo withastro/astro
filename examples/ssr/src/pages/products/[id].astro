@@ -1,9 +1,9 @@
 ---
-import Header from "../../components/Header.astro";
-import Container from "../../components/Container.astro";
-import AddToCart from "../../components/AddToCart.svelte";
-import { getProduct } from "../../api";
-import "../../styles/common.css";
+import Header from '../../components/Header.astro';
+import Container from '../../components/Container.astro';
+import AddToCart from '../../components/AddToCart.svelte';
+import { getProduct } from '../../api';
+import '../../styles/common.css';
 
 const id = Number(Astro.params.id);
 const product = await getProduct(Astro.request, id);

@@ -1,13 +1,13 @@
 ---
 // Component Imports
-import MainHead from "../components/MainHead.astro";
-import Button from "../components/Button/index.jsx";
-import Nav from "../components/Nav/index.jsx";
-import Footer from "../components/Footer/index.jsx";
-import PortfolioPreview from "../components/PortfolioPreview/index.jsx";
+import MainHead from '../components/MainHead.astro';
+import Button from '../components/Button/index.jsx';
+import Nav from '../components/Nav/index.jsx';
+import Footer from '../components/Footer/index.jsx';
+import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
 // Data Fetching: List all Markdown posts in the repo.
-const projects = await Astro.glob("./project/**/*.md");
+const projects = await Astro.glob('./project/**/*.md');
 const featuredProject = projects[0];
 
 // Full Astro Component Syntax:
@@ -40,7 +40,7 @@ const featuredProject = projects[0];
 
 			.gradient,
 			.gradient2 {
-				background-image: url("/assets/mesh-gradient.jpg");
+				background-image: url('/assets/mesh-gradient.jpg');
 				background-size: cover;
 				pointer-events: none;
 				mix-blend-mode: screen;
@@ -225,7 +225,7 @@ const featuredProject = projects[0];
 				<div class="section">
 					<h3 class="sectionTitle">About me</h3>
 					<p class="bio">
-						<span>Hello!</span> I’m Jeanine, and this is my website. It was made using{" "}
+						<span>Hello!</span> I’m Jeanine, and this is my website. It was made using{' '}
 						<a href="https://github.com/withastro/astro" target="_blank" rel="nofollow"> Astro</a>,
 						a new way to build static sites. This is just an example template for you to modify.
 					</p>

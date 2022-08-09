@@ -2,7 +2,6 @@
 import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
-	ClientOnlyPlaceholder,
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
@@ -13,6 +12,8 @@ import {
 	stringifyChunk,
 	voidElementNames,
 } from './index.js';
+
+const ClientOnlyPlaceholder = 'astro-client-only';
 
 const skipAstroJSXCheck = new WeakSet();
 let originalConsoleError: any;
@@ -51,12 +52,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 						props[key] = value;
 					}
 				}
-				return await renderToString(result, vnode.type as any, props, slots);
+				return markHTMLString(await renderToString(result, vnode.type as any, props, slots));
 			}
 			case !vnode.type && (vnode.type as any) !== 0:
 				return '';
 			case typeof vnode.type === 'string' && vnode.type !== ClientOnlyPlaceholder:
-				return await renderElement(result, vnode.type as string, vnode.props ?? {});
+				return markHTMLString(await renderElement(result, vnode.type as string, vnode.props ?? {}));
 		}
 
 		if (vnode.type) {

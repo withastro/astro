@@ -20,33 +20,30 @@ Check out [“What is MDX?”](https://mdxjs.com/docs/what-is-mdx/), a deep-dive
 
 ## Installation
 
-<details>
-  <summary>Quick Install</summary>
+### Quick Install
 
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
-  ```sh
-  # Using NPM
-  npx astro add mdx
-  # Using Yarn
-  yarn astro add mdx
-  # Using PNPM
-  pnpx astro add mdx
-  ```
+```sh
+# Using NPM
+npx astro add mdx
+# Using Yarn
+yarn astro add mdx
+# Using PNPM
+pnpx astro add mdx
+```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
 
 Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
-</details>
 
-<details>
-  <summary>Manual Install</summary>
+### Manual Install
 
 First, install the `@astrojs/mdx` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
-  ```sh
-  npm install @astrojs/mdx
-  ```
+```sh
+npm install @astrojs/mdx
+```
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
@@ -63,11 +60,14 @@ export default defineConfig({
 ```
 
 Finally, restart the dev server.
-</details>
 
 ## Usage
 
-To write your first MDX page in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+You can [add MDX pages to your project](https://docs.astro.build/en/guides/markdown-content/#markdown-and-mdx-pages) by adding `.mdx` files within your `src/pages/` directory. 
+
+### Components
+
+To use components in your MDX pages in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
 - 🪆 opportunities to mix and nest frameworks together
@@ -75,8 +75,6 @@ To write your first MDX page in Astro, head to our [UI framework documentation][
 [**Client Directives**](https://docs.astro.build/en/reference/directives-reference/#client-directives) are still required in `.mdx` files.
 
 > **Note**: `.mdx` files adhere to strict JSX syntax rather than Astro's HTML-like syntax.
-
-Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 ### Variables
 
@@ -123,7 +121,7 @@ A function that returns an array of all headings (i.e. `h1 -> h6` elements) in t
 
 ### Frontmatter
 
-Astro also supports YAML-based frontmatter out-of-the-box using the [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) plugin. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export. See the `frontmatterOptions` configuration to customize this behavior.
+Astro also supports YAML-based frontmatter out-of-the-box. By default, all variables declared in a frontmatter fence (`---`) will be accessible via the `frontmatter` export.
 
 For example, we can add a `title` and `publishDate` to an MDX page or component like so:
 
@@ -151,6 +149,40 @@ const posts = await Astro.glob('./*.mdx');
   </Fragment>
 ))}
 ```
+
+### Inject frontmatter via remark or rehype plugins
+
+You may want to inject frontmatter properties across all of your MDX files. By using a [remark](#remarkPlugins) or [rehype](#remarkplugins) plugin, you can generate these properties based on a file’s contents.
+
+You can append to the `data.astro.frontmatter` property from your plugin’s `file` argument like so:
+
+```js
+// example-remark-plugin.mjs
+export function exampleRemarkPlugin() {
+  // All remark and rehype plugins return a separate function
+  return function (tree, file) {
+    file.data.astro.frontmatter.customProperty = 'Generated property';
+  }
+}
+```
+
+After applying this plugin to your MDX integration config:
+
+```js
+// astro.config.mjs
+import mdx from '@astrojs/mdx';
+import { exampleRemarkPlugin } from './example-remark-plugin.mjs';
+
+export default {
+  integrations: [
+    mdx({
+      remarkPlugins: [exampleRemarkPlugin],
+    }),
+  ],
+};
+```
+
+…every MDX file will have `customProperty` in its frontmatter! See [our Markdown documentation](https://docs.astro.build/en/guides/markdown-content/#injecting-frontmatter) for more usage instructions and a [reading time plugin example](https://docs.astro.build/en/guides/markdown-content/#example-calculate-reading-time).
 
 ### Layouts
 
@@ -255,8 +287,7 @@ This applies a minimal Prism renderer with added support for `astro` code blocks
 
 ## Configuration
 
-<details>
-  <summary><strong>remarkPlugins</strong></summary>
+### remarkPlugins
 
 **Default plugins:** [remark-gfm](https://github.com/remarkjs/remark-gfm), [remark-smartypants](https://github.com/silvenon/remark-smartypants)
 
@@ -292,31 +323,13 @@ export default {
 }
 ```
 
-</details>
-
-<details>
-  <summary><strong>rehypePlugins</strong></summary>
-
-**Default plugins:** [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts)
+### rehypePlugins</strong>
 
 [Rehype plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md) allow you to transform the HTML that your Markdown generates. We recommend checking the [Remark plugin](https://github.com/remarkjs/remark/blob/main/doc/plugins.md) catalog first _before_ considering rehype plugins, since most users want to transform their Markdown syntax instead. If HTML transforms are what you need, we encourage you to browse [awesome-rehype](https://github.com/rehypejs/awesome-rehype) for a full curated list of plugins!
 
-We apply our own [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin by default. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
+We apply our own (non-overridable) [`collect-headings`](https://github.com/withastro/astro/blob/main/packages/integrations/mdx/src/rehype-collect-headings.ts) plugin. This applies IDs to all headings (i.e. `h1 -> h6`) in your MDX files to [link to headings via anchor tags](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#linking_to_an_element_on_the_same_page).
 
-To apply rehype plugins _while preserving_ Astro's default plugins, use a nested `extends` object like so:
-
-```js
-// astro.config.mjs
-import rehypeMinifyHtml from 'rehype-minify';
-
-export default {
-  integrations: [mdx({
-    rehypePlugins: { extends: [rehypeMinifyHtml] },
-  })],
-}
-```
-
-To apply plugins _without_ Astro's defaults, you can apply a plain array:
+To apply additional rehype plugins, pass an array to the `rehypePlugins` option like so:
 
 ```js
 // astro.config.mjs
@@ -328,38 +341,6 @@ export default {
   })],
 }
 ```
-</details>
-
-<details>
-  <summary><strong>frontmatterOptions</strong></summary>
-
-**Default:** `{ name: 'frontmatter' }`
-
-We use [remark-mdx-frontmatter](https://github.com/remcohaszing/remark-mdx-frontmatter) to parse YAML-based frontmatter in your MDX files. If you want to override our default configuration or extend remark-mdx-frontmatter (ex. to [apply a custom frontmatter parser](https://github.com/remcohaszing/remark-mdx-frontmatter#parsers)), you can supply a `frontmatterOptions` configuration.
-
-For example, say you want to access frontmatter as root-level variables without a nested `frontmatter` object. You can override the [`name` configuration option](https://github.com/remcohaszing/remark-mdx-frontmatter#name) like so:
-
-```js
-// astro.config.mjs
-export default {
-  integrations: [mdx({
-    frontmatterOptions: {
-      name: '',
-    }
-  })],
-}
-```
-
-```mdx
----
-title: I'm just a variable now!
----
-
-# {title}
-```
-
-See the [remark-mdx-frontmatter README](https://github.com/remcohaszing/remark-mdx-frontmatter#options) for a complete list of options.
-</details>
 
 ## Examples
 

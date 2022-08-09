@@ -6,11 +6,12 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
     "@astrojs/svelte": "^0.5.1",
-    "astro": "^1.0.0-rc.5"
+    "astro": "^1.0.0-rc.8"
   },
   "dependencies": {
     "svelte": "^3.48.0"

@@ -1,11 +1,12 @@
 ---
-import "../styles/theme.css";
-import "../styles/index.css";
+import '../styles/theme.css';
+import '../styles/index.css';
 ---
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width" />
+<meta name="generator" content={Astro.generator} />
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
@@ -28,11 +29,11 @@ import "../styles/index.css";
 <!-- This is intentionally inlined to avoid FOUC -->
 <script is:inline>
 	const root = document.documentElement;
-	const theme = localStorage.getItem("theme");
-	if (theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-		root.classList.add("theme-dark");
+	const theme = localStorage.getItem('theme');
+	if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+		root.classList.add('theme-dark');
 	} else {
-		root.classList.remove("theme-dark");
+		root.classList.remove('theme-dark');
 	}
 </script>
 

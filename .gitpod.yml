@@ -1,6 +1,6 @@
 ---
 image:
-  file: .gitpod.Dockerfile
+  file: .Dockerfile
 # Commands to start on workspace startup
 tasks:
   - init: |

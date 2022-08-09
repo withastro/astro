@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/react",
   "description": "Use React components within Astro",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

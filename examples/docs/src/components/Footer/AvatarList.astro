@@ -1,6 +1,6 @@
 ---
 // fetch all commits for just this page's path
-const path = "docs/" + Astro.props.path;
+const path = 'docs/' + Astro.props.path;
 const url = `https://api.github.com/repos/withastro/astro/commits?path=${path}`;
 const commitsURL = `https://github.com/withastro/astro/commits/main/${path}`;
 
@@ -13,13 +13,13 @@ async function getCommits(url) {
 			);
 		}
 
-		const auth = `Basic ${Buffer.from(token, "binary").toString("base64")}`;
+		const auth = `Basic ${Buffer.from(token, 'binary').toString('base64')}`;
 
 		const res = await fetch(url, {
-			method: "GET",
+			method: 'GET',
 			headers: {
 				Authorization: auth,
-				"User-Agent": "astro-docs/1.0",
+				'User-Agent': 'astro-docs/1.0',
 			},
 		});
 
@@ -81,7 +81,7 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 	{additionalContributors > 0 && (
 		<span>
 			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${
-				additionalContributors > 1 ? "s" : ""
+				additionalContributors > 1 ? 's' : ''
 			}.`}</a>
 		</span>
 	)}

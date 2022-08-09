@@ -6,11 +6,12 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "devDependencies": {
     "@astrojs/preact": "^0.5.2",
-    "astro": "^1.0.0-rc.5"
+    "astro": "^1.0.0-rc.8"
   },
   "dependencies": {
     "preact": "^10.7.3"

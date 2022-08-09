@@ -8,7 +8,9 @@ import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
 
-const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
+const HydrationDirectivesRaw = ['load', 'idle', 'media', 'visible', 'only'];
+const HydrationDirectives = new Set(HydrationDirectivesRaw);
+export const HydrationDirectiveProps = new Set(HydrationDirectivesRaw.map((n) => `client:${n}`));
 
 export interface HydrationMetadata {
 	directive: string;
@@ -68,10 +70,10 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 					extracted.hydration.value = value;
 
 					// throw an error if an invalid hydration directive was provided
-					if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
+					if (!HydrationDirectives.has(extracted.hydration.directive)) {
 						throw new Error(
-							`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map(
-								(d) => `"client:${d}"`
+							`Error: invalid hydration directive "${key}". Supported hydration methods: ${Array.from(
+								HydrationDirectiveProps
 							).join(', ')}`
 						);
 					}

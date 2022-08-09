@@ -249,6 +249,16 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
 	site: URL | undefined;
+	/**
+	 * Returns a string with the current version of Astro.
+	 *
+	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
+	 *
+	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
+	 */
+	generator: string;
 }
 
 type ServerConfig = {
@@ -724,6 +734,17 @@ export interface AstroUserConfig {
 		 * @description
 		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
+		 *
+		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).
+		 *
+		 * ```js
+		 * {
+		 *   legacy: {
+		 *     // Example: Add support for legacy Markdown features
+		 *     astroFlavoredMarkdown: true,
+		 *   },
+		 * }
+		 * ```
 		 */
 		astroFlavoredMarkdown?: boolean;
 	};
@@ -1110,3 +1131,5 @@ export interface SSRResult {
 	response: ResponseInit;
 	_metadata: SSRMetadata;
 }
+
+export type MarkdownAstroData = { frontmatter: object };
