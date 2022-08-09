@@ -1,5 +1,39 @@
 # astro
 
+## 1.0.0
+
+> Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+> **Note**
+> If you need help migrating an existing Astro project to the new Astro v1.0, check out our updated [Migration Guide](https://docs.astro.build/en/migrate/) and [full documentation website](https://docs.astro.build/).
+
+### Features
+
+Astro v1.0 includes a few new features and improvements since our original beta announcement back in April, including:
+
+- [SSR Builds](https://docs.astro.build/en/guides/server-side-rendering/): Server output is now stable and available for production use.
+- [Image Optimization](https://docs.astro.build/en/guides/integrations-guide/image/): New `<Image />` and `<Picture />` components available with [`@astrojs/image`](https://docs.astro.build/en/guides/integrations-guide/image/).
+- [MDX Support](https://docs.astro.build/en/guides/integrations-guide/mdx/): A standard syntax for mixing UI components in Markdown is available with [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/).
+- [Vite 3.0](https://vitejs.dev/blog/announcing-vite3.html): An upgrade to our internal build engine, Vite.
+
+### Breaking Changes
+
+- `Astro.canonicalURL` has been deprecated. Please use [`Astro.url`](https://docs.astro.build/en/reference/api-reference/#astrourl) to construct your own canonical URL.
+- [CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) is now preserved for scoped styles. See the [migration guide](https://docs.astro.build/en/migrate/#changed-scoped-css-specificity) for more details.
+  > **Warning**
+  > Please visually inspect your site output to make sure everything is styled as expected. If not, find your scoped style and increase the selector specificity manually to match the old behavior.
+- Components and JSX in Markdown has been deprecated. For long-term support you should migrate to the [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration. See the [migration guide](https://docs.astro.build/en/migrate/#deprecated-components-and-jsx-in-markdown) for more details.
+- The previously deprecated `<Markdown>` component has been removed. It is now available as a separate package, [`@astrojs/markdown-component`](https://github.com/withastro/astro/tree/main/packages/markdown/component).
+
+If you are coming from v0.25 or earlier, make sure you have read and followed the [v0.26 Migration Guide](https://docs.astro.build/en/migrate/#migrate-to-v026), which contained several major breaking changes.
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/markdown-remark@1.0.0
+  - @astrojs/telemetry@1.0.0
+  - @astrojs/webapi@1.0.0
+
 ## 1.0.0-rc.8
 
 ### Patch Changes
@@ -416,7 +450,17 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
 
   ```astro
-
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
+  <html>
+    <head>
+      <title>App</title>
+    </head>
+    <body>
+      <LoadTodos />
+    </body>
+  </html>
   ```
 
   In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
@@ -424,7 +468,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   As part of this Astro also now supports async iterables within its templates. This means you can do this:
 
   ```astro
-
+  <ul>
+    {(async function* () {
+      for (const number of numbers) {
+        await wait(1000);
+        yield <li>Number: {number}</li>;
+        yield '\n';
+      }
+    })()}
+  </ul>
   ```
 
   Which will stream out `<li>`s one at a time, waiting a second between each.
@@ -2565,7 +2617,9 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
 
   ```astro
-
+  <script hoist>
+    // Anything goes here!
+  </script>
   ```
 
 - Updated dependencies [5d2ea578]
@@ -2606,10 +2660,6 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 - f9cd0310: Fix TypeScript "types" reference in package.json
 - f9cd0310: Improve schema validation using zod
 - efb41f22: Add `<Debug>` component for JavaScript-free client-side debugging.
-
-  ```astro
-
-  ```
 
 ## 0.19.2
 
@@ -2658,11 +2708,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   <img src="../images/penguin.png" />
   ```
 
-  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
-
-  ```astro
-
-  ```
+  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`.
 
 - 239065e2: Adds support for client:only hydrator
 
@@ -2748,10 +2794,6 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   ```
 
   The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
-
-  ```astro
-
-  ```
 
 ## 0.19.0-next.2
 
@@ -3077,22 +3119,14 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
 - 1b73f95: Only show the buildOptions.site notice if not already set
 - fb78b76: Improve error handling for unsupported Node versions
-- d93f768: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
-
-  ```astro
-
-  ```
+- d93f768: Add support for components defined in Frontmatter.
 
 ## 0.17.1
 
 ### Patch Changes
 
 - 1e01251: Fixes bug with React renderer that would not hydrate correctly
-- 42a6ace: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
-
-  ```astro
-
-  ```
+- 42a6ace: Add support for components defined in Frontmatter.
 
 - Updated dependencies [1e01251]
   - @astrojs/renderer-react@0.1.5
