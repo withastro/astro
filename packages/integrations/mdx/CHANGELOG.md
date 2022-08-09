@@ -1,5 +1,12 @@
 # @astrojs/mdx
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/prism@1.0.0
+
 ## 0.8.0
 
 ### Minor Changes

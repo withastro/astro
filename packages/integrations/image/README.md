@@ -228,6 +228,8 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+#### formats
+
 <p>
 
 **Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
@@ -338,7 +340,7 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 <Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" />
 ```
 
-### Responsive pictures</strong></summary>
+### Responsive pictures
 
 The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
 
