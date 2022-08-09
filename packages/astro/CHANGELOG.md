@@ -453,6 +453,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   ---
   import LoadTodos from '../components/LoadTodos.astro';
   ---
+
   <html>
     <head>
       <title>App</title>
