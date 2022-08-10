@@ -1,5 +1,19 @@
 # astro
 
+## 1.0.2
+
+### Patch Changes
+
+- [#4247](https://github.com/withastro/astro/pull/4247) [`714a8399e`](https://github.com/withastro/astro/commit/714a8399e20f334d2ba341c98d8ef5d590af9c39) Thanks [@matthewp](https://github.com/matthewp)! - Return 404 status code for 404.astro in SSR
+
+* [#4240](https://github.com/withastro/astro/pull/4240) [`561a34d91`](https://github.com/withastro/astro/commit/561a34d91209c9d4959f74beaa17008edb27ff5d) Thanks [@matthewp](https://github.com/matthewp)! - Properly invalidate Astro modules when a child script updates in HMR
+
+- [#4234](https://github.com/withastro/astro/pull/4234) [`c38e7f189`](https://github.com/withastro/astro/commit/c38e7f1890ba5bc97ddacee91ea196bcfc7652e6) Thanks [@bluwy](https://github.com/bluwy)! - Remove dev server during build
+
+* [#4213](https://github.com/withastro/astro/pull/4213) [`f8e385339`](https://github.com/withastro/astro/commit/f8e3853394c2f2f48fac4b5eb2284e1960e59a13) Thanks [@bluwy](https://github.com/bluwy)! - Bump Vite to 3.0.5
+
+- [#4225](https://github.com/withastro/astro/pull/4225) [`e918b3883`](https://github.com/withastro/astro/commit/e918b3883e156a0de2148517b619a2cf451917d2) Thanks [@mayank99](https://github.com/mayank99)! - `astro add` now supports `-y`
+
 ## 1.0.1
 
 ### Patch Changes
@@ -456,18 +470,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
 
   ```astro
-  ---
-  import LoadTodos from '../components/LoadTodos.astro';
-  ---
 
-  <html>
-    <head>
-      <title>App</title>
-    </head>
-    <body>
-      <LoadTodos />
-    </body>
-  </html>
   ```
 
   In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
@@ -475,15 +478,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   As part of this Astro also now supports async iterables within its templates. This means you can do this:
 
   ```astro
-  <ul>
-    {(async function* () {
-      for (const number of numbers) {
-        await wait(1000);
-        yield <li>Number: {number}</li>;
-        yield '\n';
-      }
-    })()}
-  </ul>
+
   ```
 
   Which will stream out `<li>`s one at a time, waiting a second between each.
@@ -2618,9 +2613,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
 
   ```astro
-  <script hoist>
-    // Anything goes here!
-  </script>
+
   ```
 
 - Updated dependencies [5d2ea578]
@@ -2722,21 +2715,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   An example usage:
 
   ```astro
-  ---
-  import BarChart from '../components/BarChart.jsx';
-  ---
 
-  <BarChart client:only />
-
-  <!--
-    If multiple renderers are included in the Astro config, this will ensure that the component is hydrated with * the Preact renderer.
-  -->
-  <BarChart client:only="preact" />
-
-  <!--
-    If a custom renderer is required, use the same name provided in the Astro config.
-  -->
-  <BarChart client:only="my-custom-renderer" />
   ```
 
   This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
@@ -2760,16 +2739,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   An example usage:
 
   ```astro
-  ---
-  import BarChart from '../components/BarChart.jsx';
-  ---
 
-  <BarChart client:only />
-  /** * If multiple renderers are included in the Astro config, * this will ensure that the
-  component is hydrated with * the Preact renderer. */
-  <BarChart client:only="preact" />
-  /** * If a custom renderer is required, use the same name * provided in the Astro config. */
-  <BarChart client:only="my-custom-renderer" />
   ```
 
   This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
@@ -2917,11 +2887,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
   ```astro
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  ---
 
-  <Sidebar client:media="(max-width: 700px)" />
   ```
 
   This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
@@ -2939,12 +2905,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   **index.astro**
 
   ```astro
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  import { MOBILE } from '../media.js';
-  ---
 
-  <Sidebar client:media={MOBILE} />;
   ```
 
 ### Patch Changes
@@ -3069,11 +3030,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
   ```astro
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  ---
 
-  <Sidebar client:media="(max-width: 700px)" />
   ```
 
   This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
@@ -3091,12 +3048,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   **index.astro**
 
   ```astro
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  import { MOBILE } from '../media.js';
-  ---
 
-  <Sidebar client:media={MOBILE} />
   ```
 
 ### Patch Changes
@@ -3265,12 +3217,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   Astro frontmatter scripts are TypeScript! Because of this, we can leverage TypeScript types to define the shape of your props.
 
   ```astro
-  ---
-  export interface Props {
-    text?: string;
-  }
-  const { text = 'Hello world!' } = Astro.props as Props;
-  ---
+
   ```
 
   > **Note** Casting `Astro.props as Props` is a temporary workaround. We expect our Language Server to handle this automatically soon!
@@ -3280,13 +3227,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   One of the great things about this change is that it's straight-forward to access _any_ props. Just use `...props`!
 
   ```astro
-  ---
-  export interface Props {
-    text?: string;
-    [attr: string]: unknown;
-  }
-  const { text = 'Hello world!', ...props } = Astro.props as Props;
-  ---
+
   ```
 
   ### What about prop validation?
@@ -3294,12 +3235,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   We considered building prop validation into Astro, but decided to leave that implementation up to you! This way, you can use any set of tools you like.
 
   ```astro
-  ---
-  const { text = 'Hello world!' } = Astro.props;
 
-  if (typeof text !== 'string')
-    throw new Error(`Expected "text" to be of type "string" but recieved "${typeof string}"!`);
-  ---
   ```
 
 ### Patch Changes

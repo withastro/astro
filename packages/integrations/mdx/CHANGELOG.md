@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.8.2
+
+### Patch Changes
+
+- [#4237](https://github.com/withastro/astro/pull/4237) [`9d5ab5508`](https://github.com/withastro/astro/commit/9d5ab55086964fbede17da3d78c209c6d8d13711) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update "Astro.props.content" -> "Astro.props.frontmatter" in README
+
 ## 0.8.1
 
 ### Patch Changes
