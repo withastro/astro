@@ -20,7 +20,7 @@ export class FoldingRangesProviderImpl implements FoldingRangesProvider {
 
 			// Due to how our TSX output transform those tags into function calls or template literals
 			// TypeScript thinks of those as outlining spans, which is fine but we don't want folding ranges for those
-			return node.tag !== 'script' && node.tag !== 'style' && node.tag !== 'Markdown';
+			return node.tag !== 'script' && node.tag !== 'style';
 		});
 
 		const scriptOutliningSpans: ts.OutliningSpan[] = [];
