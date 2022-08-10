@@ -362,8 +362,7 @@ ${source}
 			return handleHotUpdate.call(this, context, {
 				config,
 				logging,
-				compile,
-				viteServer: context.server
+				compile
 			});
 		},
 	};

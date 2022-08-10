@@ -60,12 +60,11 @@ export interface HandleHotUpdateOptions {
 	config: AstroConfig;
 	logging: LogOptions;
 	compile: () => ReturnType<typeof cachedCompilation>;
-	viteServer: ViteDevServer;
 }
 
 export async function handleHotUpdate(
 	ctx: HmrContext,
-	{ config, logging, compile, viteServer }: HandleHotUpdateOptions
+	{ config, logging, compile }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro')) {
@@ -153,7 +152,7 @@ export async function handleHotUpdate(
 	// component so that it is cached by the time the script gets transformed.
 	for(const mod of filtered) {
     if(mod.id && isAstroScript(mod.id) && mod.file) {
-      const astroMod = viteServer.moduleGraph.getModuleById(mod.file);
+      const astroMod = ctx.server.moduleGraph.getModuleById(mod.file);
       if(astroMod) {
         mods.unshift(astroMod);
       }
