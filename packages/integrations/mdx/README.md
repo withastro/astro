@@ -195,19 +195,19 @@ title: 'My Blog Post'
 ---
 ```
 
-Then, you can retrieve all other frontmatter properties from your layout via the `content` property, and render your MDX using the default [`<slot />`](https://docs.astro.build/en/core-concepts/astro-components/#slots):
+Then, you can retrieve all other frontmatter properties from your layout via the `frontmatter` property, and render your MDX using the default [`<slot />`](https://docs.astro.build/en/core-concepts/astro-components/#slots):
 
 ```astro
 ---
 // src/layouts/BaseLayout.astro
-const { content } = Astro.props;
+const { frontmatter } = Astro.props;
 ---
 <html>
   <head>
-    <title>{content.title}</title>
+    <title>{frontmatter.title}</title>
   </head>
   <body>
-    <h1>{content.title}</h1>
+    <h1>{frontmatter.title}</h1>
     <!-- Rendered MDX will be passed into the default slot. -->
     <slot />
   </body>
