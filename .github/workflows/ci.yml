@@ -9,10 +9,10 @@ on:
       - '.vscode/**'
       - '**/*.md'
 
-# Automatically cancel in-progress actions on the same branch
+# Automatically cancel in-progress actions on the same branch (unless on main)
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 defaults:
   run:
