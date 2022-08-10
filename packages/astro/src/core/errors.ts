@@ -42,11 +42,14 @@ export function cleanErrorStack(stack: string) {
 		.join('\n');
 }
 
-/** Update the error message to correct any vite-isms that we don't want to expose to the user. */
-export function fixViteErrorMessage(_err: unknown, server: ViteDevServer, filePath?: URL) {
+/**
+ * Update the error message to correct any vite-isms that we don't want to expose to the user.
+ * The `server` is required if the error may come from `server.ssrLoadModule()`.
+ */
+export function fixViteErrorMessage(_err: unknown, server?: ViteDevServer, filePath?: URL) {
 	const err = createSafeError(_err);
 	// Vite will give you better stacktraces, using sourcemaps.
-	server.ssrFixStacktrace(err);
+	server?.ssrFixStacktrace(err);
 	// Fix: Astro.glob() compiles to import.meta.glob() by the time Vite sees it,
 	// so we need to update this error message in case it originally came from Astro.glob().
 	if (err.message === 'import.meta.glob() can only accept string literals.') {

@@ -1,4 +1,4 @@
-# @astrojs/markdown
+# @astrojs/markdown-component
 
 This package brings legacy support for the `<Markdown />` component to all Astro projects.
 
