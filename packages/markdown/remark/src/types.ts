@@ -23,6 +23,7 @@ export type RehypePlugins = (string | [string, any] | RehypePlugin | [RehypePlug
 export interface ShikiConfig {
 	langs?: ILanguageRegistration[];
 	theme?: Theme | IThemeRegistration;
+	themes?: Array<Theme | IThemeRegistration>;
 	wrap?: boolean | null;
 }
 

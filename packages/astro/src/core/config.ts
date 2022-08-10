@@ -193,6 +193,11 @@ export const AstroConfigSchema = z.object({
 						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
 						.or(z.custom<IThemeRegistration>())
 						.default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.theme),
+					themes: z
+						.enum(BUNDLED_THEMES as [Theme, ...Theme[]])
+						.or(z.custom<IThemeRegistration>())
+						.array()
+						.optional(),
 					wrap: z.boolean().or(z.null()).default(ASTRO_CONFIG_DEFAULTS.markdown.shikiConfig.wrap),
 				})
 				.default({}),
