@@ -1,5 +1,5 @@
 import { sharedConfig } from 'solid-js';
-import { hydrate, render, createComponent } from 'solid-js/web';
+import { createComponent, hydrate, render } from 'solid-js/web';
 
 export default (element: HTMLElement) =>
 	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
@@ -39,7 +39,7 @@ export default (element: HTMLElement) =>
 				}),
 			element,
 			{
-				renderId
+				renderId,
 			}
 		);
 	};

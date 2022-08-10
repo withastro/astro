@@ -133,8 +133,8 @@ export async function generateHydrateScript(
 	};
 
 	// Attach renderer-provided attributes
-	if(attrs) {
-		for(const [key, value] of Object.entries(attrs)) {
+	if (attrs) {
+		for (const [key, value] of Object.entries(attrs)) {
 			island.props[key] = value;
 		}
 	}
