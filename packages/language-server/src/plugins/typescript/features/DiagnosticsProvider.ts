@@ -11,7 +11,6 @@ type BoundaryTuple = [number, number];
 
 interface BoundaryParseResults {
 	script: BoundaryTuple[];
-	markdown: BoundaryTuple[];
 }
 
 // List of codes:
@@ -116,7 +115,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 
 		const boundaries: BoundaryParseResults = {
 			script: [],
-			markdown: [],
 		};
 
 		if (!sourceFile) {
@@ -132,10 +130,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 						case 'script': {
 							ts.getLineAndCharacterOfPosition(sourceFile!, node.getStart());
 							boundaries.script.push([node.getStart(), node.getEnd()]);
-							break;
-						}
-						case 'Markdown': {
-							boundaries.markdown.push([node.getStart(), node.getEnd()]);
 							break;
 						}
 					}
