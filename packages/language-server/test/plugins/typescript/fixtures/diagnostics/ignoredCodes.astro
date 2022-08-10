@@ -1,9 +1,14 @@
 ---
+  import { Markdown } from "astro/components"
+
   const autoplay = true
 
   return "Astro"
 ---
 
+<Markdown>
+  # Hey
+</Markdown>
 <div {autoplay}></div>
 <div></div>
 
