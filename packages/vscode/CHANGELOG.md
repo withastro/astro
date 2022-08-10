@@ -1,5 +1,19 @@
 # astro-vscode
 
+## 0.21.0
+
+### Minor Changes
+
+- 574b75d: Remove support for the Markdown component
+
+### Patch Changes
+
+- 81f3aa5: Added a debug command to show the currently opened document's TSX output
+- Updated dependencies [81f3aa5]
+- Updated dependencies [574b75d]
+- Updated dependencies [d23ba22]
+  - @astrojs/language-server@0.21.0
+
 ## 0.20.4
 
 ### Patch Changes

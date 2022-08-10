@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 0.21.0
+
+### Minor Changes
+
+- 574b75d: Remove support for the Markdown component
+- d23ba22: Changed how Astro's types are consumed to avoid making type acquisition explicit inside Astro files
+
+### Patch Changes
+
+- 81f3aa5: Added a debug command to show the currently opened document's TSX output
+
 ## 0.20.3
 
 ### Patch Changes
