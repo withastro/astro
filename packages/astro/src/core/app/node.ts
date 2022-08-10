@@ -1,9 +1,10 @@
+import type { RouteData } from '../../@types/astro';
 import type { SerializedSSRManifest, SSRManifest } from './types';
 
 import * as fs from 'fs';
 import { IncomingMessage } from 'http';
 import { deserializeManifest } from './common.js';
-import { App } from './index.js';
+import { App, MatchOptions } from './index.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
@@ -24,10 +25,10 @@ function createRequestFromNodeRequest(req: IncomingMessage, body?: Uint8Array): 
 }
 
 export class NodeApp extends App {
-	match(req: IncomingMessage | Request) {
-		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req));
+	match(req: IncomingMessage | Request, opts: MatchOptions = {}) {
+		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req), opts);
 	}
-	render(req: IncomingMessage | Request) {
+	render(req: IncomingMessage | Request, routeData?: RouteData) {
 		if ('on' in req) {
 			let body = Buffer.from([]);
 			let reqBodyComplete = new Promise((resolve, reject) => {
@@ -43,10 +44,10 @@ export class NodeApp extends App {
 			});
 
 			return reqBodyComplete.then(() => {
-				return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req, body));
+				return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req, body), routeData);
 			});
 		}
-		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req));
+		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req), routeData);
 	}
 }
 
