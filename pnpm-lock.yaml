@@ -659,6 +659,12 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/astro/e2e/fixtures/invalidate-script-deps:
+    specifiers:
+      astro: workspace:*
+    devDependencies:
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/lit-component:
     specifiers:
       '@astrojs/lit': workspace:*
