@@ -11,8 +11,6 @@ export default (element: HTMLElement) =>
 
 		const fn = client === 'only' ? render : hydrate;
 
-		console.log("I AM HERE");
-
 		let _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
 			// hydrating
@@ -31,9 +29,6 @@ export default (element: HTMLElement) =>
 
 		const { default: children, ...slots } = _slots;
 		const renderId = element.dataset.solidRenderId;
-		console.log("SOLID RENDER ID", renderId);
-
-		document.documentElement.setAttribute('some-test', renderId + '-test')
 
 		fn(
 			() =>
