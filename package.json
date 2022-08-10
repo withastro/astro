@@ -65,15 +65,13 @@
       ]
     },
     "patchedDependencies": {
-      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch",
-      "@changesets/assemble-release-plan@5.1.3": "patches/@changesets__assemble-release-plan@5.1.3.patch"
+      "@changesets/cli@2.23.0": "patches/@changesets__cli@2.23.0.patch"
     }
   },
   "dependencies": {
     "@astrojs/webapi": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/assemble-release-plan": "5.1.3",
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.23.0",
     "@octokit/action": "^3.18.1",

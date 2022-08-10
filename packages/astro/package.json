@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0-rc.8",
+  "version": "1.0.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -88,9 +88,9 @@
   "dependencies": {
     "@astrojs/compiler": "^0.23.1",
     "@astrojs/language-server": "^0.20.0",
-    "@astrojs/markdown-remark": "^0.14.1",
-    "@astrojs/telemetry": "^0.4.1",
-    "@astrojs/webapi": "^0.12.0",
+    "@astrojs/markdown-remark": "^1.0.0",
+    "@astrojs/telemetry": "^1.0.0",
+    "@astrojs/webapi": "^1.0.0",
     "@babel/core": "^7.18.2",
     "@babel/generator": "^7.18.2",
     "@babel/parser": "^7.18.4",
@@ -138,7 +138,7 @@
     "tsconfig-resolver": "^3.0.1",
     "unist-util-visit": "^4.1.0",
     "vfile": "^5.3.2",
-    "vite": "3.0.4",
+    "vite": "3.0.5",
     "yargs-parser": "^21.0.1",
     "zod": "^3.17.3"
   },

@@ -221,9 +221,10 @@ async function build() {
 
 		writeFile(
 			'mod.d.ts',
-			modDTS
-				.replace('\n//# sourceMappingURL=polyfill.d.ts.map', '')
-				.replace('ponyfill.js', 'mod.js')
+			'// organize-imports-ignore\n' +
+				modDTS
+					.replace('\n//# sourceMappingURL=polyfill.d.ts.map', '')
+					.replace('ponyfill.js', 'mod.js')
 		)
 		writeFile(
 			'apply.js',

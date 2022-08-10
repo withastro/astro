@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "0.14.1",
+  "version": "1.0.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@astrojs/micromark-extension-mdx-jsx": "^1.0.3",
-    "@astrojs/prism": "^0.7.0",
+    "@astrojs/prism": "^1.0.0",
     "acorn": "^8.7.1",
     "acorn-jsx": "^5.3.2",
     "github-slugger": "^1.4.0",

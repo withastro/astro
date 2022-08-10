@@ -701,7 +701,7 @@ function parseIntegrationName(spec: string) {
 }
 
 async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boolean> {
-	if (flags.yes) return true;
+	if (flags.yes || flags.y) return true;
 
 	const response = await prompts({
 		type: 'confirm',
