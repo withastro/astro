@@ -460,7 +460,7 @@ importers:
       tsconfig-resolver: ^3.0.1
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
-      vite: 3.0.4
+      vite: 3.0.5
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -516,7 +516,7 @@ importers:
       tsconfig-resolver: 3.0.1
       unist-util-visit: 4.1.0
       vfile: 5.3.4
-      vite: 3.0.4_sass@1.54.4
+      vite: 3.0.5_sass@1.54.4
       yargs-parser: 21.1.1
       zod: 3.18.0
     devDependencies:
@@ -1665,6 +1665,24 @@ importers:
       postcss: 8.4.16
     devDependencies:
       postcss-preset-env: 7.7.2_postcss@8.4.16
+
+  packages/astro/test/fixtures/preact-compat-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      '@test/react-lib': workspace:*
+      astro: workspace:*
+      preact: ^10.10.1
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      '@test/react-lib': link:packages/react-lib
+      astro: link:../../..
+      preact: 10.10.2
+
+  packages/astro/test/fixtures/preact-compat-component/packages/react-lib:
+    specifiers:
+      react: ^18.2.0
+    dependencies:
+      react: 18.2.0
 
   packages/astro/test/fixtures/preact-component:
     specifiers:
@@ -16580,34 +16598,6 @@ packages:
       - supports-color
     dev: true
 
-  /vite/3.0.4_sass@1.54.4:
-    resolution: {integrity: sha512-NU304nqnBeOx2MkQnskBQxVsa0pRAH5FphokTGmyy8M3oxbvw7qAXts2GORxs+h/2vKsD+osMhZ7An6yK6F1dA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.14.54
-      postcss: 8.4.16
-      resolve: 1.22.1
-      rollup: 2.77.2
-      sass: 1.54.4
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
   /vite/3.0.5:
     resolution: {integrity: sha512-bRvrt9Tw8EGW4jj64aYFTnVg134E8hgDxyl/eEHnxiGqYk7/pTPss6CWlurqPOUzqvEoZkZ58Ws+Iu8MB87iMA==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -16633,6 +16623,34 @@ packages:
       rollup: 2.77.2
     optionalDependencies:
       fsevents: 2.3.2
+
+  /vite/3.0.5_sass@1.54.4:
+    resolution: {integrity: sha512-bRvrt9Tw8EGW4jj64aYFTnVg134E8hgDxyl/eEHnxiGqYk7/pTPss6CWlurqPOUzqvEoZkZ58Ws+Iu8MB87iMA==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.14.54
+      postcss: 8.4.16
+      resolve: 1.22.1
+      rollup: 2.77.2
+      sass: 1.54.4
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
 
   /vitest/0.20.3:
     resolution: {integrity: sha512-cXMjTbZxBBUUuIF3PUzEGPLJWtIMeURBDXVxckSHpk7xss4JxkiiWh5cnIlfGyfJne2Ii3QpbiRuFL5dMJtljw==}
