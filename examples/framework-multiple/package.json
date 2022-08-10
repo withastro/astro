@@ -10,12 +10,12 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/preact": "^1.0.0",
+    "@astrojs/preact": "^1.0.1",
     "@astrojs/react": "^1.0.0",
     "@astrojs/solid-js": "^1.0.0",
     "@astrojs/svelte": "^1.0.0",
     "@astrojs/vue": "^1.0.0",
-    "astro": "^1.0.1"
+    "astro": "^1.0.2"
   },
   "dependencies": {
     "preact": "^10.7.3",
