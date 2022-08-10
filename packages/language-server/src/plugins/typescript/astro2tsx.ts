@@ -15,7 +15,7 @@ function escapeTemplateLiteralContent(content: string) {
 	return content.replace(/`/g, '\\`');
 }
 
-interface Astro2TSXResult {
+export interface Astro2TSXResult {
 	code: string;
 }
 

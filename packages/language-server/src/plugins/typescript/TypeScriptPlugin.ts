@@ -44,6 +44,8 @@ import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import { FormattingProviderImpl } from './features/FormattingProvider';
+import astro2tsx, { Astro2TSXResult } from './astro2tsx';
+import { classNameFromFilename } from './snapshots/utils';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -237,6 +239,10 @@ export class TypeScriptPlugin implements Plugin {
 		cancellationToken?: CancellationToken
 	): Promise<SignatureHelp | null> {
 		return this.signatureHelpProvider.getSignatureHelp(document, position, context, cancellationToken);
+	}
+
+	getTSXForDocument(document: AstroDocument): Astro2TSXResult {
+		return astro2tsx(document.getText(), classNameFromFilename(document.getURL()));
 	}
 
 	private async featureEnabled(document: AstroDocument, feature: keyof LSTypescriptConfig) {

@@ -77,6 +77,10 @@
       {
         "command": "astro.restartLanguageServer",
         "title": "Astro: Restart Language Server"
+      },
+      {
+        "command": "astro.showTSXOutput",
+        "title": "Astro: Debug: Show TSX Output"
       }
     ],
     "configuration": {

@@ -2,6 +2,7 @@ import * as vscode from 'vscode-languageserver';
 import {
 	CodeActionKind,
 	DidChangeConfigurationNotification,
+	DocumentUri,
 	InlayHintRequest,
 	LinkedEditingRangeRequest,
 	MessageType,
@@ -35,6 +36,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 	const pluginHost = new PluginHost(documentManager);
 	const configManager = new ConfigManager(connection);
 
+	let typescriptPlugin: TypeScriptPlugin = undefined as any;
 	let hasConfigurationCapability = false;
 
 	connection.onInitialize((params: vscode.InitializeParams) => {
@@ -72,8 +74,9 @@ export function startLanguageServer(connection: vscode.Connection) {
 
 		// We don't currently support running the TypeScript and Astro plugin in the browser
 		if (params.initializationOptions.environment !== 'browser') {
+			typescriptPlugin = new TypeScriptPlugin(documentManager, configManager, workspaceUris);
 			pluginHost.registerPlugin(new AstroPlugin(documentManager, configManager, workspaceUris));
-			pluginHost.registerPlugin(new TypeScriptPlugin(documentManager, configManager, workspaceUris));
+			pluginHost.registerPlugin(typescriptPlugin);
 		}
 
 		return {
@@ -261,6 +264,18 @@ export function startLanguageServer(connection: vscode.Connection) {
 			pluginHost.updateNonAstroFile(path, e.changes);
 		}
 		updateAllDiagnostics();
+	});
+
+	connection.onRequest('$/getTSXOutput', async (uri: DocumentUri) => {
+		const doc = documentManager.get(uri);
+		if (!doc) {
+			return undefined;
+		}
+
+		if (doc) {
+			const tsxOutput = typescriptPlugin.getTSXForDocument(doc);
+			return tsxOutput.code;
+		}
 	});
 
 	documentManager.on(

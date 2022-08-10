@@ -89,7 +89,7 @@ export function createFromFrameworkFilePath(filePath: string, framework: Framewo
 	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX);
 }
 
-function classNameFromFilename(filename: string): string {
+export function classNameFromFilename(filename: string): string {
 	const url = URI.parse(filename);
 	const withoutExtensions = Utils.basename(url).slice(0, -Utils.extname(url).length);
 

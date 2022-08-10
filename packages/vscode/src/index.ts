@@ -1,4 +1,13 @@
-import { window, commands, workspace, ExtensionContext, TextDocument, Position, TextDocumentChangeEvent } from 'vscode';
+import {
+	window,
+	commands,
+	workspace,
+	ExtensionContext,
+	TextDocument,
+	Position,
+	TextDocumentChangeEvent,
+	ViewColumn,
+} from 'vscode';
 import {
 	LanguageClient,
 	RequestType,
@@ -101,6 +110,23 @@ export async function activate(context: ExtensionContext) {
 	context.subscriptions.push(
 		commands.registerCommand('astro.restartLanguageServer', async () => {
 			await restartClient(true);
+		}),
+		commands.registerCommand('astro.showTSXOutput', async () => {
+			const content = await getLSClient().sendRequest<string | undefined>(
+				'$/getTSXOutput',
+				window.activeTextEditor?.document.uri.toString()
+			);
+
+			if (content) {
+				const document = await workspace.openTextDocument({ content, language: 'typescriptreact' });
+
+				await window.showTextDocument(document, {
+					preview: true,
+					viewColumn: ViewColumn.Beside,
+				});
+			} else {
+				window.showErrorMessage("Could not open the current document's TSX output");
+			}
 		})
 	);
 
