@@ -948,6 +948,17 @@ importers:
     devDependencies:
       solid-js: 1.4.8
 
+  packages/astro/e2e/fixtures/solid-recurse:
+    specifiers:
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+      solid-js: ^1.4.3
+    dependencies:
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+    devDependencies:
+      solid-js: 1.4.8
+
   packages/astro/e2e/fixtures/svelte-component:
     specifiers:
       '@astrojs/mdx': workspace:*

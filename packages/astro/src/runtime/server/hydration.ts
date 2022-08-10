@@ -107,6 +107,7 @@ interface HydrateScriptOptions {
 	result: SSRResult;
 	astroId: string;
 	props: Record<string | number, any>;
+	attrs: Record<string, string> | undefined;
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
@@ -114,7 +115,7 @@ export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
 	metadata: Required<AstroComponentMetadata>
 ): Promise<SSRElement> {
-	const { renderer, result, astroId, props } = scriptOptions;
+	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
 	if (!componentExport) {
@@ -130,6 +131,13 @@ export async function generateHydrateScript(
 			uid: astroId,
 		},
 	};
+
+	// Attach renderer-provided attributes
+	if(attrs) {
+		for(const [key, value] of Object.entries(attrs)) {
+			island.props[key] = value;
+		}
+	}
 
 	// Add component url
 	island.props['component-url'] = await result.resolve(componentUrl);

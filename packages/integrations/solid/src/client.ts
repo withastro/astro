@@ -1,17 +1,17 @@
 import { sharedConfig } from 'solid-js';
 import { hydrate, render, createComponent } from 'solid-js/web';
 
-export default (element) =>
-	(Component, props, slotted, { client }) => {
+export default (element: HTMLElement) =>
+	(Component: any, props: any, slotted: any, { client }: { client: string }) => {
 		// Prepare global object expected by Solid's hydration logic
-		if (!window._$HY) {
-			window._$HY = { events: [], completed: new WeakSet(), r: {} };
+		if (!(window as any)._$HY) {
+			(window as any)._$HY = { events: [], completed: new WeakSet(), r: {} };
 		}
 		if (!element.hasAttribute('ssr')) return;
 
 		const fn = client === 'only' ? render : hydrate;
 
-		let _slots = {};
+		let _slots: Record<string, any> = {};
 		if (Object.keys(slotted).length > 0) {
 			// hydrating
 			if (sharedConfig.context) {
@@ -28,6 +28,7 @@ export default (element) =>
 		}
 
 		const { default: children, ...slots } = _slots;
+		const renderId = element.dataset.solidRenderId;
 
 		fn(
 			() =>
@@ -36,6 +37,9 @@ export default (element) =>
 					...slots,
 					children,
 				}),
-			element
+			element,
+			{
+				renderId
+			}
 		);
 	};
