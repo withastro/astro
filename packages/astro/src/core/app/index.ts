@@ -82,6 +82,11 @@ export class App {
 			}
 		}
 
+		// Use the 404 status code for 404.astro components
+		if(routeData.route === '/404') {
+			defaultStatus = 404;
+		}
+
 		let mod = this.#manifest.pageMap.get(routeData.component)!;
 
 		if (routeData.type === 'page') {
