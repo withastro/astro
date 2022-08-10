@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 import type { ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
@@ -10,7 +9,6 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import { prependForwardSlash } from '../../../core/path.js';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage, resolveIdToUrl } from '../../util.js';
