@@ -62,10 +62,10 @@ function getRehypePlugins(
 	let rehypePlugins = handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS);
 
 	if (config.markdown.syntaxHighlight === 'shiki' || config.markdown.syntaxHighlight === 'prism') {
-		rehypePlugins.push([rehypeRaw, { passThrough: nodeTypes }]);
+		rehypePlugins.unshift([rehypeRaw, { passThrough: nodeTypes }]);
 	}
 	// getHeadings() is guaranteed by TS, so we can't allow user to override
-	rehypePlugins.push(rehypeCollectHeadings);
+	rehypePlugins.unshift(rehypeCollectHeadings);
 
 	return rehypePlugins;
 }
