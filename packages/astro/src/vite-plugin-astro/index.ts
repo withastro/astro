@@ -362,7 +362,7 @@ ${source}
 			return handleHotUpdate.call(this, context, {
 				config,
 				logging,
-				compile
+				compile,
 			});
 		},
 	};
