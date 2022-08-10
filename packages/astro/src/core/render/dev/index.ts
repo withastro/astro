@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'url';
+import path from 'path';
 import type { ViteDevServer } from 'vite';
 import type {
 	AstroConfig,
@@ -12,7 +13,7 @@ import type {
 import { prependForwardSlash } from '../../../core/path.js';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { LogOptions } from '../../logger/core.js';
-import { isPage } from '../../util.js';
+import { isPage, resolveIdToUrl } from '../../util.js';
 import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
@@ -116,7 +117,7 @@ export async function render(
 		scripts.add({
 			props: {
 				type: 'module',
-				src: '/@id/astro/runtime/client/hmr.js',
+				src: await resolveIdToUrl(viteServer, 'astro/runtime/client/hmr.js'),
 			},
 			children: '',
 		});
@@ -186,7 +187,7 @@ export async function render(
 			if (s.startsWith('/@fs')) {
 				return resolveClientDevPath(s);
 			}
-			return '/@id' + prependForwardSlash(s);
+			return await resolveIdToUrl(viteServer, s);
 		},
 		renderers,
 		request,
