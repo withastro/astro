@@ -456,7 +456,18 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   Astro supports streaming in its templates. Any time Astro encounters an async boundary it will stream out HTML that occurs before it. For example:
 
   ```astro
+  ---
+  import LoadTodos from '../components/LoadTodos.astro';
+  ---
 
+  <html>
+    <head>
+      <title>App</title>
+    </head>
+    <body>
+      <LoadTodos />
+    </body>
+  </html>
   ```
 
   In this arbtrary example Astro will streaming out the `<head>` section and everything else until it encounters `<LoadTodos />` and then stop. LoadTodos, which is also an Astro component will stream its contents as well; stopping and waiting at any other asynchronous components.
@@ -464,7 +475,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
   As part of this Astro also now supports async iterables within its templates. This means you can do this:
 
   ```astro
-
+  <ul>
+    {(async function* () {
+      for (const number of numbers) {
+        await wait(1000);
+        yield <li>Number: {number}</li>;
+        yield '\n';
+      }
+    })()}
+  </ul>
   ```
 
   Which will stream out `<li>`s one at a time, waiting a second between each.
@@ -1687,18 +1706,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```typescript
   export async function getStaticPaths() {
-      return [
-          { params: { slug: 'thing1' }},
-          { params: { slug: 'thing2' }}
-      ]
+    return [{ params: { slug: 'thing1' } }, { params: { slug: 'thing2' } }];
   }
 
   export async function get(params) {
-      const { slug } = params
+    const { slug } = params;
 
-      return {
-          body: // ...JSON.stringify()
-      }
+    return {
+      // body: JSON.stringify(...)
+    };
   }
   ```
 
@@ -1725,7 +1741,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
     const app = await loadApp(new URL('./dist/server/', import.meta.url));
 
-    createServer((req, res) => {
+    createServer(async (req, res) => {
       const route = app.match(req);
       if (route) {
         let html = await app.render(req, route);
@@ -1854,18 +1870,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```typescript
   export async function getStaticPaths() {
-      return [
-          { params: { slug: 'thing1' }},
-          { params: { slug: 'thing2' }}
-      ]
+    return [{ params: { slug: 'thing1' } }, { params: { slug: 'thing2' } }];
   }
 
   export async function get(params) {
-      const { slug } = params
+    const { slug } = params;
 
-      return {
-          body: // ...JSON.stringify()
-      }
+    return {
+      // body: JSON.stringify(...)
+    };
   }
   ```
 
@@ -1884,7 +1897,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
     const app = await loadApp(new URL('./dist/server/', import.meta.url));
 
-    createServer((req, res) => {
+    createServer(async (req, res) => {
       const route = app.match(req);
       if (route) {
         let html = await app.render(req, route);
@@ -2605,7 +2618,9 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
 
   ```astro
-
+  <script hoist>
+    // Anything goes here!
+  </script>
   ```
 
 - Updated dependencies [5d2ea578]
@@ -2706,22 +2721,21 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   An example usage:
 
-  ```jsx
+  ```astro
   ---
   import BarChart from '../components/BarChart.jsx';
   ---
 
   <BarChart client:only />
-  /**
-   * If multiple renderers are included in the Astro config,
-   * this will ensure that the component is hydrated with
-   * the Preact renderer.
-   */
+
+  <!--
+    If multiple renderers are included in the Astro config, this will ensure that the component is hydrated with * the Preact renderer.
+  -->
   <BarChart client:only="preact" />
-  /**
-   * If a custom renderer is required, use the same name
-   * provided in the Astro config.
-   */
+
+  <!--
+    If a custom renderer is required, use the same name provided in the Astro config.
+  -->
   <BarChart client:only="my-custom-renderer" />
   ```
 
@@ -2745,22 +2759,16 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   An example usage:
 
-  ```jsx
+  ```astro
   ---
   import BarChart from '../components/BarChart.jsx';
   ---
 
   <BarChart client:only />
-  /**
-   * If multiple renderers are included in the Astro config,
-   * this will ensure that the component is hydrated with
-   * the Preact renderer.
-   */
+  /** * If multiple renderers are included in the Astro config, * this will ensure that the
+  component is hydrated with * the Preact renderer. */
   <BarChart client:only="preact" />
-  /**
-   * If a custom renderer is required, use the same name
-   * provided in the Astro config.
-   */
+  /** * If a custom renderer is required, use the same name * provided in the Astro config. */
   <BarChart client:only="my-custom-renderer" />
   ```
 
@@ -2908,7 +2916,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
-  ```jsx
+  ```astro
   ---
   import Sidebar from '../components/Sidebar.jsx';
   ---
@@ -2930,10 +2938,13 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   **index.astro**
 
-  ```jsx
+  ```astro
+  ---
   import Sidebar from '../components/Sidebar.jsx';
   import { MOBILE } from '../media.js';
-  ---(<Sidebar client:media={MOBILE} />);
+  ---
+
+  <Sidebar client:media={MOBILE} />;
   ```
 
 ### Patch Changes
@@ -3057,7 +3068,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
-  ```jsx
+  ```astro
   ---
   import Sidebar from '../components/Sidebar.jsx';
   ---
@@ -3079,10 +3090,13 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   **index.astro**
 
-  ```jsx
+  ```astro
+  ---
   import Sidebar from '../components/Sidebar.jsx';
   import { MOBILE } from '../media.js';
-  ---(<Sidebar client:media={MOBILE} />);
+  ---
+
+  <Sidebar client:media={MOBILE} />
   ```
 
 ### Patch Changes
@@ -3250,7 +3264,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   Astro frontmatter scripts are TypeScript! Because of this, we can leverage TypeScript types to define the shape of your props.
 
-  ```ts
+  ```astro
   ---
   export interface Props {
     text?: string;
@@ -3265,7 +3279,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   One of the great things about this change is that it's straight-forward to access _any_ props. Just use `...props`!
 
-  ```ts
+  ```astro
   ---
   export interface Props {
     text?: string;
@@ -3279,11 +3293,12 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   We considered building prop validation into Astro, but decided to leave that implementation up to you! This way, you can use any set of tools you like.
 
-  ```ts
+  ```astro
   ---
   const { text = 'Hello world!' } = Astro.props;
 
-  if (typeof text !== 'string') throw new Error(`Expected "text" to be of type "string" but recieved "${typeof string}"!`);
+  if (typeof text !== 'string')
+    throw new Error(`Expected "text" to be of type "string" but recieved "${typeof string}"!`);
   ---
   ```
 
