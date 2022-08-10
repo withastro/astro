@@ -83,7 +83,7 @@ export class App {
 		}
 
 		// Use the 404 status code for 404.astro components
-		if(routeData.route === '/404') {
+		if (routeData.route === '/404') {
 			defaultStatus = 404;
 		}
 

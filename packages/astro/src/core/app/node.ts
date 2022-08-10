@@ -44,10 +44,16 @@ export class NodeApp extends App {
 			});
 
 			return reqBodyComplete.then(() => {
-				return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req, body), routeData);
+				return super.render(
+					req instanceof Request ? req : createRequestFromNodeRequest(req, body),
+					routeData
+				);
 			});
 		}
-		return super.render(req instanceof Request ? req : createRequestFromNodeRequest(req), routeData);
+		return super.render(
+			req instanceof Request ? req : createRequestFromNodeRequest(req),
+			routeData
+		);
 	}
 }
 
