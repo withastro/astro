@@ -19,6 +19,42 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 		const exportNodes = [
 			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
 		];
+		if (frontmatter.layout) {
+			exportNodes.unshift(
+				jsToTreeNode(
+					/** @see 'vite-plugin-markdown' for layout props reference */
+					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
+				import Layout from ${JSON.stringify(frontmatter.layout)};
+				
+				export default function ({ children }) {
+					const { layout, ...content } = frontmatter;
+					content.astro = {};
+					Object.defineProperty(content.astro, 'headings', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
+						}
+					});
+					Object.defineProperty(content.astro, 'html', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
+						}
+					});
+					Object.defineProperty(content.astro, 'source', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
+						}
+					});
+					return layoutJsx(Layout, {
+						content,
+						frontmatter: content,
+						headings: getHeadings(),
+						'server:root': true,
+						children,
+					});
+				};`
+				)
+			);
+		}
 		tree.children = exportNodes.concat(tree.children);
 	};
 }
