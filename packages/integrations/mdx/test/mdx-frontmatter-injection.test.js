@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-frontmatter-injection/', import.meta.url);
@@ -40,5 +41,16 @@ describe('MDX frontmatter injection', () => {
 		const titles = frontmatterByPage.map((frontmatter = {}) => frontmatter.title);
 		expect(titles).to.contain('Overridden title');
 		expect(readingTimes).to.contain('1000 min read');
+	});
+
+	it('passes injected frontmatter to layouts', async () => {
+		const html1 = await fixture.readFile('/page-1/index.html');
+		const html2 = await fixture.readFile('/page-2/index.html');
+
+		const title1 = parseHTML(html1).document.querySelector('title');
+		const title2 = parseHTML(html2).document.querySelector('title');
+
+		expect(title1.innerHTML).to.equal('Page 1');
+		expect(title2.innerHTML).to.equal('Page 2');
 	});
 });
