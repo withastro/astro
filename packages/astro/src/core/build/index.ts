@@ -5,7 +5,6 @@ import type { LogOptions } from '../logger/core';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import * as vite from 'vite';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
@@ -18,7 +17,6 @@ import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createRouteManifest } from '../routing/index.js';
-import { createSafeError } from '../util.js';
 import { collectPagesData } from './page-data.js';
 import { staticBuild } from './static-build.js';
 import { getTimeStat } from './util.js';
@@ -64,7 +62,6 @@ class AstroBuilder {
 		debug('build', 'Initial setup...');
 		const { logging } = this;
 		this.timer.init = performance.now();
-		this.timer.viteStart = performance.now();
 		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
 		this.manifest = createRouteManifest({ config: this.config }, this.logging);
 
@@ -80,20 +77,11 @@ class AstroBuilder {
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		await runHookConfigDone({ config: this.config });
-		const viteServer = await vite.createServer(viteConfig);
-		debug('build', timerMessage('Vite started', this.timer.viteStart));
-		return { viteConfig, viteServer };
+		return { viteConfig };
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
-	private async build({
-		viteConfig,
-		viteServer,
-	}: {
-		viteConfig: ViteConfigWithSSR;
-		viteServer: vite.ViteDevServer;
-	}) {
-		const { origin } = this;
+	private async build({ viteConfig }: { viteConfig: ViteConfigWithSSR }) {
 		const buildConfig: BuildConfig = {
 			client: new URL('./client/', this.config.outDir),
 			server: new URL('./server/', this.config.outDir),
@@ -111,10 +99,6 @@ class AstroBuilder {
 			astroConfig: this.config,
 			logging: this.logging,
 			manifest: this.manifest,
-			origin,
-			routeCache: this.routeCache,
-			viteServer,
-			ssr: this.config.output === 'server',
 		});
 
 		debug('build', timerMessage('All pages loaded', this.timer.loadStart));
@@ -131,24 +115,18 @@ class AstroBuilder {
 			colors.dim(`Completed in ${getTimeStat(this.timer.init, performance.now())}.`)
 		);
 
-		try {
-			await staticBuild({
-				allPages,
-				astroConfig: this.config,
-				logging: this.logging,
-				manifest: this.manifest,
-				mode: this.mode,
-				origin: this.origin,
-				pageNames,
-				routeCache: this.routeCache,
-				viteConfig,
-				buildConfig,
-			});
-		} catch (err: unknown) {
-			// If the build doesn't complete, still shutdown the Vite server so the process doesn't hang.
-			await viteServer.close();
-			throw err;
-		}
+		await staticBuild({
+			allPages,
+			astroConfig: this.config,
+			logging: this.logging,
+			manifest: this.manifest,
+			mode: this.mode,
+			origin: this.origin,
+			pageNames,
+			routeCache: this.routeCache,
+			viteConfig,
+			buildConfig,
+		});
 
 		// Write any additionally generated assets to disk.
 		this.timer.assetsStart = performance.now();
@@ -162,7 +140,6 @@ class AstroBuilder {
 		debug('build', timerMessage('Additional assets copied', this.timer.assetsStart));
 
 		// You're done! Time to clean up.
-		await viteServer.close();
 		await runHookBuildDone({
 			config: this.config,
 			buildConfig,
@@ -186,7 +163,7 @@ class AstroBuilder {
 		try {
 			await this.build(setupData);
 		} catch (_err) {
-			throw fixViteErrorMessage(createSafeError(_err), setupData.viteServer);
+			throw fixViteErrorMessage(_err);
 		}
 	}
 
