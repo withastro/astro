@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@astrojs/tailwind": "^1.0.0",
-    "astro": "^1.0.0",
+    "astro": "^1.0.1",
     "autoprefixer": "^10.4.7",
     "canvas-confetti": "^1.5.1",
     "postcss": "^8.4.14",
