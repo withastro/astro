@@ -359,7 +359,12 @@ ${source}
 				pluginContext: this,
 			};
 			const compile = () => cachedCompilation(compileProps);
-			return handleHotUpdate.call(this, context, { config, logging, compile });
+			return handleHotUpdate.call(this, context, {
+				config,
+				logging,
+				compile,
+				viteServer: context.server
+			});
 		},
 	};
 }
