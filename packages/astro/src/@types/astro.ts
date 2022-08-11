@@ -871,12 +871,8 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	compiledContent: MarkdownInstance<T>['compiledContent'];
 }
 
-export interface MDXLayoutProps<T extends Record<string, any>> {
-	frontmatter: { file: string; url: string | undefined } & T;
-	file: MDXInstance<T>['file'];
-	url: MDXInstance<T>['url'];
-	headings: MarkdownHeading[];
-}
+export interface MDXLayoutProps<T>
+	extends Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'> {}
 
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
