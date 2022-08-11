@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 1.0.2
+
+### Patch Changes
+
+- [#4267](https://github.com/withastro/astro/pull/4267) [`5b1facfe2`](https://github.com/withastro/astro/commit/5b1facfe291b998c0c6814293b18df211a8f3cd3) Thanks [@bluwy](https://github.com/bluwy)! - README: Clarify `compat` docs
+
 ## 1.0.1
 
 ### Patch Changes

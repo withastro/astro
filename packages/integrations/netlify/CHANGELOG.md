@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4274](https://github.com/withastro/astro/pull/4274) [`d3d09a2c9`](https://github.com/withastro/astro/commit/d3d09a2c9f1af4dc467783c8bf4a71800924d129) Thanks [@matthewp](https://github.com/matthewp)! - Adds 404 routing logic to Netlify redirects file
+
 ## 1.0.0
 
 ### Major Changes
@@ -47,7 +53,7 @@
   The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
 
   ```astro
-  <div>Your address {Astro.clientAddress}</div>
+
   ```
 
   This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.

@@ -1,5 +1,16 @@
 # @astrojs/mdx
 
+## 0.8.3
+
+### Patch Changes
+
+- [#4248](https://github.com/withastro/astro/pull/4248) [`869d00935`](https://github.com/withastro/astro/commit/869d0093596b709cfcc1a1a95ee631b48d6d1c26) Thanks [@svemat01](https://github.com/svemat01)! - Load builtin rehype plugins before user plugins instead of after
+
+* [#4255](https://github.com/withastro/astro/pull/4255) [`411612808`](https://github.com/withastro/astro/commit/4116128082121ee276d51cb245bf8095be4728a1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Pass injected frontmatter from remark and rehype plugins to layouts
+
+* Updated dependencies [[`1f0dd31d9`](https://github.com/withastro/astro/commit/1f0dd31d9239b5e3dca99c88d021e7a9a3e2054d)]:
+  - @astrojs/prism@1.0.1
+
 ## 0.8.2
 
 ### Patch Changes
