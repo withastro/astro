@@ -245,7 +245,7 @@ interface GeneratePathOptions {
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
+	opts.pageNames.push(pathname.replace(/^\//, ''));
 }
 
 async function generatePath(

@@ -28,7 +28,11 @@ export function getRouteGenerator(
 		})
 		.join('');
 
-	const trailing = addTrailingSlash !== 'never' && segments.length ? '/' : '';
+	// Unless trailingSlash config is set to 'always', don't automatically append it.
+	let trailing: '/' | '' = '';
+	if(addTrailingSlash === 'always' && segments.length) {
+		trailing = '/';
+	}
 	const toPath = compile(template + trailing);
 	return toPath;
 }
