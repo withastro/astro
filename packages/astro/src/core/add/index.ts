@@ -291,7 +291,7 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 
 const toIdent = (name: string) => {
 	if (name.includes('-')) {
-		return name.split('-')[0];
+		return name.replace(/^astro-/, '').split('-')[0];
 	}
 	return name;
 };
