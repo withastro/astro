@@ -5,7 +5,7 @@ import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { ErrorPayload, ViteDevServer } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 // process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
@@ -33,7 +33,11 @@ const STATUS_CODE_REGEXP = /^\/?[0-9]{3}$/;
  * Handles both "/foo" and "foo" `name` formats.
  * Handles `/404` and `/` correctly.
  */
-export function getOutputFilename(astroConfig: AstroConfig, name: string) {
+export function getOutputFilename(astroConfig: AstroConfig, name: string, type: RouteType) {
+	if (type === 'endpoint') {
+		return name;
+	}
+
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
