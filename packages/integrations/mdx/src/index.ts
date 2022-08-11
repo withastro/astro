@@ -98,16 +98,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								async transform(code, id) {
 									if (!id.endsWith('mdx')) return;
 
-									let { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
-									if (frontmatter.layout) {
-										const { layout, ...contentProp } = frontmatter;
-										pageContent += `\n\nexport default async function({ children }) {\nconst Layout = (await import(${JSON.stringify(
-											frontmatter.layout
-										)})).default;\nconst frontmatter=${JSON.stringify(
-											contentProp
-										)};\nreturn <Layout frontmatter={frontmatter} content={frontmatter} headings={getHeadings()}>{children}</Layout> }`;
-									}
-
+									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
 										...mdxPluginOpts,
 										rehypePlugins: [
