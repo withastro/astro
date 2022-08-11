@@ -28,6 +28,8 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 				
 				export default function ({ children }) {
 					const { layout, ...content } = frontmatter;
+					content.file = file;
+					content.url = url;
 					content.astro = {};
 					Object.defineProperty(content.astro, 'headings', {
 						get() {
