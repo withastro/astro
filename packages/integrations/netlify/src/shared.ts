@@ -17,7 +17,7 @@ export async function createRedirects(
 			_redirects += `
   ${route.pathname}    /.netlify/${kind}/${entryFile}    200`;
 
-			if(route.route === '/404') {
+			if (route.route === '/404') {
 				_redirects += `
   /*    /.netlify/${kind}/${entryFile}    404`;
 			}

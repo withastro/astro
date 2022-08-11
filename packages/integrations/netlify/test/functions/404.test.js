@@ -21,7 +21,7 @@ describe('404 page', () => {
 
 	it('404 route is included in the redirect file', async () => {
 		const redir = await fixture.readFile('/_redirects');
-		const expr = new RegExp("/*    /.netlify/functions/entry    404");
+		const expr = new RegExp('/*    /.netlify/functions/entry    404');
 		expect(redir).to.match(expr);
 	});
 });
