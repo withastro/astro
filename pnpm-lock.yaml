@@ -62,12 +62,14 @@ importers:
 
   examples/blog:
     specifiers:
+      '@astrojs/mdx': ^0.8.2
       '@astrojs/preact': ^1.0.1
       astro: ^1.0.2
       preact: ^10.7.3
     dependencies:
       preact: 10.10.2
     devDependencies:
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
 

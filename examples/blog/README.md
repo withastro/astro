@@ -38,8 +38,8 @@ Inside of your Astro project, you'll see the following folders and files:
 │   ├── pages
 │   │   ├── index.astro
 │   │   └── posts
-│   │       ├── interactive-content.md
-│   │       └── static-content.md
+│   │       ├── interactive-content.mdx
+│   │       └── static-content.mdx
 │   └── styles
 │       └── blog.css
 ├── astro.config.mjs
@@ -48,7 +48,7 @@ Inside of your Astro project, you'll see the following folders and files:
 └── tsconfig.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Astro looks for `.astro` or `.mdx` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
 There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
 
