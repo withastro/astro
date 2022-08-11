@@ -143,6 +143,9 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											COMPILED_CONTENT_ERROR
 										)}) };`;
 									}
+									if (!moduleExports.includes('Content')) {
+										code += `\nexport const Content = MDXContent;`;
+									}
 
 									if (command === 'dev') {
 										// TODO: decline HMR updates until we have a stable approach
