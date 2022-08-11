@@ -25,7 +25,7 @@ let observer: IntersectionObserver;
 function observe(link: HTMLAnchorElement) {
 	preloaded.add(link.href);
 	observer.observe(link);
-	events.map((event) => link.addEventListener(event, onLinkEvent, { passive:true, once: true }));
+	events.map((event) => link.addEventListener(event, onLinkEvent, { passive: true, once: true }));
 }
 
 function unobserve(link: HTMLAnchorElement) {
