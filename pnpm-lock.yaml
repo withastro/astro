@@ -392,6 +392,7 @@ importers:
       '@babel/plugin-transform-react-jsx': ^7.17.12
       '@babel/traverse': ^7.18.2
       '@babel/types': ^7.18.4
+      '@natemoore/markdown-wasm': ^1.2.1
       '@playwright/test': ^1.22.2
       '@proload/core': ^0.3.2
       '@proload/plugin-tsm': ^0.2.1
@@ -475,6 +476,7 @@ importers:
       '@babel/plugin-transform-react-jsx': 7.18.10_@babel+core@7.18.10
       '@babel/traverse': 7.18.11
       '@babel/types': 7.18.10
+      '@natemoore/markdown-wasm': 1.2.1
       '@proload/core': 0.3.2
       '@proload/plugin-tsm': 0.2.1_@proload+core@0.3.2
       ast-types: 0.14.2
@@ -5349,6 +5351,10 @@ packages:
     dependencies:
       nanostores: 0.5.13
       preact: 10.10.2
+    dev: false
+
+  /@natemoore/markdown-wasm/1.2.1:
+    resolution: {integrity: sha512-LZcx7pKZi2pp1iTiWneCa8zDeSm57VKXlVJ/VLnYWKMSqsof48LhuMN5vt2uM6YLn0EHLiljlfT6Nbt6+3cgtQ==}
     dev: false
 
   /@netlify/edge-handler-types/0.34.1:

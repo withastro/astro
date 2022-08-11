@@ -97,6 +97,7 @@
     "@babel/plugin-transform-react-jsx": "^7.17.12",
     "@babel/traverse": "^7.18.2",
     "@babel/types": "^7.18.4",
+    "@natemoore/markdown-wasm": "^1.2.1",
     "@proload/core": "^0.3.2",
     "@proload/plugin-tsm": "^0.2.1",
     "ast-types": "^0.14.2",

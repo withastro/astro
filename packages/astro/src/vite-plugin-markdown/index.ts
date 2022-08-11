@@ -1,4 +1,6 @@
-import { renderMarkdown } from '@astrojs/markdown-remark';
+// import { renderMarkdown } from '@astrojs/markdown-remark';
+// @ts-ignore
+import * as md from '@natemoore/markdown-wasm/dist/markdown.node.js';
 import fs from 'fs';
 import matter from 'gray-matter';
 import type { Plugin } from 'vite';
@@ -22,7 +24,7 @@ function safeMatter(source: string, id: string) {
 		throw collectErrorMetadata(e);
 	}
 }
-
+await md.ready;
 export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
@@ -36,17 +38,19 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const { fileId, fileUrl } = getFileInfo(id, config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
-				const renderResult = await renderMarkdown(raw.content, {
-					...config.markdown,
-					fileURL: new URL(`file://${fileId}`),
-					isAstroFlavoredMd: false,
-				} as any);
+				const html = await md.parse(raw.content);
+				// console.log({ result });
+				// const renderResult = await renderMarkdown(raw.content, {
+				// 	...config.markdown,
+				// 	fileURL: new URL(`file://${fileId}`),
+				// 	isAstroFlavoredMd: false,
+				// } as any);
 
-				const html = renderResult.code;
-				const { headings } = renderResult.metadata;
-				const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
+				// const html = renderResult.code;
+				// const { headings } = renderResult.metadata;
+				// const { frontmatter: injectedFrontmatter } = safelyGetAstroData(renderResult.vfile.data);
 				const frontmatter = {
-					...injectedFrontmatter,
+					...{},
 					...raw.data,
 					url: fileUrl,
 					file: fileId,
@@ -78,7 +82,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 					return html;
 				}
 				export function getHeadings() {
-					return ${JSON.stringify(headings)};
+					return ${JSON.stringify([])};
 				}
 				export function getHeaders() {
 					console.warn('getHeaders() have been deprecated. Use getHeadings() function instead.');
