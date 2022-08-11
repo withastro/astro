@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.4
+
+### Patch Changes
+
+- [#4279](https://github.com/withastro/astro/pull/4279) [`42fd6936c`](https://github.com/withastro/astro/commit/42fd6936cdb7106aea3770bed5313e558fc8b6dc) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add better warnings if the integration was not properly configured.
+
 ## 0.3.3
 
 ### Patch Changes
