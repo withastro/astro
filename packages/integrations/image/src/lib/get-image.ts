@@ -107,7 +107,9 @@ export async function getImage(
 
 	if (!loader) {
 		// @ts-ignore
-		const { default: mod } = await import('virtual:image-loader');
+		const { default: mod } = await import('virtual:image-loader').catch(() => {
+			throw new Error('[@astrojs/image] Builtin image loader not found. (Did you remember to add the integration to your Astro config?)');
+		});
 		loader = mod as ImageService;
 		globalThis.astroImage = globalThis.astroImage || {};
 		globalThis.astroImage.loader = loader;
