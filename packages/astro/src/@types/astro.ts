@@ -862,6 +862,22 @@ export interface MDXInstance<T> extends MarkdownInstance<T> {
 	compiledContent: never;
 }
 
+export interface MarkdownLayoutProps<T extends Record<string, any>> {
+	frontmatter: { file: string; url: string | undefined } & T;
+	file: MarkdownInstance<T>['file'];
+	url: MarkdownInstance<T>['url'];
+	headings: MarkdownHeading[];
+	rawContent: MarkdownInstance<T>['rawContent'];
+	compiledContent: MarkdownInstance<T>['compiledContent'];
+}
+
+export interface MDXLayoutProps<T extends Record<string, any>> {
+	frontmatter: { file: string; url: string | undefined } & T;
+	file: MDXInstance<T>['file'];
+	url: MDXInstance<T>['url'];
+	headings: MarkdownHeading[];
+}
+
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
