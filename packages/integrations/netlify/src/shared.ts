@@ -16,6 +16,11 @@ export async function createRedirects(
 		if (route.pathname) {
 			_redirects += `
   ${route.pathname}    /.netlify/${kind}/${entryFile}    200`;
+
+			if(route.route === '/404') {
+				_redirects += `
+  /*    /.netlify/${kind}/${entryFile}    404`;
+			}
 		} else {
 			const pattern =
 				'/' + route.segments.map(([part]) => (part.dynamic ? '*' : part.content)).join('/');
