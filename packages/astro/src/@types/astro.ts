@@ -241,7 +241,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
@@ -848,16 +848,18 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	/** raw Markdown file content, excluding frontmatter */
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
-	compiledContent(): Promise<string>;
-	getHeadings(): Promise<MarkdownHeading[]>;
+	compiledContent(): string;
+	getHeadings(): MarkdownHeading[];
 	/** @deprecated Renamed to `getHeadings()` */
 	getHeaders(): void;
-	default: () => Promise<{
-		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent<T>;
-		$$metadata: Metadata;
-		default: AstroComponentFactory;
-	}>;
+	default: AstroComponentFactory;
+}
+
+export interface MDXInstance<T> extends MarkdownInstance<T> {
+	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
+	rawContent: never;
+	/** MDX does not support compiledContent! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
+	compiledContent: never;
 }
 
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
