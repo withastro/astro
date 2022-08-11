@@ -2288,6 +2288,16 @@ importers:
       reading-time: 1.5.0
       unist-util-visit: 4.1.0
 
+  packages/integrations/mdx/test/fixtures/mdx-namespace:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-page:
     specifiers:
       '@astrojs/mdx': workspace:*
