@@ -311,7 +311,7 @@ async function generatePath(
 		scripts,
 		renderers,
 		async resolve(specifier: string) {
-			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
+			const hashedFilePath = internals.entrySpecifierToBundleMap.get(decodeURI(specifier));
 			if (typeof hashedFilePath !== 'string') {
 				// If no "astro:scripts/before-hydration.js" script exists in the build,
 				// then we can assume that no before-hydration scripts are needed.

@@ -83,7 +83,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				for (const c of astro.hydratedComponents) {
 					const rid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
-					internals.discoveredHydratedComponents.add(rid);
+					internals.discoveredHydratedComponents.add(decodeURI(rid));
 				}
 
 				// Scan hoisted scripts
