@@ -68,7 +68,7 @@ describe('Special chars in component import paths', () => {
 
 	});
 
-	// if (isWindows) return;
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;
