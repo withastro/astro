@@ -107,7 +107,9 @@ export async function getImage(
 
 	if (!loader) {
 		// @ts-ignore
-		const { default: mod } = await import('virtual:image-loader');
+		const { default: mod } = await import('virtual:image-loader').catch((error) => {
+      console.error(error);
+    });
 		loader = mod as ImageService;
 		globalThis.astroImage = globalThis.astroImage || {};
 		globalThis.astroImage.loader = loader;
