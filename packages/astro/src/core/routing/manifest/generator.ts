@@ -33,6 +33,7 @@ export function getRouteGenerator(
 	if(addTrailingSlash === 'always' && segments.length) {
 		trailing = '/';
 	}
+	trailing = addTrailingSlash !== 'never' && segments.length ? '/' : '';
 	const toPath = compile(template + trailing);
 	return toPath;
 }
