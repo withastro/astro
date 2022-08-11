@@ -22,9 +22,7 @@ Inside of your Astro project, you'll see the following folders and files:
 │   ├── assets
 │   │   └── blog
 │   │       └── introducing-astro.jpg
-│   ├── favicon.ico
-│   ├── social.jpg
-│   └── social.png
+│   └── favicon.ico
 ├── src
 │   ├── components
 │   │   ├── Author.astro
