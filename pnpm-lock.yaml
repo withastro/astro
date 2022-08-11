@@ -712,6 +712,17 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/namespaced-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      preact: ^10.7.3
+    dependencies:
+      preact: 10.10.2
+    devDependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/nested-in-preact:
     specifiers:
       '@astrojs/preact': workspace:*
