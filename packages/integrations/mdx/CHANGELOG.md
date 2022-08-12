@@ -1,5 +1,18 @@
 # @astrojs/mdx
 
+## 0.9.0
+
+### Minor Changes
+
+- [#4268](https://github.com/withastro/astro/pull/4268) [`f7afdb889`](https://github.com/withastro/astro/commit/f7afdb889fe4e97177958c8ec92f80c5f6e5cb51) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Align MD with MDX on layout props and "glob" import results:
+  - Add `Content` to MDX
+  - Add `file` and `url` to MDX frontmatter (layout import only)
+  - Update glob types to reflect differences (lack of `rawContent` and `compiledContent`)
+
+### Patch Changes
+
+- [#4272](https://github.com/withastro/astro/pull/4272) [`24d2f7a6e`](https://github.com/withastro/astro/commit/24d2f7a6e6700c10c863f826f37bb653d70e3a83) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle hydration for namespaced components
+
 ## 0.8.3
 
 ### Patch Changes
