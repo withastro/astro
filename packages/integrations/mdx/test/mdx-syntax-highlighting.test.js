@@ -21,8 +21,9 @@ describe('MDX syntax highlighting', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const shikiCodeBlock = document.querySelector('pre.shiki');
+			const shikiCodeBlock = document.querySelector('pre.astro-code');
 			expect(shikiCodeBlock).to.not.be.null;
+			expect(shikiCodeBlock.getAttribute('style')).to.contain('background-color:#0d1117');
 		});
 
 		it('respects markdown.shikiConfig.theme', async () => {
@@ -41,8 +42,9 @@ describe('MDX syntax highlighting', () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
-			const shikiCodeBlock = document.querySelector('pre.shiki.dracula');
+			const shikiCodeBlock = document.querySelector('pre.astro-code');
 			expect(shikiCodeBlock).to.not.be.null;
+			expect(shikiCodeBlock.getAttribute('style')).to.contain('background-color:#282A36');
 		});
 	});
 
