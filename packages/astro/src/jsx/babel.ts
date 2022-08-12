@@ -180,7 +180,11 @@ export default function astroJSX(): PluginObj {
 			JSXMemberExpression(path, state) {
 				const node = path.node;
 				// Skip automatic `_components` in MDX files
-				if (state.filename?.endsWith('.mdx') && t.isJSXIdentifier(node.object) && node.object.name === '_components') {
+				if (
+					state.filename?.endsWith('.mdx') &&
+					t.isJSXIdentifier(node.object) &&
+					node.object.name === '_components'
+				) {
 					return;
 				}
 				const parent = path.findParent((n) => t.isJSXElement(n))!;
@@ -190,7 +194,7 @@ export default function astroJSX(): PluginObj {
 				if (!hasClientDirective(parentNode)) return;
 				const isClientOnly = isClientOnlyComponent(parentNode);
 				if (tagName === ClientOnlyPlaceholder) return;
-				
+
 				const imports = state.get('imports') ?? new Map();
 				const namespace = tagName.split('.');
 				for (const [source, specs] of imports) {

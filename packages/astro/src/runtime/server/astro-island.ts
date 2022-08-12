@@ -71,7 +71,7 @@ declare const Astro: {
 							} else {
 								this.Component = componentModule;
 								for (const part of componentExport.split('.')) {
-									this.Component = this.Component[part]
+									this.Component = this.Component[part];
 								}
 							}
 							this.hydrator = hydrator;

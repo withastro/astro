@@ -24,7 +24,7 @@ describe('MDX Namespace', () => {
 			const component = document.querySelector('#component');
 
 			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world')
+			expect(component.textContent).equal('Hello world');
 		});
 
 		it('works for star', async () => {
@@ -35,7 +35,7 @@ describe('MDX Namespace', () => {
 			const component = document.querySelector('#component');
 
 			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world')
+			expect(component.textContent).equal('Hello world');
 		});
 	});
 
@@ -62,7 +62,7 @@ describe('MDX Namespace', () => {
 			const component = document.querySelector('#component');
 
 			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world')
+			expect(component.textContent).equal('Hello world');
 		});
 
 		it('works for star', async () => {
@@ -77,7 +77,7 @@ describe('MDX Namespace', () => {
 			const component = document.querySelector('#component');
 
 			expect(island).not.undefined;
-			expect(component.textContent).equal('Hello world')
+			expect(component.textContent).equal('Hello world');
 		});
 	});
 });
