@@ -848,11 +848,16 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	/** raw Markdown file content, excluding frontmatter */
 	rawContent(): string;
 	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
-	compiledContent(): string;
-	getHeadings(): MarkdownHeading[];
+	compiledContent(): Promise<string>;
+	getHeadings(): Promise<MarkdownHeading[]>;
 	/** @deprecated Renamed to `getHeadings()` */
 	getHeaders(): void;
-	default: AstroComponentFactory;
+	default: () => Promise<{
+		metadata: MarkdownMetadata;
+		frontmatter: MarkdownContent<T>;
+		$$metadata: Metadata;
+		default: AstroComponentFactory;
+	}>;
 }
 
 export interface MDXInstance<T> extends MarkdownInstance<T> {
