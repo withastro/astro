@@ -135,3 +135,71 @@ export function renderElement(
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
+
+// This eagering consumes an AsyncIterable so that its values are ready to yield out
+// ASAP. This is used for list-like usage of Astro components, so that we don't have
+// to wait on earlier components to run to even start running those down in the list.
+export class EagerAsyncIterableIterator {
+	#iterable: AsyncIterable<any>;
+	#queue = new Queue<IteratorResult<any, any>>();
+	#next: Promise<IteratorResult<any, any>> | undefined;
+	constructor(iterable: AsyncIterable<any>) {
+		this.#iterable = iterable;
+		this.#run();
+	}
+
+	async #run() {
+		let gen = this.#iterable[Symbol.asyncIterator]();
+		let value: IteratorResult<any, any>;
+		do {
+			this.#next = gen.next();
+			value = await this.#next;
+			this.#queue.push(value);
+		} while (!value.done);
+	}
+
+	async next() {
+		if (!this.#queue.isEmpty()) {
+			return this.#queue.shift()!;
+		}
+		await this.#next;
+		return this.#queue.shift()!;
+	}
+
+	[Symbol.asyncIterator]() {
+		return this;
+	}
+}
+
+interface QueueItem<T> {
+	item: T;
+	next?: QueueItem<T>;
+}
+
+/**
+ * Basis Queue implementation with a linked list
+ */
+class Queue<T> {
+	head: QueueItem<T> | undefined = undefined;
+	tail: QueueItem<T> | undefined = undefined;
+
+	push(item: T) {
+		if (this.head === undefined) {
+			this.head = { item };
+			this.tail = this.head;
+		} else {
+			this.tail!.next = { item };
+			this.tail = this.tail!.next;
+		}
+	}
+
+	isEmpty() {
+		return this.head === undefined;
+	}
+
+	shift(): T | undefined {
+		const val = this.head?.item;
+		this.head = this.head?.next;
+		return val;
+	}
+}
