@@ -1,6 +1,6 @@
 /// <reference path="./client.d.ts" />
 
-type Astro = import('astro').AstroGlobal;
+type Astro = import('./dist/types/@types/astro').AstroGlobal;
 
 // We duplicate the description here because editors won't show the JSDoc comment from the imported type (but will for its properties, ex: Astro.request will show the AstroGlobal.request description)
 /**
@@ -13,7 +13,7 @@ declare const Astro: Readonly<Astro>;
 declare const Fragment: any;
 
 declare module '*.md' {
-	type MD = import('astro').MarkdownInstance<Record<string, any>>;
+	type MD = import('./dist/types/@types/astro').MarkdownInstance<Record<string, any>>;
 
 	export const frontmatter: MD['frontmatter'];
 	export const file: MD['file'];
