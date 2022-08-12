@@ -863,9 +863,10 @@ export interface MDXInstance<T> extends MarkdownInstance<T> {
 }
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
-	frontmatter: { file: string; url: string | undefined } & T;
-	file: MarkdownInstance<T>['file'];
-	url: MarkdownInstance<T>['url'];
+	frontmatter: {
+		file: MarkdownInstance<T>['file'];
+		url: MarkdownInstance<T>['url'];
+	} & T;
 	headings: MarkdownHeading[];
 	rawContent: MarkdownInstance<T>['rawContent'];
 	compiledContent: MarkdownInstance<T>['compiledContent'];
