@@ -3,17 +3,35 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+:root {
+	--canvas: #fff;
+	--surface: #f2f2f2;
+	--border: #999;
+	--text: #444;
+	--text-dark: #222;
+	--accent: #3273dc;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--canvas: #222;
+		--surface: #000;
+		--border: #999;
+		--text: #eee;
+		--text-dark: #fff;
+		--accent: #3985fe;
+	}
+}
 body {
-	font-family: Verdana, sans-serif;
+	font-family: system-ui, sans-serif;
 	margin: auto;
 	padding: 20px;
 	max-width: 65ch;
 	text-align: left;
-	background-color: #fff;
+	background-color: var(--canvas);
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	line-height: 1.5;
-	color: #444;
+	color: var(--text);
 }
 h1,
 h2,
@@ -23,10 +41,10 @@ h5,
 h6,
 strong,
 b {
-	color: #222;
+	color: var(--text-dark);
 }
 a {
-	color: #3273dc;
+	color: var(--accent);
 }
 nav a {
 	margin-right: 10px;
@@ -46,10 +64,11 @@ table {
 }
 img {
 	max-width: 100%;
+	height: auto;
 }
 code {
 	padding: 2px 5px;
-	background-color: #f2f2f2;
+	background-color: var(--surface);
 }
 pre {
 	padding: 1rem;
@@ -58,8 +77,8 @@ pre > code {
 	all: unset;
 }
 blockquote {
-	border: 1px solid #999;
-	color: #222;
+	border: 1px solid var(--border);
+	color: var(--text-dark);
 	padding: 2px 0px 2px 20px;
 	margin: 0px;
 	font-style: italic;
