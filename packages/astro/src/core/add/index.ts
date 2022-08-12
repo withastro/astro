@@ -396,6 +396,23 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 			const configObject = path.node.declaration.arguments[0];
 			if (!t.isObjectExpression(configObject)) return;
 
+			let outputProp = configObject.properties.find((prop) => {
+				if (prop.type !== 'ObjectProperty') return false;
+				if (prop.key.type === 'Identifier') {
+					if (prop.key.name === 'output') return true;
+				}
+				if (prop.key.type === 'StringLiteral') {
+					if (prop.key.value === 'output') return true;
+				}
+				return false;
+			}) as t.ObjectProperty | undefined;
+
+			if (!outputProp) {
+				configObject.properties.push(
+					t.objectProperty(t.identifier('output'), t.stringLiteral('server'))
+				);
+			}
+
 			let adapterProp = configObject.properties.find((prop) => {
 				if (prop.type !== 'ObjectProperty') return false;
 				if (prop.key.type === 'Identifier') {
