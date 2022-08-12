@@ -49,13 +49,28 @@ export async function renderPage(
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
 
+		// Combines HTML chunks coming from the iterable with rendering instructions
+		// added to metadata. These instructions need to go out first to ensure
+		// the scripts exist before the islands that need them.
+		async function * eachChunk() {
+			for await (const chunk of iterable) {
+				if(result._metadata.pendingInstructions.size) {
+					for(const instr of result._metadata.pendingInstructions) {
+						result._metadata.pendingInstructions.delete(instr);
+						yield instr;
+					}
+				}
+				yield chunk;
+			}
+		}
+
 		if (streaming) {
 			body = new ReadableStream({
 				start(controller) {
 					async function read() {
 						let i = 0;
 						try {
-							for await (const chunk of iterable) {
+							for await (const chunk of eachChunk()) {
 								let html = stringifyChunk(result, chunk);
 
 								if (i === 0) {
@@ -77,7 +92,7 @@ export async function renderPage(
 		} else {
 			body = '';
 			let i = 0;
-			for await (const chunk of iterable) {
+			for await (const chunk of eachChunk()) {
 				let html = stringifyChunk(result, chunk);
 				if (i === 0) {
 					if (!/<!doctype html/i.test(html)) {

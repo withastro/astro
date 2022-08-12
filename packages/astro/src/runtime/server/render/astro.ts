@@ -1,6 +1,5 @@
-import type { SSRResult } from '../../../@types/astro';
+import type { SSRResult, SSRRenderInstruction } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
-import type { RenderInstruction } from './types';
 
 import { markHTMLString } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
@@ -58,7 +57,7 @@ export function isAstroComponent(obj: any): obj is AstroComponent {
 
 export async function* renderAstroComponent(
 	component: InstanceType<typeof AstroComponent>
-): AsyncIterable<string | RenderInstruction> {
+): AsyncIterable<string | SSRRenderInstruction> {
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of renderChild(value)) {
@@ -104,7 +103,7 @@ export async function renderToIterable(
 	displayName: string,
 	props: any,
 	children: any
-): Promise<AsyncIterable<string | RenderInstruction>> {
+): Promise<AsyncIterable<string | SSRRenderInstruction>> {
 	validateComponentProps(props, displayName);
 	const Component = await componentFactory(result, props, children);
 
