@@ -36,8 +36,6 @@ declare module '*.mdx' {
 	export const file: MDX['file'];
 	export const url: MDX['url'];
 	export const getHeadings: MDX['getHeadings'];
-	/** @deprecated Renamed to `getHeadings()` */
-	export const getHeaders: () => void;
 	export const Content: MDX['Content'];
 	export const rawContent: MDX['rawContent'];
 	export const compiledContent: MDX['compiledContent'];
