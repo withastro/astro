@@ -29,14 +29,7 @@ import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { LanguageServiceManager } from './LanguageServiceManager';
-import {
-	convertRange,
-	convertToLocationRange,
-	ensureRealFilePath,
-	getScriptKindFromFileName,
-	getScriptTagSnapshot,
-	toVirtualAstroFilePath,
-} from './utils';
+import { convertToLocationRange, ensureRealFilePath, getScriptKindFromFileName, toVirtualAstroFilePath } from './utils';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
@@ -65,9 +58,9 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
 	private readonly formattingProvider: FormattingProviderImpl;
 
-	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
+	constructor(configManager: ConfigManager, languageServiceManager: LanguageServiceManager) {
 		this.configManager = configManager;
-		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
+		this.languageServiceManager = languageServiceManager;
 
 		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);

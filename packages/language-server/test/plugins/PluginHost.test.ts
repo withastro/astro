@@ -6,6 +6,7 @@ import { CompletionItem, Location, LocationLink, Position, Range, TextDocumentIt
 import { ConfigManager } from '../../src/core/config';
 import { AstroDocument, DocumentManager } from '../../src/core/documents';
 import { AstroPlugin, HTMLPlugin, PluginHost, PluginHostConfig, TypeScriptPlugin } from '../../src/plugins';
+import { LanguageServiceManager } from '../../src/plugins/typescript/LanguageServiceManager';
 import { openDocument } from '../utils';
 
 describe('PluginHost', () => {
@@ -69,9 +70,11 @@ describe('PluginHost', () => {
 			const docManager = new DocumentManager((document) => new AstroDocument(document.uri, document.text));
 			const pluginHost = new PluginHost(docManager);
 
+			const languageServiceManager = new LanguageServiceManager(docManager, [path], configManager);
+
 			pluginHost.registerPlugin(new HTMLPlugin(configManager));
-			pluginHost.registerPlugin(new AstroPlugin(docManager, configManager, [path]));
-			pluginHost.registerPlugin(new TypeScriptPlugin(docManager, configManager, [path]));
+			pluginHost.registerPlugin(new AstroPlugin(configManager, languageServiceManager));
+			pluginHost.registerPlugin(new TypeScriptPlugin(configManager, languageServiceManager));
 
 			const document = openDocument(filePath, path, docManager);
 

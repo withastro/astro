@@ -20,11 +20,12 @@ import { HTMLPlugin } from './plugins/html/HTMLPlugin';
 import { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
 import { TypeScriptPlugin } from './plugins';
-import { debounceThrottle, getAstroInstall, isAstroWorkspace, urlToPath } from './utils';
+import { debounceThrottle, getAstroInstall, isAstroWorkspace, normalizeUri, urlToPath } from './utils';
 import { AstroDocument } from './core/documents';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
 import { LSConfig } from './core/config';
+import { LanguageServiceManager } from './plugins/typescript/LanguageServiceManager';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');
@@ -73,8 +74,14 @@ export function startLanguageServer(connection: vscode.Connection) {
 
 		// We don't currently support running the TypeScript and Astro plugin in the browser
 		if (params.initializationOptions.environment !== 'browser') {
-			typescriptPlugin = new TypeScriptPlugin(documentManager, configManager, workspaceUris);
-			pluginHost.registerPlugin(new AstroPlugin(documentManager, configManager, workspaceUris));
+			const languageServiceManager = new LanguageServiceManager(
+				documentManager,
+				workspaceUris.map(normalizeUri),
+				configManager
+			);
+
+			typescriptPlugin = new TypeScriptPlugin(configManager, languageServiceManager);
+			pluginHost.registerPlugin(new AstroPlugin(configManager, languageServiceManager));
 			pluginHost.registerPlugin(typescriptPlugin);
 		}
 

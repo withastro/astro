@@ -5,7 +5,9 @@
       "baseUrl": ".",
       /**For testing import json file*/
       "resolveJsonModule": true,
-      "noEmit": true
+      "paths": {
+        "$components/*": ["misc/components/*"]
+      }
     },
     "exclude": [
       /**For testing exclude */
