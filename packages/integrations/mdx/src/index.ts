@@ -26,6 +26,12 @@ const DEFAULT_REMARK_PLUGINS: MdxRollupPluginOptions['remarkPlugins'] = [
 ];
 const DEFAULT_REHYPE_PLUGINS: MdxRollupPluginOptions['rehypePlugins'] = [];
 
+const RAW_CONTENT_ERROR =
+	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
+
+const COMPILED_CONTENT_ERROR =
+	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
+
 function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
 	if (Array.isArray(config)) return config;
 
@@ -126,6 +132,19 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									}
 									if (!moduleExports.includes('file')) {
 										code += `\nexport const file = ${JSON.stringify(fileId)};`;
+									}
+									if (!moduleExports.includes('rawContent')) {
+										code += `\nexport function rawContent() { throw new Error(${JSON.stringify(
+											RAW_CONTENT_ERROR
+										)}) };`;
+									}
+									if (!moduleExports.includes('compiledContent')) {
+										code += `\nexport function compiledContent() { throw new Error(${JSON.stringify(
+											COMPILED_CONTENT_ERROR
+										)}) };`;
+									}
+									if (!moduleExports.includes('Content')) {
+										code += `\nexport const Content = MDXContent;`;
 									}
 
 									if (command === 'dev') {
