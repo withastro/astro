@@ -9,11 +9,10 @@ on:
       - '.vscode/**'
       - '**/*.md'
 
-# Automatically cancel in-progress actions on the same branch (unless on main)
+# Automatically cancel older in-progress jobs on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
-
+  cancel-in-progress: true
 defaults:
   run:
     shell: bash
@@ -215,55 +214,3 @@ jobs:
 
       - name: Test
         run: pnpm run test:smoke
-
-  changelog:
-    name: Changelog PR or Release
-    if: ${{ (github.ref_name == 'main' || github.head_ref == 'next') && github.repository_owner == 'withastro' }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build Packages
-        run: pnpm run build
-
-      - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          # Note: pnpm install after versioning is necessary to refresh lockfile
-          version: pnpm run version
-          publish: pnpm exec changeset publish
-          commit: '[ci] release'
-          title: '[ci] release'
-        env:
-          # Needs access to push to main
-          GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
-          # Needs access to publish to npm
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Generate Notification
-        id: notification
-        if: steps.changesets.outputs.published == 'true'
-        run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
-
-      - name: Discord Notification
-        if: steps.changesets.outputs.published == 'true'
-        id: discord-notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: ${{ steps.notification.outputs.message }}
