@@ -12,8 +12,7 @@ describe('astro cli', () => {
 
 	it('astro', async () => {
 		const proc = await cli();
-
-		expect(proc.stdout).to.include('Futuristic web development tool');
+		expect(proc.exitCode).to.equal(0);
 	});
 
 	it('astro --version', async () => {
