@@ -30,7 +30,7 @@ export function getRouteGenerator(
 
 	// Unless trailingSlash config is set to 'always', don't automatically append it.
 	let trailing: '/' | '' = '';
-	if(addTrailingSlash === 'always' && segments.length) {
+	if (addTrailingSlash === 'always' && segments.length) {
 		trailing = '/';
 	}
 	const toPath = compile(template + trailing);

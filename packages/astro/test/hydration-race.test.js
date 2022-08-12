@@ -41,10 +41,10 @@ describe('Hydration script ordering', async () => {
 		let foundScript = false;
 
 		// Traverse the DOM going backwards until we find a script, if there is one.
-		while(el.length) {
+		while (el.length) {
 			let last = el;
-			while(el.length) {
-				if(el.prop('tagName') === 'SCRIPT') {
+			while (el.length) {
+				if (el.prop('tagName') === 'SCRIPT') {
 					foundScript = true;
 				}
 				last = el;

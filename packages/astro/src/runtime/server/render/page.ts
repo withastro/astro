@@ -52,10 +52,10 @@ export async function renderPage(
 		// Combines HTML chunks coming from the iterable with rendering instructions
 		// added to metadata. These instructions need to go out first to ensure
 		// the scripts exist before the islands that need them.
-		async function * eachChunk() {
+		async function* eachChunk() {
 			for await (const chunk of iterable) {
-				if(result._metadata.pendingInstructions.size) {
-					for(const instr of result._metadata.pendingInstructions) {
+				if (result._metadata.pendingInstructions.size) {
+					for (const instr of result._metadata.pendingInstructions) {
 						result._metadata.pendingInstructions.delete(instr);
 						yield instr;
 					}

@@ -1,7 +1,6 @@
 import { SSRRenderInstruction, SSRResult } from '../../../@types/astro';
 import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
-import { stringifyChunk } from './common.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
@@ -35,7 +34,11 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 	}
 }
 
-export async function renderSlot(result: SSRResult, slotted: string, fallback?: any): Promise<string> {
+export async function renderSlot(
+	result: SSRResult,
+	slotted: string,
+	fallback?: any
+): Promise<string> {
 	if (slotted) {
 		let iterator = renderChild(slotted);
 		let content = '';

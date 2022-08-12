@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { SSRResult, SSRRenderInstruction } from '../../@types/astro.js';
+import { SSRRenderInstruction, SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,

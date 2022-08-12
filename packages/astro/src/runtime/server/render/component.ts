@@ -1,5 +1,9 @@
-import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult, SSRRenderInstruction } from '../../../@types/astro';
-
+import type {
+	AstroComponentMetadata,
+	SSRLoadedRenderer,
+	SSRRenderInstruction,
+	SSRResult,
+} from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
