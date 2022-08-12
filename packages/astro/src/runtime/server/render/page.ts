@@ -49,7 +49,7 @@ export async function renderPage(
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
 
-		// Combines HTML chunks coming from the interable with rendering instructions
+		// Combines HTML chunks coming from the iterable with rendering instructions
 		// added to metadata. These instructions need to go out first to ensure
 		// the scripts exist before the islands that need them.
 		async function * eachChunk() {
