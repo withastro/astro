@@ -20,6 +20,34 @@ function validateComponentProps(props: any, displayName: string) {
 	}
 }
 
+function exhaust(iterable: AsyncIterable<any>): AsyncIterableIterator<any> {
+	let values: Array<IteratorResult<any, any>> = [];
+	let next: Promise<IteratorResult<any, any>>;
+	async function run() {
+		let gen = iterable[Symbol.asyncIterator]();
+		let value: IteratorResult<any, any>;
+		do {
+			next = gen.next();
+			value = await next;
+			values.push(value);
+		} while(!value.done);
+	}
+	run();
+
+	return {
+		async next() {
+			if(values.length) {
+				return values.shift()!;
+			}
+			await next;
+			return values.shift()!;
+		},
+		[Symbol.asyncIterator]() {
+			return this;
+		}
+	};
+}
+
 // The return value when rendering a component.
 // This is the result of calling render(), should this be named to RenderResult or...?
 export class AstroComponent {
@@ -38,12 +66,17 @@ export class AstroComponent {
 	async *[Symbol.asyncIterator]() {
 		const { htmlParts, expressions } = this;
 
+		let iterables: Array<AsyncIterable<any>> = [];
+		for (let i = 0; i < htmlParts.length; i++) {
+			iterables.push(exhaust(renderChild(expressions[i])));
+		}
+
 		for (let i = 0; i < htmlParts.length; i++) {
 			const html = htmlParts[i];
-			const expression = expressions[i];
+			const iterable = iterables[i];
 
 			yield markHTMLString(html);
-			yield* renderChild(expression);
+			yield * iterable;
 		}
 	}
 }
