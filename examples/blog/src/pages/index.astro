@@ -1,62 +1,45 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
-import BlogPostPreview from '../components/BlogPostPreview.astro';
-
-let title = 'Example Blog';
-let description = 'The perfect starter for your perfect blog.';
-
-// Use Astro.glob to fetch all post with associated frontmatter
-const unsortedPosts = await Astro.glob('./posts/*.md');
-const posts = unsortedPosts.sort(function (a, b) {
-	return (
-		new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
-	);
-});
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../config.ts';
 ---
 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en-us">
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
-
 	<body>
-		<Header />
-		<div class="wrapper">
-			<main class="content">
-				<section class="intro">
-					<h1>{title}</h1>
-					<p>{description}</p>
-				</section>
-				<section aria-label="Blog post list">
-					{posts.map(({ url, frontmatter }) => (
-						<BlogPostPreview
-							title={frontmatter.title}
-							description={frontmatter.description}
-							publishDate={frontmatter.publishDate}
-							url={url}
-						/>
-					))}
-				</section>
-			</main>
-		</div>
+		<Header title={SITE_TITLE} />
+		<main>
+			<h1>🧑‍🚀 Hello, Astronaut!</h1>
+			<p>
+				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
+				template serves as a lightweight starting point for anyone looking to build a personal website,
+				blog, or portfolio with Astro.
+			</p>
+			<p>
+				When you are ready, you are free to customize your setup or leave it as it. Add Tailwind for
+				styling (<code>npm run astro add tailwind</code>), or continue to use Astro's built-in
+				scoped styles. Add MDX if you'd like to add components into your Markdown (<code
+					>npm run astro add mdx
+				</code>) or continue to use Astro's built-in plain Markdown support.
+			</p>
+			<p>Here are some ideas to get started:</p>
+			<ul>
+				<li>Edit this page in <code>src/pages/index.astro</code></li>
+				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
+				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
+				<li>Check out the included blog posts in <code>src/pages/blog/</code></li>
+				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
+			</ul>
+			<p>
+				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
+					>read the docs
+				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
+			</p>
+		</main>
+		<Footer />
 	</body>
 </html>
-
-<style>
-	.content {
-		margin-top: 4rem;
-		margin-bottom: 8rem;
-	}
-
-	.intro {
-		padding-bottom: 4rem;
-		margin-bottom: 2rem;
-		border-bottom: 4px solid var(--theme-divider);
-	}
-
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-	}
-</style>
