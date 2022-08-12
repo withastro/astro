@@ -20,7 +20,7 @@ import { HTMLPlugin } from './plugins/html/HTMLPlugin';
 import { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
 import { TypeScriptPlugin } from './plugins';
-import { debounceThrottle, getUserAstroVersion, isAstroWorkspace, urlToPath } from './utils';
+import { debounceThrottle, getAstroInstall, isAstroWorkspace, urlToPath } from './utils';
 import { AstroDocument } from './core/documents';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
@@ -51,9 +51,8 @@ export function startLanguageServer(connection: vscode.Connection) {
 				return;
 			}
 
-			const astroVersion = getUserAstroVersion(uri);
-
-			if (astroVersion.exist === false) {
+			const astroInstall = getAstroInstall([uri]);
+			if (!astroInstall) {
 				connection.sendNotification(ShowMessageNotification.type, {
 					message: `Couldn't find Astro in workspace "${uri}". Experience might be degraded. For the best experience, please make sure Astro is installed and then restart the language server`,
 					type: MessageType.Warning,

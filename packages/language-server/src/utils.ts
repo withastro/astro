@@ -1,5 +1,6 @@
 import { URI } from 'vscode-uri';
 import { Position, Range } from 'vscode-languageserver';
+import { getPackagePath } from './importPackage';
 
 /** Normalizes a document URI */
 export function normalizeUri(uri: string): string {
@@ -233,31 +234,45 @@ export function isAstroWorkspace(workspacePath: string): boolean {
 	return false;
 }
 
-export interface AstroVersion {
-	full: string;
-	major: number;
-	minor: number;
-	patch: number;
-	exist: boolean;
+export interface AstroInstall {
+	path: string;
+	version: {
+		full: string;
+		major: number;
+		minor: number;
+		patch: number;
+	};
 }
 
-export function getUserAstroVersion(basePath: string): AstroVersion {
-	let version = '0.0.0';
-	let exist = true;
+export function getAstroInstall(basePaths: string[]): AstroInstall | undefined {
+	let path;
+	let version;
 
 	try {
-		const astroPackageJson = require.resolve('astro/package.json', { paths: [basePath] });
+		path = getPackagePath('astro', basePaths);
 
-		version = require(astroPackageJson).version;
+		if (!path) {
+			throw Error;
+		}
+
+		version = require(path + '/package.json').version;
 	} catch {
 		// If we couldn't find it inside the workspace's node_modules, it might means we're in the monorepo
 		try {
-			const monorepoPackageJson = require.resolve('./packages/astro/package.json', { paths: [basePath] });
-			version = require(monorepoPackageJson).version;
+			path = getPackagePath('./packages/astro', basePaths);
+
+			if (!path) {
+				throw Error;
+			}
+
+			version = require(path + '/package.json').version;
 		} catch (e) {
 			// If we still couldn't find it, it probably just doesn't exist
-			exist = false;
-			console.error(`${basePath} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`);
+			console.error(
+				`${basePaths[0]} seems to be an Astro project, but we couldn't find Astro or Astro is not installed`
+			);
+
+			return undefined;
 		}
 	}
 
@@ -269,10 +284,12 @@ export function getUserAstroVersion(basePath: string): AstroVersion {
 	}
 
 	return {
-		full: version,
-		major: Number(major),
-		minor: Number(minor),
-		patch: Number(patch),
-		exist,
+		path,
+		version: {
+			full: version,
+			major: Number(major),
+			minor: Number(minor),
+			patch: Number(patch),
+		},
 	};
 }

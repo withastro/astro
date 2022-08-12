@@ -8,30 +8,34 @@ export function setIsTrusted(_isTrusted: boolean) {
 	isTrusted = _isTrusted;
 }
 
-export function getPackagePath(packageName: string, fromPath: string): string | undefined {
+export function getPackagePath(packageName: string, fromPath: string[]): string | undefined {
 	const paths = [];
 	if (isTrusted) {
-		paths.unshift(fromPath);
+		paths.unshift(...fromPath);
 	}
 
 	try {
-		const packageJSONPath = require.resolve(`${packageName}/package.json`, {
-			paths,
-		});
-
-		return dirname(packageJSONPath);
+		return dirname(require.resolve(packageName + '/package.json', { paths }));
 	} catch (e) {
 		return undefined;
 	}
 }
 
 function importEditorIntegration<T>(packageName: string, fromPath: string): T | undefined {
-	const pkgPath = getPackagePath(packageName, fromPath);
+	const pkgPath = getPackagePath(packageName, [fromPath]);
 
 	if (pkgPath) {
-		const main = resolve(pkgPath, 'dist', 'editor.cjs');
+		try {
+			const main = resolve(pkgPath, 'dist', 'editor.cjs');
 
-		return require(main) as T;
+			return require(main) as T;
+		} catch (e) {
+			console.error(
+				`Couldn't load editor module from ${pkgPath}. Make sure you're using at least version v0.2.1 of the corresponding integration`
+			);
+
+			return undefined;
+		}
 	}
 
 	return undefined;

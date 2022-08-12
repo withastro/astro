@@ -11,6 +11,5 @@ The Astro language server, implement the [language server protocol](https://micr
 │   ├── core        # Core code such as .astro file parsing, configuration manager, document definition etc
 │   └── plugins     # Modules for the different languages supported in .astro files
 ├── test            # Tests
-├── types           # Types
-└── astro.d.ts      # Types injected into .astro files by the language server
+└── types           # Types injected into Astro files by the language server under certain conditions
 ```

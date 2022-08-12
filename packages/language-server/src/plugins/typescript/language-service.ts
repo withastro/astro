@@ -2,7 +2,7 @@ import { AstroDocument } from '../../core/documents';
 import { dirname, resolve } from 'path';
 import ts from 'typescript';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import { getUserAstroVersion, normalizePath, urlToPath } from '../../utils';
+import { getAstroInstall, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
@@ -92,7 +92,7 @@ async function createLanguageService(
 
 	const workspacePaths = workspaceUris.map((uri) => urlToPath(uri) as string);
 	const workspacePath = workspacePaths.find((uri: string) => tsconfigRoot.startsWith(uri)) || workspacePaths[0];
-	const astroVersion = getUserAstroVersion(workspacePath);
+	const astroInstall = getAstroInstall([tsconfigRoot, workspacePath]);
 
 	const config =
 		(await docContext.configManager.getConfig<LSTypescriptConfig>('astro.typescript', workspacePath)) ?? {};
@@ -114,10 +114,10 @@ async function createLanguageService(
 
 	const scriptFileNames: string[] = [];
 
-	if (astroVersion.exist) {
-		const astroDir = dirname(require.resolve('astro', { paths: [workspacePath] }));
-
-		scriptFileNames.push(...['./env.d.ts', './astro-jsx.d.ts'].map((f) => ts.sys.resolvePath(resolve(astroDir, f))));
+	if (astroInstall) {
+		scriptFileNames.push(
+			...['./env.d.ts', './astro-jsx.d.ts'].map((f) => ts.sys.resolvePath(resolve(astroInstall.path, f)))
+		);
 	}
 
 	let languageServerDirectory: string;
@@ -127,16 +127,19 @@ async function createLanguageService(
 		languageServerDirectory = __dirname;
 	}
 
-	// Before Astro 1.0, JSX definitions were inside of the language-server instead of inside Astro
-	// TODO: Remove this and astro-jsx.d.ts in types when we consider having support for Astro < 1.0 unnecessary
+	// Fallback to internal types when Astro is not installed or the Astro version is too old
 	if (
-		(astroVersion.major === 0 || astroVersion.full === '1.0.0-beta.0') &&
-		!astroVersion.full.startsWith('0.0.0-rc-') // 1.0.0's RC is considered to be 0.0.0, so we have to check for it
+		!astroInstall ||
+		((astroInstall.version.major === 0 || astroInstall.version.full === '1.0.0-beta.0') &&
+			!astroInstall.version.full.startsWith('0.0.0-rc-')) // 1.0.0's RC is considered to be 0.0.0, so we have to check for it
 	) {
-		const astroTSXFile = ts.sys.resolvePath(resolve(languageServerDirectory, '../types/astro-jsx.d.ts'));
-		scriptFileNames.push(astroTSXFile);
+		scriptFileNames.push(
+			...['../types/astro-jsx.d.ts', '../types/env.d.ts'].map((f) =>
+				ts.sys.resolvePath(resolve(languageServerDirectory, f))
+			)
+		);
 
-		console.warn("Version lower than 1.0 detected, using internal types instead of Astro's");
+		console.warn("Couldn't load types from Astro, using internal types instead");
 	}
 
 	if (allowArbitraryAttrs) {
