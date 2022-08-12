@@ -62,13 +62,12 @@ importers:
 
   examples/blog:
     specifiers:
-      '@astrojs/preact': ^1.0.2
+      '@astrojs/image': ^0.3.3
+      '@astrojs/mdx': ^0.8.3
       astro: ^1.0.3
-      preact: ^10.7.3
-    dependencies:
-      preact: 10.10.2
     devDependencies:
-      '@astrojs/preact': link:../../packages/integrations/preact
+      '@astrojs/image': link:../../packages/integrations/image
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       astro: link:../../packages/astro
 
   examples/component:
