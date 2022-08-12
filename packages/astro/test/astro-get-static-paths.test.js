@@ -150,3 +150,25 @@ describe('getStaticPaths - numeric route params', () => {
 		}
 	});
 });
+
+describe('getStaticPaths - Astro.url', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	before(async () => {
+		// reset the flag used by [...calledTwiceTest].astro between each test
+		globalThis.isCalledOnce = false;
+
+		fixture = await loadFixture({
+			root: './fixtures/astro-get-static-paths/',
+			site: 'https://mysite.dev/',
+		});
+		await fixture.build();
+	});
+
+	it('Sets the current pathname', async () => {
+		const html = await fixture.readFile('/food/tacos/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#url').text()).to.equal('/food/tacos');
+	});
+});

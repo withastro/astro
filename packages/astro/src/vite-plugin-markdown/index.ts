@@ -48,8 +48,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const frontmatter = {
 					...injectedFrontmatter,
 					...raw.data,
-					url: fileUrl,
-					file: fileId,
 				} as any;
 
 				const { layout } = frontmatter;
@@ -86,6 +84,8 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
+					content.file = file;
+					content.url = url;
 					content.astro = {};
 					Object.defineProperty(content.astro, 'headings', {
 						get() {
