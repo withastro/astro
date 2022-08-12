@@ -381,7 +381,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.23.1
+      '@astrojs/compiler': ^0.23.3
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^1.0.0
       '@astrojs/telemetry': ^1.0.0
@@ -464,7 +464,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.23.1
+      '@astrojs/compiler': 0.23.3
       '@astrojs/language-server': 0.20.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -710,6 +710,17 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       '@astrojs/svelte': link:../../../../integrations/svelte
       '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
+  packages/astro/e2e/fixtures/namespaced-component:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      preact: ^10.7.3
+    dependencies:
+      preact: 10.10.2
+    devDependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
   packages/astro/e2e/fixtures/nested-in-preact:
@@ -2288,6 +2299,16 @@ importers:
       reading-time: 1.5.0
       unist-util-visit: 4.1.0
 
+  packages/integrations/mdx/test/fixtures/mdx-namespace:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-page:
     specifiers:
       '@astrojs/mdx': workspace:*
@@ -3079,8 +3100,8 @@ packages:
     resolution: {integrity: sha512-8nvyxZTfCXLyRmYfTttpJT6EPhfBRg0/q4J/Jj3/pNPLzp+vs05ZdktsY6QxAREaOMAnNEtSqcrB4S5DsXOfRg==}
     dev: true
 
-  /@astrojs/compiler/0.23.1:
-    resolution: {integrity: sha512-KsoDrASGwTKZoWXbjy8SlIeoDv7y1OfBJtHVLuPuzhConA8e0SZpGzFqIuVRfG4bhisSTptZLDQZ7oxwgPv2jA==}
+  /@astrojs/compiler/0.23.3:
+    resolution: {integrity: sha512-eBWo0d3DoRDeg2Di1/5YJtOXh5eGFSjJMp1wVoVfoITHR4egdUGgsrDHZTzj0a25M/S9W5S6SpXCyNWcqi8jOA==}
     dev: false
 
   /@astrojs/language-server/0.20.3:

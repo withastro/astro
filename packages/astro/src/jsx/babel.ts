@@ -69,7 +69,7 @@ function addClientMetadata(
 	}
 	if (!existingAttributes.find((attr) => attr === 'client:component-export')) {
 		if (meta.name === '*') {
-			meta.name = getTagName(node).split('.').at(1)!;
+			meta.name = getTagName(node).split('.').slice(1).join('.')!;
 		}
 		const componentExport = t.jsxAttribute(
 			t.jsxNamespacedName(t.jsxIdentifier('client'), t.jsxIdentifier('component-export')),
@@ -176,6 +176,76 @@ export default function astroJSX(): PluginObj {
 					}
 				}
 				state.set('imports', imports);
+			},
+			JSXMemberExpression(path, state) {
+				const node = path.node;
+				// Skip automatic `_components` in MDX files
+				if (state.filename?.endsWith('.mdx') && t.isJSXIdentifier(node.object) && node.object.name === '_components') {
+					return;
+				}
+				const parent = path.findParent((n) => t.isJSXElement(n))!;
+				const parentNode = parent.node as t.JSXElement;
+				const tagName = getTagName(parentNode);
+				if (!isComponent(tagName)) return;
+				if (!hasClientDirective(parentNode)) return;
+				const isClientOnly = isClientOnlyComponent(parentNode);
+				if (tagName === ClientOnlyPlaceholder) return;
+				
+				const imports = state.get('imports') ?? new Map();
+				const namespace = tagName.split('.');
+				for (const [source, specs] of imports) {
+					for (const { imported, local } of specs) {
+						const reference = path.referencesImport(source, imported);
+						if (reference) {
+							path.setData('import', { name: imported, path: source });
+							break;
+						}
+						if (namespace.at(0) === local) {
+							path.setData('import', { name: imported, path: source });
+							break;
+						}
+					}
+				}
+
+				const meta = path.getData('import');
+				if (meta) {
+					let resolvedPath: string;
+					if (meta.path.startsWith('.')) {
+						const fileURL = pathToFileURL(state.filename!);
+						resolvedPath = `/@fs${new URL(meta.path, fileURL).pathname}`;
+						if (resolvedPath.endsWith('.jsx')) {
+							resolvedPath = resolvedPath.slice(0, -4);
+						}
+					} else {
+						resolvedPath = meta.path;
+					}
+
+					if (isClientOnly) {
+						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
+							exportName: meta.name,
+							specifier: tagName,
+							resolvedPath,
+						});
+
+						meta.resolvedPath = resolvedPath;
+						addClientOnlyMetadata(parentNode, meta);
+					} else {
+						(state.file.metadata as PluginMetadata).astro.hydratedComponents.push({
+							exportName: '*',
+							specifier: tagName,
+							resolvedPath,
+						});
+
+						meta.resolvedPath = resolvedPath;
+						addClientMetadata(parentNode, meta);
+					}
+				} else {
+					throw new Error(
+						`Unable to match <${getTagName(
+							parentNode
+						)}> with client:* directive to an import statement!`
+					);
+				}
 			},
 			JSXIdentifier(path, state) {
 				const isAttr = path.findParent((n) => t.isJSXAttribute(n));

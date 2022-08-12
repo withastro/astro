@@ -65,7 +65,15 @@ declare const Astro: {
 								import(this.getAttribute('component-url')!),
 								rendererUrl ? import(rendererUrl) : () => () => {},
 							]);
-							this.Component = componentModule[this.getAttribute('component-export') || 'default'];
+							const componentExport = this.getAttribute('component-export') || 'default';
+							if (!componentExport.includes('.')) {
+								this.Component = componentModule[componentExport];
+							} else {
+								this.Component = componentModule;
+								for (const part of componentExport.split('.')) {
+									this.Component = this.Component[part]
+								}
+							}
 							this.hydrator = hydrator;
 							return this.hydrate;
 						},

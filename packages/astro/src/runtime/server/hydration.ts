@@ -114,9 +114,9 @@ export async function generateHydrateScript(
 	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
-	if (!componentExport) {
+	if (!componentExport.value) {
 		throw new Error(
-			`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`
+			`Unable to resolve a valid export for "${metadata.displayName}"! Please open an issue at https://astro.build/issues!`
 		);
 	}
 
