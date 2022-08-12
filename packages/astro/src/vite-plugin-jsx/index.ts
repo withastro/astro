@@ -58,7 +58,7 @@ async function transformJSX({
 	const options = await jsxTransformOptions!({ mode, ssr });
 	const plugins = [...(options.plugins || [])];
 	if (ssr) {
-		plugins.push(tagExportsPlugin({ rendererName: renderer.name }))
+		plugins.push(tagExportsPlugin({ rendererName: renderer.name }));
 	}
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
