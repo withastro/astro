@@ -18,7 +18,9 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 	<head>
 		<HeadCommon />
 		<HeadSEO {frontmatter} canonicalURL={canonicalURL} />
-		<title>{frontmatter.title ? `${frontmatter.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}</title>
+		<title>
+			{frontmatter.title ? `${frontmatter.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}
+		</title>
 		<style>
 			body {
 				width: 100%;
