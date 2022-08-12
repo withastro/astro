@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.21.1
+
+### Patch Changes
+
+- 0e9d7d0: Improve error handling in cases where we can't load types from the user's project and when the project isn't at the root of the folder
+- 3f79dbf: Fix `tsconfig.json` not loading properly in certain contexts on Windows
+
 ## 0.21.0
 
 ### Minor Changes
