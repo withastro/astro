@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/prefetch",
   "description": "Faster page navigations by prefetching links when the browser is idle.",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

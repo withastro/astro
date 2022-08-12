@@ -289,11 +289,30 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	return result;
 }
 
+// Convert an arbitrary NPM package name into a JS identifier
+// Some examples:
+//  - @astrojs/image => image
+//  - @astrojs/markdown-component => markdownComponent
+//  - astro-cast => cast
+//  - markdown-astro => markdown
+//  - some-package => somePackage
+//  - example.com => exampleCom
+//  - under_score => underScore
+//  - 123numeric => numeric
+//  - @npm/thingy => npmThingy
+//  - @jane/foo.js => janeFoo
 const toIdent = (name: string) => {
-	if (name.includes('-')) {
-		return name.split('-')[0];
-	}
-	return name;
+	const ident = name
+		.trim()
+		// Remove astro or (astrojs) prefix and suffix
+		.replace(/[-_\.]?astro(?:js)?[-_\.]?/g, '')
+		// drop .js suffix
+		.replace(/\.js/, '')
+		// convert to camel case
+		.replace(/(?:[\.\-\_\/]+)([a-zA-Z])/g, (_, w) => w.toUpperCase())
+		// drop invalid first characters
+		.replace(/^[^a-zA-Z$_]+/, '');
+	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
 function createPrettyError(err: Error) {
@@ -376,6 +395,23 @@ async function setAdapter(ast: t.File, adapter: IntegrationInfo, exportName: str
 
 			const configObject = path.node.declaration.arguments[0];
 			if (!t.isObjectExpression(configObject)) return;
+
+			let outputProp = configObject.properties.find((prop) => {
+				if (prop.type !== 'ObjectProperty') return false;
+				if (prop.key.type === 'Identifier') {
+					if (prop.key.name === 'output') return true;
+				}
+				if (prop.key.type === 'StringLiteral') {
+					if (prop.key.value === 'output') return true;
+				}
+				return false;
+			}) as t.ObjectProperty | undefined;
+
+			if (!outputProp) {
+				configObject.properties.push(
+					t.objectProperty(t.identifier('output'), t.stringLiteral('server'))
+				);
+			}
 
 			let adapterProp = configObject.properties.find((prop) => {
 				if (prop.type !== 'ObjectProperty') return false;
