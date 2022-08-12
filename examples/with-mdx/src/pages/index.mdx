@@ -1,4 +1,4 @@
-import * as c from '../components/Counter';
+import Counter from '../components/Counter.jsx';
 import Title from '../components/Title.astro';
 export const components = { h1: Title };
 
@@ -14,10 +14,7 @@ Written by: {new Intl.ListFormat('en').format(authors.map(d => d.name))}.
 
 Published on: {new Intl.DateTimeFormat('en', {dateStyle: 'long'}).format(published)}.
 
-
-export const value = () => console.log(c);
-
-<c.Counter client:idle>This is a **counter**!</c.Counter>
+<Counter client:idle>This is a **counter**!</Counter>
 
 ## Syntax highlighting
 
