@@ -2,8 +2,8 @@
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents';
 
-const { content, headings, githubEditUrl } = Astro.props;
-const title = content.title;
+const { frontmatter, headings, githubEditUrl } = Astro.props;
+const title = frontmatter.title;
 ---
 
 <article id="article" class="content">

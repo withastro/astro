@@ -1,17 +1,17 @@
 ---
 import { SITE, OPEN_GRAPH } from '../config';
 export interface Props {
-	content: any;
+	frontmatter: any;
 	site: any;
 	canonicalURL: URL | string;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const { content = {} } = Astro.props;
-const formattedContentTitle = content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
-const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
+const { frontmatter = {} } = Astro.props;
+const formattedContentTitle = frontmatter.title ? `${frontmatter.title} 🚀 ${SITE.title}` : SITE.title;
+const imageSrc = frontmatter?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
-const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
+const imageAlt = frontmatter?.image?.alt ?? OPEN_GRAPH.image.alt;
 ---
 
 <!-- Page Metadata -->
@@ -21,13 +21,13 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta property="og:title" content={formattedContentTitle} />
 <meta property="og:type" content="article" />
 <meta property="og:url" content={canonicalURL} />
-<meta property="og:locale" content={content.ogLocale ?? SITE.defaultLanguage} />
+<meta property="og:locale" content={frontmatter.ogLocale ?? SITE.defaultLanguage} />
 <meta property="og:image" content={canonicalImageSrc} />
 <meta property="og:image:alt" content={imageAlt} />
 <meta
 	name="description"
 	property="og:description"
-	content={content.description ? content.description : SITE.description}
+	content={frontmatter.description ? frontmatter.description : SITE.description}
 />
 <meta property="og:site_name" content={SITE.title} />
 
@@ -37,7 +37,7 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta name="twitter:title" content={formattedContentTitle} />
 <meta
 	name="twitter:description"
-	content={content.description ? content.description : SITE.description}
+	content={frontmatter.description ? frontmatter.description : SITE.description}
 />
 <meta name="twitter:image" content={canonicalImageSrc} />
 <meta name="twitter:image:alt" content={imageAlt} />
