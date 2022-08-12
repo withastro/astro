@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx';
 import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
+import shikiTwoslash from 'remark-shiki-twoslash';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-syntax-hightlighting/', import.meta.url);
 
@@ -64,6 +65,27 @@ describe('MDX syntax highlighting', () => {
 
 			const prismCodeBlock = document.querySelector('pre.language-astro');
 			expect(prismCodeBlock).to.not.be.null;
+		});
+	});
+
+	describe('disabled', () => {
+		it('supports custom highlighter - shiki-twoslash', async () => {
+			const fixture = await loadFixture({
+				root: FIXTURE_ROOT,
+				markdown: {
+					syntaxHighlight: false,
+				},
+				integrations: [mdx({
+					remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
+				})],
+			});
+			await fixture.build();
+
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const twoslashCodeBlock = document.querySelector('pre.shiki');
+			expect(twoslashCodeBlock).to.not.be.null;
 		});
 	});
 });
