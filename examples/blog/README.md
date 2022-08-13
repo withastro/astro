@@ -11,37 +11,22 @@ npm init astro -- --template blog
 Features:
 
 - ✅ SEO-friendly setup with canonical URLs and OpenGraph data
-- ✅ Full Markdown support
+- ✅ `@astrojs/image` image optimizations
+- ✅ Sitemap support
+- ✅ Markdown & MDX support
+- ✅ Minimal styling (make it your own!)
+- ✅ 100/100 Lighthouse performance
 
 ## 🚀 Project Structure
 
 Inside of your Astro project, you'll see the following folders and files:
 
 ```
-├── public
-│   ├── assets
-│   │   └── blog
-│   │       └── introducing-astro.jpg
-│   ├── favicon.ico
-│   ├── social.jpg
-│   └── social.png
-├── src
-│   ├── components
-│   │   ├── Author.astro
-│   │   ├── BaseHead.astro
-│   │   ├── BlogPostPreview.astro
-│   │   ├── FollowMe.astro
-│   │   ├── Header.astro
-│   │   └── LikeButton.tsx
-│   ├── layouts
-│   │   └── BlogPost.astro
-│   ├── pages
-│   │   ├── index.astro
-│   │   └── posts
-│   │       ├── interactive-content.md
-│   │       └── static-content.md
-│   └── styles
-│       └── blog.css
+├── public/
+├── src/
+│   ├── components/
+│   ├── layouts/
+│   └── pages/
 ├── astro.config.mjs
 ├── README.md
 ├── package.json
@@ -69,4 +54,8 @@ All commands are run from the root of the project, from a terminal:
 
 ## 👀 Want to learn more?
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Credit
+
+This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).

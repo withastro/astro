@@ -1,102 +1,73 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import {Image} from '@astrojs/image/components';
 
 export interface Props {
 	content: {
 		title: string;
 		description: string;
-		publishDate: string;
-		heroImage?: {
-			src: string;
-			alt: string;
-		};
+		publishDate?: string;
+		updatedDate?: string;
+		heroImage?: string;
 	};
 }
 
 const {
-	content: { title, description, publishDate, heroImage },
+	content: { title, description, publishDate, updatedDate, heroImage },
 } = Astro.props as Props;
+
+
+// Match the `heroImage` frontmatter string to its correct
+// Astro.glob() import of the file in the src/ directory.
+const assets = await Astro.glob('../assets/**/*');
+const heroImageAsset = assets.find(asset => {
+	if (!heroImage) {
+		return false;
+	}
+  	if (!asset.default?.src) {
+		return false;
+	}
+  	const index = asset.default.src.indexOf('/assets/');
+  	return asset.default.src.slice(index) === heroImage;
+});
 ---
 
 <html>
 	<head>
 		<BaseHead title={title} description={description} />
+		<style>
+			.title {
+				font-size: 2em;
+				margin: 0.25em 0 0;
+			}
+			hr {
+  				border-top: 1px solid #DDD;
+				margin: 1rem 0;
+			}
+		</style>
 	</head>
 
 	<body>
 		<Header />
-		<article class="wrapper content">
-			<header>
-				{heroImage && (
-					<img
-						width="720"
-						height="420"
-						loading="lazy"
-						src={heroImage.src}
-						alt={heroImage.alt}
+		<main>
+			<article>
+				{heroImageAsset && (
+					<Image
+						width={720}
+						height={360}
+						src={heroImageAsset.default}
+						alt=""
 					/>
 				)}
 				<h1 class="title">{title}</h1>
-				<time>{publishDate}</time>
-			</header>
-			<main>
-				<slot></slot>
-			</main>
-		</article>
+				{publishDate && <time>{publishDate}</time>}
+				{updatedDate && <div>Last updated on <time>{updatedDate}</time></div>}
+				<hr/>
+				<slot />
+			</article>
+		</main>
+		<Footer />
 	</body>
 </html>
-
-<style>
-	img {
-		width: 100vw;
-		object-fit: cover;
-		object-position: center;
-		margin-top: 2rem;
-		margin-bottom: 4rem;
-		max-width: 1280px;
-	}
-
-	@media (max-width: 50em) {
-		img {
-			height: 260px;
-			margin-top: 0;
-			margin-bottom: 2rem;
-		}
-	}
-
-	.content {
-		margin-bottom: 8rem;
-	}
-
-	.content :global(h2) {
-		margin-top: 4rem;
-	}
-
-	header {
-		display: flex;
-		flex-direction: column;
-		text-align: center;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-
-		padding-bottom: 2rem;
-		margin-bottom: 2rem;
-		border-bottom: 4px solid var(--theme-divider);
-	}
-
-	.title,
-	time {
-		margin: 0;
-	}
-
-	time {
-		color: var(--theme-text-lighter);
-	}
-
-	.title {
-		font-size: 2.25rem;
-		font-weight: 700;
-	}
-</style>
