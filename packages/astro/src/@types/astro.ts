@@ -1135,25 +1135,11 @@ export interface SSRElement {
 	children: string;
 }
 
-export interface HydrationMetadata {
-	directive: string;
-	value: string;
-	componentUrl: string;
-	componentExport: { value: string };
-}
-
-export interface SSRRenderInstruction {
-	type: 'directive';
-	result: SSRResult;
-	hydration: HydrationMetadata;
-}
-
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
-	pendingInstructions: Set<SSRRenderInstruction>;
 }
 
 export interface SSRResult {

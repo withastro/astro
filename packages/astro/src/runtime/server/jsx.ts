@@ -1,15 +1,16 @@
 /* eslint-disable no-console */
-import { SSRRenderInstruction, SSRResult } from '../../@types/astro.js';
+import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
+	RenderInstruction,
 	renderToString,
 	spreadAttributes,
 	stringifyChunk,
-	voidElementNames,
+	voidElementNames
 } from './index.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
@@ -121,7 +122,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | SSRRenderInstruction>;
+			let output: string | AsyncIterable<string | RenderInstruction>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
