@@ -12,6 +12,7 @@
   "devDependencies": {
     "@astrojs/image": "^0.3.3",
     "@astrojs/mdx": "^0.8.3",
+    "@astrojs/sitemap": "^1.0.0",
     "astro": "^1.0.4"
   }
 }

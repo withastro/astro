@@ -8,19 +8,20 @@ export interface Props {
 	content: {
 		title: string;
 		description: string;
-		publishDate: string;
+		publishDate?: string;
+		updatedDate?: string;
 		heroImage?: string;
 	};
 }
 
 const {
-	content: { title, description, publishDate, heroImage },
+	content: { title, description, publishDate, updatedDate, heroImage },
 } = Astro.props as Props;
 
 
 // Match the `heroImage` frontmatter string to its correct
 // Astro.glob() import of the file in the src/ directory.
-const assets = await Astro.glob('../assets/blog/**/*');
+const assets = await Astro.glob('../assets/**/*');
 const heroImageAsset = assets.find(asset => {
 	if (!heroImage) {
 		return false;
@@ -39,7 +40,7 @@ const heroImageAsset = assets.find(asset => {
 		<style>
 			.title {
 				font-size: 2em;
-				margin: 0.25em 0 0.1em;
+				margin: 0.25em 0 0;
 			}
 			hr {
   				border-top: 1px solid #DDD;
@@ -54,14 +55,15 @@ const heroImageAsset = assets.find(asset => {
 			<article>
 				{heroImageAsset && (
 					<Image
-						width="720"
-						height="360"
+						width={720}
+						height={360}
 						src={heroImageAsset.default}
 						alt=""
 					/>
 				)}
 				<h1 class="title">{title}</h1>
-				<time>{publishDate}</time>
+				{publishDate && <time>{publishDate}</time>}
+				{updatedDate && <div>Last updated on <time>{updatedDate}</time></div>}
 				<hr/>
 				<slot />
 			</article>

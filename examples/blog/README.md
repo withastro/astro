@@ -12,7 +12,8 @@ Features:
 
 - ✅ SEO-friendly setup with canonical URLs and OpenGraph data
 - ✅ `@astrojs/image` image optimizations
-- ✅ Full Markdown support
+- ✅ Sitemap support
+- ✅ Markdown & MDX support
 - ✅ Minimal styling (make it your own!)
 - ✅ 100/100 Lighthouse performance
 
@@ -57,4 +58,4 @@ Check out [our documentation](https://docs.astro.build) or jump into our [Discor
 
 ## Credit
 
-This theme is based off of the lovely <a href="https://github.com/HermanMartinus/bearblog/">Bear Blog</a>.
+This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).

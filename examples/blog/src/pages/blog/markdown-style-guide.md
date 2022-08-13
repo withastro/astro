@@ -1,12 +1,12 @@
 ---
 layout: "../../layouts/BlogPost.astro"
 title: "Markdown Style Guide"
-description: "Bring your markdown, we'll handle the rest"
+description: "Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro."
 publishDate: "Jul 01 2022"
-heroImage: "/assets/blog/placeholder-hero.jpg"
+heroImage: "/assets/placeholder-hero.jpg"
 ---
 
-This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.
+Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.
 
 ## Headings
 
@@ -27,7 +27,7 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 
 ## Images
 
-![This is a placeholder image description](/assets/blog/placeholder-social.png)
+![This is a placeholder image description](/placeholder-social.png)
 
 ## Blockquotes
 
@@ -35,7 +35,7 @@ The blockquote element represents content that is quoted from another source, op
 
 #### Blockquote without attribution
 
-> Tiam, ad mint andaepu dandae nostion secatur sequo quae.
+> Tiam, ad mint andaepu dandae nostion secatur sequo quae.  
 > **Note** that you can use *Markdown syntax* within a blockquote.
 
 #### Blockquote with attribution
@@ -47,22 +47,11 @@ The blockquote element represents content that is quoted from another source, op
 
 ## Tables
 
-Tables aren't part of the core Markdown spec, but Hugo supports supports them out-of-the-box.
-
-   Name | Age
---------|------
-    Bob | 27
-  Alice | 23
-
-#### Inline Markdown within tables
-
 | Italics   | Bold     | Code   |
 | --------  | -------- | ------ |
 | *italics* | **bold** | `code` |
 
 ## Code Blocks
-
-#### Code block with backticks
 
 ```html
 <!doctype html>
