@@ -244,7 +244,7 @@ This is the helper function used by the `<Image />` component to build `<img />`
 
 This helper takes in an object with the same properties as the `<Image />` component and returns an object with attributes that should be included on the final `<img />` element.
 
-This can helpful if you need to add preload links to a page's `<head>`.
+This can be helpful if you need to add preload links to a page's `<head>`.
 
 ```astro
 ---
