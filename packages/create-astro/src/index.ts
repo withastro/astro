@@ -10,6 +10,7 @@ import prompts from 'prompts';
 import url from 'url';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
+import { parse, stringify, assign, CommentArray, CommentJSONValue } from 'comment-json';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
 import { TEMPLATES } from './templates.js';
@@ -344,14 +345,50 @@ export async function main() {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
 		if (tsResponse.typescript !== 'default') {
-			fs.copyFileSync(
-				path.join(
-					url.fileURLToPath(new URL('..', import.meta.url)),
-					'tsconfigs',
-					`tsconfig.${tsResponse.typescript}.json`
-				),
-				path.join(cwd, 'tsconfig.json')
+			const strictTsconfig = parse(
+				fs
+					.readFileSync(
+						path.join(
+							url.fileURLToPath(new URL('..', import.meta.url)),
+							'tsconfigs',
+							`tsconfig.${tsResponse.typescript}.json`
+						)
+					)
+					.toString()
 			);
+			const templateTsconfig = parse(fs.readFileSync(path.join(cwd, 'tsconfig.json')).toString());
+			if (
+				!(
+					templateTsconfig &&
+					typeof templateTsconfig === 'object' &&
+					'compilerOptions' in templateTsconfig
+				)
+			) {
+				// template tsConfig is malformed or has no compilerOptions -> use strictTsConfig
+				fs.writeFileSync(path.join(cwd, 'tsconfig.json'), stringify(strictTsconfig, null, 2));
+			} else if (
+				!(
+					strictTsconfig &&
+					typeof strictTsconfig === 'object' &&
+					'compilerOptions' in strictTsconfig
+				)
+			) {
+				// this case should never happen
+				console.log(
+					yellow(
+						`something went wrong while enableing ${tsResponse.typescript} syntax! enabling Relaxed for now...`
+					)
+				);
+			} else {
+				const combinedCompilerOptions = assign(
+					templateTsconfig.compilerOptions,
+					strictTsconfig.compilerOptions // override the duplicate template options with the strict options
+				);
+				const combinedTsconfig = assign(templateTsconfig, {
+					compilerOptions: combinedCompilerOptions,
+				}); // leave the rest of template specific options as is only override the compiler options (tsconfig.strict.json has no other fields)
+				fs.writeFileSync(path.join(cwd, 'tsconfig.json'), stringify(combinedTsconfig, null, 2));
+			}
 		}
 		ora().succeed('TypeScript settings applied!');
 	}
