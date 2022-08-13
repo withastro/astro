@@ -34,7 +34,9 @@ export default async function preview(
 	{ logging }: PreviewOptions
 ): Promise<PreviewServer> {
 	if (config.output === 'server') {
-		throw new Error(`[preview] 'output: server' not supported. Use your deploy platform's preview command directly instead, if one exists. (ex: 'netlify dev', 'vercel dev', 'wrangler', etc.)`);
+		throw new Error(
+			`[preview] 'output: server' not supported. Use your deploy platform's preview command directly instead, if one exists. (ex: 'netlify dev', 'vercel dev', 'wrangler', etc.)`
+		);
 	}
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
