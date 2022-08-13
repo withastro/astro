@@ -1,7 +1,7 @@
-import { SSRRenderInstruction, SSRResult } from '../../../@types/astro';
 import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
-
+import { stringifyChunk } from './common.js';
+	
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
 	if (child instanceof HTMLString) {
@@ -34,19 +34,13 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 	}
 }
 
-export async function renderSlot(
-	result: SSRResult,
-	slotted: string,
-	fallback?: any
-): Promise<string> {
+export async function renderSlot(result: any, slotted: string, fallback?: any): Promise<string> {
 	if (slotted) {
 		let iterator = renderChild(slotted);
 		let content = '';
 		for await (const chunk of iterator) {
 			if ((chunk as any).type === 'directive') {
-				// Do not render directives scripts in a slot, instead mark them as pending
-				// so that renderPage includes them ASAP.
-				result._metadata.pendingInstructions.add(chunk as SSRRenderInstruction);
+				content += stringifyChunk(result, chunk);
 			} else {
 				content += chunk;
 			}

@@ -1,6 +1,5 @@
 import type {
 	AstroComponentMetadata,
-	HydrationMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -13,7 +12,12 @@ const HydrationDirectivesRaw = ['load', 'idle', 'media', 'visible', 'only'];
 const HydrationDirectives = new Set(HydrationDirectivesRaw);
 export const HydrationDirectiveProps = new Set(HydrationDirectivesRaw.map((n) => `client:${n}`));
 
-export { HydrationMetadata };
+export interface HydrationMetadata {
+	directive: string;
+	value: string;
+	componentUrl: string;
+	componentExport: { value: string };
+}
 
 interface ExtractedProps {
 	isPage: boolean;
