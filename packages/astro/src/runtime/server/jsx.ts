@@ -10,7 +10,7 @@ import {
 	renderToString,
 	spreadAttributes,
 	stringifyChunk,
-	voidElementNames
+	voidElementNames,
 } from './index.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';

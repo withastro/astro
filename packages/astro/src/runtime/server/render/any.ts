@@ -1,7 +1,7 @@
 import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
 import { stringifyChunk } from './common.js';
-	
+
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
 	if (child instanceof HTMLString) {

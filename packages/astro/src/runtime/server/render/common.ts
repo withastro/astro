@@ -6,7 +6,7 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
-	PrescriptType
+	PrescriptType,
 } from '../scripts.js';
 
 export const Fragment = Symbol.for('astro:fragment');

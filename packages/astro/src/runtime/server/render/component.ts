@@ -1,7 +1,4 @@
-import type {
-	AstroComponentMetadata,
-	SSRLoadedRenderer, SSRResult
-} from '../../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
 import { markHTMLString } from '../escape.js';
