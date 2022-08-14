@@ -1,6 +1,19 @@
-import { createElement } from 'react';
+import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
+
+/**requestIdleCallback pollyfill https://developer.chrome.com/blog/using-requestidlecallback/#checking-for-requestidlecallback */
+window?.requestIdleCallback = window?.requestIdleCallback || function (cb) {
+	var start = Date.now();
+	return setTimeout(function () {
+		cb({
+			didTimeout: false,
+			timeRemaining: function () {
+				return Math.max(0, 50 - (Date.now() - start));
+			}
+		});
+	}, 1);
+}
 
 function isAlreadyHydrated(element) {
 	for (const key in element) {
@@ -27,7 +40,13 @@ export default (element) =>
 			delete element[rootKey];
 		}
 		if (client === 'only') {
-			return createRoot(element).render(componentEl);
+			return startTransition(() => {
+				createRoot(element).render(componentEl);
+			})
 		}
-		return hydrateRoot(element, componentEl);
+		return window?.requestIdleCallback(() => {
+			startTransition(() => {
+				hydrateRoot(element, componentEl);
+			})
+		})
 	};
