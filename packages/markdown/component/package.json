@@ -11,11 +11,8 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "main": "./Markdown.astro",
   "exports": {
-    ".": {
-      "astro": "./Markdown.astro"
-    }
+    ".": "./Markdown.astro"
   },
   "scripts": {
     "test": "mocha --exit --timeout 20000"
