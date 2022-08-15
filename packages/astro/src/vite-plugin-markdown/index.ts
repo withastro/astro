@@ -117,6 +117,8 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 							: `contentFragment`
 					};
 				}
+				Content[Symbol.for('astro.needsHeadRendering')] = ${layout ? 'false' : 'true'};
+				Content.hasLayout = false;
 				export default Content;
 				`);
 
