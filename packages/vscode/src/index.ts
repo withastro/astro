@@ -1,3 +1,4 @@
+import * as path from 'path';
 import {
 	window,
 	commands,
@@ -23,7 +24,20 @@ const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = ne
 let client: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
-	const serverModule = require.resolve('@astrojs/language-server/bin/nodeServer.js');
+	const runtimeConfig = workspace.getConfiguration('astro.language-server');
+
+	const { workspaceFolders } = workspace;
+	const rootPath = workspaceFolders?.[0].uri.fsPath;
+
+	let lsPath = runtimeConfig.get<string>('ls-path');
+	if (typeof lsPath === 'string' && lsPath.trim() !== '' && typeof rootPath === 'string') {
+		lsPath = path.isAbsolute(lsPath) ? lsPath : path.join(rootPath, lsPath);
+		console.info(`Using language server at ${lsPath}`);
+	} else {
+		lsPath = undefined;
+	}
+
+	const serverModule = require.resolve(lsPath ?? '@astrojs/language-server/bin/nodeServer.js');
 
 	const port = 6040;
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
@@ -36,6 +50,13 @@ export async function activate(context: ExtensionContext) {
 			options: debugOptions,
 		},
 	};
+
+	const serverRuntime = runtimeConfig.get<string>('runtime');
+	if (serverRuntime) {
+		serverOptions.run.runtime = serverRuntime;
+		serverOptions.debug.runtime = serverRuntime;
+		console.info(`Using ${serverRuntime} as runtime`);
+	}
 
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
