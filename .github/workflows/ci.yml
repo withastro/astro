@@ -150,7 +150,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        OS: [ubuntu-latest, windows-latest]
+        OS: [ubuntu-latest]
         NODE_VERSION: [14]
       fail-fast: false
     env:
