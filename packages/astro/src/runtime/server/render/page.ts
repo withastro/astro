@@ -15,6 +15,13 @@ type NonAstroPageComponent = {
 	[needsHeadRenderingSymbol]: boolean;
 };
 
+function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): boolean {
+	return (
+		(needsHeadRenderingSymbol in pageComponent) &&
+		!!pageComponent[needsHeadRenderingSymbol]
+	);
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
@@ -38,7 +45,7 @@ export async function renderPage(
 			// This symbol currently exists for md components, but is something that could
 			// be added for any page-level component that's not an Astro component.
 			// to signal that head rendering is needed.
-			if((needsHeadRenderingSymbol in componentFactory) && componentFactory[needsHeadRenderingSymbol]) {
+			if(nonAstroPageNeedsHeadInjection(componentFactory)) {
 				for await (let chunk of maybeRenderHead(result)) {
 					html += chunk;
 				}
