@@ -8,7 +8,7 @@ import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
 
 const encoder = new TextEncoder();
-const needsHeadRenderingSymbol =  Symbol.for('astro.needsHeadRendering');
+const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 
 type NonAstroPageComponent = {
 	name: string;
@@ -16,10 +16,7 @@ type NonAstroPageComponent = {
 };
 
 function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): boolean {
-	return (
-		(needsHeadRenderingSymbol in pageComponent) &&
-		!!pageComponent[needsHeadRenderingSymbol]
-	);
+	return needsHeadRenderingSymbol in pageComponent && !!pageComponent[needsHeadRenderingSymbol];
 }
 
 export async function renderPage(
@@ -45,7 +42,7 @@ export async function renderPage(
 			// This symbol currently exists for md components, but is something that could
 			// be added for any page-level component that's not an Astro component.
 			// to signal that head rendering is needed.
-			if(nonAstroPageNeedsHeadInjection(componentFactory)) {
+			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
 				for await (let chunk of maybeRenderHead(result)) {
 					html += chunk;
 				}

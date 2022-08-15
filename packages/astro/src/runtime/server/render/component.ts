@@ -6,7 +6,12 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { renderSlot } from './any.js';
-import { isAstroComponentFactory, renderAstroComponent, renderTemplate, renderToIterable } from './astro.js';
+import {
+	isAstroComponentFactory,
+	renderAstroComponent,
+	renderTemplate,
+	renderToIterable,
+} from './astro.js';
 import { Fragment, Renderer } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
