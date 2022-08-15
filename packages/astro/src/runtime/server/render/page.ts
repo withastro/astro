@@ -30,7 +30,7 @@ export async function renderPage(
 			let rest = html;
 			html = `<!DOCTYPE html>`;
 			for await (let chunk of maybeRenderHead(result)) {
-				html += chunk;
+				//html += chunk;
 			}
 			html += rest;
 		}
