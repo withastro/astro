@@ -137,7 +137,6 @@ You can now [import your own `base.css` as a local stylesheet](https://docs.astr
 ## Troubleshooting
 - If your installation doesn't seem to be working, make sure to restart the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
-- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
 
 For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
