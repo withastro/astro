@@ -45,6 +45,8 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 						}
 					});
 					return layoutJsx(Layout, {
+						file,
+						url,
 						content,
 						frontmatter: content,
 						headings: getHeadings(),
