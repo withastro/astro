@@ -6,7 +6,7 @@ import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { renderSlot } from './any.js';
-import { renderAstroComponent, renderTemplate, renderToIterable } from './astro.js';
+import { isAstroComponentFactory, renderAstroComponent, renderTemplate, renderToIterable } from './astro.js';
 import { Fragment, Renderer } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
@@ -37,7 +37,7 @@ function getComponentType(Component: unknown): ComponentType {
 	if (Component && typeof Component === 'object' && (Component as any)['astro:html']) {
 		return 'html';
 	}
-	if (Component && (Component as any).isAstroComponentFactory) {
+	if (isAstroComponentFactory(Component)) {
 		return 'astro-factory';
 	}
 	return 'unknown';

@@ -2,21 +2,34 @@ import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 
 import { createResponse } from '../response.js';
-import { isAstroComponent, renderAstroComponent } from './astro.js';
+import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
 import { stringifyChunk } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
 
 const encoder = new TextEncoder();
+const needsHeadRenderingSymbol =  Symbol.for('astro.needsHeadRendering');
+
+type NonAstroPageComponent = {
+	name: string;
+	[needsHeadRenderingSymbol]: boolean;
+};
+
+function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): boolean {
+	return (
+		(needsHeadRenderingSymbol in pageComponent) &&
+		!!pageComponent[needsHeadRenderingSymbol]
+	);
+}
 
 export async function renderPage(
 	result: SSRResult,
-	componentFactory: AstroComponentFactory,
+	componentFactory: AstroComponentFactory | NonAstroPageComponent,
 	props: any,
 	children: any,
 	streaming: boolean
 ): Promise<Response> {
-	if (!componentFactory.isAstroComponentFactory) {
+	if (!isAstroComponentFactory(componentFactory)) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 		const output = await renderComponent(
 			result,
@@ -29,8 +42,13 @@ export async function renderPage(
 		if (!/<!doctype html/i.test(html)) {
 			let rest = html;
 			html = `<!DOCTYPE html>`;
-			for await (let chunk of maybeRenderHead(result)) {
-				html += chunk;
+			// This symbol currently exists for md components, but is something that could
+			// be added for any page-level component that's not an Astro component.
+			// to signal that head rendering is needed.
+			if(nonAstroPageNeedsHeadInjection(componentFactory)) {
+				for await (let chunk of maybeRenderHead(result)) {
+					html += chunk;
+				}
 			}
 			html += rest;
 		}
