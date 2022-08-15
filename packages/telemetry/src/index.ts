@@ -6,6 +6,7 @@ import { GlobalConfig } from './config.js';
 import { post } from './post.js';
 import { getProjectInfo, ProjectInfo } from './project-info.js';
 import { getSystemInfo, SystemInfo } from './system-info.js';
+import { isEmptyPrimitive } from './value.js';
 
 export type AstroTelemetryOptions = { astroVersion: string; viteVersion: string };
 export type TelemetryEvent = { eventName: string; payload: Record<string, any> };
@@ -47,7 +48,7 @@ export class AstroTelemetry {
 	 */
 	private getConfigWithFallback<T>(key: string, getValue: () => T): T {
 		const currentValue = this.config.get(key);
-		if (currentValue) {
+		if (!isEmptyPrimitive(currentValue)) {
 			return currentValue;
 		}
 		const newValue = getValue();
