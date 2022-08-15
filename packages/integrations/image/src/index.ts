@@ -76,7 +76,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:server:setup': async ({ server }) => {
 				globalThis.astroImage = {};
-				logLevel = server.config.logLevel as LoggerLevel;x
+				logLevel = server.config.logLevel as LoggerLevel;
 			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
