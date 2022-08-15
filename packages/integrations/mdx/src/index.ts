@@ -104,7 +104,11 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								async transform(code, id) {
 									if (!id.endsWith('mdx')) return;
 
+									const { fileUrl, fileId } = getFileInfo(id, config);
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
+									// Added to frontmatter for legacy purposes!
+									frontmatter.file = fileId;
+									frontmatter.url = fileUrl;
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
 										...mdxPluginOpts,
 										rehypePlugins: [
