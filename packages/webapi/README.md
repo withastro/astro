@@ -2,7 +2,7 @@
 
 **WebAPI** lets you use Web APIs in Node v12, v14, and v16.
 
-```shell
+```sh
 npm install @astrojs/webapi
 ```
 
