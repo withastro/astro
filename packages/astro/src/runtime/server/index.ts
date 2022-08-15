@@ -26,7 +26,7 @@ export {
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
-export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
+export type { AstroComponentFactory } from './render/index.js';
 import type { AstroComponentFactory } from './render/index.js';
 
 import { markHTMLString } from './escape.js';

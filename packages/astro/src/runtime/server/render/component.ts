@@ -1,5 +1,9 @@
-import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
-import type { RenderInstruction } from './types.js';
+import type {
+	AstroComponentMetadata,
+	SSRLoadedRenderer,
+	SSRRenderInstruction,
+	SSRResult,
+} from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
@@ -49,7 +53,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<string | AsyncIterable<string | RenderInstruction>> {
+): Promise<string | AsyncIterable<string | SSRRenderInstruction>> {
 	Component = await Component;
 
 	switch (getComponentType(Component)) {
@@ -79,7 +83,7 @@ export async function renderComponent(
 
 		case 'astro-factory': {
 			async function* renderAstroComponentInline(): AsyncGenerator<
-				string | RenderInstruction,
+				string | SSRRenderInstruction,
 				void,
 				undefined
 			> {
