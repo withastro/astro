@@ -281,7 +281,8 @@ export default function astroJSX(): PluginObj {
 
 				const meta = path.getData('import');
 				if (meta) {
-					// check props and make sure they are valid for an Astro component
+					// If JSX is importing an Astro component, e.g. using MDX for templating,
+					// check Astro node's props and make sure they are valid for an Astro component
 					if (meta.path.endsWith('.astro')) {
 						const displayName = getTagName(parentNode);
 						for (const attr of parentNode.openingElement.attributes) {
@@ -296,7 +297,6 @@ export default function astroJSX(): PluginObj {
 							}
 						}
 					}
-
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
 						const fileURL = pathToFileURL(state.filename!);
