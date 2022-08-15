@@ -251,13 +251,6 @@ async function handleRequest(
 	async function matchRoute() {
 		const matches = matchAllRoutes(pathname, manifest);
 
-		if (config.output === 'server' && matches.length > 1) {
-			throw new Error(`Found multiple matching routes for "${pathname}"! When using \`output: 'server'\`, only one route in \`src/pages\` can match a given URL. Found:
-
-${matches.map(({ component }) => `- ${component}`).join('\n')}
-`);
-		}
-
 		for await (const maybeRoute of matches) {
 			const filePath = new URL(`./${maybeRoute.component}`, config.root);
 			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
