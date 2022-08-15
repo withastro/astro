@@ -43,7 +43,7 @@ Because this command is new, it might not properly set things up. If that happen
 
 First, install the `@astrojs/preact` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
-```
+```sh
 npm install @astrojs/preact
 ```
 
