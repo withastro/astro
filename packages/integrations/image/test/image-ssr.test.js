@@ -122,8 +122,30 @@ describe('SSR images - build', function () {
 			expect(searchParams.get('f')).to.equal('webp');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			// TODO: possible to avoid encoding the full image path?
 			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png')).to.equal(true);
+		});
+
+		it('keeps remote image query params', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const image = $('#query');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('w')).to.equal('544');
+			expect(searchParams.get('h')).to.equal('184');
+			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png?token=abc')).to.equal(true);
 		});
 	});
 });
@@ -214,6 +236,24 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('h')).to.equal('184');
 			expect(searchParams.get('href')).to.equal(
 				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
+		});
+
+		it('keeps remote image query params', () => {
+			const image = $('#query');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('w')).to.equal('544');
+			expect(searchParams.get('h')).to.equal('184');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
 			);
 		});
 	});
