@@ -265,7 +265,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 			pathname,
 			hasHydrationScript: false,
 			hasDirectives: new Set(),
-			pendingInstructions: new Set(),
 		},
 		response,
 	};
