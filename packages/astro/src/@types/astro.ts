@@ -841,7 +841,7 @@ export interface AstroInstance {
 }
 
 export interface MarkdownInstance<T extends Record<string, any>> {
-	frontmatter: T;
+	frontmatter: T & { file: string; url: string | undefined };
 	file: string;
 	url: string | undefined;
 	Content: AstroComponentFactory;
@@ -871,10 +871,9 @@ export interface MDXInstance<T>
 }
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
-	frontmatter: {
-		file: MarkdownInstance<T>['file'];
-		url: MarkdownInstance<T>['url'];
-	} & T;
+	frontmatter: MarkdownInstance<T>['frontmatter'];
+	file: MarkdownInstance<T>['file'];
+	url: MarkdownInstance<T>['url'];
 	headings: MarkdownHeading[];
 	rawContent: MarkdownInstance<T>['rawContent'];
 	compiledContent: MarkdownInstance<T>['compiledContent'];
