@@ -68,24 +68,22 @@ describe('MDX syntax highlighting', () => {
 		});
 	});
 
-	describe('disabled', () => {
-		it('supports custom highlighter - shiki-twoslash', async () => {
-			const fixture = await loadFixture({
-				root: FIXTURE_ROOT,
-				markdown: {
-					syntaxHighlight: false,
-				},
-				integrations: [mdx({
-					remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
-				})],
-			});
-			await fixture.build();
-
-			const html = await fixture.readFile('/index.html');
-			const { document } = parseHTML(html);
-
-			const twoslashCodeBlock = document.querySelector('pre.shiki');
-			expect(twoslashCodeBlock).to.not.be.null;
+	it('supports custom highlighter - shiki-twoslash', async () => {
+		const fixture = await loadFixture({
+			root: FIXTURE_ROOT,
+			markdown: {
+				syntaxHighlight: false,
+			},
+			integrations: [mdx({
+				remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
+			})],
 		});
+		await fixture.build();
+
+		const html = await fixture.readFile('/index.html');
+		const { document } = parseHTML(html);
+
+		const twoslashCodeBlock = document.querySelector('pre.shiki');
+		expect(twoslashCodeBlock).to.not.be.null;
 	});
 });
