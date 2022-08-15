@@ -74,9 +74,11 @@ describe('MDX syntax highlighting', () => {
 			markdown: {
 				syntaxHighlight: false,
 			},
-			integrations: [mdx({
-				remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
-			})],
+			integrations: [
+				mdx({
+					remarkPlugins: [shikiTwoslash.default ?? shikiTwoslash],
+				}),
+			],
 		});
 		await fixture.build();
 
