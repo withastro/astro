@@ -880,8 +880,7 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	compiledContent: MarkdownInstance<T>['compiledContent'];
 }
 
-export interface MDXLayoutProps<T>
-	extends Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'> {}
+export type MDXLayoutProps<T> = Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'>;
 
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
