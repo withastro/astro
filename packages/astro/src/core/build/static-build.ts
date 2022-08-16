@@ -192,7 +192,6 @@ async function clientBuild(
 		return null;
 	}
 
-	// TODO: use vite.mergeConfig() here?
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig = {
