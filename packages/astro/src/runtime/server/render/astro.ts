@@ -5,6 +5,7 @@ import { markHTMLString } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
 import { renderChild } from './any.js';
 import { stringifyChunk } from './common.js';
+import { EagerAsyncIterableIterator } from './util.js';
 
 // In dev mode, check props and make sure they are valid for an Astro component
 function validateComponentProps(props: any, displayName: string) {
@@ -18,34 +19,6 @@ function validateComponentProps(props: any, displayName: string) {
 			}
 		}
 	}
-}
-
-function exhaust(iterable: AsyncIterable<any>): AsyncIterableIterator<any> {
-	let values: Array<IteratorResult<any, any>> = [];
-	let next: Promise<IteratorResult<any, any>>;
-	async function run() {
-		let gen = iterable[Symbol.asyncIterator]();
-		let value: IteratorResult<any, any>;
-		do {
-			next = gen.next();
-			value = await next;
-			values.push(value);
-		} while(!value.done);
-	}
-	run();
-
-	return {
-		async next() {
-			if(values.length) {
-				return values.shift()!;
-			}
-			await next;
-			return values.shift()!;
-		},
-		[Symbol.asyncIterator]() {
-			return this;
-		}
-	};
 }
 
 // The return value when rendering a component.
@@ -68,7 +41,11 @@ export class AstroComponent {
 
 		let iterables: Array<AsyncIterable<any>> = [];
 		for (let i = 0; i < htmlParts.length; i++) {
-			iterables.push(exhaust(renderChild(expressions[i])));
+			iterables.push(
+				new EagerAsyncIterableIterator(
+					renderChild(expressions[i])
+				)
+			);
 		}
 
 		for (let i = 0; i < htmlParts.length; i++) {

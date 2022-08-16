@@ -126,3 +126,39 @@ export function renderElement(
 	}
 	return `<${name}${internalSpreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }
+
+// This eagering consumes an AsyncIterable so that its values are ready to yield out
+// ASAP. This is used for list-like usage of Astro components, so that we don't have
+// to wait on earlier components to run to even start running those down in the list.
+export class EagerAsyncIterableIterator {
+	#iterable: AsyncIterable<any>;
+	#values: Array<IteratorResult<any, any>> = [];
+	#next: Promise<IteratorResult<any, any>> | undefined;
+	constructor(iterable: AsyncIterable<any>) {
+		this.#iterable = iterable;
+		this.#values = [];
+		this.#run();
+	}
+
+	async #run() {
+		let gen = this.#iterable[Symbol.asyncIterator]();
+		let value: IteratorResult<any, any>;
+		do {
+			this.#next = gen.next();
+			value = await this.#next;
+			this.#values.push(value);
+		} while(!value.done);
+	}
+
+	async next() {
+		if(this.#values.length) {
+			return this.#values.shift()!;
+		}
+		await this.#next;
+		return this.#values.shift()!;
+	}
+
+	[Symbol.asyncIterator]() {
+		return this;
+	}
+}
