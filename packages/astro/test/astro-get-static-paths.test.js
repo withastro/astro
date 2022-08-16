@@ -169,6 +169,6 @@ describe('getStaticPaths - Astro.url', () => {
 		const html = await fixture.readFile('/food/tacos/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('#url').text()).to.equal('/food/tacos');
+		expect($('#url').text()).to.equal('/food/tacos/');
 	});
 });
