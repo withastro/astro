@@ -97,7 +97,7 @@ importers:
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
       '@types/node': ^18.7.6
-      '@types/react': ^18.0.0
+      '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
       astro: ^1.0.6
       preact: ^10.7.3
@@ -106,7 +106,8 @@ importers:
     dependencies:
       '@algolia/client-search': 4.14.2
       '@docsearch/css': 3.2.1
-      '@docsearch/react': 3.2.0_bnoix7udcyfzum3bz5llzjedt4
+      '@docsearch/react': 3.2.0_h2q7ltx4sqgye5xvrbnj7n2sfm
+      '@types/react': 17.0.48
       preact: 10.10.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -114,7 +115,6 @@ importers:
       '@astrojs/preact': link:../../packages/integrations/preact
       '@astrojs/react': link:../../packages/integrations/react
       '@types/node': 18.7.6
-      '@types/react': 18.0.17
       '@types/react-dom': 18.0.6
       astro: link:../../packages/astro
 
@@ -4885,7 +4885,7 @@ packages:
     resolution: {integrity: sha512-gaP6TxxwQC+K8D6TRx5WULUWKrcbzECOPA2KCVMuI+6C7dNiGUk5yXXzVhc5sld79XKYLnO9DRTI4mjXDYkh+g==}
     dev: false
 
-  /@docsearch/react/3.2.0_bnoix7udcyfzum3bz5llzjedt4:
+  /@docsearch/react/3.2.0_h2q7ltx4sqgye5xvrbnj7n2sfm:
     resolution: {integrity: sha512-ATS3w5JBgQGQF0kHn5iOAPfnCCaoLouZQMmI7oENV//QMFrYbjhUZxBU9lIwAT7Rzybud+Jtb4nG5IEjBk3Ixw==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
@@ -4902,7 +4902,7 @@ packages:
       '@algolia/autocomplete-core': 1.7.1
       '@algolia/autocomplete-preset-algolia': 1.7.1_qs6lk5nhygj2o3hj4sf6xnr724
       '@docsearch/css': 3.2.0
-      '@types/react': 18.0.17
+      '@types/react': 17.0.48
       algoliasearch: 4.14.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -8742,7 +8742,6 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.0
-    dev: true
 
   /@types/react/18.0.17:
     resolution: {integrity: sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==}
@@ -8750,6 +8749,7 @@ packages:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.0
+    dev: true
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
