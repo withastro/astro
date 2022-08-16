@@ -96,7 +96,7 @@ importers:
       '@astrojs/react': ^1.0.0
       '@docsearch/css': ^3.1.0
       '@docsearch/react': ^3.1.0
-      '@types/node': ^18.7.6
+      '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
       astro: ^1.0.6
