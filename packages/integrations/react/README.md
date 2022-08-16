@@ -20,7 +20,7 @@ npm run astro add react
 # Using Yarn
 yarn astro add react
 # Using PNPM
-pnpm run astro add react
+pnpm astro add react
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

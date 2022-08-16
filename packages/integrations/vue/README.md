@@ -20,7 +20,7 @@ npm run astro add vue
 # Using Yarn
 yarn astro add vue
 # Using PNPM
-pnpm run astro add vue
+pnpm astro add vue
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

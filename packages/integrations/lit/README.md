@@ -20,7 +20,7 @@ npm run astro add lit
 # Using Yarn
 yarn astro add lit
 # Using PNPM
-pnpm run astro add lit
+pnpm astro add lit
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

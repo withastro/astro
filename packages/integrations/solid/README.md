@@ -20,7 +20,7 @@ npm run astro add solid
 # Using Yarn
 yarn astro add solid
 # Using PNPM
-pnpm run astro add solid
+pnpm astro add solid
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

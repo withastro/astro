@@ -30,7 +30,7 @@ npm run astro add mdx
 # Using Yarn
 yarn astro add mdx
 # Using PNPM
-pnpm run astro add mdx
+pnpm astro add mdx
 ```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.

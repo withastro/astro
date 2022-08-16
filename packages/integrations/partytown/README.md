@@ -32,7 +32,7 @@ npm run astro add partytown
 # Using Yarn
 yarn astro add partytown
 # Using PNPM
-pnpm run astro add partytown
+pnpm astro add partytown
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.

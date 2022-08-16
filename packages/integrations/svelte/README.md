@@ -20,7 +20,7 @@ npm run astro add svelte
 # Using Yarn
 yarn astro add svelte
 # Using PNPM
-pnpm run astro add svelte
+pnpm astro add svelte
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

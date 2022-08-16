@@ -32,7 +32,7 @@ npm run astro add sitemap
 # Using Yarn
 yarn astro add sitemap
 # Using PNPM
-pnpm run astro add sitemap
+pnpm astro add sitemap
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.

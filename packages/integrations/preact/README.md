@@ -32,7 +32,7 @@ npm run astro add preact
 # Using Yarn
 yarn astro add preact
 # Using PNPM
-pnpm run astro add preact
+pnpm astro add preact
 ```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
