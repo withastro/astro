@@ -22,11 +22,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
   
 ```sh
 # Using NPM
-npx astro add prefetch
+npm run astro add prefetch
 # Using Yarn
 yarn astro add prefetch
 # Using PNPM
-pnpx astro add prefetch
+pnpm astro add prefetch
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.

@@ -10,12 +10,12 @@ npm init astro -- --template blog
 
 Features:
 
-- ✅ SEO-friendly setup with canonical URLs and OpenGraph data
-- ✅ `@astrojs/image` image optimizations
-- ✅ Sitemap support
-- ✅ Markdown & MDX support
 - ✅ Minimal styling (make it your own!)
 - ✅ 100/100 Lighthouse performance
+- ✅ SEO-friendly with canonical URLs and OpenGraph data
+- ✅ Sitemap support
+- ✅ RSS Feed support
+- ✅ Markdown & MDX support
 
 ## 🚀 Project Structure
 
