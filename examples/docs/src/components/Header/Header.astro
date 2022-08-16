@@ -1,18 +1,18 @@
 ---
-	import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages';
-	import * as CONFIG from '../../config';
-	import AstroLogo from './AstroLogo.astro';
-	import SkipToContent from './SkipToContent.astro';
-	import SidebarToggle from './SidebarToggle';
-	import LanguageSelect from './LanguageSelect';
-	import Search from './Search';
+import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages';
+import * as CONFIG from '../../config';
+import AstroLogo from './AstroLogo.astro';
+import SkipToContent from './SkipToContent.astro';
+import SidebarToggle from './SidebarToggle';
+import LanguageSelect from './LanguageSelect';
+import Search from './Search';
 
-	type Props = {
-		currentPage: string;
-	}
+type Props = {
+	currentPage: string;
+};
 
-	const { currentPage } = Astro.props as Props;
-	const lang = getLanguageFromURL(currentPage);
+const { currentPage } = Astro.props as Props;
+const lang = getLanguageFromURL(currentPage);
 ---
 
 <header>
@@ -28,8 +28,7 @@
 			</a>
 		</div>
 		<div style="flex-grow: 1;"></div>
-		{KNOWN_LANGUAGE_CODES.length > 1 &&
-		<LanguageSelect lang={lang} client:idle />}
+		{KNOWN_LANGUAGE_CODES.length > 1 && <LanguageSelect lang={lang} client:idle />}
 		<div class="search-item">
 			<Search client:idle />
 		</div>

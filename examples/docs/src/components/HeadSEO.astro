@@ -1,16 +1,16 @@
 ---
-	import { SITE, OPEN_GRAPH, Frontmatter } from '../config';
+import { SITE, OPEN_GRAPH, Frontmatter } from '../config';
 
-	export interface Props {
-		frontmatter: Frontmatter;
-		canonicalUrl: URL;
-	}
+export interface Props {
+	frontmatter: Frontmatter;
+	canonicalUrl: URL;
+}
 
-	const { frontmatter, canonicalUrl } = Astro.props as Props;
-	const formattedContentTitle = `${frontmatter.title} 🚀 ${SITE.title}`;
-	const imageSrc = frontmatter.image?.src ?? OPEN_GRAPH.image.src;
-	const canonicalImageSrc = new URL(imageSrc, Astro.site);
-	const imageAlt = frontmatter.image?.alt ?? OPEN_GRAPH.image.alt;
+const { frontmatter, canonicalUrl } = Astro.props as Props;
+const formattedContentTitle = `${frontmatter.title} 🚀 ${SITE.title}`;
+const imageSrc = frontmatter.image?.src ?? OPEN_GRAPH.image.src;
+const canonicalImageSrc = new URL(imageSrc, Astro.site);
+const imageAlt = frontmatter.image?.alt ?? OPEN_GRAPH.image.alt;
 ---
 
 <!-- Page Metadata -->
@@ -23,7 +23,11 @@
 <meta property="og:locale" content={frontmatter.ogLocale ?? SITE.defaultLanguage} />
 <meta property="og:image" content={canonicalImageSrc} />
 <meta property="og:image:alt" content={imageAlt} />
-<meta name="description" property="og:description" content={frontmatter.description ?? SITE.description} />
+<meta
+	name="description"
+	property="og:description"
+	content={frontmatter.description ?? SITE.description}
+/>
 <meta property="og:site_name" content={SITE.title} />
 
 <!-- Twitter Tags -->

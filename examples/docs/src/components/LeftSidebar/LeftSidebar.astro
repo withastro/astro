@@ -1,34 +1,37 @@
 ---
-	import { getLanguageFromURL } from '../../languages';
-	import { SIDEBAR } from '../../config';
+import { getLanguageFromURL } from '../../languages';
+import { SIDEBAR } from '../../config';
 
-	type Props = {
-		currentPage: string;
-	}
+type Props = {
+	currentPage: string;
+};
 
-	const { currentPage } = Astro.props as Props;
-	const currentPageMatch = currentPage.slice(1);
-	const langCode = getLanguageFromURL(currentPage);
-	const sidebar = SIDEBAR[langCode];
+const { currentPage } = Astro.props as Props;
+const currentPageMatch = currentPage.slice(1);
+const langCode = getLanguageFromURL(currentPage);
+const sidebar = SIDEBAR[langCode];
 ---
 
 <nav aria-labelledby="grid-left">
 	<ul class="nav-groups">
 		{Object.entries(sidebar).map(([header, children]) => (
-		<li>
-			<div class="nav-group">
-				<h2>{header}</h2>
-				<ul>
-					{children.map((child) => {
-					const url = Astro.site?.pathname + child.link;
-					return (
-					<li class="nav-link">
-						<a href={url} aria-current={currentPageMatch===child.link ? "page" : false }>{child.text}</a>
-					</li>
-					)})}
-				</ul>
-			</div>
-		</li>
+			<li>
+				<div class="nav-group">
+					<h2>{header}</h2>
+					<ul>
+						{children.map((child) => {
+							const url = Astro.site?.pathname + child.link;
+							return (
+								<li class="nav-link">
+									<a href={url} aria-current={currentPageMatch === child.link ? 'page' : false}>
+										{child.text}
+									</a>
+								</li>
+							);
+						})}
+					</ul>
+				</div>
+			</li>
 		))}
 	</ul>
 </nav>
@@ -56,15 +59,15 @@
 		max-height: 100vh;
 	}
 
-	.nav-groups>li+li {
+	.nav-groups > li + li {
 		margin-top: 2rem;
 	}
 
-	.nav-groups> :first-child {
+	.nav-groups > :first-child {
 		padding-top: var(--doc-padding);
 	}
 
-	.nav-groups> :last-child {
+	.nav-groups > :last-child {
 		padding-bottom: 2rem;
 		margin-bottom: var(--theme-navbar-height);
 	}

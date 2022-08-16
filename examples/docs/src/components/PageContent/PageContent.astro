@@ -1,17 +1,17 @@
 ---
-	import type { Frontmatter } from '../../config';
-	import MoreMenu from '../RightSidebar/MoreMenu.astro';
-	import TableOfContents from '../RightSidebar/TableOfContents';
-	import type { MarkdownHeading } from "astro";
+import type { Frontmatter } from '../../config';
+import MoreMenu from '../RightSidebar/MoreMenu.astro';
+import TableOfContents from '../RightSidebar/TableOfContents';
+import type { MarkdownHeading } from 'astro';
 
-	type Props = {
-		frontmatter: Frontmatter;
-		headings: MarkdownHeading[];
-		githubEditUrl: string;
-	}
+type Props = {
+	frontmatter: Frontmatter;
+	headings: MarkdownHeading[];
+	githubEditUrl: string;
+};
 
-	const { frontmatter, headings, githubEditUrl } = Astro.props as Props;
-	const title = frontmatter.title;
+const { frontmatter, headings, githubEditUrl } = Astro.props as Props;
+const title = frontmatter.title;
 ---
 
 <article id="article" class="content">
@@ -37,7 +37,7 @@
 		flex-direction: column;
 	}
 
-	.content>section {
+	.content > section {
 		margin-bottom: 4rem;
 	}
 
