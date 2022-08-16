@@ -12,7 +12,7 @@ Provides language support for `.astro` files. This extension is powered by the [
 - [Emmet completions](https://code.visualstudio.com/docs/editor/emmet) in HTML & CSS
 - Props completions for JSX/TSX, Vue (Composition API only) and Svelte components
 - [Code actions](https://code.visualstudio.com/docs/editor/editingevolved#_code-action) (quick fixes, sort imports etc)
-- [Formatting](https://code.visualstudio.com/docs/editor/codebasics#_formatting)
+- [Formatting](https://code.visualstudio.com/docs/editor/codebasics#_formatting) (powered by [Prettier](https://prettier.io/) and [prettier-plugin-astro](https://github.com/withastro/prettier-plugin-astro))
 - [Symbols](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-symbol) ([outline view](https://code.visualstudio.com/docs/getstarted/userinterface#_outline-view), [breadcrumb navigation](https://code.visualstudio.com/docs/editor/editingevolved#_breadcrumbs) etc)
 - [Hover information](https://code.visualstudio.com/Docs/languages/typescript#_hover-information)
 - [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition)
@@ -25,7 +25,7 @@ A TypeScript plugin adding support for importing Astro components inside JavaScr
 
 You can disable most features in the extension by going to your workspace settings page. Under **Extension** find Astro configuration and uncheck the feature(s) you do not want. For example to disable error messages unselect **TypeScript > Diagnostics: Enable** (or in JSON, set `astro.typescript.diagnostics.enabled` to `false`).
 
-Formatting and TypeScript settings can be configured using VS Code's HTML Format settings (`html.format.xxx`) and TypeScript settings (`typescript.xxx`) respectively.
+Formatting can be configured through [Prettier's different configuration methods](https://prettier.io/docs/en/configuration.html). TypeScript settings can be configured using VS Code's TypeScript settings (`typescript.xxx`).
 
 ## Troubleshooting
 
