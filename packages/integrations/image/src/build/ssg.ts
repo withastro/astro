@@ -24,7 +24,7 @@ export interface SSGBuildParams {
 export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel }: SSGBuildParams) {
 	const timer = performance.now();
 
-	info({ level: logLevel, prefix: false, message: `\n\n${bgGreen(black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `))}\n` });
+	info({ level: logLevel, prefix: false, message: `${bgGreen(black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `))}` });
 	
 	const inputFiles = new Set<string>();
 
