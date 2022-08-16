@@ -19,7 +19,6 @@ const dateTimeFormat = new Intl.DateTimeFormat([], {
 });
 
 export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // same as Pino
-export type LoggerEvent = 'info' | 'warn' | 'error';
 
 export interface LogMessage {
 	level: LoggerLevel;
