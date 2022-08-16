@@ -290,7 +290,9 @@ async function generatePath(
 	}
 
 	const ssr = opts.astroConfig.output === 'server';
-	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
+	const buildPathEnding = opts.astroConfig.build.format === 'directory' ? '/' : '.html';
+	const buildPathname = removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + buildPathEnding;
+	const url = new URL(opts.astroConfig.base + buildPathname, origin);
 	const options: RenderOptions = {
 		adapterName: undefined,
 		links,
