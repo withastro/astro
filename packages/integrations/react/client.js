@@ -2,19 +2,6 @@ import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
-/**requestIdleCallback pollyfill https://developer.chrome.com/blog/using-requestidlecallback/#checking-for-requestidlecallback */
-window?.requestIdleCallback = window?.requestIdleCallback || function (cb) {
-	var start = Date.now();
-	return setTimeout(function () {
-		cb({
-			didTimeout: false,
-			timeRemaining: function () {
-				return Math.max(0, 50 - (Date.now() - start));
-			}
-		});
-	}, 1);
-}
-
 function isAlreadyHydrated(element) {
 	for (const key in element) {
 		if (key.startsWith('__reactContainer')) {
@@ -44,9 +31,7 @@ export default (element) =>
 				createRoot(element).render(componentEl);
 			})
 		}
-		return window?.requestIdleCallback(() => {
-			startTransition(() => {
-				hydrateRoot(element, componentEl);
-			})
+		return startTransition(() => {
+			hydrateRoot(element, componentEl);
 		})
 	};
