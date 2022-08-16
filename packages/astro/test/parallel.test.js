@@ -12,14 +12,13 @@ describe('Component parallelization', () => {
 		await fixture.build();
 	});
 
-	it('rendered fast', async () => {
+	it('renders fast', async () => {
 		let html = await fixture.readFile('/index.html');
 		let $ = cheerio.load(html);
-		console.log('HTML', html);
 
 		let firstStart = Number($('.start').first().text());
 		let lastStart = Number($('.start').last().text());
-		console.log(lastStart, firstStart, lastStart - firstStart);
-		expect(lastStart - firstStart).to.be.lessThan(50);
+		let timeTook = lastStart - firstStart;
+		expect(timeTook).to.be.lessThan(50, 'the components in the list were kicked off more-or-less at the same time.');
 	});
 });
