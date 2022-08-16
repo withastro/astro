@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.10.0
+
+### Minor Changes
+
+- [#4292](https://github.com/withastro/astro/pull/4292) [`f1a52c18a`](https://github.com/withastro/astro/commit/f1a52c18afe66e6d310743ae6884be76f69be265) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Switch from Shiki Twoslash to Astro's Shiki Markdown highlighter
+
 ## 0.9.0
 
 ### Minor Changes

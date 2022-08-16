@@ -23,7 +23,7 @@ Looking for help? Start with our [Getting Started](https://docs.astro.build/en/g
 Looking for quick examples? [Open a starter project](https://astro.new/) right in your browser.
 ## Documentation
 
-Visit our [offical documentation](https://docs.astro.build/).  
+Visit our [official documentation](https://docs.astro.build/).
 
 ## Support
 
@@ -49,7 +49,7 @@ Join us on [Discord](https://astro.build/chat) to meet other maintainers. We'll 
 | [@astrojs/deno](packages/integrations/deno)             | [![astro version](https://img.shields.io/npm/v/@astrojs/deno.svg?label=%20)](packages/integrations/deno/CHANGELOG.md)             |
 | [@astrojs/netlify](packages/integrations/netlify)       | [![astro version](https://img.shields.io/npm/v/@astrojs/netlify.svg?label=%20)](packages/integrations/netlify/CHANGELOG.md)       |
 | [@astrojs/vercel](packages/integrations/vercel)         | [![astro version](https://img.shields.io/npm/v/@astrojs/vercel.svg?label=%20)](packages/integrations/vercel/CHANGELOG.md)         |
-| [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md)   |
+| [@astrojs/cloudflare](packages/integrations/cloudflare) | [![astro version](https://img.shields.io/npm/v/@astrojs/cloudflare.svg?label=%20)](packages/integrations/cloudflare/CHANGELOG.md) |
 | [@astrojs/partytown](packages/integrations/partytown)   | [![astro version](https://img.shields.io/npm/v/@astrojs/partytown.svg?label=%20)](packages/integrations/partytown/CHANGELOG.md)   |
 | [@astrojs/sitemap](packages/integrations/sitemap)       | [![astro version](https://img.shields.io/npm/v/@astrojs/sitemap.svg?label=%20)](packages/integrations/sitemap/CHANGELOG.md)       |
 | [@astrojs/tailwind](packages/integrations/tailwind)     | [![astro version](https://img.shields.io/npm/v/@astrojs/tailwind.svg?label=%20)](packages/integrations/tailwind/CHANGELOG.md)     |

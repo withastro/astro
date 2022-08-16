@@ -28,11 +28,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npx astro add preact
+npm run astro add preact
 # Using Yarn
 yarn astro add preact
 # Using PNPM
-pnpx astro add preact
+pnpm astro add preact
 ```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.

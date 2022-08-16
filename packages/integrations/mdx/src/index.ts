@@ -4,13 +4,13 @@ import type { AstroConfig, AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
-import remarkShikiTwoslash from 'remark-shiki-twoslash';
 import remarkSmartypants from 'remark-smartypants';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { rehypeApplyFrontmatterExport, remarkInitializeAstroData } from './astro-data-utils.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
+import remarkShiki from './remark-shiki.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';
 
 type WithExtends<T> = T | { extends: T };
@@ -38,22 +38,17 @@ function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = 
 	return [...defaults, ...(config?.extends ?? [])];
 }
 
-function getRemarkPlugins(
+async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
-): MdxRollupPluginOptions['remarkPlugins'] {
+): Promise<MdxRollupPluginOptions['remarkPlugins']> {
 	let remarkPlugins = [
 		// Initialize vfile.data.astroExports before all plugins are run
 		remarkInitializeAstroData,
 		...handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
 	];
 	if (config.markdown.syntaxHighlight === 'shiki') {
-		// Default export still requires ".default" chaining for some reason
-		// Workarounds tried:
-		// - "import * as remarkShikiTwoslash"
-		// - "import { default as remarkShikiTwoslash }"
-		const shikiTwoslash = (remarkShikiTwoslash as any).default ?? remarkShikiTwoslash;
-		remarkPlugins.push([shikiTwoslash, config.markdown.shikiConfig]);
+		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
@@ -65,11 +60,11 @@ function getRehypePlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): MdxRollupPluginOptions['rehypePlugins'] {
-	let rehypePlugins = handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS);
+	let rehypePlugins = [
+		[rehypeRaw, { passThrough: nodeTypes }] as any,
+		...handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS),
+	];
 
-	if (config.markdown.syntaxHighlight === 'shiki' || config.markdown.syntaxHighlight === 'prism') {
-		rehypePlugins.unshift([rehypeRaw, { passThrough: nodeTypes }]);
-	}
 	// getHeadings() is guaranteed by TS, so we can't allow user to override
 	rehypePlugins.unshift(rehypeCollectHeadings);
 
@@ -80,11 +75,11 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
-			'astro:config:setup': ({ updateConfig, config, addPageExtension, command }: any) => {
+			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
-					remarkPlugins: getRemarkPlugins(mdxOptions, config),
+					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
 					jsx: true,
 					jsxImportSource: 'astro',
