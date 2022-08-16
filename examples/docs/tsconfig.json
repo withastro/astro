@@ -10,6 +10,10 @@
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
     // Astro will directly run your TypeScript code, no transpilation needed.
-    "noEmit": true
+    "noEmit": true,
+    // For usage of JSX syntax.
+    "jsx": "preserve",
+    // Skip type checking of external libraries.
+    "skipLibCheck": true
   }
 }

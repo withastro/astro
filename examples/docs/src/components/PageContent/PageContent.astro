@@ -1,16 +1,24 @@
 ---
-import MoreMenu from '../RightSidebar/MoreMenu.astro';
-import TableOfContents from '../RightSidebar/TableOfContents';
+	import type { Frontmatter } from '../../config';
+	import MoreMenu from '../RightSidebar/MoreMenu.astro';
+	import TableOfContents from '../RightSidebar/TableOfContents';
+	import type { MarkdownHeading } from "astro";
 
-const { frontmatter, headings, githubEditUrl } = Astro.props;
-const title = frontmatter.title;
+	type Props = {
+		frontmatter: Frontmatter;
+		headings: MarkdownHeading[];
+		githubEditUrl: string;
+	}
+
+	const { frontmatter, headings, githubEditUrl } = Astro.props as Props;
+	const title = frontmatter.title;
 ---
 
 <article id="article" class="content">
 	<section class="main-section">
 		<h1 class="content-title" id="overview">{title}</h1>
 		<nav class="block sm:hidden">
-			<TableOfContents client:media="(max-width: 50em)" {headings} />
+			<TableOfContents client:media="(max-width: 50em)" headings={headings} />
 		</nav>
 		<slot />
 	</section>
@@ -29,7 +37,7 @@ const title = frontmatter.title;
 		flex-direction: column;
 	}
 
-	.content > section {
+	.content>section {
 		margin-bottom: 4rem;
 	}
 

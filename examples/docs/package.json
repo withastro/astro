@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "check": "astro check && tsc",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -13,7 +14,6 @@
     "@algolia/client-search": "^4.13.1",
     "@docsearch/css": "^3.1.0",
     "@docsearch/react": "^3.1.0",
-    "@types/react": "^17.0.45",
     "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
@@ -21,6 +21,9 @@
   "devDependencies": {
     "@astrojs/preact": "^1.0.2",
     "@astrojs/react": "^1.0.0",
-    "astro": "^1.0.5"
+    "@types/node": "^18.7.6",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "astro": "^1.0.6"
   }
 }

@@ -1,10 +1,10 @@
-import { KNOWN_LANGUAGES } from './config';
+import { KNOWN_LANGUAGES, KNOWN_LANGUAGE_CODES } from './config';
+export { KNOWN_LANGUAGES, KNOWN_LANGUAGE_CODES };
 
-export { KNOWN_LANGUAGES };
-export const KNOWN_LANGUAGE_CODES = Object.values(KNOWN_LANGUAGES);
 export const langPathRegex = /\/([a-z]{2}-?[A-Z]{0,2})\//;
 
 export function getLanguageFromURL(pathname: string) {
 	const langCodeMatch = pathname.match(langPathRegex);
-	return langCodeMatch ? langCodeMatch[1] : 'en';
+	const langCode = langCodeMatch ? langCodeMatch[1] : 'en';
+	return langCode as typeof KNOWN_LANGUAGE_CODES[number];
 }
