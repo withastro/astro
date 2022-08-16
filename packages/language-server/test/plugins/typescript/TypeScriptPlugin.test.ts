@@ -216,13 +216,4 @@ describe('TypeScript Plugin', () => {
 			expect(foldingRanges).to.not.be.empty;
 		});
 	});
-
-	describe('provide formatting', async () => {
-		it('return formatting edits', async () => {
-			const { plugin, document } = setup('formatting/basic.astro');
-
-			const formatting = await plugin.formatDocument(document, { tabSize: 2, insertSpaces: true });
-			expect(formatting).to.not.be.empty;
-		});
-	});
 });

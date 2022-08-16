@@ -36,7 +36,6 @@ import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { CodeActionsProviderImpl } from './features/CodeActionsProvider';
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
-import { FormattingProviderImpl } from './features/FormattingProvider';
 import astro2tsx, { Astro2TSXResult } from './astro2tsx';
 import { classNameFromFilename } from './snapshots/utils';
 
@@ -56,7 +55,6 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly inlayHintsProvider: InlayHintsProviderImpl;
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
-	private readonly formattingProvider: FormattingProviderImpl;
 
 	constructor(configManager: ConfigManager, languageServiceManager: LanguageServiceManager) {
 		this.configManager = configManager;
@@ -72,7 +70,6 @@ export class TypeScriptPlugin implements Plugin {
 		this.semanticTokensProvider = new SemanticTokensProviderImpl(this.languageServiceManager);
 		this.inlayHintsProvider = new InlayHintsProviderImpl(this.languageServiceManager, this.configManager);
 		this.foldingRangesProvider = new FoldingRangesProviderImpl(this.languageServiceManager);
-		this.formattingProvider = new FormattingProviderImpl(this.languageServiceManager, this.configManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
@@ -111,10 +108,6 @@ export class TypeScriptPlugin implements Plugin {
 		});
 
 		return edit;
-	}
-
-	async formatDocument(document: AstroDocument, options: FormattingOptions): Promise<TextEdit[]> {
-		return this.formattingProvider.formatDocument(document, options);
 	}
 
 	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[] | null> {

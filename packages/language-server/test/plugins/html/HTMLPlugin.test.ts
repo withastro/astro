@@ -149,34 +149,6 @@ describe('HTML Plugin', () => {
 		});
 	});
 
-	describe('provides formatting', () => {
-		it('return formatting', async () => {
-			const { plugin, document } = setup('<div><p>Astro</p></div>');
-
-			const formatting = await plugin.formatDocument(document, defaultFormattingOptions);
-
-			expect(formatting).to.deep.equal([
-				{
-					range: Range.create(0, 0, 0, 23),
-					newText: '<div>\n  <p>Astro</p>\n</div>',
-				},
-			]);
-		});
-
-		it('does not format the inside of script tags', async () => {
-			const { plugin, document } = setup('<div>\n<script>\nconsole.log()\n</script>\n</div>');
-
-			const formatting = await plugin.formatDocument(document, defaultFormattingOptions);
-
-			expect(formatting).to.deep.equal([
-				{
-					range: Range.create(0, 0, 4, 6),
-					newText: '<div>\n  <script>\nconsole.log()\n</script>\n</div>',
-				},
-			]);
-		});
-	});
-
 	describe('provides document symbols', () => {
 		it('for html', async () => {
 			const { plugin, document } = setup('<div><p>Astro</p></div>');

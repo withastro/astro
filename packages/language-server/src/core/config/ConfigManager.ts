@@ -113,16 +113,6 @@ export class ConfigManager {
 		};
 	}
 
-	async getAstroFormatConfig(document: TextDocument): Promise<LSFormatConfig> {
-		const astroFormatConfig = (await this.getConfig<LSFormatConfig>('astro.format', document.uri)) ?? {};
-
-		return {
-			indentFrontmatter: astroFormatConfig.indentFrontmatter ?? defaultLSConfig.format!.indentFrontmatter,
-			newLineAfterFrontmatter:
-				astroFormatConfig.newLineAfterFrontmatter ?? defaultLSConfig.format!.newLineAfterFrontmatter,
-		};
-	}
-
 	async getTSFormatConfig(document: TextDocument, vscodeOptions?: FormattingOptions): Promise<FormatCodeSettings> {
 		const formatConfig = (await this.getConfig<FormatCodeSettings>('typescript.format', document.uri)) ?? {};
 

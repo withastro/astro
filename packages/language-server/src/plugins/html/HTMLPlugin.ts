@@ -127,33 +127,6 @@ export class HTMLPlugin implements Plugin {
 		);
 	}
 
-	async formatDocument(document: AstroDocument, options: FormattingOptions): Promise<TextEdit[]> {
-		const start = document.positionAt(
-			document.astroMeta.frontmatter.state === 'closed' ? document.astroMeta.frontmatter.endOffset! + 3 : 0
-		);
-
-		if (document.astroMeta.frontmatter.state === 'closed') {
-			start.line += 1;
-			start.character = 0;
-		}
-
-		const end = document.positionAt(document.getTextLength());
-
-		const htmlFormatConfig =
-			(await this.configManager.getConfig<HTMLFormatConfiguration>('html.format', document.uri)) ?? {};
-
-		// The HTML plugin can't format script tags properly, we'll handle those inside the TypeScript plugin
-		if (htmlFormatConfig.contentUnformatted) {
-			htmlFormatConfig.contentUnformatted = htmlFormatConfig.contentUnformatted + ',script';
-		} else {
-			htmlFormatConfig.contentUnformatted = 'script';
-		}
-
-		const edits = this.lang.format(document, Range.create(start, end), { ...htmlFormatConfig, ...options });
-
-		return edits;
-	}
-
 	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {
 		const html = document.html;
 
