@@ -26,11 +26,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npx astro add mdx
+npm run astro add mdx
 # Using Yarn
 yarn astro add mdx
 # Using PNPM
-pnpx astro add mdx
+pnpm astro add mdx
 ```
 
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
