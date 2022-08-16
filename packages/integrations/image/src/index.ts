@@ -28,11 +28,13 @@ export interface IntegrationOptions {
 	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
 	 */
 	serviceEntryPoint?: string;
+	logLevel?: LoggerLevel;
 }
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/sharp',
+		logLevel: 'info' as LoggerLevel,
 		...options,
 	};
 
@@ -41,7 +43,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 	let _config: AstroConfig;
 	let output: 'server' | 'static';
-	let logLevel: LoggerLevel = 'info';
 
 	function getViteConfiguration() {
 		return {
@@ -76,7 +77,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:server:setup': async ({ server }) => {
 				globalThis.astroImage = {};
-				logLevel = server.config.logLevel as LoggerLevel;
 			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
@@ -110,7 +110,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					const loader = globalThis?.astroImage?.loader;
 
 					if (loader && 'transform' in loader && staticImages.size > 0) {
-						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir, logLevel });
+						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir, logLevel: resolvedOptions.logLevel });
 					}
 				}
 			},

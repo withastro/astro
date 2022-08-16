@@ -1,4 +1,4 @@
-import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green, bold } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,17 +21,15 @@ export interface SSGBuildParams {
 	logLevel: LoggerLevel;
 }
 
-const noop = () => {};
-
 export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel }: SSGBuildParams) {
 	const timer = performance.now();
 
-	info({ level: logLevel, message: `\n\n${bgGreen(black(' generating optimized images '))}` });
+	info({ level: logLevel, prefix: false, message: `\n\n${bgGreen(black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `))}\n` });
 	
 	const inputFiles = new Set<string>();
 
 	// process transforms one original image file at a time
-	for await (const [src, transformsMap] of staticImages) {
+	for (const [src, transformsMap] of staticImages) {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
 
@@ -71,7 +69,7 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 		}
 
 		// process each transformed versiono of the
-		for await (const [filename, transform] of transforms) {
+		for (const [filename, transform] of transforms) {
 			timeStart = performance.now();
 			let outputFile: string;
 

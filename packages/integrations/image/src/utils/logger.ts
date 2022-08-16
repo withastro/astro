@@ -1,7 +1,7 @@
 // eslint-disable no-console
 import { bold, cyan, dim, green, red, yellow } from 'kleur/colors';
 
-const PREFIX = '[@astrojs/image]';
+const PREFIX = '@astrojs/image';
 
 // Hey, locales are pretty complicated! Be careful modifying this logic...
 // If we throw at the top-level, international users can't use Astro.
@@ -45,16 +45,16 @@ function getPrefix(level: LoggerLevel, timestamp: boolean) {
 
 	switch (level) {
 		case 'debug':
-			prefix += bold(green(`[${PREFIX}]`));
+			prefix += bold(green(`[${PREFIX}] `));
 			break;
 		case 'info':
-			prefix += bold(cyan(`[${PREFIX}]`));
+			prefix += bold(cyan(`[${PREFIX}] `));
 			break;
 		case 'warn':
-			prefix += bold(yellow(`[${PREFIX}]`));
+			prefix += bold(yellow(`[${PREFIX}] `));
 			break;
 		case 'error':
-			prefix += bold(red(`[${PREFIX}]`));
+			prefix += bold(red(`[${PREFIX}] `));
 			break;
 	}
 
