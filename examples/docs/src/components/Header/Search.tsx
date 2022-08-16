@@ -4,12 +4,15 @@ import { ALGOLIA } from "../../config";
 import "@docsearch/css";
 import "./Search.css";
 
-import "@docsearch/css/dist/style.css";
-import "./Search.css";
-
 import { createPortal } from "react-dom";
 import * as docSearchReact from "@docsearch/react";
-const { DocSearchModal, useDocSearchKeyboardEvents } = docSearchReact;
+
+/** FIXME: This is still kinda nasty, but DocSearch is not ESM ready. */
+const DocSearchModal =
+  docSearchReact.DocSearchModal || (docSearchReact as any).default.DocSearchModal;
+const useDocSearchKeyboardEvents =
+  docSearchReact.useDocSearchKeyboardEvents ||
+  (docSearchReact as any).default.useDocSearchKeyboardEvents;
 
 export default function Search() {
   const [isOpen, setIsOpen] = useState(false);

@@ -30,11 +30,9 @@
 		<div style="flex-grow: 1;"></div>
 		{KNOWN_LANGUAGE_CODES.length > 1 &&
 		<LanguageSelect lang={lang} client:idle />}
-		{CONFIG.ALGOLIA && (
 		<div class="search-item">
 			<Search client:idle />
 		</div>
-		)}
 	</nav>
 </header>
 
