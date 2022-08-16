@@ -49,10 +49,11 @@ export async function renderPage(
 			}
 			html += rest;
 		}
-		return new Response(html, {
+		const bytes = encoder.encode(html);
+		return new Response(bytes, {
 			headers: new Headers([
 				['Content-Type', 'text/html; charset=utf-8'],
-				['Content-Length', Buffer.byteLength(html, 'utf-8').toString()],
+				['Content-Length', bytes.byteLength.toString()],
 			]),
 		});
 	}
