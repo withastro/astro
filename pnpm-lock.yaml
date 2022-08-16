@@ -2146,12 +2146,14 @@ importers:
   packages/integrations/deno/test/fixtures/basics:
     specifiers:
       '@astrojs/deno': workspace:*
+      '@astrojs/mdx': workspace:*
       '@astrojs/react': workspace:*
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
       '@astrojs/deno': link:../../..
+      '@astrojs/mdx': link:../../../../mdx
       '@astrojs/react': link:../../../../react
       astro: link:../../../../../astro
       react: 18.2.0
