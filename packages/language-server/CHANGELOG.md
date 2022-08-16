@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 0.22.0
+
+### Minor Changes
+
+- d5aafc0: Formatting is now powered by Prettier and our Prettier plugin. Going forward, this should result in a more stable and complete way of formatting Astro files
+
+### Patch Changes
+
+- 61620f1: Add support for Go To Type Definition
+- 9337f00: Fix language server not working when no initlizationOptions were passed
+
 ## 0.21.1
 
 ### Patch Changes

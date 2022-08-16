@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 0.22.0
+
+### Patch Changes
+
+- f3777ac: Added settings to configure the path to the language server and the runtime to use to run it
+- Updated dependencies [61620f1]
+- Updated dependencies [9337f00]
+- Updated dependencies [d5aafc0]
+  - @astrojs/language-server@0.22.0
+
 ## 0.21.1
 
 ### Patch Changes
