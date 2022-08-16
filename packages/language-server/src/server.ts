@@ -41,6 +41,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 	let hasConfigurationCapability = false;
 
 	connection.onInitialize((params: vscode.InitializeParams) => {
+		const environment: 'node' | 'browser' = params.initializationOptions?.environment ?? 'node';
 		const workspaceUris = params.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [params.rootUri ?? ''];
 
 		workspaceUris.forEach((uri) => {
@@ -73,7 +74,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 		pluginHost.registerPlugin(new CSSPlugin(configManager));
 
 		// We don't currently support running the TypeScript and Astro plugin in the browser
-		if (params.initializationOptions.environment !== 'browser') {
+		if (environment === 'node') {
 			const languageServiceManager = new LanguageServiceManager(
 				documentManager,
 				workspaceUris.map(normalizeUri),
