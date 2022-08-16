@@ -2,6 +2,7 @@ import {
 	CodeAction,
 	CodeActionContext,
 	Color,
+	Location,
 	ColorInformation,
 	ColorPresentation,
 	CompletionContext,
@@ -137,6 +138,10 @@ export interface LinkedEditingRangesProvider {
 	getLinkedEditingRanges(document: TextDocument, position: Position): Resolvable<LinkedEditingRanges | null>;
 }
 
+export interface TypeDefinitionProvider {
+	getTypeDefinitions(document: TextDocument, position: Position): Resolvable<Location[] | null>;
+}
+
 export interface OnWatchFileChangesParam {
 	fileName: string;
 	changeType: FileChangeType;
@@ -154,6 +159,7 @@ type ProviderBase = DiagnosticsProvider &
 	HoverProvider &
 	CompletionsProvider &
 	DefinitionsProvider &
+	TypeDefinitionProvider &
 	FormattingProvider &
 	FoldingRangesProvider &
 	TagCompleteProvider &

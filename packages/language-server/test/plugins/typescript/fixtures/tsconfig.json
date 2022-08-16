@@ -7,7 +7,8 @@
       "resolveJsonModule": true,
       "paths": {
         "$components/*": ["misc/components/*"]
-      }
+      },
+      "noEmit": true
     },
     "exclude": [
       /**For testing exclude */

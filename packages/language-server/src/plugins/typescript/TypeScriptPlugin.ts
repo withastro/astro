@@ -5,6 +5,7 @@ import {
 	CodeActionContext,
 	CompletionContext,
 	DefinitionLink,
+	Location,
 	Diagnostic,
 	FileChangeType,
 	FoldingRange,
@@ -38,6 +39,7 @@ import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import astro2tsx, { Astro2TSXResult } from './astro2tsx';
 import { classNameFromFilename } from './snapshots/utils';
+import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -49,6 +51,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly completionProvider: CompletionsProviderImpl;
 	private readonly hoverProvider: HoverProviderImpl;
 	private readonly definitionsProvider: DefinitionsProviderImpl;
+	private readonly typeDefinitionsProvider: TypeDefinitionsProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
@@ -64,6 +67,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.definitionsProvider = new DefinitionsProviderImpl(this.languageServiceManager);
+		this.typeDefinitionsProvider = new TypeDefinitionsProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
@@ -183,6 +187,10 @@ export class TypeScriptPlugin implements Plugin {
 
 	async getDefinitions(document: AstroDocument, position: Position): Promise<DefinitionLink[]> {
 		return this.definitionsProvider.getDefinitions(document, position);
+	}
+
+	async getTypeDefinition(document: AstroDocument, position: Position): Promise<Location[] | null> {
+		return this.typeDefinitionsProvider.getTypeDefinitions(document, position);
 	}
 
 	async getDiagnostics(document: AstroDocument, cancellationToken?: CancellationToken): Promise<Diagnostic[]> {

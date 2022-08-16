@@ -234,6 +234,12 @@ export class PluginHost {
 		}
 	}
 
+	getTypeDefinition(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
+		const document = this.getDocument(textDocument.uri);
+
+		return this.execute<Location[] | null>('getTypeDefinitions', [document, position], ExecuteMode.FirstNonNull);
+	}
+
 	async rename(
 		textDocument: TextDocumentIdentifier,
 		position: Position,
