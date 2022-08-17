@@ -246,6 +246,26 @@ describe('Development Routing', () => {
 			expect(body.slug).to.equal('thing4');
 			expect(body.title).to.equal('data [slug]');
 		});
+
+		it('correct MIME type when loading /home.json (static route)', async () => {
+			const response = await fixture.fetch('/home.json');
+			expect(response.headers.get('content-type')).to.match(/application\/json/);
+		});
+
+		it('correct MIME type when loading /thing1.json (dynamic route)', async () => {
+			const response = await fixture.fetch('/thing1.json');
+			expect(response.headers.get('content-type')).to.match(/application\/json/);
+		});
+
+		it('correct MIME type when loading /images/static.svg (static image)', async () => {
+			const response = await fixture.fetch('/images/static.svg');
+			expect(response.headers.get('content-type')).to.match(/image\/svg\+xml/);
+		});
+
+		it('correct MIME type when loading /images/1.svg (dynamic image)', async () => {
+			const response = await fixture.fetch('/images/1.svg');
+			expect(response.headers.get('content-type')).to.match(/image\/svg\+xml/);
+		});
 	});
 
 	describe('file format routing', () => {
