@@ -1,6 +1,5 @@
 import type {
 	AstroComponentMetadata,
-	HydrationMetadata,
 	SSRElement,
 	SSRLoadedRenderer,
 	SSRResult,
@@ -13,7 +12,12 @@ const HydrationDirectivesRaw = ['load', 'idle', 'media', 'visible', 'only'];
 const HydrationDirectives = new Set(HydrationDirectivesRaw);
 export const HydrationDirectiveProps = new Set(HydrationDirectivesRaw.map((n) => `client:${n}`));
 
-export { HydrationMetadata };
+export interface HydrationMetadata {
+	directive: string;
+	value: string;
+	componentUrl: string;
+	componentExport: { value: string };
+}
 
 interface ExtractedProps {
 	isPage: boolean;
@@ -114,9 +118,9 @@ export async function generateHydrateScript(
 	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
-	if (!componentExport) {
+	if (!componentExport.value) {
 		throw new Error(
-			`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`
+			`Unable to resolve a valid export for "${metadata.displayName}"! Please open an issue at https://astro.build/issues!`
 		);
 	}
 

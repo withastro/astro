@@ -59,3 +59,31 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: 'Works with Markdown',
+	async fn() {
+		await startApp(async () => {
+			const resp = await fetch('http://127.0.0.1:8085/markdown');
+			const html = await resp.text();
+
+			const doc = new DOMParser().parseFromString(html, `text/html`);
+			const h1 = doc.querySelector('h1');
+			assertEquals(h1.innerText, 'Heading from Markdown');
+		});
+	},
+});
+
+Deno.test({
+	name: 'Works with MDX',
+	async fn() {
+		await startApp(async () => {
+			const resp = await fetch('http://127.0.0.1:8085/mdx');
+			const html = await resp.text();
+
+			const doc = new DOMParser().parseFromString(html, `text/html`);
+			const h1 = doc.querySelector('h1');
+			assertEquals(h1.innerText, 'Heading from MDX');
+		});
+	},
+});

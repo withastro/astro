@@ -2,21 +2,31 @@ import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 
 import { createResponse } from '../response.js';
-import { isAstroComponent, renderAstroComponent } from './astro.js';
+import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
 import { stringifyChunk } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
 
 const encoder = new TextEncoder();
+const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
+
+type NonAstroPageComponent = {
+	name: string;
+	[needsHeadRenderingSymbol]: boolean;
+};
+
+function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): boolean {
+	return needsHeadRenderingSymbol in pageComponent && !!pageComponent[needsHeadRenderingSymbol];
+}
 
 export async function renderPage(
 	result: SSRResult,
-	componentFactory: AstroComponentFactory,
+	componentFactory: AstroComponentFactory | NonAstroPageComponent,
 	props: any,
 	children: any,
 	streaming: boolean
 ): Promise<Response> {
-	if (!componentFactory.isAstroComponentFactory) {
+	if (!isAstroComponentFactory(componentFactory)) {
 		const pageProps: Record<string, any> = { ...(props ?? {}), 'server:root': true };
 		const output = await renderComponent(
 			result,
@@ -29,15 +39,21 @@ export async function renderPage(
 		if (!/<!doctype html/i.test(html)) {
 			let rest = html;
 			html = `<!DOCTYPE html>`;
-			for await (let chunk of maybeRenderHead(result)) {
-				html += chunk;
+			// This symbol currently exists for md components, but is something that could
+			// be added for any page-level component that's not an Astro component.
+			// to signal that head rendering is needed.
+			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
+				for await (let chunk of maybeRenderHead(result)) {
+					html += chunk;
+				}
 			}
 			html += rest;
 		}
-		return new Response(html, {
+		const bytes = encoder.encode(html);
+		return new Response(bytes, {
 			headers: new Headers([
 				['Content-Type', 'text/html; charset=utf-8'],
-				['Content-Length', Buffer.byteLength(html, 'utf-8').toString()],
+				['Content-Length', bytes.byteLength.toString()],
 			]),
 		});
 	}
@@ -49,28 +65,13 @@ export async function renderPage(
 		let headers = new Headers(init.headers);
 		let body: BodyInit;
 
-		// Combines HTML chunks coming from the iterable with rendering instructions
-		// added to metadata. These instructions need to go out first to ensure
-		// the scripts exist before the islands that need them.
-		async function* eachChunk() {
-			for await (const chunk of iterable) {
-				if (result._metadata.pendingInstructions.size) {
-					for (const instr of result._metadata.pendingInstructions) {
-						result._metadata.pendingInstructions.delete(instr);
-						yield instr;
-					}
-				}
-				yield chunk;
-			}
-		}
-
 		if (streaming) {
 			body = new ReadableStream({
 				start(controller) {
 					async function read() {
 						let i = 0;
 						try {
-							for await (const chunk of eachChunk()) {
+							for await (const chunk of iterable) {
 								let html = stringifyChunk(result, chunk);
 
 								if (i === 0) {
@@ -92,7 +93,7 @@ export async function renderPage(
 		} else {
 			body = '';
 			let i = 0;
-			for await (const chunk of eachChunk()) {
+			for await (const chunk of iterable) {
 				let html = stringifyChunk(result, chunk);
 				if (i === 0) {
 					if (!/<!doctype html/i.test(html)) {

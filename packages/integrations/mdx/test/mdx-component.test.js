@@ -19,12 +19,34 @@ describe('MDX Component', () => {
 			await fixture.build();
 		});
 
-		it('works', async () => {
+		it('supports top-level imports', async () => {
 			const html = await fixture.readFile('/index.html');
 			const { document } = parseHTML(html);
 
 			const h1 = document.querySelector('h1');
 			const foo = document.querySelector('#foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const html = await fixture.readFile('/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const foo = document.querySelector('[data-default-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const html = await fixture.readFile('/glob/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const foo = document.querySelector('[data-content-export] #foo');
 
 			expect(h1.textContent).to.equal('Hello component!');
 			expect(foo.textContent).to.equal('bar');
@@ -42,7 +64,7 @@ describe('MDX Component', () => {
 			await devServer.stop();
 		});
 
-		it('works', async () => {
+		it('supports top-level imports', async () => {
 			const res = await fixture.fetch('/');
 
 			expect(res.status).to.equal(200);
@@ -52,6 +74,36 @@ describe('MDX Component', () => {
 
 			const h1 = document.querySelector('h1');
 			const foo = document.querySelector('#foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Component.default />', async () => {
+			const res = await fixture.fetch('/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-default-export] h1');
+			const foo = document.querySelector('[data-default-export] #foo');
+
+			expect(h1.textContent).to.equal('Hello component!');
+			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports glob imports - <Content />', async () => {
+			const res = await fixture.fetch('/glob');
+
+			expect(res.status).to.equal(200);
+
+			const html = await res.text();
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('[data-content-export] h1');
+			const foo = document.querySelector('[data-content-export] #foo');
 
 			expect(h1.textContent).to.equal('Hello component!');
 			expect(foo.textContent).to.equal('bar');

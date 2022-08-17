@@ -1,16 +1,17 @@
-import type {
-	AstroComponentMetadata,
-	SSRLoadedRenderer,
-	SSRRenderInstruction,
-	SSRResult,
-} from '../../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
+import type { RenderInstruction } from './types.js';
 
 import { markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
 import { renderSlot } from './any.js';
-import { renderAstroComponent, renderTemplate, renderToIterable } from './astro.js';
+import {
+	isAstroComponentFactory,
+	renderAstroComponent,
+	renderTemplate,
+	renderToIterable,
+} from './astro.js';
 import { Fragment, Renderer } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
@@ -41,7 +42,7 @@ function getComponentType(Component: unknown): ComponentType {
 	if (Component && typeof Component === 'object' && (Component as any)['astro:html']) {
 		return 'html';
 	}
-	if (Component && (Component as any).isAstroComponentFactory) {
+	if (isAstroComponentFactory(Component)) {
 		return 'astro-factory';
 	}
 	return 'unknown';
@@ -53,7 +54,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<string | AsyncIterable<string | SSRRenderInstruction>> {
+): Promise<string | AsyncIterable<string | RenderInstruction>> {
 	Component = await Component;
 
 	switch (getComponentType(Component)) {
@@ -83,7 +84,7 @@ export async function renderComponent(
 
 		case 'astro-factory': {
 			async function* renderAstroComponentInline(): AsyncGenerator<
-				string | SSRRenderInstruction,
+				string | RenderInstruction,
 				void,
 				undefined
 			> {

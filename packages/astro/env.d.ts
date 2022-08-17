@@ -29,6 +29,21 @@ declare module '*.md' {
 	export default load;
 }
 
+declare module '*.mdx' {
+	type MDX = import('astro').MDXInstance<Record<string, any>>;
+
+	export const frontmatter: MDX['frontmatter'];
+	export const file: MDX['file'];
+	export const url: MDX['url'];
+	export const getHeadings: MDX['getHeadings'];
+	export const Content: MDX['Content'];
+	export const rawContent: MDX['rawContent'];
+	export const compiledContent: MDX['compiledContent'];
+
+	const load: MDX['default'];
+	export default load;
+}
+
 declare module '*.html' {
 	const Component: { render(opts: { slots: Record<string, string> }): string };
 	export default Component;
