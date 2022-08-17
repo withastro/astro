@@ -18,7 +18,7 @@ export function testFactory(inlineConfig) {
 
 	const test = testBase.extend({
 		astro: async ({}, use) => {
-			fixture = fixture || await loadFixture(inlineConfig);
+			fixture = fixture || (await loadFixture(inlineConfig));
 			await use(fixture);
 		},
 	});
