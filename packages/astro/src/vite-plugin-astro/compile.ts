@@ -83,6 +83,7 @@ async function compile({
 		internalURL: `/@fs${prependForwardSlash(
 			viteID(new URL('../runtime/server/index.js', import.meta.url))
 		)}`,
+		annotateSourceFile: true,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {

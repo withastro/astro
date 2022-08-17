@@ -7,10 +7,11 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
+import fs from 'node:fs/promises';
 import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
+import { cachedCompilation, CompileProps, getCachedSource, invalidateCompilation } from './compile.js';
 import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
 import { getViteTransform, TransformHook } from './styles.js';
@@ -44,7 +45,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	// Variables for determing if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
-
+	const edits: Record<string, string> = {};
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
 		const filename = normalizeFilename(parsedFrom.filename);
 		const resolvedURL = new URL(id, `file://${filename}`);
@@ -64,6 +65,19 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		},
 		configureServer(server) {
 			viteDevServer = server;
+			server.ws.on('astro:edit', async ({ file: fileURL, loc, replace: [from, to] }) => {
+				if (fileURL.startsWith('/@fs')) {
+					fileURL = fileURL.replace('/@fs', 'file://')
+				}
+				const file = fileURLToPath(new URL(fileURL));
+				const [line, column] = loc.split(':').map((v: string) => Number(v));
+				const text = edits[file] ?? await fs.readFile(file, 'utf-8');
+				const start = text.split('\n').slice(0, line - 1).join('\n');
+				const end = text.split('\n').slice(line - 1).join('\n');
+				const newText = end.replace(from, to);
+				const output = `${start.trim() ? start + '\n' : ''}${newText}`;
+				edits[file] = output;
+			})
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {

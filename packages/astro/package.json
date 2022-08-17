@@ -117,6 +117,7 @@
     "kleur": "^4.1.4",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0",
+    "open-editor": "^4.0.0",
     "ora": "^6.1.0",
     "path-browserify": "^1.0.1",
     "path-to-regexp": "^6.2.1",
