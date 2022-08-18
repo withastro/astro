@@ -16,6 +16,7 @@ export async function getScriptsForURL(
 	const elements = new Set<SSRElement>();
 	const rootID = viteID(filePath);
 	let rootProjectFolder = slash(fileURLToPath(astroConfig.root));
+	await viteServer.ssrLoadModule(rootID);
 	const modInfo = viteServer.pluginContainer.getModuleInfo(rootID);
 	addHoistedScripts(elements, modInfo, rootProjectFolder);
 	for await (const moduleNode of crawlGraph(viteServer, rootID, true)) {

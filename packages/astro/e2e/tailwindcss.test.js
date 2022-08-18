@@ -47,6 +47,13 @@ test.describe('Tailwind CSS', () => {
 		await expect(button, 'should have font weight').toHaveCSS('font-weight', '900');
 	});
 
+	test('Load script', async ({ page, astro }) => {
+		await page.goto(astro.resolveUrl('/'));
+
+		const target = page.locator('#script-target');
+		await expect(target, 'text set').toHaveText('text');
+	});
+
 	test('HMR', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
