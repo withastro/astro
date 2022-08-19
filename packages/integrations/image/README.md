@@ -28,7 +28,7 @@ The `astro add` command-line tool automates the installation for you. Run one of
    
 ```sh
 # Using NPM
-npm run astro add image
+npx astro add image
 # Using Yarn
 yarn astro add image
 # Using PNPM
