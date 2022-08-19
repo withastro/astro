@@ -37,7 +37,6 @@ export interface ErrorWithMetadata {
 export function cleanErrorStack(stack: string) {
 	return stack
 		.split(/\n/g)
-		.filter((l) => /^\s*at/.test(l))
 		.map((l) => l.replace(/\/@fs\//g, '/'))
 		.join('\n');
 }
