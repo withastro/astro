@@ -5,7 +5,7 @@ export default () =>
 		beforeDiff(doc) {
 			for (const island of doc.querySelectorAll('astro-root')) {
 				const uid = island.getAttribute('uid');
-				const current = document.querySelector(`astro-root[uid="${uid}"]`);
+				const current = document.querySelector(`astro-island[uid="${uid}"]`);
 				if (current) {
 					current.dataset.persist = true;
 					island.replaceWith(current);
@@ -13,9 +13,9 @@ export default () =>
 			}
 		},
 		afterDiff() {
-			for (const island of document.querySelectorAll('astro-root')) {
+			for (const island of document.querySelectorAll('astro-island')) {
 				delete island.dataset.persist;
 			}
-			window.dispatchEvent(new CustomEvent('astro:locationchange'));
+			window.dispatchEvent(new CustomEvent('astro:hydrate'));
 		},
 	});
