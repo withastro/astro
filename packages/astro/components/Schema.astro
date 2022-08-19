@@ -1,0 +1,16 @@
+---
+import type { Thing } from 'schema-dts';
+import { ldToString } from './schema.js';
+
+export interface Props {
+    /** Adds indentation, white space, and line break characters to JSON-LD output. {@link JSON.stringify} */
+    space?: string | number;
+    json: Thing | Thing[];
+}
+
+const { space, json } = Astro.props as Props;
+
+const children = ldToString(json, space);
+---
+
+<script type="application/ld+json" set:html={children}></script>

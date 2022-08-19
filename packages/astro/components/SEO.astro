@@ -1,0 +1,91 @@
+---
+export interface Image {
+    src: string;
+    alt: string;
+}
+
+export interface SEOMetadata {
+    name: string;
+    title: string;
+    description: string;
+    image: Image;
+    canonicalURL?: URL | string;
+    locale?: string;
+}
+
+export interface OpenGraph extends Partial<SEOMetadata> {
+    type?: 'website' | 'article';
+}
+
+export interface Twitter extends Partial<SEOMetadata> {
+    handle?: string;
+    card?: 'summary_large_image';
+}
+
+export interface Props extends SEOMetadata {
+    og?: OpenGraph;
+    twitter?: Twitter;
+}
+
+const {
+    name,
+    title,
+    description,
+    image,
+    locale = 'en',
+    canonicalURL = new URL(Astro.url.pathname, Astro.site),
+    og: _og = { },
+    twitter: _twitter = { }
+} = Astro.props as Props;
+
+const og: OpenGraph = {
+    name,
+    title,
+    description,
+    canonicalURL,
+    image,
+    locale,
+    type: 'website',
+    ..._og,
+}
+
+const twitter: Twitter = {
+    name,
+    title,
+    description,
+    canonicalURL,
+    image,
+    locale,
+    card: 'summary_large_image',
+    ..._twitter,
+};
+---
+
+<!-- Page Metadata -->
+<meta name="generator" content={Astro.generator} />
+<link rel="canonical" href={canonicalURL} />
+<title>{title}</title>
+
+<!-- OpenGraph Tags -->
+<meta property="og:title" content={og.title} />
+<meta property="og:type" content={og.type} />
+<meta property="og:url" content={og.canonicalURL} />
+<meta property="og:locale" content={og.locale} />
+<meta property="og:description" content={og.description} />
+<meta property="og:site_name" content={og.name} />
+{og.image && (
+    <meta property="og:image" content={og.image.src} />
+    <meta property="og:image:alt" content={og.image.alt} />
+)}
+
+<!-- Twitter Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+{twitter.handle && (
+    <meta name="twitter:site" content={twitter.handle} />
+)}
+<meta name="twitter:title" content={twitter.title} />
+<meta name="twitter:description" content={twitter.description} />
+{twitter.image && (
+    <meta name="twitter:image" content={twitter.image.src} />
+    <meta name="twitter:image:alt" content={twitter.image.alt} />
+)}
