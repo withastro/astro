@@ -12,7 +12,7 @@ export default function createPlugin({ persistent = true }: SpaOptions = {}): As
 				// This gets injected into the user's page, so we need to re-export Turbolinks
 				// from our own package so that package managers like pnpm don't get mad and
 				// can follow the import correctly.
-				injectScript('page', `import listen from "@astrojs/spa/client.js"; listen({ persistent: ${persistent} });`);
+				injectScript('page', `import listen from "@astrojs/spa/client.js"; listen();`);
 			},
 		},
 	};

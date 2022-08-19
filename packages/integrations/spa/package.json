@@ -28,7 +28,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "micromorph": "^0.1.2"
+    "micromorph": "^0.3.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

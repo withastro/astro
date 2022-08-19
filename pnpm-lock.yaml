@@ -259,6 +259,18 @@ importers:
       astro: link:../../packages/astro
       sass: 1.54.4
 
+  examples/spa:
+    specifiers:
+      '@astrojs/spa': ^0.0.1
+      '@astrojs/vue': ^0.1.5
+      astro: ^1.0.0-beta.38
+      vue: ^3.2.36
+    devDependencies:
+      '@astrojs/spa': link:../../packages/integrations/spa
+      '@astrojs/vue': 0.1.5_vue@3.2.37
+      astro: link:../../packages/astro
+      vue: 3.2.37
+
   examples/ssr:
     specifiers:
       '@astrojs/node': ^1.0.0
@@ -2512,6 +2524,17 @@ importers:
       astro-scripts: link:../../../scripts
       solid-js: 1.4.8
 
+  packages/integrations/spa:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      micromorph: ^0.3.1
+    dependencies:
+      micromorph: 0.3.1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/svelte:
     specifiers:
       '@sveltejs/vite-plugin-svelte': ^1.0.1
@@ -3142,6 +3165,21 @@ packages:
       uvu: 0.5.6
       vfile-message: 3.1.2
     dev: false
+
+  /@astrojs/vue/0.1.5_vue@3.2.37:
+    resolution: {integrity: sha512-U2J9ymxj6tiKxXBvFAFjgea6g7MHOUUMGPuJqrgWmX25Od+Pm+VfEETn9t6T3DqW5Tt2qCai9nd0k6WrhZCeGA==}
+    engines: {node: ^14.15.0 || >=16.0.0}
+    peerDependencies:
+      vue: ^3.2.30
+    dependencies:
+      '@vitejs/plugin-vue': 2.3.4_vite@2.9.15+vue@3.2.37
+      vite: 2.9.15
+      vue: 3.2.37
+    transitivePeerDependencies:
+      - less
+      - sass
+      - stylus
+    dev: true
 
   /@babel/code-frame/7.18.6:
     resolution: {integrity: sha512-TDCmlK5eOvH+eH7cdAFlNXeVJqWIQ7gW9tY1GJIpUtFb6CmjVyq2VM3u71bOyR8CRihcCgMUYoDNyLXao3+70Q==}
@@ -9083,6 +9121,20 @@ packages:
       - supports-color
     dev: false
 
+  /@vitejs/plugin-vue/2.3.4_vite@2.9.15+vue@3.2.37:
+    resolution: {integrity: sha512-IfFNbtkbIm36O9KB8QodlwwYvTEsJb4Lll4c2IwB3VHc2gie2mSPtSzL0eYay7X2jd/2WX02FjSGTWR6OPr/zg==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      vite: ^2.5.10
+      vue: ^3.2.25
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dependencies:
+      vite: 2.9.15
+      vue: 3.2.37
+    dev: true
+
   /@vitejs/plugin-vue/3.0.1_vite@3.0.5+vue@3.2.37:
     resolution: {integrity: sha512-Ll9JgxG7ONIz/XZv3dssfoMUDu9qAnlJ+km+pBA0teYSXzwPCIzS/e1bmwNYl5dcQGs677D21amgfYAnzMl17A==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -13296,6 +13348,10 @@ packages:
       braces: 3.0.2
       picomatch: 2.3.1
 
+  /micromorph/0.3.1:
+    resolution: {integrity: sha512-dbX4sz405e/QQtbHFMJj0SaVP+xuBBpSpR44AQYTjsrPek8oKyeRXkbtYN1XyFVdV7WjHp5DZMwxJOJiBfH1Jw==}
+    dev: false
+
   /mime-db/1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -16642,6 +16698,30 @@ packages:
     transitivePeerDependencies:
       - '@types/babel__core'
       - supports-color
+    dev: true
+
+  /vite/2.9.15:
+    resolution: {integrity: sha512-fzMt2jK4vQ3yK56te3Kqpkaeq9DkcZfBbzHwYpobasvgYmP2SoAr6Aic05CsB4CzCZbsDv4sujX3pkEGhLabVQ==}
+    engines: {node: '>=12.2.0'}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+    dependencies:
+      esbuild: 0.14.54
+      postcss: 8.4.16
+      resolve: 1.22.1
+      rollup: 2.77.3
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /vite/3.0.5:
