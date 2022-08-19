@@ -14,12 +14,14 @@ export interface SEOMetadata {
 }
 
 export interface OpenGraph extends Partial<SEOMetadata> {
-    type?: 'website' | 'article';
+    type?: string;
 }
 
 export interface Twitter extends Partial<SEOMetadata> {
     handle?: string;
-    card?: 'summary_large_image';
+    card?: 
+			| 'summary'
+			| 'summary_large_image';
 }
 
 export interface Props extends SEOMetadata {
@@ -79,7 +81,9 @@ const twitter: Twitter = {
 )}
 
 <!-- Twitter Tags -->
-<meta name="twitter:card" content="summary_large_image" />
+{twitter.card && (
+		<meta name="twitter:card" content={twitter.card} />
+)}
 {twitter.handle && (
     <meta name="twitter:site" content={twitter.handle} />
 )}
