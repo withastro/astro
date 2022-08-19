@@ -450,6 +450,7 @@ importers:
       resolve: ^1.22.0
       rollup: ^2.75.6
       sass: ^1.52.2
+      schema-dts: ^1.1.0
       semver: ^7.3.7
       shiki: ^0.10.1
       sirv: ^2.0.2
@@ -507,6 +508,7 @@ importers:
       rehype: 12.0.1
       resolve: 1.22.1
       rollup: 2.77.3
+      schema-dts: 1.1.0
       semver: 7.3.7
       shiki: 0.10.1
       sirv: 2.0.2
@@ -15255,6 +15257,12 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+
+  /schema-dts/1.1.0:
+    resolution: {integrity: sha512-vdmbs/5ycj4zyKpZIDqTcy+IZi4s7c38RVAYuDmRi7zgxUT8wRWPMLzg0jr7FjdVunYu9yZ00F3+XcZTTFcTOQ==}
+    peerDependencies:
+      typescript: '>=4.1.0'
+    dev: false
 
   /section-matter/1.0.0:
     resolution: {integrity: sha512-vfD3pmTzGpufjScBh50YHKzEu2lxBWhVEHsNGoEXmCmn2hKGfeNLYMzCJpe8cD7gqX7TJluOVpBkAequ6dgMmA==}
