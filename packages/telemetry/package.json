@@ -20,7 +20,7 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "mocha --loader=testdouble --exit --timeout 20000 test/"
+    "test": "mocha --loader=./bin/automockLoader.js --exit --timeout 20000 test/"
   },
   "files": [
     "dist"
@@ -40,7 +40,7 @@
     "@types/node": "^14.18.21",
     "@types/which-pm-runs": "^1.0.0",
     "astro-scripts": "workspace:*",
-    "testdouble": "^3.16.6"
+    "sinon": "^14.0.0"
   },
   "engines": {
     "node": "^14.18.0 || >=16.12.0"
