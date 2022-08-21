@@ -18,7 +18,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ZodError } from 'zod';
 import type { AstroConfig } from '../@types/astro';
-import { cleanErrorStack, ErrorWithMetadata } from './errors.js';
+import { ErrorWithMetadata } from './errors.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -235,10 +235,10 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 		args.push(red(padMultilineString(err.frame, 4)));
 	}
 	if (args.length === 1 && err.stack) {
-		args.push(dim(cleanErrorStack(err.stack)));
+		args.push(dim(err.stack));
 	} else if (err.stack) {
 		args.push(`  ${bold('Stacktrace:')}`);
-		args.push(dim(cleanErrorStack(err.stack)));
+		args.push(dim(err.stack));
 		args.push(``);
 	}
 	return args.join('\n');
