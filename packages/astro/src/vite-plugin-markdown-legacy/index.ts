@@ -70,7 +70,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		name: 'astro:markdown',
 		enforce: 'pre',
 		configResolved(_resolvedConfig) {
-			transformStyleWithVite = createTransformStyleWithViteFn(resolvedConfig);
+			transformStyleWithVite = createTransformStyleWithViteFn(_resolvedConfig);
 		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
