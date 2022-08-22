@@ -58,9 +58,10 @@ describe('SSG images', function () {
 		});
 
 		describe('Remote images', () => {
-			// Hard-coding in the test! This should never change since the hash is based
+			// Hard-coding in the test! These should never change since the hash is based
 			// on the static `src` string
 			const HASH = 'Z1iI4xW';
+			const HASH_WITH_QUERY = '18Aq0m';
 
 			it('includes <img> attributes', () => {
 				const image = $('#google');
@@ -77,6 +78,14 @@ describe('SSG images', function () {
 					width: 544,
 					height: 184,
 					type: 'webp',
+				});
+			});
+
+			it('removes query strings', () => {
+				verifyImage(`_image/googlelogo_color_272x92dp-${HASH_WITH_QUERY}_544x184.webp`, {
+					width: 544,
+					height: 184,
+					type: 'webp'
 				});
 			});
 		});
@@ -172,6 +181,24 @@ describe('SSG images', function () {
 				expect(searchParams.get('h')).to.equal('184');
 				expect(searchParams.get('href')).to.equal(
 					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				);
+			});
+
+			it('keeps remote image query params', () => {
+				const image = $('#query');
+
+				const src = image.attr('src');
+				const [route, params] = src.split('?');
+
+				expect(route).to.equal('/_image');
+
+				const searchParams = new URLSearchParams(params);
+
+				expect(searchParams.get('f')).to.equal('webp');
+				expect(searchParams.get('w')).to.equal('544');
+				expect(searchParams.get('h')).to.equal('184');
+				expect(searchParams.get('href')).to.equal(
+					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
 				);
 			});
 		});
