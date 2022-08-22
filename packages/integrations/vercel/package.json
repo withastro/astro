@@ -20,7 +20,7 @@
     "./edge/entrypoint": "./dist/edge/entrypoint.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
-    "./static": "./dist/serverless/adapter.js",
+    "./static": "./dist/static/adapter.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
