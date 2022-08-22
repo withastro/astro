@@ -4,5 +4,5 @@ import image from '@astrojs/image';
 // https://astro.build/config
 export default defineConfig({
 	site: 'http://localhost:3000',
-	integrations: [image()]
+	integrations: [image({ logLevel: 'silent' })]
 });

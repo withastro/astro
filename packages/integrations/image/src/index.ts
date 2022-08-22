@@ -3,6 +3,7 @@ import { ssgBuild } from './build/ssg.js';
 import { ssrBuild } from './build/ssr.js';
 import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
 import { ImageService, TransformOptions } from './loaders/index.js';
+import type { LoggerLevel } from './utils/logger.js';
 import { filenameFormat, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
@@ -27,11 +28,13 @@ export interface IntegrationOptions {
 	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
 	 */
 	serviceEntryPoint?: string;
+	logLevel?: LoggerLevel;
 }
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/sharp',
+		logLevel: 'info' as LoggerLevel,
 		...options,
 	};
 
@@ -72,7 +75,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					});
 				}
 			},
-			'astro:server:setup': async () => {
+			'astro:server:setup': async ({ server }) => {
 				globalThis.astroImage = {};
 			},
 			'astro:build:setup': () => {
@@ -107,7 +110,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					const loader = globalThis?.astroImage?.loader;
 
 					if (loader && 'transform' in loader && staticImages.size > 0) {
-						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir });
+						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir, logLevel: resolvedOptions.logLevel });
 					}
 				}
 			},
