@@ -10,7 +10,10 @@ import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
-import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
+import {
+	createTransformStyleWithViteFn,
+	TransformStyleWithVite,
+} from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 
@@ -61,13 +64,13 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		return false;
 	}
 
-	let viteTransform: TransformHook;
+	let transformStyleWithVite: TransformStyleWithVite;
 
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
 		configResolved(_resolvedConfig) {
-			viteTransform = getViteTransform(_resolvedConfig);
+			transformStyleWithVite = createTransformStyleWithViteFn(resolvedConfig);
 		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
@@ -205,7 +208,7 @@ ${setup}`.trim();
 					moduleId: id,
 					source: astroResult,
 					ssr: Boolean(opts?.ssr),
-					viteTransform,
+					transformStyleWithVite,
 					pluginContext: this,
 				};
 
