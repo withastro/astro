@@ -917,6 +917,8 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 		file: MarkdownInstance<T>['file'];
 		url: MarkdownInstance<T>['url'];
 	} & T;
+	file: MarkdownInstance<T>['file'];
+	url: MarkdownInstance<T>['url'];
 	headings: MarkdownHeading[];
 	rawContent: MarkdownInstance<T>['rawContent'];
 	compiledContent: MarkdownInstance<T>['compiledContent'];
