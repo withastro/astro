@@ -1,12 +1,12 @@
-import { bgGreen, black, cyan, dim, green, bold } from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { OUTPUT_DIR } from '../constants.js';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
+import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { ensureDir } from '../utils/paths.js';
-import { debug, info, warn, LoggerLevel } from '../utils/logger.js';
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -24,8 +24,14 @@ export interface SSGBuildParams {
 export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel }: SSGBuildParams) {
 	const timer = performance.now();
 
-	info({ level: logLevel, prefix: false, message: `${bgGreen(black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `))}` });
-	
+	info({
+		level: logLevel,
+		prefix: false,
+		message: `${bgGreen(
+			black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `)
+		)}`,
+	});
+
 	const inputFiles = new Set<string>();
 
 	// process transforms one original image file at a time
@@ -47,7 +53,7 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 
 		if (!inputBuffer) {
 			// eslint-disable-next-line no-console
-			warn({ level: logLevel, message : `"${src}" image could not be fetched` });
+			warn({ level: logLevel, message: `"${src}" image could not be fetched` });
 			continue;
 		}
 
@@ -65,7 +71,11 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 			const timeChange = getTimeStat(timeStart, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			const pathRelative = inputFile.replace(fileURLToPath(srcDir), '');
-			debug({ level: logLevel, prefix: false, message: `  ${cyan('└─')} ${dim(`(original) ${pathRelative}`)} ${dim(timeIncrease)}` });
+			debug({
+				level: logLevel,
+				prefix: false,
+				message: `  ${cyan('└─')} ${dim(`(original) ${pathRelative}`)} ${dim(timeIncrease)}`,
+			});
 		}
 
 		// process each transformed versiono of the
@@ -91,9 +101,17 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 			const timeChange = getTimeStat(timeStart, timeEnd);
 			const timeIncrease = `(+${timeChange})`;
 			const pathRelative = outputFile.replace(fileURLToPath(outDir), '');
-			debug({ level: logLevel, prefix: false, message: `  ${cyan('└─')} ${dim(pathRelative)} ${dim(timeIncrease)}` });
+			debug({
+				level: logLevel,
+				prefix: false,
+				message: `  ${cyan('└─')} ${dim(pathRelative)} ${dim(timeIncrease)}`,
+			});
 		}
 	}
 
-	info({ level: logLevel, prefix: false, message: (dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`)) });
+	info({
+		level: logLevel,
+		prefix: false,
+		message: dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`),
+	});
 }
