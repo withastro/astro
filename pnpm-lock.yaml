@@ -2192,6 +2192,7 @@ importers:
       astro-scripts: workspace:*
       etag: ^1.8.1
       image-size: ^1.0.1
+      kleur: ^4.1.4
       mrmime: ^1.0.0
       sharp: ^0.30.6
       slash: ^4.0.0
@@ -2208,6 +2209,7 @@ importers:
       '@types/sharp': 0.30.5
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      kleur: 4.1.5
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:
