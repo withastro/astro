@@ -5,7 +5,7 @@
 type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
 declare const Astro: {
-	[k in directiveAstroKeys]: (
+	[k in directiveAstroKeys]?: (
 		fn: () => Promise<() => void>,
 		opts: Record<string, any>,
 		root: HTMLElement
@@ -57,8 +57,16 @@ declare const Astro: {
 				async childrenConnectedCallback() {
 					window.addEventListener('astro:hydrate', this.hydrate);
 					await import(this.getAttribute('before-hydration-url')!);
+					this.start();
+				}
+				start() {
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
-					Astro[this.getAttribute('client') as directiveAstroKeys](
+					const directive = this.getAttribute('client') as directiveAstroKeys;
+					if(Astro[directive] === undefined) {
+						window.addEventListener(`astro:${directive}`, () => this.start(), { once: true });
+						return;
+					}
+					Astro[directive]!(
 						async () => {
 							const rendererUrl = this.getAttribute('renderer-url');
 							const [componentModule, { default: hydrator }] = await Promise.all([

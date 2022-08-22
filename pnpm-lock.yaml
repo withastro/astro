@@ -660,6 +660,14 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
+  packages/astro/e2e/fixtures/hydration-race:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/invalidate-script-deps:
     specifiers:
       astro: workspace:*
