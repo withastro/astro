@@ -428,7 +428,7 @@ export interface AstroUserConfig {
 	 * @name trailingSlash
 	 * @type {('always' | 'never' | 'ignore')}
 	 * @default `'ignore'`
-	 * @see buildOptions.pageUrlFormat
+	 * @see build.format
 	 * @description
 	 *
 	 * Set the route matching behavior of the dev server. Choose from the following options:
@@ -517,6 +517,13 @@ export interface AstroUserConfig {
 		 *   }
 		 * }
 		 * ```
+		 * 
+		 * #### Effect on Astro.url
+		 * Setting `build.format` controls what `Astro.url` is set to during the build. When it is:
+     * - `directory` - The `Astro.url.pathname` will include a trailing slash to mimic folder behavior; ie `/foo/`.
+     * - `file` - The `Astro.url.pathname` will include `.html`; ie `/foo.html`. 
+     *
+     * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 */
 		format?: 'file' | 'directory';
 	};
