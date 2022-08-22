@@ -62,7 +62,7 @@ declare const Astro: {
 				start() {
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
 					const directive = this.getAttribute('client') as directiveAstroKeys;
-					if(Astro[directive] === undefined) {
+					if (Astro[directive] === undefined) {
 						window.addEventListener(`astro:${directive}`, () => this.start(), { once: true });
 						return;
 					}
