@@ -24,9 +24,9 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 				jsToTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
-				import Layout from ${JSON.stringify(frontmatter.layout)};
 				
-				export default function ({ children }) {
+				export default async function ({ children }) {
+					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
