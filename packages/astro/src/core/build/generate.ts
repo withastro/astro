@@ -161,7 +161,7 @@ async function generatePage(
 		const timeEnd = performance.now();
 		const timeChange = getTimeStat(timeStart, timeEnd);
 		const timeIncrease = `(+${timeChange})`;
-		const filePath = getOutputFilename(opts.astroConfig, path);
+		const filePath = getOutputFilename(opts.astroConfig, path, pageData.route.type);
 		const lineIcon = i === paths.length - 1 ? '└─' : '├─';
 		info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
 	}
@@ -245,7 +245,7 @@ interface GeneratePathOptions {
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
+	opts.pageNames.push(pathname.replace(/^\//, ''));
 }
 
 async function generatePath(

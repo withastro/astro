@@ -9,6 +9,8 @@ import { STYLE_EXTENSIONS } from '../util.js';
  */
 const fileExtensionsToSSR = new Set(['.astro', '.md']);
 
+const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
+
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	viteServer: vite.ViteDevServer,
@@ -43,16 +45,18 @@ export async function* crawlGraph(
 				// to only SSR modules that we can safely transform, we check against
 				// a list of file extensions based on our built-in vite plugins
 				if (importedModule.id) {
-					// use URL to strip special query params like "?content"
-					const { pathname } = new URL(`file://${importedModule.id}`);
+					// Strip special query params like "?content".
+					// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
+					// For example, `virtual:image-loader` if you don't have the plugin installed.
+					const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
 					// If the entry is a style, skip any modules that are not also styles.
 					// Tools like Tailwind might add HMR dependencies as `importedModules`
 					// but we should skip them--they aren't really imported. Without this,
 					// every hoisted script in the project is added to every page!
-					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(pathname))) {
+					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(importedModulePathname))) {
 						continue;
 					}
-					if (fileExtensionsToSSR.has(npath.extname(pathname))) {
+					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
 						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
 							await viteServer.ssrLoadModule(importedModule.id);

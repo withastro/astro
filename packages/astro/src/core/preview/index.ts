@@ -3,6 +3,7 @@ import type { AddressInfo } from 'net';
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
+import fs from 'fs';
 import http from 'http';
 import { performance } from 'perf_hooks';
 import sirv from 'sirv';
@@ -32,6 +33,11 @@ export default async function preview(
 	config: AstroConfig,
 	{ logging }: PreviewOptions
 ): Promise<PreviewServer> {
+	if (config.output === 'server') {
+		throw new Error(
+			`[preview] 'output: server' not supported. Use your deploy platform's preview command directly instead, if one exists. (ex: 'netlify dev', 'vercel dev', 'wrangler', etc.)`
+		);
+	}
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
 	const trailingSlash = config.trailingSlash;
@@ -77,7 +83,18 @@ export default async function preview(
 			default: {
 				// HACK: rewrite req.url so that sirv finds the file
 				req.url = '/' + req.url?.replace(baseURL.pathname, '');
-				staticFileServer(req, res, () => sendError('Not Found'));
+				staticFileServer(req, res, () => {
+					const errorPagePath = fileURLToPath(config.outDir + '/404.html');
+					if (fs.existsSync(errorPagePath)) {
+						res.statusCode = 404;
+						res.setHeader('Content-Type', 'text/html;charset=utf-8');
+						res.end(fs.readFileSync(errorPagePath));
+					} else {
+						staticFileServer(req, res, () => {
+							sendError('Not Found');
+						});
+					}
+				});
 				return;
 			}
 		}

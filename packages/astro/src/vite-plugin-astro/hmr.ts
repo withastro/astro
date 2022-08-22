@@ -6,6 +6,7 @@ import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { cachedCompilation, invalidateCompilation, isCached } from './compile.js';
+import { isAstroScript } from './query.js';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
@@ -141,8 +142,19 @@ export async function handleHotUpdate(
 	// Add hoisted scripts so these get invalidated
 	for (const mod of mods) {
 		for (const imp of mod.importedModules) {
-			if (imp.id?.includes('?astro&type=script')) {
+			if (imp.id && isAstroScript(imp.id)) {
 				mods.push(imp);
+			}
+		}
+	}
+
+	// If this is a module that is imported from a <script>, invalidate the Astro
+	// component so that it is cached by the time the script gets transformed.
+	for (const mod of filtered) {
+		if (mod.id && isAstroScript(mod.id) && mod.file) {
+			const astroMod = ctx.server.moduleGraph.getModuleById(mod.file);
+			if (astroMod) {
+				mods.unshift(astroMod);
 			}
 		}
 	}

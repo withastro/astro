@@ -9,8 +9,8 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item, i) => {
 	// If the first item is not a section header, create a new container section.
 	if (i === 0) {
 		if (!item.header) {
-			const pesudoSection = { text: '' };
-			col.push({ ...pesudoSection, children: [] });
+			const pseudoSection = { text: '' };
+			col.push({ ...pseudoSection, children: [] });
 		}
 	}
 	if (item.header) {

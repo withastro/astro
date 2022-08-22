@@ -37,7 +37,7 @@ function printAstroHelp() {
 	printHelp({
 		commandName: 'astro',
 		usage: '[command] [...flags]',
-		headline: 'Futuristic web development tool.',
+		headline: 'Build faster websites.',
 		tables: {
 			Commands: [
 				['add', 'Add an integration.'],

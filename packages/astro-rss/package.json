@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/rss",
   "description": "Add RSS feeds to your Astro projects",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

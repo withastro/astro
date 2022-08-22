@@ -251,13 +251,6 @@ async function handleRequest(
 	async function matchRoute() {
 		const matches = matchAllRoutes(pathname, manifest);
 
-		if (config.output === 'server' && matches.length > 1) {
-			throw new Error(`Found multiple matching routes for "${pathname}"! When using \`output: 'server'\`, only one route in \`src/pages\` can match a given URL. Found:
-
-${matches.map(({ component }) => `- ${component}`).join('\n')}
-`);
-		}
-
 		for await (const maybeRoute of matches) {
 			const filePath = new URL(`./${maybeRoute.component}`, config.root);
 			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
@@ -352,7 +345,11 @@ ${matches.map(({ component }) => `- ${component}`).join('\n')}
 				await writeWebResponse(res, result.response);
 			} else {
 				let contentType = 'text/plain';
-				const computedMimeType = route.pathname ? mime.getType(route.pathname) : null;
+				// Dynamic routes don’t include `route.pathname`, so synthesise a path for these (e.g. 'src/pages/[slug].svg')
+				const filepath =
+					route.pathname ||
+					route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
+				const computedMimeType = mime.getType(filepath);
 				if (computedMimeType) {
 					contentType = computedMimeType;
 				}

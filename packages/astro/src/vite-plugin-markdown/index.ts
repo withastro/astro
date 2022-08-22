@@ -48,8 +48,6 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				const frontmatter = {
 					...injectedFrontmatter,
 					...raw.data,
-					url: fileUrl,
-					file: fileId,
 				} as any;
 
 				const { layout } = frontmatter;
@@ -86,19 +84,40 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				};
 				export async function Content() {
 					const { layout, ...content } = frontmatter;
+					content.file = file;
+					content.url = url;
 					content.astro = {};
 					Object.defineProperty(content.astro, 'headings', {
 						get() {
 							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
 						}
 					});
+					Object.defineProperty(content.astro, 'html', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
+						}
+					});
+					Object.defineProperty(content.astro, 'source', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
+						}
+					});
 					const contentFragment = h(Fragment, { 'set:html': html });
 					return ${
 						layout
-							? `h(Layout, { content, frontmatter: content, headings: getHeadings(), 'server:root': true, children: contentFragment })`
+							? `h(Layout, {
+									content,
+									frontmatter: content,
+									headings: getHeadings(),
+									rawContent,
+									compiledContent,
+									'server:root': true,
+									children: contentFragment
+								})`
 							: `contentFragment`
 					};
 				}
+				Content[Symbol.for('astro.needsHeadRendering')] = ${layout ? 'false' : 'true'};
 				export default Content;
 				`);
 

@@ -7,3 +7,4 @@
 		await hydrate();
 	})();
 };
+window.dispatchEvent(new Event('astro:only'));

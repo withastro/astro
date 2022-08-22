@@ -1,5 +1,124 @@
 # astro
 
+## 1.0.6
+
+### Patch Changes
+
+- [#4324](https://github.com/withastro/astro/pull/4324) [`45fdbc465`](https://github.com/withastro/astro/commit/45fdbc4650610bd8363a05c07f3863cc12391b28) Thanks [@BurntCaramel](https://github.com/BurntCaramel)! - Use TextEncoder instead of Buffer.byteLength() for Deno compatibility
+
+* [#4334](https://github.com/withastro/astro/pull/4334) [`b55f76c1c`](https://github.com/withastro/astro/commit/b55f76c1cafb7918f7087c6df03dd1d59eeaa065) Thanks [@matthewp](https://github.com/matthewp)! - Fix double injecting of head content in md pages
+
+- [#4329](https://github.com/withastro/astro/pull/4329) [`0274b8d47`](https://github.com/withastro/astro/commit/0274b8d47be6ad2f5a503f70e2efdd52e43dc9c4) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates routing logic to allow multiple routes to match the same URL in SSR
+
+* [#4347](https://github.com/withastro/astro/pull/4347) [`166b3b8a5`](https://github.com/withastro/astro/commit/166b3b8a544e6ba8f6a32960cf9c73bbb88c8b34) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix MDXLayoutProps type signature for linting
+
+## 1.0.5
+
+### Patch Changes
+
+- [#4302](https://github.com/withastro/astro/pull/4302) [`1d3a0a16f`](https://github.com/withastro/astro/commit/1d3a0a16f33aa88c2b60088d6a497e4beaadb2dc) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Revert "Ensure hydration scripts inside of slots render ASAP (#4288)" to fix Svelte integration bug
+
+* [#4284](https://github.com/withastro/astro/pull/4284) [`73f367c77`](https://github.com/withastro/astro/commit/73f367c77b8311707b1c142e03dd53952f14d934) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Prevent preview if 'output: server' is configured
+
+## 1.0.4
+
+### Patch Changes
+
+- [#4268](https://github.com/withastro/astro/pull/4268) [`f7afdb889`](https://github.com/withastro/astro/commit/f7afdb889fe4e97177958c8ec92f80c5f6e5cb51) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Align MD with MDX on layout props and "glob" import results:
+  - Add `Content` to MDX
+  - Add `file` and `url` to MDX frontmatter (layout import only)
+  - Update glob types to reflect differences (lack of `rawContent` and `compiledContent`)
+
+* [#4265](https://github.com/withastro/astro/pull/4265) [`8f845ca95`](https://github.com/withastro/astro/commit/8f845ca9507965e3898b3c7b70952c849bef310e) Thanks [@matthewp](https://github.com/matthewp)! - Prevents automatic trailingSlash appending on getStaticPaths produced pages
+
+- [#4288](https://github.com/withastro/astro/pull/4288) [`c21810068`](https://github.com/withastro/astro/commit/c218100684c90c2b5c490e73b0687ad59d0c58df) Thanks [@matthewp](https://github.com/matthewp)! - Ensure hydration scripts inside of slots render ASAP
+
+* [#4282](https://github.com/withastro/astro/pull/4282) [`c0992e1fe`](https://github.com/withastro/astro/commit/c0992e1fefc105577e99ac94338d349dbabf38d8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix bug where Astro's server runtime would end up in the browser
+
+- [#4272](https://github.com/withastro/astro/pull/4272) [`24d2f7a6e`](https://github.com/withastro/astro/commit/24d2f7a6e6700c10c863f826f37bb653d70e3a83) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Properly handle hydration for namespaced components
+
+* [#4289](https://github.com/withastro/astro/pull/4289) [`3ca905174`](https://github.com/withastro/astro/commit/3ca905174967d6339ba90aa5bc1756fbe2fafdb0) Thanks [@bholmesdev](https://github.com/bholmesdev)! - [astro add] Set `output: 'server'` when adding adapter
+
+## 1.0.3
+
+### Patch Changes
+
+- [#4239](https://github.com/withastro/astro/pull/4239) [`a9baa45af`](https://github.com/withastro/astro/commit/a9baa45af35abdd3e1930fb49e8b6fb0a4340e2a) Thanks [@bluwy](https://github.com/bluwy)! - Fix Astro client scripts sourcemap 404
+
+* [#4279](https://github.com/withastro/astro/pull/4279) [`42fd6936c`](https://github.com/withastro/astro/commit/42fd6936cdb7106aea3770bed5313e558fc8b6dc) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Handle "not found" imports without throwing an "Invalid URL" error
+
+- [#4273](https://github.com/withastro/astro/pull/4273) [`0022f46b5`](https://github.com/withastro/astro/commit/0022f46b57946f4f71e7f9f6e265081ee4ae1565) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix build output adding `/index.html` at the end of endpoints route
+
+* [#4270](https://github.com/withastro/astro/pull/4270) [`7127b1bb3`](https://github.com/withastro/astro/commit/7127b1bb35ca4e8f419e18683e380a4917eca4bb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Make third-party integration names nicer when using `astro add`
+
+## 1.0.2
+
+### Patch Changes
+
+- [#4247](https://github.com/withastro/astro/pull/4247) [`714a8399e`](https://github.com/withastro/astro/commit/714a8399e20f334d2ba341c98d8ef5d590af9c39) Thanks [@matthewp](https://github.com/matthewp)! - Return 404 status code for 404.astro in SSR
+
+* [#4240](https://github.com/withastro/astro/pull/4240) [`561a34d91`](https://github.com/withastro/astro/commit/561a34d91209c9d4959f74beaa17008edb27ff5d) Thanks [@matthewp](https://github.com/matthewp)! - Properly invalidate Astro modules when a child script updates in HMR
+
+- [#4234](https://github.com/withastro/astro/pull/4234) [`c38e7f189`](https://github.com/withastro/astro/commit/c38e7f1890ba5bc97ddacee91ea196bcfc7652e6) Thanks [@bluwy](https://github.com/bluwy)! - Remove dev server during build
+
+* [#4213](https://github.com/withastro/astro/pull/4213) [`f8e385339`](https://github.com/withastro/astro/commit/f8e3853394c2f2f48fac4b5eb2284e1960e59a13) Thanks [@bluwy](https://github.com/bluwy)! - Bump Vite to 3.0.5
+
+- [#4225](https://github.com/withastro/astro/pull/4225) [`e918b3883`](https://github.com/withastro/astro/commit/e918b3883e156a0de2148517b619a2cf451917d2) Thanks [@mayank99](https://github.com/mayank99)! - `astro add` now supports `-y`
+
+## 1.0.1
+
+### Patch Changes
+
+- [`3a7f2385e`](https://github.com/withastro/astro/commit/3a7f2385eadadb21794a06c86b7fa20b83b2f8f8) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add rawContent and compiledContent to MD layout props
+
+## 1.0.0
+
+> Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+> **Note**
+> If you need help migrating an existing Astro project to the new Astro v1.0, check out our updated [Migration Guide](https://docs.astro.build/en/migrate/) and [full documentation website](https://docs.astro.build/).
+
+### Features
+
+Astro v1.0 includes a few new features and improvements since our original beta announcement back in April, including:
+
+- [SSR Builds](https://docs.astro.build/en/guides/server-side-rendering/): Server output is now stable and available for production use.
+- [Image Optimization](https://docs.astro.build/en/guides/integrations-guide/image/): New `<Image />` and `<Picture />` components available with [`@astrojs/image`](https://docs.astro.build/en/guides/integrations-guide/image/).
+- [MDX Support](https://docs.astro.build/en/guides/integrations-guide/mdx/): A standard syntax for mixing UI components in Markdown is available with [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/).
+- [Vite 3.0](https://vitejs.dev/blog/announcing-vite3.html): An upgrade to our internal build engine, Vite.
+
+### Breaking Changes
+
+- `Astro.canonicalURL` has been deprecated. Please use [`Astro.url`](https://docs.astro.build/en/reference/api-reference/#astrourl) to construct your own canonical URL.
+- [CSS Specificity](https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity) is now preserved for scoped styles. See the [migration guide](https://docs.astro.build/en/migrate/#changed-scoped-css-specificity) for more details.
+  > **Warning**
+  > Please visually inspect your site output to make sure everything is styled as expected. If not, find your scoped style and increase the selector specificity manually to match the old behavior.
+- Components and JSX in Markdown has been deprecated. For long-term support you should migrate to the [`@astrojs/mdx`](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration. See the [migration guide](https://docs.astro.build/en/migrate/#deprecated-components-and-jsx-in-markdown) for more details.
+- The previously deprecated `<Markdown>` component has been removed. It is now available as a separate package, [`@astrojs/markdown-component`](https://github.com/withastro/astro/tree/main/packages/markdown/component).
+
+If you are coming from v0.25 or earlier, make sure you have read and followed the [v0.26 Migration Guide](https://docs.astro.build/en/migrate/#migrate-to-v026), which contained several major breaking changes.
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/markdown-remark@1.0.0
+  - @astrojs/telemetry@1.0.0
+  - @astrojs/webapi@1.0.0
+
+## 1.0.0-rc.8
+
+### Patch Changes
+
+- [#4012](https://github.com/withastro/astro/pull/4012) [`f207c417e`](https://github.com/withastro/astro/commit/f207c417e08b2b5ad27cf185888b02392bb568e0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Adds `Astro.generator` which can be used to add a [`<meta name="generator">`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator) tag.
+
+* [#4201](https://github.com/withastro/astro/pull/4201) [`25d36d955`](https://github.com/withastro/astro/commit/25d36d955899f2fba7c5a2e4f04bbe7c95a2146b) Thanks [@matthewp](https://github.com/matthewp)! - Adds warning in dev when using client: directive on Astro component
+
+- [#4203](https://github.com/withastro/astro/pull/4203) [`ec376369a`](https://github.com/withastro/astro/commit/ec376369a84d20bc3079800ae8e8296c96fcf627) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure JSX does not reference server entrypoint
+
+* [#4195](https://github.com/withastro/astro/pull/4195) [`28ab273a3`](https://github.com/withastro/astro/commit/28ab273a3d0a1ecea84bd83591d5b5f3b212de4f) Thanks [@bluwy](https://github.com/bluwy)! - Fix client build sourcemap generation
+
+- [#4189](https://github.com/withastro/astro/pull/4189) [`5e71a8720`](https://github.com/withastro/astro/commit/5e71a8720e17b576ec12ac993f7e6b3d38fb9c8c) Thanks [@jablonski](https://github.com/jablonski)! - Fix custom 404 pages when using `astro preview` (#4113)
+
 ## 1.0.0-rc.7
 
 ### Minor Changes
@@ -1633,18 +1752,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```typescript
   export async function getStaticPaths() {
-      return [
-          { params: { slug: 'thing1' }},
-          { params: { slug: 'thing2' }}
-      ]
+    return [{ params: { slug: 'thing1' } }, { params: { slug: 'thing2' } }];
   }
 
   export async function get(params) {
-      const { slug } = params
+    const { slug } = params;
 
-      return {
-          body: // ...JSON.stringify()
-      }
+    return {
+      // body: JSON.stringify(...)
+    };
   }
   ```
 
@@ -1671,7 +1787,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
     const app = await loadApp(new URL('./dist/server/', import.meta.url));
 
-    createServer((req, res) => {
+    createServer(async (req, res) => {
       const route = app.match(req);
       if (route) {
         let html = await app.render(req, route);
@@ -1800,18 +1916,15 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
   ```typescript
   export async function getStaticPaths() {
-      return [
-          { params: { slug: 'thing1' }},
-          { params: { slug: 'thing2' }}
-      ]
+    return [{ params: { slug: 'thing1' } }, { params: { slug: 'thing2' } }];
   }
 
   export async function get(params) {
-      const { slug } = params
+    const { slug } = params;
 
-      return {
-          body: // ...JSON.stringify()
-      }
+    return {
+      // body: JSON.stringify(...)
+    };
   }
   ```
 
@@ -1830,7 +1943,7 @@ The **Astro v1.0.0 Release Candidate** comes includes new features, tons of bug 
 
     const app = await loadApp(new URL('./dist/server/', import.meta.url));
 
-    createServer((req, res) => {
+    createServer(async (req, res) => {
       const route = app.match(req);
       if (route) {
         let html = await app.render(req, route);
@@ -2593,10 +2706,6 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 - f9cd0310: Improve schema validation using zod
 - efb41f22: Add `<Debug>` component for JavaScript-free client-side debugging.
 
-  ```astro
-
-  ```
-
 ## 0.19.2
 
 ### Patch Changes
@@ -2644,11 +2753,7 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   <img src="../images/penguin.png" />
   ```
 
-  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
-
-  ```astro
-
-  ```
+  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`.
 
 - 239065e2: Adds support for client:only hydrator
 
@@ -2660,23 +2765,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   An example usage:
 
-  ```jsx
-  ---
-  import BarChart from '../components/BarChart.jsx';
-  ---
+  ```astro
 
-  <BarChart client:only />
-  /**
-   * If multiple renderers are included in the Astro config,
-   * this will ensure that the component is hydrated with
-   * the Preact renderer.
-   */
-  <BarChart client:only="preact" />
-  /**
-   * If a custom renderer is required, use the same name
-   * provided in the Astro config.
-   */
-  <BarChart client:only="my-custom-renderer" />
   ```
 
   This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
@@ -2699,23 +2789,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   An example usage:
 
-  ```jsx
-  ---
-  import BarChart from '../components/BarChart.jsx';
-  ---
+  ```astro
 
-  <BarChart client:only />
-  /**
-   * If multiple renderers are included in the Astro config,
-   * this will ensure that the component is hydrated with
-   * the Preact renderer.
-   */
-  <BarChart client:only="preact" />
-  /**
-   * If a custom renderer is required, use the same name
-   * provided in the Astro config.
-   */
-  <BarChart client:only="my-custom-renderer" />
   ```
 
   This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
@@ -2734,10 +2809,6 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
   ```
 
   The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
-
-  ```astro
-
-  ```
 
 ## 0.19.0-next.2
 
@@ -2866,12 +2937,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
-  ```jsx
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  ---
+  ```astro
 
-  <Sidebar client:media="(max-width: 700px)" />
   ```
 
   This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
@@ -2888,10 +2955,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   **index.astro**
 
-  ```jsx
-  import Sidebar from '../components/Sidebar.jsx';
-  import { MOBILE } from '../media.js';
-  ---(<Sidebar client:media={MOBILE} />);
+  ```astro
+
   ```
 
 ### Patch Changes
@@ -3015,12 +3080,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
 
-  ```jsx
-  ---
-  import Sidebar from '../components/Sidebar.jsx';
-  ---
+  ```astro
 
-  <Sidebar client:media="(max-width: 700px)" />
   ```
 
   This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
@@ -3037,10 +3098,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   **index.astro**
 
-  ```jsx
-  import Sidebar from '../components/Sidebar.jsx';
-  import { MOBILE } from '../media.js';
-  ---(<Sidebar client:media={MOBILE} />);
+  ```astro
+
   ```
 
 ### Patch Changes
@@ -3063,22 +3122,14 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
 - 1b73f95: Only show the buildOptions.site notice if not already set
 - fb78b76: Improve error handling for unsupported Node versions
-- d93f768: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
-
-  ```astro
-
-  ```
+- d93f768: Add support for components defined in Frontmatter.
 
 ## 0.17.1
 
 ### Patch Changes
 
 - 1e01251: Fixes bug with React renderer that would not hydrate correctly
-- 42a6ace: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
-
-  ```astro
-
-  ```
+- 42a6ace: Add support for components defined in Frontmatter.
 
 - Updated dependencies [1e01251]
   - @astrojs/renderer-react@0.1.5
@@ -3216,13 +3267,8 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   Astro frontmatter scripts are TypeScript! Because of this, we can leverage TypeScript types to define the shape of your props.
 
-  ```ts
-  ---
-  export interface Props {
-    text?: string;
-  }
-  const { text = 'Hello world!' } = Astro.props as Props;
-  ---
+  ```astro
+
   ```
 
   > **Note** Casting `Astro.props as Props` is a temporary workaround. We expect our Language Server to handle this automatically soon!
@@ -3231,26 +3277,16 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   One of the great things about this change is that it's straight-forward to access _any_ props. Just use `...props`!
 
-  ```ts
-  ---
-  export interface Props {
-    text?: string;
-    [attr: string]: unknown;
-  }
-  const { text = 'Hello world!', ...props } = Astro.props as Props;
-  ---
+  ```astro
+
   ```
 
   ### What about prop validation?
 
   We considered building prop validation into Astro, but decided to leave that implementation up to you! This way, you can use any set of tools you like.
 
-  ```ts
-  ---
-  const { text = 'Hello world!' } = Astro.props;
+  ```astro
 
-  if (typeof text !== 'string') throw new Error(`Expected "text" to be of type "string" but recieved "${typeof string}"!`);
-  ---
   ```
 
 ### Patch Changes

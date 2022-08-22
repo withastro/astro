@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     // Force functions designed to override their parent class to be specified as `override`.
     "noImplicitOverride": true,
-    // Force functions to specify that they can return `undefined` if a possibe code path does not return a value.
+    // Force functions to specify that they can return `undefined` if a possible code path does not return a value.
     "noImplicitReturns": true,
     // Report an error when a variable is declared but never used.
     "noUnusedLocals": true,

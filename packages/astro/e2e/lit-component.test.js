@@ -8,7 +8,7 @@ const test = testFactory({
 // TODO: configure playwright to handle web component APIs
 // https://github.com/microsoft/playwright/issues/14241
 test.describe('Lit components', () => {
-	test.beforeEach(() => {
+	test.beforeAll(() => {
 		delete globalThis.window;
 	});
 
@@ -16,11 +16,11 @@ test.describe('Lit components', () => {
 		let devServer;
 		const t = test.extend({});
 
-		t.beforeEach(async ({ astro }) => {
+		t.beforeAll(async ({ astro }) => {
 			devServer = await astro.startDevServer();
 		});
 
-		t.afterEach(async () => {
+		t.afterAll(async () => {
 			await devServer.stop();
 		});
 
@@ -120,11 +120,11 @@ test.describe('Lit components', () => {
 			await astro.build();
 		});
 
-		t.beforeEach(async ({ astro }) => {
+		t.beforeAll(async ({ astro }) => {
 			previewServer = await astro.preview();
 		});
 
-		t.afterEach(async () => {
+		t.afterAll(async () => {
 			await previewServer.stop();
 		});
 

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/tailwind",
   "description": "Tailwind + Astro Integrations",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

@@ -5,12 +5,10 @@ import { addAstro } from './plugin.js';
 const languageMap = new Map([['ts', 'typescript']]);
 
 export function runHighlighterWithAstro(lang: string | undefined, code: string) {
-	let classLanguage = `language-${lang}`;
-
 	if (!lang) {
 		lang = 'plaintext';
 	}
-
+	let classLanguage = `language-${lang}`;
 	const ensureLoaded = (language: string) => {
 		if (language && !Prism.languages[language]) {
 			loadLanguages([language]);

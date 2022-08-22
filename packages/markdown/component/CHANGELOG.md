@@ -1,5 +1,19 @@
 # @astrojs/markdown-component
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4208](https://github.com/withastro/astro/pull/4208) [`fe3b42398`](https://github.com/withastro/astro/commit/fe3b423982faa87c106e6a072bb14cb0a6678064) Thanks [@myakura](https://github.com/myakura)! - README update
+
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
 ## 0.2.1
 
 ### Patch Changes
@@ -30,15 +44,11 @@
   This change moves the Markdown component into its own package where it will be maintained separately. All that needs to change from a user's perspective is the import statement:
 
   ```astro
-  ---
-  import { Markdown } from 'astro/components';
-  ---
+
   ```
 
   Becomes:
 
   ```astro
-  ---
-  import Markdown from '@astrojs/markdown-component';
-  ---
+
   ```
