@@ -360,7 +360,7 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       canvas-confetti: 1.5.1
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   examples/with-vite-plugin-pwa:
     specifiers:
@@ -369,7 +369,7 @@ importers:
       workbox-window: ^6.5.3
     devDependencies:
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.11
+      vite-plugin-pwa: 0.11.11_workbox-window@6.5.4
       workbox-window: 6.5.4
 
   examples/with-vitest:
@@ -461,7 +461,7 @@ importers:
       tsconfig-resolver: ^3.0.1
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
-      vite: 3.0.5
+      vite: 3.0.9
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -517,7 +517,7 @@ importers:
       tsconfig-resolver: 3.0.1
       unist-util-visit: 4.1.0
       vfile: 5.3.4
-      vite: 3.0.5_sass@1.54.4
+      vite: 3.0.9_sass@1.54.4
       yargs-parser: 21.1.1
       zod: 3.18.0
     devDependencies:
@@ -2024,7 +2024,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   packages/astro/test/fixtures/type-imports:
     specifiers:
@@ -2553,7 +2553,7 @@ importers:
       '@proload/core': 0.3.2
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -15880,10 +15880,12 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /tailwindcss/3.1.8:
+  /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -16633,10 +16635,11 @@ packages:
       magic-string: 0.26.2
     dev: true
 
-  /vite-plugin-pwa/0.11.11:
+  /vite-plugin-pwa/0.11.11_workbox-window@6.5.4:
     resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
     peerDependencies:
       vite: ^2.0.0
+      workbox-window: ^6.4.0
     peerDependenciesMeta:
       vite:
         optional: true
@@ -16678,8 +16681,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vite/3.0.5_sass@1.54.4:
-    resolution: {integrity: sha512-bRvrt9Tw8EGW4jj64aYFTnVg134E8hgDxyl/eEHnxiGqYk7/pTPss6CWlurqPOUzqvEoZkZ58Ws+Iu8MB87iMA==}
+  /vite/3.0.9_sass@1.54.4:
+    resolution: {integrity: sha512-waYABTM+G6DBTCpYAxvevpG50UOlZuynR0ckTK5PawNVt7ebX6X7wNXHaGIO6wYYFXSM7/WcuFuO2QzhBB6aMw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
