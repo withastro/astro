@@ -57,17 +57,21 @@ describe('MDX frontmatter', () => {
 		expect(headingSlugs).to.contain('section-2');
 	});
 
-	it('passes "file" and "url" to layout via frontmatter', async () => {
+	it('passes "file" and "url" to layout', async () => {
 		const html = await fixture.readFile('/with-headings/index.html');
 		const { document } = parseHTML(html);
 
 		const frontmatterFile = document.querySelector('[data-frontmatter-file]')?.textContent;
 		const frontmatterUrl = document.querySelector('[data-frontmatter-url]')?.textContent;
+		const file = document.querySelector('[data-file]')?.textContent;
+		const url = document.querySelector('[data-url]')?.textContent;
 
 		expect(frontmatterFile?.endsWith('with-headings.mdx')).to.equal(
 			true,
 			'"file" prop does not end with correct path or is undefined'
 		);
 		expect(frontmatterUrl).to.equal('/with-headings');
+		expect(file).to.equal(frontmatterFile);
+		expect(url).to.equal(frontmatterUrl);
 	});
 });
