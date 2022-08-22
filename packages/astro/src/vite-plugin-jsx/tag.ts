@@ -61,7 +61,10 @@ export default function tagExportsWithRenderer({
 				}
 
 				if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration') {
-					if (t.isFunctionDeclaration(node.declaration) && node.declaration.id?.name) {
+					if (t.isIdentifier(node.declaration)) {
+						addTag(node.declaration.name);
+					}
+					else if (t.isFunctionDeclaration(node.declaration) && node.declaration.id?.name) {
 						addTag(node.declaration.id.name);
 					}
 					else if (t.isVariableDeclaration(node.declaration)) {
