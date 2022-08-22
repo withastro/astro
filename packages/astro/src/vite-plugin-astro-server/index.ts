@@ -345,7 +345,11 @@ async function handleRequest(
 				await writeWebResponse(res, result.response);
 			} else {
 				let contentType = 'text/plain';
-				const computedMimeType = route.pathname ? mime.getType(route.pathname) : null;
+				// Dynamic routes don’t include `route.pathname`, so synthesise a path for these (e.g. 'src/pages/[slug].svg')
+				const filepath =
+					route.pathname ||
+					route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
+				const computedMimeType = mime.getType(filepath);
 				if (computedMimeType) {
 					contentType = computedMimeType;
 				}

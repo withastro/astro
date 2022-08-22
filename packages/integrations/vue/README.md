@@ -16,11 +16,11 @@ To install `@astrojs/vue`, run the following from your project directory and fol
 
 ```sh
 # Using NPM
-npx astro add vue
+npm run astro add vue
 # Using Yarn
 yarn astro add vue
 # Using PNPM
-pnpx astro add vue
+pnpm astro add vue
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.

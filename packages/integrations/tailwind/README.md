@@ -31,11 +31,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
   
 ```sh
 # Using NPM
-npx astro add tailwind
+npm run astro add tailwind
 # Using Yarn
 yarn astro add tailwind
 # Using PNPM
-pnpx astro add tailwind
+pnpm astro add tailwind
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
