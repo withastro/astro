@@ -20,13 +20,17 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
 		];
 		if (frontmatter.layout) {
+			// NOTE(bholmesdev) 08-22-2022
+			// Using an async layout import (i.e. `const Layout = (await import...)`)
+			// Preserves the dev server import cache when globbing a large set of MDX files
+			// Full explanation: 'https://github.com/withastro/astro/pull/4428'
 			exportNodes.unshift(
 				jsToTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
-				import Layout from ${JSON.stringify(frontmatter.layout)};
 				
-				export default function ({ children }) {
+				export default async function ({ children }) {
+					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
 					const { layout, ...content } = frontmatter;
 					content.file = file;
 					content.url = url;
