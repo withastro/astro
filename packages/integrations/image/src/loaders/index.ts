@@ -12,6 +12,31 @@ export type InputFormat =
 
 export type OutputFormat = 'avif' | 'jpeg' | 'png' | 'webp';
 
+export type CropFit = 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
+
+export type CropPosition =
+	| 'top'
+	| 'right top'
+	| 'right'
+	| 'right bottom'
+	| 'bottom'
+	| 'left bottom'
+	| 'left'
+	| 'left top'
+	| 'north'
+	| 'northeast'
+	| 'east'
+	| 'southeast'
+	| 'south'
+	| 'southwest'
+	| 'west'
+	| 'northwest'
+	| 'center'
+	| 'centre'
+	| 'cover'
+	| 'entropy'
+	| 'attention';
+
 /**
  * Defines the original image and transforms that need to be applied to it.
  */
@@ -53,6 +78,21 @@ export interface TransformOptions {
 	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
 	 */
 	aspectRatio?: number | `${number}:${number}`;
+
+	/**
+	 * TODO DOC
+	 */
+	fit?: CropFit;
+
+	/**
+	 * TODO DOC
+	 */
+	background?: string;
+
+	/**
+	 * TODO DOC
+	 */
+	position?: CropPosition;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {

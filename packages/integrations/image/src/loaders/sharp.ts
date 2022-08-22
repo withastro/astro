@@ -37,6 +37,18 @@ class SharpService implements SSRImageService {
 			searchParams.append('ar', transform.aspectRatio.toString());
 		}
 
+		if (transform.fit) {
+			searchParams.append('fit', transform.fit);
+		}
+
+		if (transform.background) {
+			searchParams.append('bg', transform.background);
+		}
+
+		if (transform.position) {
+			searchParams.append('p', encodeURI(transform.position));
+		}
+
 		searchParams.append('href', transform.src);
 
 		return { searchParams };
@@ -78,6 +90,18 @@ class SharpService implements SSRImageService {
 			}
 		}
 
+		if (searchParams.has('fit')) {
+			transform.fit = searchParams.get('fit') as typeof transform.fit
+		}
+
+		if (searchParams.has('p')) {
+			transform.position = decodeURI(searchParams.get('p')!) as typeof transform.position
+		}
+
+		if (searchParams.has('bg')) {
+			transform.background = searchParams.get('bg')!
+		}
+
 		return transform;
 	}
 
@@ -90,7 +114,11 @@ class SharpService implements SSRImageService {
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
-			sharpImage.resize(width, height);
+			sharpImage.resize(width, height, {
+				fit: transform.fit,
+				position: transform.position,
+				background: transform.background
+			});
 		}
 
 		if (transform.format) {
