@@ -110,7 +110,13 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					const loader = globalThis?.astroImage?.loader;
 
 					if (loader && 'transform' in loader && staticImages.size > 0) {
-						await ssgBuild({ loader, staticImages, srcDir: _config.srcDir, outDir: dir, logLevel: resolvedOptions.logLevel });
+						await ssgBuild({
+							loader,
+							staticImages,
+							srcDir: _config.srcDir,
+							outDir: dir,
+							logLevel: resolvedOptions.logLevel,
+						});
 					}
 				}
 			},

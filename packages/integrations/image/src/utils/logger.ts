@@ -60,15 +60,15 @@ function getPrefix(level: LoggerLevel, timestamp: boolean) {
 	return prefix;
 }
 
-const log = (_level: LoggerLevel, dest: (message: string) => void) =>
+const log =
+	(_level: LoggerLevel, dest: (message: string) => void) =>
 	({ message, level, prefix = true, timestamp = true }: LogMessage) => {
 		if (levels[_level] >= levels[level]) {
 			dest(`${prefix ? getPrefix(level, timestamp) : ''}${message}`);
 		}
-	}
+	};
 
 export const info = log('info', console.info);
 export const debug = log('debug', console.debug);
 export const warn = log('warn', console.warn);
 export const error = log('error', console.error);
-
