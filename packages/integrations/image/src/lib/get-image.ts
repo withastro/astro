@@ -2,7 +2,6 @@
 import slash from 'slash';
 import { ROUTE_PATTERN } from '../constants.js';
 import { ImageService, isSSRService, OutputFormat, TransformOptions } from '../loaders/index.js';
-import sharp from '../loaders/sharp.js';
 import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
@@ -126,15 +125,9 @@ export async function getImage(
 	const isDev = import.meta.env?.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 
-	const _loader = isDev && isLocalImage ? sharp : loader;
-
-	if (!_loader) {
-		throw new Error('@astrojs/image: loader not found!');
-	}
-
 	// For SSR services, build URLs for the injected route
-	if (isSSRService(_loader)) {
-		const { searchParams } = _loader.serializeTransform(resolved);
+	if (isSSRService(loader)) {
+		const { searchParams } = loader.serializeTransform(resolved);
 
 		// cache all images rendered to HTML
 		if (globalThis.astroImage?.addStaticImage) {

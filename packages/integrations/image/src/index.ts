@@ -33,7 +33,7 @@ export interface IntegrationOptions {
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
-		serviceEntryPoint: '@astrojs/image/sharp',
+		serviceEntryPoint: '@astrojs/image/squoosh',
 		logLevel: 'info' as LoggerLevel,
 		...options,
 	};
@@ -48,11 +48,15 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
 			optimizeDeps: {
-				include: ['image-size', 'sharp'],
+				include: [
+					'image-size',
+					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp' && 'sharp',
+					resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh' && '@squoosh/lib',
+				].filter(Boolean),
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
-			},
+			}
 		};
 	}
 

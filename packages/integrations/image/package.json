@@ -22,6 +22,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./sharp": "./dist/loaders/sharp.js",
+    "./squoosh": "./dist/loaders/squoosh.js",
     "./endpoints/dev": "./dist/endpoints/dev.js",
     "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
@@ -41,10 +42,10 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
+    "@squoosh/lib": "^0.4.0",
     "etag": "^1.8.1",
     "image-size": "^1.0.1",
     "mrmime": "^1.0.0",
-    "sharp": "^0.30.6",
     "slash": "^4.0.0",
     "tiny-glob": "^0.2.9"
   },

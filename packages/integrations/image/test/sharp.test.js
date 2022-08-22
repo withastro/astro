@@ -1,7 +1,9 @@
 import { expect } from 'chai';
-import sharp from '../dist/loaders/sharp.js';
+import { BaseSSRService } from '../dist/loaders/index.js';
 
-describe('Sharp service', () => {
+describe('abstract SSR service', () => {
+	const service = new BaseSSRService();
+
 	describe('serializeTransform', () => {
 		const src = '/assets/image.png';
 
@@ -16,7 +18,7 @@ describe('Sharp service', () => {
 			['aspect ratio float', { src, aspectRatio: 1.7 }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
-				const { searchParams } = await sharp.serializeTransform(props);
+				const { searchParams } = await service.serializeTransform(props);
 
 				function verifyProp(expected, search) {
 					if (expected) {
@@ -52,7 +54,7 @@ describe('Sharp service', () => {
 		].forEach(([description, params, expected]) => {
 			it(description, async () => {
 				const searchParams = new URLSearchParams(params);
-				const props = sharp.parseTransform(searchParams);
+				const props = service.parseTransform(searchParams);
 
 				expect(props).to.deep.equal(expected);
 			});

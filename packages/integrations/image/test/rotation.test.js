@@ -15,7 +15,7 @@ describe('Image rotation', function () {
 		const url = new URL('./fixtures/rotation/dist/' + pathname, import.meta.url);
 		const dist = fileURLToPath(url);
 		const result = sizeOf(dist);
-		expect(result).to.deep.equal(expected);
+		expect(result, pathname).to.deep.equal(expected);
 	}
 
 	describe('build', () => {
