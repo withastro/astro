@@ -122,13 +122,14 @@ importers:
 
   examples/framework-alpine:
     specifiers:
+      '@astrojs/alpinejs': ^0.0.1
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
       astro: ^1.0.6
-    dependencies:
-      alpinejs: 3.10.3
     devDependencies:
+      '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.0
+      alpinejs: 3.10.3
       astro: link:../../packages/astro
 
   examples/framework-lit:
@@ -2110,6 +2111,14 @@ importers:
       chai: 4.3.6
       mocha: 9.2.2
       uvu: 0.5.6
+
+  packages/integrations/alpinejs:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
 
   packages/integrations/cloudflare:
     specifiers:
@@ -9163,7 +9172,7 @@ packages:
     resolution: {integrity: sha512-1tdfLmNjWG6t/CsPldh+foumYFo3cpyCHgBYQ34ylaMsJ+SNHQ1kApMIa8jN+i593zQuaw3AdWH0nJTARzCFhg==}
     dependencies:
       '@vue/shared': 3.1.5
-    dev: false
+    dev: true
 
   /@vue/reactivity/3.2.37:
     resolution: {integrity: sha512-/7WRafBOshOc6m3F7plwzPeCu/RCVv9uMpOwa/5PiY1Zz+WLVRWiy0MYKwmg19KBdGtFWsmZ4cD+LOdVPcs52A==}
@@ -9194,7 +9203,7 @@ packages:
 
   /@vue/shared/3.1.5:
     resolution: {integrity: sha512-oJ4F3TnvpXaQwZJNF3ZK+kLPHKarDmJjJ6jyzVNDKH9md1dptjC7lWR//jrGuLdek/U6iltWxqAnYOu8gCiOvA==}
-    dev: false
+    dev: true
 
   /@vue/shared/3.2.37:
     resolution: {integrity: sha512-4rSJemR2NQIo9Klm1vabqWjD8rs/ZaJSzMxkMNeJS6lHiUjjUeYFbooN19NgFjztubEKh3WlZUeOLVdbbUWHsw==}
@@ -9317,7 +9326,7 @@ packages:
     resolution: {integrity: sha512-nt/w4hLq9pPaexCsHmO5zV5Alvq4yu9n0Iclti6aV0HmiqLWH/axUb0pn8z3XVuVNcj8EOXOQw+WpwPzMzLBWg==}
     dependencies:
       '@vue/reactivity': 3.1.5
-    dev: false
+    dev: true
 
   /ansi-align/3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
