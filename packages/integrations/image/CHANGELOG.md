@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.6
+
+### Patch Changes
+
+- [#4338](https://github.com/withastro/astro/pull/4338) [`579e2daf8`](https://github.com/withastro/astro/commit/579e2daf8dd1816737d1bd253bf96c108a014061) Thanks [@tony-sull](https://github.com/tony-sull)! - When using remote images in SSG builds, query parameters from the original image source should be stripped from final build output
+
 ## 0.3.5
 
 ### Patch Changes
