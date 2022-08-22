@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.5
+
+### Patch Changes
+
+- [#4342](https://github.com/withastro/astro/pull/4342) [`c4af8723b`](https://github.com/withastro/astro/commit/c4af8723bd232d78d24dbd58feaef87dbaec07c7) Thanks [@tony-sull](https://github.com/tony-sull)! - The integration now includes a logger to better track progress in SSG builds. Use the new `logLevel: "debug"` integration option to see detailed logs of every image transformation built in your project.
+
 ## 0.3.4
 
 ### Patch Changes
