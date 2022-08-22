@@ -85,7 +85,7 @@ describe('SSG images', function () {
 				verifyImage(`_image/googlelogo_color_272x92dp-${HASH_WITH_QUERY}_544x184.webp`, {
 					width: 544,
 					height: 184,
-					type: 'webp'
+					type: 'webp',
 				});
 			});
 		});

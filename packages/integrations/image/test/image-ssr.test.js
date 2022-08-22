@@ -145,7 +145,9 @@ describe('SSR images - build', function () {
 			expect(searchParams.get('f')).to.equal('webp');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png?token=abc')).to.equal(true);
+			expect(searchParams.get('href').endsWith('googlelogo_color_272x92dp.png?token=abc')).to.equal(
+				true
+			);
 		});
 	});
 });
