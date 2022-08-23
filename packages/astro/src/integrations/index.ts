@@ -15,12 +15,12 @@ import type { ViteConfigWithSSR } from '../core/create-vite.js';
 async function withTakingALongTimeMsg<T>({
 	name,
 	hookResult,
-	timeoutMs = 5000,
+	timeoutMs = 3000,
 }: {
 	name: string;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
-}): T {
+}): Promise<T> {
 	const timeout = setTimeout(() => {
 		// TODO: logger
 		console.log(`Waiting for the ${name} integration...`);
@@ -83,7 +83,10 @@ export async function runHookConfigSetup({
 				writable: false,
 				enumerable: false,
 			});
-			await integration.hooks['astro:config:setup'](hooks);
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:config:setup'](hooks),
+			});
 		}
 	}
 	return updatedConfig;
@@ -92,16 +95,19 @@ export async function runHookConfigSetup({
 export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
-			await integration.hooks['astro:config:done']({
-				config,
-				setAdapter(adapter) {
-					if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
-						throw new Error(
-							`Integration "${integration.name}" conflicts with "${config._ctx.adapter.name}". You can only configure one deployment integration.`
-						);
-					}
-					config._ctx.adapter = adapter;
-				},
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:config:done']({
+					config,
+					setAdapter(adapter) {
+						if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
+							throw new Error(
+								`Integration "${integration.name}" conflicts with "${config._ctx.adapter.name}". You can only configure one deployment integration.`
+							);
+						}
+						config._ctx.adapter = adapter;
+					},
+				}),
 			});
 		}
 	}
@@ -116,7 +122,10 @@ export async function runHookServerSetup({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
-			await integration.hooks['astro:server:setup']({ server });
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:server:setup']({ server }),
+			});
 		}
 	}
 }
@@ -130,7 +139,10 @@ export async function runHookServerStart({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:start']) {
-			await integration.hooks['astro:server:start']({ address });
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:server:start']({ address }),
+			});
 		}
 	}
 }
@@ -138,7 +150,10 @@ export async function runHookServerStart({
 export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:done']) {
-			await integration.hooks['astro:server:done']();
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:server:done'](),
+			});
 		}
 	}
 }
@@ -152,7 +167,10 @@ export async function runHookBuildStart({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
-			await integration.hooks['astro:build:start']({ buildConfig });
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:start']({ buildConfig }),
+			});
 		}
 	}
 }
@@ -170,13 +188,16 @@ export async function runHookBuildSetup({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
-			await integration.hooks['astro:build:setup']({
-				vite,
-				pages,
-				target,
-				updateConfig: (newConfig) => {
-					mergeConfig(vite, newConfig);
-				},
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:setup']({
+					vite,
+					pages,
+					target,
+					updateConfig: (newConfig) => {
+						mergeConfig(vite, newConfig);
+					},
+				}),
 			});
 		}
 	}
@@ -191,7 +212,10 @@ export async function runHookBuildSsr({
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
-			await integration.hooks['astro:build:ssr']({ manifest });
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:ssr']({ manifest }),
+			});
 		}
 	}
 }
