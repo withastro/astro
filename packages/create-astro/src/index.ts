@@ -360,10 +360,9 @@ export async function main() {
 				const templateTSConfig = parse(data.toString());
 
 				if (templateTSConfig && typeof templateTSConfig === 'object') {
-					const result = assign(
-						{ extends: `astro/tsconfigs/${tsResponse.typescript}` },
-						templateTSConfig
-					);
+					const result = assign(templateTSConfig, {
+						extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					});
 
 					fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
 				} else {
