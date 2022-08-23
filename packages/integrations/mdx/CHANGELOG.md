@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 0.10.1
+
+### Patch Changes
+
+- [#4443](https://github.com/withastro/astro/pull/4443) [`adb207979`](https://github.com/withastro/astro/commit/adb20797962c280d4d38f335f577fd52a1b48d4b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix MDX style imports when layout is not applied
+
+* [#4428](https://github.com/withastro/astro/pull/4428) [`a2414bf59`](https://github.com/withastro/astro/commit/a2414bf59e2e2cd633aece68e724401c4ad281b9) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix dev server reload performance when globbing from an MDX layout
+
 ## 0.10.0
 
 ### Minor Changes
