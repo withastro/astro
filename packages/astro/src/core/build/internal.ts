@@ -181,3 +181,24 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }
+
+/**
+ * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
+ * A lower depth means it comes directly from the top-level page.
+ * The return of this function is an array of CSS paths, with shared CSS on top
+ * and page-level CSS on bottom.
+ */
+export function sortedCSS(pageData: PageBuildData) {
+	return Array.from(pageData.css).sort((a, b) => {
+		let depthA = a[1].depth,
+			depthB = b[1].depth;
+
+		if(depthA === -1) {
+			return -1;
+		} else if(depthB === -1) {
+			return 1;
+		} else {
+			return depthA > depthB ? -1 : 1;
+		}
+	}).map(([id]) => id);
+}

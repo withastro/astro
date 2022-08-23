@@ -22,7 +22,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				}
 
 				if (hoistedScripts.size) {
-					for (const pageInfo of getTopLevelPages(from, this)) {
+					for (const [pageInfo] of getTopLevelPages(from, this)) {
 						const pageId = pageInfo.id;
 						for (const hid of hoistedScripts) {
 							if (pageScripts.has(pageId)) {
@@ -98,7 +98,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						clientOnlys.push(cid);
 					}
 
-					for (const pageInfo of getTopLevelPages(id, this)) {
+					for (const [pageInfo] of getTopLevelPages(id, this)) {
 						const pageData = getPageDataByViteID(internals, pageInfo.id);
 						if (!pageData) continue;
 
