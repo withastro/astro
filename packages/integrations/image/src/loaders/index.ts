@@ -109,13 +109,13 @@ export interface TransformOptions {
 	 * TODO: DOC
 	 * @default false
 	 */
-	withoutEnlargement: boolean;
+	withoutEnlargement?: boolean;
 
 	/**
 	 * TODO: DOC
 	 * @default false
 	 */
-	withoutReduction: boolean;
+	withoutReduction?: boolean;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {

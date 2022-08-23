@@ -54,11 +54,11 @@ class SharpService implements SSRImageService {
 		}
 
 		if (transform.withoutEnlargement) {
-			searchParams.append('we', transform.withoutEnlargement);
+			searchParams.append('we', '1');
 		}
 
 		if (transform.withoutReduction) {
-			searchParams.append('wr', transform.withoutReduction);
+			searchParams.set('wr', '1');
 		}
 
 		searchParams.append('href', transform.src);
@@ -119,11 +119,11 @@ class SharpService implements SSRImageService {
 		}
 
 		if (searchParams.has('we')) {
-			transform.withoutEnlargement = Boolean(searchParams.get('we'))!;
+			transform.withoutEnlargement = searchParams.get('we') === '1';
 		}
 
 		if (searchParams.has('wr')) {
-			transform.withoutReduction = Boolean(searchParams.get('wr'))!;
+			transform.withoutReduction = searchParams.get('wr') === '1';
 		}
 
 		return transform;
