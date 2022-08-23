@@ -12,6 +12,24 @@ import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
 
+async function withTakingALongTimeMsg<T>({
+	name,
+	hookResult,
+	timeoutMs = 5000,
+}: {
+	name: string;
+	hookResult: T | Promise<T>;
+	timeoutMs?: number;
+}): T {
+	const timeout = setTimeout(() => {
+		// TODO: logger
+		console.log(`Waiting for the ${name} integration...`);
+	}, timeoutMs);
+	const result = await hookResult;
+	clearTimeout(timeout);
+	return result;
+}
+
 export async function runHookConfigSetup({
 	config: _config,
 	command,
@@ -193,10 +211,13 @@ export async function runHookBuildDone({
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:done']) {
-			await integration.hooks['astro:build:done']({
-				pages: pages.map((p) => ({ pathname: p })),
-				dir,
-				routes,
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:done']({
+					pages: pages.map((p) => ({ pathname: p })),
+					dir,
+					routes,
+				}),
 			});
 		}
 	}
