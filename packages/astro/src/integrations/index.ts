@@ -1,6 +1,6 @@
+import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { bold } from 'kleur/colors';
 import {
 	AstroConfig,
 	AstroRenderer,
