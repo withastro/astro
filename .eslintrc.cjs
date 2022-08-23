@@ -19,4 +19,18 @@ module.exports = {
     '@typescript-eslint/no-shadow': ['error'],
     'no-only-tests/no-only-tests': 'error',
   },
+  overrides: [
+    {
+      files: ['packages/**/test/*.js', 'packages/**/*.test.js'],
+      env: {
+        mocha: true,
+      },
+      globals: {
+        globalThis: false, // false means read-only
+      },
+      rules: {
+        'no-console': 'off',
+      },
+    },
+  ],
 };
