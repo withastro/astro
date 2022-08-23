@@ -10,3 +10,4 @@
 		setTimeout(cb, 200);
 	}
 };
+window.dispatchEvent(new Event('astro:idle'));

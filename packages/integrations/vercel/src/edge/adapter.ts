@@ -32,8 +32,17 @@ export default function vercelEdge(): AstroIntegration {
 				if (target === 'server') {
 					vite.resolve ||= {};
 					vite.resolve.alias ||= {};
-					const alias = vite.resolve.alias as Record<string, string>;
-					alias['react-dom/server'] = 'react-dom/server.browser';
+
+					const aliases = [{ find: 'react-dom/server', replacement: 'react-dom/server.browser' }];
+
+					if (Array.isArray(vite.resolve.alias)) {
+						vite.resolve.alias = [...vite.resolve.alias, ...aliases];
+					} else {
+						for (const alias of aliases) {
+							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
+						}
+					}
+
 					vite.ssr = {
 						noExternal: true,
 					};

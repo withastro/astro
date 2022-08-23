@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "./edge/entrypoint": "./dist/edge/entrypoint.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
-    "./static": "./dist/serverless/adapter.js",
+    "./static": "./dist/static/adapter.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {

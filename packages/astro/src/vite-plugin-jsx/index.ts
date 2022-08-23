@@ -13,7 +13,6 @@ import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
-const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
@@ -26,6 +25,8 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 // The `tsx` loader in esbuild will remove unused imports, so we need to
 // be careful about esbuild not treating h, React, Fragment, etc. as unused.
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
+// A fast check regex for the import keyword. False positives are okay.
+const IMPORT_KEYWORD_REGEX = /import/;
 
 function getEsbuildLoader(fileExt: string): string {
 	if (fileExt === '.mdx') return 'jsx';
@@ -39,6 +40,53 @@ function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRende
 	);
 }
 
+/**
+ * Scan a file for an explicit @jsxImportSource comment.
+ * If one is found, return it's value. Otherwise, return undefined.
+ */
+function detectImportSourceFromComments(code: string): string | undefined {
+	// if no imports were found, look for @jsxImportSource comment
+	const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
+	for (const comment of multiline) {
+		const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
+		if (lib) {
+			return lib.trim();
+		}
+	}
+}
+
+/**
+ * Scan a file's imports to detect which renderer it may need.
+ * ex: if the file imports "preact", it's safe to assume the
+ * component should be built as a Preact component.
+ * If no relevant imports found, return undefined.
+ */
+async function detectImportSourceFromImports(
+	code: string,
+	id: string,
+	jsxRenderers: Map<string, AstroRenderer>
+) {
+	// We need valid JS to scan for imports.
+	// NOTE: Because we only need imports, it is okay to use `h` and `Fragment` as placeholders.
+	const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
+		loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
+		jsx: 'transform',
+		jsxFactory: 'h',
+		jsxFragment: 'Fragment',
+		sourcefile: id,
+		sourcemap: 'inline',
+	});
+	const [imports] = eslexer.parse(jsCode);
+	if (imports.length > 0) {
+		for (let { n: spec } of imports) {
+			const pkg = spec && parseNpmName(spec);
+			if (!pkg) continue;
+			if (jsxRenderers.has(pkg.name)) {
+				return pkg.name;
+			}
+		}
+	}
+}
 interface TransformJSXOptions {
 	code: string;
 	id: string;
@@ -106,12 +154,29 @@ interface AstroPluginJSXOptions {
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
 	let viteConfig: ResolvedConfig;
+	const jsxRenderers = new Map<string, AstroRenderer>();
+	const jsxRenderersIntegrationOnly = new Map<string, AstroRenderer>();
+	// A reference to Astro's internal JSX renderer.
+	let astroJSXRenderer: AstroRenderer;
+	// The first JSX renderer provided is considered the default renderer.
+	// This is a useful reference for when the user only gives a single render.
+	let defaultJSXRendererEntry: [string, AstroRenderer];
 
 	return {
 		name: 'astro:jsx',
 		enforce: 'pre', // run transforms before other plugins
-		configResolved(resolvedConfig) {
+		async configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
+			const possibleRenderers = await collectJSXRenderers(config._ctx.renderers);
+			for (const [importSource, renderer] of possibleRenderers) {
+				jsxRenderers.set(importSource, renderer);
+				if (importSource === 'astro') {
+					astroJSXRenderer = renderer;
+				} else {
+					jsxRenderersIntegrationOnly.set(importSource, renderer);
+				}
+			}
+			defaultJSXRendererEntry = [...jsxRenderersIntegrationOnly.entries()][0];
 		},
 		async transform(code, id, opts) {
 			const ssr = Boolean(opts?.ssr);
@@ -120,30 +185,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			}
 
 			const { mode } = viteConfig;
-			let jsxRenderers = JSX_RENDERER_CACHE.get(config);
-
-			// load renderers (on first run only)
-			if (!jsxRenderers) {
-				jsxRenderers = new Map();
-				const possibleRenderers = await collectJSXRenderers(config._ctx.renderers);
-				if (possibleRenderers.size === 0) {
-					// note: we have filtered out all non-JSX files, so this error should only show if a JSX file is loaded with no matching renderers
-					throw new Error(
-						`${colors.yellow(
-							id
-						)}\nUnable to resolve a JSX renderer! Did you forget to include one? Add a JSX integration like \`@astrojs/react\` to your \`astro.config.mjs\` file.`
-					);
-				}
-				for (const [importSource, renderer] of possibleRenderers) {
-					jsxRenderers.set(importSource, renderer);
-				}
-				JSX_RENDERER_CACHE.set(config, jsxRenderers);
-			}
-
-			const astroRenderer = jsxRenderers.get('astro');
-
 			// Shortcut: only use Astro renderer for MD and MDX files
-			if ((id.includes('.mdx') || id.includes('.md')) && astroRenderer) {
+			if (id.includes('.mdx') || id.includes('.md')) {
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
 					jsx: 'preserve',
@@ -153,18 +196,12 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				return transformJSX({
 					code: jsxCode,
 					id,
-					renderer: astroRenderer,
+					renderer: astroJSXRenderer,
 					mode,
 					ssr,
 				});
 			}
-
-			// Attempt: Single JSX integration
-			// If we only have one renderer, we can skip a bunch of work!
-			const nonAstroJsxRenderers = new Map(
-				[...jsxRenderers.entries()].filter(([key]) => key !== 'astro')
-			);
-			if (nonAstroJsxRenderers.size === 1) {
+			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
 				// downlevel any non-standard syntax, but preserve JSX
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
@@ -175,95 +212,60 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				return transformJSX({
 					code: jsxCode,
 					id,
-					renderer: [...nonAstroJsxRenderers.values()][0],
+					renderer: defaultJSXRendererEntry[1],
 					mode,
 					ssr,
 				});
 			}
 
-			// Attempt: Multiple JSX renderers
-			// we need valid JS to scan, so we can use `h` and `Fragment` as placeholders
-			const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
+			let importSource = detectImportSourceFromComments(code);
+			if (!importSource && IMPORT_KEYWORD_REGEX.test(code)) {
+				importSource = await detectImportSourceFromImports(code, id, jsxRenderers);
+			}
+
+			// if we still can’t tell the import source, now is the time to throw an error.
+			if (!importSource) {
+				const [defaultRendererName] = defaultJSXRendererEntry[0];
+				error(
+					logging,
+					'renderer',
+					`${colors.yellow(id)}
+Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
+Add ${colors.cyan(
+						IMPORT_STATEMENTS[defaultRendererName] || `import '${defaultRendererName}';`
+					)} or ${colors.cyan(`/* jsxImportSource: ${defaultRendererName} */`)} to this file.
+`
+				);
+				return null;
+			}
+
+			const selectedJsxRenderer = jsxRenderers.get(importSource);
+			// if the renderer is not installed for this JSX source, throw error
+			if (!selectedJsxRenderer) {
+				error(
+					logging,
+					'renderer',
+					`${colors.yellow(
+						id
+					)} No renderer installed for ${importSource}. Try adding \`@astrojs/${importSource}\` to your project.`
+				);
+				return null;
+			}
+
+			// downlevel any non-standard syntax, but preserve JSX
+			const { code: jsxCode } = await esbuild.transform(code, {
 				loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
-				jsx: 'transform',
-				jsxFactory: 'h',
-				jsxFragment: 'Fragment',
+				jsx: 'preserve',
 				sourcefile: id,
 				sourcemap: 'inline',
 			});
-
-			let imports: eslexer.ImportSpecifier[] = [];
-			if (/import/.test(jsCode)) {
-				let [i] = eslexer.parse(jsCode);
-				imports = i as any;
-			}
-			let importSource: string | undefined;
-			if (imports.length > 0) {
-				for (let { n: spec } of imports) {
-					const pkg = spec && parseNpmName(spec);
-					if (!pkg) continue;
-					if (jsxRenderers.has(pkg.name)) {
-						importSource = pkg.name;
-						break;
-					}
-				}
-			}
-
-			// if no imports were found, look for @jsxImportSource comment
-			if (!importSource) {
-				const multiline = code.match(/\/\*\*?[\S\s]*\*\//gm) || [];
-				for (const comment of multiline) {
-					const [_, lib] = comment.slice(0, -2).match(/@jsxImportSource\s*(\S+)/) || [];
-					if (lib) {
-						importSource = lib.trim();
-						break;
-					}
-				}
-			}
-
-			// if JSX renderer found, then use that
-			if (importSource) {
-				const jsxRenderer = jsxRenderers.get(importSource);
-				// if renderer not installed for this JSX source, throw error
-				if (!jsxRenderer) {
-					error(
-						logging,
-						'renderer',
-						`${colors.yellow(
-							id
-						)} No renderer installed for ${importSource}. Try adding \`@astrojs/${importSource}\` to your project.`
-					);
-					return null;
-				}
-				// downlevel any non-standard syntax, but preserve JSX
-				const { code: jsxCode } = await esbuild.transform(code, {
-					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
-					jsx: 'preserve',
-					sourcefile: id,
-					sourcemap: 'inline',
-				});
-				return await transformJSX({
-					code: jsxCode,
-					id,
-					renderer: jsxRenderers.get(importSource) as AstroRenderer,
-					mode,
-					ssr,
-				});
-			}
-
-			// if we still can’t tell, throw error
-			const defaultRenderer = [...jsxRenderers.keys()][0];
-			error(
-				logging,
-				'renderer',
-				`${colors.yellow(id)}
-Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
-Add ${colors.cyan(
-					IMPORT_STATEMENTS[defaultRenderer] || `import '${defaultRenderer}';`
-				)} or ${colors.cyan(`/* jsxImportSource: ${defaultRenderer} */`)} to this file.
-`
-			);
-			return null;
+			return await transformJSX({
+				code: jsxCode,
+				id,
+				renderer: selectedJsxRenderer,
+				mode,
+				ssr,
+			});
 		},
 	};
 }
