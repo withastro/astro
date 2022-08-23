@@ -33,7 +33,9 @@ describe.skip('Special chars in component import paths', () => {
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(1);
+				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
+					1
+				);
 			});
 
 			// Test 3: Component contents were rendered properly
@@ -54,7 +56,9 @@ describe.skip('Special chars in component import paths', () => {
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(1);
+				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
+					1
+				);
 			});
 
 			// Test 3: Component contents were rendered properly
@@ -65,7 +69,6 @@ describe.skip('Special chars in component import paths', () => {
 			// Test 4: There is an island for each component
 			expect($('astro-island[uid]')).to.have.lengthOf(componentIds.length);
 		});
-
 	});
 
 	if (isWindows) return;
@@ -90,7 +93,9 @@ describe.skip('Special chars in component import paths', () => {
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(1);
+				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
+					1
+				);
 			});
 
 			// Test 3: Component contents were rendered properly
@@ -111,7 +116,9 @@ describe.skip('Special chars in component import paths', () => {
 
 			// Test 2: All components exist
 			componentIds.forEach((componentId) => {
-				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(1);
+				expect($(`#${componentId}`), `Component #${componentId} does not exist`).to.have.lengthOf(
+					1
+				);
 			});
 
 			// Test 3: Component contents were rendered properly
