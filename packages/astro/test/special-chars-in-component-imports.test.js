@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { isWindows, loadFixture } from './test-utils.js';
 
-describe('Special chars in component import paths', () => {
+describe.skip('Special chars in component import paths', () => {
 	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
-	const componentIds = ['caret', 'rocket', 'space', 'round-bracket', 'square-bracket'];
+	const componentIds = ['caret', 'rocket', 'percent', 'space', 'round-bracket', 'square-bracket'];
 
 	before(async () => {
 		fixture = await loadFixture({
