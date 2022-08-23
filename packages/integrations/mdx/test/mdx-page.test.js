@@ -34,7 +34,7 @@ describe('MDX Page', () => {
 			const stylesheet = document.querySelector('link[rel="stylesheet"]');
 
 			expect(stylesheet).to.not.be.null;
-		})
+		});
 	});
 
 	describe('dev', () => {

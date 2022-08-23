@@ -43,7 +43,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx));
-		const proposedName = parents.map(([page]) => nameifyPage(page.id)).sort().join('-');
+		const proposedName = parents
+			.map(([page]) => nameifyPage(page.id))
+			.sort()
+			.join('-');
 
 		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
 		if (proposedName.length <= MAX_NAME_LENGTH) {
@@ -134,15 +137,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 										for (const importedCssImport of meta.importedCss) {
 											// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 											// Depth info is used when sorting the links on the page.
-											if(pageData?.css.has(importedCssImport)) {
+											if (pageData?.css.has(importedCssImport)) {
 												// eslint-disable-next-line
 												const cssInfo = pageData?.css.get(importedCssImport)!;
-												if(depth < cssInfo.depth) {
+												if (depth < cssInfo.depth) {
 													cssInfo.depth = depth;
 												}
 											} else {
 												pageData?.css.set(importedCssImport, { depth });
-											}	
+											}
 										}
 									}
 								}

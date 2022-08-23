@@ -14,9 +14,9 @@ describe('CSS production ordering', () => {
 	}
 
 	/**
-	 * 
-	 * @param {import('./test-utils').Fixture} fixture 
-	 * @param {string} href 
+	 *
+	 * @param {import('./test-utils').Fixture} fixture
+	 * @param {string} href
 	 * @returns {Promise<{ href: string; css: string; }>}
 	 */
 	async function getLinkContent(fixture, href) {
@@ -27,22 +27,20 @@ describe('CSS production ordering', () => {
 	describe('SSG and SSR parity', () => {
 		let staticHTML, serverHTML;
 		let staticCSS, serverCSS;
-	
+
 		const commonConfig = Object.freeze({
 			root: './fixtures/css-order/',
 		});
-	
 
-	
 		before(async () => {
 			let fixture = await loadFixture({ ...commonConfig });
 			await fixture.build();
 			staticHTML = await fixture.readFile('/one/index.html');
 			staticCSS = await Promise.all(
-				getLinks(staticHTML).map(href => getLinkContent(fixture, href))
+				getLinks(staticHTML).map((href) => getLinkContent(fixture, href))
 			);
 		});
-	
+
 		before(async () => {
 			let fixture = await loadFixture({
 				...commonConfig,
@@ -50,7 +48,7 @@ describe('CSS production ordering', () => {
 				output: 'server',
 			});
 			await fixture.build();
-	
+
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/one');
 			const response = await app.render(request);
@@ -62,11 +60,11 @@ describe('CSS production ordering', () => {
 				})
 			);
 		});
-	
+
 		it('is in the same order for output: server and static', async () => {
 			const staticContent = staticCSS.map((o) => o.css);
 			const serverContent = serverCSS.map((o) => o.css);
-	
+
 			expect(staticContent).to.deep.equal(serverContent);
 		});
 	});
@@ -85,11 +83,11 @@ describe('CSS production ordering', () => {
 			let html = await fixture.readFile('/two/index.html');
 
 			const content = await Promise.all(
-				getLinks(html).map(href => getLinkContent(fixture, href))
+				getLinks(html).map((href) => getLinkContent(fixture, href))
 			);
 
 			expect(content).to.have.a.lengthOf(2, 'there are 2 stylesheets');
-			const [,last] = content;
+			const [, last] = content;
 
 			expect(last.css).to.match(/#00f/);
 		});

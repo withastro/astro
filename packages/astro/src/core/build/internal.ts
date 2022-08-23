@@ -189,16 +189,18 @@ export function* eachPageData(internals: BuildInternals) {
  * and page-level CSS on bottom.
  */
 export function sortedCSS(pageData: PageBuildData) {
-	return Array.from(pageData.css).sort((a, b) => {
-		let depthA = a[1].depth,
-			depthB = b[1].depth;
+	return Array.from(pageData.css)
+		.sort((a, b) => {
+			let depthA = a[1].depth,
+				depthB = b[1].depth;
 
-		if(depthA === -1) {
-			return -1;
-		} else if(depthB === -1) {
-			return 1;
-		} else {
-			return depthA > depthB ? -1 : 1;
-		}
-	}).map(([id]) => id);
+			if (depthA === -1) {
+				return -1;
+			} else if (depthB === -1) {
+				return 1;
+			} else {
+				return depthA > depthB ? -1 : 1;
+			}
+		})
+		.map(([id]) => id);
 }
