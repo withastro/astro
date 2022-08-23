@@ -1534,6 +1534,12 @@ importers:
       '@fontsource/montserrat': 4.5.11
       astro: link:../../..
 
+  packages/astro/test/fixtures/get-static-paths-pages:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/glob-pages-css:
     specifiers:
       astro: workspace:*
