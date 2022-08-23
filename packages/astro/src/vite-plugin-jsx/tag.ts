@@ -55,21 +55,38 @@ export default function tagExportsWithRenderer({
 				if (node.exportKind === 'type') return;
 				if (node.type === 'ExportAllDeclaration') return;
 
-				if (node.type === 'ExportNamedDeclaration') {
-					if (t.isFunctionDeclaration(node.declaration)) {
-						if (node.declaration.id?.name) {
-							const id = node.declaration.id.name;
-							const tags = state.get('astro:tags') ?? [];
-							state.set('astro:tags', [...tags, id]);
-						}
+				const addTag = (id: string) => {
+					const tags = state.get('astro:tags') ?? [];
+					state.set('astro:tags', [...tags, id]);
+				}
+
+				if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration') {
+					if (t.isIdentifier(node.declaration)) {
+						addTag(node.declaration.name);
 					}
-				} else if (node.type === 'ExportDefaultDeclaration') {
-					if (t.isFunctionDeclaration(node.declaration)) {
-						if (node.declaration.id?.name) {
-							const id = node.declaration.id.name;
-							const tags = state.get('astro:tags') ?? [];
-							state.set('astro:tags', [...tags, id]);
-						}
+					else if (t.isFunctionDeclaration(node.declaration) && node.declaration.id?.name) {
+						addTag(node.declaration.id.name);
+					}
+					else if (t.isVariableDeclaration(node.declaration)) {
+						node.declaration.declarations?.forEach(declaration => {
+							if (t.isArrowFunctionExpression(declaration.init) && t.isIdentifier(declaration.id)) {
+								addTag(declaration.id.name);
+							}
+						});
+					}
+					else if (t.isObjectExpression(node.declaration)) {
+						node.declaration.properties?.forEach(property => {
+							if (t.isProperty(property) && t.isIdentifier(property.key)) {
+								addTag(property.key.name);
+							}
+						});
+					}
+					else if (t.isExportNamedDeclaration(node)) {
+						node.specifiers.forEach(specifier => {
+							if (t.isExportSpecifier(specifier) && t.isIdentifier(specifier.exported)) {
+								addTag(specifier.local.name);
+							}
+						});
 					}
 				}
 			},
