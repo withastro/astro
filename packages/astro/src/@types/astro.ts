@@ -679,7 +679,9 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: Array<AstroIntegration | AstroIntegration[]>;
+	integrations?: Array<
+		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
+	>;
 
 	/**
 	 * @docs

@@ -207,11 +207,6 @@ async function getPathsForRoute(
 		paths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
 			.filter((staticPath) => {
-				// Remove empty or undefined paths
-				if (!staticPath) {
-					return false;
-				}
-
 				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
 					return true;
