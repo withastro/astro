@@ -1,5 +1,6 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
+import { bold } from 'kleur/colors';
 import {
 	AstroConfig,
 	AstroRenderer,
@@ -11,19 +12,21 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
+import { info, LogOptions } from '../core/logger/core.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
 	hookResult,
 	timeoutMs = 3000,
+	logging,
 }: {
 	name: string;
 	hookResult: T | Promise<T>;
 	timeoutMs?: number;
+	logging: LogOptions;
 }): Promise<T> {
 	const timeout = setTimeout(() => {
-		// TODO: logger
-		console.log(`Waiting for the ${name} integration...`);
+		info(logging, 'build', `Waiting for the ${bold(name)} integration...`);
 	}, timeoutMs);
 	const result = await hookResult;
 	clearTimeout(timeout);
@@ -33,9 +36,11 @@ async function withTakingALongTimeMsg<T>({
 export async function runHookConfigSetup({
 	config: _config,
 	command,
+	logging,
 }: {
 	config: AstroConfig;
 	command: 'dev' | 'build';
+	logging: LogOptions;
 }): Promise<AstroConfig> {
 	// An adapter is an integration, so if one is provided push it.
 	if (_config.adapter) {
@@ -86,13 +91,20 @@ export async function runHookConfigSetup({
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:config:setup'](hooks),
+				logging,
 			});
 		}
 	}
 	return updatedConfig;
 }
 
-export async function runHookConfigDone({ config }: { config: AstroConfig }) {
+export async function runHookConfigDone({
+	config,
+	logging,
+}: {
+	config: AstroConfig;
+	logging: LogOptions;
+}) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
 			await withTakingALongTimeMsg({
@@ -108,6 +120,7 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 						config._ctx.adapter = adapter;
 					},
 				}),
+				logging,
 			});
 		}
 	}
@@ -116,15 +129,18 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 export async function runHookServerSetup({
 	config,
 	server,
+	logging,
 }: {
 	config: AstroConfig;
 	server: ViteDevServer;
+	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:setup']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:server:setup']({ server }),
+				logging,
 			});
 		}
 	}
@@ -133,26 +149,36 @@ export async function runHookServerSetup({
 export async function runHookServerStart({
 	config,
 	address,
+	logging,
 }: {
 	config: AstroConfig;
 	address: AddressInfo;
+	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:start']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:server:start']({ address }),
+				logging,
 			});
 		}
 	}
 }
 
-export async function runHookServerDone({ config }: { config: AstroConfig }) {
+export async function runHookServerDone({
+	config,
+	logging,
+}: {
+	config: AstroConfig;
+	logging: LogOptions;
+}) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:server:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:server:done'](),
+				logging,
 			});
 		}
 	}
@@ -161,15 +187,18 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 export async function runHookBuildStart({
 	config,
 	buildConfig,
+	logging,
 }: {
 	config: AstroConfig;
 	buildConfig: BuildConfig;
+	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:start']({ buildConfig }),
+				logging,
 			});
 		}
 	}
@@ -180,11 +209,13 @@ export async function runHookBuildSetup({
 	vite,
 	pages,
 	target,
+	logging,
 }: {
 	config: AstroConfig;
 	vite: ViteConfigWithSSR;
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
+	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:setup']) {
@@ -198,6 +229,7 @@ export async function runHookBuildSetup({
 						mergeConfig(vite, newConfig);
 					},
 				}),
+				logging,
 			});
 		}
 	}
@@ -206,15 +238,18 @@ export async function runHookBuildSetup({
 export async function runHookBuildSsr({
 	config,
 	manifest,
+	logging,
 }: {
 	config: AstroConfig;
 	manifest: SerializedSSRManifest;
+	logging: LogOptions;
 }) {
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:ssr']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:ssr']({ manifest }),
+				logging,
 			});
 		}
 	}
@@ -225,11 +260,13 @@ export async function runHookBuildDone({
 	buildConfig,
 	pages,
 	routes,
+	logging,
 }: {
 	config: AstroConfig;
 	buildConfig: BuildConfig;
 	pages: string[];
 	routes: RouteData[];
+	logging: LogOptions;
 }) {
 	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
 
@@ -242,6 +279,7 @@ export async function runHookBuildDone({
 					dir,
 					routes,
 				}),
+				logging,
 			});
 		}
 	}

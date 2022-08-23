@@ -167,6 +167,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'server',
+		logging: opts.logging,
 	});
 
 	return await vite.build(viteBuildConfig);
@@ -236,6 +237,7 @@ async function clientBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'client',
+		logging: opts.logging,
 	});
 
 	const buildResult = await vite.build(viteBuildConfig);
