@@ -80,39 +80,41 @@ export interface TransformOptions {
 	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
 	 */
 	aspectRatio?: number | `${number}:${number}`;
-
 	/**
-	 * TODO: DOC
+	 * How the image should be resized to fit both `height` and `width`.
+	 *
 	 * @default 'cover'
 	 */
 	fit?: CropFit;
-
 	/**
-	 * TODO: DOC
+	 * The color used to fill the background when `fit` is set to `contain`.
+	 *
 	 * @default 'rgba(0, 0, 0, 1)'
 	 */
 	background?: string;
-
 	/**
-	 * TODO: DOC
+	 * Position of the crop when fit is `cover` or `contain`.
+	 *
 	 * @default 'centre'
 	 */
 	position?: CropPosition;
-
 	/**
-	 * TODO: DOC
+	 * The kernel to use for cropping.
+	 *
 	 * @default 'lanczos3'
 	 */
 	kernel?: CropKernel;
-
 	/**
-	 * TODO: DOC
+	 * Prevent enlarging if the image's width or height are already less than
+	 * the specified dimensions.
+	 *
 	 * @default false
 	 */
 	withoutEnlargement?: boolean;
-
 	/**
-	 * TODO: DOC
+	 * Prevent reducing if the image's width or height are already greater than
+	 * the specified dimensions.
+	 *
 	 * @default false
 	 */
 	withoutReduction?: boolean;

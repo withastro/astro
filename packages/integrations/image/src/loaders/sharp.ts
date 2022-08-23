@@ -152,6 +152,7 @@ class SharpService implements SSRImageService {
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
+
 			sharpImage.resize({
 				width,
 				height,
