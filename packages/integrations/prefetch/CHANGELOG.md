@@ -1,5 +1,11 @@
 # @astrojs/prefetch
 
+## 0.0.7
+
+### Patch Changes
+
+- [#4207](https://github.com/withastro/astro/pull/4207) [`ceb0eef94`](https://github.com/withastro/astro/commit/ceb0eef944f2f867cb2dba04adfb6b028cf8c228) Thanks [@jablonski](https://github.com/jablonski)! - Use `passive` event listeners for performance
+
 ## 0.0.6
 
 ### Patch Changes

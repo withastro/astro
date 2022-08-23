@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/node",
   "description": "Deploy your site to a Node.js server",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -28,7 +28,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.12.0"
+    "@astrojs/webapi": "^1.0.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

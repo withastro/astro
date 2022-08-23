@@ -1,5 +1,29 @@
 # @astrojs/image
 
+## 0.3.6
+
+### Patch Changes
+
+- [#4338](https://github.com/withastro/astro/pull/4338) [`579e2daf8`](https://github.com/withastro/astro/commit/579e2daf8dd1816737d1bd253bf96c108a014061) Thanks [@tony-sull](https://github.com/tony-sull)! - When using remote images in SSG builds, query parameters from the original image source should be stripped from final build output
+
+## 0.3.5
+
+### Patch Changes
+
+- [#4342](https://github.com/withastro/astro/pull/4342) [`c4af8723b`](https://github.com/withastro/astro/commit/c4af8723bd232d78d24dbd58feaef87dbaec07c7) Thanks [@tony-sull](https://github.com/tony-sull)! - The integration now includes a logger to better track progress in SSG builds. Use the new `logLevel: "debug"` integration option to see detailed logs of every image transformation built in your project.
+
+## 0.3.4
+
+### Patch Changes
+
+- [#4279](https://github.com/withastro/astro/pull/4279) [`42fd6936c`](https://github.com/withastro/astro/commit/42fd6936cdb7106aea3770bed5313e558fc8b6dc) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add better warnings if the integration was not properly configured.
+
+## 0.3.3
+
+### Patch Changes
+
+- [#4221](https://github.com/withastro/astro/pull/4221) [`92aa6a75e`](https://github.com/withastro/astro/commit/92aa6a75eac274942e438de06df71f8261fdbcc2) Thanks [@alex-drocks](https://github.com/alex-drocks)! - README update
+
 ## 0.3.2
 
 ### Patch Changes

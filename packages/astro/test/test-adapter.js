@@ -27,9 +27,9 @@ export default function ({ provideAddress } = { provideAddress: true }) {
 											import { App } from 'astro/app';
 
 											class MyApp extends App {
-												render(request) {
+												render(request, routeData) {
 													${provideAddress ? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';` : ''}
-													return super.render(request);
+													return super.render(request, routeData);
 												}
 											}
 											

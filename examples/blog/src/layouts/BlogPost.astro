@@ -1,102 +1,57 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 
 export interface Props {
 	content: {
 		title: string;
 		description: string;
-		publishDate: string;
-		heroImage?: {
-			src: string;
-			alt: string;
-		};
+		pubDate?: string;
+		updatedDate?: string;
+		heroImage?: string;
 	};
 }
 
 const {
-	content: { title, description, publishDate, heroImage },
+	content: { title, description, pubDate, updatedDate, heroImage },
 } = Astro.props as Props;
 ---
 
 <html>
 	<head>
 		<BaseHead title={title} description={description} />
+		<style>
+			.title {
+				font-size: 2em;
+				margin: 0.25em 0 0;
+			}
+			hr {
+  				border-top: 1px solid #DDD;
+				margin: 1rem 0;
+			}
+		</style>
 	</head>
 
 	<body>
 		<Header />
-		<article class="wrapper content">
-			<header>
+		<main>
+			<article>
 				{heroImage && (
 					<img
-						width="720"
-						height="420"
-						loading="lazy"
-						src={heroImage.src}
-						alt={heroImage.alt}
+						width={720}
+						height={360}
+						src={heroImage}
+						alt=""
 					/>
 				)}
 				<h1 class="title">{title}</h1>
-				<time>{publishDate}</time>
-			</header>
-			<main>
-				<slot></slot>
-			</main>
-		</article>
+				{pubDate && <time>{pubDate}</time>}
+				{updatedDate && <div>Last updated on <time>{updatedDate}</time></div>}
+				<hr/>
+				<slot />
+			</article>
+		</main>
+		<Footer />
 	</body>
 </html>
-
-<style>
-	img {
-		width: 100vw;
-		object-fit: cover;
-		object-position: center;
-		margin-top: 2rem;
-		margin-bottom: 4rem;
-		max-width: 1280px;
-	}
-
-	@media (max-width: 50em) {
-		img {
-			height: 260px;
-			margin-top: 0;
-			margin-bottom: 2rem;
-		}
-	}
-
-	.content {
-		margin-bottom: 8rem;
-	}
-
-	.content :global(h2) {
-		margin-top: 4rem;
-	}
-
-	header {
-		display: flex;
-		flex-direction: column;
-		text-align: center;
-		align-items: center;
-		justify-content: center;
-		gap: 1rem;
-
-		padding-bottom: 2rem;
-		margin-bottom: 2rem;
-		border-bottom: 4px solid var(--theme-divider);
-	}
-
-	.title,
-	time {
-		margin: 0;
-	}
-
-	time {
-		color: var(--theme-text-lighter);
-	}
-
-	.title {
-		font-size: 2.25rem;
-		font-weight: 700;
-	}
-</style>

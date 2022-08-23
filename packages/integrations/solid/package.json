@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -22,8 +22,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./*": "./*",
-    "./client.js": "./client.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "scripts": {

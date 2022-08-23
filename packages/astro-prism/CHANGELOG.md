@@ -1,5 +1,21 @@
 # @astrojs/prism
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4251](https://github.com/withastro/astro/pull/4251) [`1f0dd31d9`](https://github.com/withastro/astro/commit/1f0dd31d9239b5e3dca99c88d021e7a9a3e2054d) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix `<Prism />` component indentation
+
+  Prefer `class="language-plaintext"` to `class="language-undefined"`
+
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
 ## 0.7.0
 
 ### Minor Changes

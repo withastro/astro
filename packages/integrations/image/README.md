@@ -7,6 +7,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 - <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
+- <strong>[Debugging](#debugging)</strong>
 - <strong>[Configuration](#configuration)</strong>
 - <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
@@ -28,11 +29,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
    
 ```sh
 # Using NPM
-npx astro add image
+npm run astro add image
 # Using Yarn
 yarn astro add image
 # Using PNPM
-pnpx astro add image
+pnpm astro add image
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
@@ -59,9 +60,16 @@ export default {
 ``` 
 Then, restart the dev server.
 
-### Update `tsconfig.json`
+### Update `env.d.ts`
 
-For the best development experience, add the integrations type definitions to your project's `tsconfig.json` file.
+For the best development experience, add the integrations type definitions to your project's `env.d.ts` file.
+
+```typescript
+// Replace `astro/client` with `@astrojs/image/client`
+/// <reference types="@astrojs/image/client" />
+```
+
+Or, alternatively if your project is using the types through a `tsconfig.json`
 
 ```json
 {
@@ -221,6 +229,8 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+#### formats
+
 <p>
 
 **Type:** `Array<'avif' | 'jpeg' | 'png' | 'webp'>`<br>
@@ -235,7 +245,7 @@ This is the helper function used by the `<Image />` component to build `<img />`
 
 This helper takes in an object with the same properties as the `<Image />` component and returns an object with attributes that should be included on the final `<img />` element.
 
-This can helpful if you need to add preload links to a page's `<head>`.
+This can be helpful if you need to add preload links to a page's `<head>`.
 
 ```astro
 ---
@@ -259,11 +269,9 @@ This helper takes in an object with the same properties as the `<Picture />` com
 
 ## Configuration
 
-The intergration can be configured to run with a different image service, either a hosted image service or a full image transformer that runs locally in your build or SSR deployment.
+The integration can be configured to run with a different image service, either a hosted image service or a full image transformer that runs locally in your build or SSR deployment.
 
 > During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in `sharp` service when using `astro dev`.
-
-There are currently no other configuration options for the `@astrojs/image` integration. Please [open an issue](https://github.com/withastro/astro/issues/new/choose) if you have a compelling use case to share.
 
 
  ### config.serviceEntryPoint
@@ -278,6 +286,23 @@ export default {
   integrations: [image({
     // Example: The entrypoint for a third-party image service installed from NPM
     serviceEntryPoint: 'my-image-service/astro.js'
+  })],
+}
+```
+
+### config.logLevel
+
+The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
+
+```js
+// astro.config.mjs
+import image from '@astrojs/image';
+
+export default {
+  integrations: [image({
+    // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
+    // default: 'info'
+    logLevel: 'debug'
   })],
 }
 ```
@@ -331,7 +356,7 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 <Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" />
 ```
 
-### Responsive pictures</strong></summary>
+### Responsive pictures
 
 The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
 

@@ -31,11 +31,11 @@ The `astro add` command-line tool automates the installation for you. Run one of
   
 ```sh
 # Using NPM
-npx astro add tailwind
+npm run astro add tailwind
 # Using Yarn
 yarn astro add tailwind
 # Using PNPM
-pnpx astro add tailwind
+pnpm astro add tailwind
 ```
   
 Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
@@ -76,7 +76,7 @@ https://user-images.githubusercontent.com/4033662/169918388-8ed153b2-0ba0-4b24-b
 
 If you used the Quick Install instructions and said yes to each prompt, you'll see a `tailwind.config.cjs` file in your project's root directory. Use this file for your Tailwind configuration changes. You can learn how to customize Tailwind using this file [in the Tailwind docs](https://tailwindcss.com/docs/configuration).
 
-If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the root directory and the integration will use its configurations. This can be great if you already have Tailwind configured in aother project and want to bring those settings over to this one.
+If it isn't there, you add your own `tailwind.config.(js|cjs|mjs)` file to the root directory and the integration will use its configurations. This can be great if you already have Tailwind configured in another project and want to bring those settings over to this one.
 
 ### Configuring the Integration
 
@@ -127,6 +127,25 @@ export default {
 
 You can now [import your own `base.css` as a local stylesheet](https://docs.astro.build/en/guides/styling/#import-a-local-stylesheet).
 
+If you are using Vue, Svelte, or another component integration with Astro, `@apply` directives used in component `<style>`s may generate errors about your custom Tailwind class not existing and cause your builds to fail. [Instead of using `@layer` directives in a a global stylesheet](https://tailwindcss.com/docs/functions-and-directives#using-apply-with-per-component-css), define your custom styles by adding a plugin to your Tailwind config:
+
+```js
+// tailwind.config.cjs
+module.exports = {
+  // ...
+  plugins: [
+    function ({ addComponents, theme }) {
+      addComponents({
+        '.btn': {
+          padding: theme('spacing.4'),
+          margin: 'auto'
+        }
+      })
+    }
+  ]
+}
+```
+
 ## Examples
 
 - The [Astro Tailwind Starter](https://github.com/withastro/astro/tree/latest/examples/with-tailwindcss?on=github) gets you up and running with a base for your project that uses Tailwind for styling
@@ -136,7 +155,6 @@ You can now [import your own `base.css` as a local stylesheet](https://docs.astr
 
 ## Troubleshooting
 - If your installation doesn't seem to be working, make sure to restart the dev server.
-- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
 

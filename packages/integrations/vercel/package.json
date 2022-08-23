@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "0.4.0",
+  "version": "1.0.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -20,7 +20,7 @@
     "./edge/entrypoint": "./dist/edge/entrypoint.js",
     "./serverless": "./dist/serverless/adapter.js",
     "./serverless/entrypoint": "./dist/serverless/entrypoint.js",
-    "./static": "./dist/serverless/adapter.js",
+    "./static": "./dist/static/adapter.js",
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -43,7 +43,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^0.12.0",
+    "@astrojs/webapi": "^1.0.0",
     "@vercel/nft": "^0.18.2"
   },
   "devDependencies": {

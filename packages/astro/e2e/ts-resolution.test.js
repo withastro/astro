@@ -26,11 +26,11 @@ test.describe('TypeScript resolution -', () => {
 
 		let devServer;
 
-		t.beforeEach(async ({ astro }) => {
+		t.beforeAll(async ({ astro }) => {
 			devServer = await astro.startDevServer();
 		});
 
-		t.afterEach(async () => {
+		t.afterAll(async () => {
 			await devServer.stop();
 		});
 
@@ -44,13 +44,10 @@ test.describe('TypeScript resolution -', () => {
 
 		t.beforeAll(async ({ astro }) => {
 			await astro.build();
-		});
-
-		t.beforeEach(async ({ astro }) => {
 			previewServer = await astro.preview();
 		});
 
-		t.afterEach(async () => {
+		t.afterAll(async () => {
 			await previewServer.stop();
 		});
 

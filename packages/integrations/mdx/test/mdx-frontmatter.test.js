@@ -57,20 +57,17 @@ describe('MDX frontmatter', () => {
 		expect(headingSlugs).to.contain('section-2');
 	});
 
-	it('extracts frontmatter to "customFrontmatter" export when configured', async () => {
-		const customFixture = await loadFixture({
-			root: new URL('./fixtures/mdx-custom-frontmatter-name/', import.meta.url),
-			integrations: [
-				mdx({
-					frontmatterOptions: {
-						name: 'customFrontmatter',
-					},
-				}),
-			],
-		});
-		await customFixture.build();
+	it('passes "file" and "url" to layout via frontmatter', async () => {
+		const html = await fixture.readFile('/with-headings/index.html');
+		const { document } = parseHTML(html);
 
-		const { titles } = JSON.parse(await customFixture.readFile('/glob.json'));
-		expect(titles).to.include('Using YAML frontmatter');
+		const frontmatterFile = document.querySelector('[data-frontmatter-file]')?.textContent;
+		const frontmatterUrl = document.querySelector('[data-frontmatter-url]')?.textContent;
+
+		expect(frontmatterFile?.endsWith('with-headings.mdx')).to.equal(
+			true,
+			'"file" prop does not end with correct path or is undefined'
+		);
+		expect(frontmatterUrl).to.equal('/with-headings');
 	});
 });

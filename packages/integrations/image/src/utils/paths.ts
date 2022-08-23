@@ -5,13 +5,31 @@ import type { TransformOptions } from '../loaders/index.js';
 import { isRemoteImage } from './images.js';
 import { shorthash } from './shorthash.js';
 
+function removeQueryString(src: string) {
+	const index = src.lastIndexOf('?');
+	return index > 0 ? src.substring(0, index) : src;
+}
+
+function removeExtname(src: string) {
+	const ext = path.extname(src);
+
+	if (!ext) {
+		return src;
+	}
+
+	const index = src.lastIndexOf(ext);
+	return src.substring(0, index);
+}
+
 export function ensureDir(dir: string) {
 	fs.mkdirSync(dir, { recursive: true });
 }
 
 export function propsToFilename({ src, width, height, format }: TransformOptions) {
-	const ext = path.extname(src);
-	let filename = src.replace(ext, '');
+	// strip off the querystring first, then remove the file extension
+	let filename = removeQueryString(src);
+	const ext = path.extname(filename);
+	filename = removeExtname(filename);
 
 	// for remote images, add a hash of the full URL to dedupe images with the same filename
 	if (isRemoteImage(src)) {

@@ -16,3 +16,4 @@
 		}
 	}
 };
+window.dispatchEvent(new Event('astro:media'));

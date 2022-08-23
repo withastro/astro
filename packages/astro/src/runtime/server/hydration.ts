@@ -8,7 +8,9 @@ import { escapeHTML } from './escape.js';
 import { serializeProps } from './serialize.js';
 import { serializeListValue } from './util.js';
 
-const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
+const HydrationDirectivesRaw = ['load', 'idle', 'media', 'visible', 'only'];
+const HydrationDirectives = new Set(HydrationDirectivesRaw);
+export const HydrationDirectiveProps = new Set(HydrationDirectivesRaw.map((n) => `client:${n}`));
 
 export interface HydrationMetadata {
 	directive: string;
@@ -68,10 +70,10 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 					extracted.hydration.value = value;
 
 					// throw an error if an invalid hydration directive was provided
-					if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
+					if (!HydrationDirectives.has(extracted.hydration.directive)) {
 						throw new Error(
-							`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map(
-								(d) => `"client:${d}"`
+							`Error: invalid hydration directive "${key}". Supported hydration methods: ${Array.from(
+								HydrationDirectiveProps
 							).join(', ')}`
 						);
 					}
@@ -105,6 +107,7 @@ interface HydrateScriptOptions {
 	result: SSRResult;
 	astroId: string;
 	props: Record<string | number, any>;
+	attrs: Record<string, string> | undefined;
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
@@ -112,12 +115,12 @@ export async function generateHydrateScript(
 	scriptOptions: HydrateScriptOptions,
 	metadata: Required<AstroComponentMetadata>
 ): Promise<SSRElement> {
-	const { renderer, result, astroId, props } = scriptOptions;
+	const { renderer, result, astroId, props, attrs } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
 
-	if (!componentExport) {
+	if (!componentExport.value) {
 		throw new Error(
-			`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`
+			`Unable to resolve a valid export for "${metadata.displayName}"! Please open an issue at https://astro.build/issues!`
 		);
 	}
 
@@ -128,6 +131,13 @@ export async function generateHydrateScript(
 			uid: astroId,
 		},
 	};
+
+	// Attach renderer-provided attributes
+	if (attrs) {
+		for (const [key, value] of Object.entries(attrs)) {
+			island.props[key] = value;
+		}
+	}
 
 	// Add component url
 	island.props['component-url'] = await result.resolve(componentUrl);

@@ -242,7 +242,7 @@ export interface AstroGlobalPartial {
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
 	 * Returns a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) object built from the [site](https://docs.astro.build/en/reference/configuration-reference/#site) config option
@@ -250,6 +250,16 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrosite)
 	 */
 	site: URL | undefined;
+	/**
+	 * Returns a string with the current version of Astro.
+	 *
+	 * Useful for using `<meta name="generator" content={Astro.generator} />` or crediting Astro in a site footer.
+	 *
+	 * [HTML Specification for `generator`](https://html.spec.whatwg.org/multipage/semantics.html#meta-generator)
+	 *
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astrogenerator)
+	 */
+	generator: string;
 }
 
 type ServerConfig = {
@@ -687,7 +697,9 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	integrations?: Array<AstroIntegration | AstroIntegration[]>;
+	integrations?: Array<
+		AstroIntegration | (AstroIntegration | false | undefined | null)[] | false | undefined | null
+	>;
 
 	/**
 	 * @docs
@@ -868,6 +880,28 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	}>;
 }
 
+export interface MDXInstance<T>
+	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent' | 'Content' | 'default'> {
+	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
+	rawContent: never;
+	/** MDX does not support compiledContent! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
+	compiledContent: never;
+	default: AstroComponentFactory;
+	Content: AstroComponentFactory;
+}
+
+export interface MarkdownLayoutProps<T extends Record<string, any>> {
+	frontmatter: {
+		file: MarkdownInstance<T>['file'];
+		url: MarkdownInstance<T>['url'];
+	} & T;
+	headings: MarkdownHeading[];
+	rawContent: MarkdownInstance<T>['rawContent'];
+	compiledContent: MarkdownInstance<T>['compiledContent'];
+}
+
+export type MDXLayoutProps<T> = Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'>;
+
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
 /**
@@ -1032,6 +1066,7 @@ export interface SSRLoadedRenderer extends AstroRenderer {
 		check: AsyncRendererComponentFn<boolean>;
 		renderToStaticMarkup: AsyncRendererComponentFn<{
 			html: string;
+			attrs?: Record<string, string>;
 		}>;
 	};
 }

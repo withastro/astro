@@ -1,6 +1,4 @@
 import type { MarkdownAstroData } from 'astro';
-import { name as isValidIdentifierName } from 'estree-util-is-identifier-name';
-import type { MdxjsEsm } from 'mdast-util-mdx';
 import type { Data, VFile } from 'vfile';
 import { jsToTreeNode } from './utils.js';
 
@@ -12,34 +10,56 @@ export function remarkInitializeAstroData() {
 	};
 }
 
-export function rehypeApplyFrontmatterExport(
-	pageFrontmatter: Record<string, any>,
-	exportName = 'frontmatter'
-) {
+const EXPORT_NAME = 'frontmatter';
+
+export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any>) {
 	return function (tree: any, vfile: VFile) {
-		if (!isValidIdentifierName(exportName)) {
-			throw new Error(
-				`[MDX] ${JSON.stringify(
-					exportName
-				)} is not a valid frontmatter export name! Make sure "frontmatterOptions.name" could be used as a JS export (i.e. "export const frontmatterName = ...")`
-			);
-		}
 		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
 		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
-		let exportNodes: MdxjsEsm[] = [];
-		if (!exportName) {
-			exportNodes = Object.entries(frontmatter).map(([k, v]) => {
-				if (!isValidIdentifierName(k)) {
-					throw new Error(
-						`[MDX] A remark or rehype plugin tried to inject ${JSON.stringify(
-							k
-						)} as a top-level export, which is not a valid export name.`
-					);
-				}
-				return jsToTreeNode(`export const ${k} = ${JSON.stringify(v)};`);
-			});
-		} else {
-			exportNodes = [jsToTreeNode(`export const ${exportName} = ${JSON.stringify(frontmatter)};`)];
+		const exportNodes = [
+			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+		];
+		if (frontmatter.layout) {
+			// NOTE(bholmesdev) 08-22-2022
+			// Using an async layout import (i.e. `const Layout = (await import...)`)
+			// Preserves the dev server import cache when globbing a large set of MDX files
+			// Full explanation: 'https://github.com/withastro/astro/pull/4428'
+			exportNodes.unshift(
+				jsToTreeNode(
+					/** @see 'vite-plugin-markdown' for layout props reference */
+					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
+				
+				export default async function ({ children }) {
+					const Layout = (await import(${JSON.stringify(frontmatter.layout)})).default;
+					const { layout, ...content } = frontmatter;
+					content.file = file;
+					content.url = url;
+					content.astro = {};
+					Object.defineProperty(content.astro, 'headings', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "headings" from your layout, try using "Astro.props.headings."')
+						}
+					});
+					Object.defineProperty(content.astro, 'html', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "html" from your layout, try using "Astro.props.compiledContent()."')
+						}
+					});
+					Object.defineProperty(content.astro, 'source', {
+						get() {
+							throw new Error('The "astro" property is no longer supported! To access "source" from your layout, try using "Astro.props.rawContent()."')
+						}
+					});
+					return layoutJsx(Layout, {
+						content,
+						frontmatter: content,
+						headings: getHeadings(),
+						'server:root': true,
+						children,
+					});
+				};`
+				)
+			);
 		}
 		tree.children = exportNodes.concat(tree.children);
 	};

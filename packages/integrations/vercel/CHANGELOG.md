@@ -1,5 +1,24 @@
 # @astrojs/vercel
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4421](https://github.com/withastro/astro/pull/4421) [`7820096e1`](https://github.com/withastro/astro/commit/7820096e1ba29ecc58aa7e13311a255acd2fe977) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix react-dom on Vercel edge
+
+## 1.0.0
+
+### Major Changes
+
+- [`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308) - > Astro v1.0 is out! Read the [official announcement post](https://astro.build/blog/astro-1/).
+
+  **No breaking changes**. This package is now officially stable and compatible with `astro@1.0.0`!
+
+### Patch Changes
+
+- Updated dependencies [[`04ad44563`](https://github.com/withastro/astro/commit/04ad445632c67bdd60c1704e1e0dcbcaa27b9308)]:
+  - @astrojs/webapi@1.0.0
+
 ## 0.4.0
 
 ### Minor Changes
@@ -40,7 +59,7 @@
   The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
 
   ```astro
-  <div>Your address {Astro.clientAddress}</div>
+
   ```
 
   This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.

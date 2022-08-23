@@ -12,6 +12,8 @@ import { Image } from '@astrojs/image/components';
 		<br />
 		<Image id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" width={544} height={184} format="webp" />
 		<br />
-		<Image id='inline' src={import('../assets/social.jpg')} width={506} />
+		<Image id="inline" src={import('../assets/social.jpg')} width={506} />
+		<br />
+		<Image id="query" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc" width={544} height={184} format="webp" />
   </body>
 </html>
