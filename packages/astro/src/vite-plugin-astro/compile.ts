@@ -2,7 +2,7 @@ import type { TransformResult } from '@astrojs/compiler';
 import type { PluginContext, SourceMapInput } from 'rollup';
 import type { ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import { TransformStyleWithVite } from './styles';
+import type { TransformStyleWithVite } from './styles';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'url';
@@ -53,7 +53,7 @@ async function compile({
 	let cssDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
 
-	// Plugin context could be handleHotUpdate
+	// handleHotUpdate doesn't have `addWatchFile` used by transformStyleWithVite.
 	if (!pluginContext.addWatchFile) {
 		pluginContext.addWatchFile = () => {};
 	}

@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
@@ -65,6 +65,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 	}
 
 	let transformStyleWithVite: TransformStyleWithVite;
+	let viteDevServer: ViteDevServer | undefined;
 
 	return {
 		name: 'astro:markdown',
@@ -209,6 +210,7 @@ ${setup}`.trim();
 					source: astroResult,
 					ssr: Boolean(opts?.ssr),
 					transformStyleWithVite,
+					viteDevServer,
 					pluginContext: this,
 				};
 
