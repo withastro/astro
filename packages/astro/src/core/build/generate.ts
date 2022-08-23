@@ -28,7 +28,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent } from './internal.js';
+import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -124,7 +124,7 @@ async function generatePage(
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
-	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
+	const linkIds: string[] = sortedCSS(pageData);
 	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
@@ -264,7 +264,7 @@ async function generatePath(
 		astroConfig.base !== '/'
 			? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
 			: astroConfig.site;
-	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
+	const links = createLinkStylesheetElementSet(linkIds, site);
 	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
 
 	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
