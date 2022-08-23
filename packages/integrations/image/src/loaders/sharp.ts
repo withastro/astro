@@ -5,7 +5,21 @@ import type { OutputFormat, SSRImageService, TransformOptions } from './index.js
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
 		// strip off the known attributes
-		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
+		const {
+			width,
+			height,
+			src,
+			format,
+			quality,
+			aspectRatio,
+			fit,
+			position,
+			background,
+			kernel,
+			withoutEnlargement,
+			withoutReduction,
+			...rest
+		} = transform;
 
 		return {
 			...rest,
