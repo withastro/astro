@@ -49,6 +49,18 @@ class SharpService implements SSRImageService {
 			searchParams.append('p', encodeURI(transform.position));
 		}
 
+		if (transform.kernel) {
+			searchParams.append('k', encodeURI(transform.kernel));
+		}
+
+		if (transform.withoutEnlargement) {
+			searchParams.append('we', transform.withoutEnlargement);
+		}
+
+		if (transform.withoutReduction) {
+			searchParams.append('wr', transform.withoutReduction);
+		}
+
 		searchParams.append('href', transform.src);
 
 		return { searchParams };
@@ -91,15 +103,27 @@ class SharpService implements SSRImageService {
 		}
 
 		if (searchParams.has('fit')) {
-			transform.fit = searchParams.get('fit') as typeof transform.fit
+			transform.fit = searchParams.get('fit') as typeof transform.fit;
 		}
 
 		if (searchParams.has('p')) {
-			transform.position = decodeURI(searchParams.get('p')!) as typeof transform.position
+			transform.position = decodeURI(searchParams.get('p')!) as typeof transform.position;
 		}
 
 		if (searchParams.has('bg')) {
-			transform.background = searchParams.get('bg')!
+			transform.background = searchParams.get('bg')!;
+		}
+
+		if (searchParams.has('k')) {
+			transform.kernel = searchParams.get('k')! as typeof transform.kernel;
+		}
+
+		if (searchParams.has('we')) {
+			transform.withoutEnlargement = Boolean(searchParams.get('we'))!;
+		}
+
+		if (searchParams.has('wr')) {
+			transform.withoutReduction = Boolean(searchParams.get('wr'))!;
 		}
 
 		return transform;
@@ -114,10 +138,15 @@ class SharpService implements SSRImageService {
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
-			sharpImage.resize(width, height, {
+			sharpImage.resize({
+				width,
+				height,
 				fit: transform.fit,
 				position: transform.position,
-				background: transform.background
+				background: transform.background,
+				kernel: transform.kernel,
+				withoutEnlargement: transform.withoutEnlargement,
+				withoutReduction: transform.withoutReduction,
 			});
 		}
 

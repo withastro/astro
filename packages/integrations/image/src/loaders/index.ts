@@ -37,6 +37,8 @@ export type CropPosition =
 	| 'entropy'
 	| 'attention';
 
+export type CropKernel = 'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3';
+
 /**
  * Defines the original image and transforms that need to be applied to it.
  */
@@ -80,19 +82,40 @@ export interface TransformOptions {
 	aspectRatio?: number | `${number}:${number}`;
 
 	/**
-	 * TODO DOC
+	 * TODO: DOC
+	 * @default 'cover'
 	 */
 	fit?: CropFit;
 
 	/**
-	 * TODO DOC
+	 * TODO: DOC
+	 * @default 'rgba(0, 0, 0, 1)'
 	 */
 	background?: string;
 
 	/**
-	 * TODO DOC
+	 * TODO: DOC
+	 * @default 'centre'
 	 */
 	position?: CropPosition;
+
+	/**
+	 * TODO: DOC
+	 * @default 'lanczos3'
+	 */
+	kernel?: CropKernel;
+
+	/**
+	 * TODO: DOC
+	 * @default false
+	 */
+	withoutEnlargement: boolean;
+
+	/**
+	 * TODO: DOC
+	 * @default false
+	 */
+	withoutReduction: boolean;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
