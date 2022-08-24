@@ -23,6 +23,13 @@ describe('HTML Plugin', () => {
 			expect(completions, 'Expected completions to not be empty').to.not.be.undefined;
 		});
 
+		it('for html attributes', async () => {
+			const { plugin, document } = setup('<a aria-autocomplete=""');
+
+			const completions = await plugin.getCompletions(document, Position.create(0, 21));
+			expect(completions?.items).to.not.be.empty;
+		});
+
 		it('for style lang in style tags', async () => {
 			const { plugin, document } = setup('<sty');
 

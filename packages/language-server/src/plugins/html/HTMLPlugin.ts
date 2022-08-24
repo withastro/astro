@@ -115,8 +115,7 @@ export class HTMLPlugin implements Plugin {
 		const results =
 			inComponentTag && !inTagName
 				? removeDataAttrCompletion(this.attributeOnlyLang.doComplete(document, position, html).items)
-				: // We filter items with no documentation to prevent duplicates with our own defined script and style tags
-				  this.lang.doComplete(document, position, html).items.filter((item) => item.documentation !== undefined);
+				: this.lang.doComplete(document, position, html).items.filter(isNoAddedTagWithNoDocumentation);
 
 		const langCompletions = inComponentTag ? [] : this.getLangCompletions(results);
 
@@ -125,6 +124,12 @@ export class HTMLPlugin implements Plugin {
 			// Emmet completions change on every keystroke, so they are never complete
 			emmetResults.items.length > 0
 		);
+
+		// Filter script and style completions with no documentation to prevent duplicates
+		// due to our added definitions for those tags
+		function isNoAddedTagWithNoDocumentation(item: CompletionItem) {
+			return !(['script', 'style'].includes(item.label) && item.documentation === undefined);
+		}
 	}
 
 	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {
