@@ -110,10 +110,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 							// Chunks that have the viteMetadata.importedCss are CSS chunks
 							if (meta.importedCss.size) {
-								//console.log(meta.importedCss, c.fileName);
-
-								debugger;
-
 								// For the client build, client:only styles need to be mapped
 								// over to their page. For this chunk, determine if it's a child of a
 								// client:only component and if so, add its CSS to the page it belongs to.
@@ -129,7 +125,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
-									debugger;
 									for (const [pageInfo, depth] of getTopLevelPages(id, this)) {
 										const pageViteID = pageInfo.id;
 										const pageData = getPageDataByViteID(internals, pageViteID);
