@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.23.0
+
+### Minor Changes
+
+- 1dcef68: Automatically type `Astro.props` using the Props interface when available
+
+### Patch Changes
+
+- b6c95f2: Fix completions for HTML attributes not working anymore since 0.20.3
+
 ## 0.22.0
 
 ### Minor Changes

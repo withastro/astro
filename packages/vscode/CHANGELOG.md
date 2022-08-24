@@ -1,5 +1,14 @@
 # astro-vscode
 
+## 0.23.0
+
+### Patch Changes
+
+- 56c14f8: Fix a regression with how VS Code handle unbalanced brackets since 1.70
+- Updated dependencies [b6c95f2]
+- Updated dependencies [1dcef68]
+  - @astrojs/language-server@0.23.0
+
 ## 0.22.0
 
 ### Patch Changes
