@@ -5,13 +5,12 @@ const test = testFactory({ root: './fixtures/error-react-spectrum/' });
 
 let devServer;
 
-test.beforeEach(async ({ astro }) => {
+test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterEach(async ({ astro }) => {
+test.afterAll(async ({ astro }) => {
 	await devServer.stop();
-	astro.resetAllFiles();
 });
 
 test.describe('Error: React Spectrum', () => {

@@ -6,11 +6,11 @@ const test = testFactory({ root: './fixtures/astro-component/' });
 
 let devServer;
 
-test.beforeEach(async ({ astro }) => {
+test.beforeAll(async ({ astro }) => {
 	devServer = await astro.startDevServer();
 });
 
-test.afterEach(async () => {
+test.afterAll(async () => {
 	await devServer.stop();
 });
 
