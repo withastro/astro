@@ -383,7 +383,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.23.3
+      '@astrojs/compiler': ^0.23.4
       '@astrojs/language-server': ^0.20.0
       '@astrojs/markdown-remark': ^1.0.0
       '@astrojs/telemetry': ^1.0.0
