@@ -39,8 +39,37 @@ export function mkdirp(dir: string) {
 	}
 }
 
+//credits: https://github.com/vercel/next.js/blob/canary/packages/create-next-app/helpers/is-folder-empty.ts
 function isEmpty(dirPath: string) {
-	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
+	const validFiles = [
+		'.DS_Store',
+		'.git',
+		'.gitattributes',
+		'.gitignore',
+		'.gitlab-ci.yml',
+		'.hg',
+		'.hgcheck',
+		'.hgignore',
+		'.idea',
+		'.npmignore',
+		'.travis.yml',
+		'LICENSE',
+		'Thumbs.db',
+		'docs',
+		'mkdocs.yml',
+		'npm-debug.log',
+		'yarn-debug.log',
+		'yarn-error.log',
+		'yarnrc.yml',
+		'.yarn',
+	];
+	const conflicts = fs
+		.readdirSync(dirPath)
+		.filter((file) => !validFiles.includes(file))
+		// Support IntelliJ IDEA-based editors
+		.filter((file) => !/\.iml$/.test(file));
+
+	return !fs.existsSync(dirPath) || conflicts.length === 0;
 }
 
 const { version } = JSON.parse(
