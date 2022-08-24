@@ -60,34 +60,8 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('f')).to.equal('jpg');
 			expect(searchParams.get('w')).to.equal('506');
 			expect(searchParams.get('h')).to.equal('253');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(searchParams.get('href')).to.equal('/assets/social.cece8c77.jpg');
 			expect(image.attr('alt')).to.equal('Social image');
-		});
-
-		it('built the optimized image', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#social-jpg img');
-
-			const imgRequest = new Request(`http://example.com${image.attr('src')}`);
-			const imgResponse = await app.render(imgRequest);
-
-			expect(imgResponse.status).to.equal(200);
-			expect(imgResponse.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-		});
-
-		it('includes the original images', () => {
-			['/assets/social.jpg', '/assets/social.png', '/assets/blog/introducing-astro.jpg'].map(
-				verifyImage
-			);
 		});
 	});
 
@@ -128,7 +102,7 @@ describe('SSR pictures - build', function () {
 			expect(searchParams.get('w')).to.equal('506');
 			expect(searchParams.get('h')).to.equal('253');
 			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
+			expect(searchParams.get('href')).to.equal('/assets/social.cece8c77.jpg');
 			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});
@@ -212,15 +186,13 @@ describe('SSR images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/_image');
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
 			expect(searchParams.get('f')).to.equal('jpg');
 			expect(searchParams.get('w')).to.equal('506');
 			expect(searchParams.get('h')).to.equal('253');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
 			expect(image.attr('alt')).to.equal('Social image');
 		});
 
@@ -251,15 +223,13 @@ describe('SSR images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/_image');
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
 			expect(searchParams.get('f')).to.equal('jpg');
 			expect(searchParams.get('w')).to.equal('506');
 			expect(searchParams.get('h')).to.equal('253');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
 			expect(image.attr('alt')).to.equal('Inline social image');
 		});
 	});

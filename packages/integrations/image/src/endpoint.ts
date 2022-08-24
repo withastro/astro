@@ -3,29 +3,37 @@ import etag from 'etag';
 import { lookup } from 'mrmime';
 // @ts-ignore
 import loader from 'virtual:image-loader';
-import { isRemoteImage, loadLocalImage, loadRemoteImage } from '../utils/images.js';
+import { isRemoteImage } from './utils/paths.js';
+
+async function loadRemoteImage(src: URL) {
+	try {
+		const res = await fetch(src);
+	
+		if (!res.ok) {
+			return undefined;
+		}
+
+		return Buffer.from(await res.arrayBuffer());
+	} catch {
+		return undefined;
+	}
+}
 
 export const get: APIRoute = async ({ request }) => {
 	try {
 		const url = new URL(request.url);
 		const transform = loader.parseTransform(url.searchParams);
 
-		if (!transform) {
-			return new Response('Bad Request', { status: 400 });
-		}
-
 		let inputBuffer: Buffer | undefined = undefined;
 
-		if (isRemoteImage(transform.src)) {
-			inputBuffer = await loadRemoteImage(transform.src);
-		} else {
-			const clientRoot = new URL('../client/', import.meta.url);
-			const localPath = new URL('.' + transform.src, clientRoot);
-			inputBuffer = await loadLocalImage(localPath);
-		}
+		// TODO: handle config subpaths?
+		const sourceUrl = isRemoteImage(transform.src)
+			? new URL(transform.src)
+			: new URL(transform.src, url.origin);
+		inputBuffer = await loadRemoteImage(sourceUrl);
 
 		if (!inputBuffer) {
-			return new Response(`"${transform.src} not found`, { status: 404 });
+			return new Response('Not Found', { status: 404 });
 		}
 
 		const { data, format } = await loader.transform(inputBuffer, transform);
@@ -35,11 +43,11 @@ export const get: APIRoute = async ({ request }) => {
 			headers: {
 				'Content-Type': lookup(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
-				ETag: etag(inputBuffer),
+				ETag: etag(data),
 				Date: new Date().toUTCString(),
 			},
 		});
 	} catch (err: unknown) {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
-};
+}

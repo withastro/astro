@@ -33,7 +33,7 @@ describe('SSG images', function () {
 			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
+				expect(image.attr('src')).to.equal('/social.cece8c77_1zwatP.jpg');
 				expect(image.attr('width')).to.equal('506');
 				expect(image.attr('height')).to.equal('253');
 			});
@@ -43,38 +43,34 @@ describe('SSG images', function () {
 			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
+				expect(image.attr('src')).to.equal('/social.cece8c77_Z2tF99.jpg');
 				expect(image.attr('width')).to.equal('506');
 				expect(image.attr('height')).to.equal('253');
 			});
 
 			it('built the optimized image', () => {
-				verifyImage('_image/assets/social_506x253.jpg', { width: 506, height: 253, type: 'jpg' });
-			});
-
-			it('dist includes original image', () => {
-				verifyImage('assets/social.jpg', { width: 2024, height: 1012, type: 'jpg' });
+				verifyImage('social.cece8c77_Z2tF99.jpg', { width: 506, height: 253, type: 'jpg' });
 			});
 		});
 
 		describe('Remote images', () => {
 			// Hard-coding in the test! These should never change since the hash is based
 			// on the static `src` string
-			const HASH = 'Z1iI4xW';
-			const HASH_WITH_QUERY = '18Aq0m';
+			const HASH = 'Z1RBHqs';
+			const HASH_WITH_QUERY = 'Z17oujH';
 
 			it('includes <img> attributes', () => {
 				const image = $('#google');
 
 				expect(image.attr('src')).to.equal(
-					`/_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`
+					`/googlelogo_color_272x92dp_${HASH}.webp`
 				);
 				expect(image.attr('width')).to.equal('544');
 				expect(image.attr('height')).to.equal('184');
 			});
 
 			it('built the optimized image', () => {
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`, {
+				verifyImage(`/googlelogo_color_272x92dp_${HASH}.webp`, {
 					width: 544,
 					height: 184,
 					type: 'webp',
@@ -82,7 +78,7 @@ describe('SSG images', function () {
 			});
 
 			it('removes query strings', () => {
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH_WITH_QUERY}_544x184.webp`, {
+				verifyImage(`/googlelogo_color_272x92dp_${HASH_WITH_QUERY}.webp`, {
 					width: 544,
 					height: 184,
 					type: 'webp',
@@ -109,29 +105,7 @@ describe('SSG images', function () {
 			it('includes <img> attributes', () => {
 				const image = $('#social-jpg');
 
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-			});
-
-			it('returns the optimized image', async () => {
-				const image = $('#social-jpg');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+				expect(image.attr('src')).to.equal('/social_18udNT.jpg');
 			});
 		});
 
@@ -139,29 +113,7 @@ describe('SSG images', function () {
 			it('includes <img> attributes', () => {
 				const image = $('#inline');
 
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-			});
-
-			it('returns the optimized image', async () => {
-				const image = $('#inline');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+				expect(image.attr('src')).to.equal('/social_udz9J.jpg');
 			});
 		});
 
@@ -169,37 +121,7 @@ describe('SSG images', function () {
 			it('includes <img> attributes', () => {
 				const image = $('#google');
 
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('webp');
-				expect(searchParams.get('w')).to.equal('544');
-				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal(
-					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-				);
-			});
-
-			it('keeps remote image query params', () => {
-				const image = $('#query');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('webp');
-				expect(searchParams.get('w')).to.equal('544');
-				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal(
-					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-				);
+				expect(image.attr('src')).to.equal('/googlelogo_color_272x92dp_Z1RBHqs.webp');
 			});
 		});
 	});

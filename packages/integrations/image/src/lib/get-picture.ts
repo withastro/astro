@@ -2,7 +2,7 @@
 import { lookup } from 'mrmime';
 import { extname } from 'node:path';
 import { OutputFormat, TransformOptions } from '../loaders/index.js';
-import { parseAspectRatio } from '../utils/images.js';
+import { parseAspectRatio } from '../loaders/index.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 import { getImage } from './get-image.js';
 

@@ -1,10 +1,14 @@
+import { basename, extname, join } from 'node:path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { AstroConfig } from 'astro';
-import { pathToFileURL } from 'node:url';
+import MagicString from 'magic-string';
 import type { PluginContext } from 'rollup';
-import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
-import type { InputFormat } from './loaders/index.js';
+import type {  InputFormat } from './loaders/index.js';
+import sharp from './loaders/sharp.js';
 import { metadata } from './utils/metadata.js';
 
 export interface ImageMetadata {
@@ -12,6 +16,10 @@ export interface ImageMetadata {
 	width: number;
 	height: number;
 	format: InputFormat;
+}
+
+function parseUrl(src: string) {
+	return new URL(src.replace(/#/g, '%23'), 'file://');
 }
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
@@ -53,21 +61,87 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// only claim image ESM imports
 			if (!filter(id)) {
 				return null;
-			}
+			};
 
 			const meta = await metadata(id);
 
-			const fileUrl = pathToFileURL(id);
-			const src = resolvedConfig.isProduction
-				? fileUrl.pathname.replace(config.srcDir.pathname, '/')
-				: id;
+			if (!meta) {
+				return;
+			}
 
-			const output = {
-				...meta,
-				src: slash(src), // Windows compat
-			};
+			const url = parseUrl(id);
 
-			return `export default ${JSON.stringify(output)}`;
+			if (!this.meta.watchMode) {
+				const filename = basename(url.pathname, extname(url.pathname)) + `.${meta.format}`;
+
+				const handle = this.emitFile({
+					name: filename,
+					source: await fs.readFile(url),
+					type: 'asset'
+				});
+
+				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
+			} else {
+				const srcPath = fileURLToPath(config.srcDir);
+				const relId = id.replace(srcPath, '/');
+				meta.src = join('/@astroimage', relId);
+			}
+
+			return `export default ${JSON.stringify(meta)}`;
 		},
-	};
+		configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url?.startsWith('/@astroimage/')) {
+          const [, id] = req.url.split('/@astroimage/');
+
+					const url = parseUrl(path.join(fileURLToPath(config.srcDir), id));
+					const file = await fs.readFile(url);
+
+					const meta = await metadata(url.pathname);
+
+					if (!meta) {
+						return next();
+					}
+
+					const transform = await sharp.parseTransform(url.searchParams);
+
+					if (!transform) {
+						return next();
+					}
+
+					const result = await sharp.transform(file, transform);
+
+					res.setHeader('Content-Type', `image/${result.format}`);
+          res.setHeader('Cache-Control', 'max-age=360000');
+					return res.write(result.data);
+        }
+
+        return next();
+      });
+    },
+		async renderChunk(code) {
+			const assetUrlRE = /__ASTRO_IMAGE_ASSET__([a-z\d]{8})__(?:_(.*?)__)?/g;
+
+			let match
+      let s
+      while ((match = assetUrlRE.exec(code))) {
+        s = s || (s = new MagicString(code))
+        const [full, hash, postfix = ''] = match;
+
+        const file = this.getFileName(hash);
+        const outputFilepath = resolvedConfig.base + file + postfix;
+
+        s.overwrite(match.index, match.index + full.length, outputFilepath);
+      }
+
+      if (s) {
+        return {
+          code: s.toString(),
+          map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null
+        };
+      } else {
+        return null;
+      }
+		}
+	}
 }
