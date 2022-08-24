@@ -15,7 +15,7 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-test.describe('HMR', () => {
+test.describe('CSS HMR', () => {
 	test('edit CSS from @import', async ({ page, astro }) => {
 		await page.goto(astro.resolveUrl('/'));
 
