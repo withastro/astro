@@ -619,6 +619,12 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/error-react-spectrum:
     specifiers:
       '@adobe/react-spectrum': ^3.18.0
