@@ -1,5 +1,4 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
-import type { BuildInternals } from './internal.js';
 
 import { resolvedPagesVirtualModuleId } from '../app/index.js';
 

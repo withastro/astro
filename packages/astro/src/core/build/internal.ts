@@ -1,7 +1,6 @@
 import type { OutputChunk, RenderedChunk, ModuleInfo, GetModuleInfo } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { walkParentInfos, moduleIsTopLevelPage } from './graph.js';
 import { prependForwardSlash } from '../path.js';
 import { viteID } from '../util.js';
 
