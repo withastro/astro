@@ -21,11 +21,18 @@ import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import { unified } from 'unified';
 import { VFile } from 'vfile';
+import type { WithExtends } from './types.js';
 
 export * from './types.js';
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 export const DEFAULT_REHYPE_PLUGINS = [];
+
+function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
+	if (Array.isArray(config)) return config;
+
+	return [...defaults, ...(config?.extends ?? [])];
+}
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(
@@ -50,13 +57,19 @@ export async function renderMarkdown(
 		.use(remarkInitializeAstroData)
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
-	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
+	if (Array.isArray(remarkPlugins) && remarkPlugins.length === 0) {
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
-		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS];
+	}
+	if (Array.isArray(rehypePlugins) && rehypePlugins.length === 0) {
+		remarkPlugins = [...DEFAULT_REHYPE_PLUGINS];
 	}
 
-	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
-	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
+	const loadedRemarkPlugins = await Promise.all(
+		loadPlugins(handleExtends(remarkPlugins, DEFAULT_REMARK_PLUGINS))
+	);
+	const loadedRehypePlugins = await Promise.all(
+		loadPlugins(handleExtends(rehypePlugins, DEFAULT_REHYPE_PLUGINS))
+	);
 
 	loadedRemarkPlugins.forEach(([plugin, pluginOpts]) => {
 		parser.use([[plugin, pluginOpts]]);

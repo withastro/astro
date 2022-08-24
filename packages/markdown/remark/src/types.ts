@@ -35,6 +35,8 @@ export interface ShikiConfig {
 	wrap?: boolean | null;
 }
 
+export type WithExtends<T> = T | { extends: T };
+
 export interface AstroMarkdownOptions {
 	mode?: 'md' | 'mdx';
 	drafts?: boolean;

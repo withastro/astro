@@ -59,6 +59,24 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	},
 };
 
+const remarkPluginSchema = z
+	.union([
+		z.string(),
+		z.tuple([z.string(), z.any()]),
+		z.custom<RemarkPlugin>((data) => typeof data === 'function'),
+		z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
+	])
+	.array();
+
+const rehypePluginSchema = z
+	.union([
+		z.string(),
+		z.tuple([z.string(), z.any()]),
+		z.custom<RehypePlugin>((data) => typeof data === 'function'),
+		z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
+	])
+	.array();
+
 async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
 	if (isObject(inlineOptions)) {
 		const options = { ...inlineOptions };
@@ -198,22 +216,10 @@ export const AstroConfigSchema = z.object({
 				})
 				.default({}),
 			remarkPlugins: z
-				.union([
-					z.string(),
-					z.tuple([z.string(), z.any()]),
-					z.custom<RemarkPlugin>((data) => typeof data === 'function'),
-					z.tuple([z.custom<RemarkPlugin>((data) => typeof data === 'function'), z.any()]),
-				])
-				.array()
+				.union([remarkPluginSchema, z.object({ extends: remarkPluginSchema })])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkPlugins),
 			rehypePlugins: z
-				.union([
-					z.string(),
-					z.tuple([z.string(), z.any()]),
-					z.custom<RehypePlugin>((data) => typeof data === 'function'),
-					z.tuple([z.custom<RehypePlugin>((data) => typeof data === 'function'), z.any()]),
-				])
-				.array()
+				.union([rehypePluginSchema, z.object({ extends: rehypePluginSchema })])
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
 			remarkRehype: z
 				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
