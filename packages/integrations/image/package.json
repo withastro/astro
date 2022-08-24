@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -52,6 +52,8 @@
     "@types/etag": "^1.8.1",
     "@types/sharp": "^0.30.4",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "kleur": "^4.1.4",
+    "tiny-glob": "^0.2.9"
   }
 }

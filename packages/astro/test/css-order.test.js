@@ -4,13 +4,6 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
 describe('CSS production ordering', () => {
-	let staticHTML, serverHTML;
-	let staticCSS, serverCSS;
-
-	const commonConfig = Object.freeze({
-		root: './fixtures/css-order/',
-	});
-
 	function getLinks(html) {
 		let $ = cheerio.load(html);
 		let out = [];
@@ -20,42 +13,83 @@ describe('CSS production ordering', () => {
 		return out;
 	}
 
-	before(async () => {
-		let fixture = await loadFixture({ ...commonConfig });
-		await fixture.build();
-		staticHTML = await fixture.readFile('/one/index.html');
-		staticCSS = await Promise.all(
-			getLinks(staticHTML).map(async (href) => {
-				const css = await fixture.readFile(href);
-				return { href, css };
-			})
-		);
-	});
+	/**
+	 *
+	 * @param {import('./test-utils').Fixture} fixture
+	 * @param {string} href
+	 * @returns {Promise<{ href: string; css: string; }>}
+	 */
+	async function getLinkContent(fixture, href) {
+		const css = await fixture.readFile(href);
+		return { href, css };
+	}
 
-	before(async () => {
-		let fixture = await loadFixture({
-			...commonConfig,
-			adapter: testAdapter(),
-			output: 'server',
+	describe('SSG and SSR parity', () => {
+		let staticHTML, serverHTML;
+		let staticCSS, serverCSS;
+
+		const commonConfig = Object.freeze({
+			root: './fixtures/css-order/',
 		});
-		await fixture.build();
 
-		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/one');
-		const response = await app.render(request);
-		serverHTML = await response.text();
-		serverCSS = await Promise.all(
-			getLinks(serverHTML).map(async (href) => {
-				const css = await fixture.readFile(`/client${href}`);
-				return { href, css };
-			})
-		);
+		before(async () => {
+			let fixture = await loadFixture({ ...commonConfig });
+			await fixture.build();
+			staticHTML = await fixture.readFile('/one/index.html');
+			staticCSS = await Promise.all(
+				getLinks(staticHTML).map((href) => getLinkContent(fixture, href))
+			);
+		});
+
+		before(async () => {
+			let fixture = await loadFixture({
+				...commonConfig,
+				adapter: testAdapter(),
+				output: 'server',
+			});
+			await fixture.build();
+
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/one');
+			const response = await app.render(request);
+			serverHTML = await response.text();
+			serverCSS = await Promise.all(
+				getLinks(serverHTML).map(async (href) => {
+					const css = await fixture.readFile(`/client${href}`);
+					return { href, css };
+				})
+			);
+		});
+
+		it('is in the same order for output: server and static', async () => {
+			const staticContent = staticCSS.map((o) => o.css);
+			const serverContent = serverCSS.map((o) => o.css);
+
+			expect(staticContent).to.deep.equal(serverContent);
+		});
 	});
 
-	it('is in the same order for output: server and static', async () => {
-		const staticContent = staticCSS.map((o) => o.css);
-		const serverContent = serverCSS.map((o) => o.css);
+	describe('Page vs. Shared CSS', () => {
+		/** @type {import('./test-utils').Fixture} */
+		let fixture;
+		before(async () => {
+			fixture = await loadFixture({
+				root: './fixtures/css-order/',
+			});
+			await fixture.build();
+		});
 
-		expect(staticContent).to.deep.equal(serverContent);
+		it('Page level CSS is defined lower in the page', async () => {
+			let html = await fixture.readFile('/two/index.html');
+
+			const content = await Promise.all(
+				getLinks(html).map((href) => getLinkContent(fixture, href))
+			);
+
+			expect(content).to.have.a.lengthOf(2, 'there are 2 stylesheets');
+			const [, last] = content;
+
+			expect(last.css).to.match(/#00f/);
+		});
 	});
 });

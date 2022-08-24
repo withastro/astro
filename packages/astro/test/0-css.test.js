@@ -46,7 +46,7 @@ describe('CSS', function () {
 				expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
 				// 2. check CSS
-				const expected = `.blue:where(.${scopedClass}){color:#b0e0e6}.color\\\\:blue:where(.${scopedClass}){color:#b0e0e6}.visible:where(.${scopedClass}){display:block}`;
+				const expected = `.blue:where(.${scopedClass}){color:#b0e0e6}.color\\:blue:where(.${scopedClass}){color:#b0e0e6}.visible:where(.${scopedClass}){display:block}`;
 				expect(bundledCSS).to.include(expected);
 			});
 

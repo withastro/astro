@@ -26,6 +26,15 @@ describe('MDX Page', () => {
 
 			expect(h1.textContent).to.equal('Hello page!');
 		});
+
+		it('injects style imports when layout is not applied', async () => {
+			const html = await fixture.readFile('/index.html');
+			const { document } = parseHTML(html);
+
+			const stylesheet = document.querySelector('link[rel="stylesheet"]');
+
+			expect(stylesheet).to.not.be.null;
+		});
 	});
 
 	describe('dev', () => {

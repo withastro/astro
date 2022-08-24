@@ -548,7 +548,7 @@ declare namespace astroHTML.JSX {
 		| 'strict-origin-when-cross-origin'
 		| 'unsafe-url';
 
-	type HTMLAttributeAnchorTarget = '_self' | '_blank' | '_parent' | '_top';
+	type HTMLAttributeAnchorTarget = '_self' | '_blank' | '_parent' | '_top' | (string & {});
 
 	interface AnchorHTMLAttributes extends HTMLAttributes {
 		download?: string | boolean | undefined | null;
@@ -756,7 +756,7 @@ declare namespace astroHTML.JSX {
 		size?: number | string | undefined | null;
 		src?: string | undefined | null;
 		step?: number | string | undefined | null;
-		type?: HTMLInputTypeAttribute | string | undefined | null;
+		type?: HTMLInputTypeAttribute | undefined | null;
 		value?: string | string[] | number | undefined | null;
 		width?: number | string | undefined | null;
 	}
