@@ -73,48 +73,6 @@ describe('TypeScript Plugin#SemanticTokenProvider', () => {
 				type: TokenType.method,
 				modifiers: [TokenModifier.defaultLibrary],
 			},
-			{
-				line: 6,
-				character: 11,
-				length: 'Props'.length,
-				type: TokenType.interface,
-				modifiers: [TokenModifier.declaration],
-			},
-			{
-				line: 7,
-				character: 2,
-				length: 'hello'.length,
-				type: TokenType.property,
-				modifiers: [TokenModifier.declaration],
-			},
-			{
-				line: 10,
-				character: 9,
-				length: 'hello'.length,
-				type: TokenType.variable,
-				modifiers: [TokenModifier.declaration, TokenModifier.readonly],
-			},
-			{
-				line: 10,
-				character: 19,
-				length: 'Astro'.length,
-				type: TokenType.type,
-				modifiers: [TokenModifier.readonly],
-			},
-			{
-				line: 10,
-				character: 25,
-				length: 'props'.length,
-				type: TokenType.property,
-				modifiers: [],
-			},
-			{
-				line: 10,
-				character: 34,
-				length: 'Props'.length,
-				type: TokenType.interface,
-				modifiers: [],
-			},
 		]);
 
 		expect(semanticTokens?.data).to.deep.equal(expectedTokens.data);

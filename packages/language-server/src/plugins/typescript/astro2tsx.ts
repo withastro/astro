@@ -3,12 +3,28 @@ import { parseAstro } from '../../core/documents/parseAstro';
 
 function addProps(content: string, className: string): string {
 	let defaultExportType = 'Record<string, any>';
+	let shouldAddGlobal = false;
+	let astroGlobal = "type AstroGlobal = import('astro').AstroGlobal";
+	const astroGlobalConstDef = `
+	/**
+	 * Astro global available in all contexts in .astro files
+	 *
+	 * [Astro documentation](https://docs.astro.build/reference/api-reference/#astro-global)
+	 */
+	declare const Astro: Readonly<AstroGlobal>;
+	`;
 
 	if (/(interface|type) Props/.test(content)) {
 		defaultExportType = 'Props';
+		shouldAddGlobal = true;
+		astroGlobal += ' & { props: Props }';
 	}
 
-	return EOL + `export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {}`;
+	return (
+		EOL +
+		(shouldAddGlobal ? astroGlobal + EOL + astroGlobalConstDef : '') +
+		`export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {}`
+	);
 }
 
 function escapeTemplateLiteralContent(content: string) {
