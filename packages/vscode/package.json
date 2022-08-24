@@ -295,7 +295,14 @@
           "source.ts": "typescript",
           "source.json": "json",
           "source.tsx": "typescriptreact"
-        }
+        },
+        "unbalancedBracketScopes": [
+          "keyword.operator.relational",
+          "storage.type.function.arrow",
+          "keyword.operator.bitwise.shift",
+          "meta.brace.angle",
+          "punctuation.definition.tag"
+        ]
       },
       {
         "scopeName": "text.html.markdown.astro",
