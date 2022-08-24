@@ -361,7 +361,7 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       canvas-confetti: 1.5.1
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   examples/with-vite-plugin-pwa:
     specifiers:
@@ -370,7 +370,7 @@ importers:
       workbox-window: ^6.5.3
     devDependencies:
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.11
+      vite-plugin-pwa: 0.11.11_workbox-window@6.5.4
       workbox-window: 6.5.4
 
   examples/with-vitest:
@@ -1469,6 +1469,12 @@ importers:
   packages/astro/test/fixtures/css-assets/packages/font-awesome:
     specifiers: {}
 
+  packages/astro/test/fixtures/css-no-code-split:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/css-order:
     specifiers:
       astro: workspace:*
@@ -2045,7 +2051,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   packages/astro/test/fixtures/type-imports:
     specifiers:
@@ -2584,7 +2590,7 @@ importers:
       '@proload/core': 0.3.2
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -15959,10 +15965,12 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /tailwindcss/3.1.8:
+  /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
     engines: {node: '>=12.13.0'}
     hasBin: true
+    peerDependencies:
+      postcss: ^8.0.9
     dependencies:
       arg: 5.0.2
       chokidar: 3.5.3
@@ -16712,10 +16720,11 @@ packages:
       magic-string: 0.26.2
     dev: true
 
-  /vite-plugin-pwa/0.11.11:
+  /vite-plugin-pwa/0.11.11_workbox-window@6.5.4:
     resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
     peerDependencies:
       vite: ^2.0.0
+      workbox-window: ^6.4.0
     peerDependenciesMeta:
       vite:
         optional: true
