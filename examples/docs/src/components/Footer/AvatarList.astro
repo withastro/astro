@@ -5,7 +5,6 @@ type Props = {
 };
 const { path } = Astro.props as Props;
 const resolvedPath = `examples/docs/${path}`;
-console.log(resolvedPath);
 const url = `https://api.github.com/repos/withastro/astro/commits?path=${resolvedPath}`;
 const commitsURL = `https://github.com/withastro/astro/commits/main/${resolvedPath}`;
 
