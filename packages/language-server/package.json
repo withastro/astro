@@ -21,7 +21,7 @@
   "dependencies": {
     "@vscode/emmet-helper": "^2.8.4",
     "prettier": "^2.7.1",
-    "prettier-plugin-astro": "^0.5.0",
+    "prettier-plugin-astro": "^0.5.3",
     "source-map": "^0.7.3",
     "typescript": "~4.6.4",
     "vscode-css-languageservice": "^6.0.1",

@@ -3,3 +3,33 @@ tsconfig.base.json
 tsconfig.json
 CONTRIBUTING.md
 test/
+
+# ESM libs we don't use
+node_modules/prettier/esm
+node_modules/vscode-html-languageservice/lib/esm
+node_modules/vscode-css-languageservice/lib/esm
+
+# Localization files
+node_modules/typescript/loc
+node_modules/typescript/lib/cs
+node_modules/typescript/lib/de
+node_modules/typescript/lib/es
+node_modules/typescript/lib/fr
+node_modules/typescript/lib/it
+node_modules/typescript/lib/ja
+node_modules/typescript/lib/ko
+node_modules/typescript/lib/pl
+node_modules/typescript/lib/pt-br
+node_modules/typescript/lib/ru
+node_modules/typescript/lib/tr
+node_modules/typescript/lib/zh-cn
+node_modules/typescript/lib/zh-tw
+
+# TypeScript librairies we don't use
+node_modules/typescript/lib/tsc.js
+node_modules/typescript/lib/tsserver.js
+node_modules/typescript/lib/typescriptServices.js
+node_modules/typescript/lib/typescriptServices.d.ts
+node_modules/typescript/lib/tsserverlibrary.js
+node_modules/typescript/lib/tsserverlibrary.d.ts
+node_modules/typescript/lib/typingsInstaller.js
