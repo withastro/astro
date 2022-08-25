@@ -9,8 +9,14 @@ import npath from 'path';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 import { relativeToSrcDir } from '../util.js';
-import { getTopLevelPages, walkParentInfos, moduleIsTopLevelPage } from './graph.js';
-import { eachPageData, getPageDataByViteID, getPageDatasByClientOnlyID, getPageDatasByHoistedScriptId, isHoistedScript } from './internal.js';
+import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import {
+	eachPageData,
+	getPageDataByViteID,
+	getPageDatasByClientOnlyID,
+	getPageDatasByHoistedScriptId,
+	isHoistedScript,
+} from './internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -118,7 +124,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							pageData?.css.set(importedCssImport, { depth });
 						}
 					}
-				}
+				};
 
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
@@ -144,14 +150,20 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
 									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
-										if(moduleIsTopLevelPage(pageInfo)) {
+										if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;
 											const pageData = getPageDataByViteID(internals, pageViteID);
-											if(pageData) {
+											if (pageData) {
 												appendCSSToPage(pageData, meta, depth);
 											}
-										} else if(options.target === 'client' && isHoistedScript(internals, pageInfo.id)) {
-											for(const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
+										} else if (
+											options.target === 'client' &&
+											isHoistedScript(internals, pageInfo.id)
+										) {
+											for (const pageData of getPageDatasByHoistedScriptId(
+												internals,
+												pageInfo.id
+											)) {
 												appendCSSToPage(pageData, meta, -1);
 											}
 										}

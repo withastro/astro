@@ -33,7 +33,7 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 // This could be a .astro page or a .md page.
 export function* getTopLevelPages(
 	id: string,
-	ctx: { getModuleInfo: GetModuleInfo },
+	ctx: { getModuleInfo: GetModuleInfo }
 ): Generator<[ModuleInfo, number], void, unknown> {
 	for (const res of walkParentInfos(id, ctx)) {
 		if (moduleIsTopLevelPage(res[0])) {

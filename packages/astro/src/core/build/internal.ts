@@ -1,4 +1,4 @@
-import type { OutputChunk, RenderedChunk, ModuleInfo, GetModuleInfo } from 'rollup';
+import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
 import { prependForwardSlash } from '../path.js';
@@ -207,10 +207,10 @@ export function* getPageDatasByHoistedScriptId(
 	id: string
 ): Generator<PageBuildData, void, unknown> {
 	const set = internals.hoistedScriptIdToPagesMap.get(id);
-	if(set) {
-		for(const pageId of set) {
+	if (set) {
+		for (const pageId of set) {
 			const pageData = getPageDataByComponent(internals, pageId.slice(1));
-			if(pageData) {
+			if (pageData) {
 				yield pageData;
 			}
 		}
