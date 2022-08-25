@@ -40,13 +40,13 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
+    "magic-string": "^0.25.9",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6"
   },
   "devDependencies": {
-    "@types/etag": "^1.8.1",
+    "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "magic-string": "^0.25.9"
+    "astro-scripts": "workspace:*"
   }
 }

@@ -2212,20 +2212,20 @@ importers:
 
   packages/integrations/image:
     specifiers:
-      '@types/etag': ^1.8.1
+      '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
       magic-string: ^0.25.9
       mrmime: ^1.0.0
       sharp: ^0.30.6
     dependencies:
+      magic-string: 0.25.9
       mrmime: 1.0.1
       sharp: 0.30.7
     devDependencies:
-      '@types/etag': 1.8.1
+      '@types/sharp': 0.30.5
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      magic-string: 0.25.9
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:
@@ -8636,12 +8636,6 @@ packages:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: false
 
-  /@types/etag/1.8.1:
-    resolution: {integrity: sha512-bsKkeSqN7HYyYntFRAmzcwx/dKW4Wa+KVMTInANlI72PWLQmOpZu96j0OqHZGArW4VQwCmJPteQlXaUDeOB0WQ==}
-    dependencies:
-      '@types/node': 18.7.13
-    dev: true
-
   /@types/extend/3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
     dev: true
@@ -8839,6 +8833,12 @@ packages:
     resolution: {integrity: sha512-Cwo8LE/0rnvX7kIIa3QHCkcuF21c05Ayb0ZfxPiv0W8VRiZiNW/WuRupHKpqqGVGf7SUA44QSOUKaEd9lIrd/Q==}
     dependencies:
       '@types/mime': 1.3.2
+      '@types/node': 18.7.13
+    dev: true
+
+  /@types/sharp/0.30.5:
+    resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
+    dependencies:
       '@types/node': 18.7.13
     dev: true
 
