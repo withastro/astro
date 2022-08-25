@@ -6,11 +6,11 @@ import type { PageBuildData, StaticBuildOptions } from './types';
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import npath from 'path';
-import { Plugin as VitePlugin } from 'vite';
+import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 import { relativeToSrcDir } from '../util.js';
 import { getTopLevelPages, walkParentInfos } from './graph.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
+import { getPageDataByViteID, getPageDatasByClientOnlyID, eachPageData } from './internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -25,6 +25,8 @@ const MAX_NAME_LENGTH = 70;
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
 	const { astroConfig } = buildOptions;
+
+	let resolvedConfig: ResolvedConfig;
 
 	// Turn a page location into a name to be used for the CSS file.
 	function nameifyPage(id: string) {
@@ -145,6 +147,28 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									}
 								}
 							}
+						}
+					}
+				}
+			},
+		},
+		{
+			name: 'astro:rollup-plugin-single-css',
+			enforce: 'post',
+			configResolved(config) {
+				resolvedConfig = config;
+			},
+			generateBundle(_, bundle) {
+				// If user disable css code-splitting, search for Vite's hardcoded
+				// `style.css` and add it as css for each page.
+				// Ref: https://github.com/vitejs/vite/blob/b2c0ee04d4db4a0ef5a084c50f49782c5f88587c/packages/vite/src/node/plugins/html.ts#L690-L705
+				if (!resolvedConfig.build.cssCodeSplit) {
+					const cssChunk = Object.values(bundle).find(
+						(chunk) => chunk.type === 'asset' && chunk.name === 'style.css'
+					);
+					if (cssChunk) {
+						for (const pageData of eachPageData(internals)) {
+							pageData.css.set(cssChunk.fileName, { depth: -1 });
 						}
 					}
 				}
