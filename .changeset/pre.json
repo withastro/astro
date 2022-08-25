@@ -60,5 +60,13 @@
     "@astrojs/webapi": "1.0.0",
     "astro-scripts": "0.0.7"
   },
-  "changesets": []
+  "changesets": [
+    "angry-peaches-remember",
+    "beige-deers-travel",
+    "chilly-stingrays-play",
+    "cool-turtles-lay",
+    "giant-pandas-roll",
+    "healthy-kangaroos-smoke",
+    "perfect-melons-wonder"
+  ]
 }
