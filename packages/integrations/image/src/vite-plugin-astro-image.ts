@@ -1,6 +1,7 @@
 import { basename, extname, join } from 'node:path';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
@@ -78,9 +79,8 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
 			} else {
-				const srcPath = fileURLToPath(config.srcDir);
-				const relId = id.replace(srcPath, '/');
-				meta.src = join('/@astroimage', relId);
+				const relId = path.relative(fileURLToPath(config.srcDir), id);
+				meta.src = join(path.posix.sep, '@astroimage', path.posix.sep, relId);
 			}
 
 			return `export default ${JSON.stringify(meta)}`;
@@ -109,7 +109,9 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 					res.setHeader('Content-Type', `image/${result.format}`);
           res.setHeader('Cache-Control', 'max-age=360000');
-					return res.write(result.data);
+
+					const stream = Readable.from(result.data);
+					return stream.pipe(res);
         }
 
         return next();

@@ -137,7 +137,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 
 	let src: string;
 
-	if (resolved.src.startsWith('/@astroimage/')) {
+	if (/^[\/\\]?@astroimage/.test(resolved.src)) {
 		src = `${resolved.src}?${searchParams.toString()}`;
 	} else {
 		searchParams.set('href', resolved.src);
