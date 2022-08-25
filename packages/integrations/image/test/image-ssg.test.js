@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sizeOf from 'image-size';
+import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
@@ -27,7 +28,7 @@ describe('SSG images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(slash(route)).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
@@ -44,7 +45,7 @@ describe('SSG images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(slash(route)).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
