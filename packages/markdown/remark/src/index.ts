@@ -61,7 +61,7 @@ export async function renderMarkdown(
 		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
 	}
 	if (Array.isArray(rehypePlugins) && rehypePlugins.length === 0) {
-		remarkPlugins = [...DEFAULT_REHYPE_PLUGINS];
+		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS];
 	}
 
 	const loadedRemarkPlugins = await Promise.all(
