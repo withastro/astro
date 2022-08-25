@@ -43,7 +43,7 @@ export const get: APIRoute = async ({ request }) => {
 			headers: {
 				'Content-Type': mime.getType(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
-				ETag: etag(data),
+				ETag: etag(data.toString()),
 				Date: new Date().toUTCString(),
 			},
 		});
