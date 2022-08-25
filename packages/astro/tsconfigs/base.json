@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     // Enable top-level await, and other modern ESM features.
     "target": "ESNext",
@@ -9,11 +10,11 @@
     "resolveJsonModule": true,
     // Enable stricter transpilation for better output.
     "isolatedModules": true,
-    // Astro will directly run your TypeScript code, no transpilation needed.
+    // Astro directly run TypeScript code, no transpilation needed.
     "noEmit": true,
-    // Enable strict type checking.
-    "strict": true,
-    // Error when a value import is only used as a type.
-    "importsNotUsedAsValues": "error"
+    // Report an error when importing a file using a casing different from the casing on disk.
+    "forceConsistentCasingInFileNames": true,
+    // Properly support importing CJS modules in ESM
+    "esModuleInterop": true
   }
 }

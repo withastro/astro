@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.8",
+  "version": "1.1.0-next.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -12,23 +12,28 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./dist/types/@types/astro.d.ts",
+  "types": "./dist/@types/astro.d.ts",
   "typesVersions": {
     "*": {
       "app": [
-        "./dist/types/core/app/index"
+        "./dist/core/app/index"
       ],
       "app/*": [
-        "./dist/types/core/app/*"
+        "./dist/core/app/*"
       ]
     }
   },
   "exports": {
-    ".": "./astro.js",
+    ".": {
+      "types": "./dist/@types/astro.d.ts",
+      "default": "./astro.js"
+    },
     "./env": "./env.d.ts",
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
+    "./tsconfigs/*.json": "./tsconfigs/*",
+    "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
@@ -62,6 +67,7 @@
   },
   "files": [
     "components",
+    "tsconfigs",
     "dist",
     "astro.js",
     "config.d.ts",
@@ -88,7 +94,7 @@
   "dependencies": {
     "@astrojs/compiler": "^0.23.4",
     "@astrojs/language-server": "^0.20.0",
-    "@astrojs/markdown-remark": "^1.0.0",
+    "@astrojs/markdown-remark": "^1.1.0-next.0",
     "@astrojs/telemetry": "^1.0.0",
     "@astrojs/webapi": "^1.0.0",
     "@babel/core": "^7.18.2",
