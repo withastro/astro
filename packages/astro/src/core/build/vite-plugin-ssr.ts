@@ -12,7 +12,7 @@ import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-sc
 import { pagesVirtualModuleId } from '../app/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
-import { eachPageData } from './internal.js';
+import { eachPageData, sortedCSS } from './internal.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -103,7 +103,7 @@ export async function injectManifest(buildOpts: StaticBuildOptions, internals: B
 
 	const staticFiles = internals.staticFiles;
 	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest });
+	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest, logging: buildOpts.logging });
 
 	const chunk = internals.ssrEntryChunk;
 	const code = chunk.code;
@@ -139,7 +139,7 @@ function buildManifest(
 
 		routes.push({
 			file: '',
-			links: Array.from(pageData.css).reverse(),
+			links: sortedCSS(pageData),
 			scripts: [
 				...scripts,
 				...astroConfig._ctx.scripts

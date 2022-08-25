@@ -140,6 +140,21 @@ __`astro.config.mjs`__
 ```
 
 The function will be called for every page on your site. The `page` function parameter is the full URL of the page currently under considering, including your `site` domain. Return `true` to include the page in your sitemap, and `false` to leave it out.
+
+To filter multiple pages, add arguments with target URLs.
+
+__`astro.config.mjs`__
+
+```js
+...
+    sitemap({
+      filter: (page) =>
+        page !== "https://stargazers.club/secret-vip-lounge-1" &&
+        page !== "https://stargazers.club/secret-vip-lounge-2" &&
+        page !== "https://stargazers.club/secret-vip-lounge-3" &&
+        page !== "https://stargazers.club/secret-vip-lounge-4",
+    }),
+```
   
 ### customPages
   

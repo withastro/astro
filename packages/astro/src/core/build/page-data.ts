@@ -53,7 +53,7 @@ export async function collectPagesData(
 				component: route.component,
 				route,
 				moduleSpecifier: '',
-				css: new Set(),
+				css: new Map(),
 				hoistedScript: undefined,
 			};
 
@@ -74,7 +74,7 @@ export async function collectPagesData(
 			component: route.component,
 			route,
 			moduleSpecifier: '',
-			css: new Set(),
+			css: new Map(),
 			hoistedScript: undefined,
 		};
 	}

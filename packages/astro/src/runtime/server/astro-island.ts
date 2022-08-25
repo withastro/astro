@@ -90,7 +90,10 @@ declare const Astro: {
 					);
 				}
 				hydrate = () => {
-					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
+					if (
+						!this.hydrator ||
+						(this.parentElement && this.parentElement.closest('astro-island[ssr]'))
+					) {
 						return;
 					}
 					const slotted = this.querySelectorAll('astro-slot');
@@ -99,12 +102,14 @@ declare const Astro: {
 					// This happens if slots were passed but the client component did not render them.
 					const templates = this.querySelectorAll('template[data-astro-template]');
 					for (const template of templates) {
-						if (!template.closest(this.tagName)?.isSameNode(this)) continue;
+						const closest = template.closest(this.tagName);
+						if (!closest || !closest.isSameNode(this)) continue;
 						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
 						template.remove();
 					}
 					for (const slot of slotted) {
-						if (!slot.closest(this.tagName)?.isSameNode(this)) continue;
+						const closest = slot.closest(this.tagName);
+						if (!closest || !closest.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
 					const props = this.hasAttribute('props')
