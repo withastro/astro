@@ -139,4 +139,45 @@ describe('SSR pictures - build', function () {
 			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
+
+	describe('/public images', () => {
+		it('includes sources', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const image = $('#hero img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(searchParams.get('href')).to.equal('/hero.jpg');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+	});
 });

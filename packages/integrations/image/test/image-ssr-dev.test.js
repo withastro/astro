@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import slash from 'slash';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
@@ -105,6 +104,35 @@ describe('SSR images - dev', function () {
 			expect(searchParams.get('href')).to.equal(
 				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
 			);
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes src, width, and height attributes', () => {
+			const image = $('#hero');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(searchParams.get('href')).to.equal('/hero.jpg');
+		});
+
+		it('returns the optimized image', async () => {
+			const image = $('#hero');
+
+			const res = await fixture.fetch(image.attr('src'));
+
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('Content-Type')).to.equal('image/webp');
+
+			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
 		});
 	});
 });

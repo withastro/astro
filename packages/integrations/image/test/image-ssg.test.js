@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sizeOf from 'image-size';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
@@ -72,6 +71,24 @@ describe('SSG images - dev', function () {
 			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
 		});
 	});
+
+	describe('/public images', () => {
+		it('includes <img> attributes', () => {
+			const image = $('#hero');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('href')).to.equal('/hero.jpg');
+			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+		});
+	});
 });
 
 describe('SSG images - build', function () {
@@ -101,6 +118,10 @@ describe('SSG images - build', function () {
 			expect(image.attr('src')).to.equal('/social.cece8c77_1zwatP.jpg');
 			expect(image.attr('width')).to.equal('506');
 			expect(image.attr('height')).to.equal('253');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage('social.cece8c77_1zwatP.jpg', { width: 506, height: 253, type: 'jpg' });
 		});
 	});
 
@@ -148,6 +169,20 @@ describe('SSG images - build', function () {
 				height: 184,
 				type: 'webp',
 			});
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes <img> attributes', () => {
+			const image = $('#hero');
+
+			expect(image.attr('src')).to.equal('/hero_Z2k1JGN.webp');
+			expect(image.attr('width')).to.equal('768');
+			expect(image.attr('height')).to.equal('414');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage('hero_Z2k1JGN.webp', { width: 768, height: 414, type: 'webp' });
 		});
 	});
 });

@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import slash from 'slash';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
@@ -114,6 +113,44 @@ describe('SSR pictures - dev', function () {
 				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 			);
 			expect(image.attr('alt')).to.equal('Google logo');
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes src, width, and height attributes', () => {
+			const image = $('#hero img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(searchParams.get('href')).to.equal('/hero.jpg');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+
+		it('returns the optimized image', async () => {
+			const image = $('#hero img');
+
+			const res = await fixture.fetch(image.attr('src'));
+
+			expect(res.status).to.equal(200);
+			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
+
+			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
 		});
 	});
 });

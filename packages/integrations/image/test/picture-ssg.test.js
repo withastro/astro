@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import fs from 'fs';
 import sizeOf from 'image-size';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
@@ -98,6 +97,32 @@ describe('SSG pictures - dev', function () {
 			expect(searchParams.get('h')).to.equal('184');
 			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
 			expect(image.attr('alt')).to.equal('Google logo');
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
 		});
 	});
 });
@@ -237,6 +262,34 @@ describe('SSG pictures - build', function () {
 				height: 184,
 				type: 'png',
 			});
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			expect(image.attr('src')).to.equal('/hero_1ql1f0.jpg');
+			expect(image.attr('width')).to.equal('768');
+			expect(image.attr('height')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage('hero_ZOXU0F.avif', { width: 384, height: 207, type: 'avif' });
+			verifyImage('hero_ZFR9B0.webp', { width: 384, height: 207, type: 'webp' });
+			verifyImage('hero_Z1rYjFx.jpg', { width: 384, height: 207, type: 'jpg' });
+			verifyImage('hero_Z1kkIMd.avif', { width: 768, height: 414, type: 'avif' });
+			verifyImage('hero_Z1bdXnx.webp', { width: 768, height: 414, type: 'webp' });
+			verifyImage('hero_Z1Wl8s5.jpg', { width: 768, height: 414, type: 'jpg' });
 		});
 	});
 });

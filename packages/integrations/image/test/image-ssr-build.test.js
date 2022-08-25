@@ -116,4 +116,30 @@ describe('SSR images - build', function () {
 			);
 		});
 	});
+
+	describe('/public images', () => {
+		it('includes src, width, and height attributes', async () => {
+			const app = await fixture.loadTestAdapterApp();
+
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			const html = await response.text();
+			const $ = cheerio.load(html);
+
+			const image = $('#hero');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('webp');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			// TODO: possible to avoid encoding the full image path?
+			expect(searchParams.get('href')).to.equal('/hero.jpg');
+		});
+	});
 });
