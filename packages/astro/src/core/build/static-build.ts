@@ -160,6 +160,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		envPrefix: 'PUBLIC_',
+		base: astroConfig.base,
 	};
 
 	await runHookBuildSetup({
@@ -230,6 +231,7 @@ async function clientBuild(
 			...(viteConfig.plugins || []),
 		],
 		envPrefix: 'PUBLIC_',
+		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({
