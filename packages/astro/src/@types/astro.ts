@@ -650,7 +650,9 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * Note: Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
+		 * :::caution 
+		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
+		 * :::
 		 *
 		 * ```js
 		 * import remarkToc from 'remark-toc';
@@ -669,7 +671,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * :::note 
+		 * :::caution 
 		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
 		 * :::
 		 *
@@ -707,7 +709,7 @@ export interface AstroUserConfig {
 		 * @name markdown.remarkRehype
 		 * @type {RemarkRehype}
 		 * @description
-		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api) .
+		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api).
 		 *
 		 * ```js
 		 * {
