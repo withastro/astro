@@ -685,7 +685,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name markdown.extendDefaultPlugins
 		 * @type {boolean}
-		 * @default false
+		 * @default `false`
 		 * @description
 		 * Astro applies the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. When adding your own remark or rehype plugins, you can preserve these defaults by setting the `extendDefaultPlugins` flag to `true`:
 		 *
