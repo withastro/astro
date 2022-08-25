@@ -244,7 +244,13 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/^\//, ''));
 }
 
-function getUrlForPath(pathname: string, base: string, origin: string, format: 'directory' | 'file', routeType: RouteType): URL {
+function getUrlForPath(
+	pathname: string,
+	base: string,
+	origin: string,
+	format: 'directory' | 'file',
+	routeType: RouteType
+): URL {
 	/**
 	 * Examples:
 	 * pathname: /, /foo
@@ -252,13 +258,14 @@ function getUrlForPath(pathname: string, base: string, origin: string, format: '
 	 */
 	const ending = format === 'directory' ? '/' : '.html';
 	let buildPathname: string;
-	if(pathname === '/' || pathname === '') {
+	if (pathname === '/' || pathname === '') {
 		buildPathname = base;
-	} else if(routeType === 'endpoint') {
+	} else if (routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
 		buildPathname = base + buildPathRelative;
 	} else {
-		const buildPathRelative = removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
+		const buildPathRelative =
+			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
 		buildPathname = base + buildPathRelative;
 	}
 	const url = new URL(buildPathname, origin);
@@ -312,8 +319,13 @@ async function generatePath(
 	}
 
 	const ssr = opts.astroConfig.output === 'server';
-	const url = getUrlForPath(pathname, opts.astroConfig.base, origin,
-		opts.astroConfig.build.format, pageData.route.type);
+	const url = getUrlForPath(
+		pathname,
+		opts.astroConfig.base,
+		origin,
+		opts.astroConfig.build.format,
+		pageData.route.type
+	);
 	const options: RenderOptions = {
 		adapterName: undefined,
 		links,
