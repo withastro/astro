@@ -82,9 +82,7 @@ Or, alternatively if your project is using the types through a `tsconfig.json`
 
 ## Usage
 
-__`index.astro`__
-
-```astro
+```astro title="src/pages/index.astro"
 ---
 import { Image, Picture } from '@astrojs/image/components';
 ---
