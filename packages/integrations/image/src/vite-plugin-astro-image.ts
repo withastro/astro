@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
 import type { PluginContext } from 'rollup';
+import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type {  InputFormat } from './loaders/index.js';
@@ -80,7 +81,10 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
 			} else {
 				const relId = path.relative(fileURLToPath(config.srcDir), id);
-				meta.src = join(path.posix.sep, '@astroimage', path.posix.sep, relId);
+				meta.src = join('/@astroimage', relId);
+
+				// Windows compat
+				meta.src = slash(meta.src);
 			}
 
 			return `export default ${JSON.stringify(meta)}`;

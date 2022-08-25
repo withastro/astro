@@ -32,7 +32,7 @@ describe('SSR images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(slash(route)).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
@@ -60,7 +60,7 @@ describe('SSR images - dev', function () {
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(slash(route)).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
 
 			const searchParams = new URLSearchParams(params);
 
