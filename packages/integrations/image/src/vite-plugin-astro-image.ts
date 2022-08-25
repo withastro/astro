@@ -1,7 +1,7 @@
 import { basename, extname, join } from 'node:path';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
 import type { PluginContext } from 'rollup';
@@ -16,10 +16,6 @@ export interface ImageMetadata {
 	width: number;
 	height: number;
 	format: InputFormat;
-}
-
-function parseUrl(src: string) {
-	return new URL(src.replace(/#/g, '%23'), 'file://');
 }
 
 export function createPlugin(config: AstroConfig, options: Required<IntegrationOptions>): Plugin {
@@ -69,7 +65,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				return;
 			}
 
-			const url = parseUrl(id);
+			const url = pathToFileURL(id);
 
 			if (!this.meta.watchMode) {
 				const filename = basename(url.pathname, extname(url.pathname)) + `.${meta.format}`;
@@ -94,7 +90,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
         if (req.url?.startsWith('/@astroimage/')) {
           const [, id] = req.url.split('/@astroimage/');
 
-					const url = parseUrl(path.join(fileURLToPath(config.srcDir), id));
+					const url = new URL(id, config.srcDir);
 					const file = await fs.readFile(url);
 
 					const meta = await metadata(url.pathname);
