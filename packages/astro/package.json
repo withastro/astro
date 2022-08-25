@@ -12,19 +12,22 @@
   },
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
-  "types": "./dist/types/@types/astro.d.ts",
+  "types": "./dist/@types/astro.d.ts",
   "typesVersions": {
     "*": {
       "app": [
-        "./dist/types/core/app/index"
+        "./dist/core/app/index"
       ],
       "app/*": [
-        "./dist/types/core/app/*"
+        "./dist/core/app/*"
       ]
     }
   },
   "exports": {
-    ".": "./astro.js",
+    ".": {
+      "types": "./dist/@types/astro.d.ts",
+      "default": "./astro.js"
+    },
     "./env": "./env.d.ts",
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
