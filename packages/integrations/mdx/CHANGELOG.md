@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.10.2-next.0
+
+### Patch Changes
+
+- [#4423](https://github.com/withastro/astro/pull/4423) [`d4cd7a59f`](https://github.com/withastro/astro/commit/d4cd7a59fd38d411c442a818cfaab40f74106628) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update Markdown type signature to match new markdown plugin,and update top-level layout props for better alignment
+
 ## 0.10.1
 
 ### Patch Changes

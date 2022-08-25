@@ -1,7 +1,13 @@
 ---
 const {
 	content = { title: "content didn't work" },
-	frontmatter = { title: "frontmatter didn't work" },
+	file = "file didn't work",
+	url = "url didn't work",
+	frontmatter = {
+		title: "frontmatter didn't work",
+		file: "file didn't work",
+		url: "url didn't work",
+	},
 	headings = [],
 	compiledContent = () => '',
 	rawContent = () => '',
@@ -21,6 +27,10 @@ const {
 	<p data-content-title>{content.title}</p>
 	<p data-frontmatter-title>{frontmatter.title}</p>
 	<p data-compiled-content>{compiledContent()}</p>
+	<p data-frontmatter-file>{frontmatter.file}</p>
+	<p data-frontmatter-url>{frontmatter.url}</p>
+	<p data-file>{frontmatter.file}</p>
+	<p data-url>{frontmatter.url}</p>
 	<p data-raw-content>{rawContent()}</p>
 	<p data-layout-rendered>Layout rendered!</p>
 	<ul data-headings>
