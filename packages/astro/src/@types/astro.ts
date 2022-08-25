@@ -648,17 +648,28 @@ export interface AstroUserConfig {
 		 * @name markdown.remarkPlugins
 		 * @type {RemarkPlugins}
 		 * @description
-		 * Pass a custom [Remark](https://github.com/remarkjs/remark) plugin to customize how your Markdown is built.
+		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support and [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 * We apply the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. Use a nested "extends" object to preserve these defaults:
 		 *
 		 * ```js
+		 * import remarkToc from 'remark-toc';
 		 * {
 		 *   markdown: {
-		 *     // Example: The default set of remark plugins used by Astro
-		 *     remarkPlugins: ['remark-gfm', 'remark-smartypants'],
-		 *   },
-		 * };
+		 *     remarkPlugins: { extends: [remarkToc] }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * Or pass a top-level array to **remove** these defaults:
+		 *
+		 * ```js
+		 * import remarkToc from 'remark-toc';
+		 * {
+		 *   markdown: {
+		 *     remarkPlugins: [remarkToc]
+		 *   }
+		 * }
 		 * ```
 		 */
 		remarkPlugins?: RemarkPlugins;
@@ -667,17 +678,28 @@ export interface AstroUserConfig {
 		 * @name markdown.rehypePlugins
 		 * @type {RehypePlugins}
 		 * @description
-		 * Pass a custom [Rehype](https://github.com/remarkjs/remark-rehype) plugin to customize how your Markdown is built.
+		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support and [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+		 * We apply the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. Use a nested "extends" object to preserve these defaults:
 		 *
 		 * ```js
+		 * import rehypeMinifyHtml from 'rehype-minify';
 		 * {
 		 *   markdown: {
-		 *     // Example: The default set of rehype plugins used by Astro
-		 *     rehypePlugins: [],
-		 *   },
-		 * };
+		 *     rehypePlugins: { extends: [rehypeMinifyHtml] }
+		 *   }
+		 * }
+		 * ```
+		 *
+		 * Or pass a top-level array to **remove** these defaults:
+		 *
+		 * ```js
+		 * import rehypeMinifyHtml from 'rehype-minify';
+		 * {
+		 *   markdown: {
+		 *     rehypePlugins: [rehypeMinifyHtml]
+		 *   }
+		 * }
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
