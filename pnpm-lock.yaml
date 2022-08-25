@@ -2228,6 +2228,7 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       image-size: ^1.0.2
+      kleur: ^4.1.4
       magic-string: ^0.25.9
       mime: ^3.0.0
       sharp: ^0.30.6
@@ -2240,6 +2241,7 @@ importers:
       '@types/sharp': 0.30.5
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      kleur: 4.1.5
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:

@@ -48,6 +48,7 @@
   "devDependencies": {
     "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "kleur": "^4.1.4"
   }
 }
