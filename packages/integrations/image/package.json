@@ -40,7 +40,6 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
-    "etag": "^1.8.1",
     "mrmime": "^1.0.0",
     "sharp": "^0.30.6"
   },

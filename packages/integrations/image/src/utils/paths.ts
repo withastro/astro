@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { OutputFormat, TransformOptions } from "../loaders/index.js";
 import { shorthash } from "./shorthash.js";
 
@@ -31,10 +30,14 @@ function removeExtname(src: string) {
 	return src.substring(0, index);
 }
 
+function basename(src: string) {
+	return src.replace(/^.*[\\\/]/, '');
+}
+
 export function propsToFilename(transform: TransformOptions) {
 	// strip off the querystring first, then remove the file extension
 	let filename = removeQueryString(transform.src);
-	filename = path.basename(filename);
+	filename = basename(filename);
 	filename = removeExtname(filename);
 
 	const ext = transform.format || extname(transform.src);
