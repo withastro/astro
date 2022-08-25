@@ -650,18 +650,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * We apply the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. Use a nested "extends" object to preserve these defaults:
-		 *
-		 * ```js
-		 * import remarkToc from 'remark-toc';
-		 * {
-		 *   markdown: {
-		 *     remarkPlugins: { extends: [remarkToc] }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * Or pass a top-level array to **remove** these defaults:
+		 * Note: Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
 		 *
 		 * ```js
 		 * import remarkToc from 'remark-toc';
@@ -680,18 +669,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
-		 * We apply the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. Use a nested "extends" object to preserve these defaults:
-		 *
-		 * ```js
-		 * import rehypeMinifyHtml from 'rehype-minify';
-		 * {
-		 *   markdown: {
-		 *     rehypePlugins: { extends: [rehypeMinifyHtml] }
-		 *   }
-		 * }
-		 * ```
-		 *
-		 * Or pass a top-level array to **remove** these defaults:
+		 * Note: Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
 		 *
 		 * ```js
 		 * import rehypeMinifyHtml from 'rehype-minify';
@@ -703,6 +681,25 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
+		/**
+		 * @docs
+		 * @name markdown.extendDefaultPlugins
+		 * @type {boolean}
+		 * @default false
+		 * @description
+		 * We apply the [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins by default. When adding your own remark or rehype plugins, you can preserve these defaults by setting the `extendDefaultPlugins` flag to `true`:
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     extendDefaultPlugins: true,
+		 * 		 remarkPlugins: [exampleRemarkPlugin],
+		 *     rehypePlugins: [exampleRehypePlugin],
+		 *   }
+		 * }
+		 * ```
+		 */
+		extendDefaultPlugins?: boolean;
 		/**
 		 * @docs
 		 * @name markdown.remarkRehype
