@@ -29,9 +29,9 @@ export default (element) =>
 		if (client === 'only') {
 			return startTransition(() => {
 				createRoot(element).render(componentEl);
-			})
+			});
 		}
 		return startTransition(() => {
 			hydrateRoot(element, componentEl);
-		})
+		});
 	};
