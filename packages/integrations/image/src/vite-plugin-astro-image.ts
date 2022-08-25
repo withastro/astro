@@ -59,13 +59,13 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				return null;
 			};
 
-			const meta = await metadata(id);
+			const url = pathToFileURL(id);
+
+			const meta = await metadata(url);
 
 			if (!meta) {
 				return;
 			}
-
-			const url = pathToFileURL(id);
 
 			if (!this.meta.watchMode) {
 				const filename = basename(url.pathname, extname(url.pathname)) + `.${meta.format}`;
@@ -93,7 +93,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 					const url = new URL(id, config.srcDir);
 					const file = await fs.readFile(url);
 
-					const meta = await metadata(url.pathname);
+					const meta = await metadata(url);
 
 					if (!meta) {
 						return next();
