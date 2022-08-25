@@ -10,7 +10,7 @@ import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 import { relativeToSrcDir } from '../util.js';
 import { getTopLevelPages, walkParentInfos } from './graph.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID, eachPageData } from './internal.js';
+import { eachPageData, getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
