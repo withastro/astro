@@ -43,47 +43,33 @@ describe('Astro Markdown plugins', () => {
 		expect($('#hello-world').hasClass('title')).to.equal(true);
 	});
 
-	it('Preserves default plugins with "extends"', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				remarkPlugins: {
-					extends: [remarkExamplePlugin],
+	for (const extendDefaultPlugins of [true, false]) {
+		it(`Handles default plugins when extendDefaultPlugins = ${extendDefaultPlugins}`, async () => {
+			const fixture = await buildFixture({
+				markdown: {
+					remarkPlugins: [remarkExamplePlugin],
+					rehypePlugins: [
+						[addClasses, { 'h1,h2,h3': 'title' }],
+					],
+					extendDefaultPlugins,
 				},
-				rehypePlugins: [
-					[addClasses, { 'h1,h2,h3': 'title' }],
-				],
-			},
-		});
-		const html = await fixture.readFile('/with-gfm/index.html');
-		const $ = cheerio.load(html);
-
-		// test 1: GFM autolink applied
-		expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
-
-		// test 2: Code title applied
-		expect(html).to.include('Remark plugin applied!');
-
-		// test 3: (sanity check) rehype plugins still applied
-		expect($('#github-flavored-markdown-test')).to.have.lengthOf(1);
-		expect($('#github-flavored-markdown-test').hasClass('title')).to.equal(true);
-	})
-
-	it('Removes default plugins without "extends"', async () => {
-		const fixture = await buildFixture({
-			markdown: {
-				remarkPlugins: [remarkExamplePlugin],
-				rehypePlugins: [
-					[addClasses, { 'h1,h2,h3': 'title' }],
-				],
-			},
-		});
-		const html = await fixture.readFile('/with-gfm/index.html');
-		const $ = cheerio.load(html);
-
-		// test 1: GFM autolink no longer applied
-		expect($('a[href="https://example.com"]')).to.have.lengthOf(0);
-
-		// test 2: Code title still applied
-		expect(html).to.include('Remark plugin applied!');
-	})
+			});
+			const html = await fixture.readFile('/with-gfm/index.html');
+			const $ = cheerio.load(html);
+	
+			// test 1: GFM autolink applied correctly
+			if (extendDefaultPlugins === true) {
+				expect($('a[href="https://example.com"]')).to.have.lengthOf(1);
+			} else {
+				expect($('a[href="https://example.com"]')).to.have.lengthOf(0);
+			}
+	
+			// test 2: (sanity check) remark plugins still applied
+			expect(html).to.include('Remark plugin applied!');
+	
+			// test 3: (sanity check) rehype plugins still applied
+			expect($('#github-flavored-markdown-test')).to.have.lengthOf(1);
+			expect($('#github-flavored-markdown-test').hasClass('title')).to.equal(true);
+		})
+	}
 });
