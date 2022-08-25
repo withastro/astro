@@ -252,7 +252,7 @@ function getUrlForPath(pathname: string, base: string, origin: string, format: '
 	 */
 	const ending = format === 'directory' ? '/' : '.html';
 	let buildPathname: string;
-	if(pathname === '/') {
+	if(pathname === '/' || pathname === '') {
 		buildPathname = base;
 	} else if(routeType === 'endpoint') {
 		const buildPathRelative = removeLeadingForwardSlash(pathname);
