@@ -1,11 +1,11 @@
 import type * as hast from 'hast';
 import type * as mdast from 'mdast';
-import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type {
-	Options as RemarkRehypeOptions,
 	all as Handlers,
 	one as Handler,
+	Options as RemarkRehypeOptions,
 } from 'remark-rehype';
+import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type * as unified from 'unified';
 import type { VFile } from 'vfile';
 
