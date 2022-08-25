@@ -884,32 +884,29 @@ export interface AstroInstance {
 
 export interface MarkdownInstance<T extends Record<string, any>> {
 	frontmatter: T;
+	/** Absolute file path (e.g. `/home/user/projects/.../file.md`) */
 	file: string;
+	/** Browser URL for files under `/src/pages` (e.g. `/en/guides/markdown-content`) */
 	url: string | undefined;
+	/** Component to render content in `.astro` files. Usage: `<Content />` */
 	Content: AstroComponentFactory;
-	/** raw Markdown file content, excluding frontmatter */
+	/** raw Markdown file content, excluding layout HTML and YAML frontmatter */
 	rawContent(): string;
-	/** Markdown file compiled to valid Astro syntax. Queryable with most HTML parsing libraries */
-	compiledContent(): Promise<string>;
-	getHeadings(): Promise<MarkdownHeading[]>;
+	/** Markdown file compiled to HTML, excluding layout HTML */
+	compiledContent(): string;
+	/** List of headings (h1 -> h6) with associated metadata */
+	getHeadings(): MarkdownHeading[];
 	/** @deprecated Renamed to `getHeadings()` */
 	getHeaders(): void;
-	default: () => Promise<{
-		metadata: MarkdownMetadata;
-		frontmatter: MarkdownContent<T>;
-		$$metadata: Metadata;
-		default: AstroComponentFactory;
-	}>;
+	default: AstroComponentFactory;
 }
 
 export interface MDXInstance<T>
-	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent' | 'Content' | 'default'> {
+	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
 	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
 	rawContent: never;
 	/** MDX does not support compiledContent! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
 	compiledContent: never;
-	default: AstroComponentFactory;
-	Content: AstroComponentFactory;
 }
 
 export interface MarkdownLayoutProps<T extends Record<string, any>> {
@@ -917,6 +914,8 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 		file: MarkdownInstance<T>['file'];
 		url: MarkdownInstance<T>['url'];
 	} & T;
+	file: MarkdownInstance<T>['file'];
+	url: MarkdownInstance<T>['url'];
 	headings: MarkdownHeading[];
 	rawContent: MarkdownInstance<T>['rawContent'];
 	compiledContent: MarkdownInstance<T>['compiledContent'];
