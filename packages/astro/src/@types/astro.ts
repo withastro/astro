@@ -203,7 +203,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 */
 		has(slotName: string): boolean;
 		/**
-		 * Asychronously renders this slot and returns HTML
+		 * Asynchronously renders this slot and returns a string
 		 *
 		 * Example usage:
 		 * ```astro
@@ -214,6 +214,21 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		 * }
 		 * ---
 		 * <Fragment set:html={html} />
+		 * ```
+		 *
+		 * A second parameters can be used to pass arguments to a slotted callback
+		 *
+		 * Example usage:
+		 * ```astro
+		 * ---
+		 * html = await Astro.slots.render('default', ["Hello", "World"])
+		 * ---
+		 * ```
+		 * Each item in the array will be passed as an argument that you can use like so:
+		 * ```astro
+		 * <Component>
+		 *		{(hello, world) => <div>{hello}, {world}!</div>}
+		 * </Component>
 		 * ```
 		 *
 		 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroslots)
