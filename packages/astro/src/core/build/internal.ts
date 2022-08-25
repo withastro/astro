@@ -1,4 +1,4 @@
-import type { OutputChunk, RenderedChunk } from 'rollup';
+import type { OutputChunk, RenderedChunk, ModuleInfo, GetModuleInfo } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
 import { prependForwardSlash } from '../path.js';
@@ -62,13 +62,6 @@ export function createBuildInternals(): BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.
 	// This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
 	const pureCSSChunks = new Set<RenderedChunk>();
-	const chunkToReferenceIdMap = new Map<string, string>();
-
-	// This is a mapping of pathname to the string source of all collected
-	// inline <style> for a page.
-	const astroStyleMap = new Map<string, string>();
-	// This is a virtual JS module that imports all dependent styles for a page.
-	const astroPageStyleMap = new Map<string, string>();
 
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
@@ -203,4 +196,23 @@ export function sortedCSS(pageData: PageBuildData) {
 			}
 		})
 		.map(([id]) => id);
+}
+
+export function isHoistedScript(internals: BuildInternals, id: string): boolean {
+	return internals.hoistedScriptIdToPagesMap.has(id);
+}
+
+export function* getPageDatasByHoistedScriptId(
+	internals: BuildInternals,
+	id: string
+): Generator<PageBuildData, void, unknown> {
+	const set = internals.hoistedScriptIdToPagesMap.get(id);
+	if(set) {
+		for(const pageId of set) {
+			const pageData = getPageDataByComponent(internals, pageId.slice(1));
+			if(pageData) {
+				yield pageData;
+			}
+		}
+	}
 }

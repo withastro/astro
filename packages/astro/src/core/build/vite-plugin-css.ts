@@ -9,8 +9,8 @@ import npath from 'path';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 import { relativeToSrcDir } from '../util.js';
-import { getTopLevelPages, walkParentInfos } from './graph.js';
-import { eachPageData, getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
+import { getTopLevelPages, walkParentInfos, moduleIsTopLevelPage } from './graph.js';
+import { eachPageData, getPageDataByViteID, getPageDatasByClientOnlyID, getPageDatasByHoistedScriptId, isHoistedScript } from './internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -104,6 +104,22 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					importedCss: Set<string>;
 				};
 
+				const appendCSSToPage = (pageData: PageBuildData, meta: ViteMetadata, depth: number) => {
+					for (const importedCssImport of meta.importedCss) {
+						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
+						// Depth info is used when sorting the links on the page.
+						if (pageData?.css.has(importedCssImport)) {
+							// eslint-disable-next-line
+							const cssInfo = pageData?.css.get(importedCssImport)!;
+							if (depth < cssInfo.depth) {
+								cssInfo.depth = depth;
+							}
+						} else {
+							pageData?.css.set(importedCssImport, { depth });
+						}
+					}
+				}
+
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
 						const c = chunk;
@@ -127,21 +143,16 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
-									for (const [pageInfo, depth] of getTopLevelPages(id, this)) {
-										const pageViteID = pageInfo.id;
-										const pageData = getPageDataByViteID(internals, pageViteID);
-
-										for (const importedCssImport of meta.importedCss) {
-											// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
-											// Depth info is used when sorting the links on the page.
-											if (pageData?.css.has(importedCssImport)) {
-												// eslint-disable-next-line
-												const cssInfo = pageData?.css.get(importedCssImport)!;
-												if (depth < cssInfo.depth) {
-													cssInfo.depth = depth;
-												}
-											} else {
-												pageData?.css.set(importedCssImport, { depth });
+									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
+										if(moduleIsTopLevelPage(pageInfo)) {
+											const pageViteID = pageInfo.id;
+											const pageData = getPageDataByViteID(internals, pageViteID);
+											if(pageData) {
+												appendCSSToPage(pageData, meta, depth);
+											}
+										} else if(options.target === 'client' && isHoistedScript(internals, pageInfo.id)) {
+											for(const pageData of getPageDatasByHoistedScriptId(internals, pageInfo.id)) {
+												appendCSSToPage(pageData, meta, -1);
 											}
 										}
 									}
