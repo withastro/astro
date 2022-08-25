@@ -40,8 +40,9 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
+    "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
-    "mrmime": "^1.0.0",
+    "mime": "^3.0.0",
     "sharp": "^0.30.6"
   },
   "devDependencies": {

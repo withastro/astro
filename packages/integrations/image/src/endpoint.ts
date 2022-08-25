@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { lookup } from 'mrmime';
+import mime from 'mime';
 // @ts-ignore
 import loader from 'virtual:image-loader';
 import { etag } from './utils/etag.js';
@@ -41,7 +41,7 @@ export const get: APIRoute = async ({ request }) => {
 		return new Response(data, {
 			status: 200,
 			headers: {
-				'Content-Type': lookup(format) || '',
+				'Content-Type': mime.getType(format) || '',
 				'Cache-Control': 'public, max-age=31536000',
 				ETag: etag(data),
 				Date: new Date().toUTCString(),
