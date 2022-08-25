@@ -88,7 +88,7 @@ The Apline.js integration does not support any custom configuration at this time
 
 ## Examples
 
-- Our [Astro Alpine.js example](https://github.com/withastro/astro/tree/latest/examples/framework-alpine) shows how to use Alpine.js in an Astro project.
+- The [Astro Alpine.js example](https://github.com/withastro/astro/tree/latest/examples/framework-alpine) shows how to use Alpine.js in an Astro project.
 
 ## Troubleshooting
 
