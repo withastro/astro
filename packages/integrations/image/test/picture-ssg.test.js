@@ -416,7 +416,7 @@ describe('SSG pictures - build', function () {
 	});
 });
 
-describe.only('SSG pictures with subpath - build', function () {
+describe('SSG pictures with subpath - build', function () {
 	let fixture;
 	let $;
 	let html;
