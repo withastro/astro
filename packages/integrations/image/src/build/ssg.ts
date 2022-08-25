@@ -2,6 +2,7 @@ import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { AstroConfig } from 'astro';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
@@ -15,12 +16,12 @@ function getTimeStat(timeStart: number, timeEnd: number) {
 export interface SSGBuildParams {
 	loader: SSRImageService;
 	staticImages: Map<string, Map<string, TransformOptions>>;
-	srcDir: URL;
+	config: AstroConfig;
 	outDir: URL;
 	logLevel: LoggerLevel;
 }
 
-export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel }: SSGBuildParams) {
+export async function ssgBuild({ loader, staticImages, config, outDir, logLevel }: SSGBuildParams) {
 	const timer = performance.now();
 
 	info({
@@ -34,9 +35,15 @@ export async function ssgBuild({ loader, staticImages, srcDir, outDir, logLevel 
 	const inputFiles = new Set<string>();
 
 	// process transforms one original image file at a time
-	for (const [src, transformsMap] of staticImages) {
+	for (let [src, transformsMap] of staticImages) {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
+
+		// Vite will prefix a hashed image with the base path, we need to strip this
+		// off to find the actual file relative to /dist
+		if (config.base && src.startsWith(config.base)) {
+			src = src.substring(config.base.length - 1);
+		}
 
 		if (isRemoteImage(src)) {
 			// try to load the remote image

@@ -81,6 +81,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
 			} else {
 				const relId = path.relative(fileURLToPath(config.srcDir), id);
+
 				meta.src = join('/@astroimage', relId);
 
 				// Windows compat

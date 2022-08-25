@@ -3,7 +3,7 @@ import { createPlugin } from './vite-plugin-astro-image.js';
 import { ssgBuild } from './build/ssg.js';
 import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
-import { propsToFilename } from './utils/paths.js';
+import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
@@ -81,7 +81,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					srcTranforms.set(filename, transform);
 					staticImages.set(transform.src, srcTranforms);
 
-					return filename;
+					// Prepend the Astro config's base path, if it was used.
+					// Doing this here makes sure that base is ignored when building
+					// staticImages to /dist, but the rendered HTML will include the
+					// base prefix for `src`.
+					return prependForwardSlash(joinPaths(_config.base, filename));
 				}
 
 				// Helpers for building static images should only be available for SSG
@@ -101,7 +105,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						await ssgBuild({
 							loader,
 							staticImages,
-							srcDir: _config.srcDir,
+							config: _config,
 							outDir: dir,
 							logLevel: resolvedOptions.logLevel,
 						});
