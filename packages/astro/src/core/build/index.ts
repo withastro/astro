@@ -62,7 +62,7 @@ class AstroBuilder {
 		debug('build', 'Initial setup...');
 		const { logging } = this;
 		this.timer.init = performance.now();
-		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
+		this.config = await runHookConfigSetup({ config: this.config, command: 'build', logging });
 		this.manifest = createRouteManifest({ config: this.config }, this.logging);
 
 		const viteConfig = await createVite(
@@ -76,7 +76,7 @@ class AstroBuilder {
 			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
-		await runHookConfigDone({ config: this.config });
+		await runHookConfigDone({ config: this.config, logging });
 		return { viteConfig };
 	}
 
@@ -87,7 +87,7 @@ class AstroBuilder {
 			server: new URL('./server/', this.config.outDir),
 			serverEntry: 'entry.mjs',
 		};
-		await runHookBuildStart({ config: this.config, buildConfig });
+		await runHookBuildStart({ config: this.config, buildConfig, logging: this.logging });
 
 		info(this.logging, 'build', `output target: ${colors.green(this.config.output)}`);
 		if (this.config._ctx.adapter) {
@@ -145,6 +145,7 @@ class AstroBuilder {
 			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
+			logging: this.logging,
 		});
 
 		if (this.logging.level && levels[this.logging.level] <= levels['info']) {

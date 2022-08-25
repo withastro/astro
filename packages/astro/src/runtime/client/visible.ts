@@ -24,3 +24,4 @@
 		io.observe(child);
 	}
 };
+window.dispatchEvent(new Event('astro:visible'));

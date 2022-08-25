@@ -11,9 +11,9 @@ import { fileURLToPath } from 'url';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
-import { handleHotUpdate, trackCSSDependencies } from './hmr.js';
+import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-import { getViteTransform, TransformHook } from './styles.js';
+import { createTransformStyleWithViteFn, TransformStyleWithVite } from './styles.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -38,10 +38,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	}
 
 	let resolvedConfig: vite.ResolvedConfig;
-	let viteTransform: TransformHook;
-	let viteDevServer: vite.ViteDevServer | null = null;
+	let transformStyleWithVite: TransformStyleWithVite;
+	let viteDevServer: vite.ViteDevServer | undefined;
 
-	// Variables for determing if an id starts with /src...
+	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
@@ -60,7 +60,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(_resolvedConfig) {
 			resolvedConfig = _resolvedConfig;
-			viteTransform = getViteTransform(resolvedConfig);
+			transformStyleWithVite = createTransformStyleWithViteFn(_resolvedConfig);
 		},
 		configureServer(server) {
 			viteDevServer = server;
@@ -118,7 +118,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				moduleId: id,
 				source,
 				ssr: Boolean(opts?.ssr),
-				viteTransform,
+				transformStyleWithVite,
+				viteDevServer,
 				pluginContext: this,
 			};
 
@@ -129,14 +130,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 
 					const transformResult = await cachedCompilation(compileProps);
-
-					// Track any CSS dependencies so that HMR is triggered when they change.
-					await trackCSSDependencies.call(this, {
-						viteDevServer,
-						id,
-						filename,
-						deps: transformResult.rawCSSDeps,
-					});
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
@@ -224,13 +217,18 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				moduleId: id,
 				source,
 				ssr: Boolean(opts?.ssr),
-				viteTransform,
+				transformStyleWithVite,
+				viteDevServer,
 				pluginContext: this,
 			};
 
 			try {
 				const transformResult = await cachedCompilation(compileProps);
 				const { fileId: file, fileUrl: url } = getFileInfo(id, config);
+
+				for (const dep of transformResult.cssDeps) {
+					this.addWatchFile(dep);
+				}
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
@@ -355,7 +353,8 @@ ${source}
 				moduleId: context.file,
 				source: await context.read(),
 				ssr: true,
-				viteTransform,
+				transformStyleWithVite,
+				viteDevServer,
 				pluginContext: this,
 			};
 			const compile = () => cachedCompilation(compileProps);

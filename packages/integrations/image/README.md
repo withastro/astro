@@ -7,6 +7,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 - <strong>[Why `@astrojs/image`?](#why-astrojsimage)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
+- <strong>[Debugging](#debugging)</strong>
 - <strong>[Configuration](#configuration)</strong>
 - <strong>[Examples](#examples)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
@@ -272,8 +273,6 @@ The integration can be configured to run with a different image service, either 
 
 > During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in `sharp` service when using `astro dev`.
 
-There are currently no other configuration options for the `@astrojs/image` integration. Please [open an issue](https://github.com/withastro/astro/issues/new/choose) if you have a compelling use case to share.
-
 
  ### config.serviceEntryPoint
   
@@ -287,6 +286,23 @@ export default {
   integrations: [image({
     // Example: The entrypoint for a third-party image service installed from NPM
     serviceEntryPoint: 'my-image-service/astro.js'
+  })],
+}
+```
+
+### config.logLevel
+
+The `logLevel` controls can be used to control how much detail is logged by the integration during builds. This may be useful to track down a specific image or transformation that is taking a long time to build.
+
+```js
+// astro.config.mjs
+import image from '@astrojs/image';
+
+export default {
+  integrations: [image({
+    // supported levels: 'debug' | 'info' | 'warn' | 'error' | 'silent'
+    // default: 'info'
+    logLevel: 'debug'
   })],
 }
 ```

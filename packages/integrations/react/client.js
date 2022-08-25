@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import { createElement, startTransition } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import StaticHtml from './static-html.js';
 
@@ -27,7 +27,11 @@ export default (element) =>
 			delete element[rootKey];
 		}
 		if (client === 'only') {
-			return createRoot(element).render(componentEl);
+			return startTransition(() => {
+				createRoot(element).render(componentEl);
+			});
 		}
-		return hydrateRoot(element, componentEl);
+		return startTransition(() => {
+			hydrateRoot(element, componentEl);
+		});
 	};

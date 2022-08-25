@@ -83,7 +83,7 @@ export async function createVite(
 			htmlVitePlugin(),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
-			astroIntegrationsContainerPlugin({ config: astroConfig }),
+			astroIntegrationsContainerPlugin({ config: astroConfig, logging }),
 			astroScriptsPageSSRPlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.publicDir),

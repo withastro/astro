@@ -5,7 +5,7 @@
 type directiveAstroKeys = 'load' | 'idle' | 'visible' | 'media' | 'only';
 
 declare const Astro: {
-	[k in directiveAstroKeys]: (
+	[k in directiveAstroKeys]?: (
 		fn: () => Promise<() => void>,
 		opts: Record<string, any>,
 		root: HTMLElement
@@ -57,8 +57,16 @@ declare const Astro: {
 				async childrenConnectedCallback() {
 					window.addEventListener('astro:hydrate', this.hydrate);
 					await import(this.getAttribute('before-hydration-url')!);
+					this.start();
+				}
+				start() {
 					const opts = JSON.parse(this.getAttribute('opts')!) as Record<string, any>;
-					Astro[this.getAttribute('client') as directiveAstroKeys](
+					const directive = this.getAttribute('client') as directiveAstroKeys;
+					if (Astro[directive] === undefined) {
+						window.addEventListener(`astro:${directive}`, () => this.start(), { once: true });
+						return;
+					}
+					Astro[directive]!(
 						async () => {
 							const rendererUrl = this.getAttribute('renderer-url');
 							const [componentModule, { default: hydrator }] = await Promise.all([
@@ -82,7 +90,10 @@ declare const Astro: {
 					);
 				}
 				hydrate = () => {
-					if (!this.hydrator || this.parentElement?.closest('astro-island[ssr]')) {
+					if (
+						!this.hydrator ||
+						(this.parentElement && this.parentElement.closest('astro-island[ssr]'))
+					) {
 						return;
 					}
 					const slotted = this.querySelectorAll('astro-slot');
@@ -91,12 +102,14 @@ declare const Astro: {
 					// This happens if slots were passed but the client component did not render them.
 					const templates = this.querySelectorAll('template[data-astro-template]');
 					for (const template of templates) {
-						if (!template.closest(this.tagName)?.isSameNode(this)) continue;
+						const closest = template.closest(this.tagName);
+						if (!closest || !closest.isSameNode(this)) continue;
 						slots[template.getAttribute('data-astro-template') || 'default'] = template.innerHTML;
 						template.remove();
 					}
 					for (const slot of slotted) {
-						if (!slot.closest(this.tagName)?.isSameNode(this)) continue;
+						const closest = slot.closest(this.tagName);
+						if (!closest || !closest.isSameNode(this)) continue;
 						slots[slot.getAttribute('name') || 'default'] = slot.innerHTML;
 					}
 					const props = this.hasAttribute('props')

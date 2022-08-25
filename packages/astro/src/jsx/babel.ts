@@ -1,6 +1,7 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
 import { pathToFileURL } from 'node:url';
+import { HydrationDirectiveProps } from '../runtime/server/hydration.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
@@ -280,6 +281,22 @@ export default function astroJSX(): PluginObj {
 
 				const meta = path.getData('import');
 				if (meta) {
+					// If JSX is importing an Astro component, e.g. using MDX for templating,
+					// check Astro node's props and make sure they are valid for an Astro component
+					if (meta.path.endsWith('.astro')) {
+						const displayName = getTagName(parentNode);
+						for (const attr of parentNode.openingElement.attributes) {
+							if (t.isJSXAttribute(attr)) {
+								const name = jsxAttributeToString(attr);
+								if (HydrationDirectiveProps.has(name)) {
+									// eslint-disable-next-line
+									console.warn(
+										`You are attempting to render <${displayName} ${name} />, but ${displayName} is an Astro component. Astro components do not render in the client and should not have a hydration directive. Please use a framework component for client rendering.`
+									);
+								}
+							}
+						}
+					}
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
 						const fileURL = pathToFileURL(state.filename!);

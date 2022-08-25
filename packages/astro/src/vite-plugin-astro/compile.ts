@@ -1,39 +1,20 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { PluginContext, SourceMapInput } from 'rollup';
+import type { ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
-import type { TransformHook } from './styles';
+import type { TransformStyleWithVite } from './styles';
 
 import { transform } from '@astrojs/compiler';
 import { fileURLToPath } from 'url';
 import { AstroErrorCodes } from '../core/errors.js';
 import { prependForwardSlash } from '../core/path.js';
 import { viteID } from '../core/util.js';
-import { transformWithVite } from './styles.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
-	rawCSSDeps: Set<string>;
+	cssDeps: Set<string>;
 	source: string;
 };
-
-/**
- * Note: this is currently needed because Astro is directly using a Vite internal CSS transform. This gives us
- * some nice features out of the box, but at the expense of also running Vite's CSS postprocessing build step,
- * which does some things that we don't like, like resolving/handling `@import` too early. This function pulls
- * out the `@import` tags to be added back later, and then finally handled correctly by Vite.
- *
- * In the future, we should remove this workaround and most likely implement our own Astro style handling without
- * having to hook into Vite's internals.
- */
-function createImportPlaceholder(spec: string) {
-	// Note: We keep this small so that we can attempt to exactly match the # of characters in the original @import.
-	// This keeps sourcemaps accurate (to the best of our ability) at the intermediate step where this appears.
-	// ->  `@import '${spec}';`;
-	return `/*IMPORT:${spec}*/`;
-}
-function safelyReplaceImportPlaceholder(code: string) {
-	return code.replace(/\/\*IMPORT\:(.*?)\*\//g, `@import '$1';`);
-}
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
@@ -43,7 +24,8 @@ export interface CompileProps {
 	moduleId: string;
 	source: string;
 	ssr: boolean;
-	viteTransform: TransformHook;
+	transformStyleWithVite: TransformStyleWithVite;
+	viteDevServer?: ViteDevServer;
 	pluginContext: PluginContext;
 }
 
@@ -63,12 +45,18 @@ async function compile({
 	moduleId,
 	source,
 	ssr,
-	viteTransform,
+	transformStyleWithVite,
+	viteDevServer,
 	pluginContext,
 }: CompileProps): Promise<CompileResult> {
 	const normalizedID = getNormalizedID(filename);
-	let rawCSSDeps = new Set<string>();
+	let cssDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
+
+	// handleHotUpdate doesn't have `addWatchFile` used by transformStyleWithVite.
+	if (!pluginContext.addWatchFile) {
+		pluginContext.addWatchFile = () => {};
+	}
 
 	// Transform from `.astro` to valid `.ts`
 	// use `sourcemap: "both"` so that sourcemap is included in the code
@@ -89,32 +77,21 @@ async function compile({
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 
 			try {
-				// In the static build, grab any @import as CSS dependencies for HMR.
-				value.replace(
-					/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi,
-					(match, spec) => {
-						rawCSSDeps.add(spec);
-						// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
-						// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
-						if (lang === '.css') {
-							return createImportPlaceholder(spec);
-						} else {
-							return match;
-						}
-					}
-				);
-
-				const result = await transformWithVite({
-					value,
-					lang,
+				const result = await transformStyleWithVite.call(pluginContext, {
 					id: normalizedID,
-					transformHook: viteTransform,
+					source: value,
+					lang,
 					ssr,
-					pluginContext,
+					viteDevServer,
 				});
 
-				let map: SourceMapInput | undefined;
 				if (!result) return null as any; // TODO: add type in compiler to fix "any"
+
+				for (const dep of result.deps) {
+					cssDeps.add(dep);
+				}
+
+				let map: SourceMapInput | undefined;
 				if (result.map) {
 					if (typeof result.map === 'string') {
 						map = result.map;
@@ -122,8 +99,8 @@ async function compile({
 						map = result.map.toString();
 					}
 				}
-				const code = safelyReplaceImportPlaceholder(result.code);
-				return { code, map };
+
+				return { code: result.code, map };
 			} catch (err) {
 				// save error to throw in plugin context
 				cssTransformError = err as any;
@@ -147,8 +124,8 @@ async function compile({
 		});
 
 	const compileResult: CompileResult = Object.create(transformResult, {
-		rawCSSDeps: {
-			value: rawCSSDeps,
+		cssDeps: {
+			value: cssDeps,
 		},
 		source: {
 			value: source,

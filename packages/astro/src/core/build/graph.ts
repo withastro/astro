@@ -1,24 +1,32 @@
 import type { GetModuleInfo, ModuleInfo } from 'rollup';
+
 import { resolvedPagesVirtualModuleId } from '../app/index.js';
 
 // This walks up the dependency graph and yields out each ModuleInfo object.
 export function* walkParentInfos(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo },
+	depth = 0,
 	seen = new Set<string>()
-): Generator<ModuleInfo, void, unknown> {
+): Generator<[ModuleInfo, number], void, unknown> {
 	seen.add(id);
 	const info = ctx.getModuleInfo(id);
 	if (info) {
-		yield info;
+		yield [info, depth];
 	}
 	const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
 	for (const imp of importers) {
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, seen);
+		yield* walkParentInfos(imp, ctx, ++depth, seen);
 	}
+}
+
+// Returns true if a module is a top-level page. We determine this based on whether
+// it is imported by the top-level virtual module.
+export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
+	return info.importers[0] === resolvedPagesVirtualModuleId;
 }
 
 // This function walks the dependency graph, going up until it finds a page component.
@@ -26,10 +34,10 @@ export function* walkParentInfos(
 export function* getTopLevelPages(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo }
-): Generator<ModuleInfo, void, unknown> {
-	for (const info of walkParentInfos(id, ctx)) {
-		if (info?.importers[0] === resolvedPagesVirtualModuleId) {
-			yield info;
+): Generator<[ModuleInfo, number], void, unknown> {
+	for (const res of walkParentInfos(id, ctx)) {
+		if (moduleIsTopLevelPage(res[0])) {
+			yield res;
 		}
 	}
 }

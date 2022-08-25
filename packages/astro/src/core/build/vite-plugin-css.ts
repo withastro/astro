@@ -6,11 +6,17 @@ import type { PageBuildData, StaticBuildOptions } from './types';
 import crypto from 'crypto';
 import esbuild from 'esbuild';
 import npath from 'path';
-import { Plugin as VitePlugin } from 'vite';
+import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
 import { relativeToSrcDir } from '../util.js';
-import { getTopLevelPages, walkParentInfos } from './graph.js';
-import { getPageDataByViteID, getPageDatasByClientOnlyID } from './internal.js';
+import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
+import {
+	eachPageData,
+	getPageDataByViteID,
+	getPageDatasByClientOnlyID,
+	getPageDatasByHoistedScriptId,
+	isHoistedScript,
+} from './internal.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -25,6 +31,8 @@ const MAX_NAME_LENGTH = 70;
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
 	const { astroConfig } = buildOptions;
+
+	let resolvedConfig: ResolvedConfig;
 
 	// Turn a page location into a name to be used for the CSS file.
 	function nameifyPage(id: string) {
@@ -42,8 +50,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 	}
 
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
-		const parents = Array.from(getTopLevelPages(id, ctx)).sort();
-		const proposedName = parents.map((page) => nameifyPage(page.id)).join('-');
+		const parents = Array.from(getTopLevelPages(id, ctx));
+		const proposedName = parents
+			.map(([page]) => nameifyPage(page.id))
+			.sort()
+			.join('-');
 
 		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
 		if (proposedName.length <= MAX_NAME_LENGTH) {
@@ -51,7 +62,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		}
 
 		const hash = crypto.createHash('sha256');
-		for (const page of parents) {
+		for (const [page] of parents) {
 			hash.update(page.id, 'utf-8');
 		}
 		return hash.digest('hex').slice(0, 8);
@@ -61,7 +72,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 		id: string,
 		ctx: { getModuleInfo: GetModuleInfo }
 	): Generator<PageBuildData, void, unknown> {
-		for (const info of walkParentInfos(id, ctx)) {
+		for (const [info] of walkParentInfos(id, ctx)) {
 			yield* getPageDatasByClientOnlyID(internals, info.id);
 		}
 	}
@@ -99,6 +110,22 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					importedCss: Set<string>;
 				};
 
+				const appendCSSToPage = (pageData: PageBuildData, meta: ViteMetadata, depth: number) => {
+					for (const importedCssImport of meta.importedCss) {
+						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
+						// Depth info is used when sorting the links on the page.
+						if (pageData?.css.has(importedCssImport)) {
+							// eslint-disable-next-line
+							const cssInfo = pageData?.css.get(importedCssImport)!;
+							if (depth < cssInfo.depth) {
+								cssInfo.depth = depth;
+							}
+						} else {
+							pageData?.css.set(importedCssImport, { depth });
+						}
+					}
+				};
+
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
 						const c = chunk;
@@ -114,7 +141,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									for (const [id] of Object.entries(c.modules)) {
 										for (const pageData of getParentClientOnlys(id, this)) {
 											for (const importedCssImport of meta.importedCss) {
-												pageData.css.add(importedCssImport);
+												pageData.css.set(importedCssImport, { depth: -1 });
 											}
 										}
 									}
@@ -122,15 +149,49 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const [id] of Object.entries(c.modules)) {
-									for (const pageInfo of getTopLevelPages(id, this)) {
-										const pageViteID = pageInfo.id;
-										const pageData = getPageDataByViteID(internals, pageViteID);
-										for (const importedCssImport of meta.importedCss) {
-											pageData?.css.add(importedCssImport);
+									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
+										if (moduleIsTopLevelPage(pageInfo)) {
+											const pageViteID = pageInfo.id;
+											const pageData = getPageDataByViteID(internals, pageViteID);
+											if (pageData) {
+												appendCSSToPage(pageData, meta, depth);
+											}
+										} else if (
+											options.target === 'client' &&
+											isHoistedScript(internals, pageInfo.id)
+										) {
+											for (const pageData of getPageDatasByHoistedScriptId(
+												internals,
+												pageInfo.id
+											)) {
+												appendCSSToPage(pageData, meta, -1);
+											}
 										}
 									}
 								}
 							}
+						}
+					}
+				}
+			},
+		},
+		{
+			name: 'astro:rollup-plugin-single-css',
+			enforce: 'post',
+			configResolved(config) {
+				resolvedConfig = config;
+			},
+			generateBundle(_, bundle) {
+				// If user disable css code-splitting, search for Vite's hardcoded
+				// `style.css` and add it as css for each page.
+				// Ref: https://github.com/vitejs/vite/blob/b2c0ee04d4db4a0ef5a084c50f49782c5f88587c/packages/vite/src/node/plugins/html.ts#L690-L705
+				if (!resolvedConfig.build.cssCodeSplit) {
+					const cssChunk = Object.values(bundle).find(
+						(chunk) => chunk.type === 'asset' && chunk.name === 'style.css'
+					);
+					if (cssChunk) {
+						for (const pageData of eachPageData(internals)) {
+							pageData.css.set(cssChunk.fileName, { depth: -1 });
 						}
 					}
 				}

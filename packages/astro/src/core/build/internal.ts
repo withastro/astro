@@ -62,13 +62,6 @@ export function createBuildInternals(): BuildInternals {
 	// Pure CSS chunks are chunks that only contain CSS.
 	// This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
 	const pureCSSChunks = new Set<RenderedChunk>();
-	const chunkToReferenceIdMap = new Map<string, string>();
-
-	// This is a mapping of pathname to the string source of all collected
-	// inline <style> for a page.
-	const astroStyleMap = new Map<string, string>();
-	// This is a virtual JS module that imports all dependent styles for a page.
-	const astroPageStyleMap = new Map<string, string>();
 
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
@@ -180,4 +173,46 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
+}
+
+/**
+ * Sort a page's CSS by depth. A higher depth means that the CSS comes from shared subcomponents.
+ * A lower depth means it comes directly from the top-level page.
+ * The return of this function is an array of CSS paths, with shared CSS on top
+ * and page-level CSS on bottom.
+ */
+export function sortedCSS(pageData: PageBuildData) {
+	return Array.from(pageData.css)
+		.sort((a, b) => {
+			let depthA = a[1].depth,
+				depthB = b[1].depth;
+
+			if (depthA === -1) {
+				return -1;
+			} else if (depthB === -1) {
+				return 1;
+			} else {
+				return depthA > depthB ? -1 : 1;
+			}
+		})
+		.map(([id]) => id);
+}
+
+export function isHoistedScript(internals: BuildInternals, id: string): boolean {
+	return internals.hoistedScriptIdToPagesMap.has(id);
+}
+
+export function* getPageDatasByHoistedScriptId(
+	internals: BuildInternals,
+	id: string
+): Generator<PageBuildData, void, unknown> {
+	const set = internals.hoistedScriptIdToPagesMap.get(id);
+	if (set) {
+		for (const pageId of set) {
+			const pageData = getPageDataByComponent(internals, pageId.slice(1));
+			if (pageData) {
+				yield pageData;
+			}
+		}
+	}
 }

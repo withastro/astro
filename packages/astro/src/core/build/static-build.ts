@@ -160,6 +160,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		envPrefix: 'PUBLIC_',
+		base: astroConfig.base,
 	};
 
 	await runHookBuildSetup({
@@ -167,6 +168,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'server',
+		logging: opts.logging,
 	});
 
 	return await vite.build(viteBuildConfig);
@@ -229,6 +231,7 @@ async function clientBuild(
 			...(viteConfig.plugins || []),
 		],
 		envPrefix: 'PUBLIC_',
+		base: astroConfig.base,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({
@@ -236,6 +239,7 @@ async function clientBuild(
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'client',
+		logging: opts.logging,
 	});
 
 	const buildResult = await vite.build(viteBuildConfig);

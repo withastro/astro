@@ -619,7 +619,7 @@ async function fetchPackageJson(
 	name: string,
 	tag: string
 ): Promise<object | Error> {
-	const packageName = `${scope ? `@${scope}/` : ''}${name}`;
+	const packageName = `${scope ? `${scope}/` : ''}${name}`;
 	const res = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`);
 	if (res.status === 404) {
 		return new Error();
@@ -637,13 +637,14 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				if (!parsed) {
 					throw new Error(`${bold(integration)} does not appear to be a valid package name!`);
 				}
-
 				let { scope, name, tag } = parsed;
-				let pkgJson = null;
-				let pkgType: 'first-party' | 'third-party' = 'first-party';
+				let pkgJson;
+				let pkgType: 'first-party' | 'third-party';
 
-				if (!scope) {
-					const firstPartyPkgCheck = await fetchPackageJson('astrojs', name, tag);
+				if (scope && scope !== '@astrojs') {
+					pkgType = 'third-party';
+				} else {
+					const firstPartyPkgCheck = await fetchPackageJson('@astrojs', name, tag);
 					if (firstPartyPkgCheck instanceof Error) {
 						spinner.warn(
 							yellow(`${bold(integration)} is not an official Astro package. Use at your own risk!`)
@@ -664,6 +665,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 						spinner.start('Resolving with third party packages...');
 						pkgType = 'third-party';
 					} else {
+						pkgType = 'first-party';
 						pkgJson = firstPartyPkgCheck as any;
 					}
 				}
@@ -676,8 +678,8 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 					}
 				}
 
-				const resolvedScope = pkgType === 'first-party' ? 'astrojs' : scope;
-				const packageName = `${resolvedScope ? `@${resolvedScope}/` : ''}${name}`;
+				const resolvedScope = pkgType === 'first-party' ? '@astrojs' : scope;
+				const packageName = `${resolvedScope ? `${resolvedScope}/` : ''}${name}`;
 
 				let dependencies: IntegrationInfo['dependencies'] = [
 					[pkgJson['name'], `^${pkgJson['version']}`],

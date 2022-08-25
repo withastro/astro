@@ -8,6 +8,7 @@ import type {
 	AstroConfig,
 	ComponentInstance,
 	EndpointHandler,
+	RouteType,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
@@ -28,7 +29,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent } from './internal.js';
+import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -124,7 +125,7 @@ async function generatePage(
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
-	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
+	const linkIds: string[] = sortedCSS(pageData);
 	const scripts = pageInfo?.hoistedScript ?? null;
 
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
@@ -207,11 +208,6 @@ async function getPathsForRoute(
 		paths = result.staticPaths
 			.map((staticPath) => staticPath.params && route.generate(staticPath.params))
 			.filter((staticPath) => {
-				// Remove empty or undefined paths
-				if (!staticPath) {
-					return false;
-				}
-
 				// The path hasn't been built yet, include it
 				if (!builtPaths.has(removeTrailingForwardSlash(staticPath))) {
 					return true;
@@ -248,6 +244,34 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/^\//, ''));
 }
 
+function getUrlForPath(
+	pathname: string,
+	base: string,
+	origin: string,
+	format: 'directory' | 'file',
+	routeType: RouteType
+): URL {
+	/**
+	 * Examples:
+	 * pathname: /, /foo
+	 * base: /
+	 */
+	const ending = format === 'directory' ? '/' : '.html';
+	let buildPathname: string;
+	if (pathname === '/' || pathname === '') {
+		buildPathname = base;
+	} else if (routeType === 'endpoint') {
+		const buildPathRelative = removeLeadingForwardSlash(pathname);
+		buildPathname = base + buildPathRelative;
+	} else {
+		const buildPathRelative =
+			removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
+		buildPathname = base + buildPathRelative;
+	}
+	const url = new URL(buildPathname, origin);
+	return url;
+}
+
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
@@ -269,7 +293,7 @@ async function generatePath(
 		astroConfig.base !== '/'
 			? joinPaths(astroConfig.site?.toString() || 'http://localhost/', astroConfig.base)
 			: astroConfig.site;
-	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
+	const links = createLinkStylesheetElementSet(linkIds, site);
 	const scripts = createModuleScriptsSet(hoistedScripts ? [hoistedScripts] : [], site);
 
 	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
@@ -295,7 +319,13 @@ async function generatePath(
 	}
 
 	const ssr = opts.astroConfig.output === 'server';
-	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
+	const url = getUrlForPath(
+		pathname,
+		opts.astroConfig.base,
+		origin,
+		opts.astroConfig.build.format,
+		pageData.route.type
+	);
 	const options: RenderOptions = {
 		adapterName: undefined,
 		links,
