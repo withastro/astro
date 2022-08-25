@@ -32,6 +32,8 @@
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
+    "./tsconfigs/*.json": "./tsconfigs/*",
+    "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
     "./config": "./config.mjs",
@@ -65,6 +67,7 @@
   },
   "files": [
     "components",
+    "tsconfigs",
     "dist",
     "astro.js",
     "config.d.ts",
