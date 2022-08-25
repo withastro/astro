@@ -8,6 +8,7 @@ import type {
 	AstroConfig,
 	ComponentInstance,
 	EndpointHandler,
+	RouteType,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
@@ -243,6 +244,27 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/^\//, ''));
 }
 
+function getUrlForPath(pathname: string, base: string, origin: string, format: 'directory' | 'file', routeType: RouteType): URL {
+	/**
+	 * Examples:
+	 * pathname: /, /foo
+	 * base: /
+	 */
+	const ending = format === 'directory' ? '/' : '.html';
+	let buildPathname: string;
+	if(pathname === '/' || pathname === '') {
+		buildPathname = base;
+	} else if(routeType === 'endpoint') {
+		const buildPathRelative = removeLeadingForwardSlash(pathname);
+		buildPathname = base + buildPathRelative;
+	} else {
+		const buildPathRelative = removeTrailingForwardSlash(removeLeadingForwardSlash(pathname)) + ending;
+		buildPathname = base + buildPathRelative;
+	}
+	const url = new URL(buildPathname, origin);
+	return url;
+}
+
 async function generatePath(
 	pathname: string,
 	opts: StaticBuildOptions,
@@ -290,7 +312,8 @@ async function generatePath(
 	}
 
 	const ssr = opts.astroConfig.output === 'server';
-	const url = new URL(opts.astroConfig.base + removeLeadingForwardSlash(pathname), origin);
+	const url = getUrlForPath(pathname, opts.astroConfig.base, origin,
+		opts.astroConfig.build.format, pageData.route.type);
 	const options: RenderOptions = {
 		adapterName: undefined,
 		links,
