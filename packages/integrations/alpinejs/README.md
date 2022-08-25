@@ -1,6 +1,6 @@
 # @astrojs/alpinejs ⚛️
 
-This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project so that you can use Alpine.js anywhere on your page.
+This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project. _"A rugged, minimal tool for composing behavior directly in your markup."_
 
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
@@ -14,7 +14,7 @@ This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinej
 
 ### Quick Install
 
-The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+The `astro add` command-line tool will automate the installation. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
 ```sh
 # Using NPM
@@ -25,7 +25,7 @@ yarn astro add alpinejs
 pnpm astro add alpinejs
 ```
 
-Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
+Once complete, be sure to restart the dev server by pressing `CTRL+C` and then typing `npm run astro dev` in the terminal window that's running your Astro project.
 
 ### Manual Install
 
@@ -35,7 +35,7 @@ First, install the `@astrojs/alpinejs` package using your package manager. If yo
 npm install @astrojs/alpinejs
 ```
 
-Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to install Alpine.js yourself:
+Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to do a manual install of said peer dependencies to the project and add the `alpinejs` integration to your `astro.config.*` file.
 
 ```sh
 npm install alpinejs @types/alpinejs
@@ -55,11 +55,11 @@ export default defineConfig({
 });
 ```
 
-Finally, restart the dev server.
+Once complete, be sure to restart the dev server by pressing `CTRL+C` and then typing `npm run astro dev` in the terminal window that's running your Astro project.
 
 ## Usage
 
-Once the integration is installed, you can use [Alpine.js](https://alpinejs.dev/) directivers and syntax inside any Astro component. The Alpine.js script is automatically added and enabled on every page of your website.
+Once the integration is installed, you can use [Alpine.js](https://alpinejs.dev/) directives and syntax inside any Astro component. The Alpine.js script is automatically added and enabled on every page of your website.
 
 Check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
@@ -88,7 +88,7 @@ The Apline.js integration does not support any custom configuration at this time
 
 ## Examples
 
-- The [Astro Alpine.js example](https://github.com/withastro/astro/tree/latest/examples/framework-alpine) shows how to use Alpine.js in an Astro project.
+- Our [Astro Alpine.js example](https://github.com/withastro/astro/tree/latest/examples/framework-alpine) shows how to use Alpine.js in an Astro project.
 
 ## Troubleshooting
 
