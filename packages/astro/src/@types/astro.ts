@@ -4,6 +4,7 @@ import type {
 	MarkdownRenderingResult,
 	RehypePlugins,
 	RemarkPlugins,
+	RemarkRehype,
 	ShikiConfig,
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
@@ -680,6 +681,23 @@ export interface AstroUserConfig {
 		 * ```
 		 */
 		rehypePlugins?: RehypePlugins;
+		/**
+		 * @docs
+		 * @name markdown.remarkRehype
+		 * @type {RemarkRehype}
+		 * @description
+		 * Pass options to [remark-rehype](https://github.com/remarkjs/remark-rehype#api) .
+		 *
+		 * ```js
+		 * {
+		 *   markdown: {
+		 *     // Example: Translate the footnotes text to another language, here are the default English values
+		 *     remarkRehype: { footnoteLabel: "Footnotes", footnoteBackLabel: "Back to content"},
+		 *   },
+		 * };
+		 * ```
+		 */
+		remarkRehype?: RemarkRehype;
 	};
 
 	/**

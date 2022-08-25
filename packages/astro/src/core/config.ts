@@ -1,4 +1,4 @@
-import type { RehypePlugin, RemarkPlugin } from '@astrojs/markdown-remark';
+import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { Arguments as Flags } from 'yargs-parser';
@@ -51,6 +51,7 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 		},
 		remarkPlugins: [],
 		rehypePlugins: [],
+		remarkRehype: {},
 	},
 	vite: {},
 	legacy: {
@@ -214,6 +215,10 @@ export const AstroConfigSchema = z.object({
 				])
 				.array()
 				.default(ASTRO_CONFIG_DEFAULTS.markdown.rehypePlugins),
+			remarkRehype: z
+				.custom<RemarkRehype>((data) => data instanceof Object && !Array.isArray(data))
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.markdown.remarkRehype),
 		})
 		.default({}),
 	vite: z

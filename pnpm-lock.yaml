@@ -1296,6 +1296,12 @@ importers:
       hast-util-select: 5.0.2
       rehype-slug: 5.0.1
 
+  packages/astro/test/fixtures/astro-markdown-remarkRehype:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/astro-markdown-shiki/langs:
     specifiers:
       astro: workspace:*
