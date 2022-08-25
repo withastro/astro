@@ -1286,12 +1286,10 @@ importers:
 
   packages/astro/test/fixtures/astro-markdown-plugins:
     specifiers:
-      '@astrojs/preact': workspace:*
       astro: workspace:*
       hast-util-select: ^5.0.2
       rehype-slug: ^5.0.1
     dependencies:
-      '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
       hast-util-select: 5.0.2
       rehype-slug: 5.0.1
