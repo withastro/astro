@@ -8,13 +8,6 @@ import testAdapter from '../../../astro/test/test-adapter.js';
 describe('SSR pictures - build', function () {
 	let fixture;
 
-	function verifyImage(pathname) {
-		const url = new URL('./fixtures/basic-image/dist/client' + pathname, import.meta.url);
-		const dist = fileURLToPath(url);
-		const result = sizeOf(dist);
-		expect(result).not.be.be.undefined;
-	}
-
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/basic-picture/',

@@ -1,7 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import sizeOf from 'image-size';
-import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
