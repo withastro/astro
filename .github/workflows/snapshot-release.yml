@@ -46,30 +46,36 @@ jobs:
         run: pnpm run build
 
       - name: Extract the snapshot name from comment body
-        id: get-snapshot-name
+        id: getSnapshotName
         uses: actions/github-script@v6
+        env:
+          MESSAGE: ${{ steps.changesets.outputs.publish }}
         with:
-          script: return github.event.comment.body.split('!preview ')[1]
+          script:  |
+            const splitComment = github.event.comment.body.split(' ');
+            splitComment.length !== 2 && (github.rest.issues.createComment({
+              issue_number: process.env.ISSUE_NUMBER,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Invalid comment format. Expected: "!preview <one-word-snapshot-name>"',
+            }) || exit 1);
+            return splitComment[1].trim();
           result-encoding: string
 
       - name: Bump Package Versions
         id: changesets
-        run: npx changeset version --snapshot ${{ steps.get-snapshot-name.outputs.result }}
+        run: npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Release
         id: publish
-        run: pnpm run release --tag next--${{ steps.get-snapshot-name.outputs.result }}
+        run: pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }}
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Generate Notification
-        id: notification
-        run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
-      
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
