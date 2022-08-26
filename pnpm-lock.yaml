@@ -361,7 +361,7 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       canvas-confetti: 1.5.1
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   examples/with-vite-plugin-pwa:
     specifiers:
@@ -370,7 +370,7 @@ importers:
       workbox-window: ^6.5.3
     devDependencies:
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.11
+      vite-plugin-pwa: 0.11.11_workbox-window@6.5.4
       workbox-window: 6.5.4
 
   examples/with-vitest:
@@ -2061,7 +2061,7 @@ importers:
       astro: link:../../..
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8
+      tailwindcss: 3.1.8_postcss@8.4.16
 
   packages/astro/test/fixtures/type-imports:
     specifiers:
@@ -9757,7 +9757,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001383
-      electron-to-chromium: 1.4.231
+      electron-to-chromium: 1.4.232
       node-releases: 2.0.6
       update-browserslist-db: 1.0.5_browserslist@4.21.3
 
@@ -10569,8 +10569,8 @@ packages:
       jake: 10.8.5
     dev: true
 
-  /electron-to-chromium/1.4.231:
-    resolution: {integrity: sha512-E8WsUC60chToZUfxvVUXBb1U/mR/Df3GFX+mO3edtQnRTUt6L2XgpqBVWcGD/xrzQdINL1g/CEBPPn0YJ86Y6Q==}
+  /electron-to-chromium/1.4.232:
+    resolution: {integrity: sha512-nd+FW8xHjM+PxNWG44nKnwHaBDdVpJUZuI2sS2JJPt/QpdombnmoCRWEEQNnzaktdIQhsNWdD+dlqxwO8Bn99g==}
 
   /emmet/2.3.6:
     resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
@@ -15622,12 +15622,6 @@ packages:
     dependencies:
       csstype: 3.1.0
 
-  /solid-js/1.5.1:
-    resolution: {integrity: sha512-Y6aKystIxnrB0quV5nhqNuJV+l2Fk3/PQy1mMya/bzxlGiMHAym7v1NaqEgqDIvctbkxOi5dBj0ER/ewrH060g==}
-    dependencies:
-      csstype: 3.1.0
-    dev: true
-
   /sorcery/0.10.0:
     resolution: {integrity: sha512-R5ocFmKZQFfSTstfOtHjJuAwbpGyf9qjQa1egyhvXSbM7emjrtLXtGdZsDJDABC85YBfVvrOiGWKSYXPKdvP1g==}
     hasBin: true
@@ -16771,10 +16765,11 @@ packages:
       magic-string: 0.26.2
     dev: true
 
-  /vite-plugin-pwa/0.11.11:
+  /vite-plugin-pwa/0.11.11_workbox-window@6.5.4:
     resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
     peerDependencies:
       vite: ^2.0.0
+      workbox-window: ^6.4.0
     peerDependenciesMeta:
       vite:
         optional: true
@@ -17044,7 +17039,7 @@ packages:
   /wide-align/1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
     dependencies:
-      string-width: 4.2.3
+      string-width: 1.0.2
     dev: false
 
   /widest-line/4.0.1:
