@@ -35,7 +35,7 @@ First, install the `@astrojs/alpinejs` package using your package manager. If yo
 npm install @astrojs/alpinejs
 ```
 
-Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to do a manual install of said peer dependencies to the project and add the `alpinejs` integration to your `astro.config.*` file.
+Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to manually install Alpine.js yourself:
 
 ```sh
 npm install alpinejs @types/alpinejs
