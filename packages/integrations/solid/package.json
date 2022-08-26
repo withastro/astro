@@ -37,7 +37,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.4.3"
+    "solid-js": "^1.5.1"
   },
   "peerDependencies": {
     "solid-js": "^1.4.3"
