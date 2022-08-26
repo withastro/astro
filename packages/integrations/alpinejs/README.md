@@ -25,7 +25,7 @@ yarn astro add alpinejs
 pnpm astro add alpinejs
 ```
 
-Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
+Finally, in the terminal window running Astro, press `CTRL+C` and then type `npm run astro dev` to restart the dev server. 
 
 ### Manual Install
 
@@ -35,7 +35,7 @@ First, install the `@astrojs/alpinejs` package using your package manager. If yo
 npm install @astrojs/alpinejs
 ```
 
-Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to install Alpine.js yourself:
+Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to manually install Alpine.js yourself:
 
 ```sh
 npm install alpinejs @types/alpinejs
@@ -43,9 +43,8 @@ npm install alpinejs @types/alpinejs
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
-__`astro.config.mjs`__
 
-```js
+```js title="astro.config.mjs" ins={2} "alpine()"
 import { defineConfig } from 'astro/config';
 import alpine from '@astrojs/alpinejs';
 
@@ -59,7 +58,7 @@ Finally, restart the dev server.
 
 ## Usage
 
-Once the integration is installed, you can use [Alpine.js](https://alpinejs.dev/) directivers and syntax inside any Astro component. The Alpine.js script is automatically added and enabled on every page of your website.
+Once the integration is installed, you can use [Alpine.js](https://alpinejs.dev/) directives and syntax inside any Astro component. The Alpine.js script is automatically added and enabled on every page of your website.
 
 Check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
@@ -69,7 +68,7 @@ The Apline.js integration does not give you control over how the script is loade
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
-```astro
+```astro title="src/pages/index.astro"
 <!-- Example: Load AlpineJS on a single page. -->
 <script>
   import Alpine from 'alpinejs';
