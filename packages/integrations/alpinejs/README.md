@@ -45,7 +45,7 @@ Then, apply this integration to your `astro.config.*` file using the `integratio
 
 __`astro.config.mjs`__
 
-```js
+```js title="astro.config.mjs" ins={2} "alpine()"
 import { defineConfig } from 'astro/config';
 import alpine from '@astrojs/alpinejs';
 
@@ -69,7 +69,7 @@ The Apline.js integration does not give you control over how the script is loade
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
-```astro
+```astro title="src/pages/index.astro"
 <!-- Example: Load AlpineJS on a single page. -->
 <script>
   import Alpine from 'alpinejs';
