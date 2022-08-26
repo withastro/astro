@@ -98,12 +98,28 @@ function getRehypePlugins(
 	return rehypePlugins;
 }
 
+// TODO: remove for 1.0
+function handleExtendsNotSupported(pluginConfig: any) {
+	if (
+		typeof pluginConfig === 'object' &&
+		pluginConfig !== null &&
+		(pluginConfig as any).hasOwnProperty('extends')
+	) {
+		throw new Error(
+			`[MDX] The "extends" plugin option is no longer supported! Astro now extends your project's \`markdown\` plugin configuration by default. To customize this behavior, see the \`extendPlugins\` option instead: https://docs.astro.build/en/guides/integrations-guide/mdx/#extendplugins`
+		);
+	}
+}
+
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
+
+				handleExtendsNotSupported(mdxOptions.remarkPlugins);
+				handleExtendsNotSupported(mdxOptions.rehypePlugins);
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
