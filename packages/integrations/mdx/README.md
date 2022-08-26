@@ -393,7 +393,7 @@ export default {
 
 If you don't want to extend any plugins, set `extendPlugins` to `false`:
 
-```js
+```js "extendPlugins: false"
 // astro.config.mjs
 import remarkToc from 'remark-toc';
 
