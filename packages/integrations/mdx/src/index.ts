@@ -1,4 +1,5 @@
 import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
+import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
@@ -13,18 +14,14 @@ import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { getFileInfo, parseFrontmatter } from './utils.js';
 
-type WithExtends<T> = T | { extends: T };
-
 type MdxOptions = {
-	remarkPlugins?: WithExtends<MdxRollupPluginOptions['remarkPlugins']>;
-	rehypePlugins?: WithExtends<MdxRollupPluginOptions['rehypePlugins']>;
+	remarkPlugins?: PluggableList;
+	rehypePlugins?: PluggableList;
+	extendPlugins?: 'markdown' | 'defaults' | false;
 };
 
-const DEFAULT_REMARK_PLUGINS: MdxRollupPluginOptions['remarkPlugins'] = [
-	remarkGfm,
-	remarkSmartypants,
-];
-const DEFAULT_REHYPE_PLUGINS: MdxRollupPluginOptions['rehypePlugins'] = [];
+const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
+const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
 
 const RAW_CONTENT_ERROR =
 	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
@@ -32,27 +29,36 @@ const RAW_CONTENT_ERROR =
 const COMPILED_CONTENT_ERROR =
 	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
 
-function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
-	if (Array.isArray(config)) return config;
-
-	return [...defaults, ...(config?.extends ?? [])];
-}
-
 async function getRemarkPlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins = [
-		// Initialize vfile.data.astroExports before all plugins are run
+	let remarkPlugins: PluggableList = [
+		// Set "vfile.data.astro" for plugins to inject frontmatter
 		remarkInitializeAstroData,
-		...handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
 	];
+	switch (mdxOptions.extendPlugins) {
+		case false:
+			break;
+		case 'defaults':
+			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
+			break;
+		default:
+			remarkPlugins = [
+				...remarkPlugins,
+				...(config.markdown.extendDefaultPlugins ? DEFAULT_REMARK_PLUGINS : []),
+				...(config.markdown.remarkPlugins ?? []),
+			];
+			break;
+	}
 	if (config.markdown.syntaxHighlight === 'shiki') {
 		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
 	}
+
+	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
 	return remarkPlugins;
 }
 
@@ -60,14 +66,28 @@ function getRehypePlugins(
 	mdxOptions: MdxOptions,
 	config: AstroConfig
 ): MdxRollupPluginOptions['rehypePlugins'] {
-	let rehypePlugins = [
+	let rehypePlugins: PluggableList = [
+		// getHeadings() is guaranteed by TS, so we can't allow user to override
+		rehypeCollectHeadings,
+		// rehypeRaw allows custom syntax highlighters to work without added config
 		[rehypeRaw, { passThrough: nodeTypes }] as any,
-		...handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS),
 	];
+	switch (mdxOptions.extendPlugins) {
+		case false:
+			break;
+		case 'defaults':
+			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
+			break;
+		default:
+			rehypePlugins = [
+				...rehypePlugins,
+				...(config.markdown.extendDefaultPlugins ? DEFAULT_REHYPE_PLUGINS : []),
+				...(config.markdown.rehypePlugins ?? []),
+			];
+			break;
+	}
 
-	// getHeadings() is guaranteed by TS, so we can't allow user to override
-	rehypePlugins.unshift(rehypeCollectHeadings);
-
+	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
 	return rehypePlugins;
 }
 
