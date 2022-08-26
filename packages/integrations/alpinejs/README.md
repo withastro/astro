@@ -55,7 +55,7 @@ export default defineConfig({
 });
 ```
 
-Once complete, be sure to restart the dev server by pressing `CTRL+C` and then typing `npm run astro dev` in the terminal window that's running your Astro project.
+Finally, restart the dev server.
 
 ## Usage
 
