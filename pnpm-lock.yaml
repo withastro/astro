@@ -163,7 +163,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -208,7 +208,7 @@ importers:
       astro: ^1.1.0-next.0
       solid-js: ^1.4.3
     dependencies:
-      solid-js: 1.4.8
+      solid-js: 1.5.1
     devDependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
       astro: link:../../packages/astro
@@ -608,7 +608,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -710,7 +710,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -751,7 +751,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -780,7 +780,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -809,7 +809,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -838,7 +838,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -867,7 +867,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -896,7 +896,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -973,7 +973,7 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
     devDependencies:
-      solid-js: 1.4.8
+      solid-js: 1.5.1
 
   packages/astro/e2e/fixtures/solid-recurse:
     specifiers:
@@ -984,7 +984,7 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
     devDependencies:
-      solid-js: 1.4.8
+      solid-js: 1.5.1
 
   packages/astro/e2e/fixtures/svelte-component:
     specifiers:
@@ -1630,7 +1630,7 @@ importers:
       preact: 10.10.6
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      solid-js: 1.4.8
+      solid-js: 1.5.1
       svelte: 3.49.0
       vue: 3.2.37
     devDependencies:
@@ -2563,11 +2563,11 @@ importers:
       babel-preset-solid: ^1.4.2
       solid-js: ^1.4.3
     dependencies:
-      babel-preset-solid: 1.4.8
+      babel-preset-solid: 1.5.1
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      solid-js: 1.4.8
+      solid-js: 1.5.1
 
   packages/integrations/svelte:
     specifiers:
@@ -5615,8 +5615,8 @@ packages:
       '@octokit/openapi-types': 13.4.0
     dev: true
 
-  /@pkgr/utils/2.3.0:
-    resolution: {integrity: sha512-7dIJ9CRVzBnqyEl7diUHPUFJf/oty2SeoVzcMocc5PeOUDK9KGzvgIBjGRRzzlRDaOjh3ADwH0WeibQvi3ls2Q==}
+  /@pkgr/utils/2.3.1:
+    resolution: {integrity: sha512-wfzX8kc1PMyUILA+1Z/EqoE4UCXGy0iRGMhPwdfae1+f0OXlLqCk+By+aMzgJBzR9AzS4CDizioG6Ss1gvAFJw==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dependencies:
       cross-spawn: 7.0.3
@@ -9573,8 +9573,8 @@ packages:
       object.assign: 4.1.4
     dev: true
 
-  /babel-plugin-jsx-dom-expressions/0.33.14:
-    resolution: {integrity: sha512-91T8uEz6Wb42bUm5vxRBawY05fBHiwUxah/xWBimuWpH3nf7E0KJ0Wm/s8R7lxRIZzwGCILv1IBlUCqA50WOVw==}
+  /babel-plugin-jsx-dom-expressions/0.34.0:
+    resolution: {integrity: sha512-rYTucwtdVbyEPUXpyCHZ8XNYzYCeXRgMaRD316ameiSGL2e+V/bxbBGX+sz1fp/9Z5ZEgC6fg2K8QxIiR/aQlw==}
     peerDependencies:
       '@babel/core': ^7.0.0
     peerDependenciesMeta:
@@ -9643,15 +9643,15 @@ packages:
       - supports-color
     dev: true
 
-  /babel-preset-solid/1.4.8:
-    resolution: {integrity: sha512-Qv1yoE7yIux68egUsUUEV26t7B0KLNyXKz1MTk89GJDc6mt+2s7+lDVr4tXa29PTZ/hXDTu2uLbEN/1OtmFFBg==}
+  /babel-preset-solid/1.5.1:
+    resolution: {integrity: sha512-4etZheCtQpHp0ns25GPC8MEHkR1W/b9o6wdNaDowhifkQa4fcXfDsZwrj/WKCspYAu2t75fdLDoRyRllYOCG7A==}
     peerDependencies:
       '@babel/core': ^7.0.0
     peerDependenciesMeta:
       '@babel/core':
         optional: true
     dependencies:
-      babel-plugin-jsx-dom-expressions: 0.33.14
+      babel-plugin-jsx-dom-expressions: 0.34.0
     dev: false
 
   /bail/2.0.2:
@@ -9757,7 +9757,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001383
-      electron-to-chromium: 1.4.230
+      electron-to-chromium: 1.4.231
       node-releases: 2.0.6
       update-browserslist-db: 1.0.5_browserslist@4.21.3
 
@@ -10569,8 +10569,8 @@ packages:
       jake: 10.8.5
     dev: true
 
-  /electron-to-chromium/1.4.230:
-    resolution: {integrity: sha512-3pwjAK0qHSDN9+YAF4fJknsSruP7mpjdWzUSruIJD/JCH77pEh0SorEyb3xVaKkfwk2tzjOt2D8scJ0KAdfXLA==}
+  /electron-to-chromium/1.4.231:
+    resolution: {integrity: sha512-E8WsUC60chToZUfxvVUXBb1U/mR/Df3GFX+mO3edtQnRTUt6L2XgpqBVWcGD/xrzQdINL1g/CEBPPn0YJ86Y6Q==}
 
   /emmet/2.3.6:
     resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
@@ -12979,8 +12979,8 @@ packages:
       - supports-color
     dev: false
 
-  /mdast-util-to-hast/12.2.0:
-    resolution: {integrity: sha512-YDwT5KhGzLgPpSnQhAlK1+WpCW4gsPmNNAxUNMkMTDhxQyPp2eX86WOelnKnLKEvSpfxqJbPbInHFkefXZBhEA==}
+  /mdast-util-to-hast/12.2.1:
+    resolution: {integrity: sha512-dyindR2P7qOqXO1hQirZeGtVbiX7xlNQbw7gGaAwN4A1dh4+X8xU/JyYmRoyB8Fu1uPXzp7mlL5QwW7k+knvgA==}
     dependencies:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
@@ -15136,7 +15136,7 @@ packages:
     dependencies:
       '@types/hast': 2.3.4
       '@types/mdast': 3.0.10
-      mdast-util-to-hast: 12.2.0
+      mdast-util-to-hast: 12.2.1
       unified: 10.1.2
     dev: false
 
@@ -15150,7 +15150,7 @@ packages:
       shiki: 0.10.1
       shiki-twoslash: 3.1.0
       tslib: 2.1.0
-      typescript: 4.7.4
+      typescript: 4.8.2
       unist-util-visit: 2.0.3
     transitivePeerDependencies:
       - supports-color
@@ -15495,7 +15495,7 @@ packages:
       '@typescript/twoslash': 3.1.0
       '@typescript/vfs': 1.3.4
       shiki: 0.10.1
-      typescript: 4.7.4
+      typescript: 4.8.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -15617,8 +15617,10 @@ packages:
       smart-buffer: 4.2.0
     dev: true
 
-  /solid-js/1.4.8:
-    resolution: {integrity: sha512-XErZdnnYYXF7OwGSUAPcua2y5/ELB/c53zFCpWiEGqxTNoH1iQghzI8EsHJXk06sNn+Z/TGhb8bPDNNGSgimag==}
+  /solid-js/1.5.1:
+    resolution: {integrity: sha512-Y6aKystIxnrB0quV5nhqNuJV+l2Fk3/PQy1mMya/bzxlGiMHAym7v1NaqEgqDIvctbkxOi5dBj0ER/ewrH060g==}
+    dependencies:
+      csstype: 3.1.0
 
   /sorcery/0.10.0:
     resolution: {integrity: sha512-R5ocFmKZQFfSTstfOtHjJuAwbpGyf9qjQa1egyhvXSbM7emjrtLXtGdZsDJDABC85YBfVvrOiGWKSYXPKdvP1g==}
@@ -15998,7 +16000,7 @@ packages:
     resolution: {integrity: sha512-jNroMv7Juy+mJ/CHW5H6TzsLWpa1qck6sCHbkv8YTur+irSq2PjbvmGnm2gy14BUQ6jF33vyR4DPssHqmqsDQw==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dependencies:
-      '@pkgr/utils': 2.3.0
+      '@pkgr/utils': 2.3.1
       tslib: 2.4.0
     dev: true
 
@@ -16447,6 +16449,12 @@ packages:
 
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.8.2:
+    resolution: {integrity: sha512-C0I1UsrrDHo2fYI5oaCGbSejwX4ch+9Y5jTQELvovfmFkK3HHSZJB8MSJcWLmCUBzQBchCrZ9rMRV6GuNrvGtw==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
