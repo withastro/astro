@@ -118,6 +118,24 @@ describe('Astro Markdown', () => {
 		expect(headingSlugs).to.contain('section-2');
 	});
 
+	it('passes "file" and "url" to layout', async () => {
+		const html = await fixture.readFile('/with-layout/index.html');
+		const $ = cheerio.load(html);
+
+		const frontmatterFile = $('[data-frontmatter-file]')?.text();
+		const frontmatterUrl = $('[data-frontmatter-url]')?.text();
+		const file = $('[data-file]')?.text();
+		const url = $('[data-url]')?.text();
+
+		expect(frontmatterFile?.endsWith('with-layout.md')).to.equal(
+			true,
+			'"file" prop does not end with correct path or is undefined'
+		);
+		expect(frontmatterUrl).to.equal('/with-layout');
+		expect(file).to.equal(frontmatterFile);
+		expect(url).to.equal(frontmatterUrl);
+	});
+
 	describe('Vite env vars (#3412)', () => {
 		it('Allows referencing import.meta.env in content', async () => {
 			const html = await fixture.readFile('/vite-env-vars/index.html');
