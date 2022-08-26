@@ -82,6 +82,12 @@ Or, alternatively if your project is using the types through a `tsconfig.json`
 
 ## Usage
 
+```astro title="src/pages/index.astro"
+---
+import { Image, Picture } from '@astrojs/image/components';
+---
+```
+
 The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
 ### `<Image />`
