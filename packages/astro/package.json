@@ -31,6 +31,7 @@
     "./env": "./env.d.ts",
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
+    "./import-meta": "./import-meta.d.ts",
     "./astro-jsx": "./astro-jsx.d.ts",
     "./tsconfigs/*.json": "./tsconfigs/*",
     "./tsconfigs/*": "./tsconfigs/*.json",
@@ -75,6 +76,7 @@
     "env.d.ts",
     "client.d.ts",
     "client-base.d.ts",
+    "import-meta.d.ts",
     "astro-jsx.d.ts",
     "README.md",
     "vendor"
