@@ -1,16 +1,8 @@
 name: Create a Snapshot Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      ref: 
-        description: 'The branch to create a snapshot release from.'
-        required: true
-        type: string
-      tag:
-        description: 'A one-word keyword that will be used to tag the release.'
-        required: true
-        type: string
+  issue_comment:
+    types: [created]
 
 defaults:
   run:
@@ -24,11 +16,10 @@ env:
 jobs:
   snapshot-release:
     name: Create a snapshot release of a pull request
-    if: ${{ github.repository_owner == 'withastro' }}
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!preview') }}
     runs-on: ubuntu-latest
     steps:
       - name: "Check if user has admin access (only admins can publish snapshot releases)."
-
         uses: "lannonbr/repo-permission-check-action@2.0.0"
         with:
           permission: "admin"
@@ -54,39 +45,42 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
+      - name: Extract the snapshot name from comment body
+        id: get-snapshot-name
+        uses: actions/github-script@v6
+        with:
+          script: return github.event.comment.body.split('!preview ')[1]
+          result-encoding: string
+
       - name: Bump Package Versions
-        run: npx changeset version --snapshot ${{ github.event.inputs.tag }}
+        id: changesets
+        run: npx changeset version --snapshot ${{ steps.get-snapshot-name.outputs.result }}
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Release
         id: publish
-        run: pnpm run release --tag next--${{ github.event.inputs.tag }}
+        run: pnpm run release --tag next--${{ steps.get-snapshot-name.outputs.result }}
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # TODO(fks): Post an comment to the relevant Pull Request.
-      # For this to work, we'll want to add a new event trigger
-      # to come from a PR comment creation. Something like:
-      #   "comment '!snapshot' in a PR to trigger a snapshot release!"
-      # 
-      # - name: Generate Notification
-      #   id: notification
-      #   run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
-      #
-      # - name: Pull Request Notification
-      #   uses: actions/github-script@v6
-      #   env:
-      #     ISSUE_NUMBER: ${{ github.event.inputs.issuenum }}
-      #     MESSAGE: ${{ steps.changesets.outputs.publish }}
-      #   with:
-      #     script: |
-      #       console.log(process.env);
-      #       github.rest.issues.createComment({
-      #         issue_number: process.env.ISSUE_NUMBER,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: '```\n' + process.env.MESSAGE + '\n```',
-      #       })
+      - name: Generate Notification
+        id: notification
+        run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
+      
+      - name: Pull Request Notification
+        uses: actions/github-script@v6
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          MESSAGE: ${{ steps.changesets.outputs.publish }}
+        with:
+          script: |
+            console.log(process.env);
+            github.rest.issues.createComment({
+              issue_number: process.env.ISSUE_NUMBER,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '```\n' + process.env.MESSAGE + '\n```',
+            })
