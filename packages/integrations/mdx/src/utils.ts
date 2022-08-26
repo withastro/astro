@@ -172,7 +172,7 @@ export function getRehypePlugins(
 	return rehypePlugins;
 }
 
-function ignoreStringPlugins(plugins: PluggableList) {
+function ignoreStringPlugins(plugins: any[]) {
 	let validPlugins: PluggableList = [];
 	let hasInvalidPlugin = false;
 	for (const plugin of plugins) {
