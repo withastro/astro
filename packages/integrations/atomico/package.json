@@ -1,0 +1,47 @@
+{
+  "name": "@astrojs/atomico",
+  "version": "1.0.0",
+  "description": "The official Alpine.js integration for Astro.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./setup.js",
+    "./client": "./client.js",
+    "./server": "./server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/atomico"
+  },
+  "keywords": [
+    "astro-integration",
+    "astro-component",
+    "performance",
+    "webcomponents",
+    "atomico",
+    "ssr",
+    "ssg"
+  ],
+  "author": "withastro",
+  "license": "ISC",
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "@atomico/vite": "latest",
+    "atomico": "latest",
+    "astro":"workspace:*"
+  },
+  "devDependencies": {
+    "astro": "workspace:*"
+  },
+  "peerDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "astro": "workspace:*",
+    "@atomico/vite": "latest",
+    "atomico": "latest"
+  }
+}
