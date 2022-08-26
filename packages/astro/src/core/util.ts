@@ -26,7 +26,7 @@ export function padMultilineString(source: string, n = 2) {
 	return lines.map((l) => ` `.repeat(n) + l).join(`\n`);
 }
 
-const STATUS_CODE_REGEXP = /^\/?[0-9]{3}$/;
+const REGEXP_404_OR_500_ROUTE = /(404)|(500)\/?$/;
 
 /**
  * Get the correct output filename for a route, based on your config.
@@ -37,14 +37,13 @@ export function getOutputFilename(astroConfig: AstroConfig, name: string, type: 
 	if (type === 'endpoint') {
 		return name;
 	}
-
 	if (name === '/' || name === '') {
 		return path.posix.join(name, 'index.html');
 	}
-	if (astroConfig.build.format === 'directory' && !STATUS_CODE_REGEXP.test(name)) {
-		return path.posix.join(name, 'index.html');
+	if (astroConfig.build.format === 'file' || REGEXP_404_OR_500_ROUTE.test(name)) {
+		return `${removeTrailingForwardSlash(name || 'index')}.html`;
 	}
-	return `${removeTrailingForwardSlash(name || 'index')}.html`;
+	return path.posix.join(name, 'index.html');
 }
 
 /** is a specifier an npm package? */
