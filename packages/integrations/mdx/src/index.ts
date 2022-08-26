@@ -17,6 +17,13 @@ import { getFileInfo, parseFrontmatter } from './utils.js';
 type MdxOptions = {
 	remarkPlugins?: PluggableList;
 	rehypePlugins?: PluggableList;
+	/**
+	 * Choose which remark and rehype plugins to inherit, if any.
+	 *
+	 * - "markdown" (default) - inherit your project’s markdown plugin config ([see Markdown docs](https://docs.astro.build/en/guides/markdown-content/#configuring-markdown))
+	 * - "defaults" - inherit Astro’s default plugins only ([see defaults](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins))
+	 * - false - do not inherit any plugins
+	 */
 	extendPlugins?: 'markdown' | 'defaults' | false;
 };
 
