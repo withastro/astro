@@ -22,10 +22,10 @@ export type MdxOptions = {
 	 * Choose which remark and rehype plugins to inherit, if any.
 	 *
 	 * - "markdown" (default) - inherit your project’s markdown plugin config ([see Markdown docs](https://docs.astro.build/en/guides/markdown-content/#configuring-markdown))
-	 * - "defaults" - inherit Astro’s default plugins only ([see defaults](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins))
+	 * - "astroDefaults" - inherit Astro’s default plugins only ([see defaults](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins))
 	 * - false - do not inherit any plugins
 	 */
-	extendPlugins?: 'markdown' | 'defaults' | false;
+	extendPlugins?: 'markdown' | 'astroDefaults' | false;
 };
 
 function appendForwardSlash(path: string) {
@@ -121,7 +121,7 @@ export async function getRemarkPlugins(
 	switch (mdxOptions.extendPlugins) {
 		case false:
 			break;
-		case 'defaults':
+		case 'astroDefaults':
 			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
 			break;
 		default:
@@ -156,7 +156,7 @@ export function getRehypePlugins(
 	switch (mdxOptions.extendPlugins) {
 		case false:
 			break;
-		case 'defaults':
+		case 'astroDefaults':
 			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
 			break;
 		default:

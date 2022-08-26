@@ -114,7 +114,7 @@ describe('MDX plugins', () => {
 		expect(selectTocLink(document)).to.not.be.null;
 	});
 
-	it('extends default plugins with extendPlugins: "defaults"', async () => {
+	it('extends default plugins with extendPlugins: "astroDefaults"', async () => {
 		const fixture = await buildFixture({
 			markdown: {
 				// should NOT be applied to MDX
@@ -124,7 +124,7 @@ describe('MDX plugins', () => {
 				mdx({
 					remarkPlugins: [remarkExamplePlugin],
 					rehypePlugins: [rehypeExamplePlugin],
-					extendPlugins: 'defaults',
+					extendPlugins: 'astroDefaults',
 				}),
 			],
 		});

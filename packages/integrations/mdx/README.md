@@ -342,7 +342,7 @@ export default {
 
 ### extendPlugins
 
-**Type:** `'markdown' | 'defaults' | false`
+**Type:** `'markdown' | 'astroDefaults' | false`
 
 **Default:** `'markdown'`
 
@@ -369,11 +369,11 @@ export default {
 }
 ```
 
-#### `defaults`
+#### `astroDefaults`
 
 You may _only_ want to extend [Astro's default plugins](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins) without inheriting your Markdown config. This example will apply the default [GitHub-Flavored Markdown](https://github.com/remarkjs/remark-gfm) and [Smartypants](https://github.com/silvenon/remark-smartypants) plugins alongside [`remark-toc`](https://github.com/remarkjs/remark-toc):
 
-```js "extendPlugins: 'defaults'"
+```js "extendPlugins: 'astroDefaults'"
 // astro.config.mjs
 import remarkToc from 'remark-toc';
 
@@ -384,7 +384,7 @@ export default {
   integrations: [mdx({
     remarkPlugins: [remarkToc],
     // Astro defaults applied
-    extendPlugins: 'defaults',
+    extendPlugins: 'astroDefaults',
   })],
 }
 ```
