@@ -1,115 +1,24 @@
-import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
-import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
+import { compile as mdxCompile } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm';
-import remarkSmartypants from 'remark-smartypants';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
-import { rehypeApplyFrontmatterExport, remarkInitializeAstroData } from './astro-data-utils.js';
-import rehypeCollectHeadings from './rehype-collect-headings.js';
-import remarkPrism from './remark-prism.js';
-import remarkShiki from './remark-shiki.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
-
-type MdxOptions = {
-	remarkPlugins?: PluggableList;
-	rehypePlugins?: PluggableList;
-	/**
-	 * Choose which remark and rehype plugins to inherit, if any.
-	 *
-	 * - "markdown" (default) - inherit your project’s markdown plugin config ([see Markdown docs](https://docs.astro.build/en/guides/markdown-content/#configuring-markdown))
-	 * - "defaults" - inherit Astro’s default plugins only ([see defaults](https://docs.astro.build/en/reference/configuration-reference/#markdownextenddefaultplugins))
-	 * - false - do not inherit any plugins
-	 */
-	extendPlugins?: 'markdown' | 'defaults' | false;
-};
-
-const DEFAULT_REMARK_PLUGINS: PluggableList = [remarkGfm, remarkSmartypants];
-const DEFAULT_REHYPE_PLUGINS: PluggableList = [];
+import { rehypeApplyFrontmatterExport } from './astro-data-utils.js';
+import {
+	getFileInfo,
+	parseFrontmatter,
+	handleExtendsNotSupported,
+	getRehypePlugins,
+	getRemarkPlugins,
+} from './utils.js';
+import type { MdxOptions } from './utils.js';
 
 const RAW_CONTENT_ERROR =
 	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
 
 const COMPILED_CONTENT_ERROR =
 	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
-
-async function getRemarkPlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins: PluggableList = [
-		// Set "vfile.data.astro" for plugins to inject frontmatter
-		remarkInitializeAstroData,
-	];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'defaults':
-			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
-			break;
-		default:
-			remarkPlugins = [
-				...remarkPlugins,
-				...(config.markdown.extendDefaultPlugins ? DEFAULT_REMARK_PLUGINS : []),
-				...(config.markdown.remarkPlugins ?? []),
-			];
-			break;
-	}
-	if (config.markdown.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
-	}
-	if (config.markdown.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
-	}
-
-	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
-	return remarkPlugins;
-}
-
-function getRehypePlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): MdxRollupPluginOptions['rehypePlugins'] {
-	let rehypePlugins: PluggableList = [
-		// getHeadings() is guaranteed by TS, so we can't allow user to override
-		rehypeCollectHeadings,
-		// rehypeRaw allows custom syntax highlighters to work without added config
-		[rehypeRaw, { passThrough: nodeTypes }] as any,
-	];
-	switch (mdxOptions.extendPlugins) {
-		case false:
-			break;
-		case 'defaults':
-			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
-			break;
-		default:
-			rehypePlugins = [
-				...rehypePlugins,
-				...(config.markdown.extendDefaultPlugins ? DEFAULT_REHYPE_PLUGINS : []),
-				...(config.markdown.rehypePlugins ?? []),
-			];
-			break;
-	}
-
-	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
-	return rehypePlugins;
-}
-
-// TODO: remove for 1.0
-function handleExtendsNotSupported(pluginConfig: any) {
-	if (
-		typeof pluginConfig === 'object' &&
-		pluginConfig !== null &&
-		(pluginConfig as any).hasOwnProperty('extends')
-	) {
-		throw new Error(
-			`[MDX] The "extends" plugin option is no longer supported! Astro now extends your project's \`markdown\` plugin configuration by default. To customize this behavior, see the \`extendPlugins\` option instead: https://docs.astro.build/en/guides/integrations-guide/mdx/#extendplugins`
-		);
-	}
-}
 
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 	return {

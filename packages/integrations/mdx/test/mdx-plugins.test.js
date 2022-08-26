@@ -56,6 +56,22 @@ describe('MDX plugins', () => {
 		expect(selectRehypeExample(document)).to.not.be.null;
 	});
 
+	it('ignores string-based plugins in markdown config', async () => {
+		const fixture = await buildFixture({
+			markdown: {
+				remarkPlugins: [['remark-toc']],
+			},
+			integrations: [
+				mdx(),
+			],
+		});
+
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		expect(selectTocLink(document)).to.be.null;
+	});
+
 	it('respects "extendDefaultPlugins" when extending markdown', async () => {
 		const fixture = await buildFixture({
 			markdown: {
