@@ -1,6 +1,6 @@
 # @astrojs/alpinejs ⚛️
 
-This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project. _"A rugged, minimal tool for composing behavior directly in your markup."_
+This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project so that you can use Alpine.js anywhere on your page.
 
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
@@ -14,7 +14,7 @@ This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinej
 
 ### Quick Install
 
-The `astro add` command-line tool will automate the installation. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
+The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
 ```sh
 # Using NPM
