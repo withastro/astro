@@ -25,7 +25,7 @@ yarn astro add alpinejs
 pnpm astro add alpinejs
 ```
 
-Once complete, be sure to restart the dev server by pressing `CTRL+C` and then typing `npm run astro dev` in the terminal window that's running your Astro project.
+Finally, in the terminal window running Astro, press `CTRL+C` and then type `npm run astro dev` to restart the dev server. 
 
 ### Manual Install
 
