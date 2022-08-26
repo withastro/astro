@@ -5,8 +5,8 @@ import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import remarkToc from 'remark-toc';
 
-const FIXTURE_ROOT = new URL('./fixtures/mdx-remark-plugins/', import.meta.url);
-const FILE = '/with-toc/index.html';
+const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
+const FILE = '/with-plugins/index.html';
 
 describe('MDX plugins', () => {
 	it('supports custom remark plugins - TOC', async () => {
