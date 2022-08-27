@@ -1,0 +1,32 @@
+import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
+import testAdapter from '../../../astro/test/test-adapter.js';
+
+let fixture;
+
+const errorMessage =
+	'The <Picture> component requires you provide alt text. If this picture does not require an accessible label, set alt="".';
+
+describe('SSR picture without alt text', function () {
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/no-alt-text-picture/',
+			adapter: testAdapter({ streaming: false }),
+			output: 'server',
+		});
+		await fixture.build();
+	});
+
+	it('throws during build', async () => {
+		try {
+			const app = await fixture.loadTestAdapterApp();
+			const request = new Request('http://example.com/');
+			const response = await app.render(request);
+			await response.text();
+		} catch (err) {
+			expect(err.message).to.equal(errorMessage);
+			return;
+		}
+		expect.fail(0, 1, 'Exception not thrown');
+	});
+});

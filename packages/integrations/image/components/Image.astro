@@ -8,10 +8,12 @@ interface LocalImageProps
 	extends Omit<TransformOptions, 'src'>,
 		Omit<ImgHTMLAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	alt: string;
 }
 
 interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
 	src: string;
+	alt: string;
 	format: OutputFormat;
 	width: number;
 	height: number;
@@ -20,6 +22,10 @@ interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttrib
 export type Props = LocalImageProps | RemoteImageProps;
 
 const { loading = 'lazy', decoding = 'async', ...props } = Astro.props as Props;
+
+if (props.alt === undefined || props.alt === null) {
+	throw new Error('The <Image> component requires you provide alt text. If this image does not require an accessible label, set alt="".')
+}
 
 const attrs = await getImage(props);
 ---

@@ -8,7 +8,7 @@ interface LocalImageProps
 		Omit<TransformOptions, 'src'>,
 		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
-	alt?: string;
+	alt: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	formats?: OutputFormat[];
@@ -19,7 +19,7 @@ interface RemoteImageProps
 		TransformOptions,
 		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: string;
-	alt?: string;
+	alt: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
 	aspectRatio: TransformOptions['aspectRatio'];
@@ -39,6 +39,10 @@ const {
 	decoding = 'async',
 	...attrs
 } = Astro.props as Props;
+
+if (alt === undefined || alt === null) {
+	throw new Error('The <Picture> component requires you provide alt text. If this picture does not require an accessible label, set alt="".')
+}
 
 const { image, sources } = await getPicture({ src, widths, formats, aspectRatio });
 ---
