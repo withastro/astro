@@ -132,6 +132,18 @@ importers:
       alpinejs: 3.10.3
       astro: link:../../packages/astro
 
+  examples/framework-jquery:
+    specifiers:
+      '@astrojs/jquery': ^0.0.1
+      '@types/jquery': ^3.5.14
+      astro: ^1.1.1
+      jquery: ^3.6.1
+    devDependencies:
+      '@astrojs/jquery': link:../../packages/integrations/jquery
+      '@types/jquery': 3.5.14
+      astro: link:../../packages/astro
+      jquery: 3.6.1
+
   examples/framework-lit:
     specifiers:
       '@astrojs/lit': ^1.0.0
@@ -2278,6 +2290,14 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+
+  packages/integrations/jquery:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
 
   packages/integrations/lit:
     specifiers:
@@ -8695,6 +8715,12 @@ packages:
       ci-info: 3.3.2
     dev: true
 
+  /@types/jquery/3.5.14:
+    resolution: {integrity: sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==}
+    dependencies:
+      '@types/sizzle': 2.3.3
+    dev: true
+
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
@@ -8869,6 +8895,10 @@ packages:
     resolution: {integrity: sha512-EhO29617AIBqxoVtpd1qdBanWpspk/kD2B6qTFRJ31Q23Rdf+DNU1xlHSwtqvwq1vgOqBwq1i38SX+HGCymIQg==}
     dependencies:
       '@types/node': 18.7.13
+    dev: true
+
+  /@types/sizzle/2.3.3:
+    resolution: {integrity: sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==}
     dev: true
 
   /@types/stack-trace/0.0.29:
@@ -12502,6 +12532,10 @@ packages:
   /jiti/1.14.0:
     resolution: {integrity: sha512-4IwstlaKQc9vCTC+qUXLM1hajy2ImiL9KnLvVYiaHOtS/v3wRjhLlGl121AmgDgx/O43uKmxownJghS5XMya2A==}
     hasBin: true
+    dev: true
+
+  /jquery/3.6.1:
+    resolution: {integrity: sha512-opJeO4nCucVnsjiXOE+/PcCgYw9Gwpvs/a6B1LL/lQhwWwpbVEVYDZ1FokFr8PRc7ghYlrFPuyHuiiDNTQxmcw==}
     dev: true
 
   /js-tokens/4.0.0:
