@@ -55,17 +55,15 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	runHookServerSetup({ config, server: viteServer, logging: options.logging });
 	await viteServer.listen(port);
 
-	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
 	const site = config.site ? new URL(config.base, config.site) : undefined;
 	info(
 		options.logging,
 		null,
-		msg.devStart({
+		msg.serverStart({
 			startupTime: performance.now() - devStart,
-			config,
-			devServerAddressInfo,
+			resolvedUrls: viteServer.resolvedUrls || { local: [], network: [] },
+			host: config.server.host,
 			site,
-			https: !!viteConfig.server?.https,
 		})
 	);
 
@@ -77,6 +75,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
+	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
 	await runHookServerStart({ config, address: devServerAddressInfo, logging: options.logging });
 
 	return {
