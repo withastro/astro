@@ -1,5 +1,5 @@
 {
-  "name": "@example/framework-alpine",
+  "name": "@example/framework-jquery",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +10,9 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/alpinejs": "^0.1.1",
-    "@types/alpinejs": "^3.7.0",
-    "alpinejs": "^3.10.2",
+    "@astrojs/jquery": "^0.0.1",
+    "@types/jquery": "^3.5.14",
+    "jquery": "^3.6.1",
     "astro": "^1.1.1"
   },
   "dependencies": {}

@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
-import alpine from '@astrojs/alpinejs';
+import jquery from '@astrojs/jquery';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [alpine()],
+	integrations: [jquery()],
 });

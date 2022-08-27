@@ -1,6 +1,6 @@
-# @astrojs/alpinejs
+# @astrojs/jquery
 
-This **[Astro integration][astro-integration]** adds [Alpine.js](https://alpinejs.dev/) to your project so that you can use Alpine.js anywhere on your page.
+This **[Astro integration][astro-integration]** adds [jQuery](https://jquery.com/) to your project so that you can use jQuery anywhere on your page.
 
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
@@ -18,39 +18,39 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npm run astro add alpinejs
+npm run astro add jquery
 # Using Yarn
-yarn astro add alpinejs
+yarn astro add jquery
 # Using PNPM
-pnpm astro add alpinejs
+pnpm astro add jquery
 ```
 
 Finally, in the terminal window running Astro, press `CTRL+C` and then type `npm run astro dev` to restart the dev server. 
 
 ### Manual Install
 
-First, install the `@astrojs/alpinejs` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
+First, install the `@astrojs/jquery` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 
 ```sh
-npm install @astrojs/alpinejs
+npm install @astrojs/jquery
 ```
 
-Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'alpinejs'" (or similar) warning when you start up Astro, you'll need to manually install Alpine.js yourself:
+Most package managers will install associated peer dependencies as well. However, if you see a "Cannot find package 'jquery'" (or similar) warning when you start up Astro, you'll need to manually install jQuery yourself:
 
 ```sh
-npm install alpinejs @types/alpinejs
+npm install jquery @types/jquery
 ```
 
 Then, apply this integration to your `astro.config.*` file using the `integrations` property:
 
 
-```js title="astro.config.mjs" ins={2} "alpine()"
+```js title="astro.config.mjs" ins={2} "jquery()"
 import { defineConfig } from 'astro/config';
-import alpine from '@astrojs/alpinejs';
+import jquery from '@astrojs/jquery';
 
 export default defineConfig({
   // ...
-  integrations: [alpine()],
+  integrations: [jquery()],
 });
 ```
 
@@ -58,36 +58,21 @@ Finally, restart the dev server.
 
 ## Usage
 
-Once the integration is installed, you can use [Alpine.js](https://alpinejs.dev/) directives and syntax inside any Astro component. The Alpine.js script is automatically added and enabled on every page of your website.
+Once the integration is installed, you can use [jQuery](https://jquery/) module in any script as `$` inside any Astro component. The jQuery script is automatically added and enabled on every page of your website.
 
 Check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 ## Limitations
 
-The Apline.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider [installing and using Alpine.js manually](https://alpinejs.dev/essentials/installation). Astro supports all officially documented Alpine.js manual setup instructions, using `<script>` tags inside of an Astro component.
-
-**It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
-
-```astro title="src/pages/index.astro"
-<!-- Example: Load AlpineJS on a single page. -->
-<script>
-  import Alpine from 'alpinejs';
-
-  // Optional: Extend Alpine.js
-  // Alpine.directive('foo', ...)
-
-  window.Alpine = Alpine;
-  Alpine.start();
-</script>
-```
+The Apline.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider installing and using jquery manually.
 
 ## Configuration
 
-The Apline.js integration does not support any custom configuration at this time.
+The jQuery integration does not support any custom configuration at this time.
 
 ## Examples
 
-- The [Astro Alpine.js example](https://github.com/withastro/astro/tree/latest/examples/framework-alpine) shows how to use Alpine.js in an Astro project.
+- The [Astro jQuery example](https://github.com/withastro/astro/tree/latest/examples/framework-jquery) shows how to use jQuery in an Astro project.
 
 ## Troubleshooting
 

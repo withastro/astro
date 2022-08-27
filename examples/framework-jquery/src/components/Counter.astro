@@ -9,11 +9,24 @@ export interface Props {
 const { initialCount = 0 } = Astro.props;
 ---
 
-<div class="counter" x-data={`{ count: ${initialCount} }`}>
-	<button x-on:click="count--">-</button>
-	<pre x-text="count">{ initialCount }</pre>
-	<button x-on:click="count++">+</button>
+<div class="counter">
+	<button>-</button>
+	<pre>{ initialCount }</pre>
+	<button>+</button>
 </div>
+
+<script data-count={initialCount}>
+	{
+		let count = $(document.currentScript).data('count');
+		const div = $(document.currentScript).prev();
+		const pre = div.find('pre');
+		div.find('button').on('click', function () {
+			const inc = $(this).text() === '+' ? 1 : -1;
+			count += inc;
+			pre.text(count);
+		});
+	}
+</script>
 
 <div class="counter-message">
 	<slot />

@@ -1,10 +1,10 @@
-# Astro + AlpineJS Example
+# Astro + jQuery Example
 
 ```
-npm init astro -- --template framework-alpine
+npm init astro -- --template framework-jquery
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-alpine)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-jquery)
 
-This example showcases Astro working with [AlpineJS](https://alpinejs.dev/).
+This example showcases Astro working with [jQuery](https://jquery.com/).
 

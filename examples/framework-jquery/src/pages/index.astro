@@ -25,12 +25,12 @@ import Counter from '../components/Counter.astro';
 	</head>
 	<body>
 		<main>
-			<!-- Note: no `client:load` necessary since AlpineJS is always included -->
+			<!-- Note: no `client:load` necessary since jQuery is always included -->
 			<Counter>
-				<h1>Hello, AlpineJS!</h1>
+				<h1>Hello, jQuery!</h1>
 			</Counter>
 
-			<!-- Note: pass props to Astro components to initialize Alpine with a certain state -->
+			<!-- Note: pass props to Astro components to initialize jQuery with a certain state -->
 			<Counter initialCount={5}>
 				<h2>Use Astro to pass in server-side props</h2>
 			</Counter>

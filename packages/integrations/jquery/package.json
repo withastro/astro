@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/alpinejs",
-  "description": "The official Alpine.js integration for Astro.",
-  "version": "0.1.1",
+  "name": "@astrojs/jquery",
+  "description": "The official jQuery integration for Astro.",
+  "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -9,13 +9,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/alpinejs"
+    "directory": "packages/integrations/jquery"
   },
   "keywords": [
     "astro-integration",
     "astro-component",
     "renderer",
-    "alpinejs",
+    "jquery",
     "performance"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
@@ -30,8 +30,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "peerDependencies": {
-    "@types/alpinejs": "^3.0.0",
-    "alpinejs": "^3.0.0"
+    "@types/jquery": "^3.5.14",
+    "jquery": "^3.6.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
