@@ -1,5 +1,11 @@
 # astro
 
+## 1.1.1
+
+### Patch Changes
+
+- [#4507](https://github.com/withastro/astro/pull/4507) [`4e1af3f0e`](https://github.com/withastro/astro/commit/4e1af3f0e8f5627cea24e4ec76d711d0387e3176) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `import-meta.d.ts` not being included in the npm package
+
 ## 1.1.0
 
 ### Minor Changes
