@@ -354,7 +354,7 @@ importers:
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
-      tailwindcss: ^3.0.24
+      tailwindcss: ^3.1.8
     devDependencies:
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       astro: link:../../packages/astro
@@ -2054,7 +2054,7 @@ importers:
       astro: workspace:*
       autoprefixer: ^10.4.7
       postcss: ^8.4.14
-      tailwindcss: ^3.0.24
+      tailwindcss: ^3.1.8
     dependencies:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/tailwind': link:../../../../integrations/tailwind
@@ -2597,7 +2597,7 @@ importers:
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
       postcss: ^8.4.14
-      tailwindcss: ^3.0.24
+      tailwindcss: ^3.1.8
     dependencies:
       '@proload/core': 0.3.2
       autoprefixer: 10.4.8_postcss@8.4.16
