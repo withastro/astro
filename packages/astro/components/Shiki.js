@@ -21,8 +21,8 @@ export function getHighlighter(opts) {
 	}
 
 	// Start the async getHighlighter call and cache the Promise
-	const highlighter = getShikiHighlighter(opts).then((highlighter) => {
-		highlighter.setColorReplacements({
+	const highlighter = getShikiHighlighter(opts).then((hl) => {
+		hl.setColorReplacements({
 			'#000001': 'var(--astro-code-color-text)',
 			'#000002': 'var(--astro-code-color-background)',
 			'#000004': 'var(--astro-code-token-constant)',
@@ -35,7 +35,7 @@ export function getHighlighter(opts) {
 			'#000011': 'var(--astro-code-token-punctuation)',
 			'#000012': 'var(--astro-code-token-link)',
 		});
-		return highlighter;
+		return hl;
 	});
 	_resolvedHighlighters.set(key, highlighter);
 

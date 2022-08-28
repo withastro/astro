@@ -17,8 +17,8 @@ const remarkShiki = async (
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighterAsync = highlighterCacheAsync.get(cacheID);
 	if (!highlighterAsync) {
-		highlighterAsync = getHighlighter({ theme }).then((highlighter) => {
-			highlighter.setColorReplacements({
+		highlighterAsync = getHighlighter({ theme }).then((hl) => {
+			hl.setColorReplacements({
 				'#000001': 'var(--astro-code-color-text)',
 				'#000002': 'var(--astro-code-color-background)',
 				'#000004': 'var(--astro-code-token-constant)',
@@ -31,7 +31,7 @@ const remarkShiki = async (
 				'#000011': 'var(--astro-code-token-punctuation)',
 				'#000012': 'var(--astro-code-token-link)',
 			});
-			return highlighter;
+			return hl;
 		});
 		highlighterCacheAsync.set(cacheID, highlighterAsync);
 	}
