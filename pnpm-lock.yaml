@@ -452,7 +452,7 @@ importers:
       rollup: ~2.77.0
       sass: ^1.52.2
       semver: ^7.3.7
-      shiki: ^0.10.1
+      shiki: ^0.11.1
       sirv: ^2.0.2
       slash: ^4.0.0
       srcset-parse: ^1.1.0
@@ -509,7 +509,7 @@ importers:
       resolve: 1.22.1
       rollup: 2.77.3
       semver: 7.3.7
-      shiki: 0.10.1
+      shiki: 0.11.1
       sirv: 2.0.2
       slash: 4.0.0
       string-width: 5.1.2
@@ -2319,7 +2319,7 @@ importers:
       remark-shiki-twoslash: ^3.1.0
       remark-smartypants: ^2.0.0
       remark-toc: ^8.0.1
-      shiki: ^0.10.1
+      shiki: ^0.11.1
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
     dependencies:
@@ -2334,7 +2334,7 @@ importers:
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
       remark-smartypants: 2.0.0
-      shiki: 0.10.1
+      shiki: 0.11.1
       unist-util-visit: 4.1.1
       vfile: 5.3.4
     devDependencies:
@@ -2786,7 +2786,7 @@ importers:
       remark-parse: ^10.0.1
       remark-rehype: ^10.1.0
       remark-smartypants: ^2.0.0
-      shiki: ^0.10.1
+      shiki: ^0.11.1
       unified: ^10.1.2
       unist-util-map: ^3.1.1
       unist-util-visit: ^4.1.0
@@ -2808,7 +2808,7 @@ importers:
       remark-parse: 10.0.1
       remark-rehype: 10.1.0
       remark-smartypants: 2.0.0
-      shiki: 0.10.1
+      shiki: 0.11.1
       unified: 10.1.2
       unist-util-map: 3.1.1
       unist-util-visit: 4.1.1
@@ -15512,6 +15512,15 @@ packages:
       jsonc-parser: 3.1.0
       vscode-oniguruma: 1.6.2
       vscode-textmate: 5.2.0
+    dev: true
+
+  /shiki/0.11.1:
+    resolution: {integrity: sha512-EugY9VASFuDqOexOgXR18ZV+TbFrQHeCpEYaXamO+SZlsnT/2LxuLBX25GGtIrwaEVFXUAbUQ601SWE2rMwWHA==}
+    dependencies:
+      jsonc-parser: 3.1.0
+      vscode-oniguruma: 1.6.2
+      vscode-textmate: 6.0.0
+    dev: false
 
   /side-channel/1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -16946,6 +16955,11 @@ packages:
 
   /vscode-textmate/5.2.0:
     resolution: {integrity: sha512-Uw5ooOQxRASHgu6C7GVvUxisKXfSgW4oFlO+aa+PAkgmH89O3CXxEEzNRNtHSqtXFTl0nAC1uYj0GMSH27uwtQ==}
+    dev: true
+
+  /vscode-textmate/6.0.0:
+    resolution: {integrity: sha512-gu73tuZfJgu+mvCSy4UZwd2JXykjK9zAZsfmDeut5dx/1a7FeTk0XwJsSuqQn+cuMCGVbIBfl+s53X4T19DnzQ==}
+    dev: false
 
   /vscode-uri/2.1.2:
     resolution: {integrity: sha512-8TEXQxlldWAuIODdukIb+TR5s+9Ds40eSJrw+1iDDA9IFORPjMELarNQE3myz5XIkWWpdprmJjm1/SxMlWOC8A==}
