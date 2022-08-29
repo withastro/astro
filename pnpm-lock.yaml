@@ -98,6 +98,8 @@ importers:
       '@docsearch/react': ^3.1.0
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
+      '@types/react-dom': ^18.0.0
+      astro: ^1.1.1
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -2336,6 +2338,8 @@ importers:
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
       remark-smartypants: 2.0.0
+      shiki: 0.11.1
+      unist-util-visit: 4.1.0
       vfile: 5.3.4
     devDependencies:
       '@types/chai': 4.3.3
@@ -8805,7 +8809,7 @@ packages:
   /@types/react-dom/18.0.6:
     resolution: {integrity: sha512-/5OFZgfIPSwy+YuIBP/FgJnQnsxhZhjjrnxudMddeblOouIodEQ75X14Rr4wGSG/bknL+Omy9iWlLo1u/9GzAA==}
     dependencies:
-      '@types/react': 17.0.48
+      '@types/react': 18.0.17
     dev: true
 
   /@types/react/17.0.48:
