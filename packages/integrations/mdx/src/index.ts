@@ -38,9 +38,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					(config.markdown.rehypePlugins?.length || config.markdown.remarkPlugins?.length)
 				) {
 					console.log(
-						blue(
-							`[MDX] ${bold('New')} Inheriting remark and rehype plugins from "markdown" config.`
-						)
+						blue(`[MDX] Now inheriting remark and rehype plugins from "markdown" config.`)
 					);
 					console.log(
 						`If you applied a plugin to both your Markdown and MDX configs, we suggest ${bold(
