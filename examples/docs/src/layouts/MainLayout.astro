@@ -47,11 +47,6 @@ const githubEditUrl = `${CONFIG.GITHUB_EDIT_URL}/${currentFile}`;
 				overflow-x: hidden;
 			}
 
-			.layout :global(> *) {
-				width: 100%;
-				height: 100%;
-			}
-
 			.grid-sidebar {
 				height: 100vh;
 				position: sticky;
@@ -76,15 +71,6 @@ const githubEditUrl = `${CONFIG.GITHUB_EDIT_URL}/${currentFile}`;
 
 			#grid-right {
 				display: none;
-			}
-
-			:global(.mobile-sidebar-toggle) {
-				overflow: hidden;
-			}
-
-			:global(.mobile-sidebar-toggle) #grid-left {
-				display: block;
-				top: 2rem;
 			}
 
 			@media (min-width: 50em) {
@@ -114,6 +100,21 @@ const githubEditUrl = `${CONFIG.GITHUB_EDIT_URL}/${currentFile}`;
 					grid-column: 3;
 					display: flex;
 				}
+			}
+		</style>
+		<style is:global>
+			.layout > * {
+				width: 100%;
+				height: 100%;
+			}
+
+			.mobile-sidebar-toggle {
+				overflow: hidden;
+			}
+
+			.mobile-sidebar-toggle #grid-left {
+				display: block;
+				top: 2rem;
 			}
 		</style>
 	</head>
