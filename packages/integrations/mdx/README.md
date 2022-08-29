@@ -251,7 +251,7 @@ const { title, fancyJsHelper } = Astro.props;
 
 ### Custom components
 
-Under the hood, MDX will convert markdown into html components. For example, 
+Under the hood, MDX will convert markdown into html components. For example, this blockquote:
 
 ```md
 > A blockquote with *some* emphasis.
