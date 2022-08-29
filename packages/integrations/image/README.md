@@ -106,7 +106,7 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+For images in your project's repository, use the path relative to the `src` or `public` directory. For remote images, provide the full URL.
 
 #### format
 
@@ -182,7 +182,7 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 Source for the original image file.
 
-For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+For images in your project's repository, use the path relative to the `src` or `public` directory. For remote images, provide the full URL.
 
 #### alt
 
@@ -339,6 +339,22 @@ import heroImage from '../assets/hero.png';
 
 // image imports can also be inlined directly
 <Image src={import('../assets/hero.png')} />
+```
+
+#### Images in `/public`
+
+Files in the `/public` directory are always served or copied as-is, without transform or bundling. This also means that files in `/public` also can't be `import`ed directly. It's recommended that local images are always kept in `/src`, but in case you absolutely need to keep an image in `/public` it can be referenced by path and treated as a remote image.
+
+```astro
+---
+import { Image } from '@astrojs/image/components';
+import socialImage from '/social.png';
+---
+
+// the image file from `/public/social.png` will be used
+// in static (SSG) builds, this will be built and optimized to `/dist`.
+// in SSR builds, the image will be optimized by the server when requested by a browser.
+<Image src={socialImage} width={1280} aspectRatio="16:9" />
 ```
 
 ### Remote images
