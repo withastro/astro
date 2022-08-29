@@ -1007,7 +1007,7 @@ declare namespace astroHTML.JSX {
 	//   - "string"
 	//   - union of string literals
 	interface SVGAttributes extends AriaAttributes, DOMAttributes, AstroBuiltinAttributes {
-		// Attributes which also defined in HTMLAttributes
+		// Attributes which are also defined in HTMLAttributes
 		class?: string | undefined | null;
 		color?: string | undefined | null;
 		height?: number | string | undefined | null;
@@ -1018,6 +1018,7 @@ declare namespace astroHTML.JSX {
 		method?: string | undefined | null;
 		min?: number | string | undefined | null;
 		name?: string | undefined | null;
+		slot?: string | undefined | null;
 		style?: string | Record<string, any> | undefined | null;
 		target?: string | undefined | null;
 		type?: string | undefined | null;

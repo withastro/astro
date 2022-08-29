@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/alpinejs",
   "description": "The official Alpine.js integration for Astro.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -14,6 +14,8 @@
   "keywords": [
     "astro-integration",
     "astro-component",
+    "renderer",
+    "alpinejs",
     "performance"
   ],
   "bugs": "https://github.com/withastro/astro/issues",

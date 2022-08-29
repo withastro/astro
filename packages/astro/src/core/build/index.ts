@@ -72,7 +72,6 @@ class AstroBuilder {
 					hmr: false,
 					middlewareMode: true,
 				},
-				appType: 'custom',
 			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
