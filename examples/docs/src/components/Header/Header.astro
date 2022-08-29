@@ -7,8 +7,12 @@ import SidebarToggle from './SidebarToggle';
 import LanguageSelect from './LanguageSelect';
 import Search from './Search';
 
-const { currentPage } = Astro.props;
-const lang = currentPage && getLanguageFromURL(currentPage);
+type Props = {
+	currentPage: string;
+};
+
+const { currentPage } = Astro.props as Props;
+const lang = getLanguageFromURL(currentPage);
 ---
 
 <header>
@@ -25,11 +29,9 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 		</div>
 		<div style="flex-grow: 1;"></div>
 		{KNOWN_LANGUAGE_CODES.length > 1 && <LanguageSelect lang={lang} client:idle />}
-		{CONFIG.ALGOLIA && (
-			<div class="search-item">
-				<Search client:idle />
-			</div>
-		)}
+		<div class="search-item">
+			<Search client:idle />
+		</div>
 	</nav>
 </header>
 
@@ -101,14 +103,17 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 			position: static;
 			padding: 2rem 0rem;
 		}
+
 		.logo {
 			width: auto;
 			margin: 0;
 			z-index: 0;
 		}
+
 		.logo h1 {
 			display: initial;
 		}
+
 		.menu-toggle {
 			display: none;
 		}
@@ -129,9 +134,11 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 		display: flex;
 		max-width: 200px;
 	}
+
 	:global(.search-item > *) {
 		flex-grow: 1;
 	}
+
 	@media (min-width: 50em) {
 		.search-item {
 			max-width: 400px;

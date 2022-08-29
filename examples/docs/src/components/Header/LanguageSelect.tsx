@@ -1,11 +1,11 @@
-import type { FunctionalComponent } from 'preact';
-import { h } from 'preact';
+/** @jsxImportSource react */
+import type { FunctionComponent } from 'react';
 import './LanguageSelect.css';
 import { KNOWN_LANGUAGES, langPathRegex } from '../../languages';
 
-const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
+const LanguageSelect: FunctionComponent<{ lang: string }> = ({ lang }) => {
 	return (
-		<div class="language-select-wrapper">
+		<div className="language-select-wrapper">
 			<svg
 				aria-hidden="true"
 				focusable="false"
@@ -25,7 +25,7 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
 				/>
 			</svg>
 			<select
-				class="language-select"
+				className="language-select"
 				value={lang}
 				onChange={(e) => {
 					const newLang = e.target.value;
@@ -34,9 +34,9 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
 					window.location.pathname = '/' + newLang + actualDest;
 				}}
 			>
-				{Object.keys(KNOWN_LANGUAGES).map((key) => {
+				{Object.entries(KNOWN_LANGUAGES).map(([key, value]) => {
 					return (
-						<option value={KNOWN_LANGUAGES[key]}>
+						<option value={value}>
 							<span>{key}</span>
 						</option>
 					);
