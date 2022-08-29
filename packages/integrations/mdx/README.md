@@ -272,7 +272,7 @@ import Blockquote from '../components/Blockquote.astro';
 export const components = { blockquote: Blockquote };
 ```
 
-The advantage of this is it allows for the simplicity of writing in markdown without having to write the custom component or writing a remark/rehype plugin. A full list of components that can have custom components is on the [MDX website](https://mdxjs.com/table-of-components/).
+The advantage of this is it allows for the simplicity of writing in markdown without having to write the custom component or writing a remark/rehype plugin. Visit the [MDX website](https://mdxjs.com/table-of-components/) for a full list of HTML elements that support custom components.
 
 #### Custom components with imported `mdx`
 
