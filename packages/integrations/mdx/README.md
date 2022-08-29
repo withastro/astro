@@ -276,7 +276,7 @@ The advantage of this is it allows for the simplicity of writing in markdown wit
 
 #### Custom components with imported `mdx`
 
-Custom components can also be passed to the components prop when rending imported MDX content.
+When rendering imported MDX content, custom components can also be passed via the `components` prop:
 
 ```astro
 ---
