@@ -257,7 +257,7 @@ Under the hood, MDX will convert markdown into html components. For example, thi
 > A blockquote with *some* emphasis.
 ```
 
-will be converted into
+will be converted into this HTML:
 
 ```html
 <blockquote>
