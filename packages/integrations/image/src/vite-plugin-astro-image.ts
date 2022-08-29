@@ -9,7 +9,7 @@ import type { PluginContext } from 'rollup';
 import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
-import type {  InputFormat } from './loaders/index.js';
+import type { InputFormat } from './loaders/index.js';
 import sharp from './loaders/sharp.js';
 import { metadata } from './utils/metadata.js';
 
@@ -59,7 +59,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// only claim image ESM imports
 			if (!filter(id)) {
 				return null;
-			};
+			}
 
 			const url = pathToFileURL(id);
 
@@ -75,7 +75,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				const handle = this.emitFile({
 					name: filename,
 					source: await fs.readFile(url),
-					type: 'asset'
+					type: 'asset',
 				});
 
 				meta.src = `__ASTRO_IMAGE_ASSET__${handle}__`;
@@ -91,9 +91,9 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			return `export default ${JSON.stringify(meta)}`;
 		},
 		configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith('/@astroimage/')) {
-          const [, id] = req.url.split('/@astroimage/');
+			server.middlewares.use(async (req, res, next) => {
+				if (req.url?.startsWith('/@astroimage/')) {
+					const [, id] = req.url.split('/@astroimage/');
 
 					const url = new URL(id, config.srcDir);
 					const file = await fs.readFile(url);
@@ -113,38 +113,38 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 					const result = await sharp.transform(file, transform);
 
 					res.setHeader('Content-Type', `image/${result.format}`);
-          res.setHeader('Cache-Control', 'max-age=360000');
+					res.setHeader('Cache-Control', 'max-age=360000');
 
 					const stream = Readable.from(result.data);
 					return stream.pipe(res);
-        }
+				}
 
-        return next();
-      });
-    },
+				return next();
+			});
+		},
 		async renderChunk(code) {
 			const assetUrlRE = /__ASTRO_IMAGE_ASSET__([a-z\d]{8})__(?:_(.*?)__)?/g;
 
-			let match
-      let s
-      while ((match = assetUrlRE.exec(code))) {
-        s = s || (s = new MagicString(code))
-        const [full, hash, postfix = ''] = match;
+			let match;
+			let s;
+			while ((match = assetUrlRE.exec(code))) {
+				s = s || (s = new MagicString(code));
+				const [full, hash, postfix = ''] = match;
 
-        const file = this.getFileName(hash);
-        const outputFilepath = resolvedConfig.base + file + postfix;
+				const file = this.getFileName(hash);
+				const outputFilepath = resolvedConfig.base + file + postfix;
 
-        s.overwrite(match.index, match.index + full.length, outputFilepath);
-      }
+				s.overwrite(match.index, match.index + full.length, outputFilepath);
+			}
 
-      if (s) {
-        return {
-          code: s.toString(),
-          map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null
-        };
-      } else {
-        return null;
-      }
+			if (s) {
+				return {
+					code: s.toString(),
+					map: resolvedConfig.build.sourcemap ? s.generateMap({ hires: true }) : null,
+				};
+			} else {
+				return null;
+			}
 		}
-	}
+	};
 }

@@ -40,7 +40,7 @@ export function propsToFilename(transform: TransformOptions) {
 	filename = basename(filename);
 	filename = removeExtname(filename);
 
-	const ext = transform.format || extname(transform.src);
+	const ext = transform.format || extname(transform.src)?.substring(1);
 
 	return `/${filename}_${shorthash(JSON.stringify(transform))}.${ext}`;
 }
