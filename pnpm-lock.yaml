@@ -307,10 +307,8 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      '@astrojs/markdown-remark': ^1.1.0
       astro: ^1.1.1
     dependencies:
-      '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
 
   examples/with-mdx:
