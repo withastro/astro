@@ -125,12 +125,6 @@ export async function getRemarkPlugins(
 			remarkPlugins = [...remarkPlugins, ...DEFAULT_REMARK_PLUGINS];
 			break;
 		default:
-			if (config.markdown.remarkPlugins?.length) {
-				// TODO: remove for 1.0. Shipping to ease migration to new minor
-				console.log(
-					`[MDX] Inheriting remark plugins from "markdown" config. See "extendPlugins" option to disable.`
-				);
-			}
 			remarkPlugins = [
 				...remarkPlugins,
 				...(config.markdown.extendDefaultPlugins ? DEFAULT_REMARK_PLUGINS : []),
@@ -166,12 +160,6 @@ export function getRehypePlugins(
 			rehypePlugins = [...rehypePlugins, ...DEFAULT_REHYPE_PLUGINS];
 			break;
 		default:
-			if (config.markdown.rehypePlugins?.length) {
-				// TODO: remove for 1.0. Shipping to ease migration to new minor
-				console.log(
-					`[MDX] Inheriting rehype plugins from "markdown" config. See "extendPlugins" option to disable.`
-				);
-			}
 			rehypePlugins = [
 				...rehypePlugins,
 				...(config.markdown.extendDefaultPlugins ? DEFAULT_REHYPE_PLUGINS : []),

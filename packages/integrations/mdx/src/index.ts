@@ -4,6 +4,7 @@ import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
+import { bold, blue } from 'kleur/colors';
 import { rehypeApplyFrontmatterExport } from './astro-data-utils.js';
 import {
 	getFileInfo,
@@ -26,9 +27,28 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
+				mdxOptions.extendPlugins ??= 'markdown';
 
 				handleExtendsNotSupported(mdxOptions.remarkPlugins);
 				handleExtendsNotSupported(mdxOptions.rehypePlugins);
+
+				// TODO: remove for 1.0. Shipping to ease migration to new minor
+				if (
+					mdxOptions.extendPlugins === 'markdown' &&
+					(config.markdown.rehypePlugins?.length || config.markdown.remarkPlugins?.length)
+				) {
+					console.log(
+						blue(
+							`[MDX] ${bold('New')} Inheriting remark and rehype plugins from "markdown" config.`
+						)
+					);
+					console.log(
+						`If you applied a plugin to both your Markdown and MDX configs, we suggest ${bold(
+							'removing the duplicate MDX entry.'
+						)}`
+					);
+					console.log(`See "extendPlugins" option to configure this behavior.`);
+				}
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
