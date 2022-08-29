@@ -7,7 +7,6 @@ export class MyElement extends LitElement {
   bool = 0;
 
   static properties = {
-    //bool: {type: Boolean},
     str: {type: String, attribute: 'str-attr'},
     obj: {type: Object},
     reflectedBool: {type: Boolean, reflect: true},
