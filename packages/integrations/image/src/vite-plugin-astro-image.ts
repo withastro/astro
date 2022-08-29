@@ -27,19 +27,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 	const virtualModuleId = 'virtual:image-loader';
 
 	let resolvedConfig: ResolvedConfig;
-	let loaderModuleId: string;
-
-	async function resolveLoader(context: PluginContext) {
-		if (!loaderModuleId) {
-			const module = await context.resolve(options.serviceEntryPoint);
-			if (!module) {
-				throw new Error(`"${options.serviceEntryPoint}" could not be found`);
-			}
-			loaderModuleId = module.id;
-		}
-
-		return loaderModuleId;
-	}
 
 	return {
 		name: '@astrojs/image',
@@ -52,7 +39,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			// This ensures the module is available in `astro dev` and is included
 			// in the SSR server bundle.
 			if (id === virtualModuleId) {
-				return await resolveLoader(this);
+				return await this.resolve(options.serviceEntryPoint);
 			}
 		},
 		async load(id) {
