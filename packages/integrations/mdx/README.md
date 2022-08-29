@@ -249,6 +249,44 @@ const { title, fancyJsHelper } = Astro.props;
 <!-- -->
 ```
 
+### Custom components
+
+Under the hood, MDX will convert markdown into html components. For example, 
+
+```md
+> A blockquote with *some* emphasis.
+```
+
+will be converted into
+
+```html
+<blockquote>
+  <p>A blockquote with <em>some</em> emphasis.</p>
+</blockquote>
+```
+
+MDX provides a way to tap into this rendering and use your own custom components. In the above example, you could create a custom Blockquote component (in any language) that has either a `<slot />`  component or accepts a `children` prop. Then in the MDX file you import the component and export it to the `components` export. 
+
+```mdx
+import Blockquote from '../components/Blockquote.astro';
+export const components = { blockquote: Blockquote };
+```
+
+The advantage of this is it allows for the simplicity of writing in markdown without having to write the custom component or writing a remark/rehype plugin. A full list of components that can have custom components is on the [MDX website](https://mdxjs.com/table-of-components/).
+
+#### Custom components with imported `mdx`
+
+Custom components can also be passed to the components prop when rending imported MDX content.
+
+```astro
+---
+import Content from '../content.mdx';
+import Heading from '../Heading.astro';
+---
+
+<Content components={{ h1: Heading }} />
+```
+
 ### Syntax highlighting
 
 The MDX integration respects [your project's `markdown.syntaxHighlight` configuration](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting).
