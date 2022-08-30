@@ -15,12 +15,12 @@ const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 export async function* crawlGraph(
 	viteServer: vite.ViteDevServer,
 	_id: string,
-	isFile: boolean,
+	isRootFile: boolean,
 	scanned = new Set<string>()
 ): AsyncGenerator<vite.ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<vite.ModuleNode>();
-	const moduleEntriesForId = isFile
+	const moduleEntriesForId = isRootFile
 		? // If isFile = true, then you are at the root of your module import tree.
 		  // The `id` arg is a filepath, so use `getModulesByFile()` to collect all
 		  // nodes for that file. This is needed for advanced imports like Tailwind.
