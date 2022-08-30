@@ -366,6 +366,7 @@ async function generatePath(
 	};
 
 	let body: string;
+	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const result = await callEndpoint(mod as unknown as EndpointHandler, options);
 
@@ -373,6 +374,7 @@ async function generatePath(
 			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
 		}
 		body = result.body;
+		encoding = result.encoding;
 	} else {
 		const response = await render(options);
 
@@ -388,5 +390,5 @@ async function generatePath(
 	const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
 	pageData.route.distURL = outFile;
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, 'utf-8');
+	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
 }

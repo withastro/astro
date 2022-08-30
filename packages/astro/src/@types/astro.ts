@@ -1082,6 +1082,7 @@ export interface APIContext {
 
 export interface EndpointOutput {
 	body: Body;
+	encoding?: BufferEncoding;
 }
 
 export type APIRoute = (
