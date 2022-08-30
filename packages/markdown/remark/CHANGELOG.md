@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 1.1.1
+
+### Patch Changes
+
+- [#4519](https://github.com/withastro/astro/pull/4519) [`a2e8e76c3`](https://github.com/withastro/astro/commit/a2e8e76c303e8d6f39c24c122905a10f06907997) Thanks [@JuanM04](https://github.com/JuanM04)! - Upgraded Shiki to v0.11.1
+
 ## 1.1.0
 
 ### Minor Changes
