@@ -5,54 +5,56 @@ import { STYLE_EXTENSIONS } from '../util.js';
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
+/**
+ * List of file extensions signalling we can (and should) SSR ahead-of-time
+ * See usage below
+ */
+const fileExtensionsToSSR = new Set(['.astro', '.md']);
+
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
 	viteServer: vite.ViteDevServer,
 	_id: string,
-	isFile: boolean,
+	isRootFile: boolean,
 	scanned = new Set<string>()
 ): AsyncGenerator<vite.ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<vite.ModuleNode>();
-	const moduleEntriesForId = isFile
-		? // If isFile = true, then you are at the root of your module import tree.
-		  // The `id` arg is a filepath, so use `getModulesByFile()` to collect all
-		  // nodes for that file. This is needed for advanced imports like Tailwind.
-		  viteServer.moduleGraph.getModulesByFile(id) ?? new Set()
-		: // Otherwise, you are following an import in the module import tree.
-		  // You are safe to use getModuleById() here because Vite has already
-		  // resolved the correct `id` for you, by creating the import you followed here.
-		  new Set([viteServer.moduleGraph.getModuleById(id)]);
+	if (isRootFile) {
+		// The module graph may be out-of-date when crawling
+		// ex. Tailwind PostCSS process takes time
+		// Use "onFileChange" to invalidate cache
+		viteServer.moduleGraph.onFileChange(id);
+	}
+	const entry = viteServer.moduleGraph.getModuleById(id);
 
-	// Collect all imported modules for the module(s).
-	for (const entry of moduleEntriesForId) {
-		// Handle this in case an module entries weren't found for ID
-		// This seems possible with some virtual IDs (ex: `astro:markdown/*.md`)
-		if (!entry) {
-			continue;
-		}
-		if (id === entry.id) {
-			scanned.add(id);
-			const entryIsStyle = STYLE_EXTENSIONS.has(npath.extname(id));
-			for (const importedModule of entry.importedModules) {
-				// some dynamically imported modules are *not* server rendered in time
-				// to only SSR modules that we can safely transform, we check against
-				// a list of file extensions based on our built-in vite plugins
-				if (importedModule.id) {
-					// Strip special query params like "?content".
-					// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
-					// For example, `virtual:image-loader` if you don't have the plugin installed.
-					const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
-					// If the entry is a style, skip any modules that are not also styles.
-					// Tools like Tailwind might add HMR dependencies as `importedModules`
-					// but we should skip them--they aren't really imported. Without this,
-					// every hoisted script in the project is added to every page!
-					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(importedModulePathname))) {
-						continue;
+	if (id === entry?.id) {
+		scanned.add(id);
+		const entryIsStyle = STYLE_EXTENSIONS.has(npath.extname(id));
+		for (const importedModule of entry.importedModules) {
+			// some dynamically imported modules are *not* server rendered in time
+			// to only SSR modules that we can safely transform, we check against
+			// a list of file extensions based on our built-in vite plugins
+			if (importedModule.id) {
+				// Strip special query params like "?content".
+				// NOTE: Cannot use `new URL()` here because not all IDs will be valid paths.
+				// For example, `virtual:image-loader` if you don't have the plugin installed.
+				const importedModulePathname = importedModule.id.replace(STRIP_QUERY_PARAMS_REGEX, '');
+				// If the entry is a style, skip any modules that are not also styles.
+				// Tools like Tailwind might add HMR dependencies as `importedModules`
+				// but we should skip them--they aren't really imported. Without this,
+				// every hoisted script in the project is added to every page!
+				if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(importedModulePathname))) {
+					continue;
+				}
+				if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
+					const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
+					if (!mod?.ssrModule) {
+						await viteServer.ssrLoadModule(importedModule.id);
 					}
 				}
-				importedModules.add(importedModule);
 			}
+			importedModules.add(importedModule);
 		}
 	}
 
