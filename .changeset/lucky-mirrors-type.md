@@ -1,5 +1,5 @@
 ---
-'@astrojs/mdx': minor
+'@astrojs/image': minor
 ---
 
 `<Image />` and `<Picture />` now support using images in the `/public` directory :tada:
