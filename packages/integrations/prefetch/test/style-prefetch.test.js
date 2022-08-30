@@ -47,7 +47,7 @@ test.describe('Style prefetch', () => {
 
 				await expect(requests.length).toBe(2);
 				const cssUrl = astro.resolveUrl('/main.css');
-				const cssRequestCount = requests.filter(req=>req.url() === cssUrl).length;
+				const cssRequestCount = requests.filter(req => req === cssUrl).length;
 				await expect(cssRequestCount).toBe(1);
 			});
 		});
