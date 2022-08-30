@@ -61,9 +61,7 @@ describe('Images in MDX - build', function () {
 		it('includes <img> attributes', () => {
 			const image = $('#google');
 
-			expect(image.attr('src')).to.equal(
-				`/googlelogo_color_272x92dp_${HASH}.webp`
-			);
+			expect(image.attr('src')).to.equal(`/googlelogo_color_272x92dp_${HASH}.webp`);
 			expect(image.attr('width')).to.equal('544');
 			expect(image.attr('height')).to.equal('184');
 		});

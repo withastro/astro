@@ -192,7 +192,7 @@ describe('SSR pictures with subpath - build', function () {
 			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
 			output: 'server',
-			base: '/docs'
+			base: '/docs',
 		});
 		await fixture.build();
 	});

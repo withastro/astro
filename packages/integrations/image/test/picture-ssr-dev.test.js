@@ -165,7 +165,7 @@ describe('SSR pictures with subpath - dev', function () {
 			root: './fixtures/basic-picture/',
 			adapter: testAdapter(),
 			output: 'server',
-			base: '/docs'
+			base: '/docs',
 		});
 
 		devServer = await fixture.startDevServer();

@@ -39,7 +39,7 @@ describe('Image rotation', function () {
 				'/Landscape_5.6d88c17f_ZtLntP.jpg',
 				'/Landscape_6.1a88f6d8_Z1Pl4xy.jpg',
 				'/Landscape_7.cb1008c2_Z1JYr40.jpg',
-				'/Landscape_8.3d2837d2_1xTOBN.jpg'
+				'/Landscape_8.3d2837d2_1xTOBN.jpg',
 			];
 
 			it('includes <img> attributes', () => {
@@ -73,7 +73,7 @@ describe('Image rotation', function () {
 				'/Portrait_5.b3b6cc6f_Z23Ek26.jpg',
 				'/Portrait_6.94e06390_ak2Ek.jpg',
 				'/Portrait_7.9ffdecfe_Z1S4klG.jpg',
-				'/Portrait_8.9d01343d_2dak03.jpg'
+				'/Portrait_8.9d01343d_2dak03.jpg',
 			];
 
 			it('includes <img> attributes', () => {

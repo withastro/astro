@@ -8,7 +8,7 @@ import { isRemoteImage } from './utils/paths.js';
 async function loadRemoteImage(src: URL) {
 	try {
 		const res = await fetch(src);
-	
+
 		if (!res.ok) {
 			return undefined;
 		}
@@ -50,4 +50,4 @@ export const get: APIRoute = async ({ request }) => {
 	} catch (err: unknown) {
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
-}
+};

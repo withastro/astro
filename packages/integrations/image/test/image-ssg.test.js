@@ -8,12 +8,12 @@ describe('SSG images - dev', function () {
 	let fixture;
 	let devServer;
 	let $;
-	
+
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/basic-image/' });
 		devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/').then((res) => res.text());
-			$ = cheerio.load(html);
+		const html = await fixture.fetch('/').then((res) => res.text());
+		$ = cheerio.load(html);
 	});
 
 	after(async () => {
@@ -68,7 +68,9 @@ describe('SSG images - dev', function () {
 			expect(searchParams.get('f')).to.equal('webp');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
 		});
 	});
 
@@ -95,12 +97,12 @@ describe('SSG images with subpath - dev', function () {
 	let fixture;
 	let devServer;
 	let $;
-	
+
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/basic-image/', base: '/docs' });
 		devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/docs/').then((res) => res.text());
-			$ = cheerio.load(html);
+		const html = await fixture.fetch('/docs/').then((res) => res.text());
+		$ = cheerio.load(html);
 	});
 
 	after(async () => {
@@ -155,7 +157,9 @@ describe('SSG images with subpath - dev', function () {
 			expect(searchParams.get('f')).to.equal('webp');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
 		});
 	});
 
@@ -235,9 +239,7 @@ describe('SSG images - build', function () {
 		it('includes <img> attributes', () => {
 			const image = $('#google');
 
-			expect(image.attr('src')).to.equal(
-				`/googlelogo_color_272x92dp_${HASH}.webp`
-			);
+			expect(image.attr('src')).to.equal(`/googlelogo_color_272x92dp_${HASH}.webp`);
 			expect(image.attr('width')).to.equal('544');
 			expect(image.attr('height')).to.equal('184');
 		});
@@ -331,9 +333,7 @@ describe('SSG images with subpath - build', function () {
 		it('includes <img> attributes', () => {
 			const image = $('#google');
 
-			expect(image.attr('src')).to.equal(
-				`/docs/googlelogo_color_272x92dp_${HASH}.webp`
-			);
+			expect(image.attr('src')).to.equal(`/docs/googlelogo_color_272x92dp_${HASH}.webp`);
 			expect(image.attr('width')).to.equal('544');
 			expect(image.attr('height')).to.equal('184');
 		});

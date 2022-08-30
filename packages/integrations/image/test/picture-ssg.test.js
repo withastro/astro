@@ -95,7 +95,9 @@ describe('SSG pictures - dev', function () {
 			expect(searchParams.get('f')).to.equal('png');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
 			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});
@@ -217,7 +219,9 @@ describe('SSG pictures with subpath - dev', function () {
 			expect(searchParams.get('f')).to.equal('png');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
 			expect(image.attr('alt')).to.equal('Google logo');
 		});
 	});

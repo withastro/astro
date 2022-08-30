@@ -10,7 +10,7 @@ describe('SSR images - build', function () {
 		fixture = await loadFixture({
 			root: './fixtures/basic-image/',
 			adapter: testAdapter({ streaming: false }),
-			output: 'server'
+			output: 'server',
 		});
 		await fixture.build();
 	});
@@ -154,7 +154,7 @@ describe('SSR images with subpath - build', function () {
 			root: './fixtures/basic-image/',
 			adapter: testAdapter({ streaming: false }),
 			output: 'server',
-			base: '/docs'
+			base: '/docs',
 		});
 		await fixture.build();
 	});
@@ -232,7 +232,9 @@ describe('SSR images with subpath - build', function () {
 			expect(searchParams.get('f')).to.equal('webp');
 			expect(searchParams.get('w')).to.equal('544');
 			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal('https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
 		});
 
 		it('keeps remote image query params', async () => {

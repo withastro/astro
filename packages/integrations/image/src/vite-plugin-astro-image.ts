@@ -1,11 +1,9 @@
-import { basename, extname, join } from 'node:path';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { Readable } from 'node:stream';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { AstroConfig } from 'astro';
 import MagicString from 'magic-string';
-import type { PluginContext } from 'rollup';
+import fs from 'node:fs/promises';
+import path, { basename, extname, join } from 'node:path';
+import { Readable } from 'node:stream';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
@@ -132,6 +130,6 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			} else {
 				return null;
 			}
-		}
+		},
 	};
 }

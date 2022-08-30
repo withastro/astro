@@ -1,8 +1,8 @@
+import type { AstroConfig } from 'astro';
 import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AstroConfig } from 'astro';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
