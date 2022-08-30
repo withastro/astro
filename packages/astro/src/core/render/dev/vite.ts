@@ -59,7 +59,11 @@ export async function* crawlGraph(
 					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
 						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
-							await viteServer.ssrLoadModule(importedModule.id);
+							try {
+								await viteServer.ssrLoadModule(importedModule.id);
+							} catch {
+								/** Likely an out-of-date module entry! Silently continue. */
+							}
 						}
 					}
 				}
