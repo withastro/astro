@@ -1,8 +1,12 @@
 import { LitElement, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
+@customElement('my-element')
 export class MyElement extends LitElement {
+	@property({ type: Boolean })
+  bool = 0;
+
   static properties = {
-    bool: {type: Boolean},
     str: {type: String, attribute: 'str-attr'},
     obj: {type: Object},
     reflectedBool: {type: Boolean, reflect: true},
@@ -36,5 +40,3 @@ export class MyElement extends LitElement {
     `;
   }
 }
-
-customElements.define('my-element', MyElement);

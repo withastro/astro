@@ -85,7 +85,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['partytown', 'astro add partytown'],
 					['sitemap', 'astro add sitemap'],
 				],
-				'Example: Add an Adapter': [
+				'Example: Add an SSR Adapter': [
 					['netlify', 'astro add netlify'],
 					['vercel', 'astro add vercel'],
 					['deno', 'astro add deno'],
