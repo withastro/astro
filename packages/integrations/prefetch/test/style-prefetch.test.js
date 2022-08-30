@@ -45,9 +45,6 @@ test.describe('Style prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				console.log('~'.repeat(25));
-				console.log(requests);
-
 				await expect(requests.length).toBe(2);
 				const cssUrl = astro.resolveUrl('/main.css');
 				const cssRequestCount = requests.filter(req=>req.url() === cssUrl).length;
