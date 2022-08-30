@@ -347,17 +347,19 @@ import heroImage from '../assets/hero.png';
 
 #### Images in `/public`
 
-Files in the `/public` directory are always served or copied as-is, without transform or bundling. This also means that files in `/public` also can't be `import`ed directly. It's recommended that local images are always kept in `/src`, but in case you absolutely need to keep an image in `/public` it can be referenced by path and treated as a remote image.
+Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=" attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
 
-```astro
+Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value. 
+
+For example, use an image located at `public/social.png` in either static or SSR builds like so:
+
+```astro title="src/pages/page.astro"
 ---
 import { Image } from '@astrojs/image/components';
-import socialImage from '/social.png';
+import socialImage from '/social.png'; 
 ---
-
-// the image file from `/public/social.png` will be used
-// in static (SSG) builds, this will be built and optimized to `/dist`.
-// in SSR builds, the image will be optimized by the server when requested by a browser.
+// In static builds: the image will be built and optimized to `/dist`.
+// In SSR builds: the image will be optimized by the server when requested by a browser.
 <Image src={socialImage} width={1280} aspectRatio="16:9" />
 ```
 
