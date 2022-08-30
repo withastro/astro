@@ -21,6 +21,7 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/preact/",
   "exports": {
     ".": "./dist/index.js",
+    "./app": "./app.js",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"

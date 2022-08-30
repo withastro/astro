@@ -1099,6 +1099,8 @@ export interface AstroRenderer {
 	clientEntrypoint?: string;
 	/** Import entrypoint for the server/build/ssr renderer. */
 	serverEntrypoint: string;
+	/** User-provided entrypoint for the browser app instance */
+	appEntrypoint?: string;
 	/** JSX identifier (e.g. 'react' or 'solid-js') */
 	jsxImportSource?: string;
 	/** Babel transform options */

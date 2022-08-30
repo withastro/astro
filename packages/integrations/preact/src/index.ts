@@ -1,10 +1,11 @@
 import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 
-function getRenderer(): AstroRenderer {
+function getRenderer(appEntrypoint?: string): AstroRenderer {
 	return {
 		name: '@astrojs/preact',
 		clientEntrypoint: '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
+		appEntrypoint,
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
 			const {
@@ -92,13 +93,32 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 	return viteConfig;
 }
 
-export default function ({ compat }: { compat?: boolean } = {}): AstroIntegration {
+export default function ({ compat, appEntrypoint }: { compat?: boolean, appEntrypoint?: string } = {}): AstroIntegration {
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
+			'astro:config:setup': ({ addRenderer, updateConfig, injectScript }) => {
 				if (compat) addRenderer(getCompatRenderer());
-				addRenderer(getRenderer());
+				injectScript('before-hydration', `import { h, Fragment, render } from "preact";
+import { useState } from "preact/hooks";
+import Provider from "virtual:@astrojs/preact/app";
+
+let addChild = () => {};
+const App = ({ children: c }) => {
+	const [children, setChildren] = useState([c]);
+	addChild = (child) => setChildren(v => ([...v, child]));
+	return h(Fragment, {}, children)
+}
+
+const el = document.createElement('astro-app');
+el.setAttribute('renderer', '@astrojs/preact');
+document.body.appendChild(el);
+
+render(h(Provider, {}, h(App, {})), el)
+globalThis['@astrojs/preact'] = {
+	addChild
+}`)
+				addRenderer(getRenderer(appEntrypoint));
 				updateConfig({
 					vite: getViteConfiguration(compat),
 				});

@@ -1,7 +1,6 @@
 ---
 // Component Imports
 import Counter from '../components/Counter';
-
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
@@ -25,6 +24,9 @@ import Counter from '../components/Counter';
 	</head>
 	<body>
 		<main>
+			<Counter client:visible>
+				<h1>Hello, Preact!</h1>
+			</Counter>
 			<Counter client:visible>
 				<h1>Hello, Preact!</h1>
 			</Counter>

@@ -16,5 +16,16 @@ export default function astroIntegrationsContainerPlugin({
 		configureServer(server) {
 			runHookServerSetup({ config, server, logging });
 		},
+		async resolveId(id, importer, options) {
+			if (id.startsWith('virtual:@astrojs/') && id.endsWith('/app')) {
+				const rendererName = id.slice('virtual:'.length, '/app'.length * -1);
+				const match = config._ctx.renderers.find(({ name }) => name === rendererName);
+				if (match && match.appEntrypoint) {
+					const app = await this.resolve(match.appEntrypoint, importer, { ...options, skipSelf: true });
+					return app;
+				}
+				return id.slice('virtual:'.length)
+			}
+		}
 	};
 }
