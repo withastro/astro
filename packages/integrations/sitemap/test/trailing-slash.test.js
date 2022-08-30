@@ -12,12 +12,12 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
 					build: {
-						format: 'directory'
-					}
+						format: 'directory',
+					},
 				});
 				await fixture.build();
 			});
-		
+
 			it('URLs end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 				const urls = data.urlset.url;
@@ -31,15 +31,15 @@ describe('Trailing slash', () => {
 					root: './fixtures/trailing-slash/',
 					trailingSlash: 'ignore',
 					build: {
-						format: 'file'
-					}
+						format: 'file',
+					},
 				});
 				await fixture.build();
 			});
-		
+
 			it('URLs do not end with trailing slash', async () => {
 				const data = await readXML(fixture.readFile('/sitemap-0.xml'));
-				const urls = data.urlset.url;	
+				const urls = data.urlset.url;
 				expect(urls[0].loc[0]).to.equal('http://example.com/one');
 			});
 		});
@@ -53,7 +53,7 @@ describe('Trailing slash', () => {
 			});
 			await fixture.build();
 		});
-	
+
 		it('URLs do no end with trailing slash', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;
@@ -69,7 +69,7 @@ describe('Trailing slash', () => {
 			});
 			await fixture.build();
 		});
-	
+
 		it('URLs end with trailing slash', async () => {
 			const data = await readXML(fixture.readFile('/sitemap-0.xml'));
 			const urls = data.urlset.url;

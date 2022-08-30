@@ -240,14 +240,21 @@ interface GeneratePathOptions {
 	renderers: SSRLoadedRenderer[];
 }
 
-function shouldAppendForwardSlash(trailingSlash: AstroConfig['trailingSlash'], buildFormat: AstroConfig['build']['format']): boolean {
-	switch(trailingSlash) {
-		case 'always': return true;
-		case 'never': return false;
+function shouldAppendForwardSlash(
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format']
+): boolean {
+	switch (trailingSlash) {
+		case 'always':
+			return true;
+		case 'never':
+			return false;
 		case 'ignore': {
-			switch(buildFormat) {
-				case 'directory': return true;
-				case 'file': return false;
+			switch (buildFormat) {
+				case 'directory':
+					return true;
+				case 'file':
+					return false;
 			}
 		}
 	}
@@ -256,9 +263,9 @@ function shouldAppendForwardSlash(trailingSlash: AstroConfig['trailingSlash'], b
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const trailingSlash = opts.astroConfig.trailingSlash;
 	const buildFormat = opts.astroConfig.build.format;
-	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat) ?
-		pathname.replace(/\/?$/, '/').replace(/^\//, '') :
-		pathname.replace(/^\//, '')
+	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
+		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
+		: pathname.replace(/^\//, '');
 	opts.pageNames.push(pageName);
 }
 

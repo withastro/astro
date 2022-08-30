@@ -19,12 +19,12 @@ export function loadFixture(inlineConfig) {
 
 export function readXML(fileOrPromise) {
 	const parseString = xml2js.parseString;
-	return Promise.resolve(fileOrPromise).then(xml => {
+	return Promise.resolve(fileOrPromise).then((xml) => {
 		return new Promise((resolve, reject) => {
 			parseString(xml, function (err, result) {
-				if(err) return reject(err);
+				if (err) return reject(err);
 				resolve(result);
+			});
 		});
-		})
 	});
 }
