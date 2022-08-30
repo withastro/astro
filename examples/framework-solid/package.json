@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@astrojs/solid-js": "^1.1.0",
-    "astro": "^1.1.1"
+    "astro": "^1.1.2"
   },
   "dependencies": {
     "solid-js": "^1.4.3"

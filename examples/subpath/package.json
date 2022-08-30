@@ -10,8 +10,8 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@astrojs/react": "^1.1.0",
-    "astro": "^1.1.1"
+    "@astrojs/react": "^1.1.1",
+    "astro": "^1.1.2"
   },
   "dependencies": {
     "react": "^18.1.0",
