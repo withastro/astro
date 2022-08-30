@@ -22,4 +22,12 @@ describe('Astro.redirect', () => {
 		expect(response.status).to.equal(302);
 		expect(response.headers.get('location')).to.equal('/login');
 	});
+
+	it('Returns a 301 status', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/permanent');
+		const response = await app.render(request);
+		expect(response.status).to.equal(301);
+		expect(response.headers.get('location')).to.equal('/login');
+	});
 });
