@@ -2228,26 +2228,20 @@ importers:
 
   packages/integrations/image:
     specifiers:
-      '@types/etag': ^1.8.1
-      '@types/sharp': ^0.30.4
+      '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
-      etag: ^1.8.1
-      image-size: ^1.0.1
+      image-size: ^1.0.2
       kleur: ^4.1.4
-      mrmime: ^1.0.0
+      magic-string: ^0.25.9
+      mime: ^3.0.0
       sharp: ^0.30.6
-      slash: ^4.0.0
-      tiny-glob: ^0.2.9
     dependencies:
-      etag: 1.8.1
       image-size: 1.0.2
-      mrmime: 1.0.1
+      magic-string: 0.25.9
+      mime: 3.0.0
       sharp: 0.30.7
-      slash: 4.0.0
-      tiny-glob: 0.2.9
     devDependencies:
-      '@types/etag': 1.8.1
       '@types/sharp': 0.30.5
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -2280,6 +2274,18 @@ importers:
       astro: workspace:*
     dependencies:
       '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
+  packages/integrations/image/test/fixtures/with-mdx:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/mdx': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/mdx': link:../../../../mdx
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
 
@@ -11464,11 +11470,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /etag/1.8.1:
-    resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
-    engines: {node: '>= 0.6'}
-    dev: false
-
   /event-target-shim/5.0.1:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
@@ -11904,6 +11905,7 @@ packages:
 
   /globalyzer/0.1.0:
     resolution: {integrity: sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==}
+    dev: true
 
   /globby/11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
@@ -11931,6 +11933,7 @@ packages:
 
   /globrex/0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
+    dev: true
 
   /graceful-fs/4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
@@ -16303,6 +16306,7 @@ packages:
     dependencies:
       globalyzer: 0.1.0
       globrex: 0.1.2
+    dev: true
 
   /tinypool/0.2.4:
     resolution: {integrity: sha512-Vs3rhkUH6Qq1t5bqtb816oT+HeJTXfwt2cbPH17sWHIYKTotQIFPk3tf2fgqRrVyMDVOc1EnPgzIxfIulXVzwQ==}
