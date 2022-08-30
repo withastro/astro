@@ -3,6 +3,12 @@ import vite from 'vite';
 import { unwrapId } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
+/**
+ * List of file extensions signalling we can (and should) SSR ahead-of-time
+ * See usage below
+ */
+const fileExtensionsToSSR = new Set(['.astro', '.md']);
+
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
@@ -49,6 +55,12 @@ export async function* crawlGraph(
 					// every hoisted script in the project is added to every page!
 					if (entryIsStyle && !STYLE_EXTENSIONS.has(npath.extname(importedModulePathname))) {
 						continue;
+					}
+					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
+						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
+						if (!mod?.ssrModule) {
+							await viteServer.ssrLoadModule(importedModule.id);
+						}
 					}
 				}
 				importedModules.add(importedModule);
