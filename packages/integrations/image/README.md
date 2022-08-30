@@ -106,9 +106,9 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src = "../assets/source-pic.png"`)
+For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
 
- For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src = "/images/public-image.jpg"`)
+ For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
 
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
@@ -347,7 +347,7 @@ import heroImage from '../assets/hero.png';
 
 #### Images in `/public`
 
-Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=" attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
+Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=` attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
 
 Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value. 
 
