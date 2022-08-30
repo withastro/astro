@@ -268,7 +268,7 @@ will be converted into this HTML:
 But what if you want to specify your own markup for these blockquotes? In the above example, you could create a custom `<Blockquote />` component (in any language) that has either a `<slot />`  component or accepts a `children` prop. MDX provides a way to tap into this rendering and use your own custom components. In the above example, you could create a custom Blockquote component (in any language) that has either a `<slot />`  component or accepts a `children` prop. 
 
 ```astro title="src/components/Blockquote.astro"
-<blockquote class="bg-blue-400 p-4">
+<blockquote class="bg-blue-50 p-4">
   <span class="text-4xl text-blue-600 mb-2">“</span>
   <slot />
 </blockquote>
