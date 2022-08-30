@@ -1,16 +1,16 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Button from '../components/Button/index.jsx';
-import Footer from '../components/Footer/index.jsx';
-import Nav from '../components/Nav/index.jsx';
+import MainHead from "../components/MainHead.astro";
+import Button from "../components/Button.astro";
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
 
 const { content } = Astro.props;
 ---
 
-<html lang={content.lang || 'en'}>
+<html lang={content.lang || "en"}>
 	<head>
 		<MainHead title={content.title} description={content.description} />
-		<style lang="scss">
+		<style>
 			.hero {
 				padding: 8rem;
 				display: flex;
@@ -28,19 +28,19 @@ const { content } = Astro.props;
 				margin-left: 0.5em;
 				margin-right: 0.5em;
 				text-transform: uppercase;
+			}
 
-				&:nth-of-type(1n) {
-					color: var(--c-green);
-				}
-				&:nth-of-type(2n) {
-					color: var(--c-orange);
-				}
-				&:nth-of-type(3n) {
-					color: var(--c-blue);
-				}
-				&:nth-of-type(4n) {
-					color: var(--c-pink);
-				}
+			tag:nth-of-type(1n) {
+				color: var(--c-green);
+			}
+			tag:nth-of-type(2n) {
+				color: var(--c-orange);
+			}
+			tag:nth-of-type(3n) {
+				color: var(--c-blue);
+			}
+			tag:nth-of-type(4n) {
+				color: var(--c-pink);
 			}
 
 			.title {
@@ -65,6 +65,18 @@ const { content } = Astro.props;
 				font-size: var(--f-u1);
 				line-height: 2.2;
 			}
+
+			.wrapper {
+				padding-top: 4em;
+				padding-bottom: 4em;
+				margin-bottom: 4em;
+				text-align: center;
+			}
+
+			footer {
+				text-align: center;
+				margin-top: 3rem;
+			}
 		</style>
 	</head>
 	<body>
@@ -73,7 +85,7 @@ const { content } = Astro.props;
 			<h1 class="title">{content.title}</h1>
 		</header>
 		<div class="leadIn">
-			<div class="wrapper pt8 pb8 mb8 tac">
+			<div class="wrapper">
 				{content.tags.map((t) => <span class="tag">{t}</span>)}
 				<h3 class="tagline">{content.description}</h3>
 			</div>
@@ -81,7 +93,7 @@ const { content } = Astro.props;
 		<div class="wrapper wrapper__readable">
 			<div class="content"><slot /></div>
 		</div>
-		<footer class="tac mt6">
+		<footer>
 			<a href="/projects">
 				<Button>View More</Button>
 			</a>

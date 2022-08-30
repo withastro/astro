@@ -253,16 +253,9 @@ importers:
 
   examples/portfolio:
     specifiers:
-      '@astrojs/preact': ^1.0.2
-      astro: ^1.1.2
-      preact: ^10.7.3
-      sass: ^1.52.2
+      astro: ^1.1.1
     dependencies:
-      preact: 10.10.6
-    devDependencies:
-      '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
-      sass: 1.54.6
 
   examples/ssr:
     specifiers:

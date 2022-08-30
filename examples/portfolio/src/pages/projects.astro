@@ -1,14 +1,15 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer/index.jsx';
-import Nav from '../components/Nav/index.jsx';
-import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
+import MainHead from "../components/MainHead.astro";
+import Footer from "../components/Footer.astro";
+import Nav from "../components/Nav.astro";
+import PortfolioPreview from "../components/PortfolioPreview.astro";
 
-const projects = (await Astro.glob('./project/**/*.md'))
+const projects = (await Astro.glob("./project/**/*.md"))
 	.filter(({ frontmatter }) => !!frontmatter.publishDate)
 	.sort(
 		(a, b) =>
-			new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf()
+			new Date(b.frontmatter.publishDate).valueOf() -
+			new Date(a.frontmatter.publishDate).valueOf()
 	);
 ---
 
@@ -18,19 +19,27 @@ const projects = (await Astro.glob('./project/**/*.md'))
 			title="All Projects | Jeanine White"
 			description="Learn about Jeanine White's most recent projects"
 		/>
-		<style lang="scss">
+		<style>
 			.grid {
 				display: grid;
 				grid-gap: 3rem;
+			}
+			.title {
+				margin-top: 2em;
+				margin-bottom: 2em;
 			}
 		</style>
 	</head>
 	<body>
 		<Nav />
 		<div class="wrapper">
-			<h1 class="title mt4 mb4">All Projects</h1>
+			<h1 class="title">All Projects</h1>
 			<div class="grid">
-				{projects.map((project) => <PortfolioPreview project={project} />)}
+				{
+					projects.map((project) => (
+						<PortfolioPreview project={project} />
+					))
+				}
 			</div>
 		</div>
 		<Footer />
