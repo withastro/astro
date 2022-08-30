@@ -21,13 +21,12 @@ export async function* crawlGraph(
 	const id = unwrapId(_id);
 	const importedModules = new Set<vite.ModuleNode>();
 	const moduleEntriesForId = isRootFile
-		? // If isFile = true, then you are at the root of your module import tree.
-		  // The `id` arg is a filepath, so use `getModulesByFile()` to collect all
-		  // nodes for that file. This is needed for advanced imports like Tailwind.
+		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
+		  // So we can get up-to-date info on initial server load.
+		  // Needed for slower CSS preprocessing like Tailwind
 		  viteServer.moduleGraph.getModulesByFile(id) ?? new Set()
-		: // Otherwise, you are following an import in the module import tree.
-		  // You are safe to use getModuleById() here because Vite has already
-		  // resolved the correct `id` for you, by creating the import you followed here.
+		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
+		  // TODO: Find better invalidation strat to use "getModuleById" in all cases!
 		  new Set([viteServer.moduleGraph.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
