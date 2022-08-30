@@ -1,9 +1,9 @@
 import { expect } from '@playwright/test';
 import { testFactory } from './test-utils.js';
 
-const test = testFactory({ root: './fixtures/basic-prefetch/' });
+const test = testFactory({ root: './fixtures/style-prefetch/' });
 
-test.describe('Basic prefetch', () => {
+test.describe('Style prefetch', () => {
 	test.describe('dev', () => {
 		let devServer;
 
@@ -36,7 +36,7 @@ test.describe('Basic prefetch', () => {
 
 	function testPrefetch() {
 		test.describe('prefetches rel="prefetch" links', () => {
-			test('skips /admin', async ({ page, astro }) => {
+			test('style fetching', async ({ page, astro }) => {
 				const requests = [];
 
 				page.on('request', async (request) => requests.push(request.url()));
@@ -48,17 +48,10 @@ test.describe('Basic prefetch', () => {
 				console.log('~'.repeat(25));
 				console.log(requests);
 
-				await expect(true).toBeTruthy();
-
-				/*await expect(
-					requests.has(astro.resolveUrl('/about')),
-					'/about was prefetched'
-				).toBeTruthy();
-				await expect(
-					requests.has(astro.resolveUrl('/contact')),
-					'/contact was prefetched'
-				).toBeTruthy();
-				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();*/
+				await expect(requests.length).toBe(2);
+				const cssUrl = astro.resolveUrl('/main.css');
+				const cssRequestCount = requests.filter(req=>req.url() === cssUrl).length;
+				await expect(cssRequestCount).toBe(1);
 			});
 		});
 	}
