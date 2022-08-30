@@ -106,7 +106,11 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images in your project's repository, use the path relative to the `src` or `public` directory. For remote images, provide the full URL.
+For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src = "../assets/source-pic.png"`)
+
+ For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src = "/images/public-image.jpg"`)
+
+For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
 #### format
 
