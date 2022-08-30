@@ -44,9 +44,7 @@ describe('MDX plugins', () => {
 				remarkPlugins: [remarkExamplePlugin],
 				rehypePlugins: [rehypeExamplePlugin],
 			},
-			integrations: [
-				mdx(),
-			],
+			integrations: [mdx()],
 		});
 
 		const html = await fixture.readFile(FILE);
@@ -61,9 +59,7 @@ describe('MDX plugins', () => {
 			markdown: {
 				remarkPlugins: [['remark-toc']],
 			},
-			integrations: [
-				mdx(),
-			],
+			integrations: [mdx()],
 		});
 
 		const html = await fixture.readFile(FILE);
@@ -79,9 +75,7 @@ describe('MDX plugins', () => {
 				rehypePlugins: [rehypeExamplePlugin],
 				extendDefaultPlugins: true,
 			},
-			integrations: [
-				mdx(),
-			],
+			integrations: [mdx()],
 		});
 
 		const html = await fixture.readFile(FILE);

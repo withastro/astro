@@ -2,18 +2,18 @@ import { compile as mdxCompile } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
 import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
+import { blue, bold } from 'kleur/colors';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
-import { bold, blue } from 'kleur/colors';
 import { rehypeApplyFrontmatterExport } from './astro-data-utils.js';
+import type { MdxOptions } from './utils.js';
 import {
 	getFileInfo,
-	parseFrontmatter,
-	handleExtendsNotSupported,
 	getRehypePlugins,
 	getRemarkPlugins,
+	handleExtendsNotSupported,
+	parseFrontmatter,
 } from './utils.js';
-import type { MdxOptions } from './utils.js';
 
 const RAW_CONTENT_ERROR =
 	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';

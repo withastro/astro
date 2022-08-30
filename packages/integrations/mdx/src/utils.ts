@@ -1,11 +1,12 @@
-import type { Options as AcornOpts } from 'acorn';
-import type { AstroConfig, SSRError } from 'astro';
-import type { MdxjsEsm } from 'mdast-util-mdx';
+import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import { bold, yellow } from 'kleur/colors';
-import { nodeTypes } from '@mdx-js/mdx';
+import type { Options as AcornOpts } from 'acorn';
 import { parse } from 'acorn';
+import type { AstroConfig, SSRError } from 'astro';
+import matter from 'gray-matter';
+import { bold, yellow } from 'kleur/colors';
+import type { MdxjsEsm } from 'mdast-util-mdx';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import remarkSmartypants from 'remark-smartypants';
@@ -13,7 +14,6 @@ import { remarkInitializeAstroData } from './astro-data-utils.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
-import matter from 'gray-matter';
 
 export type MdxOptions = {
 	remarkPlugins?: PluggableList;
