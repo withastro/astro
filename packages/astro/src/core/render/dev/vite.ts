@@ -15,19 +15,18 @@ const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 export async function* crawlGraph(
 	viteServer: vite.ViteDevServer,
 	_id: string,
-	isFile: boolean,
+	isRootFile: boolean,
 	scanned = new Set<string>()
 ): AsyncGenerator<vite.ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
 	const importedModules = new Set<vite.ModuleNode>();
-	const moduleEntriesForId = isFile
-		? // If isFile = true, then you are at the root of your module import tree.
-		  // The `id` arg is a filepath, so use `getModulesByFile()` to collect all
-		  // nodes for that file. This is needed for advanced imports like Tailwind.
+	const moduleEntriesForId = isRootFile
+		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
+		  // So we can get up-to-date info on initial server load.
+		  // Needed for slower CSS preprocessing like Tailwind
 		  viteServer.moduleGraph.getModulesByFile(id) ?? new Set()
-		: // Otherwise, you are following an import in the module import tree.
-		  // You are safe to use getModuleById() here because Vite has already
-		  // resolved the correct `id` for you, by creating the import you followed here.
+		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
+		  // TODO: Find better invalidation strat to use "getModuleById" in all cases!
 		  new Set([viteServer.moduleGraph.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
@@ -59,7 +58,11 @@ export async function* crawlGraph(
 					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
 						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
-							await viteServer.ssrLoadModule(importedModule.id);
+							try {
+								await viteServer.ssrLoadModule(importedModule.id);
+							} catch {
+								/** Likely an out-of-date module entry! Silently continue. */
+							}
 						}
 					}
 				}
