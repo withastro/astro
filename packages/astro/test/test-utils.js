@@ -144,8 +144,8 @@ export async function loadFixture(inlineConfig) {
 			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;
 		},
-		readFile: (filePath) =>
-			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
+		readFile: (filePath, encoding) =>
+			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), encoding ?? 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
 		clean: async () => {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
