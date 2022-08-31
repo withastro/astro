@@ -488,8 +488,9 @@ async function tryLoadConfig(
 		if (configOptions.invalidateWithCache) {
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
-			const tempConfigPath = vite.normalizePath(
-				path.join(root, `.temp.${Date.now()}.config${path.extname(configPath)}`)
+			const tempConfigPath = path.join(
+				root,
+				`.temp.${Date.now()}.config${path.extname(configPath)}`
 			);
 			await fs.promises.writeFile(tempConfigPath, await fs.promises.readFile(configPath));
 			finallyCleanup = async () => {
