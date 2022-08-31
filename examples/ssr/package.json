@@ -10,8 +10,7 @@
     "astro": "astro",
     "server": "node server/server.mjs"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "astro": "^1.1.1",
     "svelte": "^3.48.0",
