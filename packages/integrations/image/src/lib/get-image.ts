@@ -1,10 +1,9 @@
 /// <reference types="astro/astro-jsx" />
-import slash from 'slash';
-import { ROUTE_PATTERN } from '../constants.js';
-import { ImageService, isSSRService, OutputFormat, TransformOptions } from '../loaders/index.js';
+import type { ImageService, OutputFormat, TransformOptions } from '../loaders/index.js';
+import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 import sharp from '../loaders/sharp.js';
-import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
-import { ImageMetadata } from '../vite-plugin-astro-image.js';
+import { isRemoteImage } from '../utils/paths.js';
+import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -132,25 +131,26 @@ export async function getImage(
 		throw new Error('@astrojs/image: loader not found!');
 	}
 
-	// For SSR services, build URLs for the injected route
-	if (isSSRService(_loader)) {
-		const { searchParams } = _loader.serializeTransform(resolved);
+	const { searchParams } = isSSRService(_loader)
+		? _loader.serializeTransform(resolved)
+		: sharp.serializeTransform(resolved);
 
-		// cache all images rendered to HTML
-		if (globalThis.astroImage?.addStaticImage) {
-			globalThis.astroImage.addStaticImage(resolved);
-		}
+	let src: string;
 
-		const src = globalThis.astroImage?.filenameFormat
-			? globalThis.astroImage.filenameFormat(resolved, searchParams)
-			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
-
-		return {
-			...attributes,
-			src: slash(src), // Windows compat
-		};
+	if (/^[\/\\]?@astroimage/.test(resolved.src)) {
+		src = `${resolved.src}?${searchParams.toString()}`;
+	} else {
+		searchParams.set('href', resolved.src);
+		src = `/_image?${searchParams.toString()}`;
 	}
 
-	// For hosted services, return the `<img />` attributes as-is
-	return attributes;
+	// cache all images rendered to HTML
+	if (globalThis.astroImage?.addStaticImage) {
+		src = globalThis.astroImage.addStaticImage(resolved);
+	}
+
+	return {
+		...attributes,
+		src,
+	};
 }
