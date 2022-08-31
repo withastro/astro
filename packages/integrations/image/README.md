@@ -90,9 +90,9 @@ import { Image, Picture } from '@astrojs/image/components';
 
 The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
-Astro's `<Image />` and `<Picture />` components will throw an error if no `alt` text is provided. 
+Astro’s <Image /> and <Picture /> components require the alt attribute which provides descriptive text for images. These components will throw an error if no alt text is provided.
 
-If the image is merely decorative (i.e. doesn't contribute to the understanding of the page), set `alt=""` so it is ignored by screen readers.
+If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set alt="" so that the image is properly understood and ignored by screen readers.
 
 ### `<Image />`
 
@@ -112,9 +112,19 @@ Source for the original image file.
 
 For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
 
- For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
+For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
 
 For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
+
+#### alt
+
+<p>
+
+**Type:** `string`<br>
+**Required:** `true`
+</p>
+
+The `alt` string will be included on the built `<img />` element.
 
 #### format
 
@@ -190,17 +200,21 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 Source for the original image file.
 
-For images in your project's repository, use the path relative to the `src` or `public` directory. For remote images, provide the full URL.
+For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
+
+For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
+
+For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
 #### alt
 
 <p>
 
 **Type:** `string`<br>
-**Default:** `undefined`
+**Required:** `true`
 </p>
 
-If provided, the `alt` string will be included on the built `<img />` element.
+The `alt` string will be included on the built `<img />` element.
 
 #### sizes
 
@@ -270,7 +284,7 @@ const { src } = await getImage('../assets/hero.png');
 
 <html>
   <head>
-    <link rel="preload" as="image" href={src}>
+    <link rel="preload" as="image" href={src} alt="alt text">
   </head>
 </html>
 ```
@@ -331,22 +345,23 @@ Image files in your project's `src` directory can be imported in frontmatter and
 ---
 import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
+const altText = "Descriptive Text"
 ---
 
 // optimized image, keeping the original width, height, and image format
-<Image src={heroImage} />
+<Image src={heroImage} alt={altText} />
 
 // height will be recalculated to match the original aspect ratio
-<Image src={heroImage} width={300} />
+<Image src={heroImage} width={300} alt={altText} />
 
 // cropping to a specific width and height
-<Image src={heroImage} width={300} height={600} />
+<Image src={heroImage} width={300} height={600} alt={altText} />
 
 // cropping to a specific aspect ratio and converting to an avif format
-<Image src={heroImage} aspectRatio="16:9" format="avif" />
+<Image src={heroImage} aspectRatio="16:9" format="avif" alt={altText} />
 
 // image imports can also be inlined directly
-<Image src={import('../assets/hero.png')} />
+<Image src={import('../assets/hero.png')} alt={altText} />
 ```
 
 #### Images in `/public`
@@ -360,11 +375,12 @@ For example, use an image located at `public/social.png` in either static or SSR
 ```astro title="src/pages/page.astro"
 ---
 import { Image } from '@astrojs/image/components';
-import socialImage from '/social.png'; 
+import socialImage from '/social.png';
+const altText = "Descriptive Text"
 ---
 // In static builds: the image will be built and optimized to `/dist`.
 // In SSR builds: the image will be optimized by the server when requested by a browser.
-<Image src={socialImage} width={1280} aspectRatio="16:9" />
+<Image src={socialImage} width={1280} aspectRatio="16:9" alt={altText} />
 ```
 
 ### Remote images
@@ -376,16 +392,17 @@ Remote images can be transformed with the `<Image />` component. The `<Image />`
 import { Image } from '@astrojs/image/components';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
+const altText = "Descriptive Text"
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} />
+<Image src={imageUrl} width={544} height={184} alt={altText} />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} />
+<Image src={imageUrl} width={300} aspectRatio={16/9} alt={altText} />
 
 // cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" />
+<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt={altText} />
 ```
 
 ### Responsive pictures
