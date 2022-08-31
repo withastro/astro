@@ -5,11 +5,265 @@ import sizeOf from 'image-size';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
+describe('SSG pictures - dev', function () {
+	let fixture;
+	let devServer;
+	let $;
 
-describe('SSG pictures', function () {
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		devServer = await fixture.startDevServer();
+		const html = await fixture.fetch('/').then((res) => res.text());
+		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	describe('Local images', () => {
+		it('includes sources', () => {
+			const sources = $('#social-jpg source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#social-jpg img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Social image');
+		});
+	});
+
+	describe('Local images with inline imports', () => {
+		it('includes sources', () => {
+			const sources = $('#inline source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#inline img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Inline social image');
+		});
+	});
+
+	describe('Remote images', () => {
+		it('includes sources', () => {
+			const sources = $('#google source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#google img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('png');
+			expect(searchParams.get('w')).to.equal('544');
+			expect(searchParams.get('h')).to.equal('184');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
+			expect(image.attr('alt')).to.equal('Google logo');
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+	});
+});
+
+describe('SSG pictures with subpath - dev', function () {
+	let fixture;
+	let devServer;
+	let $;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-picture/', base: '/docs' });
+		devServer = await fixture.startDevServer();
+		const html = await fixture.fetch('/docs/').then((res) => res.text());
+		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	describe('Local images', () => {
+		it('includes sources', () => {
+			const sources = $('#social-jpg source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#social-jpg img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Social image');
+		});
+	});
+
+	describe('Local images with inline imports', () => {
+		it('includes sources', () => {
+			const sources = $('#inline source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#inline img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/@astroimage/assets/social.jpg');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('506');
+			expect(searchParams.get('h')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Inline social image');
+		});
+	});
+
+	describe('Remote images', () => {
+		it('includes sources', () => {
+			const sources = $('#google source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#google img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('png');
+			expect(searchParams.get('w')).to.equal('544');
+			expect(searchParams.get('h')).to.equal('184');
+			expect(searchParams.get('href')).to.equal(
+				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			);
+			expect(image.attr('alt')).to.equal('Google logo');
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal('/_image');
+
+			const searchParams = new URLSearchParams(params);
+
+			expect(searchParams.get('f')).to.equal('jpg');
+			expect(searchParams.get('w')).to.equal('768');
+			expect(searchParams.get('h')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+	});
+});
+
+describe('SSG pictures - build', function () {
+	let fixture;
+	let $;
+	let html;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		await fixture.build();
+
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
 	});
 
 	function verifyImage(pathname, expected) {
@@ -25,253 +279,310 @@ describe('SSG pictures', function () {
 		}
 	}
 
-	describe('build', () => {
-		let $;
-		let html;
+	describe('Local images', () => {
+		it('includes sources', () => {
+			const sources = $('#social-jpg source');
 
-		before(async () => {
-			await fixture.build();
+			expect(sources.length).to.equal(3);
 
-			html = await fixture.readFile('/index.html');
-			$ = cheerio.load(html);
+			// TODO: better coverage to verify source props
 		});
 
-		describe('Local images', () => {
-			it('includes sources', () => {
-				const sources = $('#social-jpg source');
+		it('includes <img> attributes', () => {
+			const image = $('#social-jpg img');
 
-				expect(sources.length).to.equal(3);
-
-				// TODO: better coverage to verify source props
-			});
-
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg img');
-
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
-				expect(image.attr('width')).to.equal('506');
-				expect(image.attr('height')).to.equal('253');
-				expect(image.attr('alt')).to.equal('Social image');
-			});
-
-			it('built the optimized image', () => {
-				verifyImage('_image/assets/social_253x127.avif', { width: 253, height: 127, type: 'avif' });
-				verifyImage('_image/assets/social_253x127.webp', { width: 253, height: 127, type: 'webp' });
-				verifyImage('_image/assets/social_253x127.jpg', { width: 253, height: 127, type: 'jpg' });
-				verifyImage('_image/assets/social_506x253.avif', { width: 506, height: 253, type: 'avif' });
-				verifyImage('_image/assets/social_506x253.webp', { width: 506, height: 253, type: 'webp' });
-				verifyImage('_image/assets/social_506x253.jpg', { width: 506, height: 253, type: 'jpg' });
-			});
-
-			it('dist includes original image', () => {
-				verifyImage('assets/social.jpg', { width: 2024, height: 1012, type: 'jpg' });
-			});
+			expect(image.attr('src')).to.equal('/social.cece8c77_isw36.jpg');
+			expect(image.attr('width')).to.equal('506');
+			expect(image.attr('height')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
-		describe('Inline imports', () => {
-			it('includes sources', () => {
-				const sources = $('#inline source');
+		it('built the optimized image', () => {
+			verifyImage('social.cece8c77_Z1qCkLW.avif', { width: 253, height: 127, type: 'avif' });
+			verifyImage('social.cece8c77_ZHhvOb.webp', { width: 253, height: 127, type: 'webp' });
+			verifyImage('social.cece8c77_ZwfMjf.jpg', { width: 253, height: 127, type: 'jpg' });
+			verifyImage('social.cece8c77_6t5Xo.avif', { width: 506, height: 253, type: 'avif' });
+			verifyImage('social.cece8c77_ONTVa.webp', { width: 506, height: 253, type: 'webp' });
+			verifyImage('social.cece8c77_isw36.jpg', { width: 506, height: 253, type: 'jpg' });
+		});
+	});
 
-				expect(sources.length).to.equal(3);
+	describe('Inline imports', () => {
+		it('includes sources', () => {
+			const sources = $('#inline source');
 
-				// TODO: better coverage to verify source props
-			});
+			expect(sources.length).to.equal(3);
 
-			it('includes <img> attributes', () => {
-				const image = $('#inline img');
-
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
-				expect(image.attr('width')).to.equal('506');
-				expect(image.attr('height')).to.equal('253');
-				expect(image.attr('alt')).to.equal('Inline social image');
-			});
-
-			it('built the optimized image', () => {
-				verifyImage('_image/assets/social_253x127.avif', { width: 253, height: 127, type: 'avif' });
-				verifyImage('_image/assets/social_253x127.webp', { width: 253, height: 127, type: 'webp' });
-				verifyImage('_image/assets/social_253x127.jpg', { width: 253, height: 127, type: 'jpg' });
-				verifyImage('_image/assets/social_506x253.avif', { width: 506, height: 253, type: 'avif' });
-				verifyImage('_image/assets/social_506x253.webp', { width: 506, height: 253, type: 'webp' });
-				verifyImage('_image/assets/social_506x253.jpg', { width: 506, height: 253, type: 'jpg' });
-			});
+			// TODO: better coverage to verify source props
 		});
 
-		describe('Remote images', () => {
-			// Hard-coding in the test! This should never change since the hash is based
-			// on the static `src` string
-			const HASH = 'Z1iI4xW';
+		it('includes <img> attributes', () => {
+			const image = $('#inline img');
 
-			it('includes sources', () => {
-				const sources = $('#google source');
+			expect(image.attr('src')).to.equal('/social.cece8c77_isw36.jpg');
+			expect(image.attr('width')).to.equal('506');
+			expect(image.attr('height')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Inline social image');
+		});
 
-				expect(sources.length).to.equal(3);
+		it('built the optimized image', () => {
+			verifyImage('social.cece8c77_Z1qCkLW.avif', { width: 253, height: 127, type: 'avif' });
+			verifyImage('social.cece8c77_ZHhvOb.webp', { width: 253, height: 127, type: 'webp' });
+			verifyImage('social.cece8c77_ZwfMjf.jpg', { width: 253, height: 127, type: 'jpg' });
+			verifyImage('social.cece8c77_6t5Xo.avif', { width: 506, height: 253, type: 'avif' });
+			verifyImage('social.cece8c77_ONTVa.webp', { width: 506, height: 253, type: 'webp' });
+			verifyImage('social.cece8c77_isw36.jpg', { width: 506, height: 253, type: 'jpg' });
+		});
+	});
 
-				// TODO: better coverage to verify source props
+	describe('Remote images', () => {
+		// Hard-coding in the test! This should never change since the hash is based
+		// on the static `src` string
+		const HASH = 'ZWW1pg';
+
+		it('includes sources', () => {
+			const sources = $('#google source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#google img');
+
+			expect(image.attr('src')).to.equal(`/googlelogo_color_272x92dp_${HASH}.png`);
+			expect(image.attr('width')).to.equal('544');
+			expect(image.attr('height')).to.equal('184');
+			expect(image.attr('alt')).to.equal('Google logo');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage(`googlelogo_color_272x92dp_1YsbPJ.avif`, {
+				width: 272,
+				height: 92,
+				type: 'avif',
 			});
-
-			it('includes <img> attributes', () => {
-				const image = $('#google img');
-
-				expect(image.attr('src')).to.equal(`/_image/googlelogo_color_272x92dp-${HASH}_544x184.png`);
-				expect(image.attr('width')).to.equal('544');
-				expect(image.attr('height')).to.equal('184');
-				expect(image.attr('alt')).to.equal('Google logo');
+			verifyImage(`googlelogo_color_272x92dp_1OJIxd.webp`, {
+				width: 272,
+				height: 92,
+				type: 'webp',
 			});
-
-			it('built the optimized image', () => {
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.avif`, {
-					width: 272,
-					height: 92,
-					type: 'avif',
-				});
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.webp`, {
-					width: 272,
-					height: 92,
-					type: 'webp',
-				});
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_272x92.png`, {
-					width: 272,
-					height: 92,
-					type: 'png',
-				});
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.avif`, {
-					width: 544,
-					height: 184,
-					type: 'avif',
-				});
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`, {
-					width: 544,
-					height: 184,
-					type: 'webp',
-				});
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.png`, {
-					width: 544,
-					height: 184,
-					type: 'png',
-				});
+			verifyImage(`googlelogo_color_272x92dp_ZaELrV.png`, {
+				width: 272,
+				height: 92,
+				type: 'png',
+			});
+			verifyImage(`googlelogo_color_272x92dp_I7OBe.avif`, {
+				width: 544,
+				height: 184,
+				type: 'avif',
+			});
+			verifyImage(`googlelogo_color_272x92dp_ReA0T.webp`, {
+				width: 544,
+				height: 184,
+				type: 'webp',
+			});
+			verifyImage(`googlelogo_color_272x92dp_ZWW1pg.png`, {
+				width: 544,
+				height: 184,
+				type: 'png',
 			});
 		});
 	});
 
-	describe('dev', () => {
-		let devServer;
-		let $;
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
 
-		before(async () => {
-			devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/').then((res) => res.text());
-			$ = cheerio.load(html);
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
 		});
 
-		after(async () => {
-			await devServer.stop();
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			expect(image.attr('src')).to.equal('/hero_1ql1f0.jpg');
+			expect(image.attr('width')).to.equal('768');
+			expect(image.attr('height')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
 		});
 
-		describe('Local images', () => {
-			it('includes sources', () => {
-				const sources = $('#social-jpg source');
+		it('built the optimized image', () => {
+			verifyImage('hero_ZOXU0F.avif', { width: 384, height: 207, type: 'avif' });
+			verifyImage('hero_ZFR9B0.webp', { width: 384, height: 207, type: 'webp' });
+			verifyImage('hero_Z1rYjFx.jpg', { width: 384, height: 207, type: 'jpg' });
+			verifyImage('hero_Z1kkIMd.avif', { width: 768, height: 414, type: 'avif' });
+			verifyImage('hero_Z1bdXnx.webp', { width: 768, height: 414, type: 'webp' });
+			verifyImage('hero_Z1Wl8s5.jpg', { width: 768, height: 414, type: 'jpg' });
+		});
+	});
+});
 
-				expect(sources.length).to.equal(3);
+describe('SSG pictures with subpath - build', function () {
+	let fixture;
+	let $;
+	let html;
 
-				// TODO: better coverage to verify source props
-			});
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-picture/', base: '/docs' });
+		await fixture.build();
 
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg img');
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
+	});
 
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
+	function verifyImage(pathname, expected) {
+		const url = new URL('./fixtures/basic-picture/dist/' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
 
-				expect(route).to.equal('/_image');
+		// image-size doesn't support AVIF files
+		if (expected.type !== 'avif') {
+			const result = sizeOf(dist);
+			expect(result).to.deep.equal(expected);
+		} else {
+			expect(fs.statSync(dist)).not.to.be.undefined;
+		}
+	}
 
-				const searchParams = new URLSearchParams(params);
+	describe('Local images', () => {
+		it('includes sources', () => {
+			const sources = $('#social-jpg source');
 
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-				expect(image.attr('alt')).to.equal('Social image');
-			});
+			expect(sources.length).to.equal(3);
 
-			it('returns the optimized image', async () => {
-				const image = $('#social-jpg img');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-			});
+			// TODO: better coverage to verify source props
 		});
 
-		describe('Local images with inline imports', () => {
-			it('includes sources', () => {
-				const sources = $('#inline source');
+		it('includes <img> attributes', () => {
+			const image = $('#social-jpg img');
 
-				expect(sources.length).to.equal(3);
-
-				// TODO: better coverage to verify source props
-			});
-
-			it('includes <img> attributes', () => {
-				const image = $('#inline img');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-				expect(image.attr('alt')).to.equal('Inline social image');
-			});
-
-			it('returns the optimized image', async () => {
-				const image = $('#inline img');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-			});
+			expect(image.attr('src')).to.equal('/docs/social.cece8c77_VWX3S.jpg');
+			expect(image.attr('width')).to.equal('506');
+			expect(image.attr('height')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Social image');
 		});
 
-		describe('Remote images', () => {
-			it('includes sources', () => {
-				const sources = $('#google source');
+		it('built the optimized image', () => {
+			verifyImage('social.cece8c77_2wbTqo.avif', { width: 253, height: 127, type: 'avif' });
+			verifyImage('social.cece8c77_Z1OEppL.webp', { width: 253, height: 127, type: 'webp' });
+			verifyImage('social.cece8c77_Z1xuFVD.jpg', { width: 253, height: 127, type: 'jpg' });
+			verifyImage('social.cece8c77_Z10SMCc.avif', { width: 506, height: 253, type: 'avif' });
+			verifyImage('social.cece8c77_ZhxXEq.webp', { width: 506, height: 253, type: 'webp' });
+			verifyImage('social.cece8c77_Z1ks7l5.jpg', { width: 506, height: 253, type: 'jpg' });
+		});
+	});
 
-				expect(sources.length).to.equal(3);
+	describe('Inline imports', () => {
+		it('includes sources', () => {
+			const sources = $('#inline source');
 
-				// TODO: better coverage to verify source props
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#inline img');
+
+			expect(image.attr('src')).to.equal('/docs/social.cece8c77_VWX3S.jpg');
+			expect(image.attr('width')).to.equal('506');
+			expect(image.attr('height')).to.equal('253');
+			expect(image.attr('alt')).to.equal('Inline social image');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage('social.cece8c77_2wbTqo.avif', { width: 253, height: 127, type: 'avif' });
+			verifyImage('social.cece8c77_Z1OEppL.webp', { width: 253, height: 127, type: 'webp' });
+			verifyImage('social.cece8c77_Z1xuFVD.jpg', { width: 253, height: 127, type: 'jpg' });
+			verifyImage('social.cece8c77_Z10SMCc.avif', { width: 506, height: 253, type: 'avif' });
+			verifyImage('social.cece8c77_ZhxXEq.webp', { width: 506, height: 253, type: 'webp' });
+			verifyImage('social.cece8c77_Z1ks7l5.jpg', { width: 506, height: 253, type: 'jpg' });
+		});
+	});
+
+	describe('Remote images', () => {
+		// Hard-coding in the test! This should never change since the hash is based
+		// on the static `src` string
+		const HASH = 'ZWW1pg';
+
+		it('includes sources', () => {
+			const sources = $('#google source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#google img');
+
+			expect(image.attr('src')).to.equal(`/docs/googlelogo_color_272x92dp_${HASH}.png`);
+			expect(image.attr('width')).to.equal('544');
+			expect(image.attr('height')).to.equal('184');
+			expect(image.attr('alt')).to.equal('Google logo');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage(`googlelogo_color_272x92dp_1YsbPJ.avif`, {
+				width: 272,
+				height: 92,
+				type: 'avif',
 			});
-
-			it('includes <img> attributes', () => {
-				const image = $('#google img');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('png');
-				expect(searchParams.get('w')).to.equal('544');
-				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal(
-					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-				);
-				expect(image.attr('alt')).to.equal('Google logo');
+			verifyImage(`googlelogo_color_272x92dp_1OJIxd.webp`, {
+				width: 272,
+				height: 92,
+				type: 'webp',
 			});
+			verifyImage(`googlelogo_color_272x92dp_ZaELrV.png`, {
+				width: 272,
+				height: 92,
+				type: 'png',
+			});
+			verifyImage(`googlelogo_color_272x92dp_I7OBe.avif`, {
+				width: 544,
+				height: 184,
+				type: 'avif',
+			});
+			verifyImage(`googlelogo_color_272x92dp_ReA0T.webp`, {
+				width: 544,
+				height: 184,
+				type: 'webp',
+			});
+			verifyImage(`googlelogo_color_272x92dp_ZWW1pg.png`, {
+				width: 544,
+				height: 184,
+				type: 'png',
+			});
+		});
+	});
+
+	describe('/public images', () => {
+		it('includes sources', () => {
+			const sources = $('#hero source');
+
+			expect(sources.length).to.equal(3);
+
+			// TODO: better coverage to verify source props
+		});
+
+		it('includes <img> attributes', () => {
+			const image = $('#hero img');
+
+			expect(image.attr('src')).to.equal('/docs/hero_1ql1f0.jpg');
+			expect(image.attr('width')).to.equal('768');
+			expect(image.attr('height')).to.equal('414');
+			expect(image.attr('alt')).to.equal('Hero image');
+		});
+
+		it('built the optimized image', () => {
+			verifyImage('hero_ZOXU0F.avif', { width: 384, height: 207, type: 'avif' });
+			verifyImage('hero_ZFR9B0.webp', { width: 384, height: 207, type: 'webp' });
+			verifyImage('hero_Z1rYjFx.jpg', { width: 384, height: 207, type: 'jpg' });
+			verifyImage('hero_Z1kkIMd.avif', { width: 768, height: 414, type: 'avif' });
+			verifyImage('hero_Z1bdXnx.webp', { width: 768, height: 414, type: 'webp' });
+			verifyImage('hero_Z1Wl8s5.jpg', { width: 768, height: 414, type: 'jpg' });
 		});
 	});
 });

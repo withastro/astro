@@ -26,7 +26,6 @@ describe('Sharp service', () => {
 					}
 				}
 
-				verifyProp(props.src, 'href');
 				verifyProp(props.quality, 'q');
 				verifyProp(props.format, 'f');
 				verifyProp(props.width, 'w');

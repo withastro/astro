@@ -1,9 +1,10 @@
 import sizeOf from 'image-size';
 import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { InputFormat } from '../loaders/index.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
-export async function metadata(src: string): Promise<ImageMetadata | undefined> {
+export async function metadata(src: URL): Promise<ImageMetadata | undefined> {
 	const file = await fs.readFile(src);
 
 	const { width, height, type, orientation } = await sizeOf(file);
@@ -14,7 +15,7 @@ export async function metadata(src: string): Promise<ImageMetadata | undefined> 
 	}
 
 	return {
-		src,
+		src: fileURLToPath(src),
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as InputFormat,
