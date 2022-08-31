@@ -1,13 +1,17 @@
-import ts from 'typescript';
+import type ts from 'typescript';
 import { FoldingRange, FoldingRangeKind, Position } from 'vscode-languageserver';
-import { AstroDocument } from '../../../core/documents';
-import { FoldingRangesProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
-import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import type { AstroDocument } from '../../../core/documents';
+import type { FoldingRangesProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 
 export class FoldingRangesProviderImpl implements FoldingRangesProvider {
-	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[] | null> {
 		const html = document.html;
@@ -56,22 +60,28 @@ export class FoldingRangesProviderImpl implements FoldingRangesProvider {
 			}
 
 			foldingRanges.push(
-				FoldingRange.create(start.line, end.line, start.character, end.character, transformFoldingRangeKind(span.kind))
+				FoldingRange.create(
+					start.line,
+					end.line,
+					start.character,
+					end.character,
+					this.transformFoldingRangeKind(span.kind)
+				)
 			);
 		}
 
 		return foldingRanges;
 	}
-}
 
-function transformFoldingRangeKind(tsKind: ts.OutliningSpanKind) {
-	switch (tsKind) {
-		case ts.OutliningSpanKind.Comment:
-			return FoldingRangeKind.Comment;
-		case ts.OutliningSpanKind.Imports:
-			return FoldingRangeKind.Imports;
-		case ts.OutliningSpanKind.Region:
-			return FoldingRangeKind.Region;
+	transformFoldingRangeKind(tsKind: ts.OutliningSpanKind) {
+		switch (tsKind) {
+			case this.ts.OutliningSpanKind.Comment:
+				return FoldingRangeKind.Comment;
+			case this.ts.OutliningSpanKind.Imports:
+				return FoldingRangeKind.Imports;
+			case this.ts.OutliningSpanKind.Region:
+				return FoldingRangeKind.Region;
+		}
 	}
 }
 

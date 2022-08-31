@@ -11,8 +11,8 @@ import {
 	Range,
 	SymbolInformation,
 } from 'vscode-languageserver';
-import { ConfigManager } from '../../core/config/ConfigManager';
-import { LSConfig, LSCSSConfig } from '../../core/config/interfaces';
+import type { ConfigManager } from '../../core/config/ConfigManager';
+import type { LSConfig, LSCSSConfig } from '../../core/config/interfaces';
 import {
 	AstroDocument,
 	isInsideFrontmatter,

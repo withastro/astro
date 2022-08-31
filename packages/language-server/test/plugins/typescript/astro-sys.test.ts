@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ts from 'typescript';
+import ts from 'typescript/lib/tsserverlibrary';
 import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 import { createAstroSys } from '../../../src/plugins/typescript/astro-sys';
 
@@ -20,7 +20,7 @@ describe('Astro Sys', () => {
 		);
 
 		sinon.replace(ts.sys, 'fileExists', fileExistsStub);
-		const loader = createAstroSys(getSnapshotStub);
+		const loader = createAstroSys(getSnapshotStub, ts);
 
 		return {
 			fileExistsStub,

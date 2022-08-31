@@ -1,4 +1,4 @@
-import { HTMLDocument, Range } from 'vscode-html-languageservice';
+import type { HTMLDocument, Range } from 'vscode-html-languageservice';
 import { urlToPath } from '../../utils';
 import { WritableDocument } from './DocumentBase';
 import { AstroMetadata, parseAstro } from './parseAstro';

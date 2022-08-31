@@ -1,13 +1,16 @@
-import ts from 'typescript';
 import { CancellationToken, Range, SemanticTokens, SemanticTokensBuilder } from 'vscode-languageserver';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
-import { SemanticTokensProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
-import { AstroSnapshotFragment } from '../snapshots/DocumentSnapshot';
+import type { SemanticTokensProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroSnapshotFragment } from '../snapshots/DocumentSnapshot';
 import { toVirtualAstroFilePath } from '../utils';
 
 export class SemanticTokensProviderImpl implements SemanticTokensProvider {
-	constructor(private languageServiceManager: LanguageServiceManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	async getSemanticTokens(
 		document: AstroDocument,
@@ -33,7 +36,7 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
 					: // We don't want tokens for things added by astro2tsx
 					  fragment.text.lastIndexOf('export default function ') || fragment.text.length,
 			},
-			ts.SemanticClassificationFormat.TwentyTwenty
+			this.ts.SemanticClassificationFormat.TwentyTwenty
 		);
 
 		const tokens: [number, number, number, number, number][] = [];

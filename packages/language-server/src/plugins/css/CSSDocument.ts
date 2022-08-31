@@ -1,5 +1,5 @@
-import { Stylesheet, TextDocument } from 'vscode-css-languageservice';
-import { Position } from 'vscode-languageserver';
+import type { Stylesheet, TextDocument } from 'vscode-css-languageservice';
+import type { Position } from 'vscode-languageserver';
 import { getLanguageService } from './language-service';
 import { AstroDocument, DocumentMapper, ReadableDocument, TagInformation } from '../../core/documents';
 

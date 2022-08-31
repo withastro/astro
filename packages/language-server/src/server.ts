@@ -17,21 +17,26 @@ import { DiagnosticsManager } from './core/DiagnosticsManager';
 import { AstroPlugin } from './plugins/astro/AstroPlugin';
 import { CSSPlugin } from './plugins/css/CSSPlugin';
 import { HTMLPlugin } from './plugins/html/HTMLPlugin';
-import { AppCompletionItem } from './plugins/interfaces';
+import type { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
 import { TypeScriptPlugin } from './plugins';
 import { debounceThrottle, getAstroInstall, isAstroWorkspace, normalizeUri, urlToPath } from './utils';
-import { AstroDocument } from './core/documents';
+import type { AstroDocument } from './core/documents';
 import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
-import { LSConfig } from './core/config';
+import type { LSConfig } from './core/config';
 import { LanguageServiceManager } from './plugins/typescript/LanguageServiceManager';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');
 
+export interface RuntimeEnvironment {
+	loadTypescript: (initOptions: any) => typeof import('typescript/lib/tsserverlibrary');
+	loadTypescriptLocalized: (initOptions: any) => Record<string, string> | undefined;
+}
+
 // Start the language server
-export function startLanguageServer(connection: vscode.Connection) {
+export function startLanguageServer(connection: vscode.Connection, env: RuntimeEnvironment) {
 	// Create our managers
 	const documentManager = new DocumentManager();
 	const pluginHost = new PluginHost(documentManager);
@@ -75,15 +80,27 @@ export function startLanguageServer(connection: vscode.Connection) {
 
 		// We don't currently support running the TypeScript and Astro plugin in the browser
 		if (environment === 'node') {
-			const languageServiceManager = new LanguageServiceManager(
-				documentManager,
-				workspaceUris.map(normalizeUri),
-				configManager
-			);
+			const ts = env.loadTypescript(params.initializationOptions);
 
-			typescriptPlugin = new TypeScriptPlugin(configManager, languageServiceManager);
-			pluginHost.registerPlugin(new AstroPlugin(configManager, languageServiceManager));
-			pluginHost.registerPlugin(typescriptPlugin);
+			if (ts) {
+				const tsLocalized = env.loadTypescriptLocalized(params.initializationOptions);
+				const languageServiceManager = new LanguageServiceManager(
+					documentManager,
+					workspaceUris.map(normalizeUri),
+					configManager,
+					ts,
+					tsLocalized
+				);
+
+				typescriptPlugin = new TypeScriptPlugin(configManager, languageServiceManager);
+				pluginHost.registerPlugin(new AstroPlugin(configManager, languageServiceManager));
+				pluginHost.registerPlugin(typescriptPlugin);
+			} else {
+				connection.sendNotification(ShowMessageNotification.type, {
+					message: `Astro: Couldn't load TypeScript from path ${params?.initializationOptions?.typescript?.serverPath}. Only HTML and CSS features will be enabled`,
+					type: MessageType.Warning,
+				});
+			}
 		}
 
 		return {

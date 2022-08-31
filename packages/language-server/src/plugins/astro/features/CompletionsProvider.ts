@@ -1,5 +1,5 @@
 import type { AppCompletionList, CompletionsProvider } from '../../interfaces';
-import { FunctionDeclaration, FunctionTypeNode } from 'typescript';
+import type { FunctionDeclaration, FunctionTypeNode } from 'typescript';
 import type { AstroDocument } from '../../../core/documents';
 import {
 	CompletionContext,
@@ -13,8 +13,7 @@ import {
 	MarkupKind,
 	TextEdit,
 } from 'vscode-languageserver';
-import ts from 'typescript';
-import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
+import type { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
 import { isInComponentStartTag, isInsideExpression, isPossibleComponent } from '../../../core/documents/utils';
 import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
 import { getLanguageService } from 'vscode-html-languageservice';
@@ -29,6 +28,7 @@ type LastCompletion = {
 
 export class CompletionsProviderImpl implements CompletionsProvider {
 	private readonly languageServiceManager: TypeScriptLanguageServiceManager;
+	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
 	private lastCompletion: LastCompletion | null = null;
 
 	public directivesHTMLLang = getLanguageService({
@@ -38,6 +38,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 
 	constructor(languageServiceManager: TypeScriptLanguageServiceManager) {
 		this.languageServiceManager = languageServiceManager;
+		this.ts = languageServiceManager.docContext.ts;
 	}
 
 	async getCompletions(
@@ -227,19 +228,19 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 	private getImportedSymbol(sourceFile: ts.SourceFile, identifier: string): ts.ImportSpecifier | ts.Identifier | null {
 		for (let list of sourceFile.getChildren()) {
 			for (let node of list.getChildren()) {
-				if (ts.isImportDeclaration(node)) {
+				if (this.ts.isImportDeclaration(node)) {
 					let clauses = node.importClause;
 					if (!clauses) return null;
 					let namedImport = clauses.getChildAt(0);
 
-					if (ts.isNamedImports(namedImport)) {
+					if (this.ts.isNamedImports(namedImport)) {
 						for (let imp of namedImport.elements) {
 							// Iterate the named imports
 							if (imp.name.getText() === identifier) {
 								return imp;
 							}
 						}
-					} else if (ts.isIdentifier(namedImport)) {
+					} else if (this.ts.isIdentifier(namedImport)) {
 						if (namedImport.getText() === identifier) {
 							return namedImport;
 						}
@@ -255,7 +256,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		for (const decl of declarations) {
 			const fileName = toVirtualFilePath(decl.getSourceFile().fileName);
 			if (fileName.endsWith('.tsx') || fileName.endsWith('.jsx') || fileName.endsWith('.d.ts')) {
-				if (!ts.isFunctionDeclaration(decl) && !ts.isFunctionTypeNode(decl)) {
+				if (!this.ts.isFunctionDeclaration(decl) && !this.ts.isFunctionTypeNode(decl)) {
 					console.error(`We only support functions declarations at the moment`);
 					continue;
 				}
@@ -299,7 +300,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			sortText: '\0',
 		};
 
-		if (mem.flags & ts.SymbolFlags.Optional) {
+		if (mem.flags & this.ts.SymbolFlags.Optional) {
 			item.filterText = item.label;
 			item.label += '?';
 

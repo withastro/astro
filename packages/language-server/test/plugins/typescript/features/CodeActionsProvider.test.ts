@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import ts from 'typescript';
+import ts from 'typescript/lib/tsserverlibrary';
 import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
 import {
 	CodeActionsProviderImpl,
@@ -13,7 +13,7 @@ const newLine = ts.sys.newLine;
 describe('TypeScript Plugin#CodeActionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'codeActions');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
 		const provider = new CodeActionsProviderImpl(languageServiceManager, env.configManager);
 
 		return {

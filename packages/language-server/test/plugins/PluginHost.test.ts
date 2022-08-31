@@ -8,6 +8,7 @@ import { AstroDocument, DocumentManager } from '../../src/core/documents';
 import { AstroPlugin, HTMLPlugin, PluginHost, PluginHostConfig, TypeScriptPlugin } from '../../src/plugins';
 import { LanguageServiceManager } from '../../src/plugins/typescript/LanguageServiceManager';
 import { openDocument } from '../utils';
+import ts from 'typescript/lib/tsserverlibrary';
 
 describe('PluginHost', () => {
 	const textDocument: TextDocumentItem = {
@@ -70,7 +71,7 @@ describe('PluginHost', () => {
 			const docManager = new DocumentManager((document) => new AstroDocument(document.uri, document.text));
 			const pluginHost = new PluginHost(docManager);
 
-			const languageServiceManager = new LanguageServiceManager(docManager, [path], configManager);
+			const languageServiceManager = new LanguageServiceManager(docManager, [path], configManager, ts);
 
 			pluginHost.registerPlugin(new HTMLPlugin(configManager));
 			pluginHost.registerPlugin(new AstroPlugin(configManager, languageServiceManager));

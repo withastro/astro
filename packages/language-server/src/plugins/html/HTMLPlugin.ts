@@ -6,16 +6,14 @@ import {
 	CompletionItemKind,
 	FoldingRange,
 	Hover,
-	Range,
 	SymbolInformation,
-	FormattingOptions,
 	LinkedEditingRanges,
 } from 'vscode-languageserver';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
-import { getLanguageService, HTMLFormatConfiguration } from 'vscode-html-languageservice';
+import { getLanguageService } from 'vscode-html-languageservice';
 import type { Plugin } from '../interfaces';
-import { ConfigManager } from '../../core/config/ConfigManager';
-import { AstroDocument } from '../../core/documents/AstroDocument';
+import type { ConfigManager } from '../../core/config/ConfigManager';
+import type { AstroDocument } from '../../core/documents/AstroDocument';
 import {
 	isInComponentStartTag,
 	isInsideExpression,
@@ -23,7 +21,7 @@ import {
 	isInTagName,
 	isPossibleComponent,
 } from '../../core/documents/utils';
-import { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
+import type { LSConfig, LSHTMLConfig } from '../../core/config/interfaces';
 import { astroAttributes, astroDirectives, astroElements, classListAttribute } from './features/astro-attributes';
 import { removeDataAttrCompletion } from './utils';
 

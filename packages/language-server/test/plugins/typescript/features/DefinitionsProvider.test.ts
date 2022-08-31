@@ -8,11 +8,12 @@ import {
 	AstroSnapshot,
 	TypeScriptDocumentSnapshot,
 } from '../../../../src/plugins/typescript/snapshots/DocumentSnapshot';
+import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#DefinitionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'definitions');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
 		const provider = new DefinitionsProviderImpl(languageServiceManager);
 
 		return {

@@ -1,5 +1,5 @@
 import { Position, Range } from 'vscode-languageserver';
-import { HTMLDocument, Node } from 'vscode-html-languageservice';
+import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import { clamp, isInRange } from '../../utils';
 import { parseHtml } from './parseHtml';
 

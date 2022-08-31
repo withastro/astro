@@ -1,4 +1,4 @@
-import { IPseudoClassData } from 'vscode-css-languageservice';
+import type { IPseudoClassData } from 'vscode-css-languageservice';
 
 export const pseudoClass: IPseudoClassData[] = [
 	{

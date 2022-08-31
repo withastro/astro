@@ -1,4 +1,4 @@
-import { CompletionItem } from 'vscode-languageserver-types';
+import type { CompletionItem } from 'vscode-languageserver-types';
 
 /**
  * The VS Code HTML language service provides a completion for data attributes that is independent from

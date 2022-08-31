@@ -1,5 +1,5 @@
-import ts, { CodeFixAction, FileTextChanges } from 'typescript';
-import { CancellationToken } from 'vscode-languageserver';
+import type { CodeFixAction, FileTextChanges } from 'typescript';
+import type { CancellationToken } from 'vscode-languageserver';
 import {
 	CodeAction,
 	CodeActionContext,
@@ -10,12 +10,12 @@ import {
 	TextDocumentEdit,
 	TextEdit,
 } from 'vscode-languageserver-types';
-import { ConfigManager } from '../../../core/config';
+import type { ConfigManager } from '../../../core/config';
 import { AstroDocument, getLineAtPosition, mapRangeToOriginal } from '../../../core/documents';
 import { modifyLines } from '../../../utils';
-import { CodeActionsProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
-import { AstroSnapshot, AstroSnapshotFragment, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
+import type { CodeActionsProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroSnapshot, AstroSnapshotFragment, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
 import {
 	checkEndOfFileCodeInsert,
 	convertRange,
@@ -30,7 +30,14 @@ import { findContainingNode } from './utils';
 export const sortImportKind = `${CodeActionKind.Source}.sortImports`;
 
 export class CodeActionsProviderImpl implements CodeActionsProvider {
-	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary')
+
+	constructor(
+		private languageServiceManager: LanguageServiceManager,
+		private configManager: ConfigManager,
+	) {
+		this.ts = languageServiceManager.docContext.ts
+	}
 
 	async getCodeActions(
 		document: AstroDocument,
@@ -115,7 +122,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 					fix,
 					context.diagnostics,
 					context.only ? CodeActionKind.QuickFix : CodeActionKind.Empty,
-					isInsideScript
+					isInsideScript,
+					this.ts
 				)
 			);
 
@@ -128,7 +136,8 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 			codeFix: CodeFixAction,
 			diagnostics: Diagnostic[],
 			kind: CodeActionKind,
-			isInsideScript: boolean
+			isInsideScript: boolean,
+			ts: typeof import('typescript/lib/tsserverlibrary')
 		): CodeAction {
 			const documentChanges = codeFix.changes.map((change) => {
 				return TextDocumentEdit.create(
@@ -140,7 +149,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 						// restricted to the area of the script tag by default
 						if (!isInsideScript) {
 							if (codeFix.fixName === 'import') {
-								return codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, false, edit);
+								return codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, false, edit, ts);
 							}
 
 							if (codeFix.fixName === 'fixMissingFunctionDeclaration') {
@@ -212,7 +221,7 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 				length: end - start,
 			},
 			(n): n is ts.JsxOpeningLikeElement | ts.JsxClosingElement =>
-				ts.isJsxClosingElement(n) || ts.isJsxOpeningLikeElement(n)
+				this.ts.isJsxClosingElement(n) || this.ts.isJsxOpeningLikeElement(n)
 		);
 
 		if (!node) {

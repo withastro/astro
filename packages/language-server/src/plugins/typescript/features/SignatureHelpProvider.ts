@@ -1,6 +1,6 @@
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { SignatureHelpProvider } from '../../interfaces';
-import ts from 'typescript';
+import type ts from 'typescript';
 import {
 	Position,
 	SignatureHelpContext,
@@ -11,13 +11,17 @@ import {
 	MarkupKind,
 	CancellationToken,
 } from 'vscode-languageserver';
-import { AstroDocument } from '../../../core/documents';
+import type { AstroDocument } from '../../../core/documents';
 import { getMarkdownDocumentation } from '../previewer';
 import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
-import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 
 export class SignatureHelpProviderImpl implements SignatureHelpProvider {
-	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	private static readonly triggerCharacters = ['(', ',', '<'];
 	private static readonly retriggerCharacters = [')'];
@@ -60,7 +64,7 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 			return null;
 		}
 
-		const signatures = info.items.map(this.toSignatureHelpInformation);
+		const signatures = info.items.map((item) => this.toSignatureHelpInformation(item, this.ts));
 
 		return {
 			signatures,
@@ -114,12 +118,15 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 	/**
 	 * adopted from https://github.com/microsoft/vscode/blob/265a2f6424dfbd3a9788652c7d376a7991d049a3/extensions/typescript-language-features/src/languageFeatures/signatureHelp.ts#L73
 	 */
-	private toSignatureHelpInformation(item: ts.SignatureHelpItem): SignatureInformation {
+	private toSignatureHelpInformation(
+		item: ts.SignatureHelpItem,
+		ts: typeof import('typescript/lib/tsserverlibrary')
+	): SignatureInformation {
 		const [prefixLabel, separatorLabel, suffixLabel] = [
 			item.prefixDisplayParts,
 			item.separatorDisplayParts,
 			item.suffixDisplayParts,
-		].map(ts.displayPartsToString);
+		].map(this.ts.displayPartsToString);
 
 		let textIndex = prefixLabel.length;
 		let signatureLabel = '';
@@ -143,7 +150,8 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 		});
 		const signatureDocumentation = getMarkdownDocumentation(
 			item.documentation,
-			item.tags.filter((tag) => tag.name !== 'param')
+			item.tags.filter((tag) => tag.name !== 'param'),
+			ts
 		);
 
 		return {
