@@ -12,6 +12,7 @@
     "directory": "packages/integrations/node"
   },
   "keywords": [
+    "withastro",
     "astro-adapter"
   ],
   "bugs": "https://github.com/withastro/astro/issues",

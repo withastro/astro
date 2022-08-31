@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 1.1.1
+
+### Patch Changes
+
+- [#4527](https://github.com/withastro/astro/pull/4527) [`9adb7cca3`](https://github.com/withastro/astro/commit/9adb7cca33f669082d0daf750b97b1496ee79d2f) Thanks [@bluwy](https://github.com/bluwy)! - Add vite-ignore comment to suppress unknown import warnings
+
 ## 1.1.0
 
 ### Minor Changes

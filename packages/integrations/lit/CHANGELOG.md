@@ -1,5 +1,11 @@
 # @astrojs/lit
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4503](https://github.com/withastro/astro/pull/4503) [`1222ab954`](https://github.com/withastro/astro/commit/1222ab9540d17e4e7e811240b8a2a039acc333cb) Thanks [@matthewp](https://github.com/matthewp)! - Allow using Lit's decorators
+
 ## 1.0.0
 
 ### Major Changes

@@ -6,18 +6,25 @@ import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
 import * as CONFIG from '../config';
+import type { MarkdownHeading } from 'astro';
+import Footer from '../components/Footer/Footer.astro';
 
-const { frontmatter = {}, headings } = Astro.props;
+type Props = {
+	frontmatter: CONFIG.Frontmatter;
+	headings: MarkdownHeading[];
+};
+
+const { frontmatter, headings } = Astro.props as Props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const currentPage = Astro.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, '')}.md`;
-const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + currentFile;
+const githubEditUrl = `${CONFIG.GITHUB_EDIT_URL}/${currentFile}`;
 ---
 
 <html dir={frontmatter.dir ?? 'ltr'} lang={frontmatter.lang ?? 'en-us'} class="initial">
 	<head>
 		<HeadCommon />
-		<HeadSEO {frontmatter} canonicalURL={canonicalURL} />
+		<HeadSEO frontmatter={frontmatter} canonicalUrl={canonicalURL} />
 		<title>
 			{frontmatter.title ? `${frontmatter.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}
 		</title>
@@ -29,31 +36,36 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 				--gutter: 0.5rem;
 				--doc-padding: 2rem;
 			}
+
 			.layout {
 				display: grid;
 				grid-auto-flow: column;
-				grid-template-columns:
-					minmax(var(--gutter), 1fr)
-					minmax(0, var(--max-width))
-					minmax(var(--gutter), 1fr);
+				grid-template-columns: minmax(var(--gutter), 1fr) minmax(0, var(--max-width)) minmax(
+						var(--gutter),
+						1fr
+					);
 				overflow-x: hidden;
 			}
+
 			.layout :global(> *) {
 				width: 100%;
 				height: 100%;
 			}
+
 			.grid-sidebar {
 				height: 100vh;
 				position: sticky;
 				top: 0;
 				padding: 0;
 			}
+
 			#grid-left {
 				position: fixed;
 				background-color: var(--theme-bg);
 				z-index: 10;
 				display: none;
 			}
+
 			#grid-main {
 				padding: var(--doc-padding) var(--gutter);
 				grid-column: 2;
@@ -61,24 +73,27 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 				flex-direction: column;
 				height: 100%;
 			}
+
 			#grid-right {
 				display: none;
 			}
+
 			:global(.mobile-sidebar-toggle) {
 				overflow: hidden;
 			}
+
 			:global(.mobile-sidebar-toggle) #grid-left {
 				display: block;
 				top: 2rem;
 			}
+
 			@media (min-width: 50em) {
 				.layout {
 					overflow: initial;
-					grid-template-columns:
-						20rem
-						minmax(0, var(--max-width));
+					grid-template-columns: 20rem minmax(0, var(--max-width));
 					gap: 1em;
 				}
+
 				#grid-left {
 					display: flex;
 					padding-left: 2rem;
@@ -89,14 +104,12 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 
 			@media (min-width: 72em) {
 				.layout {
-					grid-template-columns:
-						20rem
-						minmax(0, var(--max-width))
-						18rem;
+					grid-template-columns: 20rem minmax(0, var(--max-width)) 18rem;
 					padding-left: 0;
 					padding-right: 0;
 					margin: 0 auto;
 				}
+
 				#grid-right {
 					grid-column: 3;
 					display: flex;
@@ -106,19 +119,20 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && CONFIG.GITHUB_EDIT_URL + current
 	</head>
 
 	<body>
-		<Header {currentPage} />
+		<Header currentPage={currentPage} />
 		<main class="layout">
 			<aside id="grid-left" class="grid-sidebar" title="Site Navigation">
-				<LeftSidebar {currentPage} />
+				<LeftSidebar currentPage={currentPage} />
 			</aside>
 			<div id="grid-main">
-				<PageContent {frontmatter} {headings} {githubEditUrl}>
+				<PageContent frontmatter={frontmatter} headings={headings} githubEditUrl={githubEditUrl}>
 					<slot />
 				</PageContent>
 			</div>
 			<aside id="grid-right" class="grid-sidebar" title="Table of Contents">
-				<RightSidebar {headings} {githubEditUrl} />
+				<RightSidebar headings={headings} githubEditUrl={githubEditUrl} />
 			</aside>
 		</main>
+		<Footer path={currentFile} />
 	</body>
 </html>

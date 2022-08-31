@@ -1,8 +1,13 @@
 ---
 import ThemeToggleButton from './ThemeToggleButton';
 import * as CONFIG from '../../config';
-const { editHref } = Astro.props;
-const showMoreSection = CONFIG.COMMUNITY_INVITE_URL || editHref;
+
+type Props = {
+	editHref: string;
+};
+
+const { editHref } = Astro.props as Props;
+const showMoreSection = CONFIG.COMMUNITY_INVITE_URL;
 ---
 
 {showMoreSection && <h2 class="heading">More</h2>}
