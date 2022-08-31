@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.23.1
+
+### Patch Changes
+
+- 422376e: Load settings from the Prettier VS Code extension when available
+
 ## 0.23.0
 
 ### Minor Changes
