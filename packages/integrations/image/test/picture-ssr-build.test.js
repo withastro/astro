@@ -15,8 +15,42 @@ describe('SSR pictures - build', function () {
 		await fixture.build();
 	});
 
-	describe('Local images', () => {
-		it('includes sources', async () => {
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/_image',
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
+			alt: 'Social image'
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/_image',
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
+			alt: 'Inline social image'
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'png',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			alt: 'Google logo'
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
+			alt: 'Hero image'
+		}
+	].forEach(({ title, id, url, query }) => {
+		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -24,162 +58,26 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $('#social-jpg source');
+			const sources = $(`${id} source`);
 
 			expect(sources.length).to.equal(3);
 
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#social-jpg img');
+			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/_image');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(searchParams.get('href')).to.equal('/assets/social.cece8c77.jpg');
-			expect(image.attr('alt')).to.equal('Social image');
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#inline source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#inline img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href')).to.equal('/assets/social.cece8c77.jpg');
-			expect(image.attr('alt')).to.equal('Inline social image');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#google source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#google img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('png');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-			expect(image.attr('alt')).to.equal('Google logo');
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#hero source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#hero img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-			expect(image.attr('alt')).to.equal('Hero image');
+			for (const [key, value] of Object.entries(query)) {
+				if (typeof value === 'string') {
+					expect(searchParams.get(key)).to.equal(value);
+				} else {
+					expect(searchParams.get(key)).to.match(value);
+				}
+			}
 		});
 	});
 });
@@ -197,8 +95,42 @@ describe('SSR pictures with subpath - build', function () {
 		await fixture.build();
 	});
 
-	describe('Local images', () => {
-		it('includes sources', async () => {
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/_image',
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
+			alt: 'Social image'
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/_image',
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
+			alt: 'Inline social image'
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'png',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			alt: 'Google logo'
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
+			alt: 'Hero image'
+		}
+	].forEach(({ title, id, url, query }) => {
+		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
 
 			const request = new Request('http://example.com/');
@@ -206,162 +138,26 @@ describe('SSR pictures with subpath - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $('#social-jpg source');
+			const sources = $(`${id} source`);
 
 			expect(sources.length).to.equal(3);
 
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#social-jpg img');
+			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/_image');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(searchParams.get('href')).to.equal('/docs/assets/social.cece8c77.jpg');
-			expect(image.attr('alt')).to.equal('Social image');
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#inline source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#inline img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href')).to.equal('/docs/assets/social.cece8c77.jpg');
-			expect(image.attr('alt')).to.equal('Inline social image');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#google source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#google img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('png');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			// TODO: possible to avoid encoding the full image path?
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-			expect(image.attr('alt')).to.equal('Google logo');
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes sources', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const sources = $('#hero source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes <img> attributes', async () => {
-			const app = await fixture.loadTestAdapterApp();
-
-			const request = new Request('http://example.com/');
-			const response = await app.render(request);
-			const html = await response.text();
-			const $ = cheerio.load(html);
-
-			const image = $('#hero img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-			expect(image.attr('alt')).to.equal('Hero image');
+			for (const [key, value] of Object.entries(query)) {
+				if (typeof value === 'string') {
+					expect(searchParams.get(key)).to.equal(value);
+				} else {
+					expect(searchParams.get(key)).to.match(value);
+				}
+			}
 		});
 	});
 });
