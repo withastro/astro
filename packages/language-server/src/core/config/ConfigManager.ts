@@ -113,6 +113,12 @@ export class ConfigManager {
 		};
 	}
 
+	async getPrettierVSConfig(document: TextDocument): Promise<Record<string, any>> {
+		const prettierVSConfig = (await this.getConfig<Record<string, any>>('prettier', document.uri)) ?? {};
+
+		return prettierVSConfig;
+	}
+
 	async getTSFormatConfig(document: TextDocument, vscodeOptions?: FormattingOptions): Promise<FormatCodeSettings> {
 		const formatConfig = (await this.getConfig<FormatCodeSettings>('typescript.format', document.uri)) ?? {};
 

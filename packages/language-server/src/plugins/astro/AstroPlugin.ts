@@ -46,15 +46,23 @@ export class AstroPlugin implements Plugin {
 		}
 
 		const prettier = importPrettier(filePath);
-		const prettierConfig = await prettier.resolveConfig(filePath, { editorconfig: true, useCache: false });
+
+		const prettierConfig = (await prettier.resolveConfig(filePath, { editorconfig: true, useCache: false })) ?? {};
+		const prettierVSConfig = await this.configManager.getPrettierVSConfig(document);
 		const editorFormatConfig =
-			options !== undefined
+			options !== undefined // We need to check for options existing here because some editors might not have it
 				? {
-						tabWidth: prettierConfig?.tabWidth ?? options.tabSize,
-						useTabs: prettierConfig?.useTabs ?? !options.insertSpaces,
+						tabWidth: options.tabSize,
+						useTabs: !options.insertSpaces,
 				  }
 				: {};
-		const resultConfig = mergeDeep(prettierConfig ?? {}, editorFormatConfig);
+
+		// Return a config with the following cascade:
+		// - Prettier config file should always win if it exists, if it doesn't:
+		// - Prettier config from the VS Code extension is used, if it doesn't exist:
+		// - Use the editor's basic configuration settings
+		const resultConfig =
+			returnObjectIfHasKeys(prettierConfig) || returnObjectIfHasKeys(prettierVSConfig) || editorFormatConfig;
 
 		const fileInfo = await prettier.getFileInfo(filePath, { ignorePath: '.prettierignore' });
 
@@ -104,5 +112,11 @@ export class AstroPlugin implements Plugin {
 				kind: FoldingRangeKind.Imports,
 			},
 		];
+	}
+}
+
+function returnObjectIfHasKeys<T>(obj: T | undefined): T | undefined {
+	if (Object.keys(obj || {}).length > 0) {
+		return obj;
 	}
 }
