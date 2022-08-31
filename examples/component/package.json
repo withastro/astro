@@ -7,7 +7,7 @@
     "build": "astro --root demo build",
     "serve": "astro --root demo preview"
   },
-  "devDependencies": {
-    "astro": "^1.1.2"
+  "dependencies": {
+    "astro": "^1.1.1"
   }
 }

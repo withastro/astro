@@ -9,11 +9,10 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "devDependencies": {
-    "@astrojs/alpinejs": "^0.1.1",
-    "@types/alpinejs": "^3.7.0",
+  "dependencies": {
+    "astro": "^1.1.1",
     "alpinejs": "^3.10.2",
-    "astro": "^1.1.2"
-  },
-  "dependencies": {}
+    "@astrojs/alpinejs": "^0.1.1",
+    "@types/alpinejs": "^3.7.0"
+  }
 }
