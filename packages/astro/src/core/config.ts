@@ -374,6 +374,10 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	};
 }
 
+export function resolveRoot(cwd?: string): string {
+	return cwd ? path.resolve(cwd) : process.cwd();
+}
+
 /** Merge CLI flags & user config object (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: string) {
 	astroConfig.server = astroConfig.server || {};
@@ -411,7 +415,7 @@ interface LoadConfigOptions {
 export async function resolveConfigURL(
 	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>
 ): Promise<URL | undefined> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
 
@@ -441,7 +445,7 @@ interface OpenConfigResult {
 
 /** Load a configuration file, returning both the userConfig and astroConfig */
 export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
 
@@ -544,7 +548,7 @@ async function tryLoadConfig(
  * @deprecated
  */
 export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
 

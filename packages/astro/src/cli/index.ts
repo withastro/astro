@@ -3,9 +3,10 @@
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
+import { normalizePath } from 'vite';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig, resolveConfigURL, resolveFlags } from '../core/config.js';
+import { openConfig, resolveConfigURL, resolveFlags, resolveRoot } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { debug, info, LogOptions, warn } from '../core/logger/core.js';
@@ -18,6 +19,7 @@ import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
+import { appendForwardSlash } from '../core/path.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -152,15 +154,19 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				const configFlagPath = configFlag
 					? (await resolveConfigURL({ cwd: root, flags }))?.pathname
 					: undefined;
+				const resolvedRoot = appendForwardSlash(resolveRoot(root));
 
 				const handleServerRestart = (logMsg: string) =>
 					async function (changedFile: string) {
 						if (
 							!restartInFlight &&
 							(configFlag
-								? configFlagPath && configFlagPath === changedFile
-								: // Note: could trigger (harmless) reloads for nested astro.config.* files in your project
-								  /.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$/.test(changedFile))
+								? // If --config is specified, only watch changes for this file
+								  configFlagPath && normalizePath(configFlagPath) === normalizePath(changedFile)
+								: // Otherwise, watch for any astro.config.* file changes in project root
+								  new RegExp(
+										`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
+								  ).test(normalizePath(changedFile)))
 						) {
 							restartInFlight = true;
 							const newConfig = await openConfig({
