@@ -66,24 +66,29 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 					['--yes', 'Accept all prompts.'],
 					['--help', 'Show this help message.'],
 				],
-				'Recommended: UI Frameworks': [
+				'UI Frameworks': [
 					['react', 'astro add react'],
 					['preact', 'astro add preact'],
 					['vue', 'astro add vue'],
 					['svelte', 'astro add svelte'],
 					['solid-js', 'astro add solid-js'],
 					['lit', 'astro add lit'],
+					['alpine', 'astro add alpine'],
 				],
-				'Recommended: Integrations': [
-					['tailwind', 'astro add tailwind'],
-					['partytown', 'astro add partytown'],
-					['sitemap', 'astro add sitemap'],
-				],
-				'Example: Add an SSR Adapter': [
+				'SSR Adapters': [
 					['netlify', 'astro add netlify'],
 					['vercel', 'astro add vercel'],
 					['deno', 'astro add deno'],
 					['cloudflare', 'astro add cloudflare'],
+					['node', 'astro add node'],
+				],
+				Others: [
+					['tailwind', 'astro add tailwind'],
+					['image', 'astro add image'],
+					['mdx', 'astro add mdx'],
+					['partytown', 'astro add partytown'],
+					['sitemap', 'astro add sitemap'],
+					['prefetch', 'astro add prefetch'],
 				],
 			},
 			description: `For more integrations, check out: ${cyan('https://astro.build/integrations')}`,

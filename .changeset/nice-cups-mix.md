@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Remove duplicate hosting output in `astro add`
+Update `astro add` to list official integrations & adapters with same organisation we use in docs
