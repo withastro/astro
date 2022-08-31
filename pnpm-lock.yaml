@@ -56,16 +56,16 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
-      '@astrojs/mdx': ^0.10.2
+      '@astrojs/mdx': ^0.11.0
       '@astrojs/rss': ^1.0.0
       '@astrojs/sitemap': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
@@ -74,14 +74,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^1.1.2
+      astro: ^1.1.3
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -99,7 +99,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -119,7 +119,7 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
@@ -128,7 +128,7 @@ importers:
       '@astrojs/alpinejs': ^0.1.1
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.0
@@ -139,7 +139,7 @@ importers:
     specifiers:
       '@astrojs/lit': ^1.0.0
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
@@ -154,7 +154,7 @@ importers:
       '@astrojs/solid-js': ^1.1.0
       '@astrojs/svelte': ^1.0.0
       '@astrojs/vue': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -178,7 +178,7 @@ importers:
   examples/framework-preact:
     specifiers:
       '@astrojs/preact': ^1.0.2
-      astro: ^1.1.1
+      astro: ^1.1.3
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -190,7 +190,7 @@ importers:
       '@astrojs/react': ^1.1.0
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^1.1.1
+      astro: ^1.1.3
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -204,7 +204,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^1.1.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       solid-js: ^1.4.3
     dependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -214,7 +214,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
@@ -224,7 +224,7 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       vue: ^3.2.37
     dependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
@@ -233,20 +233,20 @@ importers:
 
   examples/minimal:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
       '@astrojs/preact': ^1.0.2
-      astro: ^1.1.2
+      astro: ^1.1.3
       preact: ^10.7.3
       sass: ^1.52.2
     dependencies:
@@ -257,9 +257,9 @@ importers:
 
   examples/ssr:
     specifiers:
-      '@astrojs/node': ^1.0.0
+      '@astrojs/node': ^1.0.1
       '@astrojs/svelte': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       concurrently: ^7.2.1
       lightcookie: ^1.0.25
       svelte: ^3.48.0
@@ -278,7 +278,7 @@ importers:
   examples/subpath:
     specifiers:
       '@astrojs/react': ^1.1.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
@@ -290,7 +290,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^1.1.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -307,15 +307,15 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.10.2
+      '@astrojs/mdx': ^0.11.0
       '@astrojs/preact': ^1.0.2
-      astro: ^1.1.1
+      astro: ^1.1.3
       preact: ^10.6.5
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -327,7 +327,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.0.2
       '@nanostores/preact': ^0.1.3
-      astro: ^1.1.1
+      astro: ^1.1.3
       nanostores: ^0.5.12
       preact: ^10.7.3
     dependencies:
@@ -340,7 +340,7 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/tailwind': ^1.0.0
-      astro: ^1.1.1
+      astro: ^1.1.3
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -355,7 +355,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     dependencies:
@@ -365,7 +365,7 @@ importers:
 
   examples/with-vitest:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.3
       vitest: ^0.20.3
     dependencies:
       astro: link:../../packages/astro
