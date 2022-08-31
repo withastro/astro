@@ -9,10 +9,12 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+  "devDependencies": {
+    "@astrojs/lit": "^1.0.1",
+    "astro": "^1.1.2"
+  },
   "dependencies": {
-    "astro": "^1.1.1",
-    "lit": "^2.2.5",
-    "@astrojs/lit": "^1.0.0",
-    "@webcomponents/template-shadowroot": "^0.1.0"
+    "@webcomponents/template-shadowroot": "^0.1.0",
+    "lit": "^2.2.5"
   }
 }

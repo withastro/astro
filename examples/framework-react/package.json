@@ -9,12 +9,14 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "dependencies": {
-    "astro": "^1.1.1",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "@astrojs/react": "^1.1.0",
+  "devDependencies": {
+    "@astrojs/react": "^1.1.1",
     "@types/react": "^18.0.10",
-    "@types/react-dom": "^18.0.5"
+    "@types/react-dom": "^18.0.5",
+    "astro": "^1.1.2"
+  },
+  "dependencies": {
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
   }
 }
