@@ -81,7 +81,7 @@ importers:
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^1.1.1
+      astro: ^1.1.2
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -246,7 +246,7 @@ importers:
   examples/portfolio:
     specifiers:
       '@astrojs/preact': ^1.0.2
-      astro: ^1.1.1
+      astro: ^1.1.2
       preact: ^10.7.3
       sass: ^1.52.2
     dependencies:
@@ -375,7 +375,7 @@ importers:
     specifiers:
       '@astrojs/compiler': ^0.23.4
       '@astrojs/language-server': ^0.23.0
-      '@astrojs/markdown-remark': ^1.1.0
+      '@astrojs/markdown-remark': ^1.1.1
       '@astrojs/telemetry': ^1.0.0
       '@astrojs/webapi': ^1.0.0
       '@babel/core': ^7.18.2
@@ -2305,6 +2305,7 @@ importers:
       es-module-lexer: ^0.10.5
       github-slugger: ^1.4.0
       gray-matter: ^4.0.3
+      kleur: ^4.1.4
       linkedom: ^0.14.12
       mdast-util-to-string: ^3.1.0
       mocha: ^9.2.2
@@ -2326,6 +2327,7 @@ importers:
       es-module-lexer: 0.10.5
       github-slugger: 1.4.0
       gray-matter: 4.0.3
+      kleur: 4.1.5
       rehype-raw: 6.1.1
       remark-frontmatter: 4.0.1
       remark-gfm: 3.0.1
@@ -2544,6 +2546,7 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       sitemap: ^7.1.1
+      xml2js: 0.4.23
       zod: ^3.17.3
     dependencies:
       sitemap: 7.1.1
@@ -2551,6 +2554,15 @@ importers:
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      xml2js: 0.4.23
+
+  packages/integrations/sitemap/test/fixtures/trailing-slash:
+    specifiers:
+      '@astrojs/sitemap': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/sitemap': link:../../..
+      astro: link:../../../../../astro
 
   packages/integrations/solid:
     specifiers:
@@ -8672,12 +8684,6 @@ packages:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: false
 
-  /@types/etag/1.8.1:
-    resolution: {integrity: sha512-bsKkeSqN7HYyYntFRAmzcwx/dKW4Wa+KVMTInANlI72PWLQmOpZu96j0OqHZGArW4VQwCmJPteQlXaUDeOB0WQ==}
-    dependencies:
-      '@types/node': 18.7.6
-    dev: true
-
   /@types/extend/3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
     dev: true
@@ -11799,7 +11805,6 @@ packages:
 
   /globalyzer/0.1.0:
     resolution: {integrity: sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==}
-    dev: true
 
   /globby/11.1.0:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
@@ -11827,7 +11832,6 @@ packages:
 
   /globrex/0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
-    dev: true
 
   /graceful-fs/4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
@@ -15499,7 +15503,6 @@ packages:
 
   /sax/1.2.4:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
-    dev: false
 
   /scheduler/0.23.0:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
@@ -16262,7 +16265,6 @@ packages:
     dependencies:
       globalyzer: 0.1.0
       globrex: 0.1.2
-    dev: true
 
   /tinypool/0.2.4:
     resolution: {integrity: sha512-Vs3rhkUH6Qq1t5bqtb816oT+HeJTXfwt2cbPH17sWHIYKTotQIFPk3tf2fgqRrVyMDVOc1EnPgzIxfIulXVzwQ==}
@@ -17420,6 +17422,19 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+    dev: true
+
+  /xml2js/0.4.23:
+    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      sax: 1.2.4
+      xmlbuilder: 11.0.1
+    dev: true
+
+  /xmlbuilder/11.0.1:
+    resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
+    engines: {node: '>=4.0'}
     dev: true
 
   /xregexp/2.0.0:
