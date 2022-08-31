@@ -5,7 +5,7 @@ import yargs from 'yargs-parser';
 import { z } from 'zod';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig } from '../core/config.js';
+import { openConfig, resolveConfigURL, resolveFlags } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { debug, info, LogOptions, warn } from '../core/logger/core.js';
@@ -132,7 +132,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig, userConfigPath } = await openConfig({
+	let { astroConfig, userConfig } = await openConfig({
 		cwd: root,
 		flags,
 		cmd,
@@ -147,29 +147,39 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		case 'dev': {
 			async function startDevServer() {
 				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry });
+				let restartInFlight = false;
+				const configFlag = resolveFlags(flags).config;
+				const configFlagPath = configFlag
+					? (await resolveConfigURL({ cwd: root, flags }))?.pathname
+					: undefined;
 
-				watcher.on('change', logRestartServerOnConfigChange);
-				watcher.on('unlink', logRestartServerOnConfigChange);
-				function logRestartServerOnConfigChange(changedFile: string) {
-					if (userConfigPath === changedFile) {
-						warn(logging, 'astro', 'Astro config updated. Restart server to see changes!');
-					}
-				}
-
-				watcher.on('add', async function restartServerOnNewConfigFile(addedFile: string) {
-					// if there was not a config before, attempt to resolve
-					if (!userConfigPath && addedFile.includes('astro.config')) {
-						const addedConfig = await openConfig({ cwd: root, flags, cmd, logging });
-						if (addedConfig.userConfigPath) {
-							info(logging, 'astro', 'Astro config detected. Restarting server...');
-							astroConfig = addedConfig.astroConfig;
-							userConfig = addedConfig.userConfig;
-							userConfigPath = addedConfig.userConfigPath;
+				const handleServerRestart = (logMsg: string) =>
+					async function (changedFile: string) {
+						if (
+							!restartInFlight &&
+							(configFlag
+								? configFlagPath && configFlagPath === changedFile
+								: // Note: could trigger (harmless) reloads for nested astro.config.* files in your project
+								  /.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$/.test(changedFile))
+						) {
+							restartInFlight = true;
+							const newConfig = await openConfig({
+								cwd: root,
+								flags,
+								cmd,
+								logging,
+								invalidateWithCache: true,
+							});
+							info(logging, 'astro', logMsg + '\n');
+							astroConfig = newConfig.astroConfig;
 							await stop();
 							await startDevServer();
 						}
-					}
-				});
+					};
+
+				watcher.on('change', handleServerRestart('Astro config updated. Restarting server...'));
+				watcher.on('unlink', handleServerRestart('Astro config removed. Restarting server...'));
+				watcher.on('add', handleServerRestart('Astro config added. Restarting server...'));
 			}
 			await startDevServer();
 			return await new Promise(() => {}); // lives forever
