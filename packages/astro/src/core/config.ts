@@ -427,7 +427,7 @@ export async function resolveConfigURL(
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	const configPath = await resolve('astro', {
-		mustExist: false,
+		mustExist: !!userConfigPath,
 		cwd: root,
 		filePath: userConfigPath,
 	});
@@ -479,11 +479,12 @@ async function tryLoadConfig(
 	flags: CLIFlags,
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
-	let configPath = (await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags }))
-		?.pathname;
-	if (!configPath) return undefined;
 	let finallyCleanup = async () => {};
 	try {
+		let configPath = (
+			await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags })
+		)?.pathname;
+		if (!configPath) return undefined;
 		if (configOptions.invalidateWithCache) {
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
@@ -493,7 +494,6 @@ async function tryLoadConfig(
 			await fs.promises.writeFile(tempConfigPath, await fs.promises.readFile(configPath));
 			finallyCleanup = async () => {
 				try {
-					await fs.promises.access(tempConfigPath);
 					await fs.promises.unlink(tempConfigPath);
 				} catch {
 					/** file already removed */
