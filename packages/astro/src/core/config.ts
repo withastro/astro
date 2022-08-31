@@ -404,7 +404,7 @@ interface LoadConfigOptions {
 	validate?: boolean;
 	logging: LogOptions;
 	/** Invalidate when reloading a previously loaded config */
-	invalidateWithCache?: boolean;
+	isConfigReload?: boolean;
 }
 
 /**
@@ -485,7 +485,7 @@ async function tryLoadConfig(
 			await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags })
 		)?.pathname;
 		if (!configPath) return undefined;
-		if (configOptions.invalidateWithCache) {
+		if (configOptions.isConfigReload) {
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
 			const tempConfigPath = path.join(

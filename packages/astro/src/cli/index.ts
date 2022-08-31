@@ -174,7 +174,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								flags,
 								cmd,
 								logging,
-								invalidateWithCache: true,
+								isConfigReload: true,
 							});
 							info(logging, 'astro', logMsg + '\n');
 							astroConfig = newConfig.astroConfig;
