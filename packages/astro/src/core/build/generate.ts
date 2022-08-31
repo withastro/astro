@@ -240,8 +240,33 @@ interface GeneratePathOptions {
 	renderers: SSRLoadedRenderer[];
 }
 
+function shouldAppendForwardSlash(
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format']
+): boolean {
+	switch (trailingSlash) {
+		case 'always':
+			return true;
+		case 'never':
+			return false;
+		case 'ignore': {
+			switch (buildFormat) {
+				case 'directory':
+					return true;
+				case 'file':
+					return false;
+			}
+		}
+	}
+}
+
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	opts.pageNames.push(pathname.replace(/^\//, ''));
+	const trailingSlash = opts.astroConfig.trailingSlash;
+	const buildFormat = opts.astroConfig.build.format;
+	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
+		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
+		: pathname.replace(/^\//, '');
+	opts.pageNames.push(pageName);
 }
 
 function getUrlForPath(

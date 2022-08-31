@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.3.7
+
+### Patch Changes
+
+- [#4534](https://github.com/withastro/astro/pull/4534) [`b8a80bc42`](https://github.com/withastro/astro/commit/b8a80bc42d5a254a66c32761e842841955c01450) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix import.meta.env not being available when using the image integration's types
+
 ## 0.3.6
 
 ### Patch Changes
