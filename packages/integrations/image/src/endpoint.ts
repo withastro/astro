@@ -48,6 +48,7 @@ export const get: APIRoute = async ({ request }) => {
 			},
 		});
 	} catch (err: unknown) {
+		console.error(err);
 		return new Response(`Server Error: ${err}`, { status: 500 });
 	}
 };
