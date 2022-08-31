@@ -1,8 +1,7 @@
 /// <reference types="astro/astro-jsx" />
-import { lookup } from 'mrmime';
+import mime from 'mime';
 import { extname } from 'node:path';
-import { OutputFormat, TransformOptions } from '../loaders/index.js';
-import { parseAspectRatio } from '../utils/images.js';
+import { OutputFormat, parseAspectRatio, TransformOptions } from '../loaders/index.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 import { getImage } from './get-image.js';
 
@@ -71,7 +70,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		);
 
 		return {
-			type: lookup(format) || format,
+			type: mime.getType(format) || format,
 			srcset: imgs.join(','),
 		};
 	}

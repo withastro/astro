@@ -23,7 +23,7 @@
     "@astrojs/preact": "^1.0.2",
     "@types/node": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "@astrojs/react": "^1.1.0",
-    "astro": "^1.1.1"
+    "@astrojs/react": "^1.1.1",
+    "astro": "^1.1.2"
   }
 }

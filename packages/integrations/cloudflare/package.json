@@ -12,6 +12,7 @@
     "directory": "packages/integrations/cloudflare"
   },
   "keywords": [
+    "withastro",
     "astro-adapter"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
