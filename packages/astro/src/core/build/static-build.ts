@@ -96,11 +96,8 @@ Example:
 
 	timer.generate = performance.now();
 	if (astroConfig.output === 'static') {
-		try {
-			await generatePages(opts, internals);
-		} finally {
-			await cleanSsrOutput(opts);
-		}
+		await generatePages(opts, internals);
+		await cleanSsrOutput(opts);
 	} else {
 		// Inject the manifest
 		await injectManifest(opts, internals);

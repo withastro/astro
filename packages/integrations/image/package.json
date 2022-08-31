@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -21,9 +21,8 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/image/",
   "exports": {
     ".": "./dist/index.js",
+    "./endpoint": "./dist/endpoint.js",
     "./sharp": "./dist/loaders/sharp.js",
-    "./endpoints/dev": "./dist/endpoints/dev.js",
-    "./endpoints/prod": "./dist/endpoints/prod.js",
     "./components": "./components/index.js",
     "./package.json": "./package.json",
     "./client": "./client.d.ts",
@@ -41,19 +40,15 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
-    "etag": "^1.8.1",
-    "image-size": "^1.0.1",
-    "mrmime": "^1.0.0",
-    "sharp": "^0.30.6",
-    "slash": "^4.0.0",
-    "tiny-glob": "^0.2.9"
+    "image-size": "^1.0.2",
+    "magic-string": "^0.25.9",
+    "mime": "^3.0.0",
+    "sharp": "^0.30.6"
   },
   "devDependencies": {
-    "@types/etag": "^1.8.1",
-    "@types/sharp": "^0.30.4",
+    "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "kleur": "^4.1.4",
-    "tiny-glob": "^0.2.9"
+    "kleur": "^4.1.4"
   }
 }

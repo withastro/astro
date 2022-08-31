@@ -106,7 +106,11 @@ In addition to the component-specific properties, any valid HTML attribute for t
 
 Source for the original image file.
 
-For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+For images located in your project's `src`: use the file path relative to the `src` directory. (e.g. `src="../assets/source-pic.png"`)
+
+ For images located in your `public` directory: use the URL path relative to the `public` directory. (e.g. `src="/images/public-image.jpg"`)
+
+For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/blog/astro-1-release-update.avif"`)
 
 #### format
 
@@ -182,7 +186,7 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 Source for the original image file.
 
-For images in your project's repository, use the `src` relative to the `public` directory. For remote images, provide the full URL.
+For images in your project's repository, use the path relative to the `src` or `public` directory. For remote images, provide the full URL.
 
 #### alt
 
@@ -341,6 +345,24 @@ import heroImage from '../assets/hero.png';
 <Image src={import('../assets/hero.png')} />
 ```
 
+#### Images in `/public`
+
+Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=` attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
+
+Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value. 
+
+For example, use an image located at `public/social.png` in either static or SSR builds like so:
+
+```astro title="src/pages/page.astro"
+---
+import { Image } from '@astrojs/image/components';
+import socialImage from '/social.png'; 
+---
+// In static builds: the image will be built and optimized to `/dist`.
+// In SSR builds: the image will be optimized by the server when requested by a browser.
+<Image src={socialImage} width={1280} aspectRatio="16:9" />
+```
+
 ### Remote images
   
 Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
@@ -390,7 +412,6 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 
 ## Troubleshooting
 - If your installation doesn't seem to be working, make sure to restart the dev server.
-- If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
 
