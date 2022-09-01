@@ -14,4 +14,5 @@
 
 <!-- Is this a visible change? You probably need to update docs! -->
 <!-- DON'T DELETE THIS SECTION! If no docs added, explain why.-->
+<!-- Ping @withastro/maintainers-docs for feedback! -->
 <!-- https://github.com/withastro/docs -->
