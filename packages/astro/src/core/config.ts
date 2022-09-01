@@ -432,6 +432,7 @@ export async function resolveConfigURL(
 		cwd: root,
 		filePath: userConfigPath,
 	});
+	console.log('real', configPath);
 	if (configPath) {
 		return pathToFileURL(configPath);
 	}
