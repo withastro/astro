@@ -115,7 +115,12 @@ describe('SSR images with subpath - build', function () {
 			title: 'Filename with spaces',
 			id: '#spaces',
 			url: '/_image',
-			query: { f: 'webp', w: '768', h: '414', href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/ },
+			query: {
+				f: 'webp',
+				w: '768',
+				h: '414',
+				href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/,
+			},
 		},
 		{
 			title: 'Inline imports',
