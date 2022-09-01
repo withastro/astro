@@ -1,0 +1,23 @@
+---
+import LayoutDefault from "../layouts/default.astro"
+import {AtomicoHello} from "../components/atomico-hello";
+import {AtomicoTime} from "../components/atomico-time";
+import "../components/atomico-brand";
+---
+
+<LayoutDefault title="Welcome!"> 
+	<AtomicoHello message="Astro!">
+		<div class="center">
+			<!--
+			Instantiating the webcomponents through tag-name allows
+			us not to have a conflict with the use of slot
+			 -->
+			<atomico-brand></atomico-brand>	
+			<!--
+			the instance through the constructor 
+			does not allow the use of slot
+			 -->
+			<AtomicoTime client:load></AtomicoTime>	
+		</div>
+	</AtomicoHello>	
+</LayoutDefault>
