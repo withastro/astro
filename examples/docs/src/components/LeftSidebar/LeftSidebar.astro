@@ -101,13 +101,15 @@ const sidebar = SIDEBAR[langCode];
 		font-weight: 600;
 	}
 
-	:global(:root.theme-dark) .nav-link a[aria-current='page'] {
-		color: hsla(var(--color-base-white), 100%, 1);
-	}
-
 	@media (min-width: 50em) {
 		.nav-groups {
 			padding: 0;
 		}
+	}
+</style>
+
+<style is:global>
+	:root.theme-dark .nav-link a[aria-current='page'] {
+		color: hsla(var(--color-base-white), 100%, 1);
 	}
 </style>

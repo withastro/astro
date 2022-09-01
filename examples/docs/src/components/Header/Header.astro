@@ -135,13 +135,15 @@ const lang = getLanguageFromURL(currentPage);
 		max-width: 200px;
 	}
 
-	:global(.search-item > *) {
-		flex-grow: 1;
-	}
-
 	@media (min-width: 50em) {
 		.search-item {
 			max-width: 400px;
 		}
+	}
+</style>
+
+<style is:global>
+	.search-item > * {
+		flex-grow: 1;
 	}
 </style>
