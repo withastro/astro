@@ -509,6 +509,7 @@ async function tryLoadConfig(
 			cwd: root,
 			filePath: configPath,
 		});
+		console.log('worked', config?.filePath);
 
 		return config as TryLoadConfigResult;
 	} catch (e) {
