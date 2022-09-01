@@ -152,7 +152,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				let restartInFlight = false;
 				const configFlag = resolveFlags(flags).config;
 				const configFlagPath = configFlag
-					? (await resolveConfigURL({ cwd: root, flags }))?.pathname
+					? (await resolveConfigURL({ cwd: root, flags }, false))?.pathname
 					: undefined;
 				const resolvedRoot = appendForwardSlash(resolveRoot(root));
 

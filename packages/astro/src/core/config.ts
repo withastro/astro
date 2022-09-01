@@ -413,7 +413,8 @@ interface LoadConfigOptions {
  * instead of the resolved config
  */
 export async function resolveConfigURL(
-	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>
+	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>,
+	mustExist?: boolean
 ): Promise<URL | undefined> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
@@ -427,7 +428,7 @@ export async function resolveConfigURL(
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
 	const configPath = await resolve('astro', {
-		mustExist: !!userConfigPath,
+		mustExist: mustExist ?? !!userConfigPath,
 		cwd: root,
 		filePath: userConfigPath,
 	});
