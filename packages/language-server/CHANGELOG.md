@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.23.2
+
+### Patch Changes
+
+- b13fb51: Don't use `workspace/configuration` on clients that don't support it
+
 ## 0.23.1
 
 ### Patch Changes
