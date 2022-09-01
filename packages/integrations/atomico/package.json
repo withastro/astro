@@ -31,8 +31,8 @@
   "homepage": "https://astro.build",
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.17.3",
-    "@atomico/vite": "latest",
-    "atomico": "latest",
+    "@atomico/vite": "^1.5.1",
+    "atomico": "^1.62.4",
     "astro":"workspace:*"
   },
   "devDependencies": {
@@ -41,7 +41,7 @@
   "peerDependencies": {
     "@babel/plugin-transform-react-jsx": "^7.17.3",
     "astro": "workspace:*",
-    "@atomico/vite": "latest",
-    "atomico": "latest"
+    "@atomico/vite": "^1.5.1",
+    "atomico": "^1.62.4"
   }
 }

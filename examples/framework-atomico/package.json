@@ -16,12 +16,12 @@
     "create:component": "scaffold ./templates/component.md src"
   },
   "dependencies": {
-    "atomico": "latest"
+    "atomico": "^1.62.4"
   },
   "devDependencies": {
-    "@atomico/scaffold": "latest",
-    "@astrojs/atomico": "latest",
-    "@atomico/tsconfig": "latest",
-    "astro": "latest"
+    "@astrojs/atomico": "^1.0.0",
+    "@atomico/scaffold": "^0.4.0",
+    "@atomico/tsconfig": "^1.0.0",
+    "astro": "^1.1.3"
   }
 }
