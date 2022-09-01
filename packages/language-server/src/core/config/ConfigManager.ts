@@ -60,14 +60,9 @@ export class ConfigManager {
 
 	// If set to true, the next time we need a TypeScript language service, we'll rebuild it so it gets the new config
 	public shouldRefreshTSServices = false;
-
 	private isTrusted = true;
 
-	private connection: Connection | undefined;
-
-	constructor(connection?: Connection) {
-		this.connection = connection;
-	}
+	constructor(private connection?: Connection, private hasConfigurationCapability?: boolean) {}
 
 	updateConfig() {
 		// Reset all cached document settings
@@ -80,7 +75,7 @@ export class ConfigManager {
 	}
 
 	async getConfig<T>(section: string, scopeUri: string): Promise<T | Record<string, any>> {
-		if (!this.connection) {
+		if (!this.connection || !this.hasConfigurationCapability) {
 			return get<T>(this.globalConfig, section) ?? {};
 		}
 

@@ -35,8 +35,8 @@ export function startLanguageServer(connection: vscode.Connection) {
 	// Create our managers
 	const documentManager = new DocumentManager();
 	const pluginHost = new PluginHost(documentManager);
-	const configManager = new ConfigManager(connection);
 
+	let configManager: ConfigManager;
 	let typescriptPlugin: TypeScriptPlugin = undefined as any;
 	let hasConfigurationCapability = false;
 
@@ -63,6 +63,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 		});
 
 		hasConfigurationCapability = !!(params.capabilities.workspace && !!params.capabilities.workspace.configuration);
+		configManager = new ConfigManager(connection, hasConfigurationCapability);
 
 		pluginHost.initialize({
 			filterIncompleteCompletions: !params.initializationOptions?.dontFilterIncompleteCompletions,
