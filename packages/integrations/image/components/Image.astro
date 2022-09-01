@@ -1,6 +1,7 @@
 ---
 // @ts-ignore
 import { getImage } from '../dist/index.js';
+import { warnForMissingAlt } from './index.js';
 import type { ImgHTMLAttributes } from './index.js';
 import type { ImageMetadata, TransformOptions, OutputFormat } from '../dist/index.js';
 
@@ -8,11 +9,13 @@ interface LocalImageProps
 	extends Omit<TransformOptions, 'src'>,
 		Omit<ImgHTMLAttributes, 'src' | 'width' | 'height'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
 }
 
 interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttributes {
 	src: string;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
 	format: OutputFormat;
 	width: number;
@@ -24,7 +27,7 @@ export type Props = LocalImageProps | RemoteImageProps;
 const { loading = 'lazy', decoding = 'async', ...props } = Astro.props as Props;
 
 if (props.alt === undefined || props.alt === null) {
-	throw new Error('The <Image> component requires you provide alt text. If this image does not require an accessible label, set alt="".')
+	warnForMissingAlt();
 }
 
 const attrs = await getImage(props);

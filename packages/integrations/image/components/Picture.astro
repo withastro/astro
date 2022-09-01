@@ -1,5 +1,6 @@
 ---
 import { getPicture } from '../dist/index.js';
+import { warnForMissingAlt } from './index.js';
 import type { ImgHTMLAttributes, HTMLAttributes } from './index.js';
 import type { ImageMetadata, OutputFormat, TransformOptions } from '../dist/index.js';
 
@@ -8,6 +9,7 @@ interface LocalImageProps
 		Omit<TransformOptions, 'src'>,
 		Pick<astroHTML.JSX.ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: ImageMetadata | Promise<{ default: ImageMetadata }>;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
@@ -19,6 +21,7 @@ interface RemoteImageProps
 		TransformOptions,
 		Pick<ImgHTMLAttributes, 'loading' | 'decoding'> {
 	src: string;
+	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
 	sizes: HTMLImageElement['sizes'];
 	widths: number[];
@@ -41,7 +44,7 @@ const {
 } = Astro.props as Props;
 
 if (alt === undefined || alt === null) {
-	throw new Error('The <Picture> component requires you provide alt text. If this picture does not require an accessible label, set alt="".')
+	warnForMissingAlt();
 }
 
 const { image, sources } = await getPicture({ src, widths, formats, aspectRatio });

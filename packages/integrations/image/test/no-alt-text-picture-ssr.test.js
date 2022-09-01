@@ -7,7 +7,8 @@ let fixture;
 const errorMessage =
 	'The <Picture> component requires you provide alt text. If this picture does not require an accessible label, set alt="".';
 
-describe('SSR picture without alt text', function () {
+/** TODO: enable the test once missing alt text throws an error instead of a console warning */
+describe.skip('SSR picture without alt text', function () {
 	before(async () => {
 		fixture = await loadFixture({
 			root: './fixtures/no-alt-text-picture/',
