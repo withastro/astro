@@ -1,7 +1,7 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroConfig, ManifestData } from '../@types/astro';
+import type { AstroConfig, ManifestData, SSRManifest } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
@@ -28,13 +28,8 @@ interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-function truncateString(str: string, n: number) {
-	if (str.length > n) {
-		return str.substring(0, n) + '&#8230;';
-	} else {
-		return str;
-	}
-}
+type AsyncReturnType<T extends (...args: any) => Promise<any>> =
+    T extends (...args: any) => Promise<infer R> ? R : any
 
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
@@ -180,6 +175,68 @@ export function baseMiddleware(
 	};
 }
 
+async function matchRoute(
+	pathname: string,
+	routeCache: RouteCache,
+	viteServer: vite.ViteDevServer,
+	logging: LogOptions,
+	manifest: ManifestData,
+	config: AstroConfig,
+) {
+	const matches = matchAllRoutes(pathname, manifest);
+
+	for await (const maybeRoute of matches) {
+		const filePath = new URL(`./${maybeRoute.component}`, config.root);
+		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const [, mod] = preloadedComponent;
+		// attempt to get static paths
+		// if this fails, we have a bad URL match!
+		const paramsAndPropsRes = await getParamsAndProps({
+			mod,
+			route: maybeRoute,
+			routeCache,
+			pathname: pathname,
+			logging,
+			ssr: config.output === 'server',
+		});
+
+		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
+			return {
+				route: maybeRoute,
+				filePath,
+				preloadedComponent,
+				mod,
+			};
+		}
+	}
+
+	if (matches.length) {
+		warn(
+			logging,
+			'getStaticPaths',
+			`Route pattern matched, but no matching static path found. (${pathname})`
+		);
+	}
+
+	log404(logging, pathname);
+	const custom404 = getCustom404Route(config, manifest);
+
+	if (custom404) {
+		const filePath = new URL(`./${custom404.component}`, config.root);
+		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const [, mod] = preloadedComponent;
+
+		return {
+			route: custom404,
+			filePath,
+			preloadedComponent,
+			mod,
+		};
+	}
+
+	return undefined;
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -225,82 +282,65 @@ async function handleRequest(
 		body = Buffer.concat(bytes);
 	}
 
-	// Headers are only available when using SSR.
-	const request = createRequest({
-		url,
-		headers: buildingToSSR ? req.headers : new Headers(),
-		method: req.method,
-		body,
+	const matchedRoute = await matchRoute(
+		pathname,
+		routeCache,
+		viteServer,
 		logging,
-		ssr: buildingToSSR,
-		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
-	});
+		manifest,
+		config
+	);
 
-	async function matchRoute() {
-		const matches = matchAllRoutes(pathname, manifest);
+	// TODO handleRoute
+	return handleRoute(
+		matchedRoute,
+		new URL('/404', url),
+		body,
+		origin,
+		routeCache,
+		viteServer,
+		manifest,
+		logging,
+		config,
+		req,
+		res
+	)
+}
 
-		for await (const maybeRoute of matches) {
-			const filePath = new URL(`./${maybeRoute.component}`, config.root);
-			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-			const [, mod] = preloadedComponent;
-			// attempt to get static paths
-			// if this fails, we have a bad URL match!
-			const paramsAndPropsRes = await getParamsAndProps({
-				mod,
-				route: maybeRoute,
-				routeCache,
-				pathname: pathname,
-				logging,
-				ssr: config.output === 'server',
-			});
-
-			if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
-				return {
-					route: maybeRoute,
-					filePath,
-					preloadedComponent,
-					mod,
-				};
-			}
-		}
-
-		if (matches.length) {
-			warn(
-				logging,
-				'getStaticPaths',
-				`Route pattern matched, but no matching static path found. (${pathname})`
-			);
-		}
-
-		log404(logging, pathname);
-		const custom404 = getCustom404Route(config, manifest);
-
-		if (custom404) {
-			const filePath = new URL(`./${custom404.component}`, config.root);
-			const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-			const [, mod] = preloadedComponent;
-
-			return {
-				route: custom404,
-				filePath,
-				preloadedComponent,
-				mod,
-			};
-		}
-
-		return undefined;
-	}
-
+async function handleRoute(
+	matchedRoute: AsyncReturnType<typeof matchRoute>,
+	url: URL,
+	body: ArrayBuffer | undefined,
+	origin: string,
+	routeCache: RouteCache,
+	viteServer: vite.ViteDevServer,
+	manifest: ManifestData,
+	logging: LogOptions,
+	config: AstroConfig,
+	req: http.IncomingMessage,
+	res: http.ServerResponse
+): Promise<void> {
 	let filePath: URL | undefined;
 	try {
-		const matchedRoute = await matchRoute();
-
 		if (!matchedRoute) {
 			return handle404Response(origin, config, req, res);
 		}
 
-		const { route, preloadedComponent, mod } = matchedRoute;
 		filePath = matchedRoute.filePath;
+		const { route, preloadedComponent, mod } = matchedRoute;
+		const buildingToSSR = config.output === 'server';
+		const pathname = decodeURI(url.pathname);
+
+		// Headers are only available when using SSR.
+		const request = createRequest({
+			url,
+			headers: buildingToSSR ? req.headers : new Headers(),
+			method: req.method,
+			body,
+			logging,
+			ssr: buildingToSSR,
+			clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
+		});
 
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
@@ -330,6 +370,30 @@ async function handleRequest(
 		if (route.type === 'endpoint') {
 			const result = await callEndpoint(options);
 			if (result.type === 'response') {
+				if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
+					// TODO
+					const fourOhFourRoute = await matchRoute(
+						'/404',
+						routeCache,
+						viteServer,
+						logging,
+						manifest,
+						config
+					);
+					return handleRoute(
+						fourOhFourRoute,
+						new URL('/404', url),
+						body,
+						origin,
+						routeCache,
+						viteServer,
+						manifest,
+						logging,
+						config,
+						req,
+						res
+					);
+				}
 				await writeWebResponse(res, result.response);
 			} else {
 				let contentType = 'text/plain';
