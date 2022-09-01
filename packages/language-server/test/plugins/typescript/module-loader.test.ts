@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ts from 'typescript';
+import ts from 'typescript/lib/tsserverlibrary';
 import * as aSys from '../../../src/plugins/typescript/astro-sys';
 import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 import { createAstroModuleLoader } from '../../../src/plugins/typescript/module-loader';
@@ -22,7 +22,7 @@ describe('createAstroModuleLoader', () => {
 		sinon.stub(aSys, 'createAstroSys').returns(astroSys);
 
 		const compilerOptions: ts.CompilerOptions = { strict: true, paths: { '/@/*': [] } };
-		const moduleResolver = createAstroModuleLoader(getAstroSnapshotStub, compilerOptions);
+		const moduleResolver = createAstroModuleLoader(getAstroSnapshotStub, compilerOptions, ts);
 
 		return {
 			getAstroSnapshotStub,

@@ -6,4 +6,11 @@ const messageWriter = new BrowserMessageWriter(self);
 
 const connection = createConnection(messageReader, messageWriter);
 
-startLanguageServer(connection);
+startLanguageServer(connection, {
+	loadTypescript(options) {
+		return undefined as any; // TODO: Full browser support
+	},
+	loadTypescriptLocalized(options) {
+		return undefined;
+	},
+});

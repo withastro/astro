@@ -1,11 +1,10 @@
-import ts from 'typescript';
-import { CancellationToken } from 'vscode-languageserver';
+import { CancellationToken, DiagnosticSeverity } from 'vscode-languageserver';
 import { Diagnostic, DiagnosticTag } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
-import { DiagnosticsProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
-import { AstroSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
-import { convertRange, getScriptTagSnapshot, mapSeverity, toVirtualAstroFilePath } from '../utils';
+import type { DiagnosticsProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
+import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 
 type BoundaryTuple = [number, number];
 
@@ -28,7 +27,11 @@ export enum DiagnosticCodes {
 }
 
 export class DiagnosticsProviderImpl implements DiagnosticsProvider {
-	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	async getDiagnostics(document: AstroDocument, _cancellationToken?: CancellationToken): Promise<Diagnostic[]> {
 		// Don't return diagnostics for files inside node_modules. These are considered read-only
@@ -60,9 +63,9 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 				// file due to some internal cache inside TS that would cause it to being mapped twice in some cases
 				.map<Diagnostic>((diagnostic) => ({
 					range: convertRange(scriptTagSnapshot, diagnostic),
-					severity: mapSeverity(diagnostic.category),
+					severity: this.mapSeverity(diagnostic.category),
 					source: 'ts',
-					message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+					message: this.ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
 					code: diagnostic.code,
 					tags: getDiagnosticTag(diagnostic),
 				}))
@@ -78,16 +81,16 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 			...lang.getSuggestionDiagnostics(filePath),
 			...lang.getSemanticDiagnostics(filePath),
 		].filter((diag) => {
-			return isNoWithinBoundary(scriptBoundaries, diag);
+			return isNoWithinBoundary(scriptBoundaries, diag, this.ts);
 		});
 
 		return [
 			...diagnostics
 				.map<Diagnostic>((diagnostic) => ({
 					range: convertRange(tsDoc, diagnostic),
-					severity: mapSeverity(diagnostic.category),
+					severity: this.mapSeverity(diagnostic.category),
 					source: 'ts',
-					message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+					message: this.ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
 					code: diagnostic.code,
 					tags: getDiagnosticTag(diagnostic),
 				}))
@@ -121,7 +124,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 			return boundaries;
 		}
 
-		function findTags(parent: ts.Node) {
+		function findTags(parent: ts.Node, ts: typeof import('typescript/lib/tsserverlibrary')) {
 			ts.forEachChild(parent, (node) => {
 				if (ts.isJsxElement(node)) {
 					let tagName = node.openingElement.tagName.getText();
@@ -134,12 +137,25 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 						}
 					}
 				}
-				findTags(node);
+				findTags(node, ts);
 			});
 		}
 
-		findTags(sourceFile);
+		findTags(sourceFile, this.ts);
 		return boundaries;
+	}
+
+	mapSeverity(category: ts.DiagnosticCategory): DiagnosticSeverity {
+		switch (category) {
+			case this.ts.DiagnosticCategory.Error:
+				return DiagnosticSeverity.Error;
+			case this.ts.DiagnosticCategory.Warning:
+				return DiagnosticSeverity.Warning;
+			case this.ts.DiagnosticCategory.Suggestion:
+				return DiagnosticSeverity.Hint;
+			case this.ts.DiagnosticCategory.Message:
+				return DiagnosticSeverity.Information;
+		}
 	}
 }
 
@@ -155,7 +171,8 @@ function isWithinBoundaries(boundaries: BoundaryTuple[], start: number): boolean
 function diagnosticIsWithinBoundaries(
 	sourceFile: ts.SourceFile | undefined,
 	boundaries: BoundaryTuple[],
-	diagnostic: Diagnostic | ts.Diagnostic
+	diagnostic: Diagnostic | ts.Diagnostic,
+	ts: typeof import('typescript/lib/tsserverlibrary')
 ) {
 	if ('start' in diagnostic) {
 		if (diagnostic.start == null) return false;
@@ -169,8 +186,12 @@ function diagnosticIsWithinBoundaries(
 	return isWithinBoundaries(boundaries, pos);
 }
 
-function isNoWithinBoundary(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
-	return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic);
+function isNoWithinBoundary(
+	boundaries: BoundaryTuple[],
+	diagnostic: ts.Diagnostic,
+	ts: typeof import('typescript/lib/tsserverlibrary')
+) {
+	return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic, ts);
 }
 
 function mapRange(fragment: SnapshotFragment, _document: AstroDocument): (value: Diagnostic) => Diagnostic {

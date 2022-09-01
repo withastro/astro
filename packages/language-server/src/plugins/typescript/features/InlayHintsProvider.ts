@@ -1,14 +1,17 @@
 import { InlayHint } from 'vscode-languageserver';
-import { AstroDocument } from '../../../core/documents';
-import { InlayHintsProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroDocument } from '../../../core/documents';
+import type { InlayHintsProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { toVirtualAstroFilePath } from '../utils';
 import { InlayHintKind, Range } from 'vscode-languageserver-types';
-import ts from 'typescript';
-import { ConfigManager } from '../../../core/config';
+import type { ConfigManager } from '../../../core/config';
 
 export class InlayHintsProviderImpl implements InlayHintsProvider {
-	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	async getInlayHints(document: AstroDocument, range: Range): Promise<InlayHint[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
@@ -19,7 +22,7 @@ export class InlayHintsProviderImpl implements InlayHintsProvider {
 		const start = fragment.offsetAt(fragment.getGeneratedPosition(range.start));
 		const end = fragment.offsetAt(fragment.getGeneratedPosition(range.end));
 
-		const tsPreferences = await this.configManager.getTSInlayHintsPreferences(document);
+		const tsPreferences = await this.configManager.getTSPreferences(document);
 
 		const inlayHints = lang.provideInlayHints(filePath, { start, length: end - start }, tsPreferences);
 
@@ -27,9 +30,9 @@ export class InlayHintsProviderImpl implements InlayHintsProvider {
 			const result = InlayHint.create(
 				fragment.getOriginalPosition(fragment.positionAt(hint.position)),
 				hint.text,
-				hint.kind === ts.InlayHintKind.Type
+				hint.kind === this.ts.InlayHintKind.Type
 					? InlayHintKind.Type
-					: hint.kind === ts.InlayHintKind.Parameter
+					: hint.kind === this.ts.InlayHintKind.Parameter
 					? InlayHintKind.Parameter
 					: undefined
 			);

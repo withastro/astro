@@ -1,10 +1,10 @@
-import ts from 'typescript';
+import type ts from 'typescript';
 import { Position, Location } from 'vscode-languageserver-protocol';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import { pathToUrl, isNotNullOrUndefined } from '../../../utils';
-import { TypeDefinitionProvider } from '../../interfaces';
-import { LanguageServiceManager } from '../LanguageServiceManager';
-import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import type { TypeDefinitionProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import { convertRange, ensureRealFilePath, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 

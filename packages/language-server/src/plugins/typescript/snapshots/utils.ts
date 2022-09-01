@@ -1,14 +1,19 @@
-import ts from 'typescript';
-import { AstroDocument } from '../../../core/documents';
+import type { AstroDocument } from '../../../core/documents';
 import astro2tsx from '../astro2tsx';
 import { URI, Utils } from 'vscode-uri';
-import { FrameworkExt, getFrameworkFromFilePath, isAstroFilePath, isFrameworkFilePath } from '../utils';
+import {
+	FrameworkExt,
+	getFrameworkFromFilePath,
+	getScriptKindFromFileName,
+	isAstroFilePath,
+	isFrameworkFilePath,
+} from '../utils';
 import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 import { toPascalCase } from '../../../utils';
 import { importSvelteIntegration, importVueIntegration } from '../../../importPackage';
 
 // Utilities to create Snapshots from different contexts
-export function createFromDocument(document: AstroDocument) {
+export function createFromDocument(document: AstroDocument, ts: typeof import('typescript/lib/tsserverlibrary')) {
 	const { code } = astro2tsx(document.getText(), classNameFromFilename(document.getURL()));
 
 	return new AstroSnapshot(document, code, ts.ScriptKind.TSX);
@@ -21,15 +26,16 @@ export function createFromDocument(document: AstroDocument) {
  */
 export function createFromFilePath(
 	filePath: string,
-	createDocument: (filePath: string, text: string) => AstroDocument
+	createDocument: (filePath: string, text: string) => AstroDocument,
+	ts: typeof import('typescript/lib/tsserverlibrary')
 ) {
 	if (isAstroFilePath(filePath)) {
-		return createFromAstroFilePath(filePath, createDocument);
+		return createFromAstroFilePath(filePath, createDocument, ts);
 	} else if (isFrameworkFilePath(filePath)) {
 		const framework = getFrameworkFromFilePath(filePath);
-		return createFromFrameworkFilePath(filePath, framework);
+		return createFromFrameworkFilePath(filePath, framework, ts);
 	} else {
-		return createFromTSFilePath(filePath);
+		return createFromTSFilePath(filePath, ts);
 	}
 }
 
@@ -37,12 +43,12 @@ export function createFromFilePath(
  * Return a Framework or a TS snapshot from a file path, depending on the file contents
  * Unlike createFromFilePath, this does not support creating an Astro snapshot
  */
-export function createFromNonAstroFilePath(filePath: string) {
+export function createFromNonAstroFilePath(filePath: string, ts: typeof import('typescript/lib/tsserverlibrary')) {
 	if (isFrameworkFilePath(filePath)) {
 		const framework = getFrameworkFromFilePath(filePath);
-		return createFromFrameworkFilePath(filePath, framework);
+		return createFromFrameworkFilePath(filePath, framework, ts);
 	} else {
-		return createFromTSFilePath(filePath);
+		return createFromTSFilePath(filePath, ts);
 	}
 }
 
@@ -51,9 +57,9 @@ export function createFromNonAstroFilePath(filePath: string) {
  * @param filePath path to the js/ts file
  * @param options options that apply in case it's a svelte file
  */
-export function createFromTSFilePath(filePath: string) {
+export function createFromTSFilePath(filePath: string, ts: typeof import('typescript/lib/tsserverlibrary')) {
 	const originalText = ts.sys.readFile(filePath) ?? '';
-	return new TypeScriptDocumentSnapshot(0, filePath, originalText);
+	return new TypeScriptDocumentSnapshot(0, filePath, originalText, getScriptKindFromFileName(filePath, ts));
 }
 
 /**
@@ -63,13 +69,18 @@ export function createFromTSFilePath(filePath: string) {
  */
 export function createFromAstroFilePath(
 	filePath: string,
-	createDocument: (filePath: string, text: string) => AstroDocument
+	createDocument: (filePath: string, text: string) => AstroDocument,
+	ts: typeof import('typescript/lib/tsserverlibrary')
 ) {
 	const originalText = ts.sys.readFile(filePath) ?? '';
-	return createFromDocument(createDocument(filePath, originalText));
+	return createFromDocument(createDocument(filePath, originalText), ts);
 }
 
-export function createFromFrameworkFilePath(filePath: string, framework: FrameworkExt) {
+export function createFromFrameworkFilePath(
+	filePath: string,
+	framework: FrameworkExt,
+	ts: typeof import('typescript/lib/tsserverlibrary')
+) {
 	const className = classNameFromFilename(filePath);
 	const originalText = ts.sys.readFile(filePath) ?? '';
 	let code = '';

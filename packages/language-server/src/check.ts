@@ -17,9 +17,16 @@ export class AstroCheck {
 	private docManager = DocumentManager.newInstance();
 	private configManager = new ConfigManager();
 	private pluginHost = new PluginHost(this.docManager);
+	private ts: typeof import('typescript/lib/tsserverlibrary');
 
-	constructor(workspacePath: string, options?: LSConfig) {
+	constructor(workspacePath: string, typescriptPath: string, options?: LSConfig) {
 		this.initialize(workspacePath);
+
+		try {
+			this.ts = require(typescriptPath);
+		} catch (e) {
+			throw new Error(`Couldn't load TypeScript from path ${typescriptPath}`);
+		}
 
 		if (options) {
 			this.configManager.updateGlobalConfig(options);
@@ -56,7 +63,8 @@ export class AstroCheck {
 		const languageServiceManager = new LanguageServiceManager(
 			this.docManager,
 			[normalizeUri(workspacePath)],
-			this.configManager
+			this.configManager,
+			this.ts
 		);
 		this.pluginHost.registerPlugin(new TypeScriptPlugin(this.configManager, languageServiceManager));
 	}

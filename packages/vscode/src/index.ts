@@ -8,6 +8,7 @@ import {
 	Position,
 	TextDocumentChangeEvent,
 	ViewColumn,
+	ConfigurationChangeEvent,
 } from 'vscode';
 import {
 	LanguageClient,
@@ -18,6 +19,7 @@ import {
 } from 'vscode-languageclient/node';
 import { LanguageClientOptions } from 'vscode-languageclient';
 import { activateTagClosing } from './html/autoClose.js';
+import * as tsVersion from './features/typescriptVersion';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 
@@ -58,6 +60,7 @@ export async function activate(context: ExtensionContext) {
 		console.info(`Using ${serverRuntime} as runtime`);
 	}
 
+	const typescript = tsVersion.getCurrentTsPaths(context);
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
@@ -65,6 +68,7 @@ export async function activate(context: ExtensionContext) {
 		},
 		initializationOptions: {
 			environment: 'node',
+			typescript,
 			dontFilterIncompleteCompletions: true, // VSCode filters client side and is smarter at it than us
 			isTrusted: workspace.isTrusted,
 		},
@@ -85,6 +89,10 @@ export async function activate(context: ExtensionContext) {
 		.catch((err) => {
 			console.error('Astro, unable to load language server.', err);
 		});
+
+	workspace.onDidChangeConfiguration((e: ConfigurationChangeEvent) =>
+		tsVersion.onDidChangeConfiguration(e, context, client)
+	);
 
 	// Restart the language server if any critical files that are outside our jurisdiction got changed (tsconfig, jsconfig etc)
 	workspace.onDidSaveTextDocument(async (doc: TextDocument) => {
@@ -129,8 +137,8 @@ export async function activate(context: ExtensionContext) {
 	});
 
 	context.subscriptions.push(
-		commands.registerCommand('astro.restartLanguageServer', async () => {
-			await restartClient(true);
+		commands.registerCommand('astro.restartLanguageServer', async (showNotification = true) => {
+			await restartClient(showNotification);
 		}),
 		commands.registerCommand('astro.showTSXOutput', async () => {
 			const content = await getLSClient().sendRequest<string | undefined>(
@@ -148,7 +156,8 @@ export async function activate(context: ExtensionContext) {
 			} else {
 				window.showErrorMessage("Could not open the current document's TSX output");
 			}
-		})
+		}),
+		commands.registerCommand('astro.selectTypescriptVersion', () => tsVersion.selectVersionCommand(context, client))
 	);
 
 	let restartingClient = false;
@@ -158,9 +167,8 @@ export async function activate(context: ExtensionContext) {
 		}
 
 		restartingClient = true;
-		await client.stop();
 
-		client = createLanguageServer(serverOptions, clientOptions);
+		await client.stop();
 		await client.start();
 
 		if (showNotification) {

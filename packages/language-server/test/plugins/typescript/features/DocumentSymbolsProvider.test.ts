@@ -3,11 +3,12 @@ import { Range, SymbolInformation } from 'vscode-languageserver-types';
 import { createEnvironment } from '../../../utils';
 import { DocumentSymbolsProviderImpl } from '../../../../src/plugins/typescript/features/DocumentSymbolsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'documentSymbols');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
 		const provider = new DocumentSymbolsProviderImpl(languageServiceManager);
 
 		return {

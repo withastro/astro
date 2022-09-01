@@ -1,6 +1,5 @@
-import ts from 'typescript';
 import { DocumentSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
-import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
+import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { normalizePath } from '../../../utils';
 import { EventEmitter } from 'events';
 import * as DocumentSnapshotUtils from './utils';
@@ -14,6 +13,8 @@ import { ensureRealFilePath, toVirtualFilePath } from '../utils';
 export class GlobalSnapshotManager {
 	private emitter = new EventEmitter();
 	private documents = new Map<string, DocumentSnapshot>();
+
+	constructor(private readonly ts: typeof import('typescript/lib/tsserverlibrary')) {}
 
 	get(fileName: string) {
 		fileName = normalizePath(fileName);
@@ -53,7 +54,7 @@ export class GlobalSnapshotManager {
 			this.emitter.emit('change', fileName, previousSnapshot);
 			return previousSnapshot;
 		} else {
-			const newSnapshot = DocumentSnapshotUtils.createFromNonAstroFilePath(fileName);
+			const newSnapshot = DocumentSnapshotUtils.createFromNonAstroFilePath(fileName, this.ts);
 
 			if (previousSnapshot) {
 				newSnapshot.version = previousSnapshot.version + 1;
@@ -85,19 +86,20 @@ export class SnapshotManager {
 	private lastLogged = new Date(new Date().getTime() - 60_001);
 
 	private readonly watchExtensions = [
-		ts.Extension.Dts,
-		ts.Extension.Js,
-		ts.Extension.Jsx,
-		ts.Extension.Ts,
-		ts.Extension.Tsx,
-		ts.Extension.Json,
+		this.ts.Extension.Dts,
+		this.ts.Extension.Js,
+		this.ts.Extension.Jsx,
+		this.ts.Extension.Ts,
+		this.ts.Extension.Tsx,
+		this.ts.Extension.Json,
 	];
 
 	constructor(
 		private globalSnapshotsManager: GlobalSnapshotManager,
 		private projectFiles: string[],
 		private fileSpec: TsFilesSpec,
-		private workspaceRoot: string
+		private workspaceRoot: string,
+		private ts: typeof import('typescript/lib/tsserverlibrary')
 	) {
 		this.globalSnapshotsManager.onChange((fileName, document) => {
 			// Only delete/update snapshots, don't add new ones,
@@ -122,7 +124,7 @@ export class SnapshotManager {
 			return;
 		}
 
-		const projectFiles = ts.sys
+		const projectFiles = this.ts.sys
 			.readDirectory(this.workspaceRoot, this.watchExtensions, exclude, include)
 			.map(normalizePath);
 

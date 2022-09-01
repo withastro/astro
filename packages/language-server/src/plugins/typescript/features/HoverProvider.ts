@@ -1,16 +1,20 @@
 import type { LanguageServiceManager } from '../LanguageServiceManager';
-import ts from 'typescript';
-import { Hover, Position } from 'vscode-languageserver';
+import type { Hover, Position } from 'vscode-languageserver';
 import { AstroDocument, mapObjWithRangeToOriginal } from '../../../core/documents';
-import { HoverProvider } from '../../interfaces';
+import type { HoverProvider } from '../../interfaces';
 import { getMarkdownDocumentation } from '../previewer';
 import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
-import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import type ts from 'typescript';
 
 const partsMap = new Map([['JSX attribute', 'HTML attribute']]);
 
 export class HoverProviderImpl implements HoverProvider {
-	constructor(private readonly languageServiceManager: LanguageServiceManager) {}
+	private ts: typeof import('typescript/lib/tsserverlibrary');
+
+	constructor(private languageServiceManager: LanguageServiceManager) {
+		this.ts = languageServiceManager.docContext.ts;
+	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
@@ -53,8 +57,8 @@ export class HoverProviderImpl implements HoverProvider {
 			text: partsMap.has(value.text) ? partsMap.get(value.text)! : value.text,
 			kind: value.kind,
 		}));
-		const declaration = ts.displayPartsToString(displayParts);
-		const documentation = getMarkdownDocumentation(info.documentation, info.tags);
+		const declaration = this.ts.displayPartsToString(displayParts);
+		const documentation = getMarkdownDocumentation(info.documentation, info.tags, this.ts);
 
 		// https://microsoft.github.io/language-server-protocol/specification#textDocument_hover
 		const contents = ['```typescript', declaration, '```']
