@@ -483,9 +483,10 @@ async function tryLoadConfig(
 	let finallyCleanup = async () => {};
 	try {
 		console.log('resolving config path');
-		let configPath = (
-			await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags })
-		)?.pathname;
+		let configPath = vite.normalizePath(
+			(await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags }))?.pathname ??
+				''
+		);
 		console.log('resolved config path', configPath);
 		if (!configPath) return undefined;
 		if (configOptions.isConfigReload) {
