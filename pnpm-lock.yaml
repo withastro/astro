@@ -2253,6 +2253,26 @@ importers:
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
 
+  packages/integrations/image/test/fixtures/no-alt-text-image:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
+  packages/integrations/image/test/fixtures/no-alt-text-picture:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+
   packages/integrations/image/test/fixtures/rotation:
     specifiers:
       '@astrojs/image': workspace:*
