@@ -4,7 +4,6 @@ import type { BuildInternals } from '../../core/build/internal.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../../vite-plugin-astro/types';
 
 import { prependForwardSlash } from '../../core/path.js';
-import { resolveClientDevPath } from '../../core/render/dev/resolve.js';
 import { getTopLevelPages } from './graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
 
