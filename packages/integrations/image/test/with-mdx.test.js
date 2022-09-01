@@ -24,76 +24,40 @@ describe('Images in MDX - build', function () {
 		expect(result).to.deep.equal(expected);
 	}
 
-	describe('Local images', () => {
-		it('includes <img> attributes', () => {
-			const image = $('#social-jpg');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' }
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' }
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.webp/,
+			size: { width: 544, height: 184, type: 'webp' }
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			regex: /^\/hero_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' }
+		}
+	].forEach(({ title, id, regex, size }) => {
+		it(title, () => {
+			const image = $(id);
 
-			expect(image.attr('src')).to.equal('/social.cece8c77_1zwatP.jpg');
-			expect(image.attr('width')).to.equal('506');
-			expect(image.attr('height')).to.equal('253');
-		});
+			expect(image.attr('src')).to.match(regex);
+			expect(image.attr('width')).to.equal(size.width.toString());
+			expect(image.attr('height')).to.equal(size.height.toString());
 
-		it('built the optimized image', () => {
-			verifyImage('social.cece8c77_1zwatP.jpg', { width: 506, height: 253, type: 'jpg' });
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes <img> attributes', () => {
-			const image = $('#inline');
-
-			expect(image.attr('src')).to.equal('/social.cece8c77_Z2tF99.jpg');
-			expect(image.attr('width')).to.equal('506');
-			expect(image.attr('height')).to.equal('253');
-		});
-
-		it('built the optimized image', () => {
-			verifyImage('social.cece8c77_Z2tF99.jpg', { width: 506, height: 253, type: 'jpg' });
-		});
-	});
-
-	describe('Remote images', () => {
-		// Hard-coding in the test! These should never change since the hash is based
-		// on the static `src` string
-		const HASH = 'Z1RBHqs';
-		const HASH_WITH_QUERY = 'Z17oujH';
-
-		it('includes <img> attributes', () => {
-			const image = $('#google');
-
-			expect(image.attr('src')).to.equal(`/googlelogo_color_272x92dp_${HASH}.webp`);
-			expect(image.attr('width')).to.equal('544');
-			expect(image.attr('height')).to.equal('184');
-		});
-
-		it('built the optimized image', () => {
-			verifyImage(`/googlelogo_color_272x92dp_${HASH}.webp`, {
-				width: 544,
-				height: 184,
-				type: 'webp',
-			});
-		});
-
-		it('removes query strings', () => {
-			verifyImage(`/googlelogo_color_272x92dp_${HASH_WITH_QUERY}.webp`, {
-				width: 544,
-				height: 184,
-				type: 'webp',
-			});
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes <img> attributes', () => {
-			const image = $('#hero');
-
-			expect(image.attr('src')).to.equal('/hero_Z2k1JGN.webp');
-			expect(image.attr('width')).to.equal('768');
-			expect(image.attr('height')).to.equal('414');
-		});
-
-		it('built the optimized image', () => {
-			verifyImage('hero_Z2k1JGN.webp', { width: 768, height: 414, type: 'webp' });
+			verifyImage(image.attr('src'), size);
 		});
 	});
 });

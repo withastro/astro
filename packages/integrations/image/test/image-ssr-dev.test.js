@@ -24,115 +24,64 @@ describe('SSR images - dev', function () {
 		await devServer.stop();
 	});
 
-	describe('Local images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			contentType: 'image/webp',
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '768',
+				h: '414',
+				href: '/hero.jpg'
+			},
+			contentType: 'image/webp',
+		}
+	].forEach(({ title, id, url, query, contentType }) => {
+		it(title, async () => {
+			const image = $(id);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#social-jpg');
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
 
 			const res = await fixture.fetch(image.attr('src'));
 
 			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#inline');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#google');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-		});
-
-		it('keeps remote image query params', () => {
-			const image = $('#query');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-			);
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#hero');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#hero');
-
-			const res = await fixture.fetch(image.attr('src'));
-
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/webp');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+			expect(res.headers.get('Content-Type')).to.equal(contentType);
 		});
 	});
 });
@@ -159,115 +108,64 @@ describe('SSR images with subpath - dev', function () {
 		await devServer.stop();
 	});
 
-	describe('Local images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			contentType: 'image/webp',
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '768',
+				h: '414',
+				href: '/hero.jpg'
+			},
+			contentType: 'image/webp',
+		}
+	].forEach(({ title, id, url, query, contentType }) => {
+		it(title, async () => {
+			const image = $(id);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#social-jpg');
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
 
 			const res = await fixture.fetch(image.attr('src'));
 
 			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#inline');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#google');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-		});
-
-		it('keeps remote image query params', () => {
-			const image = $('#query');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-			);
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes src, width, and height attributes', () => {
-			const image = $('#hero');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('webp');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#hero');
-
-			const res = await fixture.fetch(image.attr('src'));
-
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/webp');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+			expect(res.headers.get('Content-Type')).to.equal(contentType);
 		});
 	});
 });

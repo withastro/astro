@@ -24,133 +24,74 @@ describe('SSR pictures - dev', function () {
 		await devServer.stop();
 	});
 
-	describe('Local images', () => {
-		it('includes sources', () => {
-			const sources = $('#social-jpg source');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+			alt: 'Social image'
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+			alt: 'Inline social image'
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'png',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			contentType: 'image/png',
+			alt: 'Google logo'
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: {
+				f: 'jpg',
+				w: '768',
+				h: '414',
+				href: '/hero.jpg'
+			},
+			contentType: 'image/jpeg',
+			alt: 'Hero image'
+		}
+	].forEach(({ title, id, url, query, alt, contentType }) => {
+		it(title, async () => {
+			const sources = $(`${id} source`);
 
 			expect(sources.length).to.equal(3);
 
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg img');
+			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(image.attr('alt')).to.equal('Social image');
-		});
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
 
-		it('returns the optimized image', async () => {
-			const image = $('#social-jpg img');
+			expect(image.attr('alt')).to.equal(alt);
 
 			const res = await fixture.fetch(image.attr('src'));
 
 			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes sources', () => {
-			const sources = $('#inline source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#inline img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(image.attr('alt')).to.equal('Inline social image');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes sources', () => {
-			const sources = $('#google source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#google img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('png');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-			expect(image.attr('alt')).to.equal('Google logo');
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes sources', () => {
-			const sources = $('#hero source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#hero img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-			expect(image.attr('alt')).to.equal('Hero image');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#hero img');
-
-			const res = await fixture.fetch(image.attr('src'));
-
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+			expect(res.headers.get('Content-Type')).to.equal(contentType);
 		});
 	});
 });
@@ -177,133 +118,74 @@ describe('SSR pictures with subpath - dev', function () {
 		await devServer.stop();
 	});
 
-	describe('Local images', () => {
-		it('includes sources', () => {
-			const sources = $('#social-jpg source');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+			alt: 'Social image'
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+			contentType: 'image/jpeg',
+			alt: 'Inline social image'
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'png',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+			},
+			contentType: 'image/png',
+			alt: 'Google logo'
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: {
+				f: 'jpg',
+				w: '768',
+				h: '414',
+				href: '/hero.jpg'
+			},
+			contentType: 'image/jpeg',
+			alt: 'Hero image'
+		}
+	].forEach(({ title, id, url, query, alt, contentType }) => {
+		it(title, async () => {
+			const sources = $(`${id} source`);
 
 			expect(sources.length).to.equal(3);
 
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#social-jpg img');
+			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
+			expect(route).to.equal(url);
 
 			const searchParams = new URLSearchParams(params);
 
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(image.attr('alt')).to.equal('Social image');
-		});
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
 
-		it('returns the optimized image', async () => {
-			const image = $('#social-jpg img');
+			expect(image.attr('alt')).to.equal(alt);
 
 			const res = await fixture.fetch(image.attr('src'));
 
 			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-		});
-	});
-
-	describe('Inline imports', () => {
-		it('includes sources', () => {
-			const sources = $('#inline source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#inline img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/@astroimage/assets/social.jpg');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('506');
-			expect(searchParams.get('h')).to.equal('253');
-			expect(image.attr('alt')).to.equal('Inline social image');
-		});
-	});
-
-	describe('Remote images', () => {
-		it('includes sources', () => {
-			const sources = $('#google source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#google img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('png');
-			expect(searchParams.get('w')).to.equal('544');
-			expect(searchParams.get('h')).to.equal('184');
-			expect(searchParams.get('href')).to.equal(
-				'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			);
-			expect(image.attr('alt')).to.equal('Google logo');
-		});
-	});
-
-	describe('/public images', () => {
-		it('includes sources', () => {
-			const sources = $('#hero source');
-
-			expect(sources.length).to.equal(3);
-
-			// TODO: better coverage to verify source props
-		});
-
-		it('includes src, width, and height attributes', () => {
-			const image = $('#hero img');
-
-			const src = image.attr('src');
-			const [route, params] = src.split('?');
-
-			expect(route).to.equal('/_image');
-
-			const searchParams = new URLSearchParams(params);
-
-			expect(searchParams.get('f')).to.equal('jpg');
-			expect(searchParams.get('w')).to.equal('768');
-			expect(searchParams.get('h')).to.equal('414');
-			expect(searchParams.get('href')).to.equal('/hero.jpg');
-			expect(image.attr('alt')).to.equal('Hero image');
-		});
-
-		it('returns the optimized image', async () => {
-			const image = $('#hero img');
-
-			const res = await fixture.fetch(image.attr('src'));
-
-			expect(res.status).to.equal(200);
-			expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-			// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
+			expect(res.headers.get('Content-Type')).to.equal(contentType);
 		});
 	});
 });
