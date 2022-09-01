@@ -353,6 +353,12 @@ export async function validateConfig(
 			renderers: [jsxRenderer],
 			injectedRoutes: [],
 			adapter: undefined,
+			clientDirectives: new Map([
+				['visible', {
+					type: 'external',
+					src: 'astro/runtime/client/visible.js'
+				}]
+			]),
 		},
 	};
 

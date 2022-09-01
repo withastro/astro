@@ -1,11 +1,13 @@
+import { ClientDirective } from '../../@types/astro';
+
 /**
  * Hydrate this component when one of it's children becomes visible
  * We target the children because `astro-island` is set to `display: contents`
  * which doesn't work with IntersectionObserver
  */
-(self.Astro = self.Astro || {}).visible = (getHydrateCallback, _opts, root) => {
+const visible: ClientDirective = (load, _opts, root) => {
 	const cb = async () => {
-		let hydrate = await getHydrateCallback();
+		let hydrate = await load();
 		await hydrate();
 	};
 
@@ -24,4 +26,5 @@
 		io.observe(child);
 	}
 };
-window.dispatchEvent(new Event('astro:visible'));
+
+export default visible;

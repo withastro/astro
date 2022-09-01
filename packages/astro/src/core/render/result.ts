@@ -3,6 +3,7 @@ import { bold } from 'kleur/colors';
 import type {
 	AstroGlobal,
 	AstroGlobalPartial,
+	ClientDirectiveMap,
 	Params,
 	Props,
 	RuntimeMode,
@@ -36,6 +37,7 @@ export interface CreateResultArgs {
 	pathname: string;
 	props: Props;
 	renderers: SSRLoadedRenderer[];
+	clientDirectives: ClientDirectiveMap;
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
 	links?: Set<SSRElement>;
@@ -122,7 +124,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
+	const { clientDirectives, markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -274,6 +276,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 		resolve,
 		_metadata: {
 			renderers,
+			clientDirectives,
 			pathname,
 			hasHydrationScript: false,
 			hasDirectives: new Set(),

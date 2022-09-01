@@ -16,6 +16,7 @@ import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
+import astroClientDirective from '../vite-plugin-client-directive/index.js';
 import { createCustomViteLogger } from './errors.js';
 import { resolveDependency } from './util.js';
 
@@ -86,6 +87,7 @@ export async function createVite(
 			astroPostprocessVitePlugin({ config: astroConfig }),
 			astroIntegrationsContainerPlugin({ config: astroConfig, logging }),
 			astroScriptsPageSSRPlugin({ config: astroConfig }),
+			astroClientDirective({ config: astroConfig, logging }),
 		],
 		publicDir: fileURLToPath(astroConfig.publicDir),
 		root: fileURLToPath(astroConfig.root),

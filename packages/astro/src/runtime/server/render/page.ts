@@ -6,6 +6,7 @@ import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from 
 import { stringifyChunk } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
+import { string } from 'zod';
 
 const encoder = new TextEncoder();
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -72,7 +73,13 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								let html = stringifyChunk(result, chunk);
+								let html: string;
+								let stringChunk = stringifyChunk(result, chunk);
+								if((stringChunk as any).then !== undefined) {
+									html = await stringChunk;
+								} else {
+									html = (stringChunk as string);
+								}
 
 								if (i === 0) {
 									if (!/<!doctype html/i.test(html)) {
@@ -94,7 +101,13 @@ export async function renderPage(
 			body = '';
 			let i = 0;
 			for await (const chunk of iterable) {
-				let html = stringifyChunk(result, chunk);
+				let html: string;
+				let stringChunk = stringifyChunk(result, chunk);
+				if((stringChunk as any).then !== undefined) {
+					html = await stringChunk;
+				} else {
+					html = (stringChunk as string);
+				}
 				if (i === 0) {
 					if (!/<!doctype html/i.test(html)) {
 						body += '<!DOCTYPE html>\n';

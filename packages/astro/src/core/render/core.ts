@@ -1,6 +1,7 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
 import type {
 	ComponentInstance,
+	ClientDirectiveMap,
 	Params,
 	Props,
 	RouteData,
@@ -79,6 +80,7 @@ export interface RenderOptions {
 	scripts: Set<SSRElement>;
 	resolve: (s: string) => Promise<string>;
 	renderers: SSRLoadedRenderer[];
+	clientDirectives: ClientDirectiveMap;
 	route?: RouteData;
 	routeCache: RouteCache;
 	site?: string;
@@ -91,6 +93,7 @@ export interface RenderOptions {
 export async function render(opts: RenderOptions): Promise<Response> {
 	const {
 		adapterName,
+		clientDirectives,
 		links,
 		styles,
 		logging,
@@ -145,6 +148,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		pathname,
 		resolve,
 		renderers,
+		clientDirectives,
 		request,
 		site,
 		scripts,

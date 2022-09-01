@@ -881,6 +881,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
+		clientDirectives: ClientDirectiveMap;
 	};
 }
 
@@ -1200,6 +1201,7 @@ export interface SSRElement {
 
 export interface SSRMetadata {
 	renderers: SSRLoadedRenderer[];
+	clientDirectives: ClientDirectiveMap;
 	pathname: string;
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
@@ -1220,3 +1222,18 @@ export interface SSRResult {
 }
 
 export type MarkdownAstroData = { frontmatter: object };
+
+/* Client Directives */
+export type ClientDirectiveMap = Map<string, { type: 'inline' | 'external', src: string }>;
+type Hydrate = () => Promise<void>;
+type Load = () => Promise<Hydrate>;
+
+type DirectiveOptions = {
+  // The component displayName
+  name: string;
+  // The attribute value provided,
+  // for ex `client:interactive="click"
+  value: string;
+}
+
+export type ClientDirective = (load: Load, opts: DirectiveOptions, element: HTMLElement) => void;

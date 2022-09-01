@@ -15,7 +15,7 @@ export const Renderer = Symbol.for('astro:renderer');
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
 // can ensure they are added only once, and as soon as possible.
-export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction) {
+export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruction): string | Promise<string> {
 	switch ((chunk as any).type) {
 		case 'directive': {
 			const { hydration } = chunk as RenderInstruction;
@@ -29,7 +29,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 				? 'directive'
 				: null;
 			if (prescriptType) {
-				let prescripts = getPrescripts(prescriptType, hydration.directive);
+				let prescripts = getPrescripts(result, prescriptType, hydration.directive);
 				return markHTMLString(prescripts);
 			} else {
 				return '';

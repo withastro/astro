@@ -168,6 +168,7 @@ export async function render(
 
 	let response = await coreRender({
 		adapterName: astroConfig.adapter?.name,
+		clientDirectives: astroConfig._ctx.clientDirectives,
 		links,
 		styles,
 		logging,

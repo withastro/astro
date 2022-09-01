@@ -14,6 +14,8 @@ export function determineIfNeedsHydrationScript(result: SSRResult): boolean {
 	return (result._metadata.hasHydrationScript = true);
 }
 
+const ISLAND_STYLES = `<style>astro-island,astro-slot{display:contents}</style>`;
+
 export const hydrationScripts: Record<string, string> = {
 	idle: idlePrebuilt,
 	load: loadPrebuilt,
@@ -40,18 +42,47 @@ function getDirectiveScriptText(directive: string): string {
 	return directiveScriptText;
 }
 
-export function getPrescripts(type: PrescriptType, directive: string): string {
+function getDirectiveScript(result: SSRResult, directive: string): string | Promise<string> {
+	if(!result._metadata.clientDirectives.has(directive)) {
+		// TODO better error message
+		throw new Error(`Unable to find directive ${directive}`);
+	}
+	let { type, src } = result._metadata.clientDirectives.get(directive)!;
+	switch(type) {
+		case 'external': {
+			return result.resolve(`${src}?astro-client-directive=${directive}`).then(value => {
+				return `<script type="module" src="${value}"></script>`;
+			});
+		}
+		case 'inline': {
+			throw new Error(`Inline not yet supported`);
+		}
+	}
+}
+
+function isPromise<T>(value: any): value is Promise<T> {
+	if(typeof value.then === 'function') {
+		return true;
+	}
+	return false;
+}
+
+export function getPrescripts(result: SSRResult, type: PrescriptType, directive: string): string | Promise<string> {
 	// Note that this is a classic script, not a module script.
 	// This is so that it executes immediate, and when the browser encounters
 	// an astro-island element the callbacks will fire immediately, causing the JS
 	// deps to be loaded immediately.
 	switch (type) {
 		case 'both':
-			return `<style>astro-island,astro-slot{display:contents}</style><script>${
-				getDirectiveScriptText(directive) + islandScript
-			}</script>`;
+			let directiveScript = getDirectiveScript(result, directive);
+			if(isPromise<string>(directiveScript)) {
+				return directiveScript.then(scriptText => {
+					return `${ISLAND_STYLES}${scriptText}<script>${islandScript}</script>`;
+				});
+			}
+			return `${ISLAND_STYLES}${directiveScript}<script>${islandScript}</script>`
 		case 'directive':
-			return `<script>${getDirectiveScriptText(directive)}</script>`;
+			return getDirectiveScript(result, directive);
 	}
 	return '';
 }
