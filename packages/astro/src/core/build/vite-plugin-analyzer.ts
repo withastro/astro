@@ -82,7 +82,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
 				for (const c of astro.hydratedComponents) {
-					const rid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
+					const rid = c.resolvedPath ?? c.specifier;
 					internals.discoveredHydratedComponents.add(rid);
 				}
 
@@ -93,7 +93,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					const clientOnlys: string[] = [];
 
 					for (const c of astro.clientOnlyComponents) {
-						const cid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
+						const cid = c.resolvedPath ?? c.specifier;
 						internals.discoveredClientOnlyComponents.add(cid);
 						clientOnlys.push(cid);
 					}
