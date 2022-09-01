@@ -15,7 +15,9 @@ export type HTMLAttributes = Omit<
 let altWarningShown = false;
 
 export function warnForMissingAlt() {
-	if (altWarningShown === true) { return }
+	if (altWarningShown === true) {
+		return;
+	}
 
 	altWarningShown = true;
 
