@@ -7,7 +7,7 @@ import {
 	Node,
 	Position,
 } from 'vscode-html-languageservice';
-import type { AstroDocument } from './AstroDocument';
+import { AstroDocument } from './AstroDocument';
 import { isInsideExpression } from './utils';
 
 const parser = getLanguageService();

@@ -15,7 +15,7 @@ import {
 	FoldingRange,
 } from 'vscode-languageserver';
 import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
-import type { SourceMapConsumer } from 'source-map';
+import { SourceMapConsumer } from 'source-map';
 
 export interface DocumentMapper {
 	/**

@@ -10,7 +10,6 @@ import {
 	CompletionItemTag,
 	InsertTextFormat,
 } from 'vscode-languageserver';
-import type ts from 'typescript/lib/tsserverlibrary';
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver-protocol';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import {
@@ -20,8 +19,9 @@ import {
 	isPossibleComponent,
 } from '../../../core/documents/utils';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
+import ts, { ScriptElementKind, ScriptElementKindModifier } from 'typescript';
 import { CompletionList } from 'vscode-languageserver';
-import type { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
+import { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
 import {
 	scriptElementKindToCompletionItemKind,
 	getCommitCharactersForScriptElement,
@@ -31,7 +31,7 @@ import {
 	ensureFrontmatterInsert,
 	getScriptTagSnapshot,
 } from '../utils';
-import type {
+import {
 	AstroSnapshot,
 	AstroSnapshotFragment,
 	ScriptTagDocumentSnapshot,
@@ -40,7 +40,7 @@ import type {
 import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
 import { getMarkdownDocumentation } from '../previewer';
 import { isPartOfImportStatement } from './utils';
-import type { ConfigManager } from '../../../core/config';
+import { ConfigManager } from '../../../core/config';
 
 /**
  * The language service throws an error if the character is not a valid trigger character.
@@ -66,31 +66,8 @@ export interface CompletionItemData extends TextDocumentIdentifier {
 	originalItem: ts.CompletionEntry;
 }
 
-// When Svelte components are imported, we have to reference the svelte2tsx's types to properly type the component
-// An unfortunate downside of this is that it polutes completions, so let's filter those internal types manually
-const svelte2tsxTypes = new Set([
-	'Svelte2TsxComponent',
-	'Svelte2TsxComponentConstructorParameters',
-	'SvelteComponentConstructor',
-	'SvelteActionReturnType',
-	'SvelteTransitionConfig',
-	'SvelteTransitionReturnType',
-	'SvelteAnimationReturnType',
-	'SvelteWithOptionalProps',
-	'SvelteAllProps',
-	'SveltePropsAnyFallback',
-	'SvelteSlotsAnyFallback',
-	'SvelteRestProps',
-	'SvelteSlots',
-	'SvelteStore',
-]);
-
 export class CompletionsProviderImpl implements CompletionsProvider<CompletionItemData> {
-	private ts: typeof import('typescript/lib/tsserverlibrary');
-
-	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {
-		this.ts = languageServiceManager.docContext.ts;
-	}
+	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {}
 
 	private readonly validTriggerCharacters = ['.', '"', "'", '`', '/', '@', '<', '#'] as const;
 
@@ -207,7 +184,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		const fragment = await tsDoc.createFragment();
 		const existingImports = this.getExistingImports(document);
 		const completionItems = completions.entries
-			.filter((completion) => this.isValidCompletion(completion, this.ts))
+			.filter(isValidCompletion)
 			.map((entry: ts.CompletionEntry) =>
 				this.toCompletionItem(
 					fragment,
@@ -295,13 +272,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 
 					edit.push(
 						...change.textChanges.map((textChange) =>
-							codeActionChangeToTextEdit(
-								document,
-								fragment as AstroSnapshotFragment,
-								isInsideScriptTag,
-								textChange,
-								this.ts
-							)
+							codeActionChangeToTextEdit(document, fragment as AstroSnapshotFragment, isInsideScriptTag, textChange)
 						)
 					);
 				}
@@ -339,7 +310,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 			item.kind = CompletionItemKind.File;
 			item.detail = comp.data?.moduleSpecifier;
 		} else {
-			item.kind = scriptElementKindToCompletionItemKind(comp.kind, this.ts);
+			item.kind = scriptElementKindToCompletionItemKind(comp.kind);
 		}
 
 		// TS may suggest another component even if there already exists an import with the same.
@@ -351,7 +322,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		if (comp.kindModifiers) {
 			const kindModifiers = new Set(comp.kindModifiers.split(/,|\s+/g));
 
-			if (kindModifiers.has(this.ts.ScriptElementKindModifier.optionalModifier)) {
+			if (kindModifiers.has(ScriptElementKindModifier.optionalModifier)) {
 				if (!item.insertText) {
 					item.insertText = item.label;
 				}
@@ -362,7 +333,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 				item.label += '?';
 			}
 
-			if (kindModifiers.has(this.ts.ScriptElementKindModifier.deprecatedModifier)) {
+			if (kindModifiers.has(ScriptElementKindModifier.deprecatedModifier)) {
 				item.tags = [CompletionItemTag.Deprecated];
 			}
 		}
@@ -372,7 +343,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		// 	item.labelDetails = { description: ts.displayPartsToString(comp.sourceDisplay) };
 		// }
 
-		item.commitCharacters = getCommitCharactersForScriptElement(comp.kind, this.ts);
+		item.commitCharacters = getCommitCharactersForScriptElement(comp.kind);
 		item.sortText = comp.sortText;
 		item.preselect = comp.isRecommended;
 
@@ -398,16 +369,16 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 
 	private getCompletionDocument(compDetail: ts.CompletionEntryDetails) {
 		const { sourceDisplay, documentation: tsDocumentation, displayParts } = compDetail;
-		let detail: string = removeAstroComponentSuffix(this.ts.displayPartsToString(displayParts));
+		let detail: string = removeAstroComponentSuffix(ts.displayPartsToString(displayParts));
 
 		if (sourceDisplay) {
-			const importPath = this.ts.displayPartsToString(sourceDisplay);
+			const importPath = ts.displayPartsToString(sourceDisplay);
 			detail = importPath;
 		}
 
 		const documentation: MarkupContent = {
 			kind: 'markdown',
-			value: getMarkdownDocumentation(tsDocumentation, compDetail.tags, this.ts),
+			value: getMarkdownDocumentation(tsDocumentation, compDetail.tags),
 		};
 
 		return {
@@ -489,32 +460,13 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 	private isAstroComponentImport(className: string) {
 		return className.endsWith('__AstroComponent_');
 	}
-
-	private isValidCompletion(
-		completion: ts.CompletionEntry,
-		ts: typeof import('typescript/lib/tsserverlibrary')
-	): boolean {
-		// Remove completion for default exported function
-		const isDefaultExport =
-			completion.name === 'default' && completion.kindModifiers == ts.ScriptElementKindModifier.exportedModifier;
-
-		// Remove completion for svelte2tsx internal types
-		const isSvelte2tsxCompletion = completion.name.startsWith('__sveltets_') || svelte2tsxTypes.has(completion.name);
-
-		if (isDefaultExport || isSvelte2tsxCompletion) {
-			return false;
-		}
-
-		return true;
-	}
 }
 
 export function codeActionChangeToTextEdit(
 	document: AstroDocument,
 	fragment: AstroSnapshotFragment,
 	isInsideScriptTag: boolean,
-	change: ts.TextChange,
-	ts: typeof import('typescript/lib/tsserverlibrary')
+	change: ts.TextChange
 ) {
 	change.newText = removeAstroComponentSuffix(change.newText);
 
@@ -553,4 +505,38 @@ export function codeActionChangeToTextEdit(
 	}
 
 	return TextEdit.replace(range, change.newText);
+}
+
+// When Svelte components are imported, we have to reference the svelte2tsx's types to properly type the component
+// An unfortunate downside of this is that it polutes completions, so let's filter those internal types manually
+const svelte2tsxTypes = new Set([
+	'Svelte2TsxComponent',
+	'Svelte2TsxComponentConstructorParameters',
+	'SvelteComponentConstructor',
+	'SvelteActionReturnType',
+	'SvelteTransitionConfig',
+	'SvelteTransitionReturnType',
+	'SvelteAnimationReturnType',
+	'SvelteWithOptionalProps',
+	'SvelteAllProps',
+	'SveltePropsAnyFallback',
+	'SvelteSlotsAnyFallback',
+	'SvelteRestProps',
+	'SvelteSlots',
+	'SvelteStore',
+]);
+
+function isValidCompletion(completion: ts.CompletionEntry): boolean {
+	// Remove completion for default exported function
+	const isDefaultExport =
+		completion.name === 'default' && completion.kindModifiers == ScriptElementKindModifier.exportedModifier;
+
+	// Remove completion for svelte2tsx internal types
+	const isSvelte2tsxCompletion = completion.name.startsWith('__sveltets_') || svelte2tsxTypes.has(completion.name);
+
+	if (isDefaultExport || isSvelte2tsxCompletion) {
+		return false;
+	}
+
+	return true;
 }

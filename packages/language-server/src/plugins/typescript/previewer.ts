@@ -7,6 +7,7 @@
  * adopted from https://github.com/microsoft/vscode/blob/10722887b8629f90cc38ee7d90d54e8246dc895f/extensions/typescript-language-features/src/utils/previewer.ts
  */
 
+import ts from 'typescript';
 import { isNotNullOrUndefined } from '../../utils';
 
 function replaceLinks(text: string): string {
@@ -32,7 +33,7 @@ function processInlineTags(text: string): string {
 	return replaceLinks(text);
 }
 
-function getTagBodyText(tag: ts.JSDocTagInfo, ts: typeof import('typescript/lib/tsserverlibrary')): string | undefined {
+function getTagBodyText(tag: ts.JSDocTagInfo): string | undefined {
 	if (!tag.text) {
 		return undefined;
 	}
@@ -78,10 +79,7 @@ function getTagBodyText(tag: ts.JSDocTagInfo, ts: typeof import('typescript/lib/
 	return processInlineTags(ts.displayPartsToString(tag.text));
 }
 
-export function getTagDocumentation(
-	tag: ts.JSDocTagInfo,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): string | undefined {
+export function getTagDocumentation(tag: ts.JSDocTagInfo): string | undefined {
 	function getWithType() {
 		const body = (ts.displayPartsToString(tag.text) || '').split(/^(\S+)\s*-?\s*/);
 		if (body?.length === 3) {
@@ -105,32 +103,28 @@ export function getTagDocumentation(
 
 	// Generic tag
 	const label = `*@${tag.name}*`;
-	const text = getTagBodyText(tag, ts);
+	const text = getTagBodyText(tag);
 	if (!text) {
 		return label;
 	}
 	return label + (text.match(/\r\n|\n/g) ? '  \n' + text : ` — ${text}`);
 }
 
-export function plain(
-	parts: ts.SymbolDisplayPart[] | string,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): string {
+export function plain(parts: ts.SymbolDisplayPart[] | string): string {
 	return processInlineTags(typeof parts === 'string' ? parts : ts.displayPartsToString(parts));
 }
 
 export function getMarkdownDocumentation(
 	documentation: ts.SymbolDisplayPart[] | undefined,
-	tags: ts.JSDocTagInfo[] | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary')
+	tags: ts.JSDocTagInfo[] | undefined
 ) {
 	let result: Array<string | undefined> = [];
 	if (documentation) {
-		result.push(plain(documentation, ts));
+		result.push(plain(documentation));
 	}
 
 	if (tags) {
-		result = result.concat(tags.map((tag) => getTagDocumentation(tag, ts)));
+		result = result.concat(tags.map(getTagDocumentation));
 	}
 
 	return result.filter(isNotNullOrUndefined).join('\n\n');

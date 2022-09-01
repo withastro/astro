@@ -2,12 +2,11 @@ import { expect } from 'chai';
 import { DiagnosticsProviderImpl } from '../../../../../src/plugins/typescript/features/DiagnosticsProvider';
 import { LanguageServiceManager } from '../../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#Support Aliases', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'misc');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new DiagnosticsProviderImpl(languageServiceManager);
 
 		return {

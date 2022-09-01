@@ -1,4 +1,4 @@
-import type {
+import {
 	CodeAction,
 	CodeActionContext,
 	Color,
@@ -29,7 +29,7 @@ import type {
 	TextEdit,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 export type Resolvable<T> = T | Promise<T>;
 

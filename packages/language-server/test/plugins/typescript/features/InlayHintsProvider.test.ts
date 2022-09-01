@@ -3,12 +3,11 @@ import { Hover, InlayHintKind, Position, Range } from 'vscode-languageserver-typ
 import { InlayHintsProviderImpl } from '../../../../src/plugins/typescript/features/InlayHintsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#InlayHintsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'inlayHints');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new InlayHintsProviderImpl(languageServiceManager, env.configManager);
 
 		return {

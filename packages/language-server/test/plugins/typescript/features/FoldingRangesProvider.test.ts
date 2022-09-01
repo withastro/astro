@@ -2,12 +2,11 @@ import { LanguageServiceManager } from '../../../../src/plugins/typescript/Langu
 import { createEnvironment } from '../../../utils';
 import { FoldingRangesProviderImpl } from '../../../../src/plugins/typescript/features/FoldingRangesProvider';
 import { expect } from 'chai';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#FoldingRangesProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'foldingRanges');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new FoldingRangesProviderImpl(languageServiceManager);
 
 		return {

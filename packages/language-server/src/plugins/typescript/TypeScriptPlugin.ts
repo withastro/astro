@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import {
 	CancellationToken,
 	CodeAction,
@@ -8,6 +9,7 @@ import {
 	Diagnostic,
 	FileChangeType,
 	FoldingRange,
+	FormattingOptions,
 	Hover,
 	InlayHint,
 	Position,
@@ -17,16 +19,17 @@ import {
 	SignatureHelpContext,
 	SymbolInformation,
 	TextDocumentContentChangeEvent,
+	TextEdit,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
-import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
-import type { AstroDocument } from '../../core/documents';
-import type { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
+import { ConfigManager, LSTypescriptConfig } from '../../core/config';
+import { AstroDocument, DocumentManager } from '../../core/documents';
+import { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
 import { CompletionItemData, CompletionsProviderImpl } from './features/CompletionsProvider';
 import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
-import type { LanguageServiceManager } from './LanguageServiceManager';
+import { LanguageServiceManager } from './LanguageServiceManager';
 import { convertToLocationRange, ensureRealFilePath, getScriptKindFromFileName, toVirtualAstroFilePath } from './utils';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
@@ -56,12 +59,9 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly semanticTokensProvider: SemanticTokensProviderImpl;
 	private readonly foldingRangesProvider: FoldingRangesProviderImpl;
 
-	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
-
 	constructor(configManager: ConfigManager, languageServiceManager: LanguageServiceManager) {
 		this.configManager = configManager;
 		this.languageServiceManager = languageServiceManager;
-		this.ts = languageServiceManager.docContext.ts;
 
 		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
@@ -205,9 +205,9 @@ export class TypeScriptPlugin implements Plugin {
 		let doneUpdateProjectFiles = false;
 
 		for (const { fileName, changeType } of onWatchFileChangesParas) {
-			const scriptKind = getScriptKindFromFileName(fileName, this.ts);
+			const scriptKind = getScriptKindFromFileName(fileName);
 
-			if (scriptKind === this.ts.ScriptKind.Unknown) {
+			if (scriptKind === ts.ScriptKind.Unknown) {
 				continue;
 			}
 

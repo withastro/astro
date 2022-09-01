@@ -8,12 +8,11 @@ import {
 	AstroSnapshot,
 	TypeScriptDocumentSnapshot,
 } from '../../../../src/plugins/typescript/snapshots/DocumentSnapshot';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript PluginTypeDefinitionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'typeDefinitions');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new TypeDefinitionsProviderImpl(languageServiceManager);
 
 		return {
@@ -68,5 +67,6 @@ describe('TypeScript PluginTypeDefinitionsProvider', () => {
 				uri: document.getURL(),
 			},
 		]);
+
 	});
 });

@@ -1,13 +1,11 @@
-import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
+import ts from 'typescript';
+import { DocumentSnapshot } from './snapshots/DocumentSnapshot';
 import { ensureRealFilePath, isVirtualFilePath } from './utils';
 
 /**
  * This should only be accessed by TS Astro module resolution.
  */
-export function createAstroSys(
-	getSnapshot: (fileName: string) => DocumentSnapshot,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-) {
+export function createAstroSys(getSnapshot: (fileName: string) => DocumentSnapshot) {
 	const fileExistsCache = new Map<string, boolean>();
 
 	const AstroSys: ts.System & { deleteFromCache: (path: string) => void } = {

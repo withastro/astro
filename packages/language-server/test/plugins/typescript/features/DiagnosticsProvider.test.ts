@@ -6,12 +6,11 @@ import {
 	DiagnosticsProviderImpl,
 	DiagnosticCodes,
 } from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#DiagnosticsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'diagnostics');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new DiagnosticsProviderImpl(languageServiceManager);
 
 		return {

@@ -81,10 +81,6 @@
       {
         "command": "astro.showTSXOutput",
         "title": "Astro: Debug: Show TSX Output"
-      },
-      {
-        "command": "astro.selectTypescriptVersion",
-        "title": "Astro: Select Typescript Version..."
       }
     ],
     "configuration": {

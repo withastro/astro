@@ -7,12 +7,12 @@ import {
 	Range,
 	FormattingOptions,
 } from 'vscode-languageserver';
-import type { ConfigManager } from '../../core/config';
-import type { AstroDocument } from '../../core/documents';
+import { ConfigManager } from '../../core/config';
+import { AstroDocument } from '../../core/documents';
 import { importPrettier, getPrettierPluginPath } from '../../importPackage';
 import { mergeDeep } from '../../utils';
-import type { AppCompletionList, Plugin } from '../interfaces';
-import type { LanguageServiceManager } from '../typescript/LanguageServiceManager';
+import { AppCompletionList, Plugin } from '../interfaces';
+import { LanguageServiceManager } from '../typescript/LanguageServiceManager';
 import { CompletionsProviderImpl } from './features/CompletionsProvider';
 
 export class AstroPlugin implements Plugin {
@@ -20,14 +20,12 @@ export class AstroPlugin implements Plugin {
 
 	private configManager: ConfigManager;
 	private readonly languageServiceManager: LanguageServiceManager;
-	private readonly ts: typeof import('typescript/lib/tsserverlibrary');
 
 	private readonly completionProvider: CompletionsProviderImpl;
 
 	constructor(configManager: ConfigManager, languageServiceManager: LanguageServiceManager) {
 		this.configManager = configManager;
 		this.languageServiceManager = languageServiceManager;
-		this.ts = languageServiceManager.docContext.ts;
 
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
 	}

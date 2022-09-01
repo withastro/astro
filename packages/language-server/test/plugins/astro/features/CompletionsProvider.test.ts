@@ -4,12 +4,11 @@ import { CompletionsProviderImpl } from '../../../../src/plugins/astro/features/
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { InsertTextFormat, Position, Range } from 'vscode-languageserver-types';
 import { CompletionContext, CompletionTriggerKind } from 'vscode-languageserver-protocol';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('Astro Plugin#CompletionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'astro', 'completions');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new CompletionsProviderImpl(languageServiceManager);
 
 		return {

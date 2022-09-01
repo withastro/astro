@@ -1,6 +1,7 @@
-import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import type { ConfigManager } from '../../core/config';
-import type { AstroDocument, DocumentManager } from '../../core/documents';
+import ts from 'typescript';
+import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
+import { ConfigManager } from '../../core/config';
+import { AstroDocument, DocumentManager } from '../../core/documents';
 import { debounceSameArg, normalizePath, pathToUrl } from '../../utils';
 import {
 	forAllLanguageServices,
@@ -8,27 +9,22 @@ import {
 	LanguageServiceContainer,
 	LanguageServiceDocumentContext,
 } from './language-service';
-import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
+import { DocumentSnapshot } from './snapshots/DocumentSnapshot';
 import { GlobalSnapshotManager } from './snapshots/SnapshotManager';
 
 export class LanguageServiceManager {
-	public docContext: LanguageServiceDocumentContext;
-	private globalSnapshotManager: GlobalSnapshotManager;
+	private docContext: LanguageServiceDocumentContext;
+	private globalSnapshotManager: GlobalSnapshotManager = new GlobalSnapshotManager();
 
 	constructor(
 		private readonly docManager: DocumentManager,
 		private readonly workspaceUris: string[],
-		private readonly configManager: ConfigManager,
-		ts: typeof import('typescript/lib/tsserverlibrary'),
-		tsLocalized?: Record<string, string> | undefined
+		private readonly configManager: ConfigManager
 	) {
-		this.globalSnapshotManager = new GlobalSnapshotManager(ts);
 		this.docContext = {
 			createDocument: this.createDocument,
 			globalSnapshotManager: this.globalSnapshotManager,
 			configManager: this.configManager,
-			ts,
-			tsLocalized: tsLocalized,
 		};
 
 		const handleDocumentChange = (document: AstroDocument) => {
@@ -60,7 +56,7 @@ export class LanguageServiceManager {
 	async getSnapshot(pathOrDoc: string | AstroDocument) {
 		const filePath = typeof pathOrDoc === 'string' ? pathOrDoc : pathOrDoc.getFilePath() || '';
 		const tsService = await this.getTypeScriptLanguageService(filePath);
-		return tsService.updateSnapshot(pathOrDoc, this.docContext.ts);
+		return tsService.updateSnapshot(pathOrDoc);
 	}
 
 	/**

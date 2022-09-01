@@ -1,8 +1,8 @@
-import type { VSCodeEmmetConfig } from '@vscode/emmet-helper';
-import type { LSConfig, LSCSSConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
-import type { Connection, FormattingOptions } from 'vscode-languageserver';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { FormatCodeSettings, UserPreferences } from 'typescript';
+import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
+import { LSConfig, LSCSSConfig, LSFormatConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
+import { Connection, FormattingOptions } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { FormatCodeSettings, InlayHintsOptions, SemicolonPreference, UserPreferences } from 'typescript';
 import { get, mergeDeep } from '../../utils';
 
 // The default language server configuration is used only in two cases:
@@ -152,7 +152,7 @@ export class ConfigManager {
 			insertSpaceAfterTypeAssertion: formatConfig.insertSpaceAfterTypeAssertion ?? false,
 			placeOpenBraceOnNewLineForFunctions: formatConfig.placeOpenBraceOnNewLineForFunctions ?? false,
 			placeOpenBraceOnNewLineForControlBlocks: formatConfig.placeOpenBraceOnNewLineForControlBlocks ?? false,
-			semicolons: formatConfig.semicolons ?? 'ignore',
+			semicolons: formatConfig.semicolons ?? SemicolonPreference.Ignore,
 		};
 	}
 
@@ -173,8 +173,16 @@ export class ConfigManager {
 			includeCompletionsForModuleExports: config.suggest?.autoImports ?? true,
 			allowIncompleteCompletions: true,
 			includeCompletionsWithInsertText: true,
+		};
+	}
 
-			// Inlay Hints
+	async getTSInlayHintsPreferences(document: TextDocument): Promise<InlayHintsOptions> {
+		const config = (await this.getConfig<any>('typescript', document.uri)) ?? {};
+
+		const tsPreferences = this.getTSPreferences(document);
+
+		return {
+			...tsPreferences,
 			includeInlayParameterNameHints: getInlayParameterNameHintsPreference(config),
 			includeInlayParameterNameHintsWhenArgumentMatchesName: !(
 				config.inlayHints?.parameterNames?.suppressWhenArgumentMatchesName ?? true

@@ -1,19 +1,19 @@
+import ts from 'typescript';
 import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
 import { getExtensionFromScriptKind, ensureRealFilePath, isVirtualFilePath } from './utils';
 import { createAstroSys } from './astro-sys';
 import { getLastPartOfPath } from '../../utils';
-import type { ResolvedModule } from 'typescript';
 
 /**
  * Caches resolved modules.
  */
 class ModuleResolutionCache {
-	private cache = new Map<string, ResolvedModule | undefined>();
+	private cache = new Map<string, ts.ResolvedModule | undefined>();
 
 	/**
 	 * Tries to get a cached module.
 	 */
-	get(moduleName: string, containingFile: string): ResolvedModule | undefined {
+	get(moduleName: string, containingFile: string): ts.ResolvedModule | undefined {
 		return this.cache.get(this.getKey(moduleName, containingFile));
 	}
 
@@ -27,7 +27,7 @@ class ModuleResolutionCache {
 	/**
 	 * Caches resolved module (or undefined).
 	 */
-	set(moduleName: string, containingFile: string, resolvedModule: ResolvedModule | undefined) {
+	set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModule | undefined) {
 		this.cache.set(this.getKey(moduleName, containingFile), resolvedModule);
 	}
 
@@ -76,10 +76,9 @@ class ModuleResolutionCache {
  */
 export function createAstroModuleLoader(
 	getSnapshot: (fileName: string) => DocumentSnapshot,
-	compilerOptions: ts.CompilerOptions,
-	ts: typeof import('typescript/lib/tsserverlibrary')
+	compilerOptions: ts.CompilerOptions
 ) {
-	const astroSys = createAstroSys(getSnapshot, ts);
+	const astroSys = createAstroSys(getSnapshot);
 	const moduleCache = new ModuleResolutionCache();
 
 	return {
@@ -128,7 +127,7 @@ export function createAstroModuleLoader(
 		const snapshot = getSnapshot(resolvedFileName);
 
 		const resolvedAstroModule: ts.ResolvedModuleFull = {
-			extension: getExtensionFromScriptKind(snapshot && snapshot.scriptKind, ts),
+			extension: getExtensionFromScriptKind(snapshot && snapshot.scriptKind),
 			resolvedFileName,
 			isExternalLibraryImport: astroResolvedModule.isExternalLibraryImport,
 		};

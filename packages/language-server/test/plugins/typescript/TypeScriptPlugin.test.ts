@@ -3,8 +3,6 @@ import { createEnvironment } from '../../utils';
 import { TypeScriptPlugin } from '../../../src/plugins';
 import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
 import { LanguageServiceManager } from '../../../src/plugins/typescript/LanguageServiceManager';
-import ts from 'typescript/lib/tsserverlibrary';
-import { SignatureHelpTriggerKind } from 'vscode-languageserver-protocol';
 
 // This file only contain basic tests to ensure that the TypeScript plugin does in fact calls the proper methods
 // and returns something. For validity tests, please check the providers themselves in the 'features' folder
@@ -14,7 +12,7 @@ describe('TypeScript Plugin', () => {
 		const env = createEnvironment(filePath, 'typescript');
 		const plugin = new TypeScriptPlugin(
 			env.configManager,
-			new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts)
+			new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager)
 		);
 
 		return {
@@ -216,19 +214,6 @@ describe('TypeScript Plugin', () => {
 
 			const foldingRanges = await plugin.getFoldingRanges(document);
 			expect(foldingRanges).to.not.be.empty;
-		});
-	});
-
-	describe('provide signature help', async () => {
-		it('return signature help', async () => {
-			const { plugin, document } = setup('signatureHelper/basic.astro');
-
-			const signatureHelp = await plugin.getSignatureHelp(document, Position.create(1, 12), {
-				triggerKind: SignatureHelpTriggerKind.Invoked,
-				isRetrigger: false,
-			});
-
-			expect(signatureHelp).to.not.be.null;
 		});
 	});
 });

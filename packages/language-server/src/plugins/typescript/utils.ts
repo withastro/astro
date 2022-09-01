@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import { dirname, extname } from 'path';
 import { pathToUrl } from '../../utils';
 import {
@@ -11,8 +12,8 @@ import {
 	SemanticTokensLegend,
 } from 'vscode-languageserver';
 import { AstroDocument, mapRangeToOriginal, TagInformation } from '../../core/documents';
-import type { AstroSnapshot, ScriptTagDocumentSnapshot, SnapshotFragment } from './snapshots/DocumentSnapshot';
-import type { Node } from 'vscode-html-languageservice';
+import { AstroSnapshot, ScriptTagDocumentSnapshot, SnapshotFragment } from './snapshots/DocumentSnapshot';
+import { Node } from 'vscode-html-languageservice';
 
 export const enum TokenType {
 	class,
@@ -126,10 +127,7 @@ export function symbolKindFromString(kind: string): SymbolKind {
 	}
 }
 
-export function scriptElementKindToCompletionItemKind(
-	kind: ts.ScriptElementKind,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): CompletionItemKind {
+export function scriptElementKindToCompletionItemKind(kind: ts.ScriptElementKind): CompletionItemKind {
 	switch (kind) {
 		case ts.ScriptElementKind.primitiveType:
 		case ts.ScriptElementKind.keyword:
@@ -173,10 +171,7 @@ export function scriptElementKindToCompletionItemKind(
 	return CompletionItemKind.Property;
 }
 
-export function getCommitCharactersForScriptElement(
-	kind: ts.ScriptElementKind,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): string[] | undefined {
+export function getCommitCharactersForScriptElement(kind: ts.ScriptElementKind): string[] | undefined {
 	const commitCharacters: string[] = [];
 	switch (kind) {
 		case ts.ScriptElementKind.memberGetAccessorElement:
@@ -207,10 +202,7 @@ export function getCommitCharactersForScriptElement(
 	return commitCharacters.length === 0 ? undefined : commitCharacters;
 }
 
-export function getExtensionFromScriptKind(
-	kind: ts.ScriptKind | undefined,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): ts.Extension {
+export function getExtensionFromScriptKind(kind: ts.ScriptKind | undefined): ts.Extension {
 	switch (kind) {
 		case ts.ScriptKind.JSX:
 			return ts.Extension.Jsx;
@@ -226,11 +218,7 @@ export function getExtensionFromScriptKind(
 	}
 }
 
-export function findTsConfigPath(
-	fileName: string,
-	rootUris: string[],
-	ts: typeof import('typescript/lib/tsserverlibrary')
-) {
+export function findTsConfigPath(fileName: string, rootUris: string[]) {
 	const searchDir = dirname(fileName);
 	const path =
 		ts.findConfigFile(searchDir, ts.sys.fileExists, 'tsconfig.json') ||
@@ -245,10 +233,7 @@ export function isSubPath(uri: string, possibleSubPath: string): boolean {
 	return pathToUrl(possibleSubPath).startsWith(uri);
 }
 
-export function getScriptKindFromFileName(
-	fileName: string,
-	ts: typeof import('typescript/lib/tsserverlibrary')
-): ts.ScriptKind {
+export function getScriptKindFromFileName(fileName: string): ts.ScriptKind {
 	const ext = fileName.substring(fileName.lastIndexOf('.'));
 	switch (ext.toLowerCase()) {
 		case ts.Extension.Js:
@@ -263,6 +248,19 @@ export function getScriptKindFromFileName(
 			return ts.ScriptKind.JSON;
 		default:
 			return ts.ScriptKind.Unknown;
+	}
+}
+
+export function mapSeverity(category: ts.DiagnosticCategory): DiagnosticSeverity {
+	switch (category) {
+		case ts.DiagnosticCategory.Error:
+			return DiagnosticSeverity.Error;
+		case ts.DiagnosticCategory.Warning:
+			return DiagnosticSeverity.Warning;
+		case ts.DiagnosticCategory.Suggestion:
+			return DiagnosticSeverity.Hint;
+		case ts.DiagnosticCategory.Message:
+			return DiagnosticSeverity.Information;
 	}
 }
 

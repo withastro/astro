@@ -28,7 +28,7 @@ import {
 	LinkedEditingRanges,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
-import type { DocumentManager } from '../core/documents/DocumentManager';
+import { DocumentManager } from '../core/documents/DocumentManager';
 import { isNotNullOrUndefined, regexLastIndexOf } from '../utils';
 import { isInComponentStartTag } from '../core/documents';
 

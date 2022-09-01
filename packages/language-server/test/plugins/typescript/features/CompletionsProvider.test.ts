@@ -4,14 +4,14 @@ import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/feat
 import { CompletionItemKind, Position, Range } from 'vscode-languageserver-types';
 import { CompletionTriggerKind } from 'vscode-languageserver-protocol';
 import { expect } from 'chai';
-import ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript';
 
 const newLine = ts.sys.newLine;
 
 describe('TypeScript Plugin#CompletionsProvider', () => {
 	function setup(filePath: string) {
 		const env = createEnvironment(filePath, 'typescript', 'completions');
-		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager, ts);
+		const languageServiceManager = new LanguageServiceManager(env.docManager, [env.fixturesDir], env.configManager);
 		const provider = new CompletionsProviderImpl(languageServiceManager, env.configManager);
 
 		return {

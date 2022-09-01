@@ -1,18 +1,14 @@
-import type ts from 'typescript/lib/tsserverlibrary';
+import { NavigationTree, ScriptElementKindModifier } from 'typescript';
 import { SymbolInformation, Range, SymbolKind } from 'vscode-languageserver-types';
 import { AstroDocument, mapSymbolInformationToOriginal } from '../../../core/documents';
-import type { DocumentSymbolsProvider } from '../../interfaces';
-import type { LanguageServiceManager } from '../LanguageServiceManager';
-import type { SnapshotFragment } from '../snapshots/DocumentSnapshot';
+import { DocumentSymbolsProvider } from '../../interfaces';
+import { LanguageServiceManager } from '../LanguageServiceManager';
+import { SnapshotFragment } from '../snapshots/DocumentSnapshot';
 import { symbolKindFromString } from '../utils';
 import { SymbolTag } from 'vscode-languageserver-types';
 
 export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
-	private ts: typeof import('typescript/lib/tsserverlibrary');
-
-	constructor(private languageServiceManager: LanguageServiceManager) {
-		this.ts = languageServiceManager.docContext.ts;
-	}
+	constructor(private languageServiceManager: LanguageServiceManager) {}
 
 	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
@@ -86,7 +82,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 	}
 
 	private collectSymbols(
-		item: ts.NavigationTree,
+		item: NavigationTree,
 		fragment: SnapshotFragment,
 		container: string | undefined,
 		cb: (symbol: SymbolInformation) => void
@@ -102,7 +98,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 
 			// TypeScript gives us kind modifiers as a string instead of an array
 			const kindModifiers = new Set(item.kindModifiers.split(/,|\s+/g));
-			if (kindModifiers.has(this.ts.ScriptElementKindModifier.deprecatedModifier)) {
+			if (kindModifiers.has(ScriptElementKindModifier.deprecatedModifier)) {
 				if (!symbol.tags) symbol.tags = [];
 				symbol.tags.push(SymbolTag.Deprecated);
 			}
