@@ -18,7 +18,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 
 Images play a big role in overall site performance and usability. Serving properly sized images makes all the difference but is often tricky to automate.
 
-This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replacable, opening the door for future integrations that work with your favorite hosted image service.
+This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replaceable, opening the door for future integrations that work with your favorite hosted image service.
 
 ## Installation
 
@@ -90,7 +90,7 @@ import { Image, Picture } from '@astrojs/image/components';
 
 The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
-Astro’s <Image /> and <Picture /> components require the alt attribute which provides descriptive text for images. These components will throw an error if no alt text is provided.
+Astro’s <Image /> and <Picture /> components require the alt attribute which provides descriptive text for images. A warning will be logged if "alt" text is missing, and a future release of the integration will throw an error if no alt text is provided.
 
 If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set alt="" so that the image is properly understood and ignored by screen readers.
 
@@ -124,7 +124,9 @@ For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/
 **Required:** `true`
 </p>
 
-The `alt` string will be included on the built `<img />` element.
+Defines an alternative text description of the image.
+
+Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel).
 
 #### format
 
@@ -214,7 +216,9 @@ For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/
 **Required:** `true`
 </p>
 
-The `alt` string will be included on the built `<img />` element.
+Defines an alternative text description of the image.
+
+Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel).
 
 #### sizes
 
@@ -345,23 +349,22 @@ Image files in your project's `src` directory can be imported in frontmatter and
 ---
 import { Image } from '@astrojs/image/components';
 import heroImage from '../assets/hero.png';
-const altText = "Descriptive Text"
 ---
 
 // optimized image, keeping the original width, height, and image format
-<Image src={heroImage} alt={altText} />
+<Image src={heroImage} alt="descriptive text" />
 
 // height will be recalculated to match the original aspect ratio
-<Image src={heroImage} width={300} alt={altText} />
+<Image src={heroImage} width={300} alt="descriptive text" />
 
 // cropping to a specific width and height
-<Image src={heroImage} width={300} height={600} alt={altText} />
+<Image src={heroImage} width={300} height={600} alt="descriptive text" />
 
 // cropping to a specific aspect ratio and converting to an avif format
-<Image src={heroImage} aspectRatio="16:9" format="avif" alt={altText} />
+<Image src={heroImage} aspectRatio="16:9" format="avif" alt="descriptive text" />
 
 // image imports can also be inlined directly
-<Image src={import('../assets/hero.png')} alt={altText} />
+<Image src={import('../assets/hero.png')} alt="descriptive text" />
 ```
 
 #### Images in `/public`
@@ -376,11 +379,10 @@ For example, use an image located at `public/social.png` in either static or SSR
 ---
 import { Image } from '@astrojs/image/components';
 import socialImage from '/social.png';
-const altText = "Descriptive Text"
 ---
 // In static builds: the image will be built and optimized to `/dist`.
 // In SSR builds: the image will be optimized by the server when requested by a browser.
-<Image src={socialImage} width={1280} aspectRatio="16:9" alt={altText} />
+<Image src={socialImage} width={1280} aspectRatio="16:9" alt="descriptive text" />
 ```
 
 ### Remote images
@@ -392,17 +394,16 @@ Remote images can be transformed with the `<Image />` component. The `<Image />`
 import { Image } from '@astrojs/image/components';
 
 const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png';
-const altText = "Descriptive Text"
 ---
 
 // cropping to a specific width and height
-<Image src={imageUrl} width={544} height={184} alt={altText} />
+<Image src={imageUrl} width={544} height={184} alt="descriptive text" />
 
 // height will be recalculated to match the aspect ratio
-<Image src={imageUrl} width={300} aspectRatio={16/9} alt={altText} />
+<Image src={imageUrl} width={300} aspectRatio={16/9} alt="descriptive text" />
 
 // cropping to a specific height and aspect ratio and converting to an avif format
-<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt={altText} />
+<Image src={imageUrl} height={200} aspectRatio="16:9" format="avif" alt="descriptive text" />
 ```
 
 ### Responsive pictures
@@ -422,13 +423,13 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 ---
 
 // Local image with multiple sizes
-<Picture src={hero} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="My hero image" />
+<Picture src={hero} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
 
 // Remote image (aspect ratio is required)
-<Picture src={imageUrl} widths={[200, 400, 800]} aspectRatio="4:3" sizes="(max-width: 800px) 100vw, 800px" alt="My hero image" />
+<Picture src={imageUrl} widths={[200, 400, 800]} aspectRatio="4:3" sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
 
 // Inlined imports are supported
-<Picture src={import("../assets/hero.png")} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="My hero image" />
+<Picture src={import("../assets/hero.png")} widths={[200, 400, 800]} sizes="(max-width: 800px) 100vw, 800px" alt="descriptive text" />
 ```
 
 ## Troubleshooting
