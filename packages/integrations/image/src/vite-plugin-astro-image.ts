@@ -55,7 +55,8 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 			}
 
 			if (!this.meta.watchMode) {
-				const filename = basename(url.pathname, extname(url.pathname)) + `.${meta.format}`;
+				const pathname = decodeURI(url.pathname);
+				const filename = basename(pathname, extname(pathname) + `.${meta.format}`);
 
 				const handle = this.emitFile({
 					name: filename,
