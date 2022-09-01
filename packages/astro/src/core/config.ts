@@ -486,7 +486,7 @@ async function tryLoadConfig(
 		let configPath = (
 			await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags })
 		)?.pathname;
-		console.log('resolved config path');
+		console.log('resolved config path', configPath);
 		if (!configPath) return undefined;
 		if (configOptions.isConfigReload) {
 			console.log('why here?');
@@ -509,7 +509,7 @@ async function tryLoadConfig(
 
 		console.log('loading config');
 		const config = await load('astro', {
-			mustExist: true,
+			mustExist: !!configPath,
 			cwd: root,
 			filePath: configPath,
 		});
@@ -517,6 +517,7 @@ async function tryLoadConfig(
 
 		return config as TryLoadConfigResult;
 	} catch (e) {
+		console.log({ e });
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
