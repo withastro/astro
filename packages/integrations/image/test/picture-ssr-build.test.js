@@ -21,14 +21,14 @@ describe('SSR pictures - build', function () {
 			id: '#social-jpg',
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -38,17 +38,17 @@ describe('SSR pictures - build', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
-			alt: 'Hero image'
-		}
+			alt: 'Hero image',
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
@@ -101,14 +101,14 @@ describe('SSR pictures with subpath - build', function () {
 			id: '#social-jpg',
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -118,17 +118,17 @@ describe('SSR pictures with subpath - build', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
-			alt: 'Hero image'
-		}
+			alt: 'Hero image',
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();

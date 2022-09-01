@@ -33,6 +33,13 @@ describe('SSR images - dev', function () {
 			contentType: 'image/jpeg',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
+			contentType: 'image/webp',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -47,7 +54,7 @@ describe('SSR images - dev', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/webp',
 		},
@@ -59,10 +66,10 @@ describe('SSR images - dev', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/webp',
-		}
+		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {
 			const image = $(id);
@@ -117,6 +124,13 @@ describe('SSR images with subpath - dev', function () {
 			contentType: 'image/jpeg',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
+			contentType: 'image/webp',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -131,7 +145,7 @@ describe('SSR images with subpath - dev', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/webp',
 		},
@@ -143,10 +157,10 @@ describe('SSR images with subpath - dev', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/webp',
-		}
+		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {
 			const image = $(id);

@@ -31,7 +31,7 @@ describe('SSR pictures - dev', function () {
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
@@ -39,7 +39,7 @@ describe('SSR pictures - dev', function () {
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -49,10 +49,10 @@ describe('SSR pictures - dev', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/png',
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
@@ -62,11 +62,11 @@ describe('SSR pictures - dev', function () {
 				f: 'jpg',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/jpeg',
-			alt: 'Hero image'
-		}
+			alt: 'Hero image',
+		},
 	].forEach(({ title, id, url, query, alt, contentType }) => {
 		it(title, async () => {
 			const sources = $(`${id} source`);
@@ -125,7 +125,7 @@ describe('SSR pictures with subpath - dev', function () {
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
@@ -133,7 +133,7 @@ describe('SSR pictures with subpath - dev', function () {
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
 			contentType: 'image/jpeg',
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -143,10 +143,10 @@ describe('SSR pictures with subpath - dev', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/png',
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
@@ -156,11 +156,11 @@ describe('SSR pictures with subpath - dev', function () {
 				f: 'jpg',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/jpeg',
-			alt: 'Hero image'
-		}
+			alt: 'Hero image',
+		},
 	].forEach(({ title, id, url, query, alt, contentType }) => {
 		it(title, async () => {
 			const sources = $(`${id} source`);

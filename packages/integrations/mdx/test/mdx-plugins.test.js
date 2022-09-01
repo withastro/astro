@@ -24,6 +24,17 @@ describe('MDX plugins', () => {
 		expect(selectTocLink(document)).to.not.be.null;
 	});
 
+	it('Applies GFM by default', async () => {
+		const fixture = await buildFixture({
+			integrations: [mdx()],
+		});
+
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		expect(selectGfmLink(document)).to.not.be.null;
+	});
+
 	it('supports custom rehype plugins', async () => {
 		const fixture = await buildFixture({
 			integrations: [
