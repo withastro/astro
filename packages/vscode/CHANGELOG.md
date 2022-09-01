@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.23.3
+
+### Patch Changes
+
+- 150946c: Publish failed
+- Updated dependencies [150946c]
+  - @astrojs/language-server@0.23.3
+
 ## 0.23.2
 
 ### Patch Changes

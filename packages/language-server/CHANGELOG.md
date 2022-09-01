@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.23.3
+
+### Patch Changes
+
+- 150946c: Publish failed
+
 ## 0.23.2
 
 ### Patch Changes
