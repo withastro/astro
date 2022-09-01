@@ -14,19 +14,19 @@ describe('SSR images - build', async function () {
 		});
 		await fixture.build();
 	});
-	
+
 	[
 		{
 			title: 'Local images',
 			id: '#social-jpg',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ }
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ }
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Remote images',
@@ -36,8 +36,8 @@ describe('SSR images - build', async function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			}
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
 		},
 		{
 			title: 'Remote images with search',
@@ -47,15 +47,15 @@ describe('SSR images - build', async function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-			}
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc',
+			},
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
-			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' }
-		}
+			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
@@ -103,13 +103,13 @@ describe('SSR images with subpath - build', function () {
 			title: 'Local images',
 			id: '#social-jpg',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ }
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
-			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ }
+			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
 		},
 		{
 			title: 'Remote images',
@@ -119,8 +119,8 @@ describe('SSR images with subpath - build', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-			}
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
 		},
 		{
 			title: 'Remote images with search',
@@ -130,15 +130,15 @@ describe('SSR images with subpath - build', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-			}
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc',
+			},
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
-			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' }
-		}
+			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();

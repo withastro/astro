@@ -47,7 +47,7 @@ describe('SSR images - dev', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/webp',
 		},
@@ -59,10 +59,10 @@ describe('SSR images - dev', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/webp',
-		}
+		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {
 			const image = $(id);
@@ -131,7 +131,7 @@ describe('SSR images with subpath - dev', function () {
 				f: 'webp',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/webp',
 		},
@@ -143,10 +143,10 @@ describe('SSR images with subpath - dev', function () {
 				f: 'webp',
 				w: '768',
 				h: '414',
-				href: '/hero.jpg'
+				href: '/hero.jpg',
 			},
 			contentType: 'image/webp',
-		}
+		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {
 			const image = $(id);

@@ -28,14 +28,14 @@ describe('SSG pictures - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -45,16 +45,16 @@ describe('SSG pictures - dev', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
-			alt: 'Hero image'
+			alt: 'Hero image',
 		},
 	].forEach(({ title, id, url, query, alt }) => {
 		it(title, () => {
@@ -62,7 +62,7 @@ describe('SSG pictures - dev', function () {
 			expect(sources.length).to.equal(3);
 
 			const image = $(`${id} img`);
-			
+
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
@@ -101,14 +101,14 @@ describe('SSG pictures with subpath - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
@@ -118,16 +118,16 @@ describe('SSG pictures with subpath - dev', function () {
 				f: 'png',
 				w: '544',
 				h: '184',
-				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
-			alt: 'Hero image'
+			alt: 'Hero image',
 		},
 	].forEach(({ title, id, url, query, alt }) => {
 		it(title, () => {
@@ -135,7 +135,7 @@ describe('SSG pictures with subpath - dev', function () {
 			expect(sources.length).to.equal(3);
 
 			const image = $(`${id} img`);
-			
+
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
 
@@ -184,60 +184,59 @@ describe('SSG pictures - build', function () {
 			id: '#social-jpg',
 			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline images',
 			id: '#inline',
 			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
 			id: '#google',
 			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.png/,
 			size: { width: 544, height: 184, type: 'png' },
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			regex: /^\/hero_\w{4,10}.jpg/,
 			size: { width: 768, height: 414, type: 'jpg' },
-			alt: 'Hero image'
-		}
-	]
-		.forEach(({ title, id,regex, size, alt }) => {
-			it(title, () => {
-				const sources = $(`${id} source`);
-				expect(sources.length).to.equal(3);
-	
-				const image = $(`${id} img`);
-				
-				expect(image.attr('src')).to.match(regex);
-				expect(image.attr('width')).to.equal(size.width.toString());
-				expect(image.attr('height')).to.equal(size.height.toString());
-				expect(image.attr('alt')).to.equal(alt);
-				
-				verifyImage(image.attr('src'), size);
+			alt: 'Hero image',
+		},
+	].forEach(({ title, id, regex, size, alt }) => {
+		it(title, () => {
+			const sources = $(`${id} source`);
+			expect(sources.length).to.equal(3);
 
-				sources.each((_, el) => {
-					const source = $(el);
-					const srcset = source.attr('srcset');
+			const image = $(`${id} img`);
 
-					for (const src of srcset.split(',')) {
-						const [pathname, width] = src.split(' ');
-						const widthNum = parseInt(width.substring(0, width.length - 1));
+			expect(image.attr('src')).to.match(regex);
+			expect(image.attr('width')).to.equal(size.width.toString());
+			expect(image.attr('height')).to.equal(size.height.toString());
+			expect(image.attr('alt')).to.equal(alt);
 
-						verifyImage(pathname, {
-							width: widthNum,
-							height: widthNum === size.width ? size.height : Math.round(size.height / 2),
-							type: path.extname(pathname).substring(1)
-						})
-					}
-				})
+			verifyImage(image.attr('src'), size);
+
+			sources.each((_, el) => {
+				const source = $(el);
+				const srcset = source.attr('srcset');
+
+				for (const src of srcset.split(',')) {
+					const [pathname, width] = src.split(' ');
+					const widthNum = parseInt(width.substring(0, width.length - 1));
+
+					verifyImage(pathname, {
+						width: widthNum,
+						height: widthNum === size.width ? size.height : Math.round(size.height / 2),
+						type: path.extname(pathname).substring(1),
+					});
+				}
 			});
+		});
 	});
 });
 
@@ -273,59 +272,58 @@ describe('SSG pictures with subpath - build', function () {
 			id: '#social-jpg',
 			regex: /^\/docs\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
-			alt: 'Social image'
+			alt: 'Social image',
 		},
 		{
 			title: 'Inline images',
 			id: '#inline',
 			regex: /^\/docs\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
-			alt: 'Inline social image'
+			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
 			id: '#google',
 			regex: /^\/docs\/googlelogo_color_272x92dp_\w{4,10}.png/,
 			size: { width: 544, height: 184, type: 'png' },
-			alt: 'Google logo'
+			alt: 'Google logo',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
 			regex: /^\/docs\/hero_\w{4,10}.jpg/,
 			size: { width: 768, height: 414, type: 'jpg' },
-			alt: 'Hero image'
-		}
-	]
-		.forEach(({ title, id,regex, size, alt }) => {
-			it(title, () => {
-				const sources = $(`${id} source`);
-				expect(sources.length).to.equal(3);
-	
-				const image = $(`${id} img`);
-				
-				expect(image.attr('src')).to.match(regex);
-				expect(image.attr('width')).to.equal(size.width.toString());
-				expect(image.attr('height')).to.equal(size.height.toString());
-				expect(image.attr('alt')).to.equal(alt);
-				
-				verifyImage(image.attr('src').replace('/docs', ''), size);
+			alt: 'Hero image',
+		},
+	].forEach(({ title, id, regex, size, alt }) => {
+		it(title, () => {
+			const sources = $(`${id} source`);
+			expect(sources.length).to.equal(3);
 
-				sources.each((_, el) => {
-					const source = $(el);
-					const srcset = source.attr('srcset');
+			const image = $(`${id} img`);
 
-					for (const src of srcset.split(',')) {
-						const [pathname, width] = src.split(' ');
-						const widthNum = parseInt(width.substring(0, width.length - 1))
+			expect(image.attr('src')).to.match(regex);
+			expect(image.attr('width')).to.equal(size.width.toString());
+			expect(image.attr('height')).to.equal(size.height.toString());
+			expect(image.attr('alt')).to.equal(alt);
 
-						verifyImage(pathname.replace('/docs', ''), {
-							width: widthNum,
-							height: widthNum === size.width ? size.height : Math.round(size.height / 2),
-							type: path.extname(pathname).substring(1)
-						})
-					}
-				})
+			verifyImage(image.attr('src').replace('/docs', ''), size);
+
+			sources.each((_, el) => {
+				const source = $(el);
+				const srcset = source.attr('srcset');
+
+				for (const src of srcset.split(',')) {
+					const [pathname, width] = src.split(' ');
+					const widthNum = parseInt(width.substring(0, width.length - 1));
+
+					verifyImage(pathname.replace('/docs', ''), {
+						width: widthNum,
+						height: widthNum === size.width ? size.height : Math.round(size.height / 2),
+						type: path.extname(pathname).substring(1),
+					});
+				}
 			});
+		});
 	});
 });
