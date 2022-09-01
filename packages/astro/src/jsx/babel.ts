@@ -1,6 +1,7 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
-import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+import { prependForwardSlash } from '../core/path.js';
 import { HydrationDirectiveProps } from '../runtime/server/hydration.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
@@ -216,8 +217,8 @@ export default function astroJSX(): PluginObj {
 				if (meta) {
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
-						const fileURL = pathToFileURL(state.filename!);
-						resolvedPath = `/@fs${new URL(meta.path, fileURL).pathname}`;
+						const resolved = resolve(meta.path, state.filename!);
+						resolvedPath = `/@fs${prependForwardSlash(resolved)}`;
 						if (resolvedPath.endsWith('.jsx')) {
 							resolvedPath = resolvedPath.slice(0, -4);
 						}
@@ -299,8 +300,8 @@ export default function astroJSX(): PluginObj {
 					}
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
-						const fileURL = pathToFileURL(state.filename!);
-						resolvedPath = `/@fs${new URL(meta.path, fileURL).pathname}`;
+						const resolved = resolve(meta.path, state.filename!);
+						resolvedPath = `/@fs${prependForwardSlash(resolved)}`;
 						if (resolvedPath.endsWith('.jsx')) {
 							resolvedPath = resolvedPath.slice(0, -4);
 						}
