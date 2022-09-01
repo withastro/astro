@@ -1,5 +1,6 @@
 ---
 import socialJpg from '../assets/social.jpg';
+import introJpg from '../assets/blog/introducing astro.jpg';
 import { Image } from '@astrojs/image/components';
 ---
 
@@ -9,6 +10,8 @@ import { Image } from '@astrojs/image/components';
   </head>
   <body>
 		<Image id="hero" src="/hero.jpg" width={768} height={414} format="webp" />
+		<br />
+		<Image id="spaces" src={introJpg} width={768} height={414} format="webp" />
 		<br />
 		<Image id="social-jpg" src={socialJpg} width={506} height={253} />
 		<br />

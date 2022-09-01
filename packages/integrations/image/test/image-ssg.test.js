@@ -28,6 +28,12 @@ describe('SSG images - dev', function () {
 			query: { f: 'jpg', w: '506', h: '253' },
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -90,6 +96,12 @@ describe('SSG images with subpath - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
 		},
 		{
 			title: 'Inline imports',
@@ -160,6 +172,12 @@ describe('SSG images - build', function () {
 			size: { width: 506, height: 253, type: 'jpg' },
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/introducing astro.\w{8}_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
@@ -216,6 +234,12 @@ describe('SSG images with subpath - build', function () {
 			id: '#social-jpg',
 			regex: /^\/docs\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/docs\/introducing astro.\w{8}_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
 		},
 		{
 			title: 'Inline imports',

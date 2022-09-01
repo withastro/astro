@@ -23,6 +23,12 @@ describe('SSR images - build', async function () {
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/assets\/social.\w{8}.jpg/ },
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { f: 'webp', w: '768', h: '414', href: /^\/assets\/introducing astro.\w{8}.jpg/ },
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -104,6 +110,12 @@ describe('SSR images with subpath - build', function () {
 			id: '#social-jpg',
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { f: 'webp', w: '768', h: '414', href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/ },
 		},
 		{
 			title: 'Inline imports',
