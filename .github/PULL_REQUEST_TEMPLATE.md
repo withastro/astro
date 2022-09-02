@@ -13,7 +13,7 @@
 ## Docs
 
 <!-- Could this affect a user’s behavior? We probably need to update docs! -->
-<!-- If adding docs or unsure, uncomment the next line: -->
+<!-- If docs will be needed or you’re not sure, uncomment the next line: -->
 <!-- /cc @withastro/maintainers-docs for feedback! -->
 
 <!-- DON'T DELETE THIS SECTION! If no docs added, explain why.-->
