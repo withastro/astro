@@ -412,10 +412,10 @@ interface LoadConfigOptions {
  * Note: currently the same as loadConfig but only returns the `filePath`
  * instead of the resolved config
  */
-export async function resolveConfigURL(
+export async function resolveConfigPath(
 	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>,
 	mustExist?: boolean
-): Promise<URL | undefined> {
+): Promise<string | undefined> {
 	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
@@ -432,10 +432,7 @@ export async function resolveConfigURL(
 		cwd: root,
 		filePath: userConfigPath,
 	});
-	console.log('real', configPath);
-	if (configPath) {
-		return pathToFileURL(configPath);
-	}
+	return configPath;
 }
 
 interface OpenConfigResult {
@@ -483,15 +480,12 @@ async function tryLoadConfig(
 ): Promise<TryLoadConfigResult | undefined> {
 	let finallyCleanup = async () => {};
 	try {
-		console.log('resolving config path');
-		let configPath = vite.normalizePath(
-			(await resolveConfigURL({ cwd: configOptions.cwd, flags: configOptions.flags }))?.pathname ??
-				''
-		);
-		console.log('resolved config path', configPath);
+		let configPath = await resolveConfigPath({
+			cwd: configOptions.cwd,
+			flags: configOptions.flags,
+		});
 		if (!configPath) return undefined;
 		if (configOptions.isConfigReload) {
-			console.log('why here?');
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
 			const tempConfigPath = path.join(
@@ -509,13 +503,11 @@ async function tryLoadConfig(
 			configPath = tempConfigPath;
 		}
 
-		console.log('loading config');
 		const config = await load('astro', {
 			mustExist: !!configPath,
 			cwd: root,
 			filePath: configPath,
 		});
-		console.log('loaded config', config?.filePath);
 
 		return config as TryLoadConfigResult;
 	} catch (e) {
@@ -524,8 +516,8 @@ async function tryLoadConfig(
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
 
-		const configURL = await resolveConfigURL(configOptions);
-		if (!configURL) {
+		const configPath = await resolveConfigPath(configOptions);
+		if (!configPath) {
 			throw e;
 		}
 
@@ -537,12 +529,12 @@ async function tryLoadConfig(
 			appType: 'custom',
 		});
 		try {
-			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
+			const mod = await viteServer.ssrLoadModule(configPath);
 
 			if (mod?.default) {
 				return {
 					value: mod.default,
-					filePath: fileURLToPath(configURL),
+					filePath: configPath,
 				};
 			}
 		} finally {

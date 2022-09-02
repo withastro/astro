@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { normalizePath } from 'vite';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig, resolveConfigURL, resolveFlags, resolveRoot } from '../core/config.js';
+import { openConfig, resolveConfigPath, resolveFlags, resolveRoot } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { debug, info, LogOptions, warn } from '../core/logger/core.js';
@@ -152,7 +152,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				let restartInFlight = false;
 				const configFlag = resolveFlags(flags).config;
 				const configFlagPath = configFlag
-					? (await resolveConfigURL({ cwd: root, flags }, false))?.pathname
+					? await resolveConfigPath({ cwd: root, flags }, false)
 					: undefined;
 				const resolvedRoot = appendForwardSlash(resolveRoot(root));
 
