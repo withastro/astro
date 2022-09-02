@@ -125,6 +125,7 @@ export async function handleHotUpdate(
 	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (isSelfAccepting) {
+		if (/astro\.config\.[cm][jt]s$/.test(file)) return mods;
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {
 		info(logging, 'astro', msg.reload({ file }));

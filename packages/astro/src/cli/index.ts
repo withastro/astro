@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-
+import type { Arguments as Flags } from 'yargs-parser'
 import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import build from '../core/build/index.js';
 import { openConfig, resolveConfigPath, resolveFlags, resolveRoot } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { debug, info, LogOptions, warn } from '../core/logger/core.js';
+import { debug, error, info, LogOptions, warn } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import preview from '../core/preview/index.js';
@@ -20,6 +20,7 @@ import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
 import { appendForwardSlash } from '../core/path.js';
+import { pathToFileURL } from 'url'
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -83,6 +84,16 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
+async function handleConfigError(e: any, { cwd, flags, logging }: { cwd?: string; flags?: Flags, logging: LogOptions }) {
+	const path = await resolveConfigPath({ cwd, flags });
+	if (e instanceof Error) {
+		if (path) {
+			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
+		}
+		console.error(formatErrorMessage(collectErrorMetadata(e, path ? pathToFileURL(path) : undefined)) + '\n')
+	}
+}
+
 /**
  * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
@@ -134,12 +145,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig } = await openConfig({
-		cwd: root,
-		flags,
-		cmd,
-		logging,
-	});
+		let { astroConfig, userConfig } = await openConfig({
+			cwd: root,
+			flags,
+			cmd,
+			logging,
+		}).catch(async (e) => {
+			await handleConfigError(e, { cwd: root, flags, logging })
+			return {} as any;
+		});
+		if (!astroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -147,8 +162,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			async function startDevServer() {
-				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry });
+			async function startDevServer({ isRestart = false }: { isRestart?: boolean } = {}) {
+				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry, isRestart });
 				let restartInFlight = false;
 				const configFlag = resolveFlags(flags).config;
 				const configFlagPath = configFlag
@@ -169,25 +184,34 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								  ).test(normalizePath(changedFile)))
 						) {
 							restartInFlight = true;
-							const newConfig = await openConfig({
-								cwd: root,
-								flags,
-								cmd,
-								logging,
-								isConfigReload: true,
-							});
-							info(logging, 'astro', logMsg + '\n');
-							astroConfig = newConfig.astroConfig;
-							await stop();
-							await startDevServer();
+							console.clear()
+							try {
+								const newConfig = await openConfig({
+									cwd: root,
+									flags,
+									cmd,
+									logging,
+									isConfigReload: true,
+								});
+								info(logging, 'astro', logMsg + '\n');
+								astroConfig = newConfig.astroConfig;
+								await stop();
+								await startDevServer({ isRestart: true });
+							} catch (e) {
+								await handleConfigError(e, { cwd: root, flags, logging })
+								await stop();
+								info(logging, 'astro', 'Continuing with previous valid configuration\n');
+								await startDevServer({ isRestart: true });
+
+							}
 						}
 					};
 
-				watcher.on('change', handleServerRestart('Astro config updated. Restarting server...'));
-				watcher.on('unlink', handleServerRestart('Astro config removed. Restarting server...'));
-				watcher.on('add', handleServerRestart('Astro config added. Restarting server...'));
+				watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
+				watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
+				watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
 			}
-			await startDevServer();
+			await startDevServer({ isRestart: false });
 			return await new Promise(() => {}); // lives forever
 		}
 
