@@ -1,5 +1,11 @@
 # astro
 
+## 1.1.5
+
+### Patch Changes
+
+- [#4603](https://github.com/withastro/astro/pull/4603) [`36dee7169`](https://github.com/withastro/astro/commit/36dee7169be7f595825d3dfecb04e61cea1b2fe4) Thanks [@matthewp](https://github.com/matthewp)! - Fix error when no JSX renderer configured
+
 ## 1.1.4
 
 ### Patch Changes
