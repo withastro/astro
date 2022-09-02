@@ -1,13 +1,13 @@
 ---
 // Component Imports
-import MainHead from "../components/MainHead.astro";
-import Button from "../components/Button.astro";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
-import PortfolioPreview from "../components/PortfolioPreview.astro";
+import MainHead from '../components/MainHead.astro';
+import Button from '../components/Button.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import PortfolioPreview from '../components/PortfolioPreview.astro';
 
 // Data Fetching: List all Markdown posts in the repo.
-const projects = await Astro.glob("./project/**/*.md");
+const projects = await Astro.glob('./project/**/*.md');
 const featuredProject = projects[0];
 
 // Full Astro Component Syntax:
@@ -45,7 +45,7 @@ const featuredProject = projects[0];
 
 			.gradient,
 			.gradient2 {
-				background-image: url("/assets/mesh-gradient.jpg");
+				background-image: url('/assets/mesh-gradient.jpg');
 				background-size: cover;
 				pointer-events: none;
 				mix-blend-mode: screen;
@@ -211,19 +211,12 @@ const featuredProject = projects[0];
 			<div class="gradient2"></div>
 			<div class="overlay">
 				<h1 class="title">
-					<small class="subtitle">The personal site of</small>Jeanine
-					White
+					<small class="subtitle">The personal site of</small>Jeanine White
 				</h1>
 				<div>
-					<span class="role"
-						>👩‍💻 Developer <span class="invert">👩‍💻 Developer</span>
-					</span>&nbsp;
-					<span class="role"
-						>🎤 Speaker <span class="invert">🎤 Speaker</span>
-					</span>&nbsp;
-					<span class="role"
-						>✏️ Writer <span class="invert">✏️ Writer</span>
-					</span>
+					<span class="role">👩‍💻 Developer <span class="invert">👩‍💻 Developer</span></span>&nbsp;
+					<span class="role">🎤 Speaker <span class="invert">🎤 Speaker</span></span>&nbsp;
+					<span class="role">✏️ Writer <span class="invert">✏️ Writer</span></span>
 				</div>
 				<p class="desc">Lover of dogs, roadtrips, and poetry.</p>
 			</div>
@@ -242,16 +235,9 @@ const featuredProject = projects[0];
 				<div class="section">
 					<h3 class="sectionTitle">About me</h3>
 					<p class="bio">
-						<span>Hello!</span> I’m Jeanine, and this is my website.
-						It was made using{" "}
-						<a
-							href="https://github.com/withastro/astro"
-							target="_blank"
-							rel="nofollow"
-						>
-							Astro</a
-						>, a new way to build static sites. This is just an
-						example template for you to modify.
+						<span>Hello!</span> I’m Jeanine, and this is my website. It was made using{' '}
+						<a href="https://github.com/withastro/astro" target="_blank" rel="nofollow"> Astro</a>,
+						a new way to build static sites. This is just an example template for you to modify.
 					</p>
 					<p>
 						<a href="/about">Read more</a>
