@@ -83,7 +83,7 @@ const featuredProject = projects[0];
 
 			.title {
 				font-weight: 900;
-				font-size: var(--f-u8);
+				font-size: var(--f-u6);
 				margin-bottom: 0.5rem;
 				margin-top: 0;
 			}
@@ -112,18 +112,22 @@ const featuredProject = projects[0];
 				margin-bottom: 2rem;
 			}
 
+			.roles {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5em;
+				font-size: var(--f-d1);
+			}
+
 			.role {
 				position: relative;
 				display: inline-block;
+				white-space: nowrap;
 				font-weight: 900;
 				color: var(--t-bg);
 				background-color: var(--t-fg);
 				padding: 0.25em 0.5em;
 				z-index: 2;
-			}
-
-			.role + .role {
-				margin-left: 1em;
 			}
 
 			@media (min-width: 750px) {
@@ -164,7 +168,7 @@ const featuredProject = projects[0];
 			}
 
 			.desc {
-				font-size: var(--f-u2);
+				font-size: var(--f-u1);
 				margin-top: 1.5rem;
 				margin-bottom: 0;
 			}
@@ -212,9 +216,9 @@ const featuredProject = projects[0];
 				<h1 class="title">
 					<small class="subtitle">The personal site of</small>Jeanine White
 				</h1>
-				<div>
-					<span class="role">👩‍💻 Developer <span class="invert">👩‍💻 Developer</span></span>&nbsp;
-					<span class="role">🎤 Speaker <span class="invert">🎤 Speaker</span></span>&nbsp;
+				<div class="roles">
+					<span class="role">👩‍💻 Developer <span class="invert">👩‍💻 Developer</span></span>
+					<span class="role">🎤 Speaker <span class="invert">🎤 Speaker</span></span>
 					<span class="role">✏️ Writer <span class="invert">✏️ Writer</span></span>
 				</div>
 				<p class="desc">Lover of dogs, roadtrips, and poetry.</p>
