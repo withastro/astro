@@ -90,9 +90,9 @@ import { Image, Picture } from '@astrojs/image/components';
 
 The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
-Astro’s <Image /> and <Picture /> components require the alt attribute which provides descriptive text for images. A warning will be logged if "alt" text is missing, and a future release of the integration will throw an error if no alt text is provided.
+Astro’s `<Image />` and `<Picture />` components require the `alt` attribute, which provides descriptive text for images. A warning will be logged if alt text is missing, and a future release of the integration will throw an error if no alt text is provided.
 
-If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set alt="" so that the image is properly understood and ignored by screen readers.
+If the image is merely decorative (i.e. doesn’t contribute to the understanding of the page), set `alt=""` so that the image is properly understood and ignored by screen readers.
 
 ### `<Image />`
 
@@ -126,7 +126,7 @@ For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/
 
 Defines an alternative text description of the image.
 
-Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel).
+Set to an empty string (`alt=""`) if the image is not a key part of the content (e.g. it's decoration or a tracking pixel).
 
 #### format
 
@@ -218,7 +218,7 @@ For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/
 
 Defines an alternative text description of the image.
 
-Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel).
+Set to an empty string (`alt=""`) if the image is not a key part of the content (e.g. it's decoration or a tracking pixel).
 
 #### sizes
 
