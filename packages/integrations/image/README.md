@@ -218,7 +218,7 @@ For remote images, provide the full URL. (e.g. `src="https://astro.build/assets/
 
 Defines an alternative text description of the image.
 
-Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel).
+Set to an empty string (`alt=""`) if the image is not a key part of the content (e.g. it's decoration or a tracking pixel).
 
 #### sizes
 
