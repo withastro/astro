@@ -8,12 +8,7 @@ import type { OutputFormat, TransformOptions } from './index.js';
 import { isRemoteImage } from '../utils/paths.js';
 
 class SquooshService extends BaseSSRService {
-	/**
-	 * Squoosh doesn't support multithreading when transforming to AVIF files.
-	 * 
-	 * https://github.com/GoogleChromeLabs/squoosh/issues/1111
-	 */
-	#imagePool = new ImagePool(1);
+	#imagePool = new ImagePool();
 
 	async processAvif(image: any, transform: TransformOptions) {
 		const encodeOptions = transform.quality

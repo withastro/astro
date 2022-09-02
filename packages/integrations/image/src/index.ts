@@ -47,8 +47,8 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			optimizeDeps: {
 				include: [
 					'image-size',
+					'@squoosh/lib',
 					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp' && 'sharp',
-					resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh' && '@squoosh/lib',
 				].filter(Boolean),
 			},
 			ssr: {

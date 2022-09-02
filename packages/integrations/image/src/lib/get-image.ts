@@ -1,7 +1,7 @@
 /// <reference types="astro/astro-jsx" />
 import type { ImageService, OutputFormat, TransformOptions } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
-import sharp from '../loaders/sharp.js';
+import sharp from '../loaders/squoosh.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
