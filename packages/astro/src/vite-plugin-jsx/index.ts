@@ -237,7 +237,7 @@ Add ${colors.cyan(
 `
 				);
 				return null;
-			} else if(!importSource) {
+			} else if (!importSource) {
 				error(
 					logging,
 					'renderer',
