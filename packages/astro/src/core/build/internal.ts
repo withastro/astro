@@ -141,8 +141,8 @@ export function* getPageDatasByClientOnlyID(
 		// BUG! The compiler partially resolves .jsx to remove the file extension so we have to check again.
 		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
 		// but this would be a bigger change.
-		if(!pageBuildDatas) {
-			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`
+		if (!pageBuildDatas) {
+			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
 		if (pageBuildDatas) {
