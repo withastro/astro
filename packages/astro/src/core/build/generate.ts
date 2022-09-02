@@ -174,22 +174,14 @@ async function generatePage(
 	const concurrency = opts.buildConfig.concurrency || MAX_CONCURRENT_RENDERS;
 	if (concurrency > 1) {
 		info(opts.logging, null, `${magenta('⚠️')}  Building with ${concurrency} concurrent renders`);
-		// Throttle the paths to avoid overloading the CPU with too many tasks.
-		for await (let _ of generatePathsConcurrently(concurrency, opts, generationOptions, timeStart, paths.values(), pageData.route.type)) {
-			// Do nothing.
-		}
-	} else {
-		for (let i = 0; i < paths.length; i++) {
-			const path = paths[i];
-			await generatePath(path, opts, generationOptions);
-			const timeEnd = performance.now();
-			const timeChange = getTimeStat(timeStart, timeEnd);
-			const timeIncrease = `(+${timeChange})`;
-			const filePath = getOutputFilename(opts.astroConfig, path, pageData.route.type);
-			const lineIcon = i === paths.length - 1 ? '└─' : '├─';
-			info(opts.logging, null, `  ${cyan(lineIcon)} ${dim(filePath)} ${dim(timeIncrease)}`);
-		}
 	}
+	// Throttle the paths to avoid overloading the CPU with too many tasks.
+	for await (let _ of generatePathsConcurrently(concurrency, opts, generationOptions, timeStart, paths.values(), pageData.route.type)) {
+		// Do nothing.
+	}
+	const timeEnd = performance.now();
+	const timeChange = getTimeStat(timeStart, timeEnd);
+	info(opts.logging, null, `  ${cyan('└─')} ${dim(`Completed ${pageData.route.component} in ${timeChange}`)}`);
 }
 
 async function getPathsForRoute(
