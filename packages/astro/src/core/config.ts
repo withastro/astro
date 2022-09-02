@@ -510,7 +510,6 @@ async function tryLoadConfig(
 
 		return config as TryLoadConfigResult;
 	} catch (e) {
-		console.log({ e });
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
