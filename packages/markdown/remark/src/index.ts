@@ -38,6 +38,8 @@ export async function renderMarkdown(
 		shikiConfig = {},
 		remarkPlugins = [],
 		rehypePlugins = [],
+		remarkRehype = {},
+		extendDefaultPlugins = false,
 		isAstroFlavoredMd = false,
 	} = opts;
 	const input = new VFile({ value: content, path: fileURL });
@@ -49,9 +51,9 @@ export async function renderMarkdown(
 		.use(remarkInitializeAstroData)
 		.use(isAstroFlavoredMd ? [remarkMdxish, remarkMarkAndUnravel, remarkUnwrap, remarkEscape] : []);
 
-	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
-		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
-		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS];
+	if (extendDefaultPlugins || (remarkPlugins.length === 0 && rehypePlugins.length === 0)) {
+		remarkPlugins = [...DEFAULT_REMARK_PLUGINS, ...remarkPlugins];
+		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS, ...rehypePlugins];
 	}
 
 	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -85,6 +87,7 @@ export async function renderMarkdown(
 							'mdxTextExpression',
 					  ]
 					: [],
+				...remarkRehype,
 			},
 		],
 	]);

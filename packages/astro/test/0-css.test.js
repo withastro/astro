@@ -354,5 +354,12 @@ describe('CSS', function () {
 			expect(allInjectedStyles).to.contain('.vue-scss{');
 			expect(allInjectedStyles).to.contain('.vue-scoped[data-v-');
 		});
+
+		it('remove unused styles from client:load components', async () => {
+			const bundledAssets = await fixture.readdir('./assets');
+			// SvelteDynamic styles is already included in the main page css asset
+			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
+			expect(unusedCssAsset, 'Found unused style ' + unusedCssAsset).to.be.undefined;
+		});
 	});
 });

@@ -114,6 +114,13 @@ describe('Scripts (hoisted and not)', () => {
 
 			expect($('script[type="module"]').length).to.be.greaterThan(0);
 		});
+
+		it('Styles imported by hoisted scripts are included on the page', async () => {
+			let html = await fixture.readFile('/with-styles/index.html');
+			let $ = cheerio.load(html);
+
+			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+		});
 	});
 
 	describe('Dev', () => {

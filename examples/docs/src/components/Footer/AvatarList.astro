@@ -1,12 +1,23 @@
 ---
 // fetch all commits for just this page's path
-const path = 'docs/' + Astro.props.path;
-const url = `https://api.github.com/repos/withastro/astro/commits?path=${path}`;
-const commitsURL = `https://github.com/withastro/astro/commits/main/${path}`;
+type Props = {
+	path: string;
+};
+const { path } = Astro.props as Props;
+const resolvedPath = `examples/docs/${path}`;
+const url = `https://api.github.com/repos/withastro/astro/commits?path=${resolvedPath}`;
+const commitsURL = `https://github.com/withastro/astro/commits/main/${resolvedPath}`;
 
-async function getCommits(url) {
+type Commit = {
+	author: {
+		id: string;
+		login: string;
+	};
+};
+
+async function getCommits(url: string) {
 	try {
-		const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN;
+		const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN ?? 'hello';
 		if (!token) {
 			throw new Error(
 				'Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.'
@@ -32,27 +43,24 @@ async function getCommits(url) {
 			);
 		}
 
-		return data;
+		return data as Commit[];
 	} catch (e) {
 		console.warn(`[error]  /src/components/AvatarList.astro 
-    ${e?.message ?? e}`);
-		return new Array();
+    ${(e as any)?.message ?? e}`);
+		return [] as Commit[];
 	}
 }
 
-function removeDups(arr) {
-	if (!arr) {
-		return new Array();
-	}
-	let map = new Map();
+function removeDups(arr: Commit[]) {
+	const map = new Map<string, Commit['author']>();
 
 	for (let item of arr) {
-		let author = item.author;
+		const author = item.author;
 		// Deduplicate based on author.id
 		map.set(author.id, { login: author.login, id: author.id });
 	}
 
-	return Array.from(map.values());
+	return [...map.values()];
 }
 
 const data = await getCommits(url);

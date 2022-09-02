@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -30,6 +30,7 @@
   ],
   "dependencies": {
     "chalk": "^5.0.1",
+    "comment-json": "^4.2.3",
     "degit": "^2.8.4",
     "execa": "^6.1.0",
     "kleur": "^4.1.4",

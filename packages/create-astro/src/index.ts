@@ -1,4 +1,5 @@
 /* eslint no-console: 'off' */
+import { assign, parse, stringify } from 'comment-json';
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
@@ -7,7 +8,6 @@ import ora from 'ora';
 import os from 'os';
 import path from 'path';
 import prompts from 'prompts';
-import url from 'url';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
@@ -117,6 +117,7 @@ export async function main() {
 	const hash = args.commit ? `#${args.commit}` : '';
 
 	// Don't touch the template name if a GitHub repo was provided, ex: `--template cassidoo/shopify-react-astro`
+	const isThirdParty = options.template.includes('/');
 	const templateTarget = options.template.includes('/')
 		? options.template
 		: `withastro/astro/examples/${options.template}#latest`;
@@ -308,7 +309,7 @@ export async function main() {
 				{
 					title: 'Strictest',
 					description: 'Enable all typechecking rules',
-					value: 'stricter',
+					value: 'strictest',
 				},
 				{
 					title: 'I prefer not to use TypeScript',
@@ -335,7 +336,7 @@ export async function main() {
 		console.log(`  Astro supports TypeScript inside of ".astro" component scripts, so`);
 		console.log(`  we still need to create some TypeScript-related files in your project.`);
 		console.log(`  You can safely ignore these files, but don't delete them!`);
-		console.log(dim('  (ex: tsconfig.json, src/types.d.ts)'));
+		console.log(dim('  (ex: tsconfig.json, src/env.d.ts)'));
 		console.log(``);
 		tsResponse.typescript = 'default';
 		await wait(300);
@@ -344,14 +345,34 @@ export async function main() {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
 		if (tsResponse.typescript !== 'default') {
-			fs.copyFileSync(
-				path.join(
-					url.fileURLToPath(new URL('..', import.meta.url)),
-					'tsconfigs',
-					`tsconfig.${tsResponse.typescript}.json`
-				),
-				path.join(cwd, 'tsconfig.json')
-			);
+			const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
+			fs.readFile(templateTSConfigPath, (err, data) => {
+				if (err && err.code === 'ENOENT') {
+					// If the template doesn't have a tsconfig.json, let's add one instead
+					fs.writeFileSync(
+						templateTSConfigPath,
+						stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+					);
+
+					return;
+				}
+
+				const templateTSConfig = parse(data.toString());
+
+				if (templateTSConfig && typeof templateTSConfig === 'object') {
+					const result = assign(templateTSConfig, {
+						extends: `astro/tsconfigs/${tsResponse.typescript}`,
+					});
+
+					fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
+				} else {
+					console.log(
+						yellow(
+							"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
+						)
+					);
+				}
+			});
 		}
 		ora().succeed('TypeScript settings applied!');
 	}

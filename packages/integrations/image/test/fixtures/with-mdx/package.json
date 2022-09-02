@@ -1,0 +1,11 @@
+{
+  "name": "@test/with-mdx",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/image": "workspace:*",
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/node": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

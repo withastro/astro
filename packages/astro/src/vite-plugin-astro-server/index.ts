@@ -28,20 +28,6 @@ interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-const BAD_VITE_MIDDLEWARE = [
-	'viteIndexHtmlMiddleware',
-	'vite404Middleware',
-	'viteSpaFallbackMiddleware',
-];
-function removeViteHttpMiddleware(server: vite.Connect.Server) {
-	for (let i = server.stack.length - 1; i > 0; i--) {
-		// @ts-expect-error using internals until https://github.com/vitejs/vite/pull/4640 is merged
-		if (BAD_VITE_MIDDLEWARE.includes(server.stack[i].handle.name)) {
-			server.stack.splice(i, 1);
-		}
-	}
-}
-
 function truncateString(str: string, n: number) {
 	if (str.length > n) {
 		return str.substring(0, n) + '&#8230;';
@@ -386,8 +372,6 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
-				removeViteHttpMiddleware(viteServer.middlewares);
-
 				// Push this middleware to the front of the stack so that it can intercept responses.
 				if (config.base !== '/') {
 					viteServer.middlewares.stack.unshift({

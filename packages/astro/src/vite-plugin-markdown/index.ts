@@ -106,6 +106,8 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 					return ${
 						layout
 							? `h(Layout, {
+									file,
+									url,
 									content,
 									frontmatter: content,
 									headings: getHeadings(),

@@ -8,6 +8,10 @@ function stringify(opts) {
 	return JSON.stringify(opts, Object.keys(opts).sort());
 }
 
+/**
+ * @param {import('shiki').HighlighterOptions} opts
+ * @returns {Promise<import('shiki').Highlighter>}
+ */
 export function getHighlighter(opts) {
 	const key = stringify(opts);
 
@@ -17,7 +21,22 @@ export function getHighlighter(opts) {
 	}
 
 	// Start the async getHighlighter call and cache the Promise
-	const highlighter = getShikiHighlighter(opts);
+	const highlighter = getShikiHighlighter(opts).then((hl) => {
+		hl.setColorReplacements({
+			'#000001': 'var(--astro-code-color-text)',
+			'#000002': 'var(--astro-code-color-background)',
+			'#000004': 'var(--astro-code-token-constant)',
+			'#000005': 'var(--astro-code-token-string)',
+			'#000006': 'var(--astro-code-token-comment)',
+			'#000007': 'var(--astro-code-token-keyword)',
+			'#000008': 'var(--astro-code-token-parameter)',
+			'#000009': 'var(--astro-code-token-function)',
+			'#000010': 'var(--astro-code-token-string-expression)',
+			'#000011': 'var(--astro-code-token-punctuation)',
+			'#000012': 'var(--astro-code-token-link)',
+		});
+		return hl;
+	});
 	_resolvedHighlighters.set(key, highlighter);
 
 	return highlighter;

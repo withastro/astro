@@ -65,6 +65,7 @@ export async function createVite(
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
+		appType: 'custom',
 		optimizeDeps: {
 			entries: ['src/**/*'],
 			exclude: ['node-fetch'],

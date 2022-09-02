@@ -1,5 +1,11 @@
 # @astrojs/alpinejs
 
+## 0.1.1
+
+### Patch Changes
+
+- [#4501](https://github.com/withastro/astro/pull/4501) [`17e217856`](https://github.com/withastro/astro/commit/17e2178568d5a5a8134743bfb87c62f4c04979e5) Thanks [@mohammed-elhaouari](https://github.com/mohammed-elhaouari)! - add renderer category to alpinejs package keywords
+
 ## 0.1.0
 
 ### Minor Changes
