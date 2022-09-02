@@ -1,7 +1,6 @@
 ---
 // Component Imports
 import MainHead from '../components/MainHead.astro';
-import Button from '../components/Button.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import PortfolioPreview from '../components/PortfolioPreview.astro';
@@ -227,9 +226,7 @@ const featuredProject = projects[0];
 					<h3 class="sectionTitle">Selected Work</h3>
 					<PortfolioPreview project={featuredProject} />
 					<div class="buttonContainer">
-						<a href="/projects">
-							<Button>View All</Button>
-						</a>
+						<a href="/products" class="button">View All</a>
 					</div>
 				</div>
 				<div class="section">

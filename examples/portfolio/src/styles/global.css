@@ -77,6 +77,14 @@ h1 {
 	font-size: var(--f-u8);
 }
 
+.button {
+	display: inline-block;
+	border: 3px solid currentColor;
+	padding: 0.5em 1em;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
 .wrapper {
 	max-width: 80em;
 	margin-left: auto;

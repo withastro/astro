@@ -1,6 +1,5 @@
 ---
 import MainHead from '../components/MainHead.astro';
-import Button from '../components/Button.astro';
 import Footer from '../components/Footer.astro';
 import Nav from '../components/Nav.astro';
 
@@ -51,8 +50,10 @@ const { content } = Astro.props;
 			}
 
 			.leadIn {
+				padding-top: 4em;
 				color: var(--t-bg);
 				background-color: var(--t-fg);
+				text-align: center;
 			}
 
 			.tagline {
@@ -64,13 +65,13 @@ const { content } = Astro.props;
 			.content {
 				font-size: var(--f-u1);
 				line-height: 2.2;
+				max-width: 50em;
+				margin: auto;
 			}
 
 			.wrapper {
-				padding-top: 4em;
 				padding-bottom: 4em;
 				margin-bottom: 4em;
-				text-align: center;
 			}
 
 			footer {
@@ -90,13 +91,11 @@ const { content } = Astro.props;
 				<h3 class="tagline">{content.description}</h3>
 			</div>
 		</div>
-		<div class="wrapper wrapper__readable">
+		<div class="wrapper">
 			<div class="content"><slot /></div>
 		</div>
 		<footer>
-			<a href="/projects">
-				<Button>View More</Button>
-			</a>
+			<a href="/projects" class="button">View More</a>
 		</footer>
 		<Footer />
 	</body>
