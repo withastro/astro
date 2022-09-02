@@ -58,14 +58,14 @@ export function devStart({
 	config,
 	https,
 	site,
-	isRestart
+	isRestart = false
 }: {
 	startupTime: number;
 	devServerAddressInfo: AddressInfo;
 	config: AstroConfig;
 	https: boolean;
 	site: URL | undefined;
-	isRestart: boolean
+	isRestart?: boolean
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
