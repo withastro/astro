@@ -33,6 +33,12 @@ describe('Client only components', () => {
 		expect(css).to.match(/yellowgreen/, 'Svelte styles are added');
 		expect(css).to.match(/Courier New/, 'Global styles are added');
 	});
+
+	it('Includes CSS from components that use CSS modules', async () => {
+		const html = await fixture.readFile('/css-modules/index.html');
+		const $ = cheerioLoad(html);
+		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+	});
 });
 
 describe('Client only components subpath', () => {

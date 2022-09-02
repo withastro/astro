@@ -12,6 +12,9 @@
 
 ## Docs
 
-<!-- Is this a visible change? You probably need to update docs! -->
+<!-- Could this affect a user’s behavior? We probably need to update docs! -->
+<!-- If docs will be needed or you’re not sure, uncomment the next line: -->
+<!-- /cc @withastro/maintainers-docs for feedback! -->
+
 <!-- DON'T DELETE THIS SECTION! If no docs added, explain why.-->
 <!-- https://github.com/withastro/docs -->

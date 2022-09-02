@@ -46,3 +46,8 @@ function isString(path: unknown): path is string {
 export function joinPaths(...paths: (string | undefined)[]) {
 	return paths.filter(isString).map(trimSlashes).join('/');
 }
+
+export function removeFileExtension(path: string) {
+	let idx = path.lastIndexOf('.');
+	return idx === -1 ? path : path.slice(0, idx);
+}
