@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.11.1
+
+### Patch Changes
+
+- [#4588](https://github.com/withastro/astro/pull/4588) [`db38f61b2`](https://github.com/withastro/astro/commit/db38f61b2b2dc55f03b28797d19b163b1940f1c8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Add GFM and Smartypants to MDX by default
+
 ## 0.11.0
 
 ### Minor Changes

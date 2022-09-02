@@ -1,5 +1,15 @@
 # @astrojs/image
 
+## 0.5.0
+
+### Minor Changes
+
+- [#4511](https://github.com/withastro/astro/pull/4511) [`72c760e9b`](https://github.com/withastro/astro/commit/72c760e9b8e70dc4c8d4cc08f453d58a8928a0ee) Thanks [@DerYeger](https://github.com/DerYeger)! - feat: throw if alt text is missing
+
+### Patch Changes
+
+- [#4593](https://github.com/withastro/astro/pull/4593) [`56f83be92`](https://github.com/withastro/astro/commit/56f83be92a6417bb1cbb88dd58c3dcaf5177b9b6) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug that broke support for local images with spaces in the filename
+
 ## 0.4.0
 
 ### Minor Changes
