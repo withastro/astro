@@ -2,6 +2,8 @@
 
 This adapter allows Astro to deploy your SSR site to [Netlify](https://www.netlify.com/).
 
+Learn how to deploy your Astro site in our [Netlify deployment guide](https://docs.astro.build/en/guides/deploy/netlify/).
+
 - <strong>[Why Astro Netlify](#why-astro-netlify)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
