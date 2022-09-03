@@ -2,6 +2,8 @@
 
 An SSR adapter for use with Cloudflare Pages Functions targets. Write your code in Astro/Javascript and deploy to Cloudflare Pages.
 
+Learn how to deploy your Astro site in our [Cloudflare Pages deployment guide](https://docs.astro.build/en/guides/deploy/cloudflare/).
+
 In your `astro.config.mjs` use:
 
 ```js
