@@ -174,35 +174,83 @@ function sortPlugins(pluginOptions: vite.PluginOption[]) {
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
 async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
-	const pkgUrl = new URL('./package.json', root);
-	const pkgPath = fileURLToPath(pkgUrl);
-	if (!fs.existsSync(pkgPath)) return [];
-
-	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-	const deps = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})];
-	return deps.filter((dep) => isAstroPackage(dep, root));
+	const { astroPackages } = new DependencyWalker(root);
+	return astroPackages;
 }
 
-/** Attempt to determine if a package is an Astro package with increasingly complex heuristics. */
-function isAstroPackage(dep: string, root: URL) {
-	// Attempt: package is common and not Astro. ❌ Skip these for perf
-	if (isCommonNotAstro(dep)) return false;
-	// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-	if (/^(@[^\/]+\/)?astro\-/.test(dep)) return true;
-	const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
-	const depPkgPath = fileURLToPath(depPkgUrl);
-	if (!fs.existsSync(depPkgPath)) return false;
+/**
+ * Recursively walk a project’s dependency tree trying to find Astro packages.
+ * - If the current node is an Astro package, we continue walking its child dependencies.
+ * - If the current node is not an Astro package, we bail out of walking that branch.
+ * This assumes it is unlikely for Astro packages to be dependencies of packages that aren’t
+ * themselves also Astro packages.
+ */
+class DependencyWalker {
+	private root: URL;
+	private astroDeps = new Set<string>();
+	private nonAstroDeps = new Set<string>();
 
-	const {
-		dependencies = {},
-		peerDependencies = {},
-		keywords = [],
-	} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
-	// Attempt: package relies on `astro`. ✅ Definitely an Astro package
-	if (peerDependencies.astro || dependencies.astro) return true;
-	// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
-	if (keywords.includes('astro') || keywords.includes('astro-component')) return true;
-	return false;
+	constructor(root: URL) {
+		this.root = root;
+		const pkgUrl = new URL('./package.json', root);
+		const pkgPath = fileURLToPath(pkgUrl);
+		if (!fs.existsSync(pkgPath)) return;
+
+		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+		const deps = [
+			...Object.keys(pkg.dependencies || {}),
+			...Object.keys(pkg.devDependencies || {}),
+		];
+
+		this.walkDependencies(deps);
+	}
+
+	public get astroPackages() {
+		return Array.from(this.astroDeps);
+	}
+
+	private seen(dep: string) {
+		return this.astroDeps.has(dep) || this.nonAstroDeps.has(dep);
+	}
+
+	private walkDependencies(deps: string[]): void {
+		const newDeps: string[] = [];
+		for (const dep of deps) {
+			const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, this.root);
+			const depPkgPath = fileURLToPath(depPkgUrl);
+
+			// Attempt: package is common and not Astro. ❌ Skip these for perf
+			if (isCommonNotAstro(dep) || !fs.existsSync(depPkgPath)) {
+				this.nonAstroDeps.add(dep);
+				continue;
+			}
+
+			const {
+				dependencies = {},
+				peerDependencies = {},
+				keywords = [],
+			} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
+
+			if (
+				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
+				peerDependencies.astro ||
+				dependencies.astro ||
+				// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
+				keywords.includes('astro') ||
+				keywords.includes('astro-component') ||
+				// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
+				/^(@[^\/]+\/)?astro\-/.test(dep)
+			) {
+				this.astroDeps.add(dep);
+				// Collect any dependencies of this Astro package we haven’t seen yet.
+				const unknownDependencies = Object.keys(dependencies).filter((d) => !this.seen(d));
+				newDeps.push(...unknownDependencies);
+			} else {
+				this.nonAstroDeps.add(dep);
+			}
+		}
+		if (newDeps.length) this.walkDependencies(newDeps);
+	}
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [
