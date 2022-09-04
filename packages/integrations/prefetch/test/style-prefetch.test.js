@@ -45,9 +45,9 @@ test.describe('Style prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.length).toBe(2);
-				const cssUrl = astro.resolveUrl('/main.css');
-				const cssRequestCount = requests.filter(req => req === cssUrl).length;
+				await expect(requests.filter(req => req.includes('/style1'))).toBeTruthy();
+				await expect(requests.filter(req => req.includes('/style2'))).toBeTruthy();
+				const cssRequestCount = requests.filter(req => req.includes('/main.css')).length;
 				await expect(cssRequestCount).toBe(1);
 			});
 		});
