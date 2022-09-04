@@ -179,29 +179,30 @@ async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
 	if (!fs.existsSync(pkgPath)) return [];
 
 	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-
 	const deps = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})];
+	return deps.filter((dep) => isAstroPackage(dep, root));
+}
 
-	return deps.filter((dep) => {
-		// Attempt: package is common and not Astro. ❌ Skip these for perf
-		if (isCommonNotAstro(dep)) return false;
-		// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
-		if (/^(@[^\/]+\/)?astro\-/.test(dep)) return true;
-		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
-		const depPkgPath = fileURLToPath(depPkgUrl);
-		if (!fs.existsSync(depPkgPath)) return false;
+/** Attempt to determine if a package is an Astro package with increasingly complex heuristics. */
+function isAstroPackage(dep: string, root: URL) {
+	// Attempt: package is common and not Astro. ❌ Skip these for perf
+	if (isCommonNotAstro(dep)) return false;
+	// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
+	if (/^(@[^\/]+\/)?astro\-/.test(dep)) return true;
+	const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
+	const depPkgPath = fileURLToPath(depPkgUrl);
+	if (!fs.existsSync(depPkgPath)) return false;
 
-		const {
-			dependencies = {},
-			peerDependencies = {},
-			keywords = [],
-		} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
-		// Attempt: package relies on `astro`. ✅ Definitely an Astro package
-		if (peerDependencies.astro || dependencies.astro) return true;
-		// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
-		if (keywords.includes('astro') || keywords.includes('astro-component')) return true;
-		return false;
-	});
+	const {
+		dependencies = {},
+		peerDependencies = {},
+		keywords = [],
+	} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
+	// Attempt: package relies on `astro`. ✅ Definitely an Astro package
+	if (peerDependencies.astro || dependencies.astro) return true;
+	// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
+	if (keywords.includes('astro') || keywords.includes('astro-component')) return true;
+	return false;
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [
