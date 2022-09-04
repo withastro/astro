@@ -185,8 +185,8 @@ async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
 	return deps.filter((dep) => {
 		// Attempt: package is common and not Astro. ❌ Skip these for perf
 		if (isCommonNotAstro(dep)) return false;
-		// Attempt: package is named `astro-something`. ✅ Likely a community package
-		if (/^astro\-/.test(dep)) return true;
+		// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
+		if (/^(@[^\/]+\/)?astro\-/.test(dep)) return true;
 		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
 		const depPkgPath = fileURLToPath(depPkgUrl);
 		if (!fs.existsSync(depPkgPath)) return false;
