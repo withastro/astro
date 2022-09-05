@@ -57,7 +57,7 @@ describe('SSG image with background - dev', function () {
 	});
 });
 
-describe('SSG image with background - build', function () {
+describes.skip('SSG image with background - build', function () {
 	let fixture;
 	let $;
 	let html;
