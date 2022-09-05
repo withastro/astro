@@ -10,14 +10,31 @@ export type InputFormat =
 	| 'webp'
 	| 'gif';
 
-export type OutputFormat = 'avif' | 'jpeg' | 'png' | 'webp';
+export type OutputFormatSupportsAlpha = 'avif' | 'png' | 'webp';
+export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg';
+
+export type ColorDefinition =
+	| string
+	| `#${string}`
+	| `rgb(${number}, ${number}, ${number})`
+	| `rgb(${number},${number},${number})`;
 
 export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
 }
 
+export function isOutputFormatSupportsAlpha(value: string): value is OutputFormatSupportsAlpha {
+	return ['avif', 'png', 'webp'].includes(value);
+}
+
 export function isAspectRatioString(value: string): value is `${number}:${number}` {
 	return /^\d*:\d*$/.test(value);
+}
+
+export function isColor(value: string): value is ColorDefinition {
+	const s = new Option().style;
+	s.color = value;
+	return s.color !== '' && !['initial', 'unset', 'transparent', 'inherit'].includes(s.color);
 }
 
 export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
@@ -75,6 +92,15 @@ export interface TransformOptions {
 	 * @example "16:9" - strings can be used in the format of `{ratioWidth}:{ratioHeight}`.
 	 */
 	aspectRatio?: number | `${number}:${number}`;
+	/**
+	 * The background color to use when converting from a transparent image format to a
+	 * non-transparent format. This is useful for converting PNGs to JPEGs.
+	 *
+	 * @example "white" - a named color
+	 * @example "#ffffff" - a hex color
+	 * @example "rgb(255, 255, 255)" - an rgb color
+	 */
+	background?: ColorDefinition;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
