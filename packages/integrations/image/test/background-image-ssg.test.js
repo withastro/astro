@@ -1,16 +1,18 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import sharp from 'sharp';
+import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
-describe('SSG image with background', function () {
+describe('SSG image with background - dev', function () {
 	let fixture;
 	let devServer;
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-image/' });
+		fixture = await loadFixture({ root: './fixtures/background-image/', base: '/docs' });
 		devServer = await fixture.startDevServer();
-		const html = await fixture.fetch('/').then((res) => res.text());
+		const html = await fixture.fetch('/docs/').then((res) => res.text());
 		$ = cheerio.load(html);
 	});
 
@@ -45,12 +47,66 @@ describe('SSG image with background', function () {
 			bg: 'rgb(105, 105, 105)',
 		},
 	].forEach(({ title, id, bg }) => {
-		it(title, () => {
+		it(title, async () => {
 			const image = $(id);
 			const src = image.attr('src');
 			const [_, params] = src.split('?');
 			const searchParams = new URLSearchParams(params);
 			expect(searchParams.get('bg')).to.equal(bg);
+		});
+	});
+});
+
+describe('SSG image with background - build', function () {
+	let fixture;
+	let $;
+	let html;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/background-image/' });
+		await fixture.build();
+
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
+	});
+
+	[
+		{
+			title: 'Named color',
+			id: '#named',
+			bg: [105, 105, 105],
+		},
+		{
+			title: 'Hex color',
+			id: '#hex',
+			bg: [105, 105, 105],
+		},
+		{
+			title: 'Hex color short',
+			id: '#hex-short',
+			bg: [102, 102, 102],
+		},
+		{
+			title: 'RGB color',
+			id: '#rgb',
+			bg: [105, 105, 105],
+		},
+		{
+			title: 'RGB color with spaces',
+			id: '#rgb-spaced',
+			bg: [105, 105, 105],
+		},
+	].forEach(({ title, id, bg }) => {
+		it(title, async () => {
+			const image = $(id);
+			const src = image.attr('src');
+			const [pathname, _] = src.split('?');
+			const url = new URL('./fixtures/background-image/dist/' + pathname, import.meta.url);
+			const dist = fileURLToPath(url);
+			const { data } = await sharp(dist).raw().toBuffer({ resolveWithObject: true });
+			expect(data[0]).to.equal(bg[0]);
+			expect(data[1]).to.equal(bg[1]);
+			expect(data[2]).to.equal(bg[2]);
 		});
 	});
 });
