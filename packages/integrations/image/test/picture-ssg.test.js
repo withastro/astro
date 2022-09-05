@@ -61,10 +61,10 @@ describe('SSG pictures - dev', function () {
 			id: '#bg-color',
 			url: '/_image',
 			query: {
-				f: 'jpeg',
+				f: 'png',
 				w: '544',
 				h: '184',
-				bg: '#333333',
+				bg: 'rgb(51, 51, 51)',
 				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			alt: 'Google logo',
