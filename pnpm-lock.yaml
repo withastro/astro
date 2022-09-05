@@ -2214,6 +2214,7 @@ importers:
 
   packages/integrations/image:
     specifiers:
+      '@altano/tiny-async-pool': ^1.0.2
       '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
@@ -2223,6 +2224,7 @@ importers:
       mime: ^3.0.0
       sharp: ^0.30.6
     dependencies:
+      '@altano/tiny-async-pool': 1.0.2
       image-size: 1.0.2
       magic-string: 0.25.9
       mime: 3.0.0
@@ -3153,6 +3155,10 @@ packages:
       '@algolia/cache-common': 4.14.2
       '@algolia/logger-common': 4.14.2
       '@algolia/requester-common': 4.14.2
+    dev: false
+
+  /@altano/tiny-async-pool/1.0.2:
+    resolution: {integrity: sha512-qQzaI0TBUPdpjZ3qo5b2ziQY9MSNpbziH2ZrE5lvtUZL+kn9GwVuVJwoOubaoNkeDB+rqEefnpu1k+oMpOCYiw==}
     dev: false
 
   /@ampproject/remapping/2.2.0:
