@@ -10,9 +10,9 @@ describe('SSG image with background - dev', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-image/', base: '/docs' });
+		fixture = await loadFixture({ root: './fixtures/background-image/' });
 		devServer = await fixture.startDevServer();
-		const html = await fixture.fetch('/docs/').then((res) => res.text());
+		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
 	});
 
