@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { isWindows, loadFixture } from './test-utils.js';
+import { loadFixture } from './test-utils.js';
 
 describe('third-party .astro component', () => {
 	let fixture;
@@ -22,8 +22,6 @@ describe('third-party .astro component', () => {
 			expect($('h1').text()).to.equal('Third-Party .astro test');
 		});
 	});
-
-	// if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;
