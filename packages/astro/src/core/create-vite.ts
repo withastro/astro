@@ -205,11 +205,11 @@ class DependencyWalker {
 		this.walkDependencies(deps);
 	}
 
-	public get astroPackages() {
+	public get astroPackages(): string[] {
 		return Array.from(this.astroDeps);
 	}
 
-	private seen(dep: string) {
+	private seen(dep: string): boolean {
 		return this.astroDeps.has(dep) || this.nonAstroDeps.has(dep);
 	}
 
