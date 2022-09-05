@@ -10,7 +10,7 @@ describe('SSG image with background - dev', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-image/' });
+		fixture = await loadFixture({ root: './fixtures/background-color-image/' });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
@@ -63,7 +63,7 @@ describe('SSG image with background - build', function () {
 	let html;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/background-image/' });
+		fixture = await loadFixture({ root: './fixtures/background-color-image/' });
 		await fixture.build();
 
 		html = await fixture.readFile('/index.html');
@@ -100,8 +100,7 @@ describe('SSG image with background - build', function () {
 		it(title, async () => {
 			const image = $(id);
 			const src = image.attr('src');
-			const [pathname, _] = src.split('?');
-			const url = new URL('./fixtures/background-image/dist/' + pathname, import.meta.url);
+			const url = new URL('./fixtures/background-color-image/dist/' + src, import.meta.url);
 			const dist = fileURLToPath(url);
 			const { data } = await sharp(dist).raw().toBuffer({ resolveWithObject: true });
 			expect(data[0]).to.equal(bg[0]);

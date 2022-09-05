@@ -2233,7 +2233,7 @@ importers:
       astro-scripts: link:../../../scripts
       kleur: 4.1.5
 
-  packages/integrations/image/test/fixtures/background-image:
+  packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
