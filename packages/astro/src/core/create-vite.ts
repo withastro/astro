@@ -188,13 +188,11 @@ async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
  * themselves also Astro packages.
  */
 class DependencyWalker {
-	private root: URL;
-	private require: NodeRequire;
-	private astroDeps = new Set<string>();
-	private nonAstroDeps = new Set<string>();
+	private readonly require: NodeRequire;
+	private readonly astroDeps = new Set<string>();
+	private readonly nonAstroDeps = new Set<string>();
 
 	constructor(root: URL) {
-		this.root = root;
 		const pkgUrl = new URL('./package.json', root);
 		this.require = createRequire(pkgUrl);
 		const pkgPath = fileURLToPath(pkgUrl);
