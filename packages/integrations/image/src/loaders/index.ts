@@ -1,3 +1,5 @@
+import { htmlColorNames } from './colornames.js';
+
 /// <reference types="astro/astro-jsx" />
 export type InputFormat =
 	| 'heic'
@@ -32,9 +34,11 @@ export function isAspectRatioString(value: string): value is `${number}:${number
 }
 
 export function isColor(value: string): value is ColorDefinition {
-	const s = new Option().style;
-	s.color = value;
-	return s.color !== '' && !['initial', 'unset', 'transparent', 'inherit'].includes(s.color);
+	return (
+		htmlColorNames.includes(value.toLowerCase()) ||
+		/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(value) ||
+		/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i.test(value)
+	);
 }
 
 export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
