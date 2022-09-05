@@ -40,3 +40,12 @@ export async function getErrorOverlayMessage(page) {
 
 	return await overlay.$$eval('.message-body', (m) => m[0].textContent);
 }
+
+/**
+ * @param {import('@playwright/test').Locator} el
+ * @returns {Promise<string>}
+ */
+export async function getColor(el) {
+	const rgb = await el.evaluate((el) => getComputedStyle(el).color);
+	return rgb;
+}

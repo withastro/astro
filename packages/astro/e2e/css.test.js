@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory } from './test-utils.js';
+import { getColor, testFactory } from './test-utils.js';
 
 const test = testFactory({
 	root: './fixtures/css/',
@@ -20,10 +20,12 @@ test.describe('CSS HMR', () => {
 		await page.goto(astro.resolveUrl('/'));
 
 		const h = page.locator('h1');
-		await expect(h, 'original text set').toHaveText('hello world');
+		expect(await getColor(h)).toBe('rgb(255, 0, 0)');
 
-		await astro.editFile('./src/pages/style.css', (original) => original.replace('world', 'astro'));
+		await astro.editFile('./src/styles/main.css', (original) =>
+			original.replace('--h1-color: red;', '--h1-color: green;')
+		);
 
-		await expect(h, 'text changed').toHaveText('hello astro');
+		expect(await getColor(h)).toBe('rgb(0, 128, 0)');
 	});
 });
