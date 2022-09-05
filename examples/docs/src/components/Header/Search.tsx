@@ -1,23 +1,23 @@
-/* jsxImportSource: react */
+/** @jsxImportSource react */
 import { useState, useCallback, useRef } from 'react';
-import * as CONFIG from '../../config';
-import '@docsearch/css/dist/style.css';
+import { ALGOLIA } from '../../config';
+import '@docsearch/css';
 import './Search.css';
 
-// @ts-ignore
-import * as docSearchReact from '@docsearch/react';
-// @ts-ignore
 import { createPortal } from 'react-dom';
+import * as docSearchReact from '@docsearch/react';
+
+/** FIXME: This is still kinda nasty, but DocSearch is not ESM ready. */
+const DocSearchModal =
+	docSearchReact.DocSearchModal || (docSearchReact as any).default.DocSearchModal;
+const useDocSearchKeyboardEvents =
+	docSearchReact.useDocSearchKeyboardEvents ||
+	(docSearchReact as any).default.useDocSearchKeyboardEvents;
 
 export default function Search() {
-	const DocSearchModal = docSearchReact.DocSearchModal || docSearchReact.default.DocSearchModal;
-
-	const useDocSearchKeyboardEvents =
-		docSearchReact.useDocSearchKeyboardEvents || docSearchReact.default.useDocSearchKeyboardEvents;
-
 	const [isOpen, setIsOpen] = useState(false);
-	const searchButtonRef = useRef();
-	const [initialQuery, setInitialQuery] = useState(null);
+	const searchButtonRef = useRef<HTMLButtonElement>(null);
+	const [initialQuery, setInitialQuery] = useState('');
 
 	const onOpen = useCallback(() => {
 		setIsOpen(true);
@@ -73,9 +73,9 @@ export default function Search() {
 						initialQuery={initialQuery}
 						initialScrollY={window.scrollY}
 						onClose={onClose}
-						indexName={(CONFIG as any).ALGOLIA.indexName}
-						appId={(CONFIG as any).ALGOLIA.appId}
-						apiKey={(CONFIG as any).ALGOLIA.apiKey}
+						indexName={ALGOLIA.indexName}
+						appId={ALGOLIA.appId}
+						apiKey={ALGOLIA.apiKey}
 						transformItems={(items) => {
 							return items.map((item) => {
 								// We transform the absolute URL into a relative URL to

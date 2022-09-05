@@ -41,15 +41,19 @@ const { title } = Astro.props;
 		margin: 0;
 	}
 
-	:global(h1) {
+
+</style>
+
+<style is:global>
+	h1 {
 		font-size: var(--font-size-xl);
 	}
 
-	:global(h2) {
+	h2 {
 		font-size: var(--font-size-lg);
 	}
 
-	:global(code) {
+	code {
 		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
 			Bitstream Vera Sans Mono, Courier New, monospace;
 	}
