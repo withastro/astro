@@ -41,7 +41,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	let transformStyleWithVite: TransformStyleWithVite;
 	let viteDevServer: vite.ViteDevServer | undefined;
 
-	// Variables for determing if an id starts with /src...
+	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 

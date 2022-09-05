@@ -1,30 +1,19 @@
-import { compile as mdxCompile, nodeTypes } from '@mdx-js/mdx';
+import { compile as mdxCompile } from '@mdx-js/mdx';
 import mdxPlugin, { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
-import rehypeRaw from 'rehype-raw';
-import remarkGfm from 'remark-gfm';
-import remarkSmartypants from 'remark-smartypants';
+import { blue, bold } from 'kleur/colors';
 import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
-import { rehypeApplyFrontmatterExport, remarkInitializeAstroData } from './astro-data-utils.js';
-import rehypeCollectHeadings from './rehype-collect-headings.js';
-import remarkPrism from './remark-prism.js';
-import remarkShiki from './remark-shiki.js';
-import { getFileInfo, parseFrontmatter } from './utils.js';
-
-type WithExtends<T> = T | { extends: T };
-
-type MdxOptions = {
-	remarkPlugins?: WithExtends<MdxRollupPluginOptions['remarkPlugins']>;
-	rehypePlugins?: WithExtends<MdxRollupPluginOptions['rehypePlugins']>;
-};
-
-const DEFAULT_REMARK_PLUGINS: MdxRollupPluginOptions['remarkPlugins'] = [
-	remarkGfm,
-	remarkSmartypants,
-];
-const DEFAULT_REHYPE_PLUGINS: MdxRollupPluginOptions['rehypePlugins'] = [];
+import { rehypeApplyFrontmatterExport } from './astro-data-utils.js';
+import type { MdxOptions } from './utils.js';
+import {
+	getFileInfo,
+	getRehypePlugins,
+	getRemarkPlugins,
+	handleExtendsNotSupported,
+	parseFrontmatter,
+} from './utils.js';
 
 const RAW_CONTENT_ERROR =
 	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
@@ -32,51 +21,32 @@ const RAW_CONTENT_ERROR =
 const COMPILED_CONTENT_ERROR =
 	'MDX does not support compiledContent()! If you need to read the HTML contents to calculate values (ex. reading time), we suggest injecting frontmatter via rehype plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
 
-function handleExtends<T>(config: WithExtends<T[] | undefined>, defaults: T[] = []): T[] {
-	if (Array.isArray(config)) return config;
-
-	return [...defaults, ...(config?.extends ?? [])];
-}
-
-async function getRemarkPlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): Promise<MdxRollupPluginOptions['remarkPlugins']> {
-	let remarkPlugins = [
-		// Initialize vfile.data.astroExports before all plugins are run
-		remarkInitializeAstroData,
-		...handleExtends(mdxOptions.remarkPlugins, DEFAULT_REMARK_PLUGINS),
-	];
-	if (config.markdown.syntaxHighlight === 'shiki') {
-		remarkPlugins.push([await remarkShiki(config.markdown.shikiConfig)]);
-	}
-	if (config.markdown.syntaxHighlight === 'prism') {
-		remarkPlugins.push(remarkPrism);
-	}
-	return remarkPlugins;
-}
-
-function getRehypePlugins(
-	mdxOptions: MdxOptions,
-	config: AstroConfig
-): MdxRollupPluginOptions['rehypePlugins'] {
-	let rehypePlugins = [
-		[rehypeRaw, { passThrough: nodeTypes }] as any,
-		...handleExtends(mdxOptions.rehypePlugins, DEFAULT_REHYPE_PLUGINS),
-	];
-
-	// getHeadings() is guaranteed by TS, so we can't allow user to override
-	rehypePlugins.unshift(rehypeCollectHeadings);
-
-	return rehypePlugins;
-}
-
 export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/mdx',
 		hooks: {
 			'astro:config:setup': async ({ updateConfig, config, addPageExtension, command }: any) => {
 				addPageExtension('.mdx');
+				mdxOptions.extendPlugins ??= 'markdown';
+
+				handleExtendsNotSupported(mdxOptions.remarkPlugins);
+				handleExtendsNotSupported(mdxOptions.rehypePlugins);
+
+				// TODO: remove for 1.0. Shipping to ease migration to new minor
+				if (
+					mdxOptions.extendPlugins === 'markdown' &&
+					(config.markdown.rehypePlugins?.length || config.markdown.remarkPlugins?.length)
+				) {
+					console.log(
+						blue(`[MDX] Now inheriting remark and rehype plugins from "markdown" config.`)
+					);
+					console.log(
+						`If you applied a plugin to both your Markdown and MDX configs, we suggest ${bold(
+							'removing the duplicate MDX entry.'
+						)}`
+					);
+					console.log(`See "extendPlugins" option to configure this behavior.`);
+				}
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),

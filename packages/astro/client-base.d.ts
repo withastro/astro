@@ -1,4 +1,4 @@
-/// <reference types="vite/types/importMeta" />
+/// <reference path="./import-meta.d.ts" />
 
 // CSS modules
 type CSSModuleClasses = { readonly [key: string]: string };

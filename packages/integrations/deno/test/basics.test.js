@@ -27,6 +27,21 @@ Deno.test({
 });
 
 Deno.test({
+	name: 'Custom 404',
+	async fn() {
+		await startApp(async () => {
+			const resp = await fetch('http://127.0.0.1:8085/this-does-not-exist');
+			assertEquals(resp.status, 404);
+			const html = await resp.text();
+			assert(html);
+			const doc = new DOMParser().parseFromString(html, `text/html`);
+			const header = doc.querySelector('#custom-404');
+			assert(header, 'displays custom 404');
+		});
+	},
+});
+
+Deno.test({
 	name: 'Loads style assets',
 	async fn() {
 		await startApp(async () => {

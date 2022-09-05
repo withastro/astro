@@ -6,7 +6,7 @@ export interface Props {
 	initialCount?: number;
 }
 
-const { initialCount = 0 } = Astro.props as Props;
+const { initialCount = 0 } = Astro.props;
 ---
 
 <div class="counter" x-data={`{ count: ${initialCount} }`}>

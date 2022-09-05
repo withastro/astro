@@ -1,12 +1,15 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { prependForwardSlash } from '../path.js';
+import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
-	// Pure CSS chunks are chunks that only contain CSS.
-	pureCSSChunks: Set<RenderedChunk>;
+	/**
+	 * The module ids of all CSS chunks, used to deduplicate CSS assets between
+	 * SSR build and client build in vite-plugin-css.
+	 */
+	cssChunkModuleIds: Set<string>;
 
 	// A mapping of hoisted script ids back to the exact hoisted scripts it references
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
@@ -59,17 +62,6 @@ export interface BuildInternals {
  * @returns {BuildInternals}
  */
 export function createBuildInternals(): BuildInternals {
-	// Pure CSS chunks are chunks that only contain CSS.
-	// This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
-	const pureCSSChunks = new Set<RenderedChunk>();
-	const chunkToReferenceIdMap = new Map<string, string>();
-
-	// This is a mapping of pathname to the string source of all collected
-	// inline <style> for a page.
-	const astroStyleMap = new Map<string, string>();
-	// This is a virtual JS module that imports all dependent styles for a page.
-	const astroPageStyleMap = new Map<string, string>();
-
 	// These are for tracking hoisted script bundling
 	const hoistedScriptIdToHoistedMap = new Map<string, Set<string>>();
 
@@ -77,7 +69,7 @@ export function createBuildInternals(): BuildInternals {
 	const hoistedScriptIdToPagesMap = new Map<string, Set<string>>();
 
 	return {
-		pureCSSChunks,
+		cssChunkModuleIds: new Set(),
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
@@ -144,8 +136,15 @@ export function* getPageDatasByClientOnlyID(
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		const pathname = `/@fs${prependForwardSlash(viteid)}`;
-		const pageBuildDatas = pagesByClientOnly.get(pathname);
+		let pathname = `/@fs${prependForwardSlash(viteid)}`;
+		let pageBuildDatas = pagesByClientOnly.get(viteid);
+		// BUG! The compiler partially resolves .jsx to remove the file extension so we have to check again.
+		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
+		// but this would be a bigger change.
+		if (!pageBuildDatas) {
+			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
+			pageBuildDatas = pagesByClientOnly.get(pathname);
+		}
 		if (pageBuildDatas) {
 			for (const pageData of pageBuildDatas) {
 				yield pageData;
@@ -203,4 +202,23 @@ export function sortedCSS(pageData: PageBuildData) {
 			}
 		})
 		.map(([id]) => id);
+}
+
+export function isHoistedScript(internals: BuildInternals, id: string): boolean {
+	return internals.hoistedScriptIdToPagesMap.has(id);
+}
+
+export function* getPageDatasByHoistedScriptId(
+	internals: BuildInternals,
+	id: string
+): Generator<PageBuildData, void, unknown> {
+	const set = internals.hoistedScriptIdToPagesMap.get(id);
+	if (set) {
+		for (const pageId of set) {
+			const pageData = getPageDataByComponent(internals, pageId.slice(1));
+			if (pageData) {
+				yield pageData;
+			}
+		}
+	}
 }
