@@ -53,7 +53,7 @@ describe('Images in MDX - build', function () {
 			title: 'Background color',
 			id: '#bg-color',
 			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
-			size: { width: 544, height: 184, type: 'jpeg' },
+			size: { width: 544, height: 184, type: 'jpg' },
 		},
 	].forEach(({ title, id, regex, size }) => {
 		it(title, () => {
