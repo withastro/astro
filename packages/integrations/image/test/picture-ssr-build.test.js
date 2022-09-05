@@ -49,6 +49,19 @@ describe('SSR pictures - build', function () {
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
 			alt: 'Hero image',
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+			alt: 'Google logo',
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
@@ -128,6 +141,19 @@ describe('SSR pictures with subpath - build', function () {
 			url: '/_image',
 			query: { f: 'jpg', w: '768', h: '414', href: '/hero.jpg' },
 			alt: 'Hero image',
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+			alt: 'Google logo',
 		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {

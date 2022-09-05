@@ -56,6 +56,18 @@ describe('SSG images - dev', function () {
 			url: '/_image',
 			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, () => {
 			const image = $(id);
@@ -126,6 +138,18 @@ describe('SSG images with subpath - dev', function () {
 			url: '/_image',
 			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, () => {
 			const image = $(id);
@@ -195,6 +219,12 @@ describe('SSG images - build', function () {
 			regex: /^\/hero_\w{4,10}.webp/,
 			size: { width: 768, height: 414, type: 'webp' },
 		},
+		{
+			title: 'Remote images',
+			id: '#bg-color',
+			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			size: { width: 544, height: 184, type: 'jpeg' },
+		},
 	].forEach(({ title, id, regex, size }) => {
 		it(title, () => {
 			const image = $(id);
@@ -258,6 +288,12 @@ describe('SSG images with subpath - build', function () {
 			id: '#hero',
 			regex: /^\/docs\/hero_\w{4,10}.webp/,
 			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
+			title: 'Remote images',
+			id: '#bg-color',
+			regex: /^\/docs\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			size: { width: 544, height: 184, type: 'jpeg' },
 		},
 	].forEach(({ title, id, regex, size }) => {
 		it(title, () => {
