@@ -190,6 +190,46 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+#### fit
+
+<p>
+
+**Type:** `CropFit` <br>
+**Default:** `cover`
+</p>
+
+How the image should be resized to fit both `height` and `width`.
+
+#### position
+
+<p>
+
+**Type:** `CropPosition` <br>
+**Default:** `centre`
+</p>
+
+Position of the crop when fit is `cover` or `contain`.
+
+#### background
+
+<p>
+
+**Type:** `string` <br>
+**Default:** `undefined`
+</p>
+
+The color used to fill the background when `fit` is set to `contain`.
+
+#### kernel
+
+<p>
+
+**Type:** `CropKernel` <br>
+**Default:** `undefined`
+</p>
+
+The kernel to use for cropping.
+
 ### `<Picture /`>
 
 #### src
