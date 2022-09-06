@@ -1,7 +1,7 @@
 import type { Options } from '@vitejs/plugin-vue';
+import vue from '@vitejs/plugin-vue';
 import type { AstroIntegration, AstroRenderer } from 'astro';
 import type { UserConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -20,7 +20,7 @@ function getViteConfiguration(options?: Options): UserConfig {
 		plugins: [vue(options)],
 		ssr: {
 			external: ['@vue/server-renderer'],
-			noExternal: ['vueperslides']
+			noExternal: ['vueperslides'],
 		},
 	};
 }
