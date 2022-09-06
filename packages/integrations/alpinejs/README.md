@@ -64,7 +64,7 @@ Check our [Astro Integration Documentation][astro-integration] for more on integ
 
 ## Limitations
 
-The Apline.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider [installing and using Alpine.js manually](https://alpinejs.dev/essentials/installation). Astro supports all officially documented Alpine.js manual setup instructions, using `<script>` tags inside of an Astro component.
+The Alpine.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider [installing and using Alpine.js manually](https://alpinejs.dev/essentials/installation). Astro supports all officially documented Alpine.js manual setup instructions, using `<script>` tags inside of an Astro component.
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
@@ -83,7 +83,7 @@ The Apline.js integration does not give you control over how the script is loade
 
 ## Configuration
 
-The Apline.js integration does not support any custom configuration at this time.
+The Alpine.js integration does not support any custom configuration at this time.
 
 ## Examples
 
