@@ -37,6 +37,10 @@ const {
 	sizes,
 	widths,
 	aspectRatio,
+	fit,
+	background,
+	position,
+	kernel,
 	formats = ['avif', 'webp'],
 	loading = 'lazy',
 	decoding = 'async',
@@ -47,7 +51,16 @@ if (alt === undefined || alt === null) {
 	warnForMissingAlt();
 }
 
-const { image, sources } = await getPicture({ src, widths, formats, aspectRatio });
+const { image, sources } = await getPicture({
+	src,
+	widths,
+	formats,
+	aspectRatio,
+	fit,
+	background,
+	position,
+	kernel,
+});
 ---
 
 <picture {...attrs}>
