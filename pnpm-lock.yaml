@@ -972,6 +972,14 @@ importers:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/third-party-astro:
+    specifiers:
+      astro: workspace:*
+      astro-embed: ^0.1.1
+    dependencies:
+      astro: link:../../..
+      astro-embed: 0.1.1_astro@packages+astro
+
   packages/astro/e2e/fixtures/ts-resolution:
     specifiers:
       '@astrojs/react': workspace:*
@@ -2028,6 +2036,14 @@ importers:
       autoprefixer: 10.4.8_postcss@8.4.16
       postcss: 8.4.16
       tailwindcss: 3.1.8_postcss@8.4.16
+
+  packages/astro/test/fixtures/third-party-astro:
+    specifiers:
+      astro: workspace:*
+      astro-embed: ^0.1.1
+    dependencies:
+      astro: link:../../..
+      astro-embed: 0.1.1_astro@packages+astro
 
   packages/astro/test/fixtures/type-imports:
     specifiers:
@@ -3172,6 +3188,39 @@ packages:
       json-schema: 0.4.0
       jsonpointer: 5.0.1
       leven: 3.1.0
+    dev: false
+
+  /@astro-community/astro-embed-integration/0.1.0_astro@packages+astro:
+    resolution: {integrity: sha512-qR4us0hAqIYo6MduvpXLrjeakX04afDILa7WkQbmWj3c4sbOqIcFCirLrmFs+dPjcPkv2Zpl2l3PxN3G6+ONSA==}
+    peerDependencies:
+      astro: ^1.0.0-beta.10
+    dependencies:
+      '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
+      '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
+      astro: link:packages/astro
+      unist-util-select: 4.0.1
+    dev: false
+
+  /@astro-community/astro-embed-twitter/0.1.3_astro@packages+astro:
+    resolution: {integrity: sha512-lcOBnzhczNrngkafzD+8BGKiK8oJvahg3/QUuWgueNwHRU8C+18brdxKc1i4ttZWgAt1A5u+jx21Tc4bquMUzg==}
+    peerDependencies:
+      astro: ^1.0.0-beta.10
+    dependencies:
+      '@astro-community/astro-embed-utils': 0.0.3
+      astro: link:packages/astro
+    dev: false
+
+  /@astro-community/astro-embed-utils/0.0.3:
+    resolution: {integrity: sha512-hXwSMtSAL3V9fnFHps+/CoDIJst26U/qSdI7srIQ8GPmFqdbcqJd/qOqYzGezAR/qTM8gmTjDCGOuVI0Z+xT3Q==}
+    dev: false
+
+  /@astro-community/astro-embed-youtube/0.1.1_astro@packages+astro:
+    resolution: {integrity: sha512-qIf5nr3BMB/pWJWf7x/t86CIjpPA69eVKQql7TNJW7lTYL2SVPFA9WowsfvvrhNN9aWV/kTaSpW9e/m4FtXdkQ==}
+    peerDependencies:
+      astro: ^1.0.0-beta.10
+    dependencies:
+      astro: link:packages/astro
+      lite-youtube-embed: 0.2.0
     dev: false
 
   /@astrojs/compiler/0.19.0:
@@ -9727,6 +9776,17 @@ packages:
     hasBin: true
     dev: false
 
+  /astro-embed/0.1.1_astro@packages+astro:
+    resolution: {integrity: sha512-NBnLDB0PygbahCBFeGDPzmW4/PJSrieWgjN7mN8vmStUACM+cdTz1vhLDSWt4LlbWxozq0x9G1dTnoVbHyYKLA==}
+    peerDependencies:
+      astro: ^1.0.0-beta.10
+    dependencies:
+      '@astro-community/astro-embed-integration': 0.1.0_astro@packages+astro
+      '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
+      '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
+      astro: link:packages/astro
+    dev: false
+
   /async/3.2.4:
     resolution: {integrity: sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==}
     dev: false
@@ -13054,6 +13114,10 @@ packages:
       '@lit/reactive-element': 1.4.1
       lit-element: 3.2.2
       lit-html: 2.3.1
+    dev: false
+
+  /lite-youtube-embed/0.2.0:
+    resolution: {integrity: sha512-XXXAk5sbvtjjwbie3XG+6HppgTm1HTGL/Uk9z9NkJH53o7puZLur434heHzAjkS60hZB3vT4ls25zl5rMiX4EA==}
     dev: false
 
   /load-yaml-file/0.2.0:
@@ -17014,6 +17078,16 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
       unist-util-visit: 4.1.1
+    dev: false
+
+  /unist-util-select/4.0.1:
+    resolution: {integrity: sha512-zPozyEo5vr1csbHf1TqlQrnuLVJ0tNMo63og3HrnINh2+OIDAgQpqHVr+0BMw1DIVHJV8ft/e6BZqtvD1Y5enw==}
+    dependencies:
+      '@types/unist': 2.0.6
+      css-selector-parser: 1.4.1
+      nth-check: 2.1.1
+      unist-util-is: 5.1.1
+      zwitch: 2.0.2
     dev: false
 
   /unist-util-stringify-position/3.0.2:
