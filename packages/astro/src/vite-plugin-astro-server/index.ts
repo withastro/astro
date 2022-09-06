@@ -291,10 +291,9 @@ async function handleRequest(
 		config
 	);
 
-	// TODO handleRoute
 	return handleRoute(
 		matchedRoute,
-		new URL('/404', url),
+		url,
 		body,
 		origin,
 		routeCache,
@@ -371,7 +370,6 @@ async function handleRoute(
 			const result = await callEndpoint(options);
 			if (result.type === 'response') {
 				if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					// TODO
 					const fourOhFourRoute = await matchRoute(
 						'/404',
 						routeCache,
