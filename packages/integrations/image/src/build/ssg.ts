@@ -1,14 +1,14 @@
+import { doWork } from '@altano/tiny-async-pool';
 import type { AstroConfig } from 'astro';
 import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import fs from 'node:fs/promises';
+import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
-import OS from 'node:os';
-import { doWork } from '@altano/tiny-async-pool';
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
