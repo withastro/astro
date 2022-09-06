@@ -1,7 +1,6 @@
 import { Position, Range } from 'vscode-languageserver';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
 import { clamp, isInRange } from '../../utils';
-import { parseHtml } from './parseHtml';
 
 export interface TagInformation {
 	content: string;
@@ -28,8 +27,8 @@ export function* walk(node: Node): Generator<Node, void, unknown> {
  * @param source text content to extract tag from
  * @param tag the tag to extract
  */
-function extractTags(text: string, tag: 'script' | 'style', html?: HTMLDocument): TagInformation[] {
-	const rootNodes = html?.roots || parseHtml(text).roots;
+function extractTags(text: string, tag: 'script' | 'style', html: HTMLDocument): TagInformation[] {
+	const rootNodes = html.roots;
 	const matchedNodes = rootNodes.filter((node) => node.tag === tag);
 
 	if (tag === 'style' && !matchedNodes.length && rootNodes.length) {
@@ -75,7 +74,7 @@ function extractTags(text: string, tag: 'script' | 'style', html?: HTMLDocument)
 	}
 }
 
-export function extractStyleTags(source: string, html?: HTMLDocument): TagInformation[] {
+export function extractStyleTags(source: string, html: HTMLDocument): TagInformation[] {
 	const styles = extractTags(source, 'style', html);
 
 	if (!styles.length) {
@@ -85,7 +84,7 @@ export function extractStyleTags(source: string, html?: HTMLDocument): TagInform
 	return styles;
 }
 
-export function extractScriptTags(source: string, html?: HTMLDocument): TagInformation[] {
+export function extractScriptTags(source: string, html: HTMLDocument): TagInformation[] {
 	const scripts = extractTags(source, 'script', html);
 
 	if (!scripts.length) {

@@ -20,7 +20,7 @@ export class AstroDocument extends WritableDocument {
 
 	private updateDocInfo() {
 		this.astroMeta = parseAstro(this.content);
-		this.html = parseHtml(this.content);
+		this.html = parseHtml(this.content, this.astroMeta);
 		this.styleTags = extractStyleTags(this.content, this.html);
 		this.scriptTags = extractScriptTags(this.content, this.html);
 	}

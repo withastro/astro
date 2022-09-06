@@ -8,6 +8,7 @@ import {
 	Position,
 } from 'vscode-html-languageservice';
 import type { AstroDocument } from './AstroDocument';
+import { AstroMetadata } from './parseAstro';
 import { isInsideExpression } from './utils';
 
 const parser = getLanguageService();
@@ -15,8 +16,8 @@ const parser = getLanguageService();
 /**
  * Parses text as HTML
  */
-export function parseHtml(text: string): HTMLDocument {
-	const preprocessed = preprocess(text);
+export function parseHtml(text: string, frontmatter: AstroMetadata): HTMLDocument {
+	const preprocessed = preprocess(text, frontmatter);
 
 	// We can safely only set getText because only this is used for parsing
 	const parsedDoc = parser.parseHTMLDocument(<any>{ getText: () => preprocessed });
@@ -33,13 +34,22 @@ const createScanner = parser.createScanner as (
 /**
  * scan the text and remove any `>` or `<` that cause the tag to end short,
  */
-function preprocess(text: string) {
+function preprocess(text: string, frontmatter?: AstroMetadata) {
 	let scanner = createScanner(text);
 	let token = scanner.scan();
 	let currentStartTagStart: number | null = null;
+	const hasFrontmatter = frontmatter !== undefined;
 
 	while (token !== TokenType.EOS) {
 		const offset = scanner.getTokenOffset();
+
+		if (
+			hasFrontmatter &&
+			(scanner.getTokenText() === '>' || scanner.getTokenText() === '<') &&
+			offset < (frontmatter.content.firstNonWhitespaceOffset ?? 0)
+		) {
+			blankStartOrEndTagLike(offset, ScannerState.WithinContent);
+		}
 
 		if (token === TokenType.StartTagOpen) {
 			currentStartTagStart = offset;
@@ -68,6 +78,8 @@ function preprocess(text: string) {
 			blankStartOrEndTagLike(offset);
 		}
 
+		// TODO: Handle TypeScript generics inside expressions / Use the compiler to parse HTML instead?
+
 		token = scanner.scan();
 	}
 
@@ -78,9 +90,9 @@ function preprocess(text: string) {
 		return currentStartTagStart !== null && isInsideExpression(text, currentStartTagStart, offset);
 	}
 
-	function blankStartOrEndTagLike(offset: number) {
+	function blankStartOrEndTagLike(offset: number, state?: ScannerState) {
 		text = text.substring(0, offset) + ' ' + text.substring(offset + 1);
-		scanner = createScanner(text, offset, ScannerState.WithinTag);
+		scanner = createScanner(text, offset, state ?? ScannerState.WithinTag);
 	}
 }
 

@@ -178,6 +178,17 @@ describe('HTML Plugin', () => {
 			]);
 		});
 
+		it('does not provide symbols for tags inside the frontmatter', async () => {
+			const { plugin, document, configManager } = setup(`
+			---
+				const hello: MarkdownInstance<any>
+			---
+			`);
+
+			const symbols = await plugin.getDocumentSymbols(document);
+			expect(symbols).to.be.empty;
+		});
+
 		it('should not provide document symbols if feature is disabled', async () => {
 			const { plugin, document, configManager } = setup('<div><p>Astro</p></div>');
 
