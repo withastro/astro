@@ -1,4 +1,3 @@
-import { EOL } from 'os';
 import { parseAstro } from '../../core/documents/parseAstro';
 
 function addProps(content: string, className: string): string {
@@ -21,8 +20,8 @@ function addProps(content: string, className: string): string {
 	}
 
 	return (
-		EOL +
-		(shouldAddGlobal ? astroGlobal + EOL + astroGlobalConstDef : '') +
+		'\n' +
+		(shouldAddGlobal ? astroGlobal + '\n' + astroGlobalConstDef : '') +
 		`export default function ${className}__AstroComponent_(_props: ${defaultExportType}): any {}`
 	);
 }
@@ -104,7 +103,7 @@ export default function (content: string, className: string): Astro2TSXResult {
 	result.code =
 		frontMatterRaw +
 		htmlRaw +
-		EOL +
+		'\n' +
 		// Add TypeScript definitions
 		addProps(frontMatterRaw, className);
 

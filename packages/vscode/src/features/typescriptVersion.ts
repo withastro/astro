@@ -4,11 +4,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import type { LanguageClient } from 'vscode-languageclient/node';
+import type { BaseLanguageClient } from 'vscode-languageclient';
 
 const defaultTsdk = 'node_modules/typescript/lib';
 
-export async function selectVersionCommand(context: vscode.ExtensionContext, client: LanguageClient) {
+export async function selectVersionCommand(context: vscode.ExtensionContext, client: BaseLanguageClient) {
 	const useWorkspaceTsdk = getCurrentTsPaths(context).isWorkspacePath;
 	const workspaceTsPaths = getWorkspaceTsPaths();
 	const workspaceTsVersion = workspaceTsPaths ? getTypeScriptVersion(workspaceTsPaths.serverPath) : undefined;
@@ -58,14 +58,14 @@ export async function selectVersionCommand(context: vscode.ExtensionContext, cli
 export async function onDidChangeConfiguration(
 	event: vscode.ConfigurationChangeEvent,
 	context: vscode.ExtensionContext,
-	client: LanguageClient
+	client: BaseLanguageClient
 ) {
 	if (event.affectsConfiguration('typescript.tsdk') || event.affectsConfiguration('typescript.locale')) {
 		restartServer(context, client);
 	}
 }
 
-async function restartServer(context: vscode.ExtensionContext, client: LanguageClient) {
+async function restartServer(context: vscode.ExtensionContext, client: BaseLanguageClient) {
 	const tsPaths = getCurrentTsPaths(context);
 	const newInitOptions = {
 		...client.clientOptions.initializationOptions,

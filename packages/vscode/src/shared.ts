@@ -1,95 +1,31 @@
-import * as path from 'path';
 import {
-	window,
-	commands,
 	workspace,
+	commands,
+	ConfigurationChangeEvent,
 	ExtensionContext,
 	TextDocument,
-	Position,
 	TextDocumentChangeEvent,
 	ViewColumn,
-	ConfigurationChangeEvent,
+	window,
 } from 'vscode';
-import {
-	LanguageClient,
-	RequestType,
-	TextDocumentPositionParams,
-	ServerOptions,
-	TransportKind,
-} from 'vscode-languageclient/node';
-import { LanguageClientOptions } from 'vscode-languageclient';
-import { activateTagClosing } from './html/autoClose.js';
-import * as tsVersion from './features/typescriptVersion';
+import { BaseLanguageClient, LanguageClientOptions } from 'vscode-languageclient';
 
-const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
-
-let client: LanguageClient;
-
-export async function activate(context: ExtensionContext) {
-	const runtimeConfig = workspace.getConfiguration('astro.language-server');
-
-	const { workspaceFolders } = workspace;
-	const rootPath = workspaceFolders?.[0].uri.fsPath;
-
-	let lsPath = runtimeConfig.get<string>('ls-path');
-	if (typeof lsPath === 'string' && lsPath.trim() !== '' && typeof rootPath === 'string') {
-		lsPath = path.isAbsolute(lsPath) ? lsPath : path.join(rootPath, lsPath);
-		console.info(`Using language server at ${lsPath}`);
-	} else {
-		lsPath = undefined;
-	}
-
-	const serverModule = require.resolve(lsPath ?? '@astrojs/language-server/bin/nodeServer.js');
-
-	const port = 6040;
-	const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
-
-	const serverOptions: ServerOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
-		debug: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-			options: debugOptions,
-		},
-	};
-
-	const serverRuntime = runtimeConfig.get<string>('runtime');
-	if (serverRuntime) {
-		serverOptions.run.runtime = serverRuntime;
-		serverOptions.debug.runtime = serverRuntime;
-		console.info(`Using ${serverRuntime} as runtime`);
-	}
-
-	const typescript = tsVersion.getCurrentTsPaths(context);
-	const clientOptions: LanguageClientOptions = {
+export function getInitOptions(env: 'node' | 'browser', typescript: any): LanguageClientOptions {
+	return {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
 			fileEvents: workspace.createFileSystemWatcher('{**/*.js,**/*.ts}', false, false, false),
 		},
 		initializationOptions: {
-			environment: 'node',
 			typescript,
+			environment: env,
 			dontFilterIncompleteCompletions: true, // VSCode filters client side and is smarter at it than us
 			isTrusted: workspace.isTrusted,
 		},
 	};
+}
 
-	client = createLanguageServer(serverOptions, clientOptions);
-
-	client
-		.start()
-		.then(() => {
-			const tagRequestor = (document: TextDocument, position: Position) => {
-				const param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-				return client.sendRequest(TagCloseRequest, param);
-			};
-			const disposable = activateTagClosing(tagRequestor, { astro: true }, 'html.autoClosingTags');
-			context.subscriptions.push(disposable);
-		})
-		.catch((err) => {
-			console.error('Astro, unable to load language server.', err);
-		});
-
+export function commonActivate(context: ExtensionContext, client: BaseLanguageClient, tsVersion: any) {
 	workspace.onDidChangeConfiguration((e: ConfigurationChangeEvent) =>
 		tsVersion.onDidChangeConfiguration(e, context, client)
 	);
@@ -181,20 +117,4 @@ export async function activate(context: ExtensionContext) {
 	function getLSClient() {
 		return client;
 	}
-
-	return {
-		getLanguageServer: getLSClient,
-	};
-}
-
-export function deactivate(): Promise<void> | undefined {
-	if (!client) {
-		return undefined;
-	}
-
-	return client.stop();
-}
-
-function createLanguageServer(serverOptions: ServerOptions, clientOptions: LanguageClientOptions) {
-	return new LanguageClient('astro', 'Astro', serverOptions, clientOptions);
 }

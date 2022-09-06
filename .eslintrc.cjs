@@ -19,4 +19,12 @@ module.exports = {
     'prefer-const': 'off',
     // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions
   },
+  overrides: [
+    {
+      files: ['**/scripts/**/*.js'],
+      rules: {
+        'no-console': 'off',
+      },
+    },
+  ],
 };

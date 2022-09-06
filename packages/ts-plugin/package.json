@@ -1,28 +1,27 @@
 {
-    "name": "@astrojs/ts-plugin",
-    "version": "0.2.1",
-    "description": "A TypeScript Plugin providing Astro intellisense",
-    "main": "dist/index.js",
-    "type": "commonjs",
-    "keywords": [
-        "astro",
-        "typescript",
-        "javascript",
-        "plugin"
-    ],
-    "scripts": {
-        "build": "astro-scripts build \"src/**/*.ts\"",
-        "dev": "astro-scripts dev \"src/**/*.ts\""
-    },
-    "author": "withastro",
-    "license": "MIT",
-    "devDependencies": {
-        "@tsconfig/node12": "^1.0.0",
-        "@types/node": "^13.9.0",
-        "typescript": "*"
-    },
-    "dependencies": {
-        "sourcemap-codec": "^1.4.8",
-        "ts-morph": "^12.0.0"
-    }
+  "name": "@astrojs/ts-plugin",
+  "version": "0.2.1",
+  "description": "A TypeScript Plugin providing Astro intellisense",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "keywords": [
+    "astro",
+    "typescript",
+    "javascript",
+    "plugin"
+  ],
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "author": "withastro",
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/node12": "^1.0.0",
+    "@types/node": "^13.9.0",
+    "typescript": "*"
+  },
+  "dependencies": {
+    "sourcemap-codec": "^1.4.8"
+  }
 }
