@@ -426,12 +426,19 @@ export async function resolveConfigPath(
 
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	const configPath = await resolve('astro', {
-		mustExist: !!userConfigPath,
-		cwd: root,
-		filePath: userConfigPath,
-	});
-	return configPath;
+	try {
+		const configPath = await resolve('astro', {
+			mustExist: !!userConfigPath,
+			cwd: root,
+			filePath: userConfigPath,
+		});
+		return configPath;
+	} catch (e) {
+		if (e instanceof ProloadError && flags.config) {
+			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+		}
+		throw e
+	}
 }
 
 interface OpenConfigResult {
