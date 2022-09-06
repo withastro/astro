@@ -8,7 +8,7 @@ import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
+import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
@@ -106,7 +106,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			if (!raw) {
 				return null;
 			}
-
+			
 			let source = getCachedSource(config, raw.id);
 			if (!source) {
 				return null;
@@ -246,19 +246,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				)};export { $$file as file, $$url as url };\n`;
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
-					// HACK: extract dependencies from metadata until compiler static extraction handles them
-					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0];
-					const pattern = /specifier:\s*'([^']*)'/g;
-					const deps = new Set();
-					let match;
-					while ((match = pattern.exec(metadata)?.[1])) {
-						deps.add(match);
-					}
-
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
-						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
+						SUFFIX += `import "${isRelativePath(id) ? id : prependForwardSlash(id)}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
 				}
