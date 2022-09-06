@@ -239,7 +239,7 @@ importers:
 
   examples/portfolio:
     specifiers:
-      astro: ^1.1.1
+      astro: ^1.1.5
     dependencies:
       astro: link:../../packages/astro
 
