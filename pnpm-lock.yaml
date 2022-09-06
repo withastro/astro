@@ -117,12 +117,6 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
 
-  examples/env-vars:
-    specifiers:
-      astro: ^1.1.5
-    dependencies:
-      astro: link:../../packages/astro
-
   examples/framework-alpine:
     specifiers:
       '@astrojs/alpinejs': ^0.1.1
@@ -274,18 +268,6 @@ importers:
       svelte: 3.49.0
       unocss: 0.15.6
       vite-imagetools: 4.0.7
-
-  examples/subpath:
-    specifiers:
-      '@astrojs/react': ^1.1.0
-      astro: ^1.1.5
-      react: ^18.1.0
-      react-dom: ^18.1.0
-    dependencies:
-      '@astrojs/react': link:../../packages/integrations/react
-      astro: link:../../packages/astro
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
 
   examples/with-markdown-plugins:
     specifiers:
@@ -2214,6 +2196,7 @@ importers:
 
   packages/integrations/image:
     specifiers:
+      '@altano/tiny-async-pool': ^1.0.2
       '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
@@ -2223,6 +2206,7 @@ importers:
       mime: ^3.0.0
       sharp: ^0.30.6
     dependencies:
+      '@altano/tiny-async-pool': 1.0.2
       image-size: 1.0.2
       magic-string: 0.25.9
       mime: 3.0.0
@@ -3163,6 +3147,10 @@ packages:
       '@algolia/cache-common': 4.14.2
       '@algolia/logger-common': 4.14.2
       '@algolia/requester-common': 4.14.2
+    dev: false
+
+  /@altano/tiny-async-pool/1.0.2:
+    resolution: {integrity: sha512-qQzaI0TBUPdpjZ3qo5b2ziQY9MSNpbziH2ZrE5lvtUZL+kn9GwVuVJwoOubaoNkeDB+rqEefnpu1k+oMpOCYiw==}
     dev: false
 
   /@ampproject/remapping/2.2.0:
