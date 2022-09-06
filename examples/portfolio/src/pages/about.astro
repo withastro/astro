@@ -1,26 +1,31 @@
 ---
 import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer/index.jsx';
-import Nav from '../components/Nav/index.jsx';
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
 ---
 
 <html lang="en">
 	<head>
 		<MainHead title="About | Jeanine White" description="About Jeanine White Lorem Ipsum" />
-		<style lang="scss">
+		<style>
 			.heroImg {
 				max-height: 24rem;
 				object-fit: cover;
 				overflow: hidden;
+			}
 
-				img {
-					width: 100%;
-				}
+			.heroImg img {
+				width: 100%;
 			}
 
 			.bio {
 				font-size: var(--f-u1);
 				line-height: 2;
+				margin-top: 4em;
+			}
+
+			.wrapper.bio {
+				max-width: 50em;
 			}
 		</style>
 	</head>
@@ -35,7 +40,7 @@ import Nav from '../components/Nav/index.jsx';
 					src="https://images.unsplash.com/photo-1581977012607-4091712d36f9?auto=format&fit=crop&w=1400&h=350&q=75"
 				/>
 			</div>
-			<div class="bio wrapper wrapper__readable mt8">
+			<div class="bio wrapper">
 				<p>
 					Cream cheese say cheese stinking bishop. Brie fondue hard cheese bocconcini feta camembert
 					de normandie babybel airedale. Red leicester swiss manchego mascarpone pepper jack
