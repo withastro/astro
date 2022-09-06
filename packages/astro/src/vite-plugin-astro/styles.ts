@@ -9,34 +9,61 @@ export type TransformHook = (
 	ssr?: boolean
 ) => Promise<vite.TransformResult>;
 
-/** Load vite:css’ transform() hook */
-export function getViteTransform(viteConfig: vite.ResolvedConfig): TransformHook {
-	const viteCSSPlugin = viteConfig.plugins.find(({ name }) => name === 'vite:css');
-	if (!viteCSSPlugin) throw new Error(`vite:css plugin couldn’t be found`);
-	if (!viteCSSPlugin.transform) throw new Error(`vite:css has no transform() hook`);
-	return viteCSSPlugin.transform as any;
-}
-
-interface TransformWithViteOptions {
-	value: string;
-	lang: string;
+interface TransformStyleWithViteOptions {
 	id: string;
-	transformHook: TransformHook;
-	pluginContext: PluginContext;
+	source: string;
+	lang: string;
 	ssr?: boolean;
+	viteDevServer?: vite.ViteDevServer;
 }
 
-/** Transform style using Vite hook */
-export async function transformWithVite({
-	value,
-	lang,
-	transformHook,
-	id,
-	ssr,
-	pluginContext,
-}: TransformWithViteOptions): Promise<vite.TransformResult | null> {
-	if (!STYLE_EXTENSIONS.has(lang)) {
-		return null; // only preprocess langs supported by Vite
-	}
-	return transformHook.call(pluginContext, value, id + `?astro&type=style&lang${lang}`, ssr);
+export interface TransformStyleWithVite {
+	(options: TransformStyleWithViteOptions): Promise<{
+		code: string;
+		map: vite.TransformResult['map'];
+		deps: Set<string>;
+	} | null>;
+}
+
+export function createTransformStyleWithViteFn(
+	viteConfig: vite.ResolvedConfig
+): TransformStyleWithVite {
+	const viteCSSPlugin = viteConfig.plugins.find(({ name }) => name === 'vite:css');
+	if (!viteCSSPlugin) throw new Error(`vite:css plugin couldn't be found`);
+	if (!viteCSSPlugin.transform) throw new Error(`vite:css has no transform() hook`);
+	const transformCss = viteCSSPlugin.transform as TransformHook;
+
+	return async function (
+		this: PluginContext,
+		{ id, source, lang, ssr, viteDevServer }: TransformStyleWithViteOptions
+	) {
+		if (!STYLE_EXTENSIONS.has(lang)) {
+			return null; // only preprocess langs supported by Vite
+		}
+
+		// Id must end with valid CSS extension for vite:css to process
+		const styleId = `${id}?astro&type=style&lang${lang}`;
+
+		viteDevServer?.moduleGraph.ensureEntryFromUrl(styleId, ssr, false);
+
+		const transformResult = await transformCss.call(this, source, styleId, ssr);
+
+		// NOTE: only `code` and `map` are returned by vite:css
+		const { code, map } = transformResult;
+		const deps = new Set<string>();
+
+		// Get deps from module created while transforming the styleId by Vite.
+		// In build, it's fine that we skip this as it's used by HMR only.
+		const mod = viteDevServer?.moduleGraph.getModuleById(styleId);
+		if (mod) {
+			// Get all @import references
+			for (const imported of mod.importedModules) {
+				if (imported.file) {
+					deps.add(imported.file);
+				}
+			}
+		}
+
+		return { code, map, deps };
+	};
 }

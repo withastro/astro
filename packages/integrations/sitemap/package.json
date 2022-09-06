@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "astro": "workspace:*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "workspace:*",
+    "xml2js": "0.4.23"
   }
 }

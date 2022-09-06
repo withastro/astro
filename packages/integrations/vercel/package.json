@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -11,6 +11,7 @@
     "directory": "packages/integrations/vercel"
   },
   "keywords": [
+    "withastro",
     "astro-adapter"
   ],
   "bugs": "https://github.com/withastro/astro/issues",

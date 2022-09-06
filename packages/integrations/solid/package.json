@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/solid-js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.4.3"
+    "solid-js": "^1.5.1"
   },
   "peerDependencies": {
     "solid-js": "^1.4.3"

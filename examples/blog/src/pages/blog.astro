@@ -11,7 +11,7 @@ const posts = (await Astro.glob('./blog/*.{md,mdx}')).sort(
 ---
 
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
@@ -35,7 +35,7 @@ const posts = (await Astro.glob('./blog/*.{md,mdx}')).sort(
 	<body>
 		<Header />
 		<main>
-			<content>
+			<section>
 				<ul>
 					{posts.map((post) => (
 						<li>
@@ -50,8 +50,8 @@ const posts = (await Astro.glob('./blog/*.{md,mdx}')).sort(
 						</li>
 					))}
 				</ul>
-			</content>
-			<Footer />
+			</section>
 		</main>
+		<Footer />
 	</body>
 </html>

@@ -6,7 +6,7 @@ export interface Props extends Record<any, any> {
 
 const { level, role, ...props } = {
 	...Astro.props,
-} as Props;
+};
 
 props.role = role || 'heading';
 props['aria-level'] = level || '1';

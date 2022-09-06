@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from '../utils/images.js';
+import { isAspectRatioString, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
@@ -75,16 +75,10 @@ class SharpService implements SSRImageService {
 			searchParams.set('wr', '1');
 		}
 
-		searchParams.append('href', transform.src);
-
 		return { searchParams };
 	}
 
 	parseTransform(searchParams: URLSearchParams) {
-		if (!searchParams.has('href')) {
-			return undefined;
-		}
-
 		let transform: TransformOptions = { src: searchParams.get('href')! };
 
 		if (searchParams.has('q')) {
