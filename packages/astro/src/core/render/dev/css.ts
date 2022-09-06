@@ -18,11 +18,14 @@ export async function getStylesForURL(
 	for await (const importedModule of crawlGraph(viteServer, viteID(filePath), true)) {
 		const ext = path.extname(importedModule.url).toLowerCase();
 		if (STYLE_EXTENSIONS.has(ext)) {
+			// The SSR module is possibly not loaded. Load it if it's null.
+			const ssrModule =
+				importedModule.ssrModule ?? (await viteServer.ssrLoadModule(importedModule.url));
 			if (
 				mode === 'development' && // only inline in development
-				typeof importedModule.ssrModule?.default === 'string' // ignore JS module styles
+				typeof ssrModule?.default === 'string' // ignore JS module styles
 			) {
-				importedStylesMap.set(importedModule.url, importedModule.ssrModule.default);
+				importedStylesMap.set(importedModule.url, ssrModule.default);
 			} else {
 				// NOTE: We use the `url` property here. `id` would break Windows.
 				importedCssUrls.add(importedModule.url);

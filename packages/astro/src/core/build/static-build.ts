@@ -28,9 +28,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	if (isModeServerWithNoAdapter(opts.astroConfig)) {
 		throw new Error(`Cannot use \`output: 'server'\` without an adapter.
 Install and configure the appropriate server adapter for your final deployment.
-Example:
+Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 
-  // astro.config.js
+  // Example: astro.config.js
   import netlify from '@astrojs/netlify';
   export default {
     output: 'server',

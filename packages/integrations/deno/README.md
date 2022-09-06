@@ -2,6 +2,8 @@
 
 This adapter allows Astro to deploy your SSR site to Deno targets.
 
+Learn how to deploy your Astro site in our [Deno Deploy deployment guide](https://docs.astro.build/en/guides/deploy/deno/).
+
 - <strong>[Why Astro Deno](#why-astro-deno)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>

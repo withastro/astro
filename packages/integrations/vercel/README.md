@@ -2,6 +2,8 @@
 
 This adapter allows Astro to deploy your SSR site to [Vercel](https://www.vercel.com/).
 
+Learn how to deploy your Astro site in our [Vercel deployment guide](https://docs.astro.build/en/guides/deploy/vercel/).
+
 - <strong>[Why Astro Vercel](#why-astro-vercel)</strong>
 - <strong>[Installation](#installation)</strong>
 - <strong>[Usage](#usage)</strong>
