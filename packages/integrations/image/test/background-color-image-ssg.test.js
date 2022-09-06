@@ -73,7 +73,7 @@ describe('SSG image with background - build', function () {
 	async function verifyImage(pathname, expectedBg) {
 		const url = new URL('./fixtures/background-color-image/dist/' + pathname, import.meta.url);
 		const dist = fileURLToPath(url);
-		const { data } = await sharp(dist).raw().toBuffer(/*{ resolveWithObject: true }*/);
+		const data = await sharp(dist).raw().toBuffer();
 		// check that the first RGB pixel indeed has the requested background color
 		expect(data[0]).to.equal(expectedBg[0]);
 		expect(data[1]).to.equal(expectedBg[1]);

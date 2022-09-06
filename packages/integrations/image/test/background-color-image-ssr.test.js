@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import sharp from 'sharp';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
@@ -16,43 +15,63 @@ describe('SSR image with background', function () {
 		await fixture.build();
 	});
 
-	async function verifyImage(pathname, expectedBg) {
-		const url = new URL('./fixtures/background-color-image/dist/' + pathname, import.meta.url);
-		const dist = fileURLToPath(url);
-		const { data } = await sharp(dist).raw().toBuffer(/*{ resolveWithObject: true }*/);
-		// check that the first RGB pixel indeed has the requested background color
-		expect(data[0]).to.equal(expectedBg[0]);
-		expect(data[1]).to.equal(expectedBg[1]);
-		expect(data[2]).to.equal(expectedBg[2]);
-	}
-
 	[
 		{
 			title: 'Named color',
 			id: '#named',
-			bg: [105, 105, 105],
+			query: {
+				f: 'jpeg',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: 'dimgray',
+			},
 		},
 		{
 			title: 'Hex color',
 			id: '#hex',
-			bg: [105, 105, 105],
+			query: {
+				f: 'avif',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: '#696969',
+			},
 		},
 		{
 			title: 'Hex color short',
 			id: '#hex-short',
-			bg: [102, 102, 102],
+			query: {
+				f: 'png',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: '#666',
+			},
 		},
 		{
 			title: 'RGB color',
 			id: '#rgb',
-			bg: [105, 105, 105],
+			query: {
+				f: 'webp',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: 'rgb(105,105,105)',
+			},
 		},
 		{
 			title: 'RGB color with spaces',
 			id: '#rgb-spaced',
-			bg: [105, 105, 105],
+			query: {
+				f: 'jpeg',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: 'rgb(105, 105, 105)',
+			},
 		},
-	].forEach(({ title, id, bg }) => {
+	].forEach(({ title, id, query }) => {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
 
@@ -63,7 +82,17 @@ describe('SSR image with background', function () {
 
 			const image = $(id);
 			const src = image.attr('src');
-			//await verifyImage(src, bg);
+			const [_, params] = src.split('?');
+
+			const searchParams = new URLSearchParams(params);
+
+			for (const [key, value] of Object.entries(query)) {
+				if (typeof value === 'string') {
+					expect(searchParams.get(key)).to.equal(value);
+				} else {
+					expect(searchParams.get(key)).to.match(value);
+				}
+			}
 		});
 	});
 });
