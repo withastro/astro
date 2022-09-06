@@ -16,8 +16,6 @@ class SharpService implements SSRImageService {
 			position,
 			background,
 			kernel,
-			withoutEnlargement,
-			withoutReduction,
 			...rest
 		} = transform;
 
@@ -65,14 +63,6 @@ class SharpService implements SSRImageService {
 
 		if (transform.kernel) {
 			searchParams.append('k', encodeURI(transform.kernel));
-		}
-
-		if (transform.withoutEnlargement) {
-			searchParams.append('we', '1');
-		}
-
-		if (transform.withoutReduction) {
-			searchParams.set('wr', '1');
 		}
 
 		return { searchParams };
@@ -126,14 +116,6 @@ class SharpService implements SSRImageService {
 			transform.kernel = searchParams.get('k')! as typeof transform.kernel;
 		}
 
-		if (searchParams.has('we')) {
-			transform.withoutEnlargement = searchParams.get('we') === '1';
-		}
-
-		if (searchParams.has('wr')) {
-			transform.withoutReduction = searchParams.get('wr') === '1';
-		}
-
 		return transform;
 	}
 
@@ -154,8 +136,6 @@ class SharpService implements SSRImageService {
 				position: transform.position,
 				background: transform.background,
 				kernel: transform.kernel,
-				withoutEnlargement: transform.withoutEnlargement,
-				withoutReduction: transform.withoutReduction,
 			});
 		}
 

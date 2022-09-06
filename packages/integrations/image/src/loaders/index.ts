@@ -126,20 +126,6 @@ export interface TransformOptions {
 	 * @default 'lanczos3'
 	 */
 	kernel?: CropKernel;
-	/**
-	 * Prevent enlarging if the image's width or height are already less than
-	 * the specified dimensions.
-	 *
-	 * @default false
-	 */
-	withoutEnlargement?: boolean;
-	/**
-	 * Prevent reducing if the image's width or height are already greater than
-	 * the specified dimensions.
-	 *
-	 * @default false
-	 */
-	withoutReduction?: boolean;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
