@@ -364,13 +364,16 @@ describe('CSS', function () {
 
 			let foundVitePreloadCSS = false;
 			const bundledJS = await fixture.glob('**/*.?(m)js');
-			for(const filename of bundledJS) {
+			for (const filename of bundledJS) {
 				const content = await fixture.readFile(filename);
-				if(content.match(/ReactDynamic\..*\.css/)) {
+				if (content.match(/ReactDynamic\..*\.css/)) {
 					foundVitePreloadCSS = filename;
 				}
 			}
-			expect(foundVitePreloadCSS).to.equal(false, 'Should not have found a preload for the dynamic CSS');
+			expect(foundVitePreloadCSS).to.equal(
+				false,
+				'Should not have found a preload for the dynamic CSS'
+			);
 		});
 	});
 });
