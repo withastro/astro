@@ -1,4 +1,4 @@
-import { htmlColorNames } from './colornames.js';
+import { type NamedColor, htmlColorNames } from './colornames.js';
 
 /// <reference types="astro/astro-jsx" />
 export type InputFormat =
@@ -16,7 +16,7 @@ export type OutputFormatSupportsAlpha = 'avif' | 'png' | 'webp';
 export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg';
 
 export type ColorDefinition =
-	| string
+	| NamedColor
 	| `#${string}`
 	| `rgb(${number}, ${number}, ${number})`
 	| `rgb(${number},${number},${number})`;
@@ -35,7 +35,7 @@ export function isAspectRatioString(value: string): value is `${number}:${number
 
 export function isColor(value: string): value is ColorDefinition {
 	return (
-		htmlColorNames.includes(value.toLowerCase()) ||
+		(htmlColorNames as string[]).includes(value.toLowerCase()) ||
 		/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(value) ||
 		/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i.test(value)
 	);

@@ -57,7 +57,7 @@ describe('SSG image with background - dev', function () {
 	});
 });
 
-describe.skip('SSG image with background - build', function () {
+describe('SSG image with background - build', function () {
 	let fixture;
 	let $;
 	let html;
@@ -69,6 +69,16 @@ describe.skip('SSG image with background - build', function () {
 		html = await fixture.readFile('/index.html');
 		$ = cheerio.load(html);
 	});
+
+	async function verifyImage(pathname, expectedBg) {
+		const url = new URL('./fixtures/background-color-image/dist/' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
+		const { data } = await sharp(dist).raw().toBuffer(/*{ resolveWithObject: true }*/);
+		// check that the first RGB pixel indeed has the requested background color
+		expect(data[0]).to.equal(expectedBg[0]);
+		expect(data[1]).to.equal(expectedBg[1]);
+		expect(data[2]).to.equal(expectedBg[2]);
+	}
 
 	[
 		{
@@ -100,12 +110,7 @@ describe.skip('SSG image with background - build', function () {
 		it(title, async () => {
 			const image = $(id);
 			const src = image.attr('src');
-			const url = new URL('./fixtures/background-color-image/dist/' + src, import.meta.url);
-			const dist = fileURLToPath(url);
-			const { data } = await sharp(dist).raw().toBuffer({ resolveWithObject: true });
-			expect(data[0]).to.equal(bg[0]);
-			expect(data[1]).to.equal(bg[1]);
-			expect(data[2]).to.equal(bg[2]);
+			await verifyImage(src, bg);
 		});
 	});
 });

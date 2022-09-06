@@ -1,10 +1,5 @@
 import sharp from 'sharp';
-import {
-	isAspectRatioString,
-	isColor,
-	isOutputFormat,
-	isOutputFormatSupportsAlpha,
-} from '../loaders/index.js';
+import { isAspectRatioString, isColor, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
@@ -103,12 +98,8 @@ class SharpService implements SSRImageService {
 			sharpImage.resize(width, height);
 		}
 
-		// remove alpha channel if output format doesn't support transparency and background color was specified
-		if (
-			transform.format &&
-			!isOutputFormatSupportsAlpha(transform.format) &&
-			transform.background
-		) {
+		// remove alpha channel and replace with background color if requested
+		if (transform.background) {
 			sharpImage.flatten({ background: transform.background });
 		}
 
