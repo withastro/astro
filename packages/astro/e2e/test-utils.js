@@ -46,6 +46,5 @@ export async function getErrorOverlayMessage(page) {
  * @returns {Promise<string>}
  */
 export async function getColor(el) {
-	const rgb = await el.evaluate((el) => getComputedStyle(el).color);
-	return rgb;
+	return await el.evaluate((e) => getComputedStyle(e).color);
 }
