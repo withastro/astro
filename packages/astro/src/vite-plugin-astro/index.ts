@@ -8,7 +8,7 @@ import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
+import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
@@ -257,8 +257,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
-						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
+						SUFFIX += `import "${
+							isRelativePath(id) ? id : prependForwardSlash(id)
+						}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
 				}

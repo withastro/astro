@@ -22,6 +22,7 @@ export async function handleHotUpdate(
 	ctx: HmrContext,
 	{ config, logging, compile }: HandleHotUpdateOptions
 ) {
+	const importedModules = ctx.server.moduleGraph.getModuleById(ctx.file)?.importedModules ?? [];
 	let isStyleOnlyChange = false;
 	if (ctx.file.endsWith('.astro')) {
 		// Get the compiled result from the cache
@@ -54,9 +55,9 @@ export async function handleHotUpdate(
 
 	// go through each of these modules importers and invalidate any .astro compilation
 	// that needs to be rerun.
-	const filtered = new Set<ModuleNode>(ctx.modules);
+	const filtered = new Set<ModuleNode>(importedModules);
 	const files = new Set<string>();
-	for (const mod of ctx.modules) {
+	for (const mod of importedModules) {
 		// Skip monorepo files to avoid console spam
 		if (isPkgFile(mod.id ?? mod.file)) {
 			filtered.delete(mod);
