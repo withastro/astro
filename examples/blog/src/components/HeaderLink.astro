@@ -1,8 +1,19 @@
 ---
 export interface Props extends astroHTML.JSX.AnchorHTMLAttributes {}
 
+const removeTrailingSlash = (str: string): string => {
+  if (str.charAt(str.length - 1) === "/") {
+    return str.slice(0, -1);
+  } else {
+    return str;
+  }
+};
+
 const { href, class: className, ...props } = Astro.props;
-const isActive = href === Astro.url.pathname;
+const isActive =
+  typeof href === "string" &&
+  removeTrailingSlash(href) === removeTrailingSlash(Astro.url.pathname);
+
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}>
