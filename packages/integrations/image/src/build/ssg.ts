@@ -7,6 +7,8 @@ import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
+import OS from 'node:os';
+import { doWork } from '@altano/tiny-async-pool';
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -23,19 +25,26 @@ export interface SSGBuildParams {
 
 export async function ssgBuild({ loader, staticImages, config, outDir, logLevel }: SSGBuildParams) {
 	const timer = performance.now();
+	const cpuCount = OS.cpus().length;
 
 	info({
 		level: logLevel,
 		prefix: false,
 		message: `${bgGreen(
-			black(` optimizing ${staticImages.size} image${staticImages.size > 1 ? 's' : ''} `)
+			black(
+				` optimizing ${staticImages.size} image${
+					staticImages.size > 1 ? 's' : ''
+				} in batches of ${cpuCount} `
+			)
 		)}`,
 	});
 
 	const inputFiles = new Set<string>();
 
-	// process transforms one original image file at a time
-	for (let [src, transformsMap] of staticImages) {
+	async function processStaticImage([src, transformsMap]: [
+		string,
+		Map<string, TransformOptions>
+	]): Promise<void> {
 		let inputFile: string | undefined = undefined;
 		let inputBuffer: Buffer | undefined = undefined;
 
@@ -60,15 +69,15 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 		if (!inputBuffer) {
 			// eslint-disable-next-line no-console
 			warn({ level: logLevel, message: `"${src}" image could not be fetched` });
-			continue;
+			return;
 		}
 
 		const transforms = Array.from(transformsMap.entries());
 
-		debug({ level: logLevel, prefix: false, message: `${green('▶')} ${src}` });
+		debug({ level: logLevel, prefix: false, message: `${green('▶')} transforming ${src}` });
 		let timeStart = performance.now();
 
-		// process each transformed versiono of the
+		// process each transformed version
 		for (const [filename, transform] of transforms) {
 			timeStart = performance.now();
 			let outputFile: string;
@@ -92,10 +101,13 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 			debug({
 				level: logLevel,
 				prefix: false,
-				message: `  ${cyan('└─')} ${dim(pathRelative)} ${dim(timeIncrease)}`,
+				message: `  ${cyan('created')} ${dim(pathRelative)} ${dim(timeIncrease)}`,
 			});
 		}
 	}
+
+	// transform each original image file in batches
+	await doWork(cpuCount, staticImages, processStaticImage);
 
 	info({
 		level: logLevel,
