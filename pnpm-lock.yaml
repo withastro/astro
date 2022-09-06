@@ -972,14 +972,6 @@ importers:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
-  packages/astro/e2e/fixtures/third-party-astro:
-    specifiers:
-      astro: workspace:*
-      astro-embed: ^0.1.1
-    dependencies:
-      astro: link:../../..
-      astro-embed: 0.1.1_astro@packages+astro
-
   packages/astro/e2e/fixtures/ts-resolution:
     specifiers:
       '@astrojs/react': workspace:*
