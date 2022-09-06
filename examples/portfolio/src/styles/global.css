@@ -1,6 +1,6 @@
-// Tokens
+/* Global variables */
 :root {
-	// (c)olor
+	/* Colors */
 	--c-black: #05091e;
 	--c-blue: #46b4ff;
 	--c-gray: #90aab7;
@@ -10,7 +10,7 @@
 	--c-yellow: #ffdace;
 	--c-white: #fff;
 
-	// (f)ont
+	/* Fonts */
 	--f-u18: 11.390625em;
 	--f-u17: 9.950627481136905em;
 	--f-u16: 8.692673779389363em;
@@ -48,14 +48,11 @@
 	--f-d17: 0.10049617492923625em;
 	--f-d18: 0.0877914951989026em;
 
-	// (t)heme
 	--t-fg: var(--c-black);
 	--t-bg: var(--c-white);
 	--t-subdue: var(--c-gray);
 	--t-active: var(--c-blue);
 }
-
-// Base
 
 body {
 	margin: 0;
@@ -80,77 +77,14 @@ h1 {
 	font-size: var(--f-u8);
 }
 
-// Utils
-
-// color
-$colors: 'black', 'blue', 'white';
-@each $color in $colors {
-	// text color
-	.tc-#{$color} {
-		color: var(--c-#{color});
-	}
-	// background color
-	.bg-#{$color} {
-		background-color: var(--c-#{color});
-	}
+.button {
+	display: inline-block;
+	border: 3px solid currentColor;
+	padding: 0.5em 1em;
+	font-weight: 700;
+	text-transform: uppercase;
 }
 
-// font size
-@for $i from 0 through 18 {
-	.f-u#{$i} {
-		font-size: var(--f-u#{$i});
-	}
-	.f-d#{$i} {
-		font-size: var(--f-d#{$i});
-	}
-}
-
-// margin & padding
-@for $i from 0 through 36 {
-	.ma#{$i} {
-		margin: #{0.5 * $i}rem;
-	}
-	.mt#{$i} {
-		margin-top: #{0.5 * $i}rem;
-	}
-	.mr#{$i} {
-		margin-right: #{0.5 * $i}rem;
-	}
-	.mb#{$i} {
-		margin-bottom: #{0.5 * $i}rem;
-	}
-	.ml#{$i} {
-		margin-left: #{0.5 * $i}rem;
-	}
-	.pa#{$i} {
-		padding: #{0.5 * $i}rem;
-	}
-	.pt#{$i} {
-		padding-top: #{0.5 * $i}rem;
-	}
-	.pr#{$i} {
-		padding-right: #{0.5 * $i}rem;
-	}
-	.pb#{$i} {
-		padding-bottom: #{0.5 * $i}rem;
-	}
-	.pl#{$i} {
-		padding-left: #{0.5 * $i}rem;
-	}
-}
-
-// text align
-.tac {
-	text-align: center;
-}
-.tal {
-	text-align: left;
-}
-.tar {
-	text-align: right;
-}
-
-// wrapper
 .wrapper {
 	max-width: 80em;
 	margin-left: auto;
@@ -158,6 +92,4 @@ $colors: 'black', 'blue', 'white';
 	padding-left: 2rem;
 	padding-right: 2rem;
 }
-.wrapper__readable {
-	max-width: 50em;
-}
+
