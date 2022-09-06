@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4639](https://github.com/withastro/astro/pull/4639) [`f08ca005e`](https://github.com/withastro/astro/commit/f08ca005e28cc7d279535680d5b44495877aa7b6) Thanks [@matthewp](https://github.com/matthewp)! - Mark vueperslides as a default noExternal
+
 ## 1.0.0
 
 ### Major Changes
