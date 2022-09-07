@@ -698,12 +698,14 @@ importers:
 
   packages/astro/e2e/fixtures/namespaced-component:
     specifiers:
+      '@astrojs/mdx': workspace:*
       '@astrojs/preact': workspace:*
       astro: workspace:*
       preact: ^10.7.3
     dependencies:
       preact: 10.10.6
     devDependencies:
+      '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
 
