@@ -79,7 +79,7 @@ export async function renderPage(
 										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 									}
 								}
-								controller.enqueue(encoder.encode(html));
+								controller.enqueue(encoder.encode(String(html)));
 								i++;
 							}
 							controller.close();
