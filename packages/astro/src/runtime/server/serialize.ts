@@ -1,6 +1,4 @@
-import type {
-	AstroComponentMetadata,
-} from '../../@types/astro';
+import type { AstroComponentMetadata } from '../../@types/astro';
 
 type ValueOf<T> = T[keyof T];
 
@@ -19,11 +17,14 @@ function serializeArray(value: any[], metadata: AstroComponentMetadata): any[] {
 	return value.map((v) => convertToSerializedForm(v, metadata));
 }
 
-function serializeObject(value: Record<any, any>, metadata: AstroComponentMetadata): Record<any, any> {
+function serializeObject(
+	value: Record<any, any>,
+	metadata: AstroComponentMetadata
+): Record<any, any> {
 	if (cyclicRefs.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
 
-Cyclic references cannot be safely serialized for client-side usage. Please remove the cyclic reference.`)
+Cyclic references cannot be safely serialized for client-side usage. Please remove the cyclic reference.`);
 	}
 	cyclicRefs.add(value);
 	return Object.fromEntries(
@@ -33,7 +34,10 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 	);
 }
 
-function convertToSerializedForm(value: any, metadata: AstroComponentMetadata): [ValueOf<typeof PROP_TYPE>, any] {
+function convertToSerializedForm(
+	value: any,
+	metadata: AstroComponentMetadata
+): [ValueOf<typeof PROP_TYPE>, any] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
 		case '[object Date]': {
@@ -43,10 +47,16 @@ function convertToSerializedForm(value: any, metadata: AstroComponentMetadata): 
 			return [PROP_TYPE.RegExp, (value as RegExp).source];
 		}
 		case '[object Map]': {
-			return [PROP_TYPE.Map, JSON.stringify(serializeArray(Array.from(value as Map<any, any>), metadata))];
+			return [
+				PROP_TYPE.Map,
+				JSON.stringify(serializeArray(Array.from(value as Map<any, any>), metadata)),
+			];
 		}
 		case '[object Set]': {
-			return [PROP_TYPE.Set, JSON.stringify(serializeArray(Array.from(value as Set<any>), metadata))];
+			return [
+				PROP_TYPE.Set,
+				JSON.stringify(serializeArray(Array.from(value as Set<any>), metadata)),
+			];
 		}
 		case '[object BigInt]': {
 			return [PROP_TYPE.BigInt, (value as bigint).toString()];
