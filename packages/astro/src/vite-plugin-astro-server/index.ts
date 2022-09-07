@@ -281,29 +281,38 @@ async function handleRequest(
 		body = Buffer.concat(bytes);
 	}
 
-	const matchedRoute = await matchRoute(
-		pathname,
-		routeCache,
-		viteServer,
-		logging,
-		manifest,
-		config
-	);
-
-	return handleRoute(
-		matchedRoute,
-		url,
-		pathname,
-		body,
-		origin,
-		routeCache,
-		viteServer,
-		manifest,
-		logging,
-		config,
-		req,
-		res
-	)
+	let filePath: URL | undefined;
+	try {
+		const matchedRoute = await matchRoute(
+			pathname,
+			routeCache,
+			viteServer,
+			logging,
+			manifest,
+			config
+		);
+		filePath = matchedRoute?.filePath;
+	
+		return handleRoute(
+			matchedRoute,
+			url,
+			pathname,
+			body,
+			origin,
+			routeCache,
+			viteServer,
+			manifest,
+			logging,
+			config,
+			req,
+			res
+		)
+	} catch(_err) {
+		const err = fixViteErrorMessage(_err, viteServer, filePath);
+		const errorWithMetadata = collectErrorMetadata(err);
+		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
+		handle500Response(viteServer, origin, req, res, errorWithMetadata);
+	}
 }
 
 async function handleRoute(
@@ -320,102 +329,96 @@ async function handleRoute(
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ): Promise<void> {
-	let filePath: URL | undefined;
-	try {
-		if (!matchedRoute) {
-			return handle404Response(origin, config, req, res);
-		}
+	
 
-		filePath = matchedRoute.filePath;
-		const { route, preloadedComponent, mod } = matchedRoute;
-		const buildingToSSR = config.output === 'server';
+	if (!matchedRoute) {
+		return handle404Response(origin, config, req, res);
+	}
 
-		// Headers are only available when using SSR.
-		const request = createRequest({
-			url,
-			headers: buildingToSSR ? req.headers : new Headers(),
-			method: req.method,
-			body,
-			logging,
-			ssr: buildingToSSR,
-			clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
-		});
+	const filePath: URL | undefined = matchedRoute.filePath;
+	const { route, preloadedComponent, mod } = matchedRoute;
+	const buildingToSSR = config.output === 'server';
 
-		// attempt to get static paths
-		// if this fails, we have a bad URL match!
-		const paramsAndPropsRes = await getParamsAndProps({
-			mod,
-			route,
-			routeCache,
-			pathname: pathname,
-			logging,
-			ssr: config.output === 'server',
-		});
+	// Headers are only available when using SSR.
+	const request = createRequest({
+		url,
+		headers: buildingToSSR ? req.headers : new Headers(),
+		method: req.method,
+		body,
+		logging,
+		ssr: buildingToSSR,
+		clientAddress: buildingToSSR ? req.socket.remoteAddress : undefined,
+	});
 
-		const options: SSROptions = {
-			astroConfig: config,
-			filePath,
-			logging,
-			mode: 'development',
-			origin,
-			pathname: pathname,
-			route,
-			routeCache,
-			viteServer,
-			request,
-		};
+	// attempt to get static paths
+	// if this fails, we have a bad URL match!
+	const paramsAndPropsRes = await getParamsAndProps({
+		mod,
+		route,
+		routeCache,
+		pathname: pathname,
+		logging,
+		ssr: config.output === 'server',
+	});
 
-		// Route successfully matched! Render it.
-		if (route.type === 'endpoint') {
-			const result = await callEndpoint(options);
-			if (result.type === 'response') {
-				if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-					const fourOhFourRoute = await matchRoute(
-						'/404',
-						routeCache,
-						viteServer,
-						logging,
-						manifest,
-						config
-					);
-					return handleRoute(
-						fourOhFourRoute,
-						new URL('/404', url),
-						'/404',
-						body,
-						origin,
-						routeCache,
-						viteServer,
-						manifest,
-						logging,
-						config,
-						req,
-						res
-					);
-				}
-				await writeWebResponse(res, result.response);
-			} else {
-				let contentType = 'text/plain';
-				// Dynamic routes don’t include `route.pathname`, so synthesise a path for these (e.g. 'src/pages/[slug].svg')
-				const filepath =
-					route.pathname ||
-					route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
-				const computedMimeType = mime.getType(filepath);
-				if (computedMimeType) {
-					contentType = computedMimeType;
-				}
-				res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
-				res.end(result.body);
+	const options: SSROptions = {
+		astroConfig: config,
+		filePath,
+		logging,
+		mode: 'development',
+		origin,
+		pathname: pathname,
+		route,
+		routeCache,
+		viteServer,
+		request,
+	};
+
+	// Route successfully matched! Render it.
+	if (route.type === 'endpoint') {
+		const result = await callEndpoint(options);
+		if (result.type === 'response') {
+			if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
+				const fourOhFourRoute = await matchRoute(
+					'/404',
+					routeCache,
+					viteServer,
+					logging,
+					manifest,
+					config
+				);
+				return handleRoute(
+					fourOhFourRoute,
+					new URL('/404', url),
+					'/404',
+					body,
+					origin,
+					routeCache,
+					viteServer,
+					manifest,
+					logging,
+					config,
+					req,
+					res
+				);
 			}
+			await writeWebResponse(res, result.response);
 		} else {
-			const result = await ssr(preloadedComponent, options);
-			return await writeSSRResult(result, res);
+			let contentType = 'text/plain';
+			// Dynamic routes don’t include `route.pathname`, so synthesise a path for these (e.g. 'src/pages/[slug].svg')
+			const filepath =
+				route.pathname ||
+				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');
+			const computedMimeType = mime.getType(filepath);
+			if (computedMimeType) {
+				contentType = computedMimeType;
+			}
+			res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
+			res.end(result.body);
 		}
-	} catch (_err) {
-		const err = fixViteErrorMessage(_err, viteServer, filePath);
-		const errorWithMetadata = collectErrorMetadata(err);
-		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
-		handle500Response(viteServer, origin, req, res, errorWithMetadata);
+	} else {
+		const result = await ssr(preloadedComponent, options);
+		return await writeSSRResult(result, res);
 	}
 }
 
