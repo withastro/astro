@@ -80,6 +80,20 @@ describe('SSR pictures - dev', function () {
 			contentType: 'image/jpeg',
 			alt: 'Hero image',
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'png',
+				w: '544',
+				h: '184',
+				bg: 'rgb(51, 51, 51)',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+			contentType: 'image/png',
+			alt: 'Google logo',
+		},
 	].forEach(({ title, id, url, query, alt, contentType }) => {
 		it(title, async () => {
 			const sources = $(`${id} source`);

@@ -10,6 +10,7 @@ export interface GetPictureParams {
 	widths: number[];
 	formats: OutputFormat[];
 	aspectRatio?: TransformOptions['aspectRatio'];
+	background?: TransformOptions['background'];
 }
 
 export interface GetPictureResult {
@@ -64,6 +65,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					format,
 					width,
 					height: Math.round(width / aspectRatio!),
+					background: params.background,
 				});
 				return `${img.src} ${width}w`;
 			})
@@ -83,6 +85,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		width: Math.max(...widths),
 		aspectRatio,
 		format: allFormats[allFormats.length - 1],
+		background: params.background,
 	});
 
 	const sources = await Promise.all(allFormats.map((format) => getSource(format)));
