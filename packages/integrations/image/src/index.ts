@@ -1,9 +1,12 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { ssgBuild } from './build/ssg.js';
 import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
+import { copyLibFiles } from './vendor/squoosh/main.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
@@ -101,6 +104,8 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
+				await copyLibFiles(dir);
+
 				if (_config.output === 'static') {
 					// for SSG builds, build all requested image transforms to dist
 					const loader = globalThis?.astroImage?.loader;

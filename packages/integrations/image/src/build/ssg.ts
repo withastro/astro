@@ -9,6 +9,7 @@ import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
+import { processBuffer } from '../vendor/squoosh/main.js';
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;

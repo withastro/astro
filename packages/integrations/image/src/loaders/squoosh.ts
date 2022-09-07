@@ -1,15 +1,14 @@
 // @ts-ignore
-import { ImagePool } from '@squoosh/lib';
 import { red } from 'kleur/colors';
 import { BaseSSRService } from './index.js';
 import { error } from '../utils/logger.js';
 import { metadata } from '../utils/metadata.js';
-import type { OutputFormat, TransformOptions } from './index.js';
 import { isRemoteImage } from '../utils/paths.js';
+import type { OutputFormat, TransformOptions } from './index.js';
+import { processBuffer } from '../vendor/squoosh/main.js';
+import type { Operation } from '../vendor/squoosh/main.js';
 
 class SquooshService extends BaseSSRService {
-	#imagePool = new ImagePool();
-
 	async processAvif(image: any, transform: TransformOptions) {
 		const encodeOptions = transform.quality
 			? { avif: { quality: transform.quality } }
@@ -59,67 +58,61 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async autorotate(image: any, transform: TransformOptions, inputBuffer: Buffer) {
+	async autorotate(transform: TransformOptions, inputBuffer: Buffer): Promise<Operation | undefined> {
 		// check EXIF orientation data and rotate the image if needed
-		const meta = await metadata(transform.src, inputBuffer);
+		try {
+			const meta = await metadata(transform.src, inputBuffer);
 
-		switch (meta?.orientation) {
-			case 3:
-			case 4:
-				await image.preprocess({ rotate: { numRotations: 2 } });
-				break;
-			case 5:
-			case 6:
-				await image.preprocess({ rotate: { numRotations: 1 } });
-				break;
-			case 7:
-			case 8:
-				await image.preprocess({ rotate: { numRotations: 3 } });
-				break;
-		}
+			switch (meta?.orientation) {
+				case 3:
+				case 4:
+					return { type: 'rotate', numRotations: 2 };
+				case 5:
+				case 6:
+					return { type: 'rotate', numRotations: 1 };
+				case 7:
+				case 8:
+					return { type: 'rotate', numRotations: 3 };
+			}
+		} catch { }
 	}
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
-		const image = this.#imagePool.ingestImage(inputBuffer);
-
-		let preprocessOptions: any = {};
+		const operations: Operation[] = [];
 
 		if (!isRemoteImage(transform.src)) {
-			try {
-				// Image files lie! Rotate the image based on EXIF data
-				await this.autorotate(image, transform, inputBuffer);
-			} catch { }
+			const autorotate = await this.autorotate(transform, inputBuffer)
+			
+			if (autorotate) {
+				operations.push(autorotate);
+			}
 		}
 
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
 
-			preprocessOptions.resize = {
+			operations.push({
+				type: 'resize',
 				width,
 				height,
-			};
-
-			await image.preprocess({ resize: { width, height } });
+			})
 		}
 
-		switch (transform.format) {
-			case 'avif':
-				return await this.processAvif(image, transform);
-			case 'jpg':
-			case 'jpeg':
-				return await this.processJpeg(image, transform);
-			case 'png':
-				return await this.processPng(image, transform);
-			case 'webp':
-				return await this.processWebp(image, transform);
-			default:
-				error({
-					level: 'info',
-					prefix: false,
-					message: red(`Unknown image output: "${transform.format}" used for ${transform.src}`),
-				});
-				throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
+		if (!transform.format) {
+			error({
+				level: 'info',
+				prefix: false,
+				message: red(`Unknown image output: "${transform.format}" used for ${transform.src}`),
+			});
+			throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
+		}
+
+		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality || 100);
+
+		return {
+			data,
+			format: transform.format
 		}
 	}
 }
