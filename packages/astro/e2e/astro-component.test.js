@@ -57,4 +57,26 @@ test.describe('Astro component HMR', () => {
 
 		await updatedLog;
 	});
+
+	test('inline scripts', async ({ page, astro }) => {
+		const initialLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, inline Astro!'
+		);
+
+		await page.goto(astro.resolveUrl('/'));
+		await initialLog;
+
+		const updatedLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, updated inline Astro!'
+		);
+
+		// Edit the inline script on the page
+		await astro.editFile('./src/pages/index.astro', (content) =>
+			content.replace('Hello, inline Astro!', 'Hello, updated inline Astro!')
+		);
+
+		await updatedLog;
+	});
 });
