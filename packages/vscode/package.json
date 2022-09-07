@@ -23,7 +23,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.23.3",
+  "version": "0.24.0",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -47,13 +47,13 @@
     "workspaceContains:astro.config.*"
   ],
   "dependencies": {
-    "@astrojs/ts-plugin": "0.2.1",
+    "@astrojs/ts-plugin": "0.3.0",
     "prettier": "^2.7.1",
     "prettier-plugin-astro": "^0.5.4"
   },
   "devDependencies": {
     "esbuild-plugin-copy": "^1.3.0",
-    "@astrojs/language-server": "0.23.3",
+    "@astrojs/language-server": "0.24.0",
     "@types/vscode": "^1.67.0",
     "@vscode/test-electron": "^2.1.3",
     "path-browserify": "^1.0.1",

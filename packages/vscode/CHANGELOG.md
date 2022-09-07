@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 0.24.0
+
+### Minor Changes
+
+- b66ae70: Update the VS Code extension to use a bundled version of the language server for better performance and compatibility with running the extension in the web
+- 5a583d3: TypeScript will now be loaded from VS Code / the workspace instead of being bundled inside the language server
+
+### Patch Changes
+
+- Updated dependencies [b66ae70]
+  - @astrojs/ts-plugin@0.3.0
+
 ## 0.23.3
 
 ### Patch Changes

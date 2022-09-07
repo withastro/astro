@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.3.0
+
+### Minor Changes
+
+- b66ae70: Update the VS Code extension to use a bundled version of the language server for better performance and compatibility with running the extension in the web
+
 ## 0.2.1
 
 ### Patch Changes
