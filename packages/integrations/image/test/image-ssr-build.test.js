@@ -46,6 +46,16 @@ describe('SSR images - build', async function () {
 			},
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+		},
+		{
 			title: 'Remote images with search',
 			id: '#query',
 			url: '/_image',
@@ -137,6 +147,16 @@ describe('SSR images with subpath - build', function () {
 				w: '544',
 				h: '184',
 				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
 			},
 		},
 		{

@@ -201,6 +201,13 @@ describe('SSG pictures - build', function () {
 			alt: 'Google logo',
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
+			alt: 'ipsum',
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			regex: /^\/hero_\w{4,10}.jpg/,
@@ -287,6 +294,13 @@ describe('SSG pictures with subpath - build', function () {
 			regex: /^\/docs\/googlelogo_color_272x92dp_\w{4,10}.png/,
 			size: { width: 544, height: 184, type: 'png' },
 			alt: 'Google logo',
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/docs\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
+			alt: 'ipsum',
 		},
 		{
 			title: 'Public images',
