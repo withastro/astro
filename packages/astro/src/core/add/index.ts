@@ -579,7 +579,7 @@ async function tryToInstallIntegrations({
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${
 			installCommand.command
-		} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
+		}${['', ...installCommand.flags].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, {
 			margin: 0.5,
 			padding: 0.5,
