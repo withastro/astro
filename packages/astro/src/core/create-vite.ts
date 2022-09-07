@@ -243,7 +243,7 @@ class DependencyWalker {
 
 					dir = parentDir;
 				}
-			} catch (e) {
+			} catch {
 				// Give up! Who knows where the `package.json` is…
 			}
 		}
