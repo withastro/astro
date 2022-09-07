@@ -16,12 +16,14 @@ To install `@astrojs/react`, run the following from your project directory and f
 
 ```sh
 # Using NPM
-npm run astro add react
+npx astro add react
 # Using Yarn
 yarn astro add react
 # Using PNPM
 pnpm astro add react
 ```
+
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 

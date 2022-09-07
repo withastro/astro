@@ -16,12 +16,14 @@ To install `@astrojs/lit`, run the following from your project directory and fol
 
 ```sh
 # Using NPM
-npm run astro add lit
+npx astro add lit
 # Using Yarn
 yarn astro add lit
 # Using PNPM
 pnpm astro add lit
 ```
+
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
