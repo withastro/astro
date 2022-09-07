@@ -58,8 +58,8 @@ async function preloadHref(link: HTMLAnchorElement) {
 			styles
 				.filter((el) => !loadedStyles.has(el.href))
 				.map((el) => {
-					fetch(el.href);
 					loadedStyles.add(el.href);
+					return fetch(el.href);
 				})
 		);
 	} catch {}
