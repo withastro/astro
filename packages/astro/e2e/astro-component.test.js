@@ -36,10 +36,7 @@ test.describe('Astro component HMR', () => {
 		);
 	});
 
-	// TODO: Re-enable this test on windows when #3424 is fixed
-	// https://github.com/withastro/astro/issues/3424
-	const it = os.platform() === 'win32' ? test.skip : test;
-	it('hoisted scripts', async ({ page, astro }) => {
+	test('hoisted scripts', async ({ page, astro }) => {
 		const initialLog = page.waitForEvent(
 			'console',
 			(message) => message.text() === 'Hello, Astro!'
