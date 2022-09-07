@@ -1,13 +1,22 @@
 {
   "name": "@example/component",
   "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "astro --root demo dev",
-    "build": "astro --root demo build",
-    "serve": "astro --root demo preview"
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
   },
-  "dependencies": {
+  "files": [
+    "src",
+    "index.ts"
+  ],
+  "keywords": [
+    "astro-component"
+  ],
+  "scripts": {},
+  "devDependencies": {
+    "astro": "^1.1.7"
+  },
+  "peerDependencies": {
     "astro": "^1.1.7"
   }
 }
