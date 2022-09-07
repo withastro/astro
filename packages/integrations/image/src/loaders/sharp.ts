@@ -62,7 +62,7 @@ class SharpService implements SSRImageService {
 		}
 
 		if (transform.kernel) {
-			searchParams.append('k', encodeURI(transform.kernel));
+			searchParams.append('k', transform.kernel);
 		}
 
 		return { searchParams };
