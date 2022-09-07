@@ -75,19 +75,8 @@ importers:
   examples/component:
     specifiers:
       astro: ^1.1.7
-    dependencies:
-      astro: link:../../packages/astro
-
-  examples/component/demo:
-    specifiers:
-      '@example/my-component': workspace:*
-      astro: ^1.1.7
     devDependencies:
-      '@example/my-component': link:../packages/my-component
-      astro: link:../../../packages/astro
-
-  examples/component/packages/my-component:
-    specifiers: {}
+      astro: link:../../packages/astro
 
   examples/docs:
     specifiers:
