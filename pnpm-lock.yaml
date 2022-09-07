@@ -585,6 +585,14 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/error-cyclic:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/error-react-spectrum:
     specifiers:
       '@adobe/react-spectrum': ^3.18.0
