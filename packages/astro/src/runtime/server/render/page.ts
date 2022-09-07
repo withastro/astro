@@ -79,6 +79,9 @@ export async function renderPage(
 										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 									}
 								}
+								// Convert HTML object to string
+								// for environments that won't "toString" automatically
+								// (ex. Cloudflare and Vercel Edge)
 								controller.enqueue(encoder.encode(String(html)));
 								i++;
 							}
