@@ -36,7 +36,7 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 		unique.add(extname(metadata.src).replace('.', '') as OutputFormat);
 	}
 
-	return [...unique];
+	return Array.from(unique).filter(Boolean);
 }
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {

@@ -55,6 +55,19 @@ describe('SSR pictures - dev', function () {
 			alt: 'Google logo',
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				f: 'jpg',
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+			contentType: 'image/jpeg',
+			alt: 'ipsum',
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
@@ -148,6 +161,19 @@ describe('SSR pictures with subpath - dev', function () {
 			contentType: 'image/png',
 			alt: 'Google logo',
 		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				f: 'jpg',
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+			contentType: 'image/jpeg',
+			alt: 'ipsum',
+		},,
 		{
 			title: 'Public images',
 			id: '#hero',

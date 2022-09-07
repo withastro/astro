@@ -59,6 +59,17 @@ describe('SSR images - dev', function () {
 			contentType: 'image/webp',
 		},
 		{
+			title: 'Remote wihtout file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+			contentType: 'image/jpeg',
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
@@ -148,6 +159,17 @@ describe('SSR images with subpath - dev', function () {
 				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
 			contentType: 'image/webp',
+		},
+		{
+			title: 'Remote wihtout file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+			contentType: 'image/jpeg',
 		},
 		{
 			title: 'Public images',

@@ -51,6 +51,16 @@ describe('SSG images - dev', function () {
 			},
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300'
+			}
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',
@@ -119,6 +129,17 @@ describe('SSG images with subpath - dev', function () {
 				h: '184',
 				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
 			},
+		},
+
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300'
+			}
 		},
 		{
 			title: 'Public images',
@@ -190,6 +211,12 @@ describe('SSG images - build', function () {
 			size: { width: 544, height: 184, type: 'webp' },
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			regex: /^\/hero_\w{4,10}.webp/,
@@ -252,6 +279,12 @@ describe('SSG images with subpath - build', function () {
 			id: '#google',
 			regex: /^\/docs\/googlelogo_color_272x92dp_\w{4,10}.webp/,
 			size: { width: 544, height: 184, type: 'webp' },
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/docs\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
 		},
 		{
 			title: 'Public images',
