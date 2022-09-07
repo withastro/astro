@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.5.1
+
+### Patch Changes
+
+- [#4626](https://github.com/withastro/astro/pull/4626) [`494c2b835`](https://github.com/withastro/astro/commit/494c2b8353d1975d840c5acaf70cb513b99c58e5) Thanks [@altano](https://github.com/altano)! - Parallelize image transforms
+
 ## 0.5.0
 
 ### Minor Changes

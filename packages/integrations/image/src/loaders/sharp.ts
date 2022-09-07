@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from '../loaders/index.js';
+import { ColorDefinition, isAspectRatioString, isColor, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
@@ -109,7 +109,7 @@ class SharpService implements SSRImageService {
 		}
 
 		if (searchParams.has('bg')) {
-			transform.background = searchParams.get('bg')!;
+			transform.background = searchParams.get('bg') as ColorDefinition | undefined;
 		}
 
 		if (searchParams.has('k')) {
@@ -137,6 +137,11 @@ class SharpService implements SSRImageService {
 				background: transform.background,
 				kernel: transform.kernel,
 			});
+		}
+
+		// remove alpha channel and replace with background color if requested
+		if (transform.background) {
+			sharpImage.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {

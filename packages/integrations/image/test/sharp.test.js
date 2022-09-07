@@ -14,9 +14,9 @@ describe('Sharp service', () => {
 			['width & height', { src, height: 400, width: 200 }],
 			['aspect ratio string', { src, aspectRatio: '16:9' }],
 			['aspect ratio float', { src, aspectRatio: 1.7 }],
+			['background color', { src, format: 'jpeg', background: '#333333' }],
 			['crop fit', { src, fit: 'cover' }],
 			['crop position', { src, position: 'center' }],
-			['crop background', { src, background: 'transparent' }],
 			['crop kernel', { src, kernel: 'lanczos3' }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
@@ -56,9 +56,13 @@ describe('Sharp service', () => {
 			['width & height', `w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
 			['aspect ratio string', `ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
 			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }],
+			[
+				'background color',
+				`f=jpeg&bg=%23333333&href=${href}`,
+				{ src, format: 'jpeg', background: '#333333' },
+			],
 			['crop fit', `fit=contain&href=${href}`, { src, fit: 'contain' }],
 			['crop position', `p=right%20top&href=${href}`, { src, position: 'right top' }],
-			['crop background', `bg=#f97316&href=${href}`, { src, background: '#f97316' }],
 			['crop kernel', `k=nearest&href=${href}`, { src, kernel: 'nearest' }],
 		].forEach(([description, params, expected]) => {
 			it(description, async () => {
