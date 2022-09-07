@@ -57,8 +57,8 @@ describe('SSG images - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300'
-			}
+				href: 'https://picsum.photos/200/300',
+			},
 		},
 		{
 			title: 'Public images',
@@ -138,8 +138,8 @@ describe('SSG images with subpath - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300'
-			}
+				href: 'https://picsum.photos/200/300',
+			},
 		},
 		{
 			title: 'Public images',

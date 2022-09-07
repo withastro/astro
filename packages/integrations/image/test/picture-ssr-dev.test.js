@@ -173,7 +173,8 @@ describe('SSR pictures with subpath - dev', function () {
 			},
 			contentType: 'image/jpeg',
 			alt: 'ipsum',
-		},,
+		},
+		,
 		{
 			title: 'Public images',
 			id: '#hero',
