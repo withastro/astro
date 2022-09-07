@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 1.1.0
+
+### Minor Changes
+
+- [#4515](https://github.com/withastro/astro/pull/4515) [`999250d65`](https://github.com/withastro/astro/commit/999250d651996c2833b747b84447aa4e97c91a38) Thanks [@marvinhagemeister](https://github.com/marvinhagemeister)! - Automatically set up Preact DevTools bridge when running `astro dev`.
+
 ## 1.0.2
 
 ### Patch Changes
