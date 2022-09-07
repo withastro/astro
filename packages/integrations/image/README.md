@@ -230,7 +230,7 @@ The color used to fill the background when `fit` is set to `contain`.
 
 The kernel to use for cropping.
 
-### `<Picture /`>
+### `<Picture />`
 
 #### src
 

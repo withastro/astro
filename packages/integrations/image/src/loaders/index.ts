@@ -12,28 +12,6 @@ export type InputFormat =
 
 export type OutputFormat = 'avif' | 'jpeg' | 'png' | 'webp';
 
-export function isOutputFormat(value: string): value is OutputFormat {
-	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
-}
-
-export function isAspectRatioString(value: string): value is `${number}:${number}` {
-	return /^\d*:\d*$/.test(value);
-}
-
-export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
-	if (!aspectRatio) {
-		return undefined;
-	}
-
-	// parse aspect ratio strings, if required (ex: "16:9")
-	if (typeof aspectRatio === 'number') {
-		return aspectRatio;
-	} else {
-		const [width, height] = aspectRatio.split(':');
-		return parseInt(width) / parseInt(height);
-	}
-}
-
 export type CropFit = 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
 
 export type CropPosition =
@@ -60,6 +38,28 @@ export type CropPosition =
 	| 'attention';
 
 export type CropKernel = 'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3';
+
+export function isOutputFormat(value: string): value is OutputFormat {
+	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
+}
+
+export function isAspectRatioString(value: string): value is `${number}:${number}` {
+	return /^\d*:\d*$/.test(value);
+}
+
+export function parseAspectRatio(aspectRatio: TransformOptions['aspectRatio']) {
+	if (!aspectRatio) {
+		return undefined;
+	}
+
+	// parse aspect ratio strings, if required (ex: "16:9")
+	if (typeof aspectRatio === 'number') {
+		return aspectRatio;
+	} else {
+		const [width, height] = aspectRatio.split(':');
+		return parseInt(width) / parseInt(height);
+	}
+}
 
 /**
  * Defines the original image and transforms that need to be applied to it.
