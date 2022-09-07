@@ -194,8 +194,8 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 <p>
 
-**Type:** `CropFit` <br>
-**Default:** `cover`
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
 </p>
 
 How the image should be resized to fit both `height` and `width`.
@@ -204,8 +204,8 @@ How the image should be resized to fit both `height` and `width`.
 
 <p>
 
-**Type:** `CropPosition` <br>
-**Default:** `centre`
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
 </p>
 
 Position of the crop when fit is `cover` or `contain`.
@@ -215,7 +215,7 @@ Position of the crop when fit is `cover` or `contain`.
 <p>
 
 **Type:** `string` <br>
-**Default:** `rgba(0,0,0,1)`
+**Default:** `'rgba(0,0,0,1)'`
 </p>
 
 The color used to fill the background when `fit` is set to `contain`.
@@ -224,8 +224,8 @@ The color used to fill the background when `fit` is set to `contain`.
 
 <p>
 
-**Type:** `CropKernel` <br>
-**Default:** `lanczos3`
+**Type:** `'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3'` <br>
+**Default:** `'lanczos3'`
 </p>
 
 The kernel to use for cropping.
@@ -315,8 +315,8 @@ The output formats to be used in the optimized image. If not provided, `webp` an
 
 <p>
 
-**Type:** `CropFit` <br>
-**Default:** `cover`
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
 </p>
 
 How the image should be resized to fit both `height` and `width`.
@@ -325,8 +325,10 @@ How the image should be resized to fit both `height` and `width`.
 
 <p>
 
-**Type:** `CropPosition` <br>
-**Default:** `centre`
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' |
+  'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' |
+  'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
 </p>
 
 Position of the crop when fit is `cover` or `contain`.
@@ -336,7 +338,7 @@ Position of the crop when fit is `cover` or `contain`.
 <p>
 
 **Type:** `string` <br>
-**Default:** `rgba(0,0,0,1)`
+**Default:** `'rgba(0,0,0,1)'`
 </p>
 
 The color used to fill the background when `fit` is set to `contain`.
@@ -345,8 +347,8 @@ The color used to fill the background when `fit` is set to `contain`.
 
 <p>
 
-**Type:** `CropKernel` <br>
-**Default:** `lanczos3`
+**Type:** `'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3'` <br>
+**Default:** `'lanczos3'`
 </p>
 
 The kernel to use for cropping.
