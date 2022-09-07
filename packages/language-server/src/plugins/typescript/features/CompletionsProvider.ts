@@ -1,46 +1,46 @@
-import {
-	CompletionContext,
-	Position,
-	TextDocumentIdentifier,
-	MarkupContent,
-	CompletionTriggerKind,
-	TextEdit,
-	Range,
-	CancellationToken,
-	CompletionItemTag,
-	InsertTextFormat,
-} from 'vscode-languageserver';
 import type ts from 'typescript/lib/tsserverlibrary';
+import {
+	CancellationToken,
+	CompletionContext,
+	CompletionItemTag,
+	CompletionList,
+	CompletionTriggerKind,
+	InsertTextFormat,
+	MarkupContent,
+	Position,
+	Range,
+	TextDocumentIdentifier,
+	TextEdit,
+} from 'vscode-languageserver';
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver-protocol';
-import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { ConfigManager } from '../../../core/config';
+import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import {
 	getLineAtPosition,
 	isInsideExpression,
 	isInsideFrontmatter,
 	isPossibleComponent,
 } from '../../../core/documents/utils';
-import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
-import { CompletionList } from 'vscode-languageserver';
+import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
 import type { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
-import {
-	scriptElementKindToCompletionItemKind,
-	getCommitCharactersForScriptElement,
-	toVirtualAstroFilePath,
-	removeAstroComponentSuffix,
-	convertRange,
-	ensureFrontmatterInsert,
-	getScriptTagSnapshot,
-} from '../utils';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import { getMarkdownDocumentation } from '../previewer';
 import type {
 	AstroSnapshot,
 	AstroSnapshotFragment,
 	ScriptTagDocumentSnapshot,
 	SnapshotFragment,
 } from '../snapshots/DocumentSnapshot';
-import { getRegExpMatches, isNotNullOrUndefined } from '../../../utils';
-import { getMarkdownDocumentation } from '../previewer';
+import {
+	convertRange,
+	ensureFrontmatterInsert,
+	getCommitCharactersForScriptElement,
+	getScriptTagSnapshot,
+	removeAstroComponentSuffix,
+	scriptElementKindToCompletionItemKind,
+	toVirtualAstroFilePath,
+} from '../utils';
 import { isPartOfImportStatement } from './utils';
-import type { ConfigManager } from '../../../core/config';
 
 /**
  * The language service throws an error if the character is not a valid trigger character.

@@ -1,6 +1,6 @@
+import type { Stylesheet } from 'vscode-css-languageservice';
 import { CompletionItem, CompletionItemKind, CompletionList } from 'vscode-languageserver';
 import type { AttributeContext } from '../../../core/documents/parseHtml';
-import type { Stylesheet } from 'vscode-css-languageservice';
 
 export function getIdClassCompletion(
 	stylesheets: Stylesheet[],

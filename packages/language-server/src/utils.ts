@@ -1,5 +1,5 @@
-import { URI } from 'vscode-uri';
 import type { Position, Range } from 'vscode-languageserver';
+import { URI } from 'vscode-uri';
 import { getPackagePath } from './importPackage';
 
 /** Normalizes a document URI */

@@ -1,11 +1,11 @@
-import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type ts from 'typescript';
 import type { Hover, Position } from 'vscode-languageserver';
 import { AstroDocument, mapObjWithRangeToOriginal } from '../../../core/documents';
 import type { HoverProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
-import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
-import type ts from 'typescript';
+import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 
 const partsMap = new Map([['JSX attribute', 'HTML attribute']]);
 

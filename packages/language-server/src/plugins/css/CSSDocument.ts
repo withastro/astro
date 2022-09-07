@@ -1,7 +1,7 @@
 import type { Stylesheet, TextDocument } from 'vscode-css-languageservice';
 import type { Position } from 'vscode-languageserver';
-import { getLanguageService } from './language-service';
 import { AstroDocument, DocumentMapper, ReadableDocument, TagInformation } from '../../core/documents';
+import { getLanguageService } from './language-service';
 
 export interface CSSDocumentBase extends DocumentMapper, TextDocument {
 	languageId: string;

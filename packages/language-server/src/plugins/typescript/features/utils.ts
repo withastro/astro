@@ -1,8 +1,8 @@
-import type { SnapshotFragment, DocumentSnapshot } from '../snapshots/DocumentSnapshot';
-import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type ts from 'typescript';
 import type { Position } from 'vscode-languageserver';
 import { getLineAtPosition } from '../../../core/documents';
-import type ts from 'typescript';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { DocumentSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
 
 export function isPartOfImportStatement(text: string, position: Position): boolean {
 	const line = getLineAtPosition(position, text);

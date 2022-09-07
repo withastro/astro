@@ -4,8 +4,8 @@ import type {
 	TextDocumentItem,
 	VersionedTextDocumentIdentifier,
 } from 'vscode-languageserver';
-import { AstroDocument } from './AstroDocument';
 import { normalizeUri } from '../../utils';
+import { AstroDocument } from './AstroDocument';
 
 export type DocumentEvent = 'documentOpen' | 'documentChange' | 'documentClose';
 

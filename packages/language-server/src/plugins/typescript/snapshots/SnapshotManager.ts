@@ -1,9 +1,9 @@
-import { DocumentSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
+import { EventEmitter } from 'events';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { normalizePath } from '../../../utils';
-import { EventEmitter } from 'events';
-import * as DocumentSnapshotUtils from './utils';
 import { ensureRealFilePath, toVirtualFilePath } from '../utils';
+import { DocumentSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
+import * as DocumentSnapshotUtils from './utils';
 
 /**
  * Every snapshot corresponds to a unique file on disk.

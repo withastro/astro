@@ -6,7 +6,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { window, workspace, Disposable, TextDocument, Position, SnippetString } from 'vscode';
+import { Disposable, Position, SnippetString, TextDocument, window, workspace } from 'vscode';
 
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver-protocol';
 

@@ -1,21 +1,21 @@
+import type { SourceMapConsumer } from 'source-map';
 import {
+	CodeAction,
+	ColorPresentation,
+	CompletionItem,
+	Diagnostic,
+	FoldingRange,
+	Hover,
+	InsertReplaceEdit,
+	LocationLink,
 	Position,
 	Range,
-	CompletionItem,
-	Hover,
-	Diagnostic,
-	ColorPresentation,
-	SymbolInformation,
-	LocationLink,
-	TextDocumentEdit,
-	CodeAction,
 	SelectionRange,
+	SymbolInformation,
+	TextDocumentEdit,
 	TextEdit,
-	InsertReplaceEdit,
-	FoldingRange,
 } from 'vscode-languageserver';
-import { TagInformation, offsetAt, positionAt, getLineOffsets } from './utils';
-import type { SourceMapConsumer } from 'source-map';
+import { getLineOffsets, offsetAt, positionAt, TagInformation } from './utils';
 
 export interface DocumentMapper {
 	/**

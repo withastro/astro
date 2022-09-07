@@ -1,11 +1,10 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { SymbolInformation, Range, SymbolKind } from 'vscode-languageserver-types';
+import { Range, SymbolInformation, SymbolKind, SymbolTag } from 'vscode-languageserver-types';
 import { AstroDocument, mapSymbolInformationToOriginal } from '../../../core/documents';
 import type { DocumentSymbolsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { SnapshotFragment } from '../snapshots/DocumentSnapshot';
 import { symbolKindFromString } from '../utils';
-import { SymbolTag } from 'vscode-languageserver-types';
 
 export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');

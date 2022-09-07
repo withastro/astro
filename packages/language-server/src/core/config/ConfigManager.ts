@@ -1,9 +1,9 @@
 import type { VSCodeEmmetConfig } from '@vscode/emmet-helper';
-import type { LSConfig, LSCSSConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
+import type { FormatCodeSettings, UserPreferences } from 'typescript';
 import type { Connection, FormattingOptions } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { FormatCodeSettings, UserPreferences } from 'typescript';
 import { get, mergeDeep } from '../../utils';
+import type { LSConfig, LSCSSConfig, LSHTMLConfig, LSTypescriptConfig } from './interfaces';
 
 // The default language server configuration is used only in two cases:
 // 1. When the client does not support `workspace/configuration` requests and as such, needs a global config

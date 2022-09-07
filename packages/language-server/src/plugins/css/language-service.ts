@@ -1,9 +1,9 @@
 import {
 	getCSSLanguageService,
-	getSCSSLanguageService,
 	getLESSLanguageService,
-	LanguageService,
+	getSCSSLanguageService,
 	ICSSDataProvider,
+	LanguageService,
 } from 'vscode-css-languageservice';
 import { pseudoClass } from './features/astro-selectors';
 

@@ -1,4 +1,4 @@
-import { createConnection, BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageserver/browser';
+import { BrowserMessageReader, BrowserMessageWriter, createConnection } from 'vscode-languageserver/browser';
 import { startLanguageServer } from './server';
 
 const messageReader = new BrowserMessageReader(self);

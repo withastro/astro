@@ -1,17 +1,17 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { Position, LocationLink } from 'vscode-languageserver-types';
+import { LocationLink, Position } from 'vscode-languageserver-types';
 import type { AstroDocument } from '../../../core/documents';
-import { pathToUrl, isNotNullOrUndefined } from '../../../utils';
+import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import type { DefinitionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import {
-	toVirtualAstroFilePath,
-	ensureRealFilePath,
-	isFrameworkFilePath,
-	isAstroFilePath,
 	convertToLocationRange,
+	ensureRealFilePath,
 	getScriptTagSnapshot,
+	isAstroFilePath,
+	isFrameworkFilePath,
+	toVirtualAstroFilePath,
 } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 

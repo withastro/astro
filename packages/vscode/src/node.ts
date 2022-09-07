@@ -1,10 +1,10 @@
-import { ExtensionContext, Position, TextDocument, Uri, workspace } from 'vscode';
-import { LanguageClient, ServerOptions, TransportKind } from 'vscode-languageclient/node';
-import { LanguageClientOptions, RequestType, TextDocumentPositionParams } from 'vscode-languageclient';
-import { commonActivate, getInitOptions } from './shared';
 import * as path from 'path';
+import { ExtensionContext, Position, TextDocument, Uri, workspace } from 'vscode';
+import { LanguageClientOptions, RequestType, TextDocumentPositionParams } from 'vscode-languageclient';
+import { LanguageClient, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 import * as tsVersion from './features/typescriptVersion';
 import { activateTagClosing } from './html/autoClose';
+import { commonActivate, getInitOptions } from './shared';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 

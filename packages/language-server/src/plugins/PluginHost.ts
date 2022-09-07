@@ -1,5 +1,7 @@
 import {
 	CancellationToken,
+	CodeAction,
+	CodeActionContext,
 	Color,
 	ColorInformation,
 	ColorPresentation,
@@ -9,28 +11,26 @@ import {
 	DefinitionLink,
 	Diagnostic,
 	FoldingRange,
+	FormattingOptions,
 	Hover,
+	InlayHint,
+	LinkedEditingRanges,
+	Location,
 	Position,
 	Range,
-	Location,
+	SemanticTokens,
 	SignatureHelp,
 	SignatureHelpContext,
+	SymbolInformation,
 	TextDocumentContentChangeEvent,
 	TextDocumentIdentifier,
-	WorkspaceEdit,
-	SymbolInformation,
-	SemanticTokens,
-	CodeActionContext,
-	CodeAction,
-	InlayHint,
-	FormattingOptions,
 	TextEdit,
-	LinkedEditingRanges,
+	WorkspaceEdit,
 } from 'vscode-languageserver';
-import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
+import { isInComponentStartTag } from '../core/documents';
 import type { DocumentManager } from '../core/documents/DocumentManager';
 import { isNotNullOrUndefined, regexLastIndexOf } from '../utils';
-import { isInComponentStartTag } from '../core/documents';
+import type { AppCompletionItem, LSProvider, Plugin } from './interfaces';
 
 enum ExecuteMode {
 	None,

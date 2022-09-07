@@ -1,5 +1,5 @@
-import type { Connection, TextDocumentIdentifier, Diagnostic } from 'vscode-languageserver';
-import type { DocumentManager, AstroDocument } from './documents';
+import type { Connection, Diagnostic, TextDocumentIdentifier } from 'vscode-languageserver';
+import type { AstroDocument, DocumentManager } from './documents';
 
 export type SendDiagnostics = Connection['sendDiagnostics'];
 export type GetDiagnostics = (doc: TextDocumentIdentifier) => Thenable<Diagnostic[]>;

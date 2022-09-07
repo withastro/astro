@@ -5,9 +5,9 @@ import {
 	RequestType,
 	TextDocumentPositionParams,
 } from 'vscode-languageclient/browser';
+import * as tsVersion from './features/typescriptVersionBrowser';
 import { activateTagClosing } from './html/autoClose';
 import { commonActivate, getInitOptions } from './shared';
-import * as tsVersion from './features/typescriptVersionBrowser';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 

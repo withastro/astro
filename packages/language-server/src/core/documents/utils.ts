@@ -1,5 +1,5 @@
-import { Position, Range } from 'vscode-languageserver';
 import type { HTMLDocument, Node } from 'vscode-html-languageservice';
+import { Position, Range } from 'vscode-languageserver';
 import { clamp, isInRange } from '../../utils';
 
 export interface TagInformation {

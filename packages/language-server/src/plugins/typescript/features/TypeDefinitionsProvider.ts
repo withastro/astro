@@ -1,7 +1,7 @@
 import type ts from 'typescript';
-import { Position, Location } from 'vscode-languageserver-protocol';
+import { Location, Position } from 'vscode-languageserver-protocol';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
-import { pathToUrl, isNotNullOrUndefined } from '../../../utils';
+import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import type { TypeDefinitionProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';

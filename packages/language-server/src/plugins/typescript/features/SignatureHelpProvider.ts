@@ -1,20 +1,20 @@
-import type { LanguageServiceManager } from '../LanguageServiceManager';
-import type { SignatureHelpProvider } from '../../interfaces';
 import type ts from 'typescript';
 import {
+	CancellationToken,
+	MarkupKind,
+	ParameterInformation,
 	Position,
-	SignatureHelpContext,
 	SignatureHelp,
+	SignatureHelpContext,
 	SignatureHelpTriggerKind,
 	SignatureInformation,
-	ParameterInformation,
-	MarkupKind,
-	CancellationToken,
 } from 'vscode-languageserver';
 import type { AstroDocument } from '../../../core/documents';
+import type { SignatureHelpProvider } from '../../interfaces';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
-import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 
 export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');

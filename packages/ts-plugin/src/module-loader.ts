@@ -1,47 +1,47 @@
 import type ts from 'typescript/lib/tsserverlibrary';
-import { Logger } from './logger.js';
 import { AstroSnapshotManager } from './astro-snapshots.js';
 import { createAstroSys } from './astro-sys.js';
+import { Logger } from './logger.js';
 import { ensureRealAstroFilePath, isVirtualAstroFilePath } from './utils.js';
 
 /**
  * Caches resolved modules.
  */
 class ModuleResolutionCache {
-    private cache = new Map<string, ts.ResolvedModule>();
+	private cache = new Map<string, ts.ResolvedModule>();
 
-    /**
-     * Tries to get a cached module.
-     */
-    get(moduleName: string, containingFile: string): ts.ResolvedModule | undefined {
-        return this.cache.get(this.getKey(moduleName, containingFile));
-    }
+	/**
+	 * Tries to get a cached module.
+	 */
+	get(moduleName: string, containingFile: string): ts.ResolvedModule | undefined {
+		return this.cache.get(this.getKey(moduleName, containingFile));
+	}
 
-    /**
-     * Caches resolved module, if it is not undefined.
-     */
-    set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModule | undefined) {
-        if (!resolvedModule) {
-            return;
-        }
-        this.cache.set(this.getKey(moduleName, containingFile), resolvedModule);
-    }
+	/**
+	 * Caches resolved module, if it is not undefined.
+	 */
+	set(moduleName: string, containingFile: string, resolvedModule: ts.ResolvedModule | undefined) {
+		if (!resolvedModule) {
+			return;
+		}
+		this.cache.set(this.getKey(moduleName, containingFile), resolvedModule);
+	}
 
-    /**
-     * Deletes module from cache. Call this if a file was deleted.
-     * @param resolvedModuleName full path of the module
-     */
-    delete(resolvedModuleName: string): void {
-        this.cache.forEach((val, key) => {
-            if (val.resolvedFileName === resolvedModuleName) {
-                this.cache.delete(key);
-            }
-        });
-    }
+	/**
+	 * Deletes module from cache. Call this if a file was deleted.
+	 * @param resolvedModuleName full path of the module
+	 */
+	delete(resolvedModuleName: string): void {
+		this.cache.forEach((val, key) => {
+			if (val.resolvedFileName === resolvedModuleName) {
+				this.cache.delete(key);
+			}
+		});
+	}
 
-    private getKey(moduleName: string, containingFile: string) {
-        return containingFile + ':::' + ensureRealAstroFilePath(moduleName);
-    }
+	private getKey(moduleName: string, containingFile: string) {
+		return containingFile + ':::' + ensureRealAstroFilePath(moduleName);
+	}
 }
 
 /**
@@ -54,92 +54,84 @@ class ModuleResolutionCache {
  * In order to fix this, we need to wrap typescript's module resolution and reroute all `.astro.ts` file lookups to .astro.
  */
 export function patchModuleLoader(
-    logger: Logger,
-    snapshotManager: AstroSnapshotManager,
-    typescript: typeof ts,
-    lsHost: ts.LanguageServiceHost,
-    project: ts.server.Project
+	logger: Logger,
+	snapshotManager: AstroSnapshotManager,
+	typescript: typeof ts,
+	lsHost: ts.LanguageServiceHost,
+	project: ts.server.Project
 ): void {
-    const astroSys = createAstroSys(logger);
-    const moduleCache = new ModuleResolutionCache();
-    const origResolveModuleNames = lsHost.resolveModuleNames?.bind(lsHost);
+	const astroSys = createAstroSys(logger);
+	const moduleCache = new ModuleResolutionCache();
+	const origResolveModuleNames = lsHost.resolveModuleNames?.bind(lsHost);
 
-    lsHost.resolveModuleNames = resolveModuleNames;
+	lsHost.resolveModuleNames = resolveModuleNames;
 
-    const origRemoveFile = project.removeFile.bind(project);
-    project.removeFile = (info, fileExists, detachFromProject) => {
-        logger.log('File is being removed. Delete from cache: ', info.fileName);
-        moduleCache.delete(info.fileName);
-        return origRemoveFile(info, fileExists, detachFromProject);
-    };
+	const origRemoveFile = project.removeFile.bind(project);
+	project.removeFile = (info, fileExists, detachFromProject) => {
+		logger.log('File is being removed. Delete from cache: ', info.fileName);
+		moduleCache.delete(info.fileName);
+		return origRemoveFile(info, fileExists, detachFromProject);
+	};
 
-    function resolveModuleNames(
-        moduleNames: string[],
-        containingFile: string,
-        reusedNames: string[] | undefined,
-        redirectedReference: ts.ResolvedProjectReference | undefined,
-        compilerOptions: ts.CompilerOptions
-    ): Array<ts.ResolvedModule | undefined> {
-        logger.log('Resolving modules names for ' + containingFile);
-        // Try resolving all module names with the original method first.
-        // The ones that are undefined will be re-checked if they are a
-        // astro file and if so, are resolved, too. This way we can defer
-        // all module resolving logic except for astro files to TypeScript.
-        const resolved =
-            origResolveModuleNames?.(
-                moduleNames,
-                containingFile,
-                reusedNames,
-                redirectedReference,
-                compilerOptions
-            ) || Array.from<undefined>(Array(moduleNames.length));
+	function resolveModuleNames(
+		moduleNames: string[],
+		containingFile: string,
+		reusedNames: string[] | undefined,
+		redirectedReference: ts.ResolvedProjectReference | undefined,
+		compilerOptions: ts.CompilerOptions
+	): Array<ts.ResolvedModule | undefined> {
+		logger.log('Resolving modules names for ' + containingFile);
+		// Try resolving all module names with the original method first.
+		// The ones that are undefined will be re-checked if they are a
+		// astro file and if so, are resolved, too. This way we can defer
+		// all module resolving logic except for astro files to TypeScript.
+		const resolved =
+			origResolveModuleNames?.(moduleNames, containingFile, reusedNames, redirectedReference, compilerOptions) ||
+			Array.from<undefined>(Array(moduleNames.length));
 
-        return resolved.map((moduleName, idx) => {
-            const fileName = moduleNames[idx];
-            if (moduleName || !ensureRealAstroFilePath(fileName).endsWith('.astro')) {
-                return moduleName;
-            }
+		return resolved.map((moduleName, idx) => {
+			const fileName = moduleNames[idx];
+			if (moduleName || !ensureRealAstroFilePath(fileName).endsWith('.astro')) {
+				return moduleName;
+			}
 
-            const cachedModule = moduleCache.get(fileName, containingFile);
-            if (cachedModule) {
-                return cachedModule;
-            }
+			const cachedModule = moduleCache.get(fileName, containingFile);
+			if (cachedModule) {
+				return cachedModule;
+			}
 
-            const resolvedModule = resolveModuleName(fileName, containingFile, compilerOptions);
-            moduleCache.set(fileName, containingFile, resolvedModule);
-            return resolvedModule;
-        });
-    }
+			const resolvedModule = resolveModuleName(fileName, containingFile, compilerOptions);
+			moduleCache.set(fileName, containingFile, resolvedModule);
+			return resolvedModule;
+		});
+	}
 
-    function resolveModuleName(
-        name: string,
-        containingFile: string,
-        compilerOptions: ts.CompilerOptions
-    ): ts.ResolvedModule | undefined {
-        const astroResolvedModule = typescript.resolveModuleName(
-            name,
-            containingFile,
-            compilerOptions,
-            astroSys
-        ).resolvedModule;
-        if (
-            !astroResolvedModule ||
-            !isVirtualAstroFilePath(astroResolvedModule.resolvedFileName)
-        ) {
-            return astroResolvedModule;
-        }
+	function resolveModuleName(
+		name: string,
+		containingFile: string,
+		compilerOptions: ts.CompilerOptions
+	): ts.ResolvedModule | undefined {
+		const astroResolvedModule = typescript.resolveModuleName(
+			name,
+			containingFile,
+			compilerOptions,
+			astroSys
+		).resolvedModule;
+		if (!astroResolvedModule || !isVirtualAstroFilePath(astroResolvedModule.resolvedFileName)) {
+			return astroResolvedModule;
+		}
 
-        const resolvedFileName = ensureRealAstroFilePath(astroResolvedModule.resolvedFileName);
-        logger.log('Resolved', name, 'to astro file', resolvedFileName);
-        const snapshot = snapshotManager.create(resolvedFileName);
-        if (!snapshot) {
-            return undefined;
-        }
+		const resolvedFileName = ensureRealAstroFilePath(astroResolvedModule.resolvedFileName);
+		logger.log('Resolved', name, 'to astro file', resolvedFileName);
+		const snapshot = snapshotManager.create(resolvedFileName);
+		if (!snapshot) {
+			return undefined;
+		}
 
-        const resolvedAstroModule: ts.ResolvedModuleFull = {
-            extension: snapshot.isTsFile ? typescript.Extension.Tsx : typescript.Extension.Jsx,
-            resolvedFileName
-        };
-        return resolvedAstroModule;
-    }
+		const resolvedAstroModule: ts.ResolvedModuleFull = {
+			extension: snapshot.isTsFile ? typescript.Extension.Tsx : typescript.Extension.Jsx,
+			resolvedFileName,
+		};
+		return resolvedAstroModule;
+	}
 }

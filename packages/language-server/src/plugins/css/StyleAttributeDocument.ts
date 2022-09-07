@@ -1,7 +1,7 @@
 import type { Stylesheet } from 'vscode-css-languageservice';
 import type { Position } from 'vscode-languageserver';
-import { getLanguageService } from './language-service';
 import { AstroDocument, DocumentMapper, ReadableDocument } from '../../core/documents';
+import { getLanguageService } from './language-service';
 
 const PREFIX = '__ {';
 const SUFFIX = '}';

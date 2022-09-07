@@ -11,21 +11,21 @@ import {
 	ShowMessageNotification,
 	TextDocumentIdentifier,
 } from 'vscode-languageserver';
+import type { LSConfig } from './core/config';
 import { ConfigManager, defaultLSConfig } from './core/config/ConfigManager';
-import { DocumentManager } from './core/documents/DocumentManager';
 import { DiagnosticsManager } from './core/DiagnosticsManager';
+import type { AstroDocument } from './core/documents';
+import { DocumentManager } from './core/documents/DocumentManager';
+import { TypeScriptPlugin } from './plugins';
 import { AstroPlugin } from './plugins/astro/AstroPlugin';
 import { CSSPlugin } from './plugins/css/CSSPlugin';
 import { HTMLPlugin } from './plugins/html/HTMLPlugin';
 import type { AppCompletionItem } from './plugins/interfaces';
 import { PluginHost } from './plugins/PluginHost';
-import { TypeScriptPlugin } from './plugins';
-import { debounceThrottle, getAstroInstall, isAstroWorkspace, normalizeUri, urlToPath } from './utils';
-import type { AstroDocument } from './core/documents';
-import { getSemanticTokenLegend } from './plugins/typescript/utils';
 import { sortImportKind } from './plugins/typescript/features/CodeActionsProvider';
-import type { LSConfig } from './core/config';
 import { LanguageServiceManager } from './plugins/typescript/LanguageServiceManager';
+import { getSemanticTokenLegend } from './plugins/typescript/utils';
+import { debounceThrottle, getAstroInstall, isAstroWorkspace, normalizeUri, urlToPath } from './utils';
 
 const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
 	new vscode.RequestType('html/tag');

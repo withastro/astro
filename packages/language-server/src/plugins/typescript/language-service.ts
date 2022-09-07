@@ -1,13 +1,13 @@
-import type { AstroDocument } from '../../core/documents';
 import { dirname, resolve } from 'path';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
+import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
+import type { AstroDocument } from '../../core/documents';
 import { getAstroInstall, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
-import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
-import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
 import { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
+import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 import * as DocumentSnapshotUtils from './snapshots/utils';
-import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
+import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
 
 export interface LanguageServiceContainer {
 	readonly tsconfigPath: string;

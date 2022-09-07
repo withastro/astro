@@ -30,13 +30,10 @@ import { findContainingNode } from './utils';
 export const sortImportKind = `${CodeActionKind.Source}.sortImports`;
 
 export class CodeActionsProviderImpl implements CodeActionsProvider {
-	private ts: typeof import('typescript/lib/tsserverlibrary')
+	private ts: typeof import('typescript/lib/tsserverlibrary');
 
-	constructor(
-		private languageServiceManager: LanguageServiceManager,
-		private configManager: ConfigManager,
-	) {
-		this.ts = languageServiceManager.docContext.ts
+	constructor(private languageServiceManager: LanguageServiceManager, private configManager: ConfigManager) {
+		this.ts = languageServiceManager.docContext.ts;
 	}
 
 	async getCodeActions(
