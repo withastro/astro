@@ -18,14 +18,16 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npm run astro add alpinejs
+npx astro add alpinejs
 # Using Yarn
 yarn astro add alpinejs
 # Using PNPM
 pnpm astro add alpinejs
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then type `npm run astro dev` to restart the dev server. 
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
+
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
 
@@ -64,7 +66,7 @@ Check our [Astro Integration Documentation][astro-integration] for more on integ
 
 ## Limitations
 
-The Apline.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider [installing and using Alpine.js manually](https://alpinejs.dev/essentials/installation). Astro supports all officially documented Alpine.js manual setup instructions, using `<script>` tags inside of an Astro component.
+The Alpine.js integration does not give you control over how the script is loaded or initialized. If you require this control, consider [installing and using Alpine.js manually](https://alpinejs.dev/essentials/installation). Astro supports all officially documented Alpine.js manual setup instructions, using `<script>` tags inside of an Astro component.
 
 **It is not currently possible to [extend Alpine.js](https://alpinejs.dev/advanced/extending) when using this component.** If you need this feature, consider following [the manual Alpine.js setup](https://alpinejs.dev/essentials/installation) instead using an Astro script tag:
 
@@ -83,7 +85,7 @@ The Apline.js integration does not give you control over how the script is loade
 
 ## Configuration
 
-The Apline.js integration does not support any custom configuration at this time.
+The Alpine.js integration does not support any custom configuration at this time.
 
 ## Examples
 

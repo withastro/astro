@@ -14,7 +14,7 @@ function extname(src: string, format?: OutputFormat) {
 	const index = src.lastIndexOf('.');
 
 	if (index <= 0) {
-		return undefined;
+		return '';
 	}
 
 	return src.substring(index);
@@ -38,11 +38,12 @@ export function propsToFilename(transform: TransformOptions) {
 	// strip off the querystring first, then remove the file extension
 	let filename = removeQueryString(transform.src);
 	filename = basename(filename);
+	const ext = extname(filename);
 	filename = removeExtname(filename);
 
-	const ext = transform.format || extname(transform.src)?.substring(1);
+	const outputExt = transform.format ? `.${transform.format}` : ext;
 
-	return `/${filename}_${shorthash(JSON.stringify(transform))}.${ext}`;
+	return `/${filename}_${shorthash(JSON.stringify(transform))}${outputExt}`;
 }
 
 export function appendForwardSlash(path: string) {

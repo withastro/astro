@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4558](https://github.com/withastro/astro/pull/4558) [`742966456`](https://github.com/withastro/astro/commit/7429664566f05ecebf6d57906f950627e62e690c) Thanks [@tony-sull](https://github.com/tony-sull)! - Adding the `withastro` keyword to include the adapters on the [Integrations Catalog](https://astro.build/integrations)
+
 ## 1.0.0
 
 ### Major Changes
@@ -51,7 +57,7 @@
   The new `Astro.clientAddress` property allows you to get the IP address of the requested user.
 
   ```astro
-  <div>Your address {Astro.clientAddress}</div>
+
   ```
 
   This property is only available when building for SSR, and only if the adapter you are using supports providing the IP address. If you attempt to access the property in a SSG app it will throw an error.

@@ -8,6 +8,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
+/** @type {import('./test-utils').Fixture} */
 let fixture;
 
 describe('CSS', function () {
@@ -360,6 +361,19 @@ describe('CSS', function () {
 			// SvelteDynamic styles is already included in the main page css asset
 			const unusedCssAsset = bundledAssets.find((asset) => /SvelteDynamic\..*\.css/.test(asset));
 			expect(unusedCssAsset, 'Found unused style ' + unusedCssAsset).to.be.undefined;
+
+			let foundVitePreloadCSS = false;
+			const bundledJS = await fixture.glob('**/*.?(m)js');
+			for (const filename of bundledJS) {
+				const content = await fixture.readFile(filename);
+				if (content.match(/ReactDynamic\..*\.css/)) {
+					foundVitePreloadCSS = filename;
+				}
+			}
+			expect(foundVitePreloadCSS).to.equal(
+				false,
+				'Should not have found a preload for the dynamic CSS'
+			);
 		});
 	});
 });

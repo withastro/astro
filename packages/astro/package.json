@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.1.2",
+  "version": "1.1.6",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -94,7 +94,7 @@
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.23.4",
+    "@astrojs/compiler": "^0.23.5",
     "@astrojs/language-server": "^0.23.0",
     "@astrojs/markdown-remark": "^1.1.1",
     "@astrojs/telemetry": "^1.0.0",
@@ -107,7 +107,6 @@
     "@babel/types": "^7.18.4",
     "@proload/core": "^0.3.2",
     "@proload/plugin-tsm": "^0.2.1",
-    "ast-types": "^0.14.2",
     "boxen": "^6.2.1",
     "ci-info": "^3.3.1",
     "common-ancestor-path": "^1.0.1",
@@ -172,6 +171,7 @@
     "@types/send": "^0.17.1",
     "@types/unist": "^2.0.6",
     "@types/yargs-parser": "^21.0.0",
+    "ast-types": "^0.14.2",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.11",

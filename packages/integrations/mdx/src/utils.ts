@@ -127,7 +127,7 @@ export async function getRemarkPlugins(
 		default:
 			remarkPlugins = [
 				...remarkPlugins,
-				...(config.markdown.extendDefaultPlugins ? DEFAULT_REMARK_PLUGINS : []),
+				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REMARK_PLUGINS : []),
 				...ignoreStringPlugins(config.markdown.remarkPlugins ?? []),
 			];
 			break;
@@ -162,7 +162,7 @@ export function getRehypePlugins(
 		default:
 			rehypePlugins = [
 				...rehypePlugins,
-				...(config.markdown.extendDefaultPlugins ? DEFAULT_REHYPE_PLUGINS : []),
+				...(markdownShouldExtendDefaultPlugins(config) ? DEFAULT_REHYPE_PLUGINS : []),
 				...ignoreStringPlugins(config.markdown.rehypePlugins ?? []),
 			];
 			break;
@@ -170,6 +170,13 @@ export function getRehypePlugins(
 
 	rehypePlugins = [...rehypePlugins, ...(mdxOptions.rehypePlugins ?? [])];
 	return rehypePlugins;
+}
+
+function markdownShouldExtendDefaultPlugins(config: AstroConfig): boolean {
+	return (
+		config.markdown.extendDefaultPlugins ||
+		(config.markdown.remarkPlugins.length === 0 && config.markdown.rehypePlugins.length === 0)
+	);
 }
 
 function ignoreStringPlugins(plugins: any[]) {

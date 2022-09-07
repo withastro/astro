@@ -28,21 +28,21 @@ export function start(manifest: SSRManifest, options: Options) {
 			Reflect.set(request, Symbol.for('astro.clientAddress'), ip);
 			return await app.render(request);
 		}
-		
+
 		// If the request path wasn't found in astro,
 		// try to fetch a static file instead
 		const url = new URL(request.url);
 		const localPath = new URL('.' + url.pathname, clientRoot);
 		const fileResp = await fetch(localPath.toString());
-		
+
 		// If the static file can't be found
 		if (fileResp.status == 404) {
-		    // Render the astro custom 404 page
-		    return await app.render(request);
-		
-		// If the static file is found
+			// Render the astro custom 404 page
+			return await app.render(request);
+
+			// If the static file is found
 		} else {
-		    return fileResp;
+			return fileResp;
 		}
 	};
 

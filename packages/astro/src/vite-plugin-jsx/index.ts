@@ -160,14 +160,14 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 	let astroJSXRenderer: AstroRenderer;
 	// The first JSX renderer provided is considered the default renderer.
 	// This is a useful reference for when the user only gives a single render.
-	let defaultJSXRendererEntry: [string, AstroRenderer];
+	let defaultJSXRendererEntry: [string, AstroRenderer] | undefined;
 
 	return {
 		name: 'astro:jsx',
 		enforce: 'pre', // run transforms before other plugins
 		async configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
-			const possibleRenderers = await collectJSXRenderers(config._ctx.renderers);
+			const possibleRenderers = collectJSXRenderers(config._ctx.renderers);
 			for (const [importSource, renderer] of possibleRenderers) {
 				jsxRenderers.set(importSource, renderer);
 				if (importSource === 'astro') {
@@ -224,8 +224,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			}
 
 			// if we still can’t tell the import source, now is the time to throw an error.
-			if (!importSource) {
-				const [defaultRendererName] = defaultJSXRendererEntry[0];
+			if (!importSource && defaultJSXRendererEntry) {
+				const [defaultRendererName] = defaultJSXRendererEntry;
 				error(
 					logging,
 					'renderer',
@@ -234,6 +234,16 @@ Unable to resolve a renderer that handles this file! With more than one renderer
 Add ${colors.cyan(
 						IMPORT_STATEMENTS[defaultRendererName] || `import '${defaultRendererName}';`
 					)} or ${colors.cyan(`/* jsxImportSource: ${defaultRendererName} */`)} to this file.
+`
+				);
+				return null;
+			} else if (!importSource) {
+				error(
+					logging,
+					'renderer',
+					`${colors.yellow(id)}
+Unable to find a renderer for JSX. Do you have one configured in your Astro config? See this page to learn how:
+https://docs.astro.build/en/core-concepts/framework-components/#installing-integrations
 `
 				);
 				return null;

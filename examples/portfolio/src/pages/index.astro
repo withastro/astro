@@ -1,10 +1,9 @@
 ---
 // Component Imports
 import MainHead from '../components/MainHead.astro';
-import Button from '../components/Button/index.jsx';
-import Nav from '../components/Nav/index.jsx';
-import Footer from '../components/Footer/index.jsx';
-import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import PortfolioPreview from '../components/PortfolioPreview.astro';
 
 // Data Fetching: List all Markdown posts in the repo.
 const projects = await Astro.glob('./project/**/*.md');
@@ -20,14 +19,19 @@ const featuredProject = projects[0];
 			title="Jeanine White: Personal Site"
 			description="Jeanine White: Developer, Speaker, and Writer..."
 		/>
-		<style lang="scss">
-			$w-s: 750px;
+		<style>
+			.wrapper {
+				margin-top: 2em;
+				margin-bottom: 2em;
+			}
 
 			.hero {
 				position: relative;
 				overflow: hidden;
+			}
 
-				@media (min-width: $w-s) {
+			@media (min-width: 750px) {
+				.hero {
 					height: 45vw;
 				}
 			}
@@ -69,19 +73,23 @@ const featuredProject = projects[0];
 				align-items: flex-start;
 				justify-content: center;
 				padding-left: 2rem;
+			}
 
-				@media (min-width: $w-s) {
+			@media (min-width: 750px) {
+				.overlay {
 					padding-left: 4rem;
 				}
 			}
 
 			.title {
 				font-weight: 900;
-				font-size: var(--f-u8);
+				font-size: var(--f-u6);
 				margin-bottom: 0.5rem;
 				margin-top: 0;
+			}
 
-				@media (min-width: $w-s) {
+			@media (min-width: 750px) {
+				.title {
 					font-size: var(--f-u12);
 				}
 			}
@@ -89,8 +97,10 @@ const featuredProject = projects[0];
 			.grid {
 				display: grid;
 				grid-gap: 2rem;
+			}
 
-				@media (min-width: 1200px) {
+			@media (min-width: 1200px) {
+				.grid {
 					grid-template-columns: 2fr 1fr;
 				}
 			}
@@ -102,46 +112,44 @@ const featuredProject = projects[0];
 				margin-bottom: 2rem;
 			}
 
+			.roles {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5em;
+				font-size: var(--f-d1);
+			}
+
 			.role {
 				position: relative;
 				display: inline-block;
+				white-space: nowrap;
 				font-weight: 900;
 				color: var(--t-bg);
 				background-color: var(--t-fg);
 				padding: 0.25em 0.5em;
 				z-index: 2;
+			}
 
-				@media (min-width: $w-s) {
+			@media (min-width: 750px) {
+				.role {
 					font-size: var(--f-u3);
 				}
+			}
 
-				+ .role {
-					margin-left: 1em;
-				}
+			.role:nth-of-type(1) .invert {
+				background-color: var(--c-pink);
+			}
 
-				&:nth-of-type(1) {
-					.invert {
-						background-color: var(--c-pink);
-					}
-				}
+			.role:nth-of-type(2) .invert {
+				background-color: var(--c-blue);
+			}
 
-				&:nth-of-type(2) {
-					.invert {
-						background-color: var(--c-blue);
-					}
-				}
+			.role:nth-of-type(3) .invert {
+				background-color: var(--c-green);
+			}
 
-				&:nth-of-type(3) {
-					.invert {
-						background-color: var(--c-green);
-					}
-				}
-
-				&:hover {
-					.invert {
-						clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-					}
-				}
+			.role:hover .invert {
+				clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
 			}
 
 			.invert {
@@ -160,7 +168,7 @@ const featuredProject = projects[0];
 			}
 
 			.desc {
-				font-size: var(--f-u2);
+				font-size: var(--f-u1);
 				margin-top: 1.5rem;
 				margin-bottom: 0;
 			}
@@ -175,14 +183,19 @@ const featuredProject = projects[0];
 			.bio {
 				line-height: 2;
 				margin-bottom: 2rem;
+			}
 
-				> span:first-of-type {
-					line-height: 1;
-					margin-bottom: 0.5em;
-					display: block;
-					font-weight: 700;
-					font-size: var(--f-u4);
-				}
+			.bio > span:first-of-type {
+				line-height: 1;
+				margin-bottom: 0.5em;
+				display: block;
+				font-weight: 700;
+				font-size: var(--f-u4);
+			}
+
+			.buttonContainer {
+				text-align: center;
+				margin-top: 2em;
 			}
 		</style>
 	</head>
@@ -203,23 +216,21 @@ const featuredProject = projects[0];
 				<h1 class="title">
 					<small class="subtitle">The personal site of</small>Jeanine White
 				</h1>
-				<div>
-					<span class="role">👩‍💻 Developer <span class="invert">👩‍💻 Developer</span></span>&nbsp;
-					<span class="role">🎤 Speaker <span class="invert">🎤 Speaker</span></span>&nbsp;
+				<div class="roles">
+					<span class="role">👩‍💻 Developer <span class="invert">👩‍💻 Developer</span></span>
+					<span class="role">🎤 Speaker <span class="invert">🎤 Speaker</span></span>
 					<span class="role">✏️ Writer <span class="invert">✏️ Writer</span></span>
 				</div>
 				<p class="desc">Lover of dogs, roadtrips, and poetry.</p>
 			</div>
 		</header>
-		<main class="wrapper mt4 mb4">
+		<main class="wrapper">
 			<div class="grid">
 				<div class="section">
 					<h3 class="sectionTitle">Selected Work</h3>
 					<PortfolioPreview project={featuredProject} />
-					<div class="tac mt4">
-						<a href="/projects">
-							<Button>View All</Button>
-						</a>
+					<div class="buttonContainer">
+						<a href="/products/" class="button">View All</a>
 					</div>
 				</div>
 				<div class="section">

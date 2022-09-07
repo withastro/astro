@@ -1,5 +1,17 @@
 # @astrojs/mdx
 
+## 0.11.1
+
+### Patch Changes
+
+- [#4588](https://github.com/withastro/astro/pull/4588) [`db38f61b2`](https://github.com/withastro/astro/commit/db38f61b2b2dc55f03b28797d19b163b1940f1c8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: Add GFM and Smartypants to MDX by default
+
+## 0.11.0
+
+### Minor Changes
+
+- [#4504](https://github.com/withastro/astro/pull/4504) [`8f8dff4d3`](https://github.com/withastro/astro/commit/8f8dff4d339a3a12ee155d81a97132032ef3b622) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Introduce new `extendPlugins` configuration option. This defaults to inheriting all remark and rehype plugins from your `markdown` config, with options to use either Astro's defaults or no inheritance at all.
+
 ## 0.10.3
 
 ### Patch Changes

@@ -16,14 +16,16 @@ To install `@astrojs/solid-js`, run the following from your project directory an
 
 ```sh
 # Using NPM
-npm run astro add solid
+npx astro add solid
 # Using Yarn
 yarn astro add solid
 # Using PNPM
 pnpm astro add solid
 ```
 
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
+
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
 

@@ -1,7 +1,7 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
 import type { PageBuildData, ViteID } from './types';
 
-import { prependForwardSlash } from '../path.js';
+import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
 
 export interface BuildInternals {
@@ -136,8 +136,15 @@ export function* getPageDatasByClientOnlyID(
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		const pathname = `/@fs${prependForwardSlash(viteid)}`;
-		const pageBuildDatas = pagesByClientOnly.get(pathname);
+		let pathname = `/@fs${prependForwardSlash(viteid)}`;
+		let pageBuildDatas = pagesByClientOnly.get(viteid);
+		// BUG! The compiler partially resolves .jsx to remove the file extension so we have to check again.
+		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
+		// but this would be a bigger change.
+		if (!pageBuildDatas) {
+			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
+			pageBuildDatas = pagesByClientOnly.get(pathname);
+		}
 		if (pageBuildDatas) {
 			for (const pageData of pageBuildDatas) {
 				yield pageData;
