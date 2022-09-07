@@ -26,14 +26,16 @@ To install `@astrojs/turbolinks`, run the following from your project directory 
 
 ```sh
 # Using NPM
-npm run astro add turbolinks
+npx astro add turbolinks
 # Using Yarn
 yarn astro add turbolinks
 # Using PNPM
 pnpm astro add turbolinks
 ```
 
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
+
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
 

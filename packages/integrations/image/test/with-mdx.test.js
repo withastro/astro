@@ -49,6 +49,12 @@ describe('Images in MDX - build', function () {
 			regex: /^\/hero_\w{4,10}.webp/,
 			size: { width: 768, height: 414, type: 'webp' },
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			size: { width: 544, height: 184, type: 'jpg' },
+		},
 	].forEach(({ title, id, regex, size }) => {
 		it(title, () => {
 			const image = $(id);

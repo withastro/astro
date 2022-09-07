@@ -14,6 +14,7 @@ describe('Sharp service', () => {
 			['width & height', { src, height: 400, width: 200 }],
 			['aspect ratio string', { src, aspectRatio: '16:9' }],
 			['aspect ratio float', { src, aspectRatio: 1.7 }],
+			['background color', { src, format: 'jpeg', background: '#333333' }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
 				const { searchParams } = await sharp.serializeTransform(props);
@@ -31,6 +32,7 @@ describe('Sharp service', () => {
 				verifyProp(props.width, 'w');
 				verifyProp(props.height, 'h');
 				verifyProp(props.aspectRatio, 'ar');
+				verifyProp(props.background, 'bg');
 			});
 		});
 	});
@@ -48,6 +50,11 @@ describe('Sharp service', () => {
 			['width & height', `w=200&h=400&href=${href}`, { src, height: 400, width: 200 }],
 			['aspect ratio string', `ar=16:9&href=${href}`, { src, aspectRatio: '16:9' }],
 			['aspect ratio float', `ar=1.7&href=${href}`, { src, aspectRatio: 1.7 }],
+			[
+				'background color',
+				`f=jpeg&bg=%23333333&href=${href}`,
+				{ src, format: 'jpeg', background: '#333333' },
+			],
 		].forEach(([description, params, expected]) => {
 			it(description, async () => {
 				const searchParams = new URLSearchParams(params);

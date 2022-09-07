@@ -16,14 +16,16 @@ To install `@astrojs/svelte`, run the following from your project directory and 
 
 ```sh
 # Using NPM
-npm run astro add svelte
+npx astro add svelte
 # Using Yarn
 yarn astro add svelte
 # Using PNPM
 pnpm astro add svelte
 ```
 
-If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
+
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
 
