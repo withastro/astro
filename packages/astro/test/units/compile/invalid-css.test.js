@@ -1,6 +1,6 @@
-/// <reference types="mocha" />
+
 import { expect } from 'chai';
-import { cachedCompilation } from '../../../../dist/core/compile/index.js';
+import { cachedCompilation } from '../../../dist/core/compile/index.js';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {
