@@ -144,10 +144,17 @@ async function readResult(stream) {
   let result = '';
   const decoder = new TextDecoder('utf-8')
   while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      return result;
-    }
+		const { done, value } = await reader.read();
+		if (done) {
+			if(value) {
+				result += decoder.decode(value);
+			} else {
+				// This closes the decoder
+				decoder.decode(new Uint8Array());
+			}
+			
+			return result;
+		}
     result += decoder.decode(value, { stream: true });
   }
 }
