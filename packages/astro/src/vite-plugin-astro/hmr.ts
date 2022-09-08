@@ -4,7 +4,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { cachedCompilation, invalidateCompilation, isCached } from './compile.js';
+import { cachedCompilation, invalidateCompilation, isCached } from '../core/compile/index.js';
 import { isAstroScript } from './query.js';
 
 const PKG_PREFIX = new URL('../../', import.meta.url);
