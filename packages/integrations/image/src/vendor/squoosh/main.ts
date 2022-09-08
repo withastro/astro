@@ -33,13 +33,13 @@ export async function processBuffer(
   switch (encoding) {
     case 'jpeg':
 		case 'jpg':
-      return Buffer.from(await worker.encodeJpeg(imageData, { quality }))
+      return await worker.encodeJpeg(imageData, { quality })
     case 'webp':
-      return Buffer.from(await worker.encodeWebp(imageData, { quality }))
+      return await worker.encodeWebp(imageData, { quality })
     case 'avif':
-      return Buffer.from(await worker.encodeAvif(imageData, { quality }))
+      return await worker.encodeAvif(imageData, { quality })
     case 'png':
-      return Buffer.from(await worker.encodePng(imageData))
+      return await worker.encodePng(imageData)
     default:
       throw Error(`Unsupported encoding format`)
   }

@@ -72,7 +72,7 @@ export async function resize({ image, width, height }: ResizeOpts) {
 export async function encodeJpeg(
   image: ImageData,
   { quality }: { quality: number }
-): Promise<Buffer | Uint8Array> {
+): Promise<Buffer> {
   image = ImageData.from(image)
 
   const e = supportedFormats['mozjpeg']
@@ -88,7 +88,7 @@ export async function encodeJpeg(
 export async function encodeWebp(
   image: ImageData,
   { quality }: { quality: number }
-): Promise<Buffer | Uint8Array> {
+): Promise<Buffer> {
   image = ImageData.from(image)
 
   const e = supportedFormats['webp']
@@ -104,7 +104,7 @@ export async function encodeWebp(
 export async function encodeAvif(
   image: ImageData,
   { quality }: { quality: number }
-): Promise<Buffer | Uint8Array> {
+): Promise<Buffer> {
   image = ImageData.from(image)
 
   const e = supportedFormats['avif']
@@ -122,7 +122,7 @@ export async function encodeAvif(
 
 export async function encodePng(
   image: ImageData
-): Promise<Buffer | Uint8Array> {
+): Promise<Buffer> {
   image = ImageData.from(image)
 
   const e = supportedFormats['oxipng']
