@@ -83,10 +83,10 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 			let outputFile: string;
 
 			if (isRemoteImage(src)) {
-				const outputFileURL = new URL(path.join('./', path.basename(filename)), outDir);
+				const outputFileURL = new URL(path.join('./assets', path.basename(filename)), outDir);
 				outputFile = fileURLToPath(outputFileURL);
 			} else {
-				const outputFileURL = new URL(path.join('./', filename), outDir);
+				const outputFileURL = new URL(path.join('./assets', filename), outDir);
 				outputFile = fileURLToPath(outputFileURL);
 			}
 
