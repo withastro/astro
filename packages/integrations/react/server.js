@@ -140,29 +140,27 @@ async function renderToStaticNodeStreamAsync(vnode) {
  * See https://github.com/facebook/react/issues/24169
  */
 async function readResult(stream) {
-  const reader = stream.getReader();
-  let result = '';
-  const decoder = new TextDecoder('utf-8')
-  while (true) {
+	const reader = stream.getReader();
+	let result = '';
+	const decoder = new TextDecoder('utf-8');
+	while (true) {
 		const { done, value } = await reader.read();
 		if (done) {
-			if(value) {
+			if (value) {
 				result += decoder.decode(value);
 			} else {
 				// This closes the decoder
 				decoder.decode(new Uint8Array());
 			}
-			
+
 			return result;
 		}
-    result += decoder.decode(value, { stream: true });
-  }
+		result += decoder.decode(value, { stream: true });
+	}
 }
 
 async function renderToReadableStreamAsync(vnode) {
-	return await readResult(
-		await ReactDOM.renderToReadableStream(vnode),
-	);
+	return await readResult(await ReactDOM.renderToReadableStream(vnode));
 }
 
 export default {
