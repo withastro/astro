@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.24.2
+
+### Patch Changes
+
+- 6b2ca00: Retry deploy again
+
 ## 0.24.1
 
 ### Patch Changes
