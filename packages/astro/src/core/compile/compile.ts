@@ -32,7 +32,7 @@ async function compile({
 	transformStyle,
 }: CompileProps): Promise<CompileResult> {
 	let cssDeps = new Set<string>();
-	let cssTransformError: Error | undefined;
+	let cssTransformErrors: Error[] = [];
 
 	// Transform from `.astro` to valid `.ts`
 	// use `sourcemap: "both"` so that sourcemap is included in the code
@@ -49,7 +49,7 @@ async function compile({
 		)}`,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
-		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps),
+		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps, cssTransformErrors),
 	})
 		.catch((err) => {
 			// throw compiler errors here if encountered
@@ -57,15 +57,21 @@ async function compile({
 			throw err;
 		})
 		.then((result) => {
-			if(result.styleError.length) {
-				const aggregateError = new AggregateError(result.styleError.map(message => {
-					return new Error(message);
-				}));
-				(aggregateError as any).code = AstroErrorCodes.UnknownCompilerCSSError;
-				throw aggregateError;
+			switch(cssTransformErrors.length) {
+				case 0: return result;
+				case 1: {
+					let error = cssTransformErrors[0];
+					if(!(error as any).code) {
+						(error as any).code = AstroErrorCodes.UnknownCompilerCSSError;
+					}
+					throw cssTransformErrors[0];
+				}
+				default: {
+					const aggregateError = new AggregateError(cssTransformErrors);
+					(aggregateError as any).code = AstroErrorCodes.UnknownCompilerCSSError;
+					throw aggregateError;
+				}
 			}
-
-			return result;
 		});
 
 	const compileResult: CompileResult = Object.create(transformResult, {

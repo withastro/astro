@@ -4,7 +4,7 @@ import type { SourceMapInput } from 'rollup';
 
 type PreprocessStyle = TransformOptions['preprocessStyle'];
 
-export function createStylePreprocessor(transformStyle: TransformStyle, cssDeps: Set<string>): PreprocessStyle {
+export function createStylePreprocessor(transformStyle: TransformStyle, cssDeps: Set<string>, errors: Error[]): PreprocessStyle {
 	const preprocessStyle: PreprocessStyle = async (value: string, attrs: Record<string, string>) => {
 		const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 
@@ -28,8 +28,9 @@ export function createStylePreprocessor(transformStyle: TransformStyle, cssDeps:
 
 			return { code: result.code, map };
 		} catch (err) {
+			errors.push(err as unknown as Error);
 			return {
-				error: err + '',
+				error: err + ''
 			};
 		}
 	};
