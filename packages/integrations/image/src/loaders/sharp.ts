@@ -1,11 +1,11 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from '../loaders/index.js';
+import { isAspectRatioString, isColor, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
 		// strip off the known attributes
-		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
+		const { width, height, src, format, quality, aspectRatio, background, ...rest } = transform;
 
 		return {
 			...rest,
@@ -35,6 +35,10 @@ class SharpService implements SSRImageService {
 
 		if (transform.aspectRatio) {
 			searchParams.append('ar', transform.aspectRatio.toString());
+		}
+
+		if (transform.background) {
+			searchParams.append('bg', transform.background);
 		}
 
 		return { searchParams };
@@ -72,6 +76,13 @@ class SharpService implements SSRImageService {
 			}
 		}
 
+		if (searchParams.has('bg')) {
+			const background = searchParams.get('bg')!;
+			if (isColor(background)) {
+				transform.background = background;
+			}
+		}
+
 		return transform;
 	}
 
@@ -85,6 +96,11 @@ class SharpService implements SSRImageService {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
 			sharpImage.resize(width, height);
+		}
+
+		// remove alpha channel and replace with background color if requested
+		if (transform.background) {
+			sharpImage.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {

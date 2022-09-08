@@ -120,6 +120,7 @@ async function handle500Response(
 ) {
 	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200));
 	if (res.headersSent) {
+		res.write(`<script type="module" src="/@vite/client"></script>`);
 		res.end();
 	} else {
 		writeHtmlResponse(
