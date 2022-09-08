@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.24.4
+
+### Patch Changes
+
+- 96957ac: Fix extension not working properly inside the browser
+
 ## 0.24.3
 
 ### Patch Changes
