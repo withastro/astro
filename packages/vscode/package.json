@@ -260,12 +260,14 @@
           "description": "Enable document symbols for CSS"
         },
         "astro.format.indentFrontmatter": {
+          "deprecationMessage": "The `astro.format` settings are deprecated. Formatting is now powered by Prettier and can be configured through a Prettier configuration file.",
           "type": "boolean",
           "default": false,
           "title": "Formatting: Indent frontmatter",
           "description": "Indent the formatter by one level of indentation"
         },
         "astro.format.newLineAfterFrontmatter": {
+          "deprecationMessage": "The `astro.format` settings are deprecated. Formatting is now powered by Prettier and can be configured through a Prettier configuration file.",
           "type": "boolean",
           "default": true,
           "title": "Formatting: Add line return after the frontmatter",

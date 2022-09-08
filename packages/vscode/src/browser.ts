@@ -12,8 +12,8 @@ import { commonActivate, getInitOptions } from './shared';
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 
 export async function activate(context: ExtensionContext) {
-	const serverMain = Uri.joinPath(context.extensionUri, 'dist/browser/server.js');
-	const worker = new Worker(serverMain.toString());
+	const serverMain = Uri.joinPath(context.extensionUri, 'dist/browser/server.js').with({ query: 'target=web' });
+	const worker = new Worker(serverMain.toString(true));
 
 	const clientOptions = getInitOptions('browser', {
 		serverPath: undefined,
