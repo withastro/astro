@@ -13,22 +13,24 @@ const PROP_TYPE = {
 	URL: 7,
 };
 
-function serializeArray(value: any[], metadata: AstroComponentMetadata): any[] {
+function serializeArray(value: any[], metadata: AstroComponentMetadata | Record<string, any> = {}): any[] {
 	return value.map((v) => convertToSerializedForm(v, metadata));
 }
 
 function serializeObject(
 	value: Record<any, any>,
-	metadata: AstroComponentMetadata
+	metadata: AstroComponentMetadata | Record<string, any> = {}
 ): Record<any, any> {
-	if (cyclicRefs.has(value)) {
+	if (cyclicRefs.has(value) && cyclicRefs.get(value).has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
 
 Cyclic references cannot be safely serialized for client-side usage. Please remove the cyclic reference.`);
 	}
-	cyclicRefs.add(value);
+	const childRefs = new WeakSet();
+	cyclicRefs.set(value, childRefs);
 	return Object.fromEntries(
 		Object.entries(value).map(([k, v]) => {
+			if (v && typeof v === 'object') childRefs.add(v);
 			return [k, convertToSerializedForm(v, metadata)];
 		})
 	);
@@ -36,7 +38,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 
 function convertToSerializedForm(
 	value: any,
-	metadata: AstroComponentMetadata
+	metadata: AstroComponentMetadata | Record<string, any> = {}
 ): [ValueOf<typeof PROP_TYPE>, any] {
 	const tag = Object.prototype.toString.call(value);
 	switch (tag) {
@@ -77,9 +79,9 @@ function convertToSerializedForm(
 	}
 }
 
-let cyclicRefs = new WeakSet<any>();
+let cyclicRefs = new WeakMap<any, any>();
 export function serializeProps(props: any, metadata: AstroComponentMetadata) {
 	const serialized = JSON.stringify(serializeObject(props, metadata));
-	cyclicRefs = new WeakSet<any>();
+	cyclicRefs = new WeakMap<any, any>();
 	return serialized;
 }
