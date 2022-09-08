@@ -9,6 +9,9 @@ const PROP_TYPE = {
 	Set: 5,
 	BigInt: 6,
 	URL: 7,
+	Uint8Array: 8,
+	Uint16Array: 9,
+	Uint32Array: 10
 };
 
 function serializeArray(value: any[]): any[] {
@@ -46,6 +49,15 @@ function convertToSerializedForm(value: any): [ValueOf<typeof PROP_TYPE>, any] {
 		}
 		case '[object Array]': {
 			return [PROP_TYPE.JSON, JSON.stringify(serializeArray(value))];
+		}
+		case '[object Uint8Array]': {
+			return [PROP_TYPE.Uint8Array, JSON.stringify(serializeArray(value))];
+		}
+		case '[object Uint16Array]': {
+			return [PROP_TYPE.Uint16Array, JSON.stringify(serializeArray(value))];
+		}
+		case '[object Uint32Array]': {
+			return [PROP_TYPE.Uint32Array, JSON.stringify(serializeArray(value))];
 		}
 		default: {
 			if (value !== null && typeof value === 'object') {
