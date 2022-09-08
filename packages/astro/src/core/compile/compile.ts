@@ -5,7 +5,7 @@ import type { TransformStyle } from './types';
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash } from '../path.js';
-import { viteID } from '../util.js';
+import { viteID, AggregateError } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
