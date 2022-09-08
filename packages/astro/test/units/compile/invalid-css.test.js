@@ -22,6 +22,11 @@ describe('astro/src/core/compile', () => {
 			color: purple;
 		}
 	</style>
+	<style lang="scss">
+		article:is(h1, h2, h3, h4, h5, h6:hover {
+			color: purple;
+		}
+	</style>
 	`,
 					transformStyle(source, lang) {
 						throw new Error('Invalid css');
