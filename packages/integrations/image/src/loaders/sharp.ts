@@ -157,6 +157,6 @@ class SharpService implements SSRImageService {
 	}
 }
 
-const service = new SharpService();
+const service: SSRImageService = new SharpService();
 
 export default service;
