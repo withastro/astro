@@ -1,5 +1,21 @@
 # @astrojs/image
 
+## 0.6.0
+
+### Minor Changes
+
+- [#4642](https://github.com/withastro/astro/pull/4642) [`e4348a4eb`](https://github.com/withastro/astro/commit/e4348a4eb49466579204eb5f7fb8823736f467c0) Thanks [@beeb](https://github.com/beeb)! - Added a `background` option to specify a background color to replace transparent pixels (alpha layer).
+
+### Patch Changes
+
+- [#4649](https://github.com/withastro/astro/pull/4649) [`db70afdcd`](https://github.com/withastro/astro/commit/db70afdcd5b7d6b39c9953e88dbdadc5e3a93175) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug related to filenames for remote images in SSG builds
+
+## 0.5.1
+
+### Patch Changes
+
+- [#4626](https://github.com/withastro/astro/pull/4626) [`494c2b835`](https://github.com/withastro/astro/commit/494c2b8353d1975d840c5acaf70cb513b99c58e5) Thanks [@altano](https://github.com/altano)! - Parallelize image transforms
+
 ## 0.5.0
 
 ### Minor Changes

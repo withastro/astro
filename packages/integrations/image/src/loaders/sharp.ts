@@ -15,6 +15,11 @@ class SharpService extends BaseSSRService {
 			sharpImage.resize(width, height);
 		}
 
+		// remove alpha channel and replace with background color if requested
+		if (transform.background) {
+			sharpImage.flatten({ background: transform.background });
+		}
+
 		if (transform.format) {
 			sharpImage.toFormat(transform.format, { quality: transform.quality });
 		}
