@@ -33,6 +33,6 @@ class SharpService extends BaseSSRService {
 	}
 }
 
-const service = new SharpService();
+const service: SSRImageService = new SharpService();
 
 export default service;
