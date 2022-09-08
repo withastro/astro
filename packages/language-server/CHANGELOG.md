@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.24.1
+
+### Patch Changes
+
+- 180ade5: Empty changeset for failed publish
+
 ## 0.24.0
 
 ### Minor Changes
