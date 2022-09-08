@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.24.3
+
+### Patch Changes
+
+- 7390abe: We're in deploy hell, but this time it'll work
+
 ## 0.24.2
 
 ### Patch Changes
