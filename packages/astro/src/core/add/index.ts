@@ -551,11 +551,11 @@ async function getInstallIntegrationsCommand({
 
 	switch (pm.name) {
 		case 'npm':
-			return { pm: 'npm', command: 'install', flags: ['--save-dev'], dependencies };
+			return { pm: 'npm', command: 'install', flags: [], dependencies };
 		case 'yarn':
-			return { pm: 'yarn', command: 'add', flags: ['--dev'], dependencies };
+			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
-			return { pm: 'pnpm', command: 'install', flags: ['--save-dev'], dependencies };
+			return { pm: 'pnpm', command: 'install', flags: [], dependencies };
 		default:
 			return null;
 	}
@@ -579,7 +579,7 @@ async function tryToInstallIntegrations({
 	} else {
 		const coloredOutput = `${bold(installCommand.pm)} ${
 			installCommand.command
-		} ${installCommand.flags.join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
+		}${['', ...installCommand.flags].join(' ')} ${cyan(installCommand.dependencies.join(' '))}`;
 		const message = `\n${boxen(coloredOutput, {
 			margin: 0.5,
 			padding: 0.5,
