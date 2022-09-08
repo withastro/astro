@@ -46,13 +46,18 @@ describe('serialize', () => {
 		const a = {}
 		a.b = a;
 		const input = { a };
-		expect(() => serializeProps(input)).to.throw();
+		expect(() => serializeProps(input)).to.throw(/cyclic/);
+	})
+	it('cannot serialize a cyclic array', () => {
+		const input = { foo: ['bar'] }
+		input.foo.push(input)
+		expect(() => serializeProps(input)).to.throw(/cyclic/);
 	})
 	it('cannot serialize a deep cyclic reference', () => {
 		const a = { b: {}};
 		a.b.c = a;
 		const input = { a };
-		expect(() => serializeProps(input)).to.throw();
+		expect(() => serializeProps(input)).to.throw(/cyclic/);
 	})
 	it('can serialize shared references that are not cyclic', () => {
 		const b = {}
