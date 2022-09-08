@@ -11,7 +11,7 @@ const PROP_TYPE = {
 	URL: 7,
 	Uint8Array: 8,
 	Uint16Array: 9,
-	Uint32Array: 10
+	Uint32Array: 10,
 };
 
 function serializeArray(value: any[]): any[] {
