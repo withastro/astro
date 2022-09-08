@@ -13,7 +13,11 @@ const PROP_TYPE = {
 	URL: 7,
 };
 
-function serializeArray(value: any[], metadata: AstroComponentMetadata | Record<string, any> = {}, parents = new WeakSet<any>()): any[] {
+function serializeArray(
+	value: any[],
+	metadata: AstroComponentMetadata | Record<string, any> = {},
+	parents = new WeakSet<any>()
+): any[] {
 	if (parents.has(value)) {
 		throw new Error(`Cyclic reference detected while serializing props for <${metadata.displayName} client:${metadata.hydrate}>!
 
@@ -21,7 +25,7 @@ Cyclic references cannot be safely serialized for client-side usage. Please remo
 	}
 	parents.add(value);
 	const serialized = value.map((v) => {
-		return convertToSerializedForm(v, metadata, parents)
+		return convertToSerializedForm(v, metadata, parents);
 	});
 	parents.delete(value);
 	return serialized;
