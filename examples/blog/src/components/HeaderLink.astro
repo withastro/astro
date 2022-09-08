@@ -10,10 +10,7 @@ const removeTrailingSlash = (str: string): string => {
 };
 
 const { href, class: className, ...props } = Astro.props;
-const isActive =
-  typeof href === "string" &&
-  removeTrailingSlash(href) === removeTrailingSlash(Astro.url.pathname);
-
+const isActive = href === Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <a href={href} class:list={[className, { active: isActive }]} {...props}>
