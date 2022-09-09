@@ -97,13 +97,12 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 						clientOnlys.push(cid);
 						// Bare module specifiers need to be resolved so that the CSS
 						// plugin can walk up the graph to find which page they belong to.
-						if(c.resolvedPath === c.specifier) {
+						if (c.resolvedPath === c.specifier) {
 							const resolvedId = await this.resolve(c.specifier, id);
-							if(resolvedId) {
+							if (resolvedId) {
 								clientOnlys.push(resolvedId.id);
 							}
 						}
-						
 					}
 
 					for (const [pageInfo] of getTopLevelPages(id, this)) {
