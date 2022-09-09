@@ -155,7 +155,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
 
   examples/framework-preact:
@@ -202,7 +202,7 @@ importers:
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
-      svelte: 3.50.0
+      svelte: 3.50.1
 
   examples/framework-vue:
     specifiers:
@@ -248,7 +248,7 @@ importers:
       astro: link:../../packages/astro
       concurrently: 7.4.0
       lightcookie: 1.0.25
-      svelte: 3.50.0
+      svelte: 3.50.1
       unocss: 0.15.6
       vite-imagetools: 4.0.9
 
@@ -446,7 +446,7 @@ importers:
       es-module-lexer: 0.10.5
       esbuild: 0.14.54
       execa: 6.1.0
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       github-slugger: 1.4.0
       gray-matter: 4.0.3
       html-entities: 2.3.3
@@ -474,7 +474,7 @@ importers:
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
       unist-util-visit: 4.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
       vite: 3.0.9_sass@1.54.9
       yargs-parser: 21.1.1
       zod: 3.19.0
@@ -564,7 +564,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -674,7 +674,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/lit': link:../../../../integrations/lit
@@ -717,7 +717,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -746,7 +746,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -775,7 +775,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -804,7 +804,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -833,7 +833,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -862,7 +862,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -961,7 +961,7 @@ importers:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/svelte': link:../../../../integrations/svelte
       astro: link:../../..
-      svelte: 3.50.0
+      svelte: 3.50.1
 
   packages/astro/e2e/fixtures/tailwindcss:
     specifiers:
@@ -1596,7 +1596,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       solid-js: 1.5.4
-      svelte: 3.50.0
+      svelte: 3.50.1
       vue: 3.2.39
     devDependencies:
       '@astrojs/preact': link:../../../../integrations/preact
@@ -2349,7 +2349,7 @@ importers:
       remark-smartypants: 2.0.0
       shiki: 0.11.1
       unist-util-visit: 4.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
     devDependencies:
       '@types/chai': 4.3.3
       '@types/mocha': 9.1.1
@@ -2603,15 +2603,15 @@ importers:
       svelte2tsx: ^0.5.11
       vite: ^3.0.0
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.5_svelte@3.50.0+vite@3.1.0
+      '@sveltejs/vite-plugin-svelte': 1.0.5_svelte@3.50.1+vite@3.1.0
       postcss-load-config: 3.1.4
-      svelte-preprocess: 4.10.7_5llrep7g7lww57fglza6pzz77u
-      svelte2tsx: 0.5.16_svelte@3.50.0
+      svelte-preprocess: 4.10.7_dnlyed3grtnuceggogyodrmgvm
+      svelte2tsx: 0.5.16_svelte@3.50.1
       vite: 3.1.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
-      svelte: 3.50.0
+      svelte: 3.50.1
 
   packages/integrations/tailwind:
     specifiers:
@@ -2835,7 +2835,7 @@ importers:
       unified: 10.1.2
       unist-util-map: 3.1.1
       unist-util-visit: 4.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
     devDependencies:
       '@types/chai': 4.3.3
       '@types/github-slugger': 1.3.0
@@ -2943,7 +2943,7 @@ importers:
       esbuild: 0.14.54
       globby: 12.2.0
       kleur: 4.1.5
-      svelte: 3.50.0
+      svelte: 3.50.1
       tar: 6.1.11
 
 packages:
@@ -5373,7 +5373,7 @@ packages:
       unist-util-position-from-estree: 1.1.1
       unist-util-stringify-position: 3.0.2
       unist-util-visit: 4.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5389,7 +5389,7 @@ packages:
       '@mdx-js/mdx': 2.1.3
       '@rollup/pluginutils': 4.2.1
       source-map: 0.7.4
-      vfile: 5.3.4
+      vfile: 5.3.5
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -8763,7 +8763,7 @@ packages:
       string.prototype.matchall: 4.0.7
     dev: false
 
-  /@sveltejs/vite-plugin-svelte/1.0.5_svelte@3.50.0+vite@3.1.0:
+  /@sveltejs/vite-plugin-svelte/1.0.5_svelte@3.50.1+vite@3.1.0:
     resolution: {integrity: sha512-CmSdSow0Dr5ua1A11BQMtreWnE0JZmkVIcRU/yG3PKbycKUpXjNdgYTWFSbStLB0vdlGnBbm2+Y4sBVj+C+TIw==}
     engines: {node: ^14.18.0 || >= 16}
     peerDependencies:
@@ -8781,8 +8781,8 @@ packages:
       deepmerge: 4.2.2
       kleur: 4.1.5
       magic-string: 0.26.3
-      svelte: 3.50.0
-      svelte-hmr: 0.14.12_svelte@3.50.0
+      svelte: 3.50.1
+      svelte-hmr: 0.14.12_svelte@3.50.1
       vite: 3.1.0
     transitivePeerDependencies:
       - supports-color
@@ -8796,7 +8796,7 @@ packages:
   /@ts-morph/common/0.16.0:
     resolution: {integrity: sha512-SgJpzkTgZKLKqQniCjLaE3c2L2sdL7UShvmTmPBejAKd2OKV/yfMpQ2IWpAuA+VY5wy7PkSUaEObIqEK6afFuw==}
     dependencies:
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       minimatch: 5.1.0
       mkdirp: 1.0.4
       path-browserify: 1.0.1
@@ -9313,7 +9313,7 @@ packages:
       chokidar: 3.5.3
       colorette: 2.0.19
       consola: 2.15.3
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       pathe: 0.2.0
     dev: false
 
@@ -10013,7 +10013,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001393
-      electron-to-chromium: 1.4.244
+      electron-to-chromium: 1.4.246
       node-releases: 2.0.6
       update-browserslist-db: 1.0.7_browserslist@4.21.3
 
@@ -10830,8 +10830,8 @@ packages:
       jake: 10.8.5
     dev: false
 
-  /electron-to-chromium/1.4.244:
-    resolution: {integrity: sha512-E21saXLt2eTDaTxgUtiJtBUqanF9A32wZasAwDZ8gvrqXoxrBrbwtDCx7c/PQTLp81wj4X0OLDeoGQg7eMo3+w==}
+  /electron-to-chromium/1.4.246:
+    resolution: {integrity: sha512-/wFCHUE+Hocqr/LlVGsuKLIw4P2lBWwFIDcNMDpJGzyIysQV4aycpoOitAs32FT94EHKnNqDR/CVZJFbXEufJA==}
 
   /emmet/2.3.6:
     resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
@@ -11838,8 +11838,8 @@ packages:
     resolution: {integrity: sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==}
     dev: true
 
-  /fast-glob/3.2.11:
-    resolution: {integrity: sha512-xrO3+1bxSo3ZVHAnqzyuewYT6aMFHRAd4Kcs92MAonjwQZLsK9d0SF1IyQ3k5PoirxTW0Oe/RqFgMQ6TcNE5Ew==}
+  /fast-glob/3.2.12:
+    resolution: {integrity: sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==}
     engines: {node: '>=8.6.0'}
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -12203,7 +12203,7 @@ packages:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.0
       merge2: 1.4.1
       slash: 3.0.0
@@ -12215,7 +12215,7 @@ packages:
     dependencies:
       array-union: 3.0.1
       dir-glob: 3.0.1
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       ignore: 5.2.0
       merge2: 1.4.1
       slash: 4.0.0
@@ -12325,7 +12325,7 @@ packages:
       '@types/unist': 2.0.6
       hastscript: 7.0.2
       property-information: 6.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
       vfile-location: 4.0.1
       web-namespaces: 2.0.1
     dev: false
@@ -12364,7 +12364,7 @@ packages:
       parse5: 6.0.1
       unist-util-position: 4.0.3
       unist-util-visit: 4.1.1
-      vfile: 5.3.4
+      vfile: 5.3.5
       web-namespaces: 2.0.1
       zwitch: 2.0.2
     dev: false
@@ -15631,7 +15631,7 @@ packages:
       shiki: 0.10.1
       shiki-twoslash: 3.1.0
       tslib: 2.1.0
-      typescript: 4.8.2
+      typescript: 4.8.3
       unist-util-visit: 2.0.3
     transitivePeerDependencies:
       - supports-color
@@ -15991,7 +15991,7 @@ packages:
       '@typescript/twoslash': 3.1.0
       '@typescript/vfs': 1.3.4
       shiki: 0.10.1
-      typescript: 4.8.2
+      typescript: 4.8.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -16422,16 +16422,16 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-hmr/0.14.12_svelte@3.50.0:
+  /svelte-hmr/0.14.12_svelte@3.50.1:
     resolution: {integrity: sha512-4QSW/VvXuqVcFZ+RhxiR8/newmwOCTlbYIezvkeN6302YFRE8cXy0naamHcjz8Y9Ce3ITTZtrHrIL0AGfyo61w==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
     peerDependencies:
       svelte: '>=3.19.0'
     dependencies:
-      svelte: 3.50.0
+      svelte: 3.50.1
     dev: false
 
-  /svelte-preprocess/4.10.7_5llrep7g7lww57fglza6pzz77u:
+  /svelte-preprocess/4.10.7_dnlyed3grtnuceggogyodrmgvm:
     resolution: {integrity: sha512-sNPBnqYD6FnmdBrUmBCaqS00RyCsCpj2BG58A1JBswNF7b0OKviwxqVrOL/CKyJrLSClrSeqQv5BXNg2RUbPOw==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -16479,14 +16479,14 @@ packages:
       postcss-load-config: 3.1.4
       sorcery: 0.10.0
       strip-indent: 3.0.0
-      svelte: 3.50.0
+      svelte: 3.50.1
     dev: false
 
-  /svelte/3.50.0:
-    resolution: {integrity: sha512-zXeOUDS7+85i+RxLN+0iB6PMbGH7OhEgjETcD1fD8ZrhuhNFxYxYEHU41xuhkHIulJavcu3PKbPyuCrBxdxskQ==}
+  /svelte/3.50.1:
+    resolution: {integrity: sha512-bS4odcsdj5D5jEg6riZuMg5NKelzPtmsCbD9RG+8umU03TeNkdWnP6pqbCm0s8UQNBkqk29w/Bdubn3C+HWSwA==}
     engines: {node: '>= 8'}
 
-  /svelte2tsx/0.5.16_svelte@3.50.0:
+  /svelte2tsx/0.5.16_svelte@3.50.1:
     resolution: {integrity: sha512-MwgpeRHfzP8T7NkFNT1JPhe9pCF4Dml2oSdjL2zNqvSprjA2BFgQuCNUg4R5qSz7AxVDJsiL/2hciCtVbXAT3A==}
     peerDependencies:
       svelte: ^3.24
@@ -16497,7 +16497,7 @@ packages:
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 3.50.0
+      svelte: 3.50.1
     dev: false
 
   /synckit/0.7.3:
@@ -16520,7 +16520,7 @@ packages:
       detective: 5.2.1
       didyoumean: 1.2.2
       dlv: 1.1.3
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       glob-parent: 6.0.2
       is-glob: 4.0.3
       lilconfig: 2.0.6
@@ -16960,8 +16960,8 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript/4.8.2:
-    resolution: {integrity: sha512-C0I1UsrrDHo2fYI5oaCGbSejwX4ch+9Y5jTQELvovfmFkK3HHSZJB8MSJcWLmCUBzQBchCrZ9rMRV6GuNrvGtw==}
+  /typescript/4.8.3:
+    resolution: {integrity: sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
@@ -17027,7 +17027,7 @@ packages:
       is-buffer: 2.0.5
       is-plain-obj: 4.1.0
       trough: 2.1.0
-      vfile: 5.3.4
+      vfile: 5.3.5
 
   /unique-string/2.0.0:
     resolution: {integrity: sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg==}
@@ -17250,7 +17250,7 @@ packages:
     resolution: {integrity: sha512-JDxPlTbZrZCQXogGheBHjbRWjESSPEak770XwWPfw5mTc1v1nWGLB/apzZxsx8a0SJVfF8HK8ql8RD308vXRUw==}
     dependencies:
       '@types/unist': 2.0.6
-      vfile: 5.3.4
+      vfile: 5.3.5
     dev: false
 
   /vfile-message/3.1.2:
@@ -17259,8 +17259,8 @@ packages:
       '@types/unist': 2.0.6
       unist-util-stringify-position: 3.0.2
 
-  /vfile/5.3.4:
-    resolution: {integrity: sha512-KI+7cnst03KbEyN1+JE504zF5bJBZa+J+CrevLeyIMq0aPU681I2rQ5p4PlnQ6exFtWiUrg26QUdFMnAKR6PIw==}
+  /vfile/5.3.5:
+    resolution: {integrity: sha512-U1ho2ga33eZ8y8pkbQLH54uKqGhFJ6GYIHnnG5AhRpAh3OWjkrRHKa/KogbmQn8We+c0KVV3rTOgR9V/WowbXQ==}
     dependencies:
       '@types/unist': 2.0.6
       is-buffer: 2.0.5
@@ -17286,7 +17286,7 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-      fast-glob: 3.2.11
+      fast-glob: 3.2.12
       pretty-bytes: 5.6.0
       rollup: 2.79.0
       workbox-build: 6.5.4
