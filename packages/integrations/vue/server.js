@@ -3,7 +3,6 @@ import { renderToString } from 'vue/server-renderer';
 import StaticHtml from './static-html.js';
 
 function check(Component) {
-	console.log('checking')
 	return !!Component['ssrRender'] || !!Component['__ssrInlineRender'];
 }
 
