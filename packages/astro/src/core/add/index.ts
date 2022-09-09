@@ -57,6 +57,7 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 };
 
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
+	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
@@ -159,7 +160,6 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 
 	const rawConfigPath = await resolveConfigPath({ cwd, flags });
 	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
-	applyPolyfill();
 
 	if (configURL) {
 		debug('add', `Found config at ${configURL}`);
