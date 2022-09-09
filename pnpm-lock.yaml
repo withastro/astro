@@ -1097,15 +1097,20 @@ importers:
     specifiers:
       '@astrojs/react': workspace:*
       '@astrojs/svelte': workspace:*
+      '@test/astro-client-only-pkg': file:./pkg
       astro: workspace:*
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
       '@astrojs/react': link:../../../../integrations/react
       '@astrojs/svelte': link:../../../../integrations/svelte
+      '@test/astro-client-only-pkg': file:packages/astro/test/fixtures/astro-client-only/pkg
       astro: link:../../..
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+
+  packages/astro/test/fixtures/astro-client-only/pkg:
+    specifiers: {}
 
   packages/astro/test/fixtures/astro-component-code:
     specifiers:
@@ -17932,6 +17937,11 @@ packages:
 
   /zwitch/2.0.2:
     resolution: {integrity: sha512-JZxotl7SxAJH0j7dN4pxsTV6ZLXoLdGME+PsjkL/DaBrVryK9kTGq06GfKrwcSOqypP+fdXGoCHE36b99fWVoA==}
+    dev: false
+
+  file:packages/astro/test/fixtures/astro-client-only/pkg:
+    resolution: {directory: packages/astro/test/fixtures/astro-client-only/pkg, type: directory}
+    name: '@test/astro-client-only-pkg'
     dev: false
 
   file:packages/astro/test/fixtures/css-assets/packages/font-awesome:
