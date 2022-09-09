@@ -205,7 +205,27 @@ The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_col
 color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
 `rgb(100,100,100)`.
 
-### `<Picture /`>
+#### fit
+
+<p>
+
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
+</p>
+
+How the image should be resized to fit both `height` and `width`.
+
+#### position
+
+<p>
+
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
+</p>
+
+Position of the crop when fit is `cover` or `contain`.
+
+### `<Picture />`
 
 #### src
 
@@ -303,6 +323,28 @@ The parameter accepts a `string` as value.
 The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
 color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
 `rgb(100,100,100)`.
+
+#### fit
+
+<p>
+
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
+</p>
+
+How the image should be resized to fit both `height` and `width`.
+
+#### position
+
+<p>
+
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' |
+  'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' |
+  'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
+</p>
+
+Position of the crop when fit is `cover` or `contain`.
 
 ### `getImage`
 
