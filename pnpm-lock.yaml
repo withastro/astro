@@ -2073,6 +2073,16 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/test/fixtures/vue-with-multi-renderer:
+    specifiers:
+      '@astrojs/svelte': workspace:*
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/svelte': link:../../../../integrations/svelte
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
   packages/astro/test/fixtures/with-endpoint-routes:
     specifiers:
       astro: workspace:*
