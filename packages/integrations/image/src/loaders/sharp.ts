@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { ColorDefinition, isAspectRatioString, isColor, isOutputFormat } from '../loaders/index.js';
+import { ColorDefinition, isAspectRatioString, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
