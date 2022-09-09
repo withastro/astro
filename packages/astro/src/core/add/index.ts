@@ -10,7 +10,7 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { resolveConfigURL } from '../config.js';
+import { resolveConfigPath } from '../config.js';
 import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -97,7 +97,8 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 	let configURL: URL | undefined;
 	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
-	configURL = await resolveConfigURL({ cwd, flags });
+	const rawConfigPath = await resolveConfigPath({ cwd, flags });
+	configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 	applyPolyfill();
 
 	if (configURL) {
