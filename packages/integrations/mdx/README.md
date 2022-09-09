@@ -66,7 +66,7 @@ Finally, restart the dev server.
 [VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for MDX editor support, you may wish to add the following setting in your VSCode config. This ensures authoring MDX files provides a Markdown-like editor experience.
 
 ```json title=".vscode/settings.json"
-"files.addociations": {
+"files.associations": {
     "*.mdx": "markdown"
 }
 ```
