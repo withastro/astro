@@ -7,8 +7,9 @@ import type { PluginMetadata as AstroPluginMetadata } from './types';
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
+import { viteID } from '../core/util.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
 import { handleHotUpdate } from './hmr.js';
@@ -44,6 +45,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+	const isFullFilePath = (path: string) => path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
 
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
 		const filename = normalizeFilename(parsedFrom.filename);
@@ -89,7 +91,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if (query.type === 'style' && isBrowserPath(id)) {
 					return relativeToRoot(id);
 				}
-
+				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
+				if(isFullFilePath(id)) {
+					return viteID(new URL('file://' + id));
+				}
 				return id;
 			}
 		},
@@ -248,9 +253,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if (!resolvedConfig.isProduction) {
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						SUFFIX += `import "${
-							isRelativePath(id) ? id : prependForwardSlash(id)
-						}?astro&type=script&index=${i}&lang.ts";`;
+						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
 				}
