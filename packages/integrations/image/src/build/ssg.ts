@@ -39,8 +39,6 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 		)}`,
 	});
 
-	const inputFiles = new Set<string>();
-
 	async function processStaticImage([src, transformsMap]: [
 		string,
 		Map<string, TransformOptions>
@@ -61,9 +59,6 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 			const inputFileURL = new URL(`.${src}`, outDir);
 			inputFile = fileURLToPath(inputFileURL);
 			inputBuffer = await loadLocalImage(inputFile);
-
-			// track the local file used so the original can be copied over
-			inputFiles.add(inputFile);
 		}
 
 		if (!inputBuffer) {

@@ -1,6 +1,4 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { ssgBuild } from './build/ssg.js';
 import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
@@ -50,13 +48,13 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			optimizeDeps: {
 				include: [
 					'image-size',
-					'@squoosh/lib',
 					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp' && 'sharp',
 				].filter(Boolean),
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
 			},
+			assetsInclude: ['**/*.wasm']
 		};
 	}
 
