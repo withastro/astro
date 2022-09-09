@@ -68,7 +68,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 			devServerAddressInfo,
 			site,
 			https: !!viteConfig.server?.https,
-			isRestart
+			isRestart,
 		})
 	);
 

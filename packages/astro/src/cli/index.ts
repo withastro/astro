@@ -1,17 +1,19 @@
 /* eslint-disable no-console */
-import type { Arguments as Flags } from 'yargs-parser'
 import * as colors from 'kleur/colors';
+import { pathToFileURL } from 'url';
+import { normalizePath } from 'vite';
+import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { normalizePath } from 'vite';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import { openConfig, resolveConfigPath, resolveFlags, resolveRoot } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { debug, error, info, LogOptions, warn } from '../core/logger/core.js';
+import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
+import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
 import { ASTRO_VERSION, createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
@@ -19,8 +21,6 @@ import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
 import * as telemetryHandler from './telemetry.js';
-import { appendForwardSlash } from '../core/path.js';
-import { pathToFileURL } from 'url'
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -84,13 +84,18 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
-async function handleConfigError(e: any, { cwd, flags, logging }: { cwd?: string; flags?: Flags, logging: LogOptions }) {
+async function handleConfigError(
+	e: any,
+	{ cwd, flags, logging }: { cwd?: string; flags?: Flags; logging: LogOptions }
+) {
 	const path = await resolveConfigPath({ cwd, flags });
 	if (e instanceof Error) {
 		if (path) {
 			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
 		}
-		console.error(formatErrorMessage(collectErrorMetadata(e, path ? pathToFileURL(path) : undefined)) + '\n')
+		console.error(
+			formatErrorMessage(collectErrorMetadata(e, path ? pathToFileURL(path) : undefined)) + '\n'
+		);
 	}
 }
 
@@ -145,16 +150,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-		let { astroConfig, userConfig } = await openConfig({
-			cwd: root,
-			flags,
-			cmd,
-			logging,
-		}).catch(async (e) => {
-			await handleConfigError(e, { cwd: root, flags, logging })
-			return {} as any;
-		});
-		if (!astroConfig) return;
+	let { astroConfig, userConfig } = await openConfig({
+		cwd: root,
+		flags,
+		cmd,
+		logging,
+	}).catch(async (e) => {
+		await handleConfigError(e, { cwd: root, flags, logging });
+		return {} as any;
+	});
+	if (!astroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -184,7 +189,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								  ).test(normalizePath(changedFile)))
 						) {
 							restartInFlight = true;
-							console.clear()
+							console.clear();
 							try {
 								const newConfig = await openConfig({
 									cwd: root,
@@ -198,11 +203,10 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								await stop();
 								await startDevServer({ isRestart: true });
 							} catch (e) {
-								await handleConfigError(e, { cwd: root, flags, logging })
+								await handleConfigError(e, { cwd: root, flags, logging });
 								await stop();
 								info(logging, 'astro', 'Continuing with previous valid configuration\n');
 								await startDevServer({ isRestart: true });
-
 							}
 						}
 					};

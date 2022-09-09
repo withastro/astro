@@ -1,9 +1,9 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import fs from 'fs';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../@types/astro';
-import fs from 'fs';
 
 import load, { ProloadError, resolve } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
@@ -437,7 +437,7 @@ export async function resolveConfigPath(
 		if (e instanceof ProloadError && flags.config) {
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
-		throw e
+		throw e;
 	}
 }
 
