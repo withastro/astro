@@ -9,8 +9,9 @@ import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
+import { viteID } from '../core/util.js';
 import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
-import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import {
 	createTransformStyles,
@@ -48,6 +49,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+	const isFullFilePath = (path: string) => path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
 
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
 		const filename = normalizeFilename(parsedFrom.filename);
@@ -94,7 +96,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if (query.type === 'style' && isBrowserPath(id)) {
 					return relativeToRoot(id);
 				}
-
+				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
+				if(isFullFilePath(id)) {
+					return viteID(new URL('file://' + id));
+				}
 				return id;
 			}
 		},
@@ -245,18 +250,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				)};export { $$file as file, $$url as url };\n`;
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
-					// HACK: extract dependencies from metadata until compiler static extraction handles them
-					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0];
-					const pattern = /specifier:\s*'([^']*)'/g;
-					const deps = new Set();
-					let match;
-					while ((match = pattern.exec(metadata)?.[1])) {
-						deps.add(match);
-					}
-
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
 						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
