@@ -44,17 +44,17 @@ describe('serialize', () => {
 	});
 	it('serializes a Uint8Array', () => {
 		const input = { a: new Uint8Array([1,2,3]) };
-		const output = `{"a":[8,"[[0,0],[0,1],[0,2],[0,3]]"]}`;
+		const output = `{"a":[8,"[[0,1],[0,2],[0,3]]"]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Uint16Array', () => {
 		const input = { a: new Uint16Array([1,2,3]) };
-		const output = `{"a":[9,"[[0,0],[0,1],[0,2],[0,3]]"]}`;
+		const output = `{"a":[9,"[[0,1],[0,2],[0,3]]"]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Uint32Array', () => {
 		const input = { a: new Uint32Array([1,2,3]) };
-		const output = `{"a":[10,"[[0,0],[0,1],[0,2],[0,3]]"]}`;
+		const output = `{"a":[10,"[[0,1],[0,2],[0,3]]"]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('cannot serialize a cyclic reference', () => {
