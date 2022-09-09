@@ -228,16 +228,6 @@ How the image should be resized to fit both `height` and `width`.
 
 Position of the crop when fit is `cover` or `contain`.
 
-#### kernel
-
-<p>
-
-**Type:** `'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3'` <br>
-**Default:** `'lanczos3'`
-</p>
-
-The kernel to use for cropping.
-
 ### `<Picture />`
 
 #### src
@@ -358,16 +348,6 @@ How the image should be resized to fit both `height` and `width`.
 </p>
 
 Position of the crop when fit is `cover` or `contain`.
-
-#### kernel
-
-<p>
-
-**Type:** `'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3'` <br>
-**Default:** `'lanczos3'`
-</p>
-
-The kernel to use for cropping.
 
 ### `getImage`
 

@@ -5,19 +5,8 @@ import type { OutputFormat, SSRImageService, TransformOptions } from './index.js
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
 		// strip off the known attributes
-		const {
-			width,
-			height,
-			src,
-			format,
-			quality,
-			aspectRatio,
-			fit,
-			position,
-			background,
-			kernel,
-			...rest
-		} = transform;
+		const { width, height, src, format, quality, aspectRatio, fit, position, background, ...rest } =
+			transform;
 
 		return {
 			...rest,
@@ -59,10 +48,6 @@ class SharpService implements SSRImageService {
 
 		if (transform.position) {
 			searchParams.append('p', encodeURI(transform.position));
-		}
-
-		if (transform.kernel) {
-			searchParams.append('k', transform.kernel);
 		}
 
 		return { searchParams };
@@ -112,10 +97,6 @@ class SharpService implements SSRImageService {
 			transform.background = searchParams.get('bg') as ColorDefinition | undefined;
 		}
 
-		if (searchParams.has('k')) {
-			transform.kernel = searchParams.get('k')! as typeof transform.kernel;
-		}
-
 		return transform;
 	}
 
@@ -135,7 +116,6 @@ class SharpService implements SSRImageService {
 				fit: transform.fit,
 				position: transform.position,
 				background: transform.background,
-				kernel: transform.kernel,
 			});
 		}
 

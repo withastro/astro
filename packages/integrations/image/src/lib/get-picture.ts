@@ -13,7 +13,6 @@ export interface GetPictureParams {
 	fit?: TransformOptions['fit'];
 	background?: TransformOptions['background'];
 	position?: TransformOptions['position'];
-	kernel?: TransformOptions['kernel'];
 }
 
 export interface GetPictureResult {
@@ -44,7 +43,7 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 }
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
-	const { src, widths, fit, position, background, kernel } = params;
+	const { src, widths, fit, position, background } = params;
 
 	if (!src) {
 		throw new Error('[@astrojs/image] `src` is required');
@@ -70,7 +69,6 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					fit,
 					position,
 					background,
-					kernel,
 					height: Math.round(width / aspectRatio!),
 				});
 				return `${img.src} ${width}w`;
@@ -93,7 +91,6 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		fit,
 		position,
 		background,
-		kernel,
 		format: allFormats[allFormats.length - 1],
 	});
 

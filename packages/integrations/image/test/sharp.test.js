@@ -17,7 +17,6 @@ describe('Sharp service', () => {
 			['background color', { src, format: 'jpeg', background: '#333333' }],
 			['crop fit', { src, fit: 'cover' }],
 			['crop position', { src, position: 'center' }],
-			['crop kernel', { src, kernel: 'lanczos3' }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
 				const { searchParams } = await sharp.serializeTransform(props);
@@ -38,7 +37,6 @@ describe('Sharp service', () => {
 				verifyProp(props.fit, 'fit');
 				verifyProp(props.position, 'p');
 				verifyProp(props.background, 'bg');
-				verifyProp(props.kernel, 'k');
 			});
 		});
 	});
@@ -63,7 +61,6 @@ describe('Sharp service', () => {
 			],
 			['crop fit', `fit=contain&href=${href}`, { src, fit: 'contain' }],
 			['crop position', `p=right%20top&href=${href}`, { src, position: 'right top' }],
-			['crop kernel', `k=nearest&href=${href}`, { src, kernel: 'nearest' }],
 		].forEach(([description, params, expected]) => {
 			it(description, async () => {
 				const searchParams = new URLSearchParams(params);

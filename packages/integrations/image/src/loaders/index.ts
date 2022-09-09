@@ -46,8 +46,6 @@ export type CropPosition =
 	| 'entropy'
 	| 'attention';
 
-export type CropKernel = 'nearest' | 'cubic' | 'mitchell' | 'lanczos2' | 'lanczos3';
-
 export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
 }
@@ -144,12 +142,6 @@ export interface TransformOptions {
 	 * @default 'centre'
 	 */
 	position?: CropPosition;
-	/**
-	 * The kernel to use for cropping.
-	 *
-	 * @default 'lanczos3'
-	 */
-	kernel?: CropKernel;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {
