@@ -5,7 +5,7 @@ import type { TransformStyle } from './types';
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash } from '../path.js';
-import { viteID, AggregateError } from '../util.js';
+import { AggregateError, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
@@ -57,11 +57,12 @@ async function compile({
 			throw err;
 		})
 		.then((result) => {
-			switch(cssTransformErrors.length) {
-				case 0: return result;
+			switch (cssTransformErrors.length) {
+				case 0:
+					return result;
 				case 1: {
 					let error = cssTransformErrors[0];
-					if(!(error as any).code) {
+					if (!(error as any).code) {
 						(error as any).code = AstroErrorCodes.UnknownCompilerCSSError;
 					}
 					throw cssTransformErrors[0];

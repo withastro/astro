@@ -1,4 +1,3 @@
-
 import { expect } from 'chai';
 import { cachedCompilation } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/util.js';
@@ -9,8 +8,8 @@ describe('astro/src/core/compile', () => {
 			let error;
 			try {
 				let r = await cachedCompilation({
-					config: /** @type {any} */({
-						root: '/'
+					config: /** @type {any} */ ({
+						root: '/',
 					}),
 					filename: '/src/pages/index.astro',
 					moduleId: '/src/pages/index.astro',
@@ -30,9 +29,9 @@ describe('astro/src/core/compile', () => {
 	`,
 					transformStyle(source, lang) {
 						throw new Error('Invalid css');
-					}
+					},
 				});
-			} catch(err) {
+			} catch (err) {
 				error = err;
 			}
 

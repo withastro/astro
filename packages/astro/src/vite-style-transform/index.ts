@@ -1,7 +1,2 @@
-export type {
-	ViteStyleTransformer
-} from './style-transform';
-export {
-  createViteStyleTransformer,
-	createTransformStyles
-} from './style-transform.js';
+export type { ViteStyleTransformer } from './style-transform';
+export { createTransformStyles, createViteStyleTransformer } from './style-transform.js';

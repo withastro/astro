@@ -227,10 +227,13 @@ export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
 	return VALID_ID_PREFIX + result.id;
 }
 
-export const AggregateError = typeof globalThis.AggregateError !== 'undefined' ? globalThis.AggregateError : class extends Error {
-	errors: Array<any> = [];
-	constructor( errors: Iterable<any>, message?: string | undefined) {
-			super(message);
-			this.errors = Array.from(errors);
-		}
-}
+export const AggregateError =
+	typeof globalThis.AggregateError !== 'undefined'
+		? globalThis.AggregateError
+		: class extends Error {
+				errors: Array<any> = [];
+				constructor(errors: Iterable<any>, message?: string | undefined) {
+					super(message);
+					this.errors = Array.from(errors);
+				}
+		  };

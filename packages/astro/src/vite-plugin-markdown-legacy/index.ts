@@ -7,12 +7,16 @@ import { fileURLToPath } from 'url';
 import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
+import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { cachedCompilation, CompileProps } from '../core/compile/index.js';
-import { ViteStyleTransformer, createViteStyleTransformer, createTransformStyles } from '../vite-style-transform/index.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import {
+	createTransformStyles,
+	createViteStyleTransformer,
+	ViteStyleTransformer,
+} from '../vite-style-transform/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -208,7 +212,12 @@ ${setup}`.trim();
 					filename,
 					moduleId: id,
 					source: astroResult,
-					transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
+					transformStyle: createTransformStyles(
+						styleTransformer,
+						filename,
+						Boolean(opts?.ssr),
+						this
+					),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);

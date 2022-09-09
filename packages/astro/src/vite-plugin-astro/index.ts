@@ -2,23 +2,22 @@ import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
-import type { PluginMetadata as AstroPluginMetadata } from './types';
 import type { ViteStyleTransformer } from '../vite-style-transform';
+import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
 import {
-	cachedCompilation,
-	CompileProps,
-	getCachedSource
-} from '../core/compile/index.js';
+	createTransformStyles,
+	createViteStyleTransformer,
+} from '../vite-style-transform/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-import { createViteStyleTransformer, createTransformStyles } from '../vite-style-transform/index.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {

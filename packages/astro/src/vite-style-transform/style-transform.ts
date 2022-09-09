@@ -1,14 +1,14 @@
 import type { PluginContext } from 'rollup';
-import type { TransformStyle } from '../core/compile/index';
-import { TransformStyleWithVite, createTransformStyleWithViteFn } from './transform-with-vite.js';
 import { fileURLToPath } from 'url';
+import type { TransformStyle } from '../core/compile/index';
+import { createTransformStyleWithViteFn, TransformStyleWithVite } from './transform-with-vite.js';
 
 import type * as vite from 'vite';
 
 export type ViteStyleTransformer = {
 	viteDevServer?: vite.ViteDevServer;
 	transformStyleWithVite: TransformStyleWithVite;
-}
+};
 
 export function createViteStyleTransformer(viteConfig: vite.ResolvedConfig): ViteStyleTransformer {
 	return {
@@ -26,7 +26,12 @@ function getNormalizedIDForPostCSS(filename: string): string {
 	}
 }
 
-export function createTransformStyles(viteStyleTransformer: ViteStyleTransformer, filename: string, ssr: boolean, pluginContext: PluginContext): TransformStyle {
+export function createTransformStyles(
+	viteStyleTransformer: ViteStyleTransformer,
+	filename: string,
+	ssr: boolean,
+	pluginContext: PluginContext
+): TransformStyle {
 	// handleHotUpdate doesn't have `addWatchFile` used by transformStyleWithVite.
 	// TODO, refactor, why is this happening *here* ?
 	if (!pluginContext.addWatchFile) {
@@ -35,7 +40,7 @@ export function createTransformStyles(viteStyleTransformer: ViteStyleTransformer
 
 	const normalizedID = getNormalizedIDForPostCSS(filename);
 
-	return async function(styleSource, lang) {
+	return async function (styleSource, lang) {
 		const result = await viteStyleTransformer.transformStyleWithVite.call(pluginContext, {
 			id: normalizedID,
 			source: styleSource,
