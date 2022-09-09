@@ -207,7 +207,8 @@ export default function astroJSX(): PluginObj {
 							break;
 						}
 						if (namespace.at(0) === local) {
-							path.setData('import', { name: imported, path: source });
+							const name = imported === '*' ? imported : tagName;
+							path.setData('import', { name, path: source });
 							break;
 						}
 					}

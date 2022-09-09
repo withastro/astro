@@ -18,7 +18,7 @@ If you're using Astro as a static site builder â€” its behavior out of the box â
 
 If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/guides/server-side-rendering/), Astro requires an adapter that matches your deployment runtime.
 
-[Vercel](https://www.netlify.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository.  This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
+[Vercel](https://www.vercel.com/) is a deployment platform that allows you to host your site by connecting directly to your GitHub repository.  This adapter enhances the Astro build process to prepare your project for deployment through Vercel.
 
 ## Installation
 
@@ -40,7 +40,7 @@ If you prefer to install the adapter manually instead, complete the following tw
 
     ```js title="astro.config.mjs" ins={2, 5-6}
     import { defineConfig } from 'astro/config';
-    import netlify from '@astrojs/vercel/serverless';
+    import vercel from '@astrojs/vercel/serverless';
 
     export default defineConfig({
       output: 'server',

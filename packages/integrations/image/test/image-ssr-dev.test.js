@@ -81,6 +81,19 @@ describe('SSR images - dev', function () {
 			},
 			contentType: 'image/webp',
 		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+			contentType: 'image/jpeg',
+		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {
 			const image = $(id);
@@ -182,6 +195,19 @@ describe('SSR images with subpath - dev', function () {
 				href: '/hero.jpg',
 			},
 			contentType: 'image/webp',
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+			contentType: 'image/jpeg',
 		},
 	].forEach(({ title, id, url, query, contentType }) => {
 		it(title, async () => {

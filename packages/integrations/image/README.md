@@ -24,9 +24,9 @@ This integration provides `<Image />` and `<Picture>` components as well as a ba
 
 
  ### Quick Install
-  
+
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
-   
+
 ```sh
 # Using NPM
 npx astro add image
@@ -35,13 +35,13 @@ yarn astro add image
 # Using PNPM
 pnpm astro add image
 ```
-  
+
 Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
 
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
  ### Manual Install
-  
+
 First, install the `@astrojs/image` package using your package manager. If you're using npm or aren't sure, run this in the terminal:
 ```sh
 npm install @astrojs/image
@@ -57,7 +57,7 @@ export default {
   // ...
   integrations: [image()],
 }
-``` 
+```
 Then, restart the dev server.
 
 ### Update `env.d.ts`
@@ -190,6 +190,24 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+#### background
+
+<p>
+
+**Type:** `ColorDefinition`<br>
+**Default:** `undefined`
+</p>
+
+The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
+doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
+as default replacement for transparent pixels.
+
+The parameter accepts a `string` as value.
+
+The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
+color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
+`rgb(100,100,100)`.
+
 ### `<Picture /`>
 
 #### src
@@ -271,6 +289,24 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
 
+#### background
+
+<p>
+
+**Type:** `ColorDefinition`<br>
+**Default:** `undefined`
+</p>
+
+The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
+doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
+as default replacement for transparent pixels.
+
+The parameter accepts a `string` as value.
+
+The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
+color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
+`rgb(100,100,100)`.
+
 ### `getImage`
 
 This is the helper function used by the `<Image />` component to build `<img />` attributes for the transformed image. This helper can be used directly for more complex use cases that aren't currently supported by the `<Image />` component.
@@ -307,7 +343,7 @@ The integration can be configured to run with a different image service, either 
 
 
  ### config.serviceEntryPoint
-  
+
 The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/sharp`, which resolves to the entry point exported from this integration's `package.json`.
 
 ```js
@@ -342,7 +378,7 @@ export default {
 ## Examples
 
 ### Local images
-  
+
 Image files in your project's `src` directory can be imported in frontmatter and passed directly to the `<Image />` component. All other properties are optional and will default to the original image file's properties if not provided.
 
 ```astro
@@ -371,7 +407,7 @@ import heroImage from '../assets/hero.png';
 
 Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=` attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
 
-Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value. 
+Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value.
 
 For example, use an image located at `public/social.png` in either static or SSR builds like so:
 
@@ -386,7 +422,7 @@ import socialImage from '/social.png';
 ```
 
 ### Remote images
-  
+
 Remote images can be transformed with the `<Image />` component. The `<Image />` component needs to know the final dimensions for the `<img />` element to avoid content layout shifts. For remote images, this means you must either provide `width` and `height`, or one of the dimensions plus the required `aspectRatio`.
 
 ```astro

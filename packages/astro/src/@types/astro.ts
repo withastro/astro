@@ -924,7 +924,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	default: AstroComponentFactory;
 }
 
-export interface MDXInstance<T>
+export interface MDXInstance<T extends Record<string, any>>
 	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
 	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
 	rawContent: never;
@@ -944,7 +944,10 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	compiledContent: MarkdownInstance<T>['compiledContent'];
 }
 
-export type MDXLayoutProps<T> = Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'>;
+export type MDXLayoutProps<T extends Record<string, any>> = Omit<
+	MarkdownLayoutProps<T>,
+	'rawContent' | 'compiledContent'
+>;
 
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 

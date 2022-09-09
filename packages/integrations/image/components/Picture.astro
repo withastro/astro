@@ -27,6 +27,7 @@ interface RemoteImageProps
 	widths: number[];
 	aspectRatio: TransformOptions['aspectRatio'];
 	formats?: OutputFormat[];
+	background: TransformOptions['background'];
 }
 
 export type Props = LocalImageProps | RemoteImageProps;
@@ -37,6 +38,7 @@ const {
 	sizes,
 	widths,
 	aspectRatio,
+	background,
 	formats = ['avif', 'webp'],
 	loading = 'lazy',
 	decoding = 'async',
@@ -47,7 +49,7 @@ if (alt === undefined || alt === null) {
 	warnForMissingAlt();
 }
 
-const { image, sources } = await getPicture({ src, widths, formats, aspectRatio });
+const { image, sources } = await getPicture({ src, widths, formats, aspectRatio, background });
 ---
 
 <picture {...attrs}>
