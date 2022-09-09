@@ -1,5 +1,11 @@
 # astro
 
+## 1.2.1
+
+### Patch Changes
+
+- [#4703](https://github.com/withastro/astro/pull/4703) [`d28f7013c`](https://github.com/withastro/astro/commit/d28f7013c2b415cbf6b640f17c9678ef0ac53253) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix: [astro add] Apply fetch polyfill before running
+
 ## 1.2.0
 
 ### Minor Changes
