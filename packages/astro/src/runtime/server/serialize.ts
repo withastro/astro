@@ -62,7 +62,7 @@ function convertToSerializedForm(
 			return [PROP_TYPE.Date, (value as Date).toISOString()];
 		}
 		case '[object RegExp]': {
-			return [PROP_TYPE.RegExp, (value as RegExp).source];
+			return [PROP_TYPE.RegExp, JSON.stringify([(value as RegExp).source, (value as RegExp).flags])];
 		}
 		case '[object Map]': {
 			return [

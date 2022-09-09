@@ -14,7 +14,12 @@ describe('serialize', () => {
 	});
 	it('serializes a regular expression', () => {
 		const input = { a: /b/ };
-		const output = `{"a":[2,"b"]}`;
+		const output = `{"a":[2,"[\\"b\\",\\"\\"]"]}`;
+		expect(serializeProps(input)).to.equal(output);
+	});
+	it('serializes a regular expression with flags', () => {
+		const input = { a: /b/gim };
+		const output = `{"a":[2,"[\\"b\\",\\"gim\\"]"]}`;
 		expect(serializeProps(input)).to.equal(output);
 	});
 	it('serializes a Date', () => {

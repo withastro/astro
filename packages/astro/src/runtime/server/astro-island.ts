@@ -20,7 +20,10 @@ declare const Astro: {
 	const propTypes: PropTypeSelector = {
 		0: (value) => value,
 		1: (value) => JSON.parse(value, reviver),
-		2: (value) => new RegExp(value),
+		2: (value) => {
+			const [source, flags] = JSON.parse(value);
+			return new RegExp(source, flags);
+		},
 		3: (value) => new Date(value),
 		4: (value) => new Map(JSON.parse(value, reviver)),
 		5: (value) => new Set(JSON.parse(value, reviver)),
