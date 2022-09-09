@@ -54,7 +54,7 @@ If you've never worked with CSS variables before, give [MDN's guide on CSS varia
 This theme uses a "cool blue" accent color by default. To customize this for your project, change the `--theme-accent` variable to whatever color you'd like:
 
 ```diff
-/* public/theme.css */
+/* src/styles/theme.css */
 :root {
   color-scheme: light;
 -  --theme-accent: hsla(var(--color-blue), 1);
