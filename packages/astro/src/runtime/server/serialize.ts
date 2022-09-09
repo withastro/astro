@@ -89,13 +89,13 @@ function convertToSerializedForm(
 			return [PROP_TYPE.JSON, JSON.stringify(serializeArray(value, metadata, parents))];
 		}
 		case '[object Uint8Array]': {
-			return [PROP_TYPE.Uint8Array, JSON.stringify(serializeArray(Array.from(value as Uint8Array), metadata, parents))];
+			return [PROP_TYPE.Uint8Array, JSON.stringify(Array.from(value as Uint8Array))];
 		}
 		case '[object Uint16Array]': {
-			return [PROP_TYPE.Uint16Array, JSON.stringify(serializeArray(Array.from(value as Uint16Array), metadata, parents))];
+			return [PROP_TYPE.Uint16Array, JSON.stringify(Array.from(value as Uint16Array))];
 		}
 		case '[object Uint32Array]': {
-			return [PROP_TYPE.Uint32Array, JSON.stringify(serializeArray(Array.from(value as Uint32Array), metadata, parents))];
+			return [PROP_TYPE.Uint32Array, JSON.stringify(Array.from(value as Uint32Array))];
 		}
 		default: {
 			if (value !== null && typeof value === 'object') {
