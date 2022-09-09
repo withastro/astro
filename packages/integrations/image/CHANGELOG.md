@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.6.1
+
+### Patch Changes
+
+- [#4678](https://github.com/withastro/astro/pull/4678) [`4c05c65a3`](https://github.com/withastro/astro/commit/4c05c65a3df5bae935afebc8a15ff52d5b912d8b) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates the integration to build all optimized images to `dist/assets` during SSG builds
+
 ## 0.6.0
 
 ### Minor Changes
