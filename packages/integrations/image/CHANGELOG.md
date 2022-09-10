@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.7.0
+
+### Minor Changes
+
+- [#4438](https://github.com/withastro/astro/pull/4438) [`1e5d8ba9a`](https://github.com/withastro/astro/commit/1e5d8ba9af4eb017382263653216e5247d96ab79) Thanks [@obennaci](https://github.com/obennaci)! - Support additional Sharp resize options
+
 ## 0.6.1
 
 ### Patch Changes
