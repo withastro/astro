@@ -108,9 +108,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
 
-	for (const pageData of eachPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
-	}
+	await Promise.allSettled(
+		eachPageData(internals)?.map((pageData) =>
+		  generatePage(opts, internals, pageData, ssrEntry, builtPaths)
+		)
+	);
+	
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
