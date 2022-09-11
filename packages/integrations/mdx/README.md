@@ -33,8 +33,6 @@ yarn astro add mdx
 pnpm astro add mdx
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -60,6 +58,16 @@ export default defineConfig({
 ```
 
 Finally, restart the dev server.
+
+### Editor Integration
+
+[VS Code](https://code.visualstudio.com/) supports Markdown by default. However, for MDX editor support, you may wish to add the following setting in your VSCode config. This ensures authoring MDX files provides a Markdown-like editor experience.
+
+```json title=".vscode/settings.json"
+"files.associations": {
+    "*.mdx": "markdown"
+}
+```
 
 ## Usage
 

@@ -29,8 +29,6 @@ yarn astro add prefetch
 pnpm astro add prefetch
 ```
   
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -52,7 +50,6 @@ export default {
 }
 ```
   
-Then, restart the dev server.
 
 ## Usage
 
@@ -94,7 +91,7 @@ export default {
 ```
 
 ## Troubleshooting
-- If your installation doesn't seem to be working, make sure to restart the dev server.
+- If your installation doesn't seem to be working, try restarting the dev server.
 - If a link doesn't seem to be prefetching, make sure that the link is pointing to a page on the same domain and matches the integration's `selector` option.
 
 For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!

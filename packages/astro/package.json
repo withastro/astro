@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.1.7",
+  "version": "1.2.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -88,13 +88,14 @@
     "dev": "astro-scripts dev --prebuild \"src/runtime/server/astro-island.ts\" --prebuild \"src/runtime/client/{idle,load,media,only,visible}.ts\" \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
+    "test:unit": "mocha --exit --timeout 2000 ./test/units/**/*.test.js",
+    "test": "pnpm run test:unit && mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g",
     "test:e2e": "playwright test",
     "test:e2e:match": "playwright test -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.23.5",
+    "@astrojs/compiler": "^0.24.0",
     "@astrojs/language-server": "^0.23.0",
     "@astrojs/markdown-remark": "^1.1.1",
     "@astrojs/telemetry": "^1.0.0",
@@ -105,7 +106,7 @@
     "@babel/plugin-transform-react-jsx": "^7.17.12",
     "@babel/traverse": "^7.18.2",
     "@babel/types": "^7.18.4",
-    "@proload/core": "^0.3.2",
+    "@proload/core": "^0.3.3",
     "@proload/plugin-tsm": "^0.2.1",
     "@types/babel__core": "^7.1.19",
     "@types/html-escaper": "^3.0.0",

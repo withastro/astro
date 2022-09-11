@@ -47,14 +47,14 @@ Welcome! Check out [our documentation](https://docs.astro.build) or jump into ou
 
 ### CSS styling
 
-The theme's look and feel is controlled by a few key variables that you can customize yourself. You'll find them in the `public/theme.css` CSS file.
+The theme's look and feel is controlled by a few key variables that you can customize yourself. You'll find them in the `src/styles/theme.css` CSS file.
 
 If you've never worked with CSS variables before, give [MDN's guide on CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties) a quick read.
 
 This theme uses a "cool blue" accent color by default. To customize this for your project, change the `--theme-accent` variable to whatever color you'd like:
 
 ```diff
-/* public/theme.css */
+/* src/styles/theme.css */
 :root {
   color-scheme: light;
 -  --theme-accent: hsla(var(--color-blue), 1);

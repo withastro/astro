@@ -21,6 +21,31 @@ export type ColorDefinition =
 	| `rgb(${number}, ${number}, ${number})`
 	| `rgb(${number},${number},${number})`;
 
+export type CropFit = 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
+
+export type CropPosition =
+	| 'top'
+	| 'right top'
+	| 'right'
+	| 'right bottom'
+	| 'bottom'
+	| 'left bottom'
+	| 'left'
+	| 'left top'
+	| 'north'
+	| 'northeast'
+	| 'east'
+	| 'southeast'
+	| 'south'
+	| 'southwest'
+	| 'west'
+	| 'northwest'
+	| 'center'
+	| 'centre'
+	| 'cover'
+	| 'entropy'
+	| 'attention';
+
 export function isOutputFormat(value: string): value is OutputFormat {
 	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
 }
@@ -105,6 +130,18 @@ export interface TransformOptions {
 	 * @example "rgb(255, 255, 255)" - an rgb color
 	 */
 	background?: ColorDefinition;
+	/**
+	 * How the image should be resized to fit both `height` and `width`.
+	 *
+	 * @default 'cover'
+	 */
+	fit?: CropFit;
+	/**
+	 * Position of the crop when fit is `cover` or `contain`.
+	 *
+	 * @default 'centre'
+	 */
+	position?: CropPosition;
 }
 
 export interface HostedImageService<T extends TransformOptions = TransformOptions> {

@@ -10,7 +10,7 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { resolveConfigURL } from '../config.js';
+import { resolveConfigPath } from '../config.js';
 import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -57,6 +57,7 @@ const OFFICIAL_ADAPTER_TO_IMPORT_MAP: Record<string, string> = {
 };
 
 export default async function add(names: string[], { cwd, flags, logging, telemetry }: AddOptions) {
+	applyPolyfill();
 	if (flags.help || names.length === 0) {
 		printHelp({
 			commandName: 'astro add',
@@ -95,16 +96,76 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		});
 		return;
 	}
-	let configURL: URL | undefined;
+
+	// Some packages might have a common alias! We normalize those here.
+	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
+	const integrations = await validateIntegrations(integrationNames);
+	let installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
 	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
-	configURL = await resolveConfigURL({ cwd, flags });
-	applyPolyfill();
+	// Append forward slash to compute relative paths
+	root.href = appendForwardSlash(root.href);
+
+	switch (installResult) {
+		case UpdateResult.updated: {
+			if (integrations.find((integration) => integration.id === 'tailwind')) {
+				const possibleConfigFiles = [
+					'./tailwind.config.cjs',
+					'./tailwind.config.mjs',
+					'./tailwind.config.js',
+				].map((p) => fileURLToPath(new URL(p, root)));
+				let alreadyConfigured = false;
+				for (const possibleConfigPath of possibleConfigFiles) {
+					if (existsSync(possibleConfigPath)) {
+						alreadyConfigured = true;
+						break;
+					}
+				}
+				if (!alreadyConfigured) {
+					info(
+						logging,
+						null,
+						`\n  ${magenta(
+							`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`
+						)}\n`
+					);
+					if (await askToContinue({ flags })) {
+						await fs.writeFile(
+							fileURLToPath(new URL('./tailwind.config.cjs', root)),
+							TAILWIND_CONFIG_STUB,
+							{ encoding: 'utf-8' }
+						);
+						debug('add', `Generated default ./tailwind.config.cjs file`);
+					}
+				} else {
+					debug('add', `Using existing Tailwind configuration`);
+				}
+			}
+			break;
+		}
+		case UpdateResult.cancelled: {
+			info(
+				logging,
+				null,
+				msg.cancelled(
+					`Dependencies ${bold('NOT')} installed.`,
+					`Be sure to install them manually before continuing!`
+				)
+			);
+			break;
+		}
+		case UpdateResult.failure: {
+			throw createPrettyError(new Error(`Unable to install dependencies`));
+		}
+	}
+
+	const rawConfigPath = await resolveConfigPath({ cwd, flags });
+	let configURL = rawConfigPath ? pathToFileURL(rawConfigPath) : undefined;
 
 	if (configURL) {
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', appendForwardSlash(root.href));
+		configURL = new URL('./astro.config.mjs', root);
 		await fs.writeFile(fileURLToPath(configURL), ASTRO_CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
@@ -114,11 +175,6 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 			`Unable to use "astro add" with package.json configuration. Try migrating to \`astro.config.mjs\` and try again.`
 		);
 	}
-
-	// Some packages might have a common alias! We normalize those here.
-	const integrationNames = names.map((name) => (ALIASES.has(name) ? ALIASES.get(name)! : name));
-	const integrations = await validateIntegrations(integrationNames);
-
 	let ast: t.File | null = null;
 	try {
 		ast = await parseAstroConfig(configURL);
@@ -164,7 +220,6 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	}
 
 	let configResult: UpdateResult | undefined;
-	let installResult: UpdateResult | undefined;
 
 	if (ast) {
 		try {
@@ -203,71 +258,19 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 			}
 
 			info(logging, null, msg.success(`Configuration up-to-date.`));
-			break;
+			return;
 		}
-	}
-
-	installResult = await tryToInstallIntegrations({ integrations, cwd, flags, logging });
-
-	switch (installResult) {
-		case UpdateResult.updated: {
-			const len = integrations.length;
-			if (integrations.find((integration) => integration.id === 'tailwind')) {
-				const possibleConfigFiles = [
-					'./tailwind.config.cjs',
-					'./tailwind.config.mjs',
-					'./tailwind.config.js',
-				].map((p) => fileURLToPath(new URL(p, configURL)));
-				let alreadyConfigured = false;
-				for (const possibleConfigPath of possibleConfigFiles) {
-					if (existsSync(possibleConfigPath)) {
-						alreadyConfigured = true;
-						break;
-					}
-				}
-				if (!alreadyConfigured) {
-					info(
-						logging,
-						null,
-						`\n  ${magenta(
-							`Astro will generate a minimal ${bold('./tailwind.config.cjs')} file.`
-						)}\n`
-					);
-					if (await askToContinue({ flags })) {
-						await fs.writeFile(
-							fileURLToPath(new URL('./tailwind.config.cjs', configURL)),
-							TAILWIND_CONFIG_STUB,
-							{ encoding: 'utf-8' }
-						);
-						debug('add', `Generated default ./tailwind.config.cjs file`);
-					}
-				} else {
-					debug('add', `Using existing Tailwind configuration`);
-				}
-			}
+		default: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
 			info(
 				logging,
 				null,
 				msg.success(
-					`Added the following integration${len === 1 ? '' : 's'} to your project:\n${list}`
+					`Added the following integration${
+						integrations.length === 1 ? '' : 's'
+					} to your project:\n${list}`
 				)
 			);
-			return;
-		}
-		case UpdateResult.cancelled: {
-			info(
-				logging,
-				null,
-				msg.cancelled(
-					`Dependencies ${bold('NOT')} installed.`,
-					`Be sure to install them manually before continuing!`
-				)
-			);
-			return;
-		}
-		case UpdateResult.failure: {
-			throw createPrettyError(new Error(`Unable to install dependencies`));
 		}
 	}
 }

@@ -35,8 +35,6 @@ yarn astro add preact
 pnpm astro add preact
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -66,8 +64,6 @@ export default defineConfig({
   integrations: [preact()],
 });
 ```
-
-Finally, restart the dev server.
 
 ## Usage
 
