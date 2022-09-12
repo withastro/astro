@@ -110,7 +110,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					importedCss: Set<string>;
 				};
 
-				const appendCSSToPage = (pageData: PageBuildData, meta: ViteMetadata, depth: number, order: number) => {
+				const appendCSSToPage = (
+					pageData: PageBuildData,
+					meta: ViteMetadata,
+					depth: number,
+					order: number
+				) => {
 					for (const importedCssImport of meta.importedCss) {
 						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 						// Depth info is used when sorting the links on the page.
@@ -122,11 +127,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							}
 
 							// Update the order, preferring the lowest order we have.
-							if(cssInfo.order === -1) {
-                cssInfo.order = order;
-              } else if(order < cssInfo.order && order > -1) {
-                cssInfo.order = order;
-              }
+							if (cssInfo.order === -1) {
+								cssInfo.order = order;
+							} else if (order < cssInfo.order && order > -1) {
+								cssInfo.order = order;
+							}
 						} else {
 							pageData?.css.set(importedCssImport, { depth, order });
 						}

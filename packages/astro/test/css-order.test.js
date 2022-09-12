@@ -87,7 +87,7 @@ describe('CSS production ordering', () => {
 			);
 
 			expect(content).to.have.a.lengthOf(3, 'there are 3 stylesheets');
-			const [,found] = content;
+			const [, found] = content;
 
 			expect(found.css).to.match(/#00f/);
 		});
@@ -97,11 +97,11 @@ describe('CSS production ordering', () => {
 			let twoHtml = await fixture.readFile('/two/index.html');
 			let threeHtml = await fixture.readFile('/three/index.html');
 
-			for(const html of [oneHtml, twoHtml, threeHtml]) {
+			for (const html of [oneHtml, twoHtml, threeHtml]) {
 				const content = await Promise.all(
 					getLinks(html).map((href) => getLinkContent(fixture, href))
 				);
-	
+
 				const [first] = content;
 				expect(first.css).to.include('green', 'Came from the injected script');
 			}

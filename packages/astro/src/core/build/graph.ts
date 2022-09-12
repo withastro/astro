@@ -8,7 +8,7 @@ export function* walkParentInfos(
 	ctx: { getModuleInfo: GetModuleInfo },
 	depth = 0,
 	seen = new Set<string>(),
-	childId = '',
+	childId = ''
 ): Generator<[ModuleInfo, number, number], void, unknown> {
 	seen.add(id);
 	const info = ctx.getModuleInfo(id);

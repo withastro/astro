@@ -195,13 +195,13 @@ export function sortedCSS(pageData: PageBuildData) {
 				orderA = a[1].order,
 				orderB = b[1].order;
 
-			if(orderA === -1 && orderB >= 0) {
+			if (orderA === -1 && orderB >= 0) {
 				return 1;
-			} else if(orderB === -1 && orderA >= 0) {
+			} else if (orderB === -1 && orderA >= 0) {
 				return -1;
-			} else if(orderA > orderB) {
+			} else if (orderA > orderB) {
 				return 1;
-			} else if(orderA < orderB) {
+			} else if (orderA < orderB) {
 				return -1;
 			} else {
 				if (depthA === -1) {
