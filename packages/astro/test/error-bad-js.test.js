@@ -16,14 +16,14 @@ describe('Errors in JavaScript', () => {
 		devServer = await fixture.startDevServer();
 	});
 
-	after(async() => {
+	after(async () => {
 		await devServer.stop();
 	});
 
 	it('Does not crash the dev server', async () => {
 		let res = await fixture.fetch('/');
 		let html = await res.text();
-		
+
 		expect(html).to.include('ReferenceError');
 
 		res = await fixture.fetch('/');

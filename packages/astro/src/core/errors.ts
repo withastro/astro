@@ -51,7 +51,7 @@ export function fixViteErrorMessage(_err: unknown, server?: ViteDevServer, fileP
 	try {
 		server?.ssrFixStacktrace(err);
 	} catch {}
-	
+
 	// Fix: Astro.glob() compiles to import.meta.glob() by the time Vite sees it,
 	// so we need to update this error message in case it originally came from Astro.glob().
 	if (err.message === 'import.meta.glob() can only accept string literals.') {
