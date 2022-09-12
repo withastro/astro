@@ -107,12 +107,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
+	const astroPageBuilds = [];
 
-	await Promise.allSettled(
-		eachPageData(internals).map((pageData) =>
-		  generatePage(opts, internals, pageData, ssrEntry, builtPaths)
-		)
-	);
+	for (const pageData of eachPageData(internals)) {
+		astroPageBuilds.push(() => generatePage(opts, internals, pageData, ssrEntry, builtPaths));
+	}
+	await Promise.allSettled(astroPageBuilds.map((astrobuildFunctions) => astrobuildFunctions()));
 	
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
