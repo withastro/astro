@@ -60,19 +60,16 @@ jobs:
       - name: Build Packages
         run: pnpm run build
 
-      - name: Get result
-        run: echo "${{steps.set-result.outputs.result}}"
-  
       - name: Bump Package Versions
         id: changesets
-        run: npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
+        run: echo "::set-output name=result::$(npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }})"
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 #      - name: Publish Release
 #        id: publish
-#        run: pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }}
+#        run: echo "::set-output name=result::$(pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }})"
 #        env:
 #          # Needs access to publish to npm
 #          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -80,7 +77,7 @@ jobs:
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
-          MESSAGE: ${{ steps.changesets.outputs.publish }}
+          MESSAGE: ${{ steps.changesets.outputs.result }}
         with:
           script: |
             console.log(process.env.MESSAGE);
