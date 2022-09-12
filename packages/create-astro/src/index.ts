@@ -117,8 +117,8 @@ export async function main() {
 	}
 
 	let git = yes;
-	if (yes === undefined) {
-		({ deps } = await prompt({
+	if (git === undefined) {
+		({ git } = await prompt({
 			name: 'git',
 			type: 'confirm',
 			label: title('git'),
