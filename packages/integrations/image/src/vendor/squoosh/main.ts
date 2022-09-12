@@ -46,7 +46,7 @@ export async function processBuffer(
 }
 
 export async function copyLibFiles(dir: URL) {
-	const src = new URL('../../../lib/', import.meta.url);
+	const src = new URL('./', import.meta.url);
 	await copyLibDir(fileURLToPath(src), fileURLToPath(dir));
 }
 
@@ -56,7 +56,7 @@ async function copyLibDir(src: string, dest: string) {
 		const srcPath = path.join(src, srcName);
 		const destPath = path.join(dest, srcName);
 		const s = await fs.stat(srcPath);
-		if (s.isFile()) {
+		if (s.isFile() && /.wasm$/.test(srcPath)) {
 			await fs.mkdir(path.dirname(destPath), { recursive: true });
 			await fs.copyFile(srcPath, destPath);
 		}
