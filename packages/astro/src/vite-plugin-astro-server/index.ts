@@ -348,7 +348,7 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
