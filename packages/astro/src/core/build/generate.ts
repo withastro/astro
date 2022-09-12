@@ -109,7 +109,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const builtPaths = new Set<string>();
 
 	await Promise.allSettled(
-		eachPageData(internals)?.map((pageData) =>
+		eachPageData(internals).map((pageData) =>
 		  generatePage(opts, internals, pageData, ssrEntry, builtPaths)
 		)
 	);
