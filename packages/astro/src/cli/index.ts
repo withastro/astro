@@ -106,7 +106,6 @@ async function handleConfigError(
  **/
 async function runCommand(cmd: string, flags: yargs.Arguments) {
 	const root = flags.root;
-
 	switch (cmd) {
 		case 'help':
 			printAstroHelp();
