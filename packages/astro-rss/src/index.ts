@@ -56,7 +56,7 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 	return Promise.all(
 		Object.values(items).map(async (getInfo) => {
 			const { url, frontmatter } = await getInfo();
-			if (!Boolean(url)) {
+			if (url === undefined || url === null) {
 				throw new Error(
 					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" files within /pages! Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);

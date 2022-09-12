@@ -240,8 +240,33 @@ interface GeneratePathOptions {
 	renderers: SSRLoadedRenderer[];
 }
 
+function shouldAppendForwardSlash(
+	trailingSlash: AstroConfig['trailingSlash'],
+	buildFormat: AstroConfig['build']['format']
+): boolean {
+	switch (trailingSlash) {
+		case 'always':
+			return true;
+		case 'never':
+			return false;
+		case 'ignore': {
+			switch (buildFormat) {
+				case 'directory':
+					return true;
+				case 'file':
+					return false;
+			}
+		}
+	}
+}
+
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	opts.pageNames.push(pathname.replace(/^\//, ''));
+	const trailingSlash = opts.astroConfig.trailingSlash;
+	const buildFormat = opts.astroConfig.build.format;
+	const pageName = shouldAppendForwardSlash(trailingSlash, buildFormat)
+		? pathname.replace(/\/?$/, '/').replace(/^\//, '')
+		: pathname.replace(/^\//, '');
+	opts.pageNames.push(pageName);
 }
 
 function getUrlForPath(
@@ -366,6 +391,7 @@ async function generatePath(
 	};
 
 	let body: string;
+	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
 		const result = await callEndpoint(mod as unknown as EndpointHandler, options);
 
@@ -373,6 +399,7 @@ async function generatePath(
 			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
 		}
 		body = result.body;
+		encoding = result.encoding;
 	} else {
 		const response = await render(options);
 
@@ -388,5 +415,5 @@ async function generatePath(
 	const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
 	pageData.route.distURL = outFile;
 	await fs.promises.mkdir(outFolder, { recursive: true });
-	await fs.promises.writeFile(outFile, body, 'utf-8');
+	await fs.promises.writeFile(outFile, body, encoding ?? 'utf-8');
 }

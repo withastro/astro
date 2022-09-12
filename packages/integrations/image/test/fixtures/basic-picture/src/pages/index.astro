@@ -8,10 +8,16 @@ import { Picture } from '@astrojs/image/components';
     <!-- Head Stuff -->
   </head>
   <body>
+		<Picture id="hero" src="/hero.jpg" sizes="100vw" widths={[384, 768]} aspectRatio={768/414} alt="Hero image" />
+		<br />
 		<Picture id="social-jpg" src={socialJpg} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} alt="Social image" />
 		<br />
-		<Picture id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" sizes="(min-width: 640px) 50vw, 100vw" widths={[272, 544]} aspectRatio={544/184} alt="Google logo" />
+		<Picture id="google" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" sizes="(min-width: 640px) 50vw, 100vw" widths={[272, 544]} aspectRatio={544/184} alt="Google logo" formats={["avif", "webp", "png"]} />
 		<br />
 		<Picture id='inline' src={import('../assets/social.jpg')} sizes="(min-width: 640px) 50vw, 100vw" widths={[253, 506]} alt="Inline social image" />
+		<br />
+		<Picture id="bg-color" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" sizes="(min-width: 640px) 50vw, 100vw" widths={[272, 544]} aspectRatio={544/184} alt="Google logo" background="rgb(51, 51, 51)" formats={['avif', 'jpeg']} />
+    <br />
+		<Picture id="ipsum" src="https://picsum.photos/200/300" sizes="100vw" widths={[100, 200]} aspectRatio={2/3} formats={["avif", "webp", "jpg"]} alt="ipsum" />
   </body>
 </html>

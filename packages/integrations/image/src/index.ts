@@ -1,21 +1,19 @@
 import type { AstroConfig, AstroIntegration } from 'astro';
 import { ssgBuild } from './build/ssg.js';
-import { ssrBuild } from './build/ssr.js';
-import { PKG_NAME, ROUTE_PATTERN } from './constants.js';
-import { ImageService, TransformOptions } from './loaders/index.js';
+import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
-import { filenameFormat, propsToFilename } from './utils/paths.js';
+import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
-export * from './loaders/index.js';
-export type { ImageMetadata } from './vite-plugin-astro-image.js';
+
+const PKG_NAME = '@astrojs/image';
+const ROUTE_PATTERN = '/_image';
 
 interface ImageIntegration {
 	loader?: ImageService;
-	addStaticImage?: (transform: TransformOptions) => void;
-	filenameFormat?: (transform: TransformOptions, searchParams: URLSearchParams) => string;
+	addStaticImage?: (transform: TransformOptions) => string;
 }
 
 declare global {
@@ -38,11 +36,10 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		...options,
 	};
 
+	let _config: AstroConfig;
+
 	// During SSG builds, this is used to track all transformed images required.
 	const staticImages = new Map<string, Map<string, TransformOptions>>();
-
-	let _config: AstroConfig;
-	let output: 'server' | 'static';
 
 	function getViteConfiguration() {
 		return {
@@ -59,24 +56,17 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	return {
 		name: PKG_NAME,
 		hooks: {
-			'astro:config:setup': ({ command, config, injectRoute, updateConfig }) => {
+			'astro:config:setup': ({ command, config, updateConfig, injectRoute }) => {
 				_config = config;
-
-				// Always treat `astro dev` as SSR mode, even without an adapter
-				output = command === 'dev' ? 'server' : config.output;
 
 				updateConfig({ vite: getViteConfiguration() });
 
-				if (output === 'server') {
+				if (command === 'dev' || config.output === 'server') {
 					injectRoute({
 						pattern: ROUTE_PATTERN,
-						entryPoint:
-							command === 'dev' ? '@astrojs/image/endpoints/dev' : '@astrojs/image/endpoints/prod',
+						entryPoint: '@astrojs/image/endpoint',
 					});
 				}
-			},
-			'astro:server:setup': async ({ server }) => {
-				globalThis.astroImage = {};
 			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
@@ -86,26 +76,28 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						? staticImages.get(transform.src)!
 						: new Map<string, TransformOptions>();
 
-					srcTranforms.set(propsToFilename(transform), transform);
+					const filename = propsToFilename(transform);
 
+					srcTranforms.set(filename, transform);
 					staticImages.set(transform.src, srcTranforms);
+
+					// Prepend the Astro config's base path, if it was used.
+					// Doing this here makes sure that base is ignored when building
+					// staticImages to /dist, but the rendered HTML will include the
+					// base prefix for `src`.
+					return prependForwardSlash(joinPaths(_config.base, 'assets', filename));
 				}
 
 				// Helpers for building static images should only be available for SSG
 				globalThis.astroImage =
-					output === 'static'
+					_config.output === 'static'
 						? {
 								addStaticImage,
-								filenameFormat,
 						  }
 						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
-				if (output === 'server') {
-					// for SSR builds, copy all image files from src to dist
-					// to make sure they are available for use in production
-					await ssrBuild({ srcDir: _config.srcDir, outDir: dir });
-				} else {
+				if (_config.output === 'static') {
 					// for SSG builds, build all requested image transforms to dist
 					const loader = globalThis?.astroImage?.loader;
 
@@ -113,7 +105,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						await ssgBuild({
 							loader,
 							staticImages,
-							srcDir: _config.srcDir,
+							config: _config,
 							outDir: dir,
 							logLevel: resolvedOptions.logLevel,
 						});

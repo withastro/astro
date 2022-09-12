@@ -1,0 +1,9 @@
+{
+  "name": "@e2e/error-cyclic",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/preact": "workspace:*"
+  }
+}

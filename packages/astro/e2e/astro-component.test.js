@@ -36,10 +36,7 @@ test.describe('Astro component HMR', () => {
 		);
 	});
 
-	// TODO: Re-enable this test on windows when #3424 is fixed
-	// https://github.com/withastro/astro/issues/3424
-	const it = os.platform() === 'win32' ? test.skip : test;
-	it('hoisted scripts', async ({ page, astro }) => {
+	test('hoisted scripts', async ({ page, astro }) => {
 		const initialLog = page.waitForEvent(
 			'console',
 			(message) => message.text() === 'Hello, Astro!'
@@ -56,6 +53,28 @@ test.describe('Astro component HMR', () => {
 		// Edit the hoisted script on the page
 		await astro.editFile('./src/pages/index.astro', (content) =>
 			content.replace('Hello, Astro!', 'Hello, updated Astro!')
+		);
+
+		await updatedLog;
+	});
+
+	test('inline scripts', async ({ page, astro }) => {
+		const initialLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, inline Astro!'
+		);
+
+		await page.goto(astro.resolveUrl('/'));
+		await initialLog;
+
+		const updatedLog = page.waitForEvent(
+			'console',
+			(message) => message.text() === 'Hello, updated inline Astro!'
+		);
+
+		// Edit the inline script on the page
+		await astro.editFile('./src/pages/index.astro', (content) =>
+			content.replace('Hello, inline Astro!', 'Hello, updated inline Astro!')
 		);
 
 		await updatedLog;

@@ -134,11 +134,31 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 							// Chunks that have the viteMetadata.importedCss are CSS chunks
 							if (meta.importedCss.size) {
+								// In the SSR build, keep track of all CSS chunks' modules as the client build may
+								// duplicate them, e.g. for `client:load` components that render in SSR and client
+								// for hydation.
+								if (options.target === 'server') {
+									for (const id of Object.keys(c.modules)) {
+										internals.cssChunkModuleIds.add(id);
+									}
+								}
+								// In the client build, we bail if the chunk is a duplicated CSS chunk tracked from
+								// above. We remove all the importedCss to prevent emitting the CSS asset.
+								if (options.target === 'client') {
+									if (Object.keys(c.modules).every((id) => internals.cssChunkModuleIds.has(id))) {
+										for (const importedCssImport of meta.importedCss) {
+											delete bundle[importedCssImport];
+											meta.importedCss.delete(importedCssImport);
+										}
+										return;
+									}
+								}
+
 								// For the client build, client:only styles need to be mapped
 								// over to their page. For this chunk, determine if it's a child of a
 								// client:only component and if so, add its CSS to the page it belongs to.
 								if (options.target === 'client') {
-									for (const [id] of Object.entries(c.modules)) {
+									for (const id of Object.keys(c.modules)) {
 										for (const pageData of getParentClientOnlys(id, this)) {
 											for (const importedCssImport of meta.importedCss) {
 												pageData.css.set(importedCssImport, { depth: -1 });
@@ -148,7 +168,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 								}
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
-								for (const [id] of Object.entries(c.modules)) {
+								for (const id of Object.keys(c.modules)) {
 									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
 										if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;

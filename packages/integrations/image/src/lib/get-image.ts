@@ -1,10 +1,14 @@
 /// <reference types="astro/astro-jsx" />
-import slash from 'slash';
-import { ROUTE_PATTERN } from '../constants.js';
-import { ImageService, isSSRService, OutputFormat, TransformOptions } from '../loaders/index.js';
+import type {
+	ColorDefinition,
+	ImageService,
+	OutputFormat,
+	TransformOptions,
+} from '../loaders/index.js';
+import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 import sharp from '../loaders/sharp.js';
-import { isRemoteImage, parseAspectRatio } from '../utils/images.js';
-import { ImageMetadata } from '../vite-plugin-astro-image.js';
+import { isRemoteImage } from '../utils/paths.js';
+import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
 export interface GetImageTransform extends Omit<TransformOptions, 'src'> {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;
@@ -64,7 +68,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	// resolve the metadata promise, usually when the ESM import is inlined
 	const metadata = 'then' in input.src ? (await input.src).default : input.src;
 
-	let { width, height, aspectRatio, format = metadata.format, ...rest } = input;
+	let { width, height, aspectRatio, background, format = metadata.format, ...rest } = input;
 
 	if (!width && !height) {
 		// neither dimension was provided, use the file metadata
@@ -87,6 +91,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 		height,
 		aspectRatio,
 		format: format as OutputFormat,
+		background: background as ColorDefinition | undefined,
 	};
 }
 
@@ -132,25 +137,26 @@ export async function getImage(
 		throw new Error('@astrojs/image: loader not found!');
 	}
 
-	// For SSR services, build URLs for the injected route
-	if (isSSRService(_loader)) {
-		const { searchParams } = _loader.serializeTransform(resolved);
+	const { searchParams } = isSSRService(_loader)
+		? _loader.serializeTransform(resolved)
+		: sharp.serializeTransform(resolved);
 
-		// cache all images rendered to HTML
-		if (globalThis.astroImage?.addStaticImage) {
-			globalThis.astroImage.addStaticImage(resolved);
-		}
+	let src: string;
 
-		const src = globalThis.astroImage?.filenameFormat
-			? globalThis.astroImage.filenameFormat(resolved, searchParams)
-			: `${ROUTE_PATTERN}?${searchParams.toString()}`;
-
-		return {
-			...attributes,
-			src: slash(src), // Windows compat
-		};
+	if (/^[\/\\]?@astroimage/.test(resolved.src)) {
+		src = `${resolved.src}?${searchParams.toString()}`;
+	} else {
+		searchParams.set('href', resolved.src);
+		src = `/_image?${searchParams.toString()}`;
 	}
 
-	// For hosted services, return the `<img />` attributes as-is
-	return attributes;
+	// cache all images rendered to HTML
+	if (globalThis.astroImage?.addStaticImage) {
+		src = globalThis.astroImage.addStaticImage(resolved);
+	}
+
+	return {
+		...attributes,
+		src,
+	};
 }

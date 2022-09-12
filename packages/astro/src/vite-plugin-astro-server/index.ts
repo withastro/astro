@@ -20,26 +20,12 @@ import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
-import { createSafeError, resolvePages } from '../core/util.js';
+import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
 	logging: LogOptions;
-}
-
-const BAD_VITE_MIDDLEWARE = [
-	'viteIndexHtmlMiddleware',
-	'vite404Middleware',
-	'viteSpaFallbackMiddleware',
-];
-function removeViteHttpMiddleware(server: vite.Connect.Server) {
-	for (let i = server.stack.length - 1; i > 0; i--) {
-		// @ts-expect-error using internals until https://github.com/vitejs/vite/pull/4640 is merged
-		if (BAD_VITE_MIDDLEWARE.includes(server.stack[i].handle.name)) {
-			server.stack.splice(i, 1);
-		}
-	}
 }
 
 function truncateString(str: string, n: number) {
@@ -134,6 +120,7 @@ async function handle500Response(
 ) {
 	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200));
 	if (res.headersSent) {
+		res.write(`<script type="module" src="/@vite/client"></script>`);
 		res.end();
 	} else {
 		writeHtmlResponse(
@@ -361,7 +348,7 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
@@ -386,8 +373,6 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
-				removeViteHttpMiddleware(viteServer.middlewares);
-
 				// Push this middleware to the front of the stack so that it can intercept responses.
 				if (config.base !== '/') {
 					viteServer.middlewares.stack.unshift({

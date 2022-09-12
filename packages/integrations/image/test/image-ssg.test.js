@@ -4,11 +4,202 @@ import sizeOf from 'image-size';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
+describe('SSG images - dev', function () {
+	let fixture;
+	let devServer;
+	let $;
 
-describe('SSG images', function () {
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/basic-image/' });
+		devServer = await fixture.startDevServer();
+		const html = await fixture.fetch('/').then((res) => res.text());
+		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+	].forEach(({ title, id, url, query }) => {
+		it(title, () => {
+			const image = $(id);
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal(url);
+
+			const searchParams = new URLSearchParams(params);
+
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
+		});
+	});
+});
+
+describe('SSG images with subpath - dev', function () {
+	let fixture;
+	let devServer;
+	let $;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-image/', base: '/docs' });
+		devServer = await fixture.startDevServer();
+		const html = await fixture.fetch('/docs/').then((res) => res.text());
+		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await devServer.stop();
+	});
+
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'webp', w: '768', h: '414' },
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			url: '/@astroimage/assets/social.jpg',
+			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			url: '/_image',
+			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+	].forEach(({ title, id, url, query }) => {
+		it(title, () => {
+			const image = $(id);
+
+			const src = image.attr('src');
+			const [route, params] = src.split('?');
+
+			expect(route).to.equal(url);
+
+			const searchParams = new URLSearchParams(params);
+
+			for (const [key, value] of Object.entries(query)) {
+				expect(searchParams.get(key)).to.equal(value);
+			}
+		});
+	});
+});
+
+describe('SSG images - build', function () {
+	let fixture;
+	let $;
+	let html;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-image/' });
+		await fixture.build();
+
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
 	});
 
 	function verifyImage(pathname, expected) {
@@ -18,189 +209,134 @@ describe('SSG images', function () {
 		expect(result).to.deep.equal(expected);
 	}
 
-	describe('build', () => {
-		let $;
-		let html;
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/assets\/introducing astro.\w{8}_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' },
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			regex: /^\/assets\/googlelogo_color_272x92dp_\w{4,10}.webp/,
+			size: { width: 544, height: 184, type: 'webp' },
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/assets\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			regex: /^\/assets\/hero_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
+			title: 'Remote images',
+			id: '#bg-color',
+			regex: /^\/assets\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			size: { width: 544, height: 184, type: 'jpg' },
+		},
+	].forEach(({ title, id, regex, size }) => {
+		it(title, () => {
+			const image = $(id);
 
-		before(async () => {
-			await fixture.build();
+			expect(image.attr('src')).to.match(regex);
+			expect(image.attr('width')).to.equal(size.width.toString());
+			expect(image.attr('height')).to.equal(size.height.toString());
 
-			html = await fixture.readFile('/index.html');
-			$ = cheerio.load(html);
-		});
-
-		describe('Local images', () => {
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg');
-
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
-				expect(image.attr('width')).to.equal('506');
-				expect(image.attr('height')).to.equal('253');
-			});
-		});
-
-		describe('Inline imports', () => {
-			it('includes <img> attributes', () => {
-				const image = $('#inline');
-
-				expect(image.attr('src')).to.equal('/_image/assets/social_506x253.jpg');
-				expect(image.attr('width')).to.equal('506');
-				expect(image.attr('height')).to.equal('253');
-			});
-
-			it('built the optimized image', () => {
-				verifyImage('_image/assets/social_506x253.jpg', { width: 506, height: 253, type: 'jpg' });
-			});
-
-			it('dist includes original image', () => {
-				verifyImage('assets/social.jpg', { width: 2024, height: 1012, type: 'jpg' });
-			});
-		});
-
-		describe('Remote images', () => {
-			// Hard-coding in the test! These should never change since the hash is based
-			// on the static `src` string
-			const HASH = 'Z1iI4xW';
-			const HASH_WITH_QUERY = '18Aq0m';
-
-			it('includes <img> attributes', () => {
-				const image = $('#google');
-
-				expect(image.attr('src')).to.equal(
-					`/_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`
-				);
-				expect(image.attr('width')).to.equal('544');
-				expect(image.attr('height')).to.equal('184');
-			});
-
-			it('built the optimized image', () => {
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH}_544x184.webp`, {
-					width: 544,
-					height: 184,
-					type: 'webp',
-				});
-			});
-
-			it('removes query strings', () => {
-				verifyImage(`_image/googlelogo_color_272x92dp-${HASH_WITH_QUERY}_544x184.webp`, {
-					width: 544,
-					height: 184,
-					type: 'webp',
-				});
-			});
+			verifyImage(image.attr('src'), size);
 		});
 	});
+});
 
-	describe('dev', () => {
-		let devServer;
-		let $;
+describe('SSG images with subpath - build', function () {
+	let fixture;
+	let $;
+	let html;
 
-		before(async () => {
-			devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/').then((res) => res.text());
-			$ = cheerio.load(html);
-		});
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-image/', base: '/docs' });
+		await fixture.build();
 
-		after(async () => {
-			await devServer.stop();
-		});
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
+	});
 
-		describe('Local images', () => {
-			it('includes <img> attributes', () => {
-				const image = $('#social-jpg');
+	function verifyImage(pathname, expected) {
+		const url = new URL('./fixtures/basic-image/dist/' + pathname, import.meta.url);
+		const dist = fileURLToPath(url);
+		const result = sizeOf(dist);
+		expect(result).to.deep.equal(expected);
+	}
 
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
+	[
+		{
+			title: 'Local images',
+			id: '#social-jpg',
+			regex: /^\/docs\/assets\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' },
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/docs\/assets\/introducing astro.\w{8}_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
+			title: 'Inline imports',
+			id: '#inline',
+			regex: /^\/docs\/assets\/social.\w{8}_\w{4,10}.jpg/,
+			size: { width: 506, height: 253, type: 'jpg' },
+		},
+		{
+			title: 'Remote images',
+			id: '#google',
+			regex: /^\/docs\/assets\/googlelogo_color_272x92dp_\w{4,10}.webp/,
+			size: { width: 544, height: 184, type: 'webp' },
+		},
+		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			regex: /^\/docs\/assets\/300_\w{4,10}/,
+			size: { width: 200, height: 300, type: 'jpg' },
+		},
+		{
+			title: 'Public images',
+			id: '#hero',
+			regex: /^\/docs\/assets\/hero_\w{4,10}.webp/,
+			size: { width: 768, height: 414, type: 'webp' },
+		},
+		{
+			title: 'Remote images',
+			id: '#bg-color',
+			regex: /^\/docs\/assets\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			size: { width: 544, height: 184, type: 'jpg' },
+		},
+	].forEach(({ title, id, regex, size }) => {
+		it(title, () => {
+			const image = $(id);
 
-				expect(route).to.equal('/_image');
+			expect(image.attr('src')).to.match(regex);
+			expect(image.attr('width')).to.equal(size.width.toString());
+			expect(image.attr('height')).to.equal(size.height.toString());
 
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-			});
-
-			it('returns the optimized image', async () => {
-				const image = $('#social-jpg');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-			});
-		});
-
-		describe('Local images with inline imports', () => {
-			it('includes <img> attributes', () => {
-				const image = $('#inline');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('jpg');
-				expect(searchParams.get('w')).to.equal('506');
-				expect(searchParams.get('h')).to.equal('253');
-				// TODO: possible to avoid encoding the full image path?
-				expect(searchParams.get('href').endsWith('/assets/social.jpg')).to.equal(true);
-			});
-
-			it('returns the optimized image', async () => {
-				const image = $('#inline');
-
-				const res = await fixture.fetch(image.attr('src'));
-
-				expect(res.status).to.equal(200);
-				expect(res.headers.get('Content-Type')).to.equal('image/jpeg');
-
-				// TODO: verify image file? It looks like sizeOf doesn't support ArrayBuffers
-			});
-		});
-
-		describe('Remote images', () => {
-			it('includes <img> attributes', () => {
-				const image = $('#google');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('webp');
-				expect(searchParams.get('w')).to.equal('544');
-				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal(
-					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
-				);
-			});
-
-			it('keeps remote image query params', () => {
-				const image = $('#query');
-
-				const src = image.attr('src');
-				const [route, params] = src.split('?');
-
-				expect(route).to.equal('/_image');
-
-				const searchParams = new URLSearchParams(params);
-
-				expect(searchParams.get('f')).to.equal('webp');
-				expect(searchParams.get('w')).to.equal('544');
-				expect(searchParams.get('h')).to.equal('184');
-				expect(searchParams.get('href')).to.equal(
-					'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?token=abc'
-				);
-			});
+			verifyImage(image.attr('src').replace('/docs', ''), size);
 		});
 	});
 });

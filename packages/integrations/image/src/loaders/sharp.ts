@@ -1,11 +1,12 @@
 import sharp from 'sharp';
-import { isAspectRatioString, isOutputFormat } from '../utils/images.js';
+import { ColorDefinition, isAspectRatioString, isOutputFormat } from '../loaders/index.js';
 import type { OutputFormat, SSRImageService, TransformOptions } from './index.js';
 
 class SharpService implements SSRImageService {
 	async getImageAttributes(transform: TransformOptions) {
 		// strip off the known attributes
-		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
+		const { width, height, src, format, quality, aspectRatio, fit, position, background, ...rest } =
+			transform;
 
 		return {
 			...rest,
@@ -37,16 +38,22 @@ class SharpService implements SSRImageService {
 			searchParams.append('ar', transform.aspectRatio.toString());
 		}
 
-		searchParams.append('href', transform.src);
+		if (transform.fit) {
+			searchParams.append('fit', transform.fit);
+		}
+
+		if (transform.background) {
+			searchParams.append('bg', transform.background);
+		}
+
+		if (transform.position) {
+			searchParams.append('p', encodeURI(transform.position));
+		}
 
 		return { searchParams };
 	}
 
 	parseTransform(searchParams: URLSearchParams) {
-		if (!searchParams.has('href')) {
-			return undefined;
-		}
-
 		let transform: TransformOptions = { src: searchParams.get('href')! };
 
 		if (searchParams.has('q')) {
@@ -78,6 +85,18 @@ class SharpService implements SSRImageService {
 			}
 		}
 
+		if (searchParams.has('fit')) {
+			transform.fit = searchParams.get('fit') as typeof transform.fit;
+		}
+
+		if (searchParams.has('p')) {
+			transform.position = decodeURI(searchParams.get('p')!) as typeof transform.position;
+		}
+
+		if (searchParams.has('bg')) {
+			transform.background = searchParams.get('bg') as ColorDefinition | undefined;
+		}
+
 		return transform;
 	}
 
@@ -90,7 +109,19 @@ class SharpService implements SSRImageService {
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
-			sharpImage.resize(width, height);
+
+			sharpImage.resize({
+				width,
+				height,
+				fit: transform.fit,
+				position: transform.position,
+				background: transform.background,
+			});
+		}
+
+		// remove alpha channel and replace with background color if requested
+		if (transform.background) {
+			sharpImage.flatten({ background: transform.background });
 		}
 
 		if (transform.format) {
@@ -106,6 +137,6 @@ class SharpService implements SSRImageService {
 	}
 }
 
-const service = new SharpService();
+const service: SSRImageService = new SharpService();
 
 export default service;

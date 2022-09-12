@@ -29,48 +29,38 @@ describe('Image rotation', function () {
 			$ = cheerio.load(html);
 		});
 
-		describe('Landscape images', () => {
-			it('includes <img> attributes', () => {
-				for (let i = 0; i < 9; i++) {
-					const image = $(`#landscape-${i}`);
+		it('Landscape images', () => {
+			for (let i = 0; i < 9; i++) {
+				const image = $(`#landscape-${i}`);
+				const regex = new RegExp(`\^/assets\/Landscape_${i}.\\w{8}_\\w{4,10}.jpg`);
 
-					expect(image.attr('src')).to.equal(`/_image/assets/Landscape_${i}_1800x1200.jpg`);
-					expect(image.attr('width')).to.equal('1800');
-					expect(image.attr('height')).to.equal('1200');
-				}
-			});
+				expect(image.attr('src')).to.match(regex);
+				expect(image.attr('width')).to.equal('1800');
+				expect(image.attr('height')).to.equal('1200');
 
-			it('built the optimized image', () => {
-				for (let i = 0; i < 9; i++) {
-					verifyImage(`/_image/assets/Landscape_${i}_1800x1200.jpg`, {
-						width: 1800,
-						height: 1200,
-						type: 'jpg',
-					});
-				}
-			});
+				verifyImage(image.attr('src'), {
+					width: 1800,
+					height: 1200,
+					type: 'jpg',
+				});
+			}
 		});
 
-		describe('Portait images', () => {
-			it('includes <img> attributes', () => {
-				for (let i = 0; i < 9; i++) {
-					const image = $(`#portrait-${i}`);
+		it('Portait images', () => {
+			for (let i = 0; i < 9; i++) {
+				const image = $(`#portrait-${i}`);
+				const regex = new RegExp(`\^/assets\/Portrait_${i}.\\w{8}_\\w{4,10}.jpg`);
 
-					expect(image.attr('src')).to.equal(`/_image/assets/Portrait_${i}_1200x1800.jpg`);
-					expect(image.attr('width')).to.equal('1200');
-					expect(image.attr('height')).to.equal('1800');
-				}
-			});
+				expect(image.attr('src')).to.match(regex);
+				expect(image.attr('width')).to.equal('1200');
+				expect(image.attr('height')).to.equal('1800');
 
-			it('built the optimized image', () => {
-				for (let i = 0; i < 9; i++) {
-					verifyImage(`/_image/assets/Portrait_${i}_1200x1800.jpg`, {
-						width: 1200,
-						height: 1800,
-						type: 'jpg',
-					});
-				}
-			});
+				verifyImage(image.attr('src'), {
+					width: 1200,
+					height: 1800,
+					type: 'jpg',
+				});
+			}
 		});
 	});
 });

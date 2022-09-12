@@ -11,8 +11,8 @@
     "astro": "astro",
     "test": "vitest"
   },
-  "devDependencies": {
-    "astro": "^1.1.0-next.0",
+  "dependencies": {
+    "astro": "^1.2.2",
     "vitest": "^0.20.3"
   }
 }

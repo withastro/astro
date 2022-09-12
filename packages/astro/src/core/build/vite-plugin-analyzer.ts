@@ -4,7 +4,6 @@ import type { BuildInternals } from '../../core/build/internal.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../../vite-plugin-astro/types';
 
 import { prependForwardSlash } from '../../core/path.js';
-import { resolveClientDevPath } from '../../core/render/dev/resolve.js';
 import { getTopLevelPages } from './graph.js';
 import { getPageDataByViteID, trackClientOnlyPageDatas } from './internal.js';
 
@@ -71,7 +70,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 	return {
 		name: '@astro/rollup-plugin-astro-analyzer',
-		generateBundle() {
+		async generateBundle() {
 			const hoistScanner = hoistedScriptScanner();
 
 			const ids = this.getModuleIds();
@@ -82,7 +81,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
 				for (const c of astro.hydratedComponents) {
-					const rid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
+					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 					internals.discoveredHydratedComponents.add(rid);
 				}
 
@@ -93,9 +92,17 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					const clientOnlys: string[] = [];
 
 					for (const c of astro.clientOnlyComponents) {
-						const cid = c.resolvedPath ? resolveClientDevPath(c.resolvedPath) : c.specifier;
+						const cid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
 						internals.discoveredClientOnlyComponents.add(cid);
 						clientOnlys.push(cid);
+						// Bare module specifiers need to be resolved so that the CSS
+						// plugin can walk up the graph to find which page they belong to.
+						if (c.resolvedPath === c.specifier) {
+							const resolvedId = await this.resolve(c.specifier, id);
+							if (resolvedId) {
+								clientOnlys.push(resolvedId.id);
+							}
+						}
 					}
 
 					for (const [pageInfo] of getTopLevelPages(id, this)) {
