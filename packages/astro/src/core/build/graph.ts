@@ -21,7 +21,7 @@ export function* walkParentInfos(
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, ++depth, seen, childId);
+		yield* walkParentInfos(imp, ctx, ++depth, seen, id);
 	}
 }
 
