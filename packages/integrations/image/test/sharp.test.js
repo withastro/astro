@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sharp from '../dist/loaders/sharp.js';
 
-describe.only('Sharp service', () => {
+describe('Sharp service', () => {
 	describe('serializeTransform', () => {
 		const src = '/assets/image.png';
 
