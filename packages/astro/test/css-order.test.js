@@ -87,9 +87,9 @@ describe('CSS production ordering', () => {
 			);
 
 			expect(content).to.have.a.lengthOf(3, 'there are 3 stylesheets');
-			const [,, last] = content;
+			const [,found] = content;
 
-			expect(last.css).to.match(/#00f/);
+			expect(found.css).to.match(/#00f/);
 		});
 
 		it('CSS injected by injectScript comes first because of import order', async () => {
