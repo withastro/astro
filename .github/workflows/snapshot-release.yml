@@ -62,6 +62,9 @@ jobs:
             return splitComment[1].trim();
           result-encoding: string
 
+      - name: Get result
+        run: echo "${{steps.set-result.outputs.result}}"
+  
       - name: Bump Package Versions
         id: changesets
         run: npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }}
@@ -69,12 +72,12 @@ jobs:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish Release
-        id: publish
-        run: pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }}
-        env:
-          # Needs access to publish to npm
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+#      - name: Publish Release
+#        id: publish
+#        run: pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }}
+#        env:
+#          # Needs access to publish to npm
+#          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Pull Request Notification
         uses: actions/github-script@v6
@@ -83,7 +86,7 @@ jobs:
           MESSAGE: ${{ steps.changesets.outputs.publish }}
         with:
           script: |
-            console.log(process.env);
+            console.log(process.env.ISSUE_NUMBER, process.env.MESSAGE);
             github.rest.issues.createComment({
               issue_number: process.env.ISSUE_NUMBER,
               owner: context.repo.owner,
