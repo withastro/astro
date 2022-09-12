@@ -31,7 +31,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script:  |
-            const splitComment = github.event.comment.body.split(' ');
+            const splitComment = context.payload.comment.body.split(' ');
             splitComment.length !== 2 && (github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
