@@ -348,23 +348,10 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		try {
-      const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
-      const errorWithMetadata = collectErrorMetadata(err);
-      error(logging, null, msg.formatErrorMessage(errorWithMetadata));
-      handle500Response(viteServer, origin, req, res, errorWithMetadata);
-    } catch {
-			// If we were unable to transform the error message, just log what we have.
-			if(_err != null && typeof _err === 'object') {
-				const err = _err as any;
-				error(logging, null, err.stack || err.message);
-				handle500Response(viteServer, origin, req , res, err);
-			} else {
-				const err = new Error('Unknown error:' + _err);
-				error(logging, null, err.toString());
-				handle500Response(viteServer, origin, req , res, err as ErrorWithMetadata);
-			}
-    }
+		const err = fixViteErrorMessage(_err, viteServer, filePath);
+		const errorWithMetadata = collectErrorMetadata(err);
+		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
+		handle500Response(viteServer, origin, req, res, errorWithMetadata);
 	}
 }
 
