@@ -57,6 +57,10 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 				path: route.pathname,
 			});
 		} else {
+			console.log({
+				og: route.pattern.source.toString(),
+				new: route.pattern.source.replace(/\\\//g, '/').toString(),
+			});
 			functions.push({
 				function: entryFile,
 				// Make route pattern serializable to match expected
