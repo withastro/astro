@@ -96,10 +96,8 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 
 	timer.generate = performance.now();
 	if (astroConfig.output === 'static') {
-		await Promise.all([
-			generatePages(opts, internals),
-			cleanSsrOutput(opts)
-		]);
+		await generatePages(opts, internals);
+		await cleanSsrOutput(opts);
 	} else {
 		// Inject the manifest
 		await injectManifest(opts, internals);
