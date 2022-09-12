@@ -32,7 +32,7 @@ export interface IntegrationOptions {
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
-		serviceEntryPoint: '@astrojs/image/squoosh',
+		serviceEntryPoint: '@astrojs/image/sharp',
 		logLevel: 'info' as LoggerLevel,
 		...options,
 	};
@@ -106,7 +106,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
-				await copyLibFiles(_config.output === 'static' ? dir : _buildConfig.server);
+				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
+					await copyLibFiles(_config.output === 'static' ? dir : _buildConfig.server);
+				}
 
 				if (_config.output === 'static') {
 					// for SSG builds, build all requested image transforms to dist
