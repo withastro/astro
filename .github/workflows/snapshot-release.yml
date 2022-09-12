@@ -29,17 +29,15 @@ jobs:
       - name: Extract the snapshot name from comment body
         id: getSnapshotName
         uses: actions/github-script@v6
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
         with:
           script:  |
             const splitComment = github.event.comment.body.split(' ');
             splitComment.length !== 2 && (github.rest.issues.createComment({
-              issue_number: process.env.ISSUE_NUMBER,
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: 'Invalid comment format. Expected: "!preview <one-word-snapshot-name>"',
-            }) || exit 1);
+            }) || core.setFailed('Invalid comment format. Expected: "!preview <one-word-snapshot-name>"'));
             return splitComment[1].trim();
           result-encoding: string
           
@@ -82,13 +80,12 @@ jobs:
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
           MESSAGE: ${{ steps.changesets.outputs.publish }}
         with:
           script: |
-            console.log(process.env.ISSUE_NUMBER, process.env.MESSAGE);
+            console.log(process.env.MESSAGE);
             github.rest.issues.createComment({
-              issue_number: process.env.ISSUE_NUMBER,
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: '```\n' + process.env.MESSAGE + '\n```',
