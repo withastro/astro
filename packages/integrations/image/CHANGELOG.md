@@ -1,5 +1,17 @@
 # @astrojs/image
 
+## 0.7.0
+
+### Minor Changes
+
+- [#4438](https://github.com/withastro/astro/pull/4438) [`1e5d8ba9a`](https://github.com/withastro/astro/commit/1e5d8ba9af4eb017382263653216e5247d96ab79) Thanks [@obennaci](https://github.com/obennaci)! - Support additional Sharp resize options
+
+## 0.6.1
+
+### Patch Changes
+
+- [#4678](https://github.com/withastro/astro/pull/4678) [`4c05c65a3`](https://github.com/withastro/astro/commit/4c05c65a3df5bae935afebc8a15ff52d5b912d8b) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates the integration to build all optimized images to `dist/assets` during SSG builds
+
 ## 0.6.0
 
 ### Minor Changes

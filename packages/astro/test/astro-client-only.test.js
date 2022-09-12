@@ -3,6 +3,7 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Client only components', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -36,6 +37,12 @@ describe('Client only components', () => {
 
 	it('Includes CSS from components that use CSS modules', async () => {
 		const html = await fixture.readFile('/css-modules/index.html');
+		const $ = cheerioLoad(html);
+		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+	});
+
+	it('Includes CSS from package components', async () => {
+		const html = await fixture.readFile('/pkg/index.html');
 		const $ = cheerioLoad(html);
 		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 	});

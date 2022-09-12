@@ -13,7 +13,14 @@ class SharpService extends BaseSSRService {
 		if (transform.width || transform.height) {
 			const width = transform.width && Math.round(transform.width);
 			const height = transform.height && Math.round(transform.height);
-			sharpImage.resize(width, height);
+
+			sharpImage.resize({
+				width,
+				height,
+				fit: transform.fit,
+				position: transform.position,
+				background: transform.background,
+			});
 		}
 
 		// remove alpha channel and replace with background color if requested
