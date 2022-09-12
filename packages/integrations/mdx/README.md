@@ -223,7 +223,7 @@ const { frontmatter, url } = Astro.props;
 </html>
 ```
 
-You can also add type safety using [the `Props` type](/en/guides/typescript/#component-props) with the `MDXLayoutProps` helper.
+You can set a layout’s [`Props` type](/en/guides/typescript/#component-props) with the `MDXLayoutProps` helper.
 
 :::note
 `MDXLayoutProps` is the same as the `MarkdownLayoutProps` utility type with `rawContent()` and `compiledContent()` removed (since these are not available for `.mdx` files). Feel free to **use `MarkdownLayoutProps` instead** when sharing a layout across `.md` and `.mdx` files.
