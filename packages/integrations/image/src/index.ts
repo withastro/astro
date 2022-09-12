@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration } from 'astro';
+import type { AstroConfig, AstroIntegration, BuildConfig } from 'astro';
 import { ssgBuild } from './build/ssg.js';
 import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
@@ -38,6 +38,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	};
 
 	let _config: AstroConfig;
+	let _buildConfig: BuildConfig;
 
 	// During SSG builds, this is used to track all transformed images required.
 	const staticImages = new Map<string, Map<string, TransformOptions>>();
@@ -73,6 +74,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					});
 				}
 			},
+			'astro:build:start': ({ buildConfig }) => {
+				_buildConfig = buildConfig
+			},
 			'astro:build:setup': () => {
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
@@ -102,7 +106,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						: {};
 			},
 			'astro:build:done': async ({ dir }) => {
-				await copyLibFiles(dir);
+				await copyLibFiles(_config.output === 'static' ? dir : _buildConfig.server);
 
 				if (_config.output === 'static') {
 					// for SSG builds, build all requested image transforms to dist
