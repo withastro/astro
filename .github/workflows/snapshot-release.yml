@@ -26,6 +26,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+      - name: Extract the snapshot name from comment body
+        id: getSnapshotName
+        uses: actions/github-script@v6
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          script:  |
+            const splitComment = github.event.comment.body.split(' ');
+            splitComment.length !== 2 && (github.rest.issues.createComment({
+              issue_number: process.env.ISSUE_NUMBER,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Invalid comment format. Expected: "!preview <one-word-snapshot-name>"',
+            }) || exit 1);
+            return splitComment[1].trim();
+          result-encoding: string
+          
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.ref }}
@@ -44,23 +61,6 @@ jobs:
 
       - name: Build Packages
         run: pnpm run build
-
-      - name: Extract the snapshot name from comment body
-        id: getSnapshotName
-        uses: actions/github-script@v6
-        env:
-          MESSAGE: ${{ steps.changesets.outputs.publish }}
-        with:
-          script:  |
-            const splitComment = github.event.comment.body.split(' ');
-            splitComment.length !== 2 && (github.rest.issues.createComment({
-              issue_number: process.env.ISSUE_NUMBER,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'Invalid comment format. Expected: "!preview <one-word-snapshot-name>"',
-            }) || exit 1);
-            return splitComment[1].trim();
-          result-encoding: string
 
       - name: Get result
         run: echo "${{steps.set-result.outputs.result}}"
