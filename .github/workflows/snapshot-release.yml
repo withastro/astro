@@ -68,14 +68,18 @@ jobs:
 
       - name: Bump Package Versions
         id: changesets
-        run: echo "::set-output name=result::$(npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }})"
+        run: |
+          npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} 2> changesets.output.txt
+          echo ::set-output name=result::`cat changesets.output.txt`
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Release
         id: publish
-        run: echo "::set-output name=result::$(pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }})"
+        run: |
+          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} 2> publish.output.txt
+          echo ::set-output name=result::`cat publish.output.txt`
         env:
           # Needs access to publish to npm
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
