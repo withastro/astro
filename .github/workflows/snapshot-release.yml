@@ -58,6 +58,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -69,7 +70,7 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets.output.txt 2>&1
+          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets.output.txt 2>&1
           echo ::set-output name=result::`cat changesets.output.txt`
         env:
           # Needs access to run the script
