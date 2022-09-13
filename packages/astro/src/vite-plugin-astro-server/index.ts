@@ -222,7 +222,7 @@ async function handleRequest(
 			});
 			req.on('end', resolve);
 		});
-		body = Buffer.concat(bytes).buffer;
+		body = Buffer.concat(bytes);
 	}
 
 	// Headers are only available when using SSR.
