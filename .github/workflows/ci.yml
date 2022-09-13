@@ -9,6 +9,10 @@ on:
       - '.vscode/**'
       - 'docs/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -24,39 +28,27 @@ jobs:
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Set node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-
-      - name: Get yarn cache directory
-        id: yarn-cache
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Set dependencies cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache.outputs.dir }}
-          key: ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
-            ${{ runner.os }}-${{ matrix.node_version }}-
-
-      - name: Debug
-        run: yarn versions
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: pnpm install
 
       - name: Build the packages
-        run: yarn build
+        run: pnpm build
 
       - name: Test (Linux)
-        run: xvfb-run -a yarn test
+        run: xvfb-run -a pnpm test
         if: runner.os == 'Linux'
 
       - name: Test
-        run: yarn test
+        run: pnpm test
         if: runner.os != 'Linux'

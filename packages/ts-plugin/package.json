@@ -19,7 +19,8 @@
   "devDependencies": {
     "@tsconfig/node12": "^1.0.0",
     "@types/node": "^13.9.0",
-    "typescript": "*"
+    "typescript": "*",
+    "astro-scripts": "workspace:*"
   },
   "dependencies": {
     "sourcemap-codec": "^1.4.8"

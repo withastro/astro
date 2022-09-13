@@ -7,7 +7,7 @@
     "url": "https://github.com/withastro/language-tools.git"
   },
   "scripts": {
-    "release": "yarn build && changeset publish",
+    "release": "pnpm build && changeset publish",
     "build": "turbo run build --scope=\"@astrojs/**\" --scope=\"astro-vscode\"",
     "dev": "turbo run dev --scope=\"@astrojs/**\" --scope=\"astro-vscode\" --parallel --no-cache",
     "format": "prettier -w . --cache",
@@ -18,11 +18,6 @@
     "packages/*",
     "scripts"
   ],
-  "volta": {
-    "node": "14.16.1",
-    "npm": "7.11.2",
-    "yarn": "1.22.10"
-  },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
@@ -35,7 +30,15 @@
     "typescript": "~4.8.2"
   },
   "engines": {
-    "node": "^14.16.0 || >=16.0.0"
+    "node": "^14.18.0 || >=16.12.0",
+    "pnpm": ">=7.9.5"
   },
-  "packageManager": "yarn@1.22.5"
+  "packageManager": "pnpm@7.9.5",
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "esbuild": "^0.15.7"
+      }
+    }
+  }
 }
