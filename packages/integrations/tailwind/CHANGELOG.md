@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4662](https://github.com/withastro/astro/pull/4662) [`8cfb3fb53`](https://github.com/withastro/astro/commit/8cfb3fb535a16ebb1c185de2609435fdd7954611) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update README to reference a `.cjs` config file
+
 ## 1.0.0
 
 ### Major Changes
