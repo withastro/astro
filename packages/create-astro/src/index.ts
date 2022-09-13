@@ -40,7 +40,6 @@ export function mkdirp(dir: string) {
 }
 
 function isEmpty(dirPath: string) {
-	console.log(dirPath);
 	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
 }
 
