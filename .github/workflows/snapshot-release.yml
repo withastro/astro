@@ -73,17 +73,17 @@ jobs:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Publish Release
-#        id: publish
-#        run: echo "::set-output name=result::$(pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }})"
-#        env:
-#          # Needs access to publish to npm
-#          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Release
+        id: publish
+        run: echo "::set-output name=result::$(pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }})"
+        env:
+          # Needs access to publish to npm
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
-          MESSAGE: ${{ steps.changesets.outputs.result }}
+          MESSAGE: ${{ steps.publish.outputs.result }}
         with:
           script: |
             console.log(process.env.MESSAGE);
