@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.0.0
+
+### Major Changes
+
+- [#4713](https://github.com/withastro/astro/pull/4713) [`16113c3ae`](https://github.com/withastro/astro/commit/16113c3ae2ebff96136ebd31958fc5eb4369ee0d) Thanks [@JuanM04](https://github.com/JuanM04)! - Use Edge Functions instead of Edge Middlewares
+
 ## 1.0.2
 
 ### Patch Changes
