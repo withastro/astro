@@ -38,8 +38,6 @@ yarn astro add tailwind
 pnpm astro add tailwind
 ```
   
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -61,7 +59,6 @@ export default {
 }
 ```
   
-Then, restart the dev server.
 
 
 ## Usage
@@ -154,7 +151,7 @@ module.exports = {
 - [Browse Astro Tailwind projects on GitHub](https://github.com/search?q=%22%40astrojs%2Ftailwind%22+filename%3Apackage.json&type=Code) for more examples!
 
 ## Troubleshooting
-- If your installation doesn't seem to be working, make sure to restart the dev server.
+- If your installation doesn't seem to be working, try restarting the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
 

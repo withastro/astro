@@ -1,14 +1,12 @@
 import type { TransformResult } from '@astrojs/compiler';
-import type { PluginContext, SourceMapInput } from 'rollup';
-import type { ViteDevServer } from 'vite';
-import type { AstroConfig } from '../@types/astro';
-import type { TransformStyleWithVite } from './styles';
+import type { AstroConfig } from '../../@types/astro';
+import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
-import { fileURLToPath } from 'url';
-import { AstroErrorCodes } from '../core/errors.js';
-import { prependForwardSlash } from '../core/path.js';
-import { viteID } from '../core/util.js';
+import { AstroErrorCodes } from '../errors.js';
+import { prependForwardSlash } from '../path.js';
+import { AggregateError, viteID } from '../util.js';
+import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
@@ -23,20 +21,7 @@ export interface CompileProps {
 	filename: string;
 	moduleId: string;
 	source: string;
-	ssr: boolean;
-	transformStyleWithVite: TransformStyleWithVite;
-	viteDevServer?: ViteDevServer;
-	pluginContext: PluginContext;
-}
-
-function getNormalizedID(filename: string): string {
-	try {
-		const filenameURL = new URL(`file://${filename}`);
-		return fileURLToPath(filenameURL);
-	} catch (err) {
-		// Not a real file, so just use the provided filename as the normalized id
-		return filename;
-	}
+	transformStyle: TransformStyle;
 }
 
 async function compile({
@@ -44,19 +29,10 @@ async function compile({
 	filename,
 	moduleId,
 	source,
-	ssr,
-	transformStyleWithVite,
-	viteDevServer,
-	pluginContext,
+	transformStyle,
 }: CompileProps): Promise<CompileResult> {
-	const normalizedID = getNormalizedID(filename);
 	let cssDeps = new Set<string>();
-	let cssTransformError: Error | undefined;
-
-	// handleHotUpdate doesn't have `addWatchFile` used by transformStyleWithVite.
-	if (!pluginContext.addWatchFile) {
-		pluginContext.addWatchFile = () => {};
-	}
+	let cssTransformErrors: Error[] = [];
 
 	// Transform from `.astro` to valid `.ts`
 	// use `sourcemap: "both"` so that sourcemap is included in the code
@@ -69,44 +45,11 @@ async function compile({
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(
-			viteID(new URL('../runtime/server/index.js', import.meta.url))
+			viteID(new URL('../../runtime/server/index.js', import.meta.url))
 		)}`,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
-		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-
-			try {
-				const result = await transformStyleWithVite.call(pluginContext, {
-					id: normalizedID,
-					source: value,
-					lang,
-					ssr,
-					viteDevServer,
-				});
-
-				if (!result) return null as any; // TODO: add type in compiler to fix "any"
-
-				for (const dep of result.deps) {
-					cssDeps.add(dep);
-				}
-
-				let map: SourceMapInput | undefined;
-				if (result.map) {
-					if (typeof result.map === 'string') {
-						map = result.map;
-					} else if (result.map.mappings) {
-						map = result.map.toString();
-					}
-				}
-
-				return { code: result.code, map };
-			} catch (err) {
-				// save error to throw in plugin context
-				cssTransformError = err as any;
-				return null;
-			}
-		},
+		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps, cssTransformErrors),
 	})
 		.catch((err) => {
 			// throw compiler errors here if encountered
@@ -114,13 +57,22 @@ async function compile({
 			throw err;
 		})
 		.then((result) => {
-			// throw CSS transform errors here if encountered
-			if (cssTransformError) {
-				(cssTransformError as any).code =
-					(cssTransformError as any).code || AstroErrorCodes.UnknownCompilerCSSError;
-				throw cssTransformError;
+			switch (cssTransformErrors.length) {
+				case 0:
+					return result;
+				case 1: {
+					let error = cssTransformErrors[0];
+					if (!(error as any).code) {
+						(error as any).code = AstroErrorCodes.UnknownCompilerCSSError;
+					}
+					throw cssTransformErrors[0];
+				}
+				default: {
+					const aggregateError = new AggregateError(cssTransformErrors);
+					(aggregateError as any).code = AstroErrorCodes.UnknownCompilerCSSError;
+					throw aggregateError;
+				}
 			}
-			return result;
 		});
 
 	const compileResult: CompileResult = Object.create(transformResult, {

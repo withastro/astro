@@ -126,7 +126,7 @@ export function resolveDependency(dep: string, projectRoot: URL) {
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath));
+	return slash(fileURLToPath(filePath) + filePath.search);
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
@@ -226,3 +226,14 @@ export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
 	}
 	return VALID_ID_PREFIX + result.id;
 }
+
+export const AggregateError =
+	typeof globalThis.AggregateError !== 'undefined'
+		? globalThis.AggregateError
+		: class extends Error {
+				errors: Array<any> = [];
+				constructor(errors: Iterable<any>, message?: string | undefined) {
+					super(message);
+					this.errors = Array.from(errors);
+				}
+		  };

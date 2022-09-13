@@ -85,7 +85,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					// Doing this here makes sure that base is ignored when building
 					// staticImages to /dist, but the rendered HTML will include the
 					// base prefix for `src`.
-					return prependForwardSlash(joinPaths(_config.base, filename));
+					return prependForwardSlash(joinPaths(_config.base, 'assets', filename));
 				}
 
 				// Helpers for building static images should only be available for SSG

@@ -191,14 +191,26 @@ export function sortedCSS(pageData: PageBuildData) {
 	return Array.from(pageData.css)
 		.sort((a, b) => {
 			let depthA = a[1].depth,
-				depthB = b[1].depth;
+				depthB = b[1].depth,
+				orderA = a[1].order,
+				orderB = b[1].order;
 
-			if (depthA === -1) {
-				return -1;
-			} else if (depthB === -1) {
+			if (orderA === -1 && orderB >= 0) {
 				return 1;
+			} else if (orderB === -1 && orderA >= 0) {
+				return -1;
+			} else if (orderA > orderB) {
+				return 1;
+			} else if (orderA < orderB) {
+				return -1;
 			} else {
-				return depthA > depthB ? -1 : 1;
+				if (depthA === -1) {
+					return -1;
+				} else if (depthB === -1) {
+					return 1;
+				} else {
+					return depthA > depthB ? -1 : 1;
+				}
 			}
 		})
 		.map(([id]) => id);
