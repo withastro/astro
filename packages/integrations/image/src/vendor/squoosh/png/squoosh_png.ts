@@ -85,12 +85,12 @@ function getArrayU8FromWasm0(ptr, len) {
 export function encode(data, width, height) {
   try {
     const retptr = wasm.__wbindgen_add_to_stack_pointer(-16)
-    var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc)
-    var len0 = WASM_VECTOR_LEN
+    const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc)
+    const len0 = WASM_VECTOR_LEN
     wasm.encode(retptr, ptr0, len0, width, height)
-    var r0 = getInt32Memory0()[retptr / 4 + 0]
-    var r1 = getInt32Memory0()[retptr / 4 + 1]
-    var v1 = getArrayU8FromWasm0(r0, r1).slice()
+    const r0 = getInt32Memory0()[retptr / 4 + 0]
+    const r1 = getInt32Memory0()[retptr / 4 + 1]
+    const v1 = getArrayU8FromWasm0(r0, r1).slice()
     wasm.__wbindgen_free(r0, r1 * 1)
     return v1
   } finally {
@@ -118,9 +118,9 @@ function takeObject(idx) {
  * @returns {ImageData}
  */
 export function decode(data) {
-  var ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc)
-  var len0 = WASM_VECTOR_LEN
-  var ret = wasm.decode(ptr0, len0)
+  const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc)
+  const len0 = WASM_VECTOR_LEN
+  const ret = wasm.decode(ptr0, len0)
   return takeObject(ret)
 }
 
@@ -148,9 +148,9 @@ async function init(input) {
   imports.wbg = {}
   imports.wbg.__wbg_newwithownedu8clampedarrayandsh_787b2db8ea6bfd62 =
     function (arg0, arg1, arg2, arg3) {
-      var v0 = getClampedArrayU8FromWasm0(arg0, arg1).slice()
+      const v0 = getClampedArrayU8FromWasm0(arg0, arg1).slice()
       wasm.__wbindgen_free(arg0, arg1 * 1)
-      var ret = new ImageData(v0, arg2 >>> 0, arg3 >>> 0)
+      const ret = new ImageData(v0, arg2 >>> 0, arg3 >>> 0)
       return addHeapObject(ret)
     }
   imports.wbg.__wbindgen_throw = function (arg0, arg1) {

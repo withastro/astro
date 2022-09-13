@@ -69,8 +69,8 @@ export function resize(
 ) {
   try {
     const retptr = wasm.__wbindgen_add_to_stack_pointer(-16)
-    var ptr0 = passArray8ToWasm0(input_image, wasm.__wbindgen_malloc)
-    var len0 = WASM_VECTOR_LEN
+    const ptr0 = passArray8ToWasm0(input_image, wasm.__wbindgen_malloc)
+    const len0 = WASM_VECTOR_LEN
     wasm.resize(
       retptr,
       ptr0,
@@ -83,9 +83,9 @@ export function resize(
       premultiply,
       color_space_conversion
     )
-    var r0 = getInt32Memory0()[retptr / 4 + 0]
-    var r1 = getInt32Memory0()[retptr / 4 + 1]
-    var v1 = getClampedArrayU8FromWasm0(r0, r1).slice()
+    const r0 = getInt32Memory0()[retptr / 4 + 0]
+    const r1 = getInt32Memory0()[retptr / 4 + 1]
+    const v1 = getClampedArrayU8FromWasm0(r0, r1).slice()
     wasm.__wbindgen_free(r0, r1 * 1)
     return v1
   } finally {
