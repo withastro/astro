@@ -60,6 +60,7 @@
     "glob": "^8.0.3",
     "kleur": "^4.1.5",
     "mocha": "^9.2.2",
+    "@types/mocha": "^9.1.0",
     "path-browserify": "^1.0.1",
     "typescript": "~4.8.2",
     "vscode-languageclient": "^8.0.1",

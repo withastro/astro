@@ -14,7 +14,7 @@
     "types"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --project tsconfig.build.json",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --timeout 20000 --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\""
   },

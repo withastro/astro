@@ -1,8 +1,9 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "out",
-    "rootDir": "src"
+    "emitDeclarationOnly": false,
+    "noEmit": true
   },
-  "include": ["src"],
+  "include": ["src", "test"],
   "exclude": ["node_modules", ".vscode-test"]
 }
