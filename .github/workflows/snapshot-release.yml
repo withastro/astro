@@ -40,10 +40,16 @@ jobs:
             }) || core.setFailed('Invalid comment format. Expected: "!preview <one-word-snapshot-name>"'));
             return splitComment[1].trim();
           result-encoding: string
+
+      - name: resolve pr refs
+        id: refs
+        uses: eficode/resolve-pr-refs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ steps.refs.outputs.base_ref }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
