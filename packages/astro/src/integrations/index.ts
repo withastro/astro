@@ -66,6 +66,14 @@ export async function runHookConfigSetup({
 				config: updatedConfig,
 				command,
 				addRenderer(renderer: AstroRenderer) {
+					if (!renderer.name) {
+						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
+					}
+
+					if (!renderer.serverEntrypoint) {
+						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
+					}
+
 					updatedConfig._ctx.renderers.push(renderer);
 				},
 				injectScript: (stage, content) => {

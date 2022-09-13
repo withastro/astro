@@ -53,7 +53,10 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 		} else {
 			functions.push({
 				function: entryFile,
-				pattern: route.pattern.toString(),
+				// Make route pattern serializable to match expected
+				// Netlify Edge validation format. Mirrors Netlify's own edge bundler:
+				// https://github.com/netlify/edge-bundler/blob/main/src/manifest.ts#L34
+				pattern: route.pattern.source.replace(/\\\//g, '/').toString(),
 			});
 		}
 	}
