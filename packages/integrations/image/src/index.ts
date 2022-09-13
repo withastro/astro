@@ -4,7 +4,7 @@ import type { ImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
-import { copyLibFiles } from './vendor/squoosh/main.js';
+import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
@@ -107,7 +107,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:done': async ({ dir }) => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyLibFiles(_config.output === 'static' ? dir : _buildConfig.server);
+					await copyWasmFiles(_config.output === 'static' ? dir : _buildConfig.server);
 				}
 
 				if (_config.output === 'static') {
