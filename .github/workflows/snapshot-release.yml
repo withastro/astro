@@ -69,7 +69,7 @@ jobs:
       - name: Bump Package Versions
         id: changesets
         run: |
-          npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} 2> changesets.output.txt
+          npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets.output.txt 2>&1
           echo ::set-output name=result::`cat changesets.output.txt`
         env:
           # Needs access to run the script
@@ -78,7 +78,7 @@ jobs:
       - name: Publish Release
         id: publish
         run: |
-          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} 2> publish.output.txt
+          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
           echo ::set-output name=result::`cat publish.output.txt`
         env:
           # Needs access to publish to npm
