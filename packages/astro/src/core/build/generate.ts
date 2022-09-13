@@ -28,7 +28,7 @@ import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../rende
 import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
-import { getOutFile, getOutFolder } from './common.js';
+import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
@@ -103,7 +103,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 
 	const ssr = opts.astroConfig.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : opts.astroConfig.outDir;
+	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.astroConfig.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
