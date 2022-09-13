@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 1.0.3
+
+### Patch Changes
+
+- [#4722](https://github.com/withastro/astro/pull/4722) [`4bc70f354`](https://github.com/withastro/astro/commit/4bc70f3545ab950da306de9c5417a08a7532fa28) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix route validation failures on Netlify Edge
+
 ## 1.0.2
 
 ### Patch Changes
