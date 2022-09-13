@@ -1,19 +1,25 @@
 ---
 import MainHead from '../components/MainHead.astro';
-import Footer from '../components/Footer/index.jsx';
-import Nav from '../components/Nav/index.jsx';
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
 ---
 
 <html lang="en">
 	<head>
 		<MainHead title="Not Found" />
+		<style>
+			.wrapper {
+				margin-top: 2em;
+				margin-bottom: 2em;
+			}
+		</style>
 	</head>
 	<body>
-		<nav></nav>
-		<div class="wrapper mt4 mb4">
+		<Nav />
+		<div class="wrapper">
 			<h1>Page Not Found</h1>
 			<p>Not found</p>
 		</div>
-		<footer></footer>
+		<Footer />
 	</body>
 </html>

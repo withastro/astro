@@ -1,9 +1,9 @@
 import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 
-function getRenderer(): AstroRenderer {
+function getRenderer(development: boolean): AstroRenderer {
 	return {
 		name: '@astrojs/preact',
-		clientEntrypoint: '@astrojs/preact/client.js',
+		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
@@ -18,10 +18,10 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-function getCompatRenderer(): AstroRenderer {
+function getCompatRenderer(development: boolean): AstroRenderer {
 	return {
 		name: '@astrojs/preact',
-		clientEntrypoint: '@astrojs/preact/client.js',
+		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
@@ -96,9 +96,10 @@ export default function ({ compat }: { compat?: boolean } = {}): AstroIntegratio
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
-				if (compat) addRenderer(getCompatRenderer());
-				addRenderer(getRenderer());
+			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
+				const development = command === 'dev';
+				if (compat) addRenderer(getCompatRenderer(development));
+				addRenderer(getRenderer(development));
 				updateConfig({
 					vite: getViteConfiguration(compat),
 				});

@@ -32,7 +32,7 @@ describe('Image rotation', function () {
 		it('Landscape images', () => {
 			for (let i = 0; i < 9; i++) {
 				const image = $(`#landscape-${i}`);
-				const regex = new RegExp(`\^/Landscape_${i}.\\w{8}_\\w{4,10}.jpg`);
+				const regex = new RegExp(`\^/assets\/Landscape_${i}.\\w{8}_\\w{4,10}.jpg`);
 
 				expect(image.attr('src')).to.match(regex);
 				expect(image.attr('width')).to.equal('1800');
@@ -49,7 +49,7 @@ describe('Image rotation', function () {
 		it('Portait images', () => {
 			for (let i = 0; i < 9; i++) {
 				const image = $(`#portrait-${i}`);
-				const regex = new RegExp(`\^/Portrait_${i}.\\w{8}_\\w{4,10}.jpg`);
+				const regex = new RegExp(`\^/assets\/Portrait_${i}.\\w{8}_\\w{4,10}.jpg`);
 
 				expect(image.attr('src')).to.match(regex);
 				expect(image.attr('width')).to.equal('1200');

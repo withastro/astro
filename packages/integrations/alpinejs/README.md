@@ -18,14 +18,14 @@ The `astro add` command-line tool automates the installation for you. Run one of
 
 ```sh
 # Using NPM
-npm run astro add alpinejs
+npx astro add alpinejs
 # Using Yarn
 yarn astro add alpinejs
 # Using PNPM
 pnpm astro add alpinejs
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then type `npm run astro dev` to restart the dev server. 
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
 
@@ -53,8 +53,6 @@ export default defineConfig({
   integrations: [alpine()],
 });
 ```
-
-Finally, restart the dev server.
 
 ## Usage
 

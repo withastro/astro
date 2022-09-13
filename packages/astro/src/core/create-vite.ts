@@ -2,6 +2,8 @@ import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
 import fs from 'fs';
+import { createRequire } from 'module';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
@@ -174,34 +176,115 @@ function sortPlugins(pluginOptions: vite.PluginOption[]) {
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
 async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
-	const pkgUrl = new URL('./package.json', root);
-	const pkgPath = fileURLToPath(pkgUrl);
-	if (!fs.existsSync(pkgPath)) return [];
+	const { astroPackages } = new DependencyWalker(root);
+	return astroPackages;
+}
 
-	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+/**
+ * Recursively walk a project’s dependency tree trying to find Astro packages.
+ * - If the current node is an Astro package, we continue walking its child dependencies.
+ * - If the current node is not an Astro package, we bail out of walking that branch.
+ * This assumes it is unlikely for Astro packages to be dependencies of packages that aren’t
+ * themselves also Astro packages.
+ */
+class DependencyWalker {
+	private readonly require: NodeRequire;
+	private readonly astroDeps = new Set<string>();
+	private readonly nonAstroDeps = new Set<string>();
 
-	const deps = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})];
+	constructor(root: URL) {
+		const pkgUrl = new URL('./package.json', root);
+		this.require = createRequire(pkgUrl);
+		const pkgPath = fileURLToPath(pkgUrl);
+		if (!fs.existsSync(pkgPath)) return;
 
-	return deps.filter((dep) => {
-		// Attempt: package is common and not Astro. ❌ Skip these for perf
-		if (isCommonNotAstro(dep)) return false;
-		// Attempt: package is named `astro-something`. ✅ Likely a community package
-		if (/^astro\-/.test(dep)) return true;
-		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, root);
-		const depPkgPath = fileURLToPath(depPkgUrl);
-		if (!fs.existsSync(depPkgPath)) return false;
+		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+		const deps = [
+			...Object.keys(pkg.dependencies || {}),
+			...Object.keys(pkg.devDependencies || {}),
+		];
 
-		const {
-			dependencies = {},
-			peerDependencies = {},
-			keywords = [],
-		} = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
-		// Attempt: package relies on `astro`. ✅ Definitely an Astro package
-		if (peerDependencies.astro || dependencies.astro) return true;
-		// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
-		if (keywords.includes('astro') || keywords.includes('astro-component')) return true;
-		return false;
-	});
+		this.scanDependencies(deps);
+	}
+
+	/** The dependencies we determined were likely to include `.astro` files. */
+	public get astroPackages(): string[] {
+		return Array.from(this.astroDeps);
+	}
+
+	private seen(dep: string): boolean {
+		return this.astroDeps.has(dep) || this.nonAstroDeps.has(dep);
+	}
+
+	/** Try to load a directory’s `package.json` file from the filesystem. */
+	private readPkgJSON(dir: string): PkgJSON | void {
+		try {
+			const filePath = path.join(dir, 'package.json');
+			return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+		} catch (e) {}
+	}
+
+	/** Try to resolve a dependency’s `package.json` even if not a package export. */
+	private resolvePkgJSON(dep: string): PkgJSON | void {
+		try {
+			const pkgJson: PkgJSON = this.require(dep + '/package.json');
+			return pkgJson;
+		} catch (e) {
+			// Most likely error is that the dependency doesn’t include `package.json` in its package `exports`.
+			try {
+				// Walk up from default export until we find `package.json` with name === dep.
+				let dir = path.dirname(this.require.resolve(dep));
+				while (dir) {
+					const pkgJSON = this.readPkgJSON(dir);
+					if (pkgJSON && pkgJSON.name === dep) return pkgJSON;
+
+					const parentDir = path.dirname(dir);
+					if (parentDir === dir) break;
+
+					dir = parentDir;
+				}
+			} catch {
+				// Give up! Who knows where the `package.json` is…
+			}
+		}
+	}
+
+	private scanDependencies(deps: string[]): void {
+		const newDeps: string[] = [];
+		for (const dep of deps) {
+			// Attempt: package is common and not Astro. ❌ Skip these for perf
+			if (isCommonNotAstro(dep)) {
+				this.nonAstroDeps.add(dep);
+				continue;
+			}
+
+			const pkgJson = this.resolvePkgJSON(dep);
+			if (!pkgJson) {
+				this.nonAstroDeps.add(dep);
+				continue;
+			}
+			const { dependencies = {}, peerDependencies = {}, keywords = [] } = pkgJson;
+
+			if (
+				// Attempt: package relies on `astro`. ✅ Definitely an Astro package
+				peerDependencies.astro ||
+				dependencies.astro ||
+				// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
+				keywords.includes('astro') ||
+				keywords.includes('astro-component') ||
+				// Attempt: package is named `astro-something` or `@scope/astro-something`. ✅ Likely a community package
+				/^(@[^\/]+\/)?astro\-/.test(dep)
+			) {
+				this.astroDeps.add(dep);
+				// Collect any dependencies of this Astro package we haven’t seen yet.
+				const unknownDependencies = Object.keys(dependencies).filter((d) => !this.seen(d));
+				newDeps.push(...unknownDependencies);
+			} else {
+				this.nonAstroDeps.add(dep);
+			}
+		}
+		if (newDeps.length) this.scanDependencies(newDeps);
+	}
 }
 
 const COMMON_DEPENDENCIES_NOT_ASTRO = [
@@ -255,4 +338,13 @@ function isCommonNotAstro(dep: string): boolean {
 					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
 		)
 	);
+}
+
+interface PkgJSON {
+	name: string;
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	keywords?: string[];
+	[key: string]: any;
 }

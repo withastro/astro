@@ -58,11 +58,13 @@ export function serverStart({
 	resolvedUrls,
 	host,
 	site,
+	isRestart = false,
 }: {
 	startupTime: number;
 	resolvedUrls: ResolvedServerUrls;
 	host: string | boolean;
 	site: URL | undefined;
+	isRestart?: boolean;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
@@ -93,7 +95,7 @@ export function serverStart({
 
 	const messages = [
 		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
-			`started in ${Math.round(startupTime)}ms`
+			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
 		)}`,
 		'',
 		...localUrlMessages,
