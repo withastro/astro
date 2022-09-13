@@ -1,5 +1,5 @@
 {
-  "name": "@example/with-markdown-shiki",
+  "name": "@test/error-bad-js",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,6 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.2.2"
+    "astro": "workspace:*"
   }
 }
