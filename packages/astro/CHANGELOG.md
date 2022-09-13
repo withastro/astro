@@ -1,5 +1,11 @@
 # astro
 
+## 1.2.3
+
+### Patch Changes
+
+- [#4724](https://github.com/withastro/astro/pull/4724) [`6efafa4b0`](https://github.com/withastro/astro/commit/6efafa4b0e392563d5375ec62ac6e3ac8372ec61) Thanks [@matthewp](https://github.com/matthewp)! - Use import order to sort CSS in the build
+
 ## 1.2.2
 
 ### Patch Changes
