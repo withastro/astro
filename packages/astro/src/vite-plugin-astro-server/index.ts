@@ -217,7 +217,7 @@ async function handleRequest(
 	if (!(req.method === 'GET' || req.method === 'HEAD')) {
 		let bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {
-			req.on('data', (part) => {
+			req.on('data', part => {
 				bytes.push(part);
 			});
 			req.on('end', resolve);
