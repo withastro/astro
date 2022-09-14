@@ -43,13 +43,21 @@ function isSignal(x: any): x is SignalLike {
 
 function renderToStaticMarkup(this: RendererContext, Component: any, props: Record<string, any>, { default: children, ...slotted }: Record<string, any>) {
 	const ctx = getContext(this.result);
-	const signals: Record<string, string> = {};
+
+	const slots: Record<string, ReturnType<typeof h>> = {};
+	for (const [key, value] of Object.entries(slotted)) {
+		const name = slotName(key);
+		slots[name] = h(StaticHtml, { value, name });
+	}
+	// Note: create newProps to avoid mutating `props` before they are serialized
+	const newProps = { ...props, ...slots };
 
 	// Check for signals
+	const signals: Record<string, string> = {};
 	for(const [key, value] of Object.entries(props)) {
 		if(isSignal(value)) {
 			// Set the value to the current signal value
-			props[key] = value.peek();
+			newProps[key] = value.peek();
 
 			let id: string;
 			if(ctx.signals.has(value)) {
@@ -62,14 +70,6 @@ function renderToStaticMarkup(this: RendererContext, Component: any, props: Reco
 		}
 	}
 
-
-	const slots: Record<string, ReturnType<typeof h>> = {};
-	for (const [key, value] of Object.entries(slotted)) {
-		const name = slotName(key);
-		slots[name] = h(StaticHtml, { value, name });
-	}
-	// Note: create newProps to avoid mutating `props` before they are serialized
-	const newProps = { ...props, ...slots };
 	const html = render(
 		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
 	);
