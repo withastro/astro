@@ -2649,12 +2649,10 @@ importers:
       astro-scripts: workspace:*
       autoprefixer: ^10.4.7
       postcss: ^8.4.14
-      tailwindcss: ^3.0.24
     dependencies:
       '@proload/core': 0.3.3
       autoprefixer: 10.4.10_postcss@8.4.16
       postcss: 8.4.16
-      tailwindcss: 3.1.8_postcss@8.4.16
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
