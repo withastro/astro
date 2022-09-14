@@ -150,5 +150,22 @@ describe('Scripts (hoisted and not)', () => {
 			});
 			expect(found).to.equal(1);
 		});
+
+		it.only('Using injectScript does not interfere', async () => {
+			let res = await fixture.fetch('/inline-in-page');
+			let html = await res.text();
+			let $ = cheerio.load(html);
+			//console.log(html);
+			let found = 0;
+			let moduleScripts = $('[type=module]');
+			moduleScripts.each((i, el) => {
+				if (
+					$(el).attr('src').includes('?astro&type=script&index=0&lang.ts')
+				) {
+					found++;
+				}
+			});
+			expect(found).to.equal(1);
+		});
 	});
 });

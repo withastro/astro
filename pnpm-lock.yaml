@@ -1356,8 +1356,10 @@ importers:
 
   packages/astro/test/fixtures/astro-scripts:
     specifiers:
+      '@astrojs/tailwind': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-sitemap-rss:
