@@ -18,13 +18,24 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 }
 
 /** Renders an endpoint request to completion, returning the body. */
-export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
+export async function renderEndpoint(
+	mod: EndpointHandler,
+	request: Request,
+	params: Params
+) {
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!handler || typeof handler !== 'function') {
-		throw new Error(
-			`Endpoint handler not found! Expected an exported function for "${chosenMethod}"`
-		);
+		// No handler found, so this should be a 404. Using a custom header
+		// to signal to the renderer that this is an internal 404 that should
+		// be handled by a custom 404 route if possible.
+		let response = new Response(null, {
+			status: 404,
+			headers: {
+				'X-Astro-Response': 'Not-Found'
+			},
+		});
+		return response;
 	}
 
 	if (handler.length > 1) {
