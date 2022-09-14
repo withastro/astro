@@ -293,7 +293,7 @@ async function handleRequest(
 		);
 		filePath = matchedRoute?.filePath;
 	
-		return handleRoute(
+		return await handleRoute(
 			matchedRoute,
 			url,
 			pathname,
@@ -306,7 +306,7 @@ async function handleRequest(
 			config,
 			req,
 			res
-		)
+		);
 	} catch(_err) {
 		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
@@ -329,8 +329,6 @@ async function handleRoute(
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ): Promise<void> {
-	
-
 	if (!matchedRoute) {
 		return handle404Response(origin, config, req, res);
 	}
