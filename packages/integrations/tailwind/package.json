@@ -37,7 +37,7 @@
     "astro-scripts": "workspace:*"
   },
   "peerDependencies": {
-    "tailwindcss" : "^3.0.24"
+    "tailwindcss": "^3.0.24"
   },
   "pnpm": {
     "peerDependencyRules": {
