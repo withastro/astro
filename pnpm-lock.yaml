@@ -35,7 +35,7 @@ importers:
       '@types/sinon': ^10.0.11
       '@vscode/emmet-helper': ^2.8.4
       astro: ^1.1.3
-      astro-scripts: workspace:*
+      astro-scripts: '*'
       chai: ^4.3.6
       cross-env: ^7.0.3
       events: ^3.3.0
@@ -91,7 +91,7 @@ importers:
     specifiers:
       '@tsconfig/node12': ^1.0.0
       '@types/node': ^13.9.0
-      astro-scripts: workspace:*
+      astro-scripts: '*'
       sourcemap-codec: ^1.4.8
       typescript: '*'
     dependencies:

@@ -20,7 +20,7 @@
     "@tsconfig/node12": "^1.0.0",
     "@types/node": "^13.9.0",
     "typescript": "*",
-    "astro-scripts": "workspace:*"
+    "astro-scripts": "*"
   },
   "dependencies": {
     "sourcemap-codec": "^1.4.8"
