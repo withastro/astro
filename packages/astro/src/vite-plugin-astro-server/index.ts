@@ -1,7 +1,7 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroConfig, ManifestData, SSRManifest } from '../@types/astro';
+import type { AstroConfig, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
@@ -28,8 +28,11 @@ interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
-type AsyncReturnType<T extends (...args: any) => Promise<any>> =
-    T extends (...args: any) => Promise<infer R> ? R : any
+type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
+	...args: any
+) => Promise<infer R>
+	? R
+	: any;
 
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
@@ -181,7 +184,7 @@ async function matchRoute(
 	viteServer: vite.ViteDevServer,
 	logging: LogOptions,
 	manifest: ManifestData,
-	config: AstroConfig,
+	config: AstroConfig
 ) {
 	const matches = matchAllRoutes(pathname, manifest);
 
@@ -273,7 +276,7 @@ async function handleRequest(
 	if (!(req.method === 'GET' || req.method === 'HEAD')) {
 		let bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {
-			req.on('data', part => {
+			req.on('data', (part) => {
 				bytes.push(part);
 			});
 			req.on('end', resolve);
@@ -292,7 +295,7 @@ async function handleRequest(
 			config
 		);
 		filePath = matchedRoute?.filePath;
-	
+
 		return await handleRoute(
 			matchedRoute,
 			url,
@@ -307,7 +310,7 @@ async function handleRequest(
 			req,
 			res
 		);
-	} catch(_err) {
+	} catch (_err) {
 		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
@@ -376,7 +379,7 @@ async function handleRoute(
 	if (route.type === 'endpoint') {
 		const result = await callEndpoint(options);
 		if (result.type === 'response') {
-			if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
+			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute(
 					'/404',
 					routeCache,

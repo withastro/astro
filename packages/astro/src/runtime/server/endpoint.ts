@@ -18,11 +18,7 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 }
 
 /** Renders an endpoint request to completion, returning the body. */
-export async function renderEndpoint(
-	mod: EndpointHandler,
-	request: Request,
-	params: Params
-) {
+export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
 	if (!handler || typeof handler !== 'function') {
@@ -32,7 +28,7 @@ export async function renderEndpoint(
 		let response = new Response(null, {
 			status: 404,
 			headers: {
-				'X-Astro-Response': 'Not-Found'
+				'X-Astro-Response': 'Not-Found',
 			},
 		});
 		return response;

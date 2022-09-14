@@ -202,10 +202,10 @@ export class App {
 		});
 
 		if (result.type === 'response') {
-			if(result.response.headers.get('X-Astro-Response') === 'Not-Found') {
+			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRequest = new Request(new URL('/404', request.url));
 				const fourOhFourRouteData = this.match(fourOhFourRequest);
-				if(fourOhFourRouteData) {
+				if (fourOhFourRouteData) {
 					return this.render(fourOhFourRequest, fourOhFourRouteData);
 				}
 			}

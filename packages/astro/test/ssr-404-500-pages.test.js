@@ -28,14 +28,14 @@ describe('404 and 500 pages', () => {
 
 		it('Returns 404 when hitting an API route with the wrong method', async () => {
 			let res = await fixture.fetch('/api/route', {
-				method: 'PUT'
+				method: 'PUT',
 			});
 			let html = await res.text();
 			let $ = cheerio.load(html);
 			expect($('h1').text()).to.equal(`Something went horribly wrong!`);
 		});
 	});
-	
+
 	describe('Production', () => {
 		before(async () => {
 			await fixture.build({});
@@ -50,7 +50,7 @@ describe('404 and 500 pages', () => {
 			const $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Something went horribly wrong!');
 		});
-	
+
 		it('404 page returned when a route does not match and passing routeData', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/some/fake/route');
@@ -61,7 +61,7 @@ describe('404 and 500 pages', () => {
 			const $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Something went horribly wrong!');
 		});
-	
+
 		it('500 page returned when there is an error', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/causes-error');
@@ -75,7 +75,7 @@ describe('404 and 500 pages', () => {
 		it('Returns 404 when hitting an API route with the wrong method', async () => {
 			const app = await fixture.loadTestAdapterApp();
 			const request = new Request('http://example.com/api/route', {
-				method: 'PUT'
+				method: 'PUT',
 			});
 			const response = await app.render(request);
 			expect(response.status).to.equal(404);
