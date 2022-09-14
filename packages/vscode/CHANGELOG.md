@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.26.0
+
+### Minor Changes
+
+- c4f7a36: Update language-server
+
 ## 0.24.4
 
 ### Patch Changes
