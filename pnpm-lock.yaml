@@ -2225,7 +2225,6 @@ importers:
   packages/integrations/image:
     specifiers:
       '@altano/tiny-async-pool': ^1.0.2
-      '@squoosh/lib': ^0.4.0
       '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
@@ -2234,14 +2233,11 @@ importers:
       magic-string: ^0.25.9
       mime: ^3.0.0
       rollup-plugin-copy: ^3.4.0
-      sharp: ^0.30.6
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
-      '@squoosh/lib': 0.4.0
       image-size: 1.0.2
       magic-string: 0.25.9
       mime: 3.0.0
-      sharp: 0.30.7
     devDependencies:
       '@types/sharp': 0.30.5
       astro: link:../../astro
@@ -8783,14 +8779,6 @@ packages:
       react: 18.2.0
     transitivePeerDependencies:
       - react-dom
-    dev: false
-
-  /@squoosh/lib/0.4.0:
-    resolution: {integrity: sha512-O1LyugWLZjMI4JZeZMA5vzfhfPjfMZXH5/HmVkRagP8B70wH3uoR7tjxfGNdSavey357MwL8YJDxbGwBBdHp7Q==}
-    engines: {node: ' ^12.5.0 || ^14.0.0 || ^16.0.0 '}
-    dependencies:
-      wasm-feature-detect: 1.2.11
-      web-streams-polyfill: 3.2.1
     dev: false
 
   /@surma/rollup-plugin-off-main-thread/2.2.3:
@@ -16020,21 +16008,6 @@ packages:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
     dev: true
 
-  /sharp/0.30.7:
-    resolution: {integrity: sha512-G+MY2YW33jgflKPTXXptVO28HvNOo9G3j0MybYAHeEmby+QuD2U98dT6ueht9cv/XDqZspSpIhoSW+BAKJ7Hig==}
-    engines: {node: '>=12.13.0'}
-    requiresBuild: true
-    dependencies:
-      color: 4.2.3
-      detect-libc: 2.0.1
-      node-addon-api: 5.0.0
-      prebuild-install: 7.1.1
-      semver: 7.3.7
-      simple-get: 4.0.1
-      tar-fs: 2.1.1
-      tunnel-agent: 0.6.0
-    dev: false
-
   /sharp/0.31.0:
     resolution: {integrity: sha512-ft96f8WzGxavg0rkLpMw90MTPMUZDyf0tHjPPh8Ob59xt6KzX8EqtotcqZGUm7kwqpX2pmYiyYX2LL0IZ/FDEw==}
     engines: {node: '>=14.15.0'}
@@ -17569,10 +17542,6 @@ packages:
       '@vue/runtime-dom': 3.2.39
       '@vue/server-renderer': 3.2.39_vue@3.2.39
       '@vue/shared': 3.2.39
-
-  /wasm-feature-detect/1.2.11:
-    resolution: {integrity: sha512-HUqwaodrQGaZgz1lZaNioIkog9tkeEJjrM3eq4aUL04whXOVDRc/o2EGb/8kV0QX411iAYWEqq7fMBmJ6dKS6w==}
-    dev: false
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}

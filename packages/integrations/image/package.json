@@ -43,11 +43,9 @@
   },
   "dependencies": {
     "@altano/tiny-async-pool": "^1.0.2",
-    "@squoosh/lib": "^0.4.0",
     "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
-    "mime": "^3.0.0",
-    "sharp": "^0.30.6"
+    "mime": "^3.0.0"
   },
   "devDependencies": {
     "@types/sharp": "^0.30.5",
