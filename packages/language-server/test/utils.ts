@@ -37,7 +37,7 @@ export function openDocument(filePath: string, baseDir: string, docManager: Docu
 	return document;
 }
 
-function harmonizeNewLines(input: string) {
+export function harmonizeNewLines(input: string) {
 	return input.replace(/\r\n/g, '~:~').replace(/\n/g, '~:~').replace(/~:~/g, '\n');
 }
 
