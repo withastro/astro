@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import * as fs from 'fs';
-import { FormData, File } from 'node-fetch'
+import { FormData, File } from 'node-fetch';
 
 describe('API routes', () => {
 	/** @type {import('./test-utils').Fixture} */
