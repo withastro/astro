@@ -222,4 +222,5 @@ function filteredConsoleError(msg: any, ...rest: any[]) {
 			msg.includes('https://reactjs.org/link/invalid-hook-call');
 		if (isKnownReactHookError) return;
 	}
+	originalConsoleError(msg, ...rest);
 }
