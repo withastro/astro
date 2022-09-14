@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 2.0.0
+
+### Major Changes
+
+- [#4543](https://github.com/withastro/astro/pull/4543) [`664ebf449`](https://github.com/withastro/astro/commit/664ebf449e27f0aef43eaa2482189358a74209d2) Thanks [@aFuzzyBear](https://github.com/aFuzzyBear)! - Update peer dep with Tailwindcss
+
 ## 1.0.1
 
 ### Patch Changes
