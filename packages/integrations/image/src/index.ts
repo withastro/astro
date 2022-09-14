@@ -107,7 +107,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:done': async ({ dir }) => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(_config.output === 'static' ? dir : _buildConfig.server);
+					await copyWasmFiles(_config.output === "static" ? new URL('./chunks', dir) : _buildConfig.server);
 				}
 
 				if (_config.output === 'static') {
