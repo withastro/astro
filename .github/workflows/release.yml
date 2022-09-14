@@ -43,7 +43,8 @@ jobs:
         working-directory: ./packages/vscode
         run: |
           sleep 5s
-          npm i
+          rm -rf node_modules
+          npm i --omit=dev
           npm run build:ci:node
           npx vsce publish -p ${{ secrets.VSCE_TOKEN }} --target win32-x64 win32-ia32 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
           npm run build:ci:browser
@@ -53,7 +54,6 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/vscode
         run: |
-          npm i
           npm run build:ci:node
           npx ovsx publish -p ${{ secrets.OVSX_TOKEN }} --target win32-x64 win32-ia32 win32-arm64 linux-x64 linux-arm64 linux-armhf darwin-x64 darwin-arm64 alpine-x64 alpine-arm64
           npm run build:ci:browser

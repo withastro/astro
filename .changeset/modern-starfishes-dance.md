@@ -1,5 +1,5 @@
 ---
-'astro-vscode': minor
+'astro-vscode': patch
 ---
 
-Update language-server
+Trying desesperately to figure deployment out

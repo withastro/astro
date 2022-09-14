@@ -15,10 +15,6 @@
     "lint": "eslint . --ext .js,.ts,.mjs,.cjs",
     "test": "turbo run test --scope=@astrojs/language-server --scope=astro-vscode"
   },
-  "workspaces": [
-    "packages/*",
-    "scripts"
-  ],
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
@@ -34,12 +30,5 @@
     "node": "^14.18.0 || >=16.12.0",
     "pnpm": ">=7.9.5"
   },
-  "packageManager": "pnpm@7.9.5",
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "esbuild": "^0.15.7"
-      }
-    }
-  }
+  "packageManager": "pnpm@7.9.5"
 }
