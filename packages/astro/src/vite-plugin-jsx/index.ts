@@ -229,8 +229,10 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			}
 
 			// Check the tsconfig
-			const compilerOptions = config._ctx.tsConfig?.compilerOptions;
-			importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
+			if(!importSource) {
+				const compilerOptions = config._ctx.tsConfig?.compilerOptions;
+				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
+			}
 
 			// if we still can’t tell the import source, now is the time to throw an error.
 			if (!importSource && defaultJSXRendererEntry) {
