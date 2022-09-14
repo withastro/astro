@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.26.0
+
+### Patch Changes
+
+- c4f7a36: Empty changeset for failed deploy
+
 ## 0.24.1
 
 ### Patch Changes
