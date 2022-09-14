@@ -104,7 +104,7 @@ importers:
 
   packages/vscode:
     specifiers:
-      '@astrojs/language-server': 0.26.0
+      '@astrojs/language-server': 0.26.1
       '@astrojs/ts-plugin': 0.3.0
       '@types/mocha': ^9.1.0
       '@types/vscode': ^1.67.0
@@ -125,7 +125,7 @@ importers:
       prettier: 2.7.1
       prettier-plugin-astro: 0.5.4
     devDependencies:
-      '@astrojs/language-server': 0.25.0
+      '@astrojs/language-server': link:../language-server
       '@types/mocha': 9.1.1
       '@types/vscode': 1.71.0
       '@vscode/test-electron': 2.1.5
@@ -183,24 +183,6 @@ packages:
       prettier-plugin-astro: 0.5.4
       source-map: 0.7.4
       typescript: 4.6.4
-      vscode-css-languageservice: 6.1.0
-      vscode-html-languageservice: 5.0.1
-      vscode-languageserver: 8.0.2
-      vscode-languageserver-protocol: 3.17.2
-      vscode-languageserver-textdocument: 1.0.7
-      vscode-languageserver-types: 3.17.2
-      vscode-uri: 3.0.3
-    dev: true
-
-  /@astrojs/language-server/0.25.0:
-    resolution: {integrity: sha512-M6arMro459HNEvIr0PoCLATnOe0EkIH4klK3H3Pdt2tRSzjUwPFSfjH8xlt4pdPXI1yp5EEblqQ9FTHbYnH55A==}
-    hasBin: true
-    dependencies:
-      '@vscode/emmet-helper': 2.8.4
-      events: 3.3.0
-      prettier: 2.7.1
-      prettier-plugin-astro: 0.5.4
-      source-map: 0.7.4
       vscode-css-languageservice: 6.1.0
       vscode-html-languageservice: 5.0.1
       vscode-languageserver: 8.0.2
@@ -2909,6 +2891,7 @@ packages:
   /events/3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
+    dev: false
 
   /execa/6.1.0:
     resolution: {integrity: sha512-QVWlX2e50heYJcCPG0iWtf8r0xjEYfz/OYLGDYH+IyjWezzPNxz63qNFOu0l4YftGWuizFVZHHs8PrLU5p2IDA==}

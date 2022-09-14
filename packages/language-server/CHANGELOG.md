@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.26.1
+
+### Patch Changes
+
+- c4f7a36: Trying desesperately to figure deployment out
+
 ## 0.26.0
 
 ### Patch Changes
