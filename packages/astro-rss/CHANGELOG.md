@@ -1,5 +1,11 @@
 # @astrojs/rss
 
+## 1.0.1
+
+### Patch Changes
+
+- [#4701](https://github.com/withastro/astro/pull/4701) [`6e1d62fe2`](https://github.com/withastro/astro/commit/6e1d62fe222e45b763b2b60b377b07e431950d54) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix globs for homepage route
+
 ## 1.0.0
 
 ### Major Changes

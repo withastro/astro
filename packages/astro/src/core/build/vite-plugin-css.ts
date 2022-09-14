@@ -110,7 +110,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					importedCss: Set<string>;
 				};
 
-				const appendCSSToPage = (pageData: PageBuildData, meta: ViteMetadata, depth: number) => {
+				const appendCSSToPage = (
+					pageData: PageBuildData,
+					meta: ViteMetadata,
+					depth: number,
+					order: number
+				) => {
 					for (const importedCssImport of meta.importedCss) {
 						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 						// Depth info is used when sorting the links on the page.
@@ -120,8 +125,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							if (depth < cssInfo.depth) {
 								cssInfo.depth = depth;
 							}
+
+							// Update the order, preferring the lowest order we have.
+							if (cssInfo.order === -1) {
+								cssInfo.order = order;
+							} else if (order < cssInfo.order && order > -1) {
+								cssInfo.order = order;
+							}
 						} else {
-							pageData?.css.set(importedCssImport, { depth });
+							pageData?.css.set(importedCssImport, { depth, order });
 						}
 					}
 				};
@@ -161,7 +173,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									for (const id of Object.keys(c.modules)) {
 										for (const pageData of getParentClientOnlys(id, this)) {
 											for (const importedCssImport of meta.importedCss) {
-												pageData.css.set(importedCssImport, { depth: -1 });
+												pageData.css.set(importedCssImport, { depth: -1, order: -1 });
 											}
 										}
 									}
@@ -169,12 +181,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const id of Object.keys(c.modules)) {
-									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
+									for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
 										if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;
 											const pageData = getPageDataByViteID(internals, pageViteID);
 											if (pageData) {
-												appendCSSToPage(pageData, meta, depth);
+												appendCSSToPage(pageData, meta, depth, order);
 											}
 										} else if (
 											options.target === 'client' &&
@@ -184,7 +196,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 												internals,
 												pageInfo.id
 											)) {
-												appendCSSToPage(pageData, meta, -1);
+												appendCSSToPage(pageData, meta, -1, order);
 											}
 										}
 									}
@@ -211,7 +223,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					);
 					if (cssChunk) {
 						for (const pageData of eachPageData(internals)) {
-							pageData.css.set(cssChunk.fileName, { depth: -1 });
+							pageData.css.set(cssChunk.fileName, { depth: -1, order: -1 });
 						}
 					}
 				}

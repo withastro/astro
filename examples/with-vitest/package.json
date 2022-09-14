@@ -1,7 +1,7 @@
 {
   "name": "@example/with-vitest",
-  "version": "0.0.1",
   "type": "module",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -12,7 +12,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "astro": "^1.2.1",
+    "astro": "^1.2.3",
     "vitest": "^0.20.3"
   }
 }

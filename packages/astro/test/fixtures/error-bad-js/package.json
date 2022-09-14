@@ -1,6 +1,5 @@
 {
-  "name": "@example/framework-svelte",
-  "type": "module",
+  "name": "@test/error-bad-js",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -11,8 +10,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "svelte": "^3.48.0",
-    "@astrojs/svelte": "^1.0.0",
-    "astro": "^1.2.3"
+    "astro": "workspace:*"
   }
 }

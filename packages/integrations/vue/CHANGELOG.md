@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 1.0.2
+
+### Patch Changes
+
+- [#4706](https://github.com/withastro/astro/pull/4706) [`b0ee81d0a`](https://github.com/withastro/astro/commit/b0ee81d0a70d8301530c321b670ab784c9bc00a2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix Vue `script setup` with other renderers applied
+
 ## 1.0.1
 
 ### Patch Changes
