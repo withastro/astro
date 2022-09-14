@@ -8,7 +8,7 @@ import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';
-import sharp from './loaders/sharp.js';
+import sharp from './loaders/squoosh.js';
 import { metadata } from './utils/metadata.js';
 
 export interface ImageMetadata {

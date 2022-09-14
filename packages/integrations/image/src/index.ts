@@ -32,7 +32,7 @@ export interface IntegrationOptions {
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
-		serviceEntryPoint: '@astrojs/image/sharp',
+		serviceEntryPoint: '@astrojs/image/squoosh',
 		logLevel: 'info' as LoggerLevel,
 		...options,
 	};
