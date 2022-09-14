@@ -340,17 +340,17 @@ ${source}
 				throw err;
 			}
 		},
-		async handleHotUpdate(this: PluginContext, context) {
+		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
 			const compileProps: CompileProps = {
 				config,
 				filename: context.file,
 				moduleId: context.file,
 				source: await context.read(),
-				transformStyle: createTransformStyles(styleTransformer, context.file, true, this),
+				transformStyle: createTransformStyles(styleTransformer, context.file, true),
 			};
 			const compile = () => cachedCompilation(compileProps);
-			return handleHotUpdate.call(this, context, {
+			return handleHotUpdate(context, {
 				config,
 				logging,
 				compile,

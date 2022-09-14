@@ -30,14 +30,8 @@ export function createTransformStyles(
 	viteStyleTransformer: ViteStyleTransformer,
 	filename: string,
 	ssr: boolean,
-	pluginContext: PluginContext
+	pluginContext?: PluginContext
 ): TransformStyle {
-	// handleHotUpdate doesn't have `addWatchFile` used by transformStyleWithVite.
-	// TODO, refactor, why is this happening *here* ?
-	if (!pluginContext.addWatchFile) {
-		pluginContext.addWatchFile = () => {};
-	}
-
 	const normalizedID = getNormalizedIDForPostCSS(filename);
 
 	return async function (styleSource, lang) {

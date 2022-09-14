@@ -119,7 +119,8 @@ describe('Scripts (hoisted and not)', () => {
 			let html = await fixture.readFile('/with-styles/index.html');
 			let $ = cheerio.load(html);
 
-			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+			// Imported styles + tailwind
+			expect($('link[rel=stylesheet]')).to.have.a.lengthOf(2);
 		});
 	});
 
@@ -145,6 +146,20 @@ describe('Scripts (hoisted and not)', () => {
 				if (
 					$(el).attr('src').includes('Glob/GlobComponent.astro?astro&type=script&index=0&lang.ts')
 				) {
+					found++;
+				}
+			});
+			expect(found).to.equal(1);
+		});
+
+		it('Using injectScript does not interfere', async () => {
+			let res = await fixture.fetch('/inline-in-page');
+			let html = await res.text();
+			let $ = cheerio.load(html);
+			let found = 0;
+			let moduleScripts = $('[type=module]');
+			moduleScripts.each((i, el) => {
+				if ($(el).attr('src').includes('?astro&type=script&index=0&lang.ts')) {
 					found++;
 				}
 			});
