@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.25.0
+
+### Minor Changes
+
+- b3d0a08: Fix astro check not being able to load TypeScript even when the path was right, updated `astro check` result to include a full URI instead of a wrongly formatted path
+
+### Patch Changes
+
+- b3d0a08: Add support for "moduleResolution: 'node16'"
+
 ## 0.24.1
 
 ### Patch Changes
