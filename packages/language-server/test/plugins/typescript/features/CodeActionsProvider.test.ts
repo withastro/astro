@@ -99,6 +99,71 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 		]);
 	});
 
+	it('organize imports in a group aware fashion', async () => {
+		const { provider, document } = setup('groupAwareOrganizeImport.astro');
+
+		const codeActions = await provider.getCodeActions(
+			document,
+			Range.create(Position.create(6, 0), Position.create(6, 0)),
+			{
+				diagnostics: [],
+				only: [CodeActionKind.SourceOrganizeImports],
+			}
+		);
+
+		expect(codeActions).to.deep.equal([
+			{
+				edit: {
+					documentChanges: [
+						{
+							edits: [
+								{
+									newText: `import * as aaa from "./aaa";${newLine}import * as bbb from "./bbb";${newLine}import * as ccc from "./ccc";${newLine}`,
+									range: Range.create(2, 0, 3, 0),
+								},
+								{
+									newText: '',
+									range: Range.create(3, 0, 4, 0),
+								},
+								{
+									newText: '',
+									range: Range.create(4, 0, 5, 0),
+								},
+								{
+									newText: `import * as child_process from "child_process";${newLine}import * as fs from "fs";${newLine}import * as path from "path";${newLine}`,
+									range: Range.create(7, 0, 8, 0),
+								},
+								{
+									newText: '',
+									range: Range.create(8, 0, 9, 0),
+								},
+								{
+									newText: '',
+									range: {
+										end: {
+											character: 0,
+											line: 10,
+										},
+										start: {
+											character: 0,
+											line: 9,
+										},
+									},
+								},
+							],
+							textDocument: {
+								uri: document.getURL(),
+								version: null,
+							},
+						},
+					],
+				},
+				kind: 'source.organizeImports',
+				title: 'Organize Imports',
+			},
+		]);
+	});
+
 	it('sort imports', async () => {
 		const { provider, document } = setup('sortOrganizeImports.astro');
 
