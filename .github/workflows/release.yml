@@ -8,6 +8,7 @@ on:
 jobs:
   release:
     name: Changelog
+    if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out branch
@@ -18,21 +19,20 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
-      - name: Set up Node.js 14.x
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@master
         with:
+          version: pnpm run version
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

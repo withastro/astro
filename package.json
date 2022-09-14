@@ -8,6 +8,7 @@
   },
   "scripts": {
     "release": "pnpm build && changeset publish",
+    "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
     "build": "turbo run build --scope=\"@astrojs/**\" --scope=\"astro-vscode\"",
     "dev": "turbo run dev --scope=\"@astrojs/**\" --scope=\"astro-vscode\" --parallel --no-cache",
     "format": "prettier -w . --cache",
