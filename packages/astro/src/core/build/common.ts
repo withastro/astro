@@ -4,7 +4,7 @@ import type { AstroConfig, RouteType } from '../../@types/astro';
 import { appendForwardSlash } from '../../core/path.js';
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
-const FALLBACK_OUT_DIR_NAME = './.astro-temp/';
+const FALLBACK_OUT_DIR_NAME = './.astro/';
 
 function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('./', astroConfig.outDir);
@@ -63,7 +63,7 @@ export function getOutFile(
 }
 
 /**
- * Ensures the `outDir` is within `process.cwd()`. If not it will fallback to `<cwd>/.astro-temp`.
+ * Ensures the `outDir` is within `process.cwd()`. If not it will fallback to `<cwd>/.astro`.
  * This is used for static `ssrBuild` so the output can access node_modules when we import
  * the output files. A hardcoded fallback dir is fine as it would be cleaned up after build.
  */
