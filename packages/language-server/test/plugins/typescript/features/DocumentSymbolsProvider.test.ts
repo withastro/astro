@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Range, SymbolInformation } from 'vscode-languageserver-types';
+import { Range, SymbolInformation, SymbolKind } from 'vscode-languageserver-types';
 import { createEnvironment } from '../../../utils';
 import { DocumentSymbolsProviderImpl } from '../../../../src/plugins/typescript/features/DocumentSymbolsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
@@ -24,7 +24,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 
 		expect(symbols).to.deep.equal(<SymbolInformation[]>[
 			{
-				kind: 3,
+				kind: SymbolKind.Namespace,
 				location: {
 					range: Range.create(0, 0, 2, 0),
 					uri: document.getURL(),
@@ -32,7 +32,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 				name: 'Frontmatter',
 			},
 			{
-				kind: 3,
+				kind: SymbolKind.Namespace,
 				location: {
 					range: Range.create(2, 0, 3, 0),
 					uri: document.getURL(),
@@ -49,7 +49,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 
 		expect(symbols).to.deep.equal(<SymbolInformation[]>[
 			{
-				kind: 3,
+				kind: SymbolKind.Namespace,
 				location: {
 					range: Range.create(0, 0, 4, 0),
 					uri: document.getURL(),
@@ -58,7 +58,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 			},
 			{
 				containerName: 'Template',
-				kind: 7,
+				kind: SymbolKind.Property,
 				location: {
 					range: Range.create(0, 15, 0, 21),
 					uri: document.getURL(),
@@ -67,7 +67,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 			},
 			{
 				containerName: 'Template',
-				kind: 12,
+				kind: SymbolKind.Function,
 				location: {
 					range: Range.create(2, 15, 2, 47),
 					uri: document.getURL(),
@@ -76,7 +76,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 			},
 			{
 				containerName: 'map() callback',
-				kind: 7,
+				kind: SymbolKind.Property,
 				location: {
 					range: Range.create(2, 33, 2, 38),
 					uri: document.getURL(),
@@ -93,7 +93,7 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 
 		expect(symbols).to.deep.equal(<SymbolInformation[]>[
 			{
-				kind: 3,
+				kind: SymbolKind.Namespace,
 				location: {
 					range: Range.create(0, 0, 7, 0),
 					uri: document.getURL(),
@@ -102,18 +102,18 @@ describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 			},
 			{
 				containerName: 'Template',
-				kind: 14,
+				kind: SymbolKind.Constant,
 				location: {
-					range: Range.create(5, 7, 5, 38),
+					range: Range.create(4, process.platform === 'win32' ? 10 : 9, 5, 25), // NOTE: For some reason, the location of this is different on Windows, might be a bug?
 					uri: document.getURL(),
 				},
 				name: 'MySecondVariable',
 			},
 			{
 				containerName: 'Template',
-				kind: 14,
+				kind: SymbolKind.Constant,
 				location: {
-					range: Range.create(1, 7, 1, 27),
+					range: Range.create(1, 2, 1, 22),
 					uri: document.getURL(),
 				},
 				name: 'myVariable',

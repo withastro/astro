@@ -24,11 +24,10 @@ export class SemanticTokensProviderImpl implements SemanticTokensProvider {
 			return null;
 		}
 
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 		const start = range ? fragment.offsetAt(fragment.getGeneratedPosition(range.start)) : 0;
 
 		const { spans } = lang.getEncodedSemanticClassifications(
-			filePath,
+			tsDoc.filePath,
 			{
 				start,
 				length: range

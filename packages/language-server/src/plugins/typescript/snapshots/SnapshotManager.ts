@@ -170,14 +170,12 @@ export class SnapshotManager {
 		this.globalSnapshotsManager.delete(fileName);
 	}
 
-	getFileNames() {
-		return Array.from(this.documents.keys()).map((fileName) => toVirtualFilePath(fileName));
+	getFileNames(): string[] {
+		return Array.from(this.documents.keys());
 	}
 
-	getProjectFileNames() {
-		return this.projectFiles.map((file) => {
-			return toVirtualFilePath(file);
-		});
+	getProjectFileNames(): string[] {
+		return [...this.projectFiles];
 	}
 
 	private logStatistics() {

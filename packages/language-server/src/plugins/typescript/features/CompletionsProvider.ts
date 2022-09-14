@@ -128,7 +128,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 		const node = html.findNodeAt(offset);
 
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-		let filePath = toVirtualAstroFilePath(tsDoc.filePath);
+		let filePath = tsDoc.filePath;
 
 		let completions: ts.CompletionInfo | undefined;
 

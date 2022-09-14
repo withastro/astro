@@ -4,10 +4,21 @@ import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
 import { getAstroInstall, normalizePath, urlToPath } from '../../utils';
 import { createAstroModuleLoader } from './module-loader';
-import { AstroSnapshot, DocumentSnapshot, ScriptTagDocumentSnapshot } from './snapshots/DocumentSnapshot';
+import {
+	AstroSnapshot,
+	DocumentSnapshot,
+	ScriptTagDocumentSnapshot,
+	TypeScriptDocumentSnapshot,
+} from './snapshots/DocumentSnapshot';
 import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 import * as DocumentSnapshotUtils from './snapshots/utils';
-import { ensureRealFilePath, findTsConfigPath, getScriptTagLanguage, isAstroFilePath } from './utils';
+import {
+	ensureRealFilePath,
+	findTsConfigPath,
+	getScriptTagLanguage,
+	isAstroFilePath,
+	isDocumentSymbolsPath,
+} from './utils';
 
 export interface LanguageServiceContainer {
 	readonly tsconfigPath: string;
@@ -173,6 +184,7 @@ async function createLanguageService(
 				new Set([...snapshotManager.getProjectFileNames(), ...snapshotManager.getFileNames(), ...scriptFileNames])
 			),
 		getScriptSnapshot,
+		getScriptKind: (fileName: string) => getScriptSnapshot(fileName).scriptKind,
 		getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
 	};
 
@@ -254,23 +266,30 @@ async function createLanguageService(
 	}
 
 	function getScriptSnapshot(fileName: string): DocumentSnapshot {
-		fileName = ensureRealFilePath(fileName);
+		const realFileName = ensureRealFilePath(fileName);
 
-		let doc = snapshotManager.get(fileName);
+		let doc = snapshotManager.get(realFileName);
 		if (doc) {
+			if (isDocumentSymbolsPath(fileName)) {
+				return createDocumentSymbolSnapshot(doc);
+			}
 			return doc;
 		}
 
-		astroModuleLoader.deleteUnresolvedResolutionsFromCache(fileName);
-		doc = DocumentSnapshotUtils.createFromFilePath(fileName, docContext.createDocument, docContext.ts);
+		astroModuleLoader.deleteUnresolvedResolutionsFromCache(realFileName);
+		doc = DocumentSnapshotUtils.createFromFilePath(realFileName, docContext.createDocument, docContext.ts);
 
-		snapshotManager.set(fileName, doc);
+		snapshotManager.set(realFileName, doc);
+
+		if (isDocumentSymbolsPath(fileName)) {
+			return createDocumentSymbolSnapshot(doc);
+		}
 
 		// If we needed to create an Astro snapshot, also create its script tags snapshots
-		if (isAstroFilePath(fileName)) {
+		if (isAstroFilePath(realFileName)) {
 			const document = (doc as AstroSnapshot).parent;
 
-			const scriptTagSnapshots = createScriptTagsSnapshots(fileName, document);
+			const scriptTagSnapshots = createScriptTagsSnapshots(realFileName, document);
 
 			scriptTagSnapshots.forEach((snapshot) => {
 				snapshotManager.set(snapshot.filePath, snapshot);
@@ -306,10 +325,24 @@ async function createLanguageService(
 		return document.scriptTags.map((scriptTag, index) => {
 			const scriptTagLanguage = getScriptTagLanguage(scriptTag);
 			const scriptFilePath = fileName + `.__script${index}.${scriptTagLanguage}`;
-			const scriptSnapshot = new ScriptTagDocumentSnapshot(scriptTag, document, scriptFilePath);
+			const scriptSnapshot = new ScriptTagDocumentSnapshot(
+				scriptTag,
+				document,
+				scriptFilePath,
+				scriptTagLanguage === 'ts' ? docContext.ts.ScriptKind.TS : docContext.ts.ScriptKind.JS
+			);
 
 			return scriptSnapshot;
 		});
+	}
+
+	function createDocumentSymbolSnapshot(doc: DocumentSnapshot): TypeScriptDocumentSnapshot {
+		return new TypeScriptDocumentSnapshot(
+			doc.version,
+			doc.filePath,
+			(doc as AstroSnapshot).parent.getText(),
+			docContext.ts.ScriptKind.Unknown
+		);
 	}
 
 	function getParsedTSConfig() {
@@ -337,7 +370,6 @@ async function createLanguageService(
 			module: docContext.ts.ModuleKind.ESNext,
 			target: docContext.ts.ScriptTarget.ESNext,
 			isolatedModules: true,
-			moduleResolution: docContext.ts.ModuleResolutionKind.NodeJs,
 		};
 
 		const project = docContext.ts.parseJsonConfigFileContent(
@@ -348,19 +380,28 @@ async function createLanguageService(
 			tsconfigPath,
 			undefined,
 			[
-				{ extension: '.vue', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
-				{ extension: '.svelte', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
-				{ extension: '.astro', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
+				{ extension: 'vue', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
+				{ extension: 'svelte', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
+				{ extension: 'astro', isMixedContent: true, scriptKind: docContext.ts.ScriptKind.Deferred },
 			]
 		);
+
+		const resultOptions: ts.CompilerOptions = {
+			...project.options,
+			...forcedCompilerOptions,
+		};
+
+		if (
+			!resultOptions.moduleResolution ||
+			resultOptions.moduleResolution === docContext.ts.ModuleResolutionKind.Classic
+		) {
+			resultOptions.moduleResolution = docContext.ts.ModuleResolutionKind.NodeJs;
+		}
 
 		return {
 			...project,
 			fileNames: project.fileNames.map(normalizePath),
-			compilerOptions: {
-				...project.options,
-				...forcedCompilerOptions,
-			},
+			compilerOptions: resultOptions,
 		};
 	}
 }

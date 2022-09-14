@@ -16,7 +16,6 @@ export class InlayHintsProviderImpl implements InlayHintsProvider {
 	async getInlayHints(document: AstroDocument, range: Range): Promise<InlayHint[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 		const fragment = await tsDoc.createFragment();
 
 		const start = fragment.offsetAt(fragment.getGeneratedPosition(range.start));
@@ -24,7 +23,7 @@ export class InlayHintsProviderImpl implements InlayHintsProvider {
 
 		const tsPreferences = await this.configManager.getTSPreferences(document);
 
-		const inlayHints = lang.provideInlayHints(filePath, { start, length: end - start }, tsPreferences);
+		const inlayHints = lang.provideInlayHints(tsDoc.filePath, { start, length: end - start }, tsPreferences);
 
 		return inlayHints.map((hint) => {
 			const result = InlayHint.create(

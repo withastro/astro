@@ -90,7 +90,7 @@ export class TypeScriptPlugin implements Plugin {
 
 		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
 
-		let renames = lang.findRenameLocations(toVirtualAstroFilePath(tsDoc.filePath), offset, false, false, true);
+		let renames = lang.findRenameLocations(tsDoc.filePath, offset, false, false, true);
 		if (!renames) {
 			return null;
 		}

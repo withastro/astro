@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "moduleResolution": "Node16",
+    "module": "Node16",
+    "noEmit": true
+  }
+}

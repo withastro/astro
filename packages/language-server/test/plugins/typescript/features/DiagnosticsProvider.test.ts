@@ -113,6 +113,24 @@ describe('TypeScript Plugin#DiagnosticsProvider', () => {
 		]);
 	});
 
+	it('properly support node16 resolution', async () => {
+		const { provider, document } = setup('node16/nodenextresolution.astro');
+
+		const diagnostics = await provider.getDiagnostics(document);
+
+		expect(diagnostics).to.deep.equal([
+			{
+				code: 2835,
+				message:
+					"Relative import paths need explicit file extensions in EcmaScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './script.js'?",
+				range: Range.create(7, 22, 7, 32),
+				severity: DiagnosticSeverity.Error,
+				source: 'ts',
+				tags: [],
+			},
+		]);
+	});
+
 	it('properly support optional props on Svelte components', async () => {
 		const { provider, document } = setup('svelteOptional.astro');
 

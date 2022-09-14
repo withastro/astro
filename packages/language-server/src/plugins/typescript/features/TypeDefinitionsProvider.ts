@@ -16,7 +16,6 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionProvider {
 
 		const mainFragment = await tsDoc.createFragment();
 		const fragmentOffset = mainFragment.offsetAt(mainFragment.getGeneratedPosition(position));
-		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
 
 		const html = document.html;
 		const offset = document.offsetAt(position);
@@ -36,7 +35,7 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionProvider {
 			if (typeDefs) {
 				typeDefs = typeDefs.map((def) => {
 					const isInSameFile = def.fileName === scriptFilePath;
-					def.fileName = isInSameFile ? tsFilePath : def.fileName;
+					def.fileName = isInSameFile ? tsDoc.filePath : def.fileName;
 
 					if (isInSameFile) {
 						def.textSpan.start = mainFragment.offsetAt(
@@ -48,11 +47,11 @@ export class TypeDefinitionsProviderImpl implements TypeDefinitionProvider {
 				});
 			}
 		} else {
-			typeDefs = lang.getTypeDefinitionAtPosition(tsFilePath, fragmentOffset);
+			typeDefs = lang.getTypeDefinitionAtPosition(tsDoc.filePath, fragmentOffset);
 		}
 
 		const docs = new SnapshotFragmentMap(this.languageServiceManager);
-		docs.set(tsFilePath, { fragment: mainFragment, snapshot: tsDoc });
+		docs.set(tsDoc.filePath, { fragment: mainFragment, snapshot: tsDoc });
 
 		if (!typeDefs) {
 			return [];

@@ -11,7 +11,6 @@ import {
 	getScriptTagSnapshot,
 	isAstroFilePath,
 	isFrameworkFilePath,
-	toVirtualAstroFilePath,
 } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 
@@ -21,8 +20,6 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 	async getDefinitions(document: AstroDocument, position: Position): Promise<LocationLink[]> {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 		const mainFragment = await tsDoc.createFragment();
-
-		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
 
 		const fragmentPosition = mainFragment.getGeneratedPosition(position);
 		const fragmentOffset = mainFragment.offsetAt(fragmentPosition);
@@ -45,7 +42,7 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 			if (defs) {
 				defs.definitions = defs.definitions?.map((def) => {
 					const isInSameFile = def.fileName === scriptFilePath;
-					def.fileName = isInSameFile ? tsFilePath : def.fileName;
+					def.fileName = isInSameFile ? tsDoc.filePath : def.fileName;
 
 					if (isInSameFile) {
 						def.textSpan.start = mainFragment.offsetAt(
@@ -61,7 +58,7 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 				);
 			}
 		} else {
-			defs = lang.getDefinitionAndBoundSpan(tsFilePath, fragmentOffset);
+			defs = lang.getDefinitionAndBoundSpan(tsDoc.filePath, fragmentOffset);
 		}
 
 		if (!defs || !defs.definitions) {
@@ -69,7 +66,7 @@ export class DefinitionsProviderImpl implements DefinitionsProvider {
 		}
 
 		const docs = new SnapshotFragmentMap(this.languageServiceManager);
-		docs.set(tsFilePath, { fragment: mainFragment, snapshot: tsDoc });
+		docs.set(tsDoc.filePath, { fragment: mainFragment, snapshot: tsDoc });
 
 		const result = await Promise.all(
 			defs.definitions!.map(async (def) => {

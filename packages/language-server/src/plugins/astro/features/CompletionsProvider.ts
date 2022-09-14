@@ -160,7 +160,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
 		// Get the source file
-		const tsFilePath = toVirtualAstroFilePath(tsDoc.filePath);
+		const tsFilePath = tsDoc.filePath;
 
 		const program = lang.getProgram();
 		const sourceFile = program?.getSourceFile(tsFilePath);

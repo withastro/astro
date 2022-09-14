@@ -2,7 +2,14 @@ import type { ResolvedModule } from 'typescript';
 import { getLastPartOfPath } from '../../utils';
 import { createAstroSys } from './astro-sys';
 import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
-import { ensureRealFilePath, getExtensionFromScriptKind, isVirtualFilePath } from './utils';
+import {
+	ensureRealFilePath,
+	getExtensionFromScriptKind,
+	isAstroFilePath,
+	isFrameworkFilePath,
+	isVirtualFilePath,
+	toVirtualFilePath,
+} from './utils';
 
 /**
  * Caches resolved modules.
@@ -62,6 +69,48 @@ class ModuleResolutionCache {
 	}
 }
 
+class ImpliedNodeFormatResolver {
+	private alreadyResolved = new Map<string, ReturnType<typeof this.ts.getModeForResolutionAtIndex>>();
+
+	constructor(private readonly ts: typeof import('typescript/lib/tsserverlibrary')) {}
+
+	resolve(
+		importPath: string,
+		importIdxInFile: number,
+		sourceFile: ts.SourceFile | undefined,
+		compilerOptions: ts.CompilerOptions
+	) {
+		// For Astro & Framework imports, we have to fallback to the old resolution algorithm or it doesn't work
+		if (isAstroFilePath(importPath) || isFrameworkFilePath(importPath)) {
+			return undefined;
+		}
+
+		let mode = undefined;
+		if (sourceFile) {
+			if (
+				!sourceFile.impliedNodeFormat &&
+				(isAstroFilePath(sourceFile.fileName) || isFrameworkFilePath(sourceFile.fileName))
+			) {
+				// impliedNodeFormat is not set for non-TS files, because the TS function which calculates this works with a
+				// fixed set of extensions that does not include frameworks files
+				if (!this.alreadyResolved.has(sourceFile.fileName)) {
+					sourceFile.impliedNodeFormat = this.ts.getImpliedNodeFormatForFile(
+						toVirtualFilePath(sourceFile.fileName) as any,
+						undefined,
+						this.ts.sys,
+						compilerOptions
+					);
+					this.alreadyResolved.set(sourceFile.fileName, sourceFile.impliedNodeFormat);
+				} else {
+					sourceFile.impliedNodeFormat = this.alreadyResolved.get(sourceFile.fileName);
+				}
+			}
+			mode = this.ts.getModeForResolutionAtIndex(sourceFile, importIdxInFile);
+		}
+		return mode;
+	}
+}
+
 /**
  * Creates a module loader specifically for `.astro` and other frameworks files.
  *
@@ -81,6 +130,7 @@ export function createAstroModuleLoader(
 ) {
 	const astroSys = createAstroSys(getSnapshot, ts);
 	const moduleCache = new ModuleResolutionCache();
+	const impliedNodeFormatResolver = new ImpliedNodeFormatResolver(ts);
 
 	return {
 		fileExists: astroSys.fileExists,
@@ -97,29 +147,58 @@ export function createAstroModuleLoader(
 		resolveModuleNames,
 	};
 
-	function resolveModuleNames(moduleNames: string[], containingFile: string): Array<ts.ResolvedModule | undefined> {
-		return moduleNames.map((moduleName) => {
+	function resolveModuleNames(
+		moduleNames: string[],
+		containingFile: string,
+		_reusedNames: string[] | undefined,
+		_redirectedReference: ts.ResolvedProjectReference | undefined,
+		_options: ts.CompilerOptions,
+		containingSourceFile?: ts.SourceFile | undefined
+	): Array<ts.ResolvedModule | undefined> {
+		return moduleNames.map((moduleName, index) => {
 			if (moduleCache.has(moduleName, containingFile)) {
 				return moduleCache.get(moduleName, containingFile);
 			}
 
-			const resolvedModule = resolveModuleName(moduleName, containingFile);
+			const resolvedModule = resolveModuleName(moduleName, containingFile, containingSourceFile, index);
 			moduleCache.set(moduleName, containingFile, resolvedModule);
 			return resolvedModule;
 		});
 	}
 
-	function resolveModuleName(name: string, containingFile: string): ts.ResolvedModule | undefined {
+	function resolveModuleName(
+		name: string,
+		containingFile: string,
+		containingSourceFile: ts.SourceFile | undefined,
+		index: number
+	): ts.ResolvedModule | undefined {
+		const mode = impliedNodeFormatResolver.resolve(name, index, containingSourceFile, compilerOptions);
+
 		// Delegate to the TS resolver first.
 		// If that does not bring up anything, try the Astro Module loader
 		// which is able to deal with .astro and other frameworks files.
-
-		const tsResolvedModule = ts.resolveModuleName(name, containingFile, compilerOptions, ts.sys).resolvedModule;
+		const tsResolvedModule = ts.resolveModuleName(
+			name,
+			containingFile,
+			compilerOptions,
+			ts.sys,
+			undefined,
+			undefined,
+			mode
+		).resolvedModule;
 		if (tsResolvedModule && !isVirtualFilePath(tsResolvedModule.resolvedFileName)) {
 			return tsResolvedModule;
 		}
 
-		const astroResolvedModule = ts.resolveModuleName(name, containingFile, compilerOptions, astroSys).resolvedModule;
+		const astroResolvedModule = ts.resolveModuleName(
+			name,
+			containingFile,
+			compilerOptions,
+			astroSys,
+			undefined,
+			undefined,
+			mode
+		).resolvedModule;
 		if (!astroResolvedModule || !isVirtualFilePath(astroResolvedModule.resolvedFileName)) {
 			return astroResolvedModule;
 		}

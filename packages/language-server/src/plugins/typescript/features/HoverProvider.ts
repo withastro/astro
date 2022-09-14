@@ -21,7 +21,6 @@ export class HoverProviderImpl implements HoverProvider {
 		const fragment = await tsDoc.createFragment();
 
 		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 
 		const html = document.html;
 		const documentOffset = document.offsetAt(position);
@@ -44,7 +43,7 @@ export class HoverProviderImpl implements HoverProvider {
 				);
 			}
 		} else {
-			info = lang.getQuickInfoAtPosition(filePath, offset);
+			info = lang.getQuickInfoAtPosition(tsDoc.filePath, offset);
 		}
 
 		if (!info) {

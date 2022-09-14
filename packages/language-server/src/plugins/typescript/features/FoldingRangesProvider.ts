@@ -17,9 +17,7 @@ export class FoldingRangesProviderImpl implements FoldingRangesProvider {
 		const html = document.html;
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
-
-		const outliningSpans = lang.getOutliningSpans(filePath).filter((span) => {
+		const outliningSpans = lang.getOutliningSpans(tsDoc.filePath).filter((span) => {
 			const node = html.findNodeAt(span.textSpan.start);
 
 			// Due to how our TSX output transform those tags into function calls or template literals

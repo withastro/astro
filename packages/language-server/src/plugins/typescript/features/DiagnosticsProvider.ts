@@ -41,8 +41,6 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 		}
 
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
-
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 		const fragment = await tsDoc.createFragment();
 
 		let scriptDiagnostics: Diagnostic[] = [];
@@ -74,12 +72,12 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 			scriptDiagnostics.push(...scriptDiagnostic);
 		});
 
-		const { script: scriptBoundaries } = this.getTagBoundaries(lang, filePath);
+		const { script: scriptBoundaries } = this.getTagBoundaries(lang, tsDoc.filePath);
 
 		const diagnostics: ts.Diagnostic[] = [
-			...lang.getSyntacticDiagnostics(filePath),
-			...lang.getSuggestionDiagnostics(filePath),
-			...lang.getSemanticDiagnostics(filePath),
+			...lang.getSyntacticDiagnostics(tsDoc.filePath),
+			...lang.getSuggestionDiagnostics(tsDoc.filePath),
+			...lang.getSemanticDiagnostics(tsDoc.filePath),
 		].filter((diag) => {
 			return isNoWithinBoundary(scriptBoundaries, diag, this.ts);
 		});

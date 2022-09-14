@@ -17,7 +17,7 @@ export class DocumentSymbolsProviderImpl implements DocumentSymbolsProvider {
 		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
 		const fragment = await tsDoc.createFragment();
 
-		const navTree = lang.getNavigationTree(tsDoc.filePath);
+		const navTree = lang.getNavigationTree(tsDoc.filePath + '?documentSymbols');
 		if (!navTree) {
 			return [];
 		}

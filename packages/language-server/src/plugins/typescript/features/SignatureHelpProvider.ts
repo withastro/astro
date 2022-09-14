@@ -39,7 +39,6 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 			return null;
 		}
 
-		const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 		const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
 		const node = document.html.findNodeAt(offset);
 
@@ -57,7 +56,7 @@ export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 
 			info = lang.getSignatureHelpItems(scriptFilePath, scriptOffset, triggerReason ? { triggerReason } : undefined);
 		} else {
-			info = lang.getSignatureHelpItems(filePath, offset, triggerReason ? { triggerReason } : undefined);
+			info = lang.getSignatureHelpItems(tsDoc.filePath, offset, triggerReason ? { triggerReason } : undefined);
 		}
 
 		if (!info) {

@@ -390,12 +390,20 @@ export function ensureRealAstroFilePath(filePath: string) {
 }
 
 export function ensureRealFilePath(filePath: string) {
+	// For Document Symbols, we need to return a different snapshot, so we append a query param to the file path
+	// However, we need this removed when we need to deal with real (as in, real on the filesystem) paths
+	filePath = filePath.replace('?documentSymbols', '');
+
 	if (isVirtualFilePath(filePath)) {
 		let extLen = filePath.endsWith('.tsx') ? 4 : 3;
 		return filePath.slice(0, filePath.length - extLen);
 	} else {
 		return filePath;
 	}
+}
+
+export function isDocumentSymbolsPath(filePath: string) {
+	return filePath.endsWith('?documentSymbols');
 }
 
 /**
