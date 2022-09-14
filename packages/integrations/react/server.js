@@ -135,14 +135,32 @@ async function renderToStaticNodeStreamAsync(vnode) {
 	});
 }
 
-async function renderToReadableStreamAsync(vnode) {
-	const decoder = new TextDecoder();
-	const stream = await ReactDOM.renderToReadableStream(vnode);
-	let html = '';
-	for await (const chunk of stream) {
-		html += decoder.decode(chunk);
+/**
+ * Use a while loop instead of "for await" due to cloudflare and Vercel Edge issues
+ * See https://github.com/facebook/react/issues/24169
+ */
+async function readResult(stream) {
+	const reader = stream.getReader();
+	let result = '';
+	const decoder = new TextDecoder('utf-8');
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) {
+			if (value) {
+				result += decoder.decode(value);
+			} else {
+				// This closes the decoder
+				decoder.decode(new Uint8Array());
+			}
+
+			return result;
+		}
+		result += decoder.decode(value, { stream: true });
 	}
-	return html;
+}
+
+async function renderToReadableStreamAsync(vnode) {
+	return await readResult(await ReactDOM.renderToReadableStream(vnode));
 }
 
 export default {

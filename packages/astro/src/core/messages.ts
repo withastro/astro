@@ -58,12 +58,14 @@ export function devStart({
 	config,
 	https,
 	site,
+	isRestart = false,
 }: {
 	startupTime: number;
 	devServerAddressInfo: AddressInfo;
 	config: AstroConfig;
 	https: boolean;
 	site: URL | undefined;
+	isRestart?: boolean;
 }): string {
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
@@ -106,7 +108,7 @@ export function devStart({
 
 	const messages = [
 		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(
-			`started in ${Math.round(startupTime)}ms`
+			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
 		)}`,
 		'',
 		local,

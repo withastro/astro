@@ -1,5 +1,11 @@
 # @astrojs/alpinejs
 
+## 0.1.2
+
+### Patch Changes
+
+- [#4622](https://github.com/withastro/astro/pull/4622) [`63cd9d89e`](https://github.com/withastro/astro/commit/63cd9d89e8b83ce5e39cdae84a8342e28d1940cc) Thanks [@mohammed-elhaouari](https://github.com/mohammed-elhaouari)! - Update homepage link
+
 ## 0.1.1
 
 ### Patch Changes

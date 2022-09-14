@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-alpine",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +11,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.1.5",
+    "astro": "^1.2.3",
     "alpinejs": "^3.10.2",
-    "@astrojs/alpinejs": "^0.1.1",
+    "@astrojs/alpinejs": "^0.1.2",
     "@types/alpinejs": "^3.7.0"
   }
 }

@@ -1,5 +1,6 @@
 {
   "name": "@example/blog",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +11,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.1.5",
+    "astro": "^1.2.3",
     "@astrojs/mdx": "^0.11.1",
-    "@astrojs/rss": "^1.0.0",
+    "@astrojs/rss": "^1.0.1",
     "@astrojs/sitemap": "^1.0.0"
   }
 }

@@ -1,12 +1,13 @@
-# Astro Starter Kit: Component
+# Astro Starter Kit: Component Package
+
+This is a template for an Astro component library. Use this template for writing components to use in multiple projects or publish to NPM.
 
 ```
 npm init astro -- --template component
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/component)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/non-html-pages)
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
 ## 🚀 Project Structure
 
@@ -14,34 +15,19 @@ Inside of your Astro project, you'll see the following folders and files:
 
 ```
 /
-├── demo/
-│   ├── public/
-│   └── src/
-│       └── pages/
-│           └── index.astro
-└── packages/
-    └── my-component/
-        ├── index.js
-        └── package.json
+├── index.ts
+├── src
+│   └── MyComponent.astro
+├── tsconfig.json
+├── package.json
 ```
 
-This project uses **workspaces** to develop a single package, `@example/my-component`, from `packages/my-component`. It also includes a `demo` Astro site for testing and demonstrating the component.
-
-
+The `index.ts` file is the "entry point" for your package. Export your components in `index.ts` to make them importable from your package.
 
 ## 🧞 Commands
-
 All commands are run from the root of the project, from a terminal:
 
 | Command                | Action                                           |
 | :--------------------- | :----------------------------------------------- |
-| `npm install`          | Installs dependencies                            |
-| `npm run dev`          | Starts local dev server at `localhost:3000`      |
-| `npm run build`        | Build your production site to `./dist/`          |
-| `npm run preview`      | Preview your build locally, before deploying     |
-| `npm run astro ...`    | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| `npm link`              | Registers this package locally. Run `npm link my-component-library` in an Astro project to install your components
+| `npm publish` | [Publishes](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages#publishing-unscoped-public-packages) this package to NPM. Requires you to be [logged in](https://docs.npmjs.com/cli/v8/commands/npm-adduser)

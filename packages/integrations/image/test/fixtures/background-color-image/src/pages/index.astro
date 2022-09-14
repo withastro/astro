@@ -1,0 +1,21 @@
+---
+import { Image } from '@astrojs/image/components';
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+		<Image id="named" src={import('../assets/file-icon.png')} width={256} format="jpeg" background="dimgray" alt="named" />
+		<br />
+		<Image id="hex" src={import('../assets/file-icon.png')} width={256} format="avif" background="#696969" alt="hex" />
+		<br />
+		<Image id="hex-short" src={import('../assets/file-icon.png')} width={256} background="#666" alt="hex-short" />
+		<br />
+		<Image id="rgb" src={import('../assets/file-icon.png')} width={256} format="webp" background="rgb(105,105,105)" alt="rgb" />
+		<br />
+		<Image id="rgb-spaced" src={import('../assets/file-icon.png')} width={256} format="jpeg" background="rgb(105, 105, 105)" alt="rgb-spaced" />
+		<br />
+  </body>
+</html>

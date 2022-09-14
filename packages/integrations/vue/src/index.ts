@@ -1,6 +1,7 @@
 import type { Options } from '@vitejs/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import type { UserConfig } from 'vite';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -10,7 +11,7 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-function getViteConfiguration(options?: Options) {
+function getViteConfiguration(options?: Options): UserConfig {
 	return {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
@@ -19,6 +20,7 @@ function getViteConfiguration(options?: Options) {
 		plugins: [vue(options)],
 		ssr: {
 			external: ['@vue/server-renderer'],
+			noExternal: ['vueperslides'],
 		},
 	};
 }

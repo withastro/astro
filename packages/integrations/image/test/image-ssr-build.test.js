@@ -46,6 +46,16 @@ describe('SSR images - build', async function () {
 			},
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+		},
+		{
 			title: 'Remote images with search',
 			id: '#query',
 			url: '/_image',
@@ -61,6 +71,18 @@ describe('SSR images - build', async function () {
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
 		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {
@@ -140,6 +162,16 @@ describe('SSR images with subpath - build', function () {
 			},
 		},
 		{
+			title: 'Remote without file extension',
+			id: '#ipsum',
+			url: '/_image',
+			query: {
+				w: '200',
+				h: '300',
+				href: 'https://picsum.photos/200/300',
+			},
+		},
+		{
 			title: 'Remote images with search',
 			id: '#query',
 			url: '/_image',
@@ -155,6 +187,18 @@ describe('SSR images with subpath - build', function () {
 			id: '#hero',
 			url: '/_image',
 			query: { f: 'webp', w: '768', h: '414', href: '/hero.jpg' },
+		},
+		{
+			title: 'Background color',
+			id: '#bg-color',
+			url: '/_image',
+			query: {
+				f: 'jpeg',
+				w: '544',
+				h: '184',
+				bg: '#333333',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
 		},
 	].forEach(({ title, id, url, query }) => {
 		it(title, async () => {

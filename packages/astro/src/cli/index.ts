@@ -1,16 +1,19 @@
 /* eslint-disable no-console */
-
 import * as colors from 'kleur/colors';
+import { pathToFileURL } from 'url';
+import { normalizePath } from 'vite';
+import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig } from '../core/config.js';
+import { openConfig, resolveConfigPath, resolveFlags, resolveRoot } from '../core/config.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
-import { debug, info, LogOptions, warn } from '../core/logger/core.js';
+import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
+import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
 import { ASTRO_VERSION, createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
@@ -81,6 +84,21 @@ function resolveCommand(flags: Arguments): CLICommand {
 	return 'help';
 }
 
+async function handleConfigError(
+	e: any,
+	{ cwd, flags, logging }: { cwd?: string; flags?: Flags; logging: LogOptions }
+) {
+	const path = await resolveConfigPath({ cwd, flags });
+	if (e instanceof Error) {
+		if (path) {
+			error(logging, 'astro', `Unable to load ${colors.bold(path)}\n`);
+		}
+		console.error(
+			formatErrorMessage(collectErrorMetadata(e, path ? pathToFileURL(path) : undefined)) + '\n'
+		);
+	}
+}
+
 /**
  * Run the given command with the given flags.
  * NOTE: This function provides no error handling, so be sure
@@ -132,12 +150,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig, userConfigPath } = await openConfig({
+	let { astroConfig, userConfig } = await openConfig({
 		cwd: root,
 		flags,
 		cmd,
 		logging,
+	}).catch(async (e) => {
+		await handleConfigError(e, { cwd: root, flags, logging });
+		return {} as any;
 	});
+	if (!astroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
 
 	// Common CLI Commands:
@@ -145,33 +167,55 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			async function startDevServer() {
-				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry });
+			async function startDevServer({ isRestart = false }: { isRestart?: boolean } = {}) {
+				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry, isRestart });
+				let restartInFlight = false;
+				const configFlag = resolveFlags(flags).config;
+				const configFlagPath = configFlag
+					? await resolveConfigPath({ cwd: root, flags })
+					: undefined;
+				const resolvedRoot = appendForwardSlash(resolveRoot(root));
 
-				watcher.on('change', logRestartServerOnConfigChange);
-				watcher.on('unlink', logRestartServerOnConfigChange);
-				function logRestartServerOnConfigChange(changedFile: string) {
-					if (userConfigPath === changedFile) {
-						warn(logging, 'astro', 'Astro config updated. Restart server to see changes!');
-					}
-				}
-
-				watcher.on('add', async function restartServerOnNewConfigFile(addedFile: string) {
-					// if there was not a config before, attempt to resolve
-					if (!userConfigPath && addedFile.includes('astro.config')) {
-						const addedConfig = await openConfig({ cwd: root, flags, cmd, logging });
-						if (addedConfig.userConfigPath) {
-							info(logging, 'astro', 'Astro config detected. Restarting server...');
-							astroConfig = addedConfig.astroConfig;
-							userConfig = addedConfig.userConfig;
-							userConfigPath = addedConfig.userConfigPath;
-							await stop();
-							await startDevServer();
+				const handleServerRestart = (logMsg: string) =>
+					async function (changedFile: string) {
+						if (
+							!restartInFlight &&
+							(configFlag
+								? // If --config is specified, only watch changes for this file
+								  configFlagPath && normalizePath(configFlagPath) === normalizePath(changedFile)
+								: // Otherwise, watch for any astro.config.* file changes in project root
+								  new RegExp(
+										`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
+								  ).test(normalizePath(changedFile)))
+						) {
+							restartInFlight = true;
+							console.clear();
+							try {
+								const newConfig = await openConfig({
+									cwd: root,
+									flags,
+									cmd,
+									logging,
+									isConfigReload: true,
+								});
+								info(logging, 'astro', logMsg + '\n');
+								astroConfig = newConfig.astroConfig;
+								await stop();
+								await startDevServer({ isRestart: true });
+							} catch (e) {
+								await handleConfigError(e, { cwd: root, flags, logging });
+								await stop();
+								info(logging, 'astro', 'Continuing with previous valid configuration\n');
+								await startDevServer({ isRestart: true });
+							}
 						}
-					}
-				});
+					};
+
+				watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
+				watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
+				watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
 			}
-			await startDevServer();
+			await startDevServer({ isRestart: false });
 			return await new Promise(() => {}); // lives forever
 		}
 

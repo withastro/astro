@@ -21,6 +21,7 @@ type EndpointCallResult =
 	| {
 			type: 'simple';
 			body: string;
+			encoding?: BufferEncoding;
 	  }
 	| {
 			type: 'response';
@@ -52,5 +53,6 @@ export async function call(
 	return {
 		type: 'simple',
 		body: response.body,
+		encoding: response.encoding,
 	};
 }

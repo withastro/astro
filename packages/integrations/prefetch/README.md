@@ -22,16 +22,14 @@ The `astro add` command-line tool automates the installation for you. Run one of
   
 ```sh
 # Using NPM
-npm run astro add prefetch
+npx astro add prefetch
 # Using Yarn
 yarn astro add prefetch
 # Using PNPM
 pnpm astro add prefetch
 ```
   
-Then, restart the dev server by typing `CTRL-C` and then `npm run astro dev` in the terminal window that was running Astro.
-  
-Because this command is new, it might not properly set things up. If that happens, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
+If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
   
@@ -52,7 +50,6 @@ export default {
 }
 ```
   
-Then, restart the dev server.
 
 ## Usage
 
@@ -94,7 +91,7 @@ export default {
 ```
 
 ## Troubleshooting
-- If your installation doesn't seem to be working, make sure to restart the dev server.
+- If your installation doesn't seem to be working, try restarting the dev server.
 - If a link doesn't seem to be prefetching, make sure that the link is pointing to a page on the same domain and matches the integration's `selector` option.
 
 For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!

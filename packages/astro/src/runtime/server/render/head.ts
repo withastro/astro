@@ -32,7 +32,7 @@ export function renderHead(result: SSRResult): Promise<string> {
 }
 
 // This function is called by Astro components that do not contain a <head> component
-// This accomodates the fact that using a <head> is optional in Astro, so this
+// This accommodates the fact that using a <head> is optional in Astro, so this
 // is called before a component's first non-head HTML element. If the head was
 // already injected it is a noop.
 export async function* maybeRenderHead(result: SSRResult): AsyncIterable<string> {

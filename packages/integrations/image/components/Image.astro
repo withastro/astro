@@ -17,7 +17,7 @@ interface RemoteImageProps extends TransformOptions, astroHTML.JSX.ImgHTMLAttrib
 	src: string;
 	/** Defines an alternative text description of the image. Set to an empty string (alt="") if the image is not a key part of the content (it's decoration or a tracking pixel). */
 	alt: string;
-	format: OutputFormat;
+	format?: OutputFormat;
 	width: number;
 	height: number;
 }

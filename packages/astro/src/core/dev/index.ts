@@ -18,6 +18,7 @@ import { apply as applyPolyfill } from '../polyfill.js';
 export interface DevOptions {
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	isRestart?: boolean;
 }
 
 export interface DevServer {
@@ -33,6 +34,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 	await options.telemetry.record([]);
 	config = await runHookConfigSetup({ config, command: 'dev', logging: options.logging });
 	const { host, port } = config.server;
+	const { isRestart = false } = options;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
@@ -66,6 +68,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 			devServerAddressInfo,
 			site,
 			https: !!viteConfig.server?.https,
+			isRestart,
 		})
 	);
 

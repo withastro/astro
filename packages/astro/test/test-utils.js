@@ -9,6 +9,7 @@ import preview from '../dist/core/preview/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
+import fastGlob from 'fast-glob';
 
 // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 polyfill(globalThis, {
@@ -26,10 +27,11 @@ polyfill(globalThis, {
  * @typedef {Object} Fixture
  * @property {typeof build} build
  * @property {(url: string) => string} resolveUrl
- * @property {(url: string, opts: any) => Promise<Response>} fetch
+ * @property {(url: string, opts: Parameters<typeof fetch>[1]) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
  * @property {(path: string, updater: (content: string) => string) => Promise<void>} writeFile
  * @property {(path: string) => Promise<string[]>} readdir
+ * @property {(pattern: string) => Promise<string[]>} glob
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
@@ -144,9 +146,13 @@ export async function loadFixture(inlineConfig) {
 			const previewServer = await preview(config, { logging, telemetry, ...opts });
 			return previewServer;
 		},
-		readFile: (filePath) =>
-			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), 'utf8'),
+		readFile: (filePath, encoding) =>
+			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), encoding ?? 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
+		glob: (p) =>
+			fastGlob(p, {
+				cwd: fileURLToPath(config.outDir),
+			}),
 		clean: async () => {
 			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
 		},

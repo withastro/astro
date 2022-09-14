@@ -1,5 +1,10 @@
 /// <reference types="astro/astro-jsx" />
-import type { ImageService, OutputFormat, TransformOptions } from '../loaders/index.js';
+import type {
+	ColorDefinition,
+	ImageService,
+	OutputFormat,
+	TransformOptions,
+} from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
 import sharp from '../loaders/sharp.js';
 import { isRemoteImage } from '../utils/paths.js';
@@ -63,7 +68,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 	// resolve the metadata promise, usually when the ESM import is inlined
 	const metadata = 'then' in input.src ? (await input.src).default : input.src;
 
-	let { width, height, aspectRatio, format = metadata.format, ...rest } = input;
+	let { width, height, aspectRatio, background, format = metadata.format, ...rest } = input;
 
 	if (!width && !height) {
 		// neither dimension was provided, use the file metadata
@@ -86,6 +91,7 @@ async function resolveTransform(input: GetImageTransform): Promise<TransformOpti
 		height,
 		aspectRatio,
 		format: format as OutputFormat,
+		background: background as ColorDefinition | undefined,
 	};
 }
 

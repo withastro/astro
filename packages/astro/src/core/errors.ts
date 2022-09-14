@@ -48,7 +48,10 @@ export function cleanErrorStack(stack: string) {
 export function fixViteErrorMessage(_err: unknown, server?: ViteDevServer, filePath?: URL) {
 	const err = createSafeError(_err);
 	// Vite will give you better stacktraces, using sourcemaps.
-	server?.ssrFixStacktrace(err);
+	try {
+		server?.ssrFixStacktrace(err);
+	} catch {}
+
 	// Fix: Astro.glob() compiles to import.meta.glob() by the time Vite sees it,
 	// so we need to update this error message in case it originally came from Astro.glob().
 	if (err.message === 'import.meta.glob() can only accept string literals.') {
@@ -57,14 +60,16 @@ export function fixViteErrorMessage(_err: unknown, server?: ViteDevServer, fileP
 	if (filePath && /failed to load module for ssr:/.test(err.message)) {
 		const importName = err.message.split('for ssr:').at(1)?.trim();
 		if (importName) {
-			const content = fs.readFileSync(fileURLToPath(filePath)).toString();
-			const lns = content.split('\n');
-			const line = lns.findIndex((ln) => ln.includes(importName));
-			if (line == -1) return err;
-			const column = lns[line]?.indexOf(importName);
-			if (!(err as any).id) {
-				(err as any).id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`;
-			}
+			try {
+				const content = fs.readFileSync(fileURLToPath(filePath)).toString();
+				const lns = content.split('\n');
+				const line = lns.findIndex((ln) => ln.includes(importName));
+				if (line == -1) return err;
+				const column = lns[line]?.indexOf(importName);
+				if (!(err as any).id) {
+					(err as any).id = `${fileURLToPath(filePath)}:${line + 1}:${column + 1}`;
+				}
+			} catch {}
 		}
 	}
 	return err;

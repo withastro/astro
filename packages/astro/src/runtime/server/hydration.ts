@@ -146,7 +146,7 @@ export async function generateHydrateScript(
 	if (renderer.clientEntrypoint) {
 		island.props['component-export'] = componentExport.value;
 		island.props['renderer-url'] = await result.resolve(decodeURI(renderer.clientEntrypoint));
-		island.props['props'] = escapeHTML(serializeProps(props));
+		island.props['props'] = escapeHTML(serializeProps(props, metadata));
 	}
 
 	island.props['ssr'] = '';

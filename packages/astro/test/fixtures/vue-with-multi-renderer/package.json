@@ -1,0 +1,10 @@
+{
+  "name": "@test/vue-with-multi-renderer",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/vue": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

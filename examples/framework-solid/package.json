@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-solid",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,7 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.1.5",
+    "astro": "^1.2.3",
     "solid-js": "^1.4.3",
     "@astrojs/solid-js": "^1.1.0"
   }

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { FormData, File } from 'node-fetch';
 
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -52,6 +53,22 @@ describe('API routes in SSR', () => {
 			expect(response.status).to.equal(200);
 			const text = await response.text();
 			expect(text).to.equal(`ok`);
+		});
+
+		it('Can be passed binary data from multipart formdata', async () => {
+			const formData = new FormData();
+			const raw = await fs.promises.readFile(
+				new URL('./fixtures/ssr-api-route/src/images/penguin.jpg', import.meta.url)
+			);
+			const file = new File([raw], 'penguin.jpg', { type: 'text/jpg' });
+			formData.set('file', file, 'penguin.jpg');
+
+			const res = await fixture.fetch('/binary', {
+				method: 'POST',
+				body: formData,
+			});
+
+			expect(res.status).to.equal(200);
 		});
 
 		it('Infer content type with charset for { body } shorthand', async () => {

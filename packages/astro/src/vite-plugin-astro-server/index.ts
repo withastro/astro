@@ -20,7 +20,7 @@ import { preload, ssr } from '../core/render/dev/index.js';
 import { RouteCache } from '../core/render/route-cache.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
-import { createSafeError, resolvePages } from '../core/util.js';
+import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
 interface AstroPluginOptions {
@@ -120,6 +120,7 @@ async function handle500Response(
 ) {
 	res.on('close', () => setTimeout(() => viteServer.ws.send(getViteErrorPayload(err)), 200));
 	if (res.headersSent) {
+		res.write(`<script type="module" src="/@vite/client"></script>`);
 		res.end();
 	} else {
 		writeHtmlResponse(
@@ -214,13 +215,14 @@ async function handleRequest(
 
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(req.method === 'GET' || req.method === 'HEAD')) {
-		let bytes: string[] = [];
+		let bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {
-			req.setEncoding('utf-8');
-			req.on('data', (bts) => bytes.push(bts));
+			req.on('data', (part) => {
+				bytes.push(part);
+			});
 			req.on('end', resolve);
 		});
-		body = new TextEncoder().encode(bytes.join('')).buffer;
+		body = Buffer.concat(bytes);
 	}
 
 	// Headers are only available when using SSR.
@@ -347,7 +349,7 @@ async function handleRequest(
 			return await writeSSRResult(result, res);
 		}
 	} catch (_err) {
-		const err = fixViteErrorMessage(createSafeError(_err), viteServer, filePath);
+		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
 		error(logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);

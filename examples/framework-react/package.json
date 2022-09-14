@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-react",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,10 +11,10 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.1.5",
+    "astro": "^1.2.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "@astrojs/react": "^1.1.0",
+    "@astrojs/react": "^1.1.2",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5"
   }

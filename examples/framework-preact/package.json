@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-preact",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,8 +11,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.1.5",
+    "astro": "^1.2.3",
     "preact": "^10.7.3",
-    "@astrojs/preact": "^1.0.2"
+    "@astrojs/preact": "^1.1.0"
   }
 }

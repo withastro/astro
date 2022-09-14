@@ -7,15 +7,16 @@ import { fileURLToPath } from 'url';
 import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
+import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
-import {
-	createTransformStyleWithViteFn,
-	TransformStyleWithVite,
-} from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import {
+	createTransformStyles,
+	createViteStyleTransformer,
+	ViteStyleTransformer,
+} from '../vite-style-transform/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -64,14 +65,17 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		return false;
 	}
 
-	let transformStyleWithVite: TransformStyleWithVite;
+	let styleTransformer: ViteStyleTransformer;
 	let viteDevServer: ViteDevServer | undefined;
 
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
 		configResolved(_resolvedConfig) {
-			transformStyleWithVite = createTransformStyleWithViteFn(_resolvedConfig);
+			styleTransformer = createViteStyleTransformer(_resolvedConfig);
+		},
+		configureServer(server) {
+			styleTransformer.viteDevServer = server;
 		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
@@ -208,10 +212,12 @@ ${setup}`.trim();
 					filename,
 					moduleId: id,
 					source: astroResult,
-					ssr: Boolean(opts?.ssr),
-					transformStyleWithVite,
-					viteDevServer,
-					pluginContext: this,
+					transformStyle: createTransformStyles(
+						styleTransformer,
+						filename,
+						Boolean(opts?.ssr),
+						this
+					),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);

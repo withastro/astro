@@ -1,4 +1,5 @@
 import type { RehypePlugin, RemarkPlugin, RemarkRehype } from '@astrojs/markdown-remark';
+import fs from 'fs';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { Arguments as Flags } from 'yargs-parser';
@@ -361,7 +362,7 @@ export async function validateConfig(
 }
 
 /** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
-function resolveFlags(flags: Partial<Flags>): CLIFlags {
+export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
@@ -371,6 +372,10 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 			typeof flags.host === 'string' || typeof flags.host === 'boolean' ? flags.host : undefined,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
 	};
+}
+
+export function resolveRoot(cwd?: string): string {
+	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
 /** Merge CLI flags & user config object (CLI flags take priority) */
@@ -398,6 +403,8 @@ interface LoadConfigOptions {
 	cmd: string;
 	validate?: boolean;
 	logging: LogOptions;
+	/** Invalidate when reloading a previously loaded config */
+	isConfigReload?: boolean;
 }
 
 /**
@@ -405,10 +412,10 @@ interface LoadConfigOptions {
  * Note: currently the same as loadConfig but only returns the `filePath`
  * instead of the resolved config
  */
-export async function resolveConfigURL(
+export async function resolveConfigPath(
 	configOptions: Pick<LoadConfigOptions, 'cwd' | 'flags'>
-): Promise<URL | undefined> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+): Promise<string | undefined> {
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfigPath: string | undefined;
 
@@ -419,19 +426,23 @@ export async function resolveConfigURL(
 
 	// Resolve config file path using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	const configPath = await resolve('astro', {
-		mustExist: false,
-		cwd: root,
-		filePath: userConfigPath,
-	});
-	if (configPath) {
-		return pathToFileURL(configPath);
+	try {
+		const configPath = await resolve('astro', {
+			mustExist: !!userConfigPath,
+			cwd: root,
+			filePath: userConfigPath,
+		});
+		return configPath;
+	} catch (e) {
+		if (e instanceof ProloadError && flags.config) {
+			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+		}
+		throw e;
 	}
 }
 
 interface OpenConfigResult {
 	userConfig: AstroUserConfig;
-	userConfigPath: string | undefined;
 	astroConfig: AstroConfig;
 	flags: CLIFlags;
 	root: string;
@@ -439,22 +450,13 @@ interface OpenConfigResult {
 
 /** Load a configuration file, returning both the userConfig and astroConfig */
 export async function openConfig(configOptions: LoadConfigOptions): Promise<OpenConfigResult> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
-	let userConfigPath: string | undefined;
 
-	if (flags?.config) {
-		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(
-			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
-		);
-	}
-
-	const config = await tryLoadConfig(configOptions, flags, userConfigPath, root);
+	const config = await tryLoadConfig(configOptions, flags, root);
 	if (config) {
 		userConfig = config.value;
-		userConfigPath = config.filePath;
 	}
 	const astroConfig = await resolveConfig(
 		userConfig,
@@ -467,7 +469,6 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	return {
 		astroConfig,
 		userConfig,
-		userConfigPath,
 		flags,
 		root,
 	};
@@ -481,16 +482,37 @@ interface TryLoadConfigResult {
 async function tryLoadConfig(
 	configOptions: LoadConfigOptions,
 	flags: CLIFlags,
-	userConfigPath: string | undefined,
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
+	let finallyCleanup = async () => {};
 	try {
-		// Automatically load config file using Proload
-		// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+		let configPath = await resolveConfigPath({
+			cwd: configOptions.cwd,
+			flags: configOptions.flags,
+		});
+		if (!configPath) return undefined;
+		if (configOptions.isConfigReload) {
+			// Hack: Write config to temporary file at project root
+			// This invalidates and reloads file contents when using ESM imports or "resolve"
+			const tempConfigPath = path.join(
+				root,
+				`.temp.${Date.now()}.config${path.extname(configPath)}`
+			);
+			await fs.promises.writeFile(tempConfigPath, await fs.promises.readFile(configPath));
+			finallyCleanup = async () => {
+				try {
+					await fs.promises.unlink(tempConfigPath);
+				} catch {
+					/** file already removed */
+				}
+			};
+			configPath = tempConfigPath;
+		}
+
 		const config = await load('astro', {
-			mustExist: !!userConfigPath,
+			mustExist: !!configPath,
 			cwd: root,
-			filePath: userConfigPath,
+			filePath: configPath,
 		});
 
 		return config as TryLoadConfigResult;
@@ -499,28 +521,32 @@ async function tryLoadConfig(
 			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
 		}
 
-		const configURL = await resolveConfigURL(configOptions);
-		if (!configURL) {
+		const configPath = await resolveConfigPath(configOptions);
+		if (!configPath) {
 			throw e;
 		}
 
 		// Fallback to use Vite DevServer
 		const viteServer = await vite.createServer({
 			server: { middlewareMode: true, hmr: false },
+			optimizeDeps: { entries: [] },
+			clearScreen: false,
 			appType: 'custom',
 		});
 		try {
-			const mod = await viteServer.ssrLoadModule(fileURLToPath(configURL));
+			const mod = await viteServer.ssrLoadModule(configPath);
 
 			if (mod?.default) {
 				return {
 					value: mod.default,
-					filePath: fileURLToPath(configURL),
+					filePath: configPath,
 				};
 			}
 		} finally {
 			await viteServer.close();
 		}
+	} finally {
+		await finallyCleanup();
 	}
 }
 
@@ -529,19 +555,11 @@ async function tryLoadConfig(
  * @deprecated
  */
 export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const root = resolveRoot(configOptions.cwd);
 	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
-	let userConfigPath: string | undefined;
 
-	if (flags?.config) {
-		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(
-			new URL(userConfigPath, appendForwardSlash(pathToFileURL(root).toString()))
-		);
-	}
-
-	const config = await tryLoadConfig(configOptions, flags, userConfigPath, root);
+	const config = await tryLoadConfig(configOptions, flags, root);
 	if (config) {
 		userConfig = config.value;
 	}

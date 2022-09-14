@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/image",
   "description": "Load and transform images in your Astro site.",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -40,6 +40,7 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
+    "@altano/tiny-async-pool": "^1.0.2",
     "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0",
