@@ -1,6 +1,8 @@
 import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
+export const isWindows = process.platform === 'win32';
+
 export function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
