@@ -215,13 +215,14 @@ async function handleRequest(
 
 	let body: ArrayBuffer | undefined = undefined;
 	if (!(req.method === 'GET' || req.method === 'HEAD')) {
-		let bytes: string[] = [];
+		let bytes: Uint8Array[] = [];
 		await new Promise((resolve) => {
-			req.setEncoding('utf-8');
-			req.on('data', (bts) => bytes.push(bts));
+			req.on('data', (part) => {
+				bytes.push(part);
+			});
 			req.on('end', resolve);
 		});
-		body = new TextEncoder().encode(bytes.join('')).buffer;
+		body = Buffer.concat(bytes);
 	}
 
 	// Headers are only available when using SSR.

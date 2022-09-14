@@ -10,6 +10,7 @@ import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
+import { getOutDirWithinCwd } from './common.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
@@ -110,7 +111,7 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const ssr = astroConfig.output === 'server';
-	const out = ssr ? opts.buildConfig.server : astroConfig.outDir;
+	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(astroConfig.outDir);
 
 	const viteBuildConfig: ViteConfigWithSSR = {
 		...viteConfig,
@@ -245,13 +246,19 @@ async function clientBuild(
 }
 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
+	const out = getOutDirWithinCwd(opts.astroConfig.outDir);
+	// Clean out directly if the outDir is outside of root
+	if (out.toString() !== opts.astroConfig.outDir.toString()) {
+		await fs.promises.rm(out, { recursive: true });
+		return;
+	}
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: fileURLToPath(opts.astroConfig.outDir),
+		cwd: fileURLToPath(out),
 	});
 	await Promise.all(
 		files.map(async (filename) => {
-			const url = new URL(filename, opts.astroConfig.outDir);
+			const url = new URL(filename, out);
 			await fs.promises.rm(url);
 		})
 	);
