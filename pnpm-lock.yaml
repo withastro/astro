@@ -404,7 +404,7 @@ importers:
       recast: ^0.20.5
       rehype: ^12.0.1
       resolve: ^1.22.0
-      rollup: ~2.77.0
+      rollup: ~2.78.0
       sass: ^1.52.2
       semver: ^7.3.7
       shiki: ^0.11.1
@@ -417,7 +417,7 @@ importers:
       tsconfig-resolver: ^3.0.1
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
-      vite: 3.0.9
+      vite: 3.1.0
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -464,7 +464,7 @@ importers:
       recast: 0.20.5
       rehype: 12.0.1
       resolve: 1.22.1
-      rollup: 2.77.3
+      rollup: 2.78.1
       semver: 7.3.7
       shiki: 0.11.1
       sirv: 2.0.2
@@ -475,7 +475,7 @@ importers:
       tsconfig-resolver: 3.0.1
       unist-util-visit: 4.1.1
       vfile: 5.3.5
-      vite: 3.0.9_sass@1.54.9
+      vite: 3.1.0_sass@1.54.9
       yargs-parser: 21.1.1
       zod: 3.19.1
     devDependencies:
@@ -1356,8 +1356,10 @@ importers:
 
   packages/astro/test/fixtures/astro-scripts:
     specifiers:
+      '@astrojs/tailwind': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-sitemap-rss:
@@ -15819,14 +15821,6 @@ packages:
     dependencies:
       estree-walker: 0.6.1
 
-  /rollup/2.77.3:
-    resolution: {integrity: sha512-/qxNTG7FbmefJWoeeYJFbHehJ2HNWnjkAFRKzWN/45eNBBF/r8lo992CwcJXEzyVxs5FmfId+vTSTQDb+bxA+g==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
   /rollup/2.78.1:
     resolution: {integrity: sha512-VeeCgtGi4P+o9hIg+xz4qQpRl6R401LWEXBmxYKOV4zlF82lyhgh2hTZnheFUbANE8l2A41F458iwj2vEYaXJg==}
     engines: {node: '>=10.0.0'}
@@ -17328,34 +17322,6 @@ packages:
       - supports-color
     dev: false
 
-  /vite/3.0.9_sass@1.54.9:
-    resolution: {integrity: sha512-waYABTM+G6DBTCpYAxvevpG50UOlZuynR0ckTK5PawNVt7ebX6X7wNXHaGIO6wYYFXSM7/WcuFuO2QzhBB6aMw==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      less: '*'
-      sass: '*'
-      stylus: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      less:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.14.54
-      postcss: 8.4.16
-      resolve: 1.22.1
-      rollup: 2.77.3
-      sass: 1.54.9
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
-
   /vite/3.1.0:
     resolution: {integrity: sha512-YBg3dUicDpDWFCGttmvMbVyS9ydjntwEjwXRj2KBFwSB8SxmGcudo1yb8FW5+M/G86aS8x828ujnzUVdsLjs9g==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -17379,6 +17345,34 @@ packages:
       postcss: 8.4.16
       resolve: 1.22.1
       rollup: 2.78.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
+
+  /vite/3.1.0_sass@1.54.9:
+    resolution: {integrity: sha512-YBg3dUicDpDWFCGttmvMbVyS9ydjntwEjwXRj2KBFwSB8SxmGcudo1yb8FW5+M/G86aS8x828ujnzUVdsLjs9g==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.15.7
+      postcss: 8.4.16
+      resolve: 1.22.1
+      rollup: 2.78.1
+      sass: 1.54.9
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
