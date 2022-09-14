@@ -159,9 +159,7 @@ describe('Scripts (hoisted and not)', () => {
 			let found = 0;
 			let moduleScripts = $('[type=module]');
 			moduleScripts.each((i, el) => {
-				if (
-					$(el).attr('src').includes('?astro&type=script&index=0&lang.ts')
-				) {
+				if ($(el).attr('src').includes('?astro&type=script&index=0&lang.ts')) {
 					found++;
 				}
 			});
