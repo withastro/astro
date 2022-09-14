@@ -4,3 +4,4 @@
 **/.vscode-test
 .github
 .changeset
+pnpm-lock.yaml
