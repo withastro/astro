@@ -3231,7 +3231,7 @@ packages:
     dependencies:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
-      astro: link:packages\astro
+      astro: link:packages/astro
       unist-util-select: 4.0.1
     dev: false
 
@@ -3241,7 +3241,7 @@ packages:
       astro: ^1.0.0-beta.10
     dependencies:
       '@astro-community/astro-embed-utils': 0.0.3
-      astro: link:packages\astro
+      astro: link:packages/astro
     dev: false
 
   /@astro-community/astro-embed-utils/0.0.3:
@@ -3253,7 +3253,7 @@ packages:
     peerDependencies:
       astro: ^1.0.0-beta.10
     dependencies:
-      astro: link:packages\astro
+      astro: link:packages/astro
       lite-youtube-embed: 0.2.0
     dev: false
 
@@ -9827,7 +9827,7 @@ packages:
       '@astro-community/astro-embed-integration': 0.1.0_astro@packages+astro
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
-      astro: link:packages\astro
+      astro: link:packages/astro
     dev: false
 
   /async/3.2.4:
