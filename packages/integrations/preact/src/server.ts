@@ -69,14 +69,16 @@ function renderToStaticMarkup(this: RendererContext, Component: any, props: Reco
 			signals[key] = id;
 		}
 	}
+	const attrs: { ['data-preact-signals']?: string } = {};
+	if(Object.keys(signals).length) {
+		attrs['data-preact-signals'] = JSON.stringify(signals);
+	}
 
 	const html = render(
 		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
 	);
 	return {
-		attrs: {
-			'data-preact-signals': JSON.stringify(signals),
-		},
+		attrs,
 		html
 	};
 }
