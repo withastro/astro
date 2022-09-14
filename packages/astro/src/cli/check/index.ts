@@ -5,6 +5,7 @@ import type { AstroConfig } from '../../@types/astro';
 import glob from 'fast-glob';
 import * as fs from 'fs';
 import { bold, dim, red, yellow } from 'kleur/colors';
+import { createRequire } from 'module';
 import ora from 'ora';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { printDiagnostic } from './print.js';
@@ -23,7 +24,11 @@ export async function check(astroConfig: AstroConfig) {
 
 	const spinner = ora(` Getting diagnostics for Astro files in ${fileURLToPath(root)}…`).start();
 
-	let checker = new AstroCheck(root.toString());
+	const require = createRequire(import.meta.url);
+	let checker = new AstroCheck(
+		root.toString(),
+		require.resolve('typescript/lib/tsserverlibrary.js', { paths: [root.toString()] })
+	);
 	const filesCount = await openAllDocuments(root, [], checker);
 
 	let diagnostics = await checker.getDiagnostics();
@@ -38,7 +43,7 @@ export async function check(astroConfig: AstroConfig) {
 
 	diagnostics.forEach((diag) => {
 		diag.diagnostics.forEach((d) => {
-			console.log(printDiagnostic(diag.filePath, diag.text, d));
+			console.log(printDiagnostic(diag.fileUri, diag.text, d));
 
 			switch (d.severity) {
 				case DiagnosticSeverity.Error: {

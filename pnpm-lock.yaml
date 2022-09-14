@@ -339,7 +339,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.24.0
-      '@astrojs/language-server': ^0.23.0
+      '@astrojs/language-server': ^0.26.2
       '@astrojs/markdown-remark': ^1.1.1
       '@astrojs/telemetry': ^1.0.0
       '@astrojs/webapi': ^1.0.0
@@ -415,6 +415,7 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
+      typescript: '*'
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
       vite: 3.0.9
@@ -422,7 +423,7 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@astrojs/compiler': 0.24.0
-      '@astrojs/language-server': 0.23.3
+      '@astrojs/language-server': 0.26.2
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
       '@astrojs/webapi': link:../webapi
@@ -473,6 +474,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
+      typescript: 4.8.3
       unist-util-visit: 4.1.1
       vfile: 5.3.5
       vite: 3.0.9_sass@1.54.9
@@ -3263,15 +3265,15 @@ packages:
     resolution: {integrity: sha512-xZ81C/oMfExdF18I1Tyd2BKKzBqO+qYYctSy4iCwH4UWSo/4Y8A8MAzV1hG67uuE7hFRourSl6H5KUbhyChv/A==}
     dev: false
 
-  /@astrojs/language-server/0.23.3:
-    resolution: {integrity: sha512-ROoMKo37NZ76pE/A2xHfjDlgfsNnFmkhL4+Wifs0L855n73SUCbnXz7ZaQktIGAq2Te2TpSjAawiOx0q9L5qeg==}
+  /@astrojs/language-server/0.26.2:
+    resolution: {integrity: sha512-9nkfdd6CMXLDIJojnwbYu5XrYfOI+g63JlktOlpFCwFjFNpm1u0e/+pXXmj6Zs+PkSTo0kV1UM77dRKRS5OC1Q==}
     hasBin: true
     dependencies:
       '@vscode/emmet-helper': 2.8.4
+      events: 3.3.0
       prettier: 2.7.1
       prettier-plugin-astro: 0.5.4
       source-map: 0.7.4
-      typescript: 4.6.4
       vscode-css-languageservice: 6.1.0
       vscode-html-languageservice: 5.0.1
       vscode-languageserver: 8.0.2
@@ -11801,6 +11803,11 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
+  /events/3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
+    dev: false
+
   /execa/5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
     engines: {node: '>=10'}
@@ -16980,12 +16987,6 @@ packages:
       mime-types: 2.1.35
     dev: true
 
-  /typescript/4.6.4:
-    resolution: {integrity: sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-    dev: false
-
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
@@ -16996,7 +16997,6 @@ packages:
     resolution: {integrity: sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /uhyphen/0.1.0:
     resolution: {integrity: sha512-o0QVGuFg24FK765Qdd5kk0zU/U4dEsCtN/GSiwNI9i8xsSVtjIAOdTaVhLwZ1nrbWxFVMxNDDl+9fednsOMsBw==}
