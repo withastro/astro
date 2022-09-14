@@ -2233,6 +2233,7 @@ importers:
       magic-string: ^0.25.9
       mime: ^3.0.0
       rollup-plugin-copy: ^3.4.0
+      web-streams-polyfill: ^3.2.1
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
       image-size: 1.0.2
@@ -2244,6 +2245,7 @@ importers:
       astro-scripts: link:../../../scripts
       kleur: 4.1.5
       rollup-plugin-copy: 3.4.0
+      web-streams-polyfill: 3.2.1
 
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:

@@ -52,6 +52,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "kleur": "^4.1.4",
-    "rollup-plugin-copy": "^3.4.0"
+    "rollup-plugin-copy": "^3.4.0",
+    "web-streams-polyfill": "^3.2.1"
   }
 }
