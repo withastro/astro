@@ -2,6 +2,14 @@
 
 ## 2.0.0
 
+### Migration to v2
+
+Tailwind CSS is now a peer dependency, so you will need to install it manually when updating this integration:
+
+```
+npm install tailwindcss
+```
+
 ### Major Changes
 
 - [#4543](https://github.com/withastro/astro/pull/4543) [`664ebf449`](https://github.com/withastro/astro/commit/664ebf449e27f0aef43eaa2482189358a74209d2) Thanks [@aFuzzyBear](https://github.com/aFuzzyBear)! - Update peer dep with Tailwindcss
