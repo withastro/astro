@@ -2250,10 +2250,12 @@ importers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:
@@ -12187,7 +12189,7 @@ packages:
     dev: true
 
   /github-from-package/0.0.0:
-    resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
+    resolution: {integrity: sha1-l/tdlr/eiXMxPyDoKI75oWf6ZM4=}
     dev: false
 
   /github-slugger/1.4.0:

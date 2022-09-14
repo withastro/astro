@@ -52,7 +52,7 @@ describe('SSR images - build', async function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 		},
 		{
@@ -168,7 +168,7 @@ describe('SSR images with subpath - build', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 		},
 		{

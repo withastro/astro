@@ -30,7 +30,7 @@ describe('SSR images - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpeg',
+			contentType: 'image/jpg',
 		},
 		{
 			title: 'Filename with spaces',
@@ -44,7 +44,7 @@ describe('SSR images - dev', function () {
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpeg',
+			contentType: 'image/jpg',
 		},
 		{
 			title: 'Remote images',
@@ -65,7 +65,7 @@ describe('SSR images - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 			contentType: 'image/jpeg',
 		},
@@ -145,7 +145,7 @@ describe('SSR images with subpath - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpeg',
+			contentType: 'image/jpg',
 		},
 		{
 			title: 'Filename with spaces',
@@ -159,7 +159,7 @@ describe('SSR images with subpath - dev', function () {
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpeg',
+			contentType: 'image/jpg',
 		},
 		{
 			title: 'Remote images',
@@ -180,7 +180,7 @@ describe('SSR images with subpath - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 			contentType: 'image/jpeg',
 		},
