@@ -7,6 +7,7 @@ import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
 import { nodeLogDestination } from '../dist/core/logger/node.js';
+import { Cache } from '@astrojs/fs';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 import fastGlob from 'fast-glob';
@@ -133,6 +134,7 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
+		// TODO(ALAN) Create a "disableCache" build option at the Astro level, turn it on here?
 		build: (opts = {}) => build(config, { logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
 			devServer = await dev(config, { logging, telemetry, ...opts });
@@ -154,7 +156,11 @@ export async function loadFixture(inlineConfig) {
 				cwd: fileURLToPath(config.outDir),
 			}),
 		clean: async () => {
-			await fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true });
+			// console.trace(`test-utils.js: clean()`);
+			await Promise.all([
+				Cache.clear(),
+				fs.promises.rm(config.outDir, { maxRetries: 10, recursive: true, force: true }),
+			]);
 		},
 		loadTestAdapterApp: async (streaming) => {
 			const url = new URL(`./server/entry.mjs?id=${fixtureId}`, config.outDir);

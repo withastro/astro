@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
+/** @type {import('../../../astro/test/test-utils').Fixture} */
 let fixture;
 
 const errorMessage =
@@ -10,6 +11,10 @@ const errorMessage =
 describe.skip('SSG image without alt text', function () {
 	before(async () => {
 		fixture = await loadFixture({ root: './fixtures/no-alt-text-image/' });
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	it('throws during build', async () => {

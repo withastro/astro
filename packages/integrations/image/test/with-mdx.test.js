@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
 describe('Images in MDX - build', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let $;
 	let html;
@@ -15,6 +16,10 @@ describe('Images in MDX - build', function () {
 
 		html = await fixture.readFile('/index.html');
 		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	function verifyImage(pathname, expected) {

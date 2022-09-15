@@ -9,6 +9,7 @@ export async function loadLocalImage(src: string | URL) {
 }
 
 export async function loadRemoteImage(src: string) {
+	// TODO(ALAN) Could consider adding http caching here
 	try {
 		const res = await fetch(src);
 

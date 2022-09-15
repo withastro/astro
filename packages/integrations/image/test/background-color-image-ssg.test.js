@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
 describe('SSG image with background - dev', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let devServer;
 	let $;
@@ -18,6 +19,7 @@ describe('SSG image with background - dev', function () {
 
 	after(async () => {
 		await devServer.stop();
+		await fixture.clean();
 	});
 
 	[
@@ -58,6 +60,7 @@ describe('SSG image with background - dev', function () {
 });
 
 describe('SSG image with background - build', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let $;
 	let html;
@@ -68,6 +71,10 @@ describe('SSG image with background - build', function () {
 
 		html = await fixture.readFile('/index.html');
 		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	async function verifyImage(pathname, expectedBg) {

@@ -4,6 +4,7 @@ import sizeOf from 'image-size';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
+/** @type {import('../../../astro/test/test-utils').Fixture} */
 let fixture;
 
 describe('Image rotation', function () {
@@ -27,6 +28,10 @@ describe('Image rotation', function () {
 
 			html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
+		});
+
+		after(async () => {
+			await fixture.clean();
 		});
 
 		it('Landscape images', () => {

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
 describe('SSG pictures - dev', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let devServer;
 	let $;
@@ -20,6 +21,7 @@ describe('SSG pictures - dev', function () {
 
 	after(async () => {
 		await devServer.stop();
+		await fixture.clean();
 	});
 
 	[
@@ -93,6 +95,7 @@ describe('SSG pictures - dev', function () {
 });
 
 describe('SSG pictures with subpath - dev', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let devServer;
 	let $;
@@ -106,6 +109,7 @@ describe('SSG pictures with subpath - dev', function () {
 
 	after(async () => {
 		await devServer.stop();
+		await fixture.clean();
 	});
 
 	[
@@ -166,6 +170,7 @@ describe('SSG pictures with subpath - dev', function () {
 });
 
 describe('SSG pictures - build', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let $;
 	let html;
@@ -176,6 +181,10 @@ describe('SSG pictures - build', function () {
 
 		html = await fixture.readFile('/index.html');
 		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	function verifyImage(pathname, expected) {
@@ -261,6 +270,7 @@ describe('SSG pictures - build', function () {
 });
 
 describe('SSG pictures with subpath - build', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let $;
 	let html;
@@ -271,6 +281,10 @@ describe('SSG pictures with subpath - build', function () {
 
 		html = await fixture.readFile('/index.html');
 		$ = cheerio.load(html);
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	function verifyImage(pathname, expected) {

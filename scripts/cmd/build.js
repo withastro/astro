@@ -14,6 +14,9 @@ const defaultConfig = {
 	target: 'node14',
 	sourcemap: false,
 	sourcesContent: false,
+	supported: {
+		'top-level-await': true,
+	},
 };
 
 const dt = new Intl.DateTimeFormat('en-us', {

@@ -108,6 +108,8 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 							config: _config,
 							outDir: dir,
 							logLevel: resolvedOptions.logLevel,
+							// TODO(ALAN) Make this an integration config option
+							cacheEnabled: true,
 						});
 					}
 				}

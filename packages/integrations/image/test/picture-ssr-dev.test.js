@@ -4,6 +4,7 @@ import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
 describe('SSR pictures - dev', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let devServer;
 	let $;
@@ -22,6 +23,7 @@ describe('SSR pictures - dev', function () {
 
 	after(async () => {
 		await devServer.stop();
+		await fixture.clean();
 	});
 
 	[
@@ -124,6 +126,7 @@ describe('SSR pictures - dev', function () {
 });
 
 describe('SSR pictures with subpath - dev', function () {
+	/** @type {import('../../../astro/test/test-utils').Fixture} */
 	let fixture;
 	let devServer;
 	let $;
@@ -143,6 +146,7 @@ describe('SSR pictures with subpath - dev', function () {
 
 	after(async () => {
 		await devServer.stop();
+		await fixture.clean();
 	});
 
 	[

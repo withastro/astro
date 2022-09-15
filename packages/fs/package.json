@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/image",
-  "description": "Load and transform images in your Astro site.",
-  "version": "0.7.0",
+  "name": "@astrojs/fs",
+  "description": "Filesystem helpers for Astro and its integrations.",
+  "version": "0.0.1",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -9,29 +9,21 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
-    "directory": "packages/integrations/image"
+    "directory": "packages/fs"
   },
   "keywords": [
-    "astro-integration",
-    "astro-component",
     "withastro",
-    "image"
+    "fs"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://docs.astro.build/en/guides/integrations-guide/image/",
+  "homepage": "<TBD>",
   "exports": {
     ".": "./dist/index.js",
-    "./endpoint": "./dist/endpoint.js",
-    "./sharp": "./dist/loaders/sharp.js",
-    "./components": "./components/index.js",
     "./package.json": "./package.json",
-    "./client": "./client.d.ts",
     "./dist/*": "./dist/*"
   },
   "files": [
-    "components",
-    "dist",
-    "client.d.ts"
+    "dist"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -40,22 +32,13 @@
     "test": "mocha --exit --timeout 20000 test"
   },
   "dependencies": {
-    "@altano/tiny-async-pool": "^1.0.2",
-    "@astrojs/fs": "workspace:*",
     "cacache": "^16.1.3",
     "find-cache-dir": "^3.3.2",
-    "image-size": "^1.0.2",
-    "magic-string": "^0.25.9",
-    "mime": "^3.0.0",
-    "sharp": "^0.30.6"
+    "xxhash-wasm": "^1.0.1"
   },
   "devDependencies": {
     "@types/cacache": "^15.0.1",
     "@types/find-cache-dir": "^3.2.1",
-    "@types/sharp": "^0.30.5",
-    "astro": "workspace:*",
-    "astro-scripts": "workspace:*",
-    "kleur": "^4.1.4",
-    "mocha": "^9.2.2"
+    "astro-scripts": "workspace:*"
   }
 }

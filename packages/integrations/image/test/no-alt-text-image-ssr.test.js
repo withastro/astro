@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
+/** @type {import('../../../astro/test/test-utils').Fixture} */
 let fixture;
 
 const errorMessage =
@@ -16,6 +17,10 @@ describe.skip('SSR image without alt text', function () {
 			output: 'server',
 		});
 		await fixture.build();
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	it('throws during build', async () => {

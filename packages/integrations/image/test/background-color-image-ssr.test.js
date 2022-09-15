@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from '../../../astro/test/test-adapter.js';
 
+/** @type {import('../../../astro/test/test-utils').Fixture} */
 let fixture;
 
 describe('SSR image with background', function () {
@@ -13,6 +14,10 @@ describe('SSR image with background', function () {
 			output: 'server',
 		});
 		await fixture.build();
+	});
+
+	after(async () => {
+		await fixture.clean();
 	});
 
 	[

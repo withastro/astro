@@ -339,6 +339,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.24.0
+      '@astrojs/fs': workspace:*
       '@astrojs/language-server': ^0.23.0
       '@astrojs/markdown-remark': ^1.1.1
       '@astrojs/telemetry': ^1.0.0
@@ -422,6 +423,7 @@ importers:
       zod: ^3.17.3
     dependencies:
       '@astrojs/compiler': 0.24.0
+      '@astrojs/fs': link:../fs
       '@astrojs/language-server': 0.23.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
@@ -2152,6 +2154,23 @@ importers:
       mocha: 9.2.2
       uvu: 0.5.6
 
+  packages/fs:
+    specifiers:
+      '@types/cacache': ^15.0.1
+      '@types/find-cache-dir': ^3.2.1
+      astro-scripts: workspace:*
+      cacache: ^16.1.3
+      find-cache-dir: ^3.3.2
+      xxhash-wasm: ^1.0.1
+    dependencies:
+      cacache: 16.1.3
+      find-cache-dir: 3.3.2
+      xxhash-wasm: 1.0.1
+    devDependencies:
+      '@types/cacache': 15.0.1
+      '@types/find-cache-dir': 3.2.1
+      astro-scripts: link:../../scripts
+
   packages/integrations/alpinejs:
     specifiers:
       astro: workspace:*
@@ -2227,25 +2246,37 @@ importers:
   packages/integrations/image:
     specifiers:
       '@altano/tiny-async-pool': ^1.0.2
+      '@astrojs/fs': workspace:*
+      '@types/cacache': ^15.0.1
+      '@types/find-cache-dir': ^3.2.1
       '@types/sharp': ^0.30.5
       astro: workspace:*
       astro-scripts: workspace:*
+      cacache: ^16.1.3
+      find-cache-dir: ^3.3.2
       image-size: ^1.0.2
       kleur: ^4.1.4
       magic-string: ^0.25.9
       mime: ^3.0.0
+      mocha: ^9.2.2
       sharp: ^0.30.6
     dependencies:
       '@altano/tiny-async-pool': 1.0.2
+      '@astrojs/fs': link:../../fs
+      cacache: 16.1.3
+      find-cache-dir: 3.3.2
       image-size: 1.0.2
       magic-string: 0.25.9
       mime: 3.0.0
       sharp: 0.30.7
     devDependencies:
+      '@types/cacache': 15.0.1
+      '@types/find-cache-dir': 3.2.1
       '@types/sharp': 0.30.5
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       kleur: 4.1.5
+      mocha: 9.2.2
 
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
@@ -5198,6 +5229,10 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@gar/promisify/1.1.3:
+    resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
+    dev: false
+
   /@humanwhocodes/config-array/0.10.4:
     resolution: {integrity: sha512-mXAIHxZT3Vcpg83opl1wGlVZ9xydbfZO3r5YfRSH6Gpp2J/PfdBP0wbDa2sO6/qRbcalpoevVyW6A/fI6LfeMw==}
     engines: {node: '>=10.10.0'}
@@ -5623,6 +5658,22 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
+
+  /@npmcli/fs/2.1.2:
+    resolution: {integrity: sha512-yOJKRvohFOaLqipNtwYB9WugyZKhC/DZC4VYPmpaCzDBrA8YpK3qHZ8/HGscMnE4GqbkLNuVcCnxkeQEdGt6LQ==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      '@gar/promisify': 1.1.3
+      semver: 7.3.7
+    dev: false
+
+  /@npmcli/move-file/2.0.1:
+    resolution: {integrity: sha512-mJd2Z5TjYWq/ttPLLGqArdtnC74J6bOzg4rMDnN+p1xTacZ2yPRCk2y0oSWQtygLR9YVQXgOcONrwtnk3JupxQ==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      mkdirp: 1.0.4
+      rimraf: 3.0.2
+    dev: false
 
   /@octokit/action/3.18.1:
     resolution: {integrity: sha512-jl88CBdtk7SE1Jwpxtf5k24XkUCcrUhQfsKNxMWFg4hdzge8o+aEYytrx1X7DwXwOYpuezNXVa03hK/zizt4Dg==}
@@ -8868,6 +8919,12 @@ packages:
     dependencies:
       '@babel/types': 7.19.0
 
+  /@types/cacache/15.0.1:
+    resolution: {integrity: sha512-JhL2GFJuHMx4RMg4z0XfXB4ZkKdyiOaOLpjoYMXcyKfrkF3IBXNZBj6/Peo9zX/7PPHyfI63NWVD589cI2YTzg==}
+    dependencies:
+      '@types/node': 18.7.16
+    dev: true
+
   /@types/chai-as-promised/7.1.5:
     resolution: {integrity: sha512-jStwss93SITGBwt/niYrkf2C+/1KTeZCZl1LaeezTlqppAKeoQC7jxyqYuP72sxBGKCIbw7oHgbYssIRzT5FCQ==}
     dependencies:
@@ -8935,6 +8992,10 @@ packages:
 
   /@types/extend/3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
+    dev: true
+
+  /@types/find-cache-dir/3.2.1:
+    resolution: {integrity: sha512-frsJrz2t/CeGifcu/6uRo4b+SzAwT4NYCVPu1GN8IB9XTzrpPkGuV0tmh9mN+/L0PklAlsC3u5Fxt0ju00LXIw==}
     dev: true
 
   /@types/github-slugger/1.3.0:
@@ -9624,7 +9685,6 @@ packages:
     dependencies:
       clean-stack: 2.2.0
       indent-string: 4.0.0
-    dev: true
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -10086,6 +10146,32 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /cacache/16.1.3:
+    resolution: {integrity: sha512-/+Emcj9DAXxX4cwlLmRI9c166RuL3w30zp4R7Joiv2cQTtTtA+jeuCAjH3ZlGnYS3tKENSrKhAzVVP9GVyzeYQ==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      '@npmcli/fs': 2.1.2
+      '@npmcli/move-file': 2.0.1
+      chownr: 2.0.0
+      fs-minipass: 2.1.0
+      glob: 8.0.3
+      infer-owner: 1.0.4
+      lru-cache: 7.14.0
+      minipass: 3.3.4
+      minipass-collect: 1.0.2
+      minipass-flush: 1.0.5
+      minipass-pipeline: 1.2.4
+      mkdirp: 1.0.4
+      p-map: 4.0.0
+      promise-inflight: 1.0.1
+      rimraf: 3.0.2
+      ssri: 9.0.1
+      tar: 6.1.11
+      unique-filename: 2.0.1
+    transitivePeerDependencies:
+      - bluebird
+    dev: false
+
   /call-bind/1.0.2:
     resolution: {integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==}
     dependencies:
@@ -10248,7 +10334,6 @@ packages:
   /clean-stack/2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
     engines: {node: '>=6'}
-    dev: true
 
   /cli-boxes/3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
@@ -10366,6 +10451,10 @@ packages:
   /common-tags/1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
     engines: {node: '>=4.0.0'}
+    dev: false
+
+  /commondir/1.0.1:
+    resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
     dev: false
 
   /concat-map/0.0.1:
@@ -11948,6 +12037,15 @@ packages:
       path-exists: 3.0.0
     dev: false
 
+  /find-cache-dir/3.3.2:
+    resolution: {integrity: sha512-wXZV5emFEjrridIgED11OoUKLxiYjAcqot/NJdAkOhlJ+vGzwhOAfcG5OX1jP+S0PcjEn8bdMJv+g2jwQ3Onig==}
+    engines: {node: '>=8'}
+    dependencies:
+      commondir: 1.0.1
+      make-dir: 3.1.0
+      pkg-dir: 4.2.0
+    dev: false
+
   /find-up/3.0.0:
     resolution: {integrity: sha512-1yD6RmLI1XBfxugvORwlck6f75tYL+iR0jqwsOrOxMZyGYqUuDhJ0l4AXdO1iX/FTs9cBAMEk1gWSEx1kSbylg==}
     engines: {node: '>=6'}
@@ -12208,6 +12306,17 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
+
+  /glob/8.0.3:
+    resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 5.1.0
+      once: 1.4.0
+    dev: false
 
   /globals/11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -12644,12 +12753,14 @@ packages:
   /imurmurhash/0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
-    dev: true
 
   /indent-string/4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
-    dev: true
+
+  /infer-owner/1.0.4:
+    resolution: {integrity: sha512-IClj+Xz94+d7irH5qRyfJonOdfTzuDaifE6ZPWfx0N0+/ATZCbuTPq2prFl526urkQd90WyUKIh1DfBQ2hMz9A==}
+    dev: false
 
   /inflight/1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -13264,6 +13375,11 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+
+  /lru-cache/7.14.0:
+    resolution: {integrity: sha512-EIRtP1GrSJny0dqb50QXRUNBxHJhcpxHC++M5tD7RYbvLLn5KVWKsbyswSSqDuU15UFi3bgTQIY8nhDMeF6aDQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /lz-string/1.4.4:
     resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
@@ -14012,6 +14128,27 @@ packages:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
     dev: false
 
+  /minipass-collect/1.0.2:
+    resolution: {integrity: sha512-6T6lH0H8OG9kITm/Jm6tdooIbogG9e0tLgpY6mphXSm/A9u8Nq1ryBG+Qspiub9LjWlBPsPS3tWQ/Botq4FdxA==}
+    engines: {node: '>= 8'}
+    dependencies:
+      minipass: 3.3.4
+    dev: false
+
+  /minipass-flush/1.0.5:
+    resolution: {integrity: sha512-JmQSYYpPUqX5Jyn1mXaRwOda1uQ8HP5KAT/oDSLCzt1BYRhQU0/hDtsB1ufZfEEzMZ9aAVmsBw8+FWsIXlClWw==}
+    engines: {node: '>= 8'}
+    dependencies:
+      minipass: 3.3.4
+    dev: false
+
+  /minipass-pipeline/1.2.4:
+    resolution: {integrity: sha512-xuIq7cIOt09RPRJ19gdi4b+RiNvDFYe5JH+ggNvBqGqpQXcru3PcRmOZuHBKWK1Txf9+cQ+HMVN4d6z46LZP7A==}
+    engines: {node: '>=8'}
+    dependencies:
+      minipass: 3.3.4
+    dev: false
+
   /minipass/2.9.0:
     resolution: {integrity: sha512-wxfUjg9WebH+CUDX/CdbRlh5SmfZiy/hpkxaRI16Y9W56Pa75sWgd/rvFilSgrauD9NyFymP/+JFV3KwzIsJeg==}
     dependencies:
@@ -14523,7 +14660,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       aggregate-error: 3.1.0
-    dev: true
 
   /p-try/2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
@@ -15235,6 +15371,15 @@ packages:
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
+    dev: false
+
+  /promise-inflight/1.0.1:
+    resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
+    peerDependencies:
+      bluebird: '*'
+    peerDependenciesMeta:
+      bluebird:
+        optional: true
     dev: false
 
   /prompts/2.4.2:
@@ -16235,6 +16380,13 @@ packages:
     resolution: {integrity: sha512-JWp4cG2eybkvKA1QUHGoNK6JDEYcOnSuhzNGjZuYUPqXreDl/VkkvP2sZW7Rmh+icuCttrR9ccb2WPIazyM/Cw==}
     dev: true
 
+  /ssri/9.0.1:
+    resolution: {integrity: sha512-o57Wcn66jMQvfHG1FlYbWeZWW/dHZhJXjpIcTfXldXEk5nz5lStPo3mK0OJQfGR3RbZUlbISexbljkJzuEj/8Q==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      minipass: 3.3.4
+    dev: false
+
   /stack-trace/0.0.10:
     resolution: {integrity: sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==}
     dev: true
@@ -17053,6 +17205,20 @@ packages:
       trough: 2.1.0
       vfile: 5.3.5
 
+  /unique-filename/2.0.1:
+    resolution: {integrity: sha512-ODWHtkkdx3IAR+veKxFV+VBkUMcN+FaqzUUd7IZzt+0zhDZFPFxhlqwPF3YQvMHx1TD0tdgYl+kuPnJ8E6ql7A==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      unique-slug: 3.0.0
+    dev: false
+
+  /unique-slug/3.0.0:
+    resolution: {integrity: sha512-8EyMynh679x/0gqE9fT9oilG+qEt+ibFyqjuVTsZn1+CMxH+XLlpvr2UZx4nVcCwTpx81nICr2JQFkM+HPLq4w==}
+    engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+    dependencies:
+      imurmurhash: 0.1.4
+    dev: false
+
   /unique-string/2.0.0:
     resolution: {integrity: sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg==}
     engines: {node: '>=8'}
@@ -17837,7 +18003,6 @@ packages:
 
   /xxhash-wasm/1.0.1:
     resolution: {integrity: sha512-Lc9CTvDrH2vRoiaUzz25q7lRaviMhz90pkx6YxR9EPYtF99yOJnv2cB+CQ0hp/TLoqrUsk8z/W2EN31T568Azw==}
-    dev: true
 
   /y18n/4.0.3:
     resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==}

@@ -10,6 +10,9 @@ import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';
 import sharp from './loaders/sharp.js';
 import { metadata } from './utils/metadata.js';
+import { getCacheMetatadataFromTransformOptions } from './utils/getCacheMetatadataFromTransformOptions.js';
+import { transformBuffer } from '@astrojs/fs';
+import type { TCachedImageMetadata } from './types.js';
 
 export interface ImageMetadata {
 	src: string;
@@ -96,12 +99,21 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 						return next();
 					}
 
-					const result = await sharp.transform(file, transform);
+					const transformResult = await transformBuffer<TCachedImageMetadata>({
+						input: file,
+						transformMetadata: getCacheMetatadataFromTransformOptions(transform),
+						transformFn: async () => {
+							// console.log(`middleware`, { transform });
+							const result = await sharp.transform(file, transform);
+							return { output: result.data, metadata: { format: result.format } };
+						},
+						enableCache: true, // TODO(ALAN) make configurable
+					});
 
-					res.setHeader('Content-Type', `image/${result.format}`);
+					res.setHeader('Content-Type', `image/${transformResult.metadata.format}`);
 					res.setHeader('Cache-Control', 'max-age=360000');
 
-					const stream = Readable.from(result.data);
+					const stream = Readable.from(transformResult.output);
 					return stream.pipe(res);
 				}
 

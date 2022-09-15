@@ -1,6 +1,6 @@
 import { doWork } from '@altano/tiny-async-pool';
 import type { AstroConfig } from 'astro';
-import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
+import { bgGreen, black, cyan, dim, green, yellow } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import OS from 'node:os';
 import path from 'node:path';
@@ -9,6 +9,9 @@ import type { SSRImageService, TransformOptions } from '../loaders/index.js';
 import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
+import { transformBuffer } from '@astrojs/fs';
+import { getCacheMetatadataFromTransformOptions } from '../utils/getCacheMetatadataFromTransformOptions.js';
+import type { TCachedImageMetadata } from '../types.js';
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -21,9 +24,17 @@ export interface SSGBuildParams {
 	config: AstroConfig;
 	outDir: URL;
 	logLevel: LoggerLevel;
+	cacheEnabled: boolean;
 }
 
-export async function ssgBuild({ loader, staticImages, config, outDir, logLevel }: SSGBuildParams) {
+export async function ssgBuild({
+	loader,
+	staticImages,
+	config,
+	outDir,
+	logLevel,
+	cacheEnabled,
+}: SSGBuildParams) {
 	const timer = performance.now();
 	const cpuCount = OS.cpus().length;
 
@@ -46,7 +57,7 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 		Map<string, TransformOptions>
 	]): Promise<void> {
 		let inputFile: string | undefined = undefined;
-		let inputBuffer: Buffer | undefined = undefined;
+		let loadedBuffer: Buffer | undefined = undefined;
 
 		// Vite will prefix a hashed image with the base path, we need to strip this
 		// off to find the actual file relative to /dist
@@ -56,22 +67,23 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 
 		if (isRemoteImage(src)) {
 			// try to load the remote image
-			inputBuffer = await loadRemoteImage(src);
+			loadedBuffer = await loadRemoteImage(src);
 		} else {
 			const inputFileURL = new URL(`.${src}`, outDir);
 			inputFile = fileURLToPath(inputFileURL);
-			inputBuffer = await loadLocalImage(inputFile);
+			loadedBuffer = await loadLocalImage(inputFile);
 
 			// track the local file used so the original can be copied over
 			inputFiles.add(inputFile);
 		}
 
-		if (!inputBuffer) {
+		if (!loadedBuffer) {
 			// eslint-disable-next-line no-console
 			warn({ level: logLevel, message: `"${src}" image could not be fetched` });
 			return;
 		}
 
+		const inputBuffer = loadedBuffer;
 		const transforms = Array.from(transformsMap.entries());
 
 		debug({ level: logLevel, prefix: false, message: `${green('▶')} transforming ${src}` });
@@ -90,9 +102,18 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 				outputFile = fileURLToPath(outputFileURL);
 			}
 
-			const { data } = await loader.transform(inputBuffer, transform);
+			const { output, wasCacheUsed } = await transformBuffer<TCachedImageMetadata>({
+				input: inputBuffer,
+				transformMetadata: getCacheMetatadataFromTransformOptions(transform),
+				transformFn: async () => {
+					// console.log(`ssg`, { transform });
+					const { data, format } = await loader.transform(inputBuffer, transform);
+					return { output: data, metadata: { format } };
+				},
+				enableCache: cacheEnabled,
+			});
 
-			await fs.writeFile(outputFile, data);
+			await fs.writeFile(outputFile, output);
 
 			const timeEnd = performance.now();
 			const timeChange = getTimeStat(timeStart, timeEnd);
@@ -101,7 +122,9 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 			debug({
 				level: logLevel,
 				prefix: false,
-				message: `  ${cyan('created')} ${dim(pathRelative)} ${dim(timeIncrease)}`,
+				message: `  ${cyan('created')} ${dim(
+					`${pathRelative} ${timeIncrease} ${wasCacheUsed ? green('[from cache]') : ''}`
+				)}`,
 			});
 		}
 	}
