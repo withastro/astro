@@ -111,7 +111,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
-  
+
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
