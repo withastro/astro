@@ -159,7 +159,7 @@ export class App {
 						throw new Error(`Unable to resolve [${specifier}]`);
 					}
 					const bundlePath = manifest.entryModules[specifier];
-					switch(true) {
+					switch (true) {
 						case bundlePath.startsWith('data:'):
 						case bundlePath.length === 0: {
 							return bundlePath;
