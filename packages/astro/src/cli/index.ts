@@ -150,7 +150,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 	}
 
-	let { astroConfig, userConfig } = await openConfig({
+	let { astroConfig: initialAstroConfig, userConfig: initialUserConfig } = await openConfig({
 		cwd: root,
 		flags,
 		cmd,
@@ -159,10 +159,14 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		await handleConfigError(e, { cwd: root, flags, logging });
 		return {} as any;
 	});
-	if (!astroConfig) return;
-	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
-	let tsconfig = loadTSConfig(root);
-	let settings = createSettings(astroConfig, tsconfig?.config, tsconfig?.path);
+	if (!initialAstroConfig) return;
+	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
+	let initialTsConfig = loadTSConfig(root);
+	let settings = createSettings({
+		config: initialAstroConfig,
+		tsConfig: initialTsConfig?.config,
+		tsConfigPath: initialTsConfig?.path,
+	});
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
@@ -201,9 +205,13 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 									isConfigReload: true,
 								});
 								info(logging, 'astro', logMsg + '\n');
-								astroConfig = newConfig.astroConfig;
-								tsconfig = loadTSConfig(root);
-								settings = createSettings(astroConfig, tsconfig?.config, tsconfig?.path);
+								let astroConfig = newConfig.astroConfig;
+								let tsconfig = loadTSConfig(root);
+								settings = createSettings({
+									config: astroConfig,
+									tsConfig: tsconfig?.config,
+									tsConfigPath: tsconfig?.path
+								});
 								await stop();
 								await startDevServer({ isRestart: true });
 							} catch (e) {

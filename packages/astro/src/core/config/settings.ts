@@ -6,11 +6,17 @@ import type { TsConfigJson } from 'tsconfig-resolver';
 
 import jsxRenderer from '../../jsx/renderer.js';
 
-export function createSettings(
-	config: AstroConfig,
-	tsConfig: TsConfigJson | undefined,
-	tsConfigPath: string | undefined,
-): AstroSettings {
+export interface CreateSettings {
+	config: AstroConfig;
+	tsConfig?: TsConfigJson;
+	tsConfigPath?: string;
+}
+
+export function createSettings({
+	config,
+	tsConfig,
+	tsConfigPath,
+}: CreateSettings): AstroSettings {
 	return {
 		config,
 		tsConfig,

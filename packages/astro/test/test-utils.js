@@ -93,7 +93,11 @@ export async function loadFixture(inlineConfig) {
 		config.base = inlineConfig.base + '/';
 	}
 	let tsconfig = loadTSConfig(fileURLToPath(cwd));
-	let settings = createSettings(config, tsconfig?.config, tsconfig?.path);
+	let settings = createSettings({
+		config,
+		tsConfig: tsconfig?.config,
+		tsConfigPath: tsconfig?.path
+	});
 	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
