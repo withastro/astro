@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@altano/tiny-async-pool": "^1.0.2",
+    "@astrojs/webapi": "^1.0.0",
     "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0"
@@ -52,7 +53,6 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "kleur": "^4.1.4",
-    "rollup-plugin-copy": "^3.4.0",
-    "web-streams-polyfill": "^3.2.1"
+    "rollup-plugin-copy": "^3.4.0"
   }
 }
