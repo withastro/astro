@@ -1,6 +1,6 @@
 import type { AstroConfig, AstroIntegration, BuildConfig } from 'astro';
 import { ssgBuild } from './build/ssg.js';
-import type { ImageService, TransformOptions } from './loaders/index.js';
+import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
@@ -14,12 +14,13 @@ const ROUTE_PATTERN = '/_image';
 
 interface ImageIntegration {
 	loader?: ImageService;
+	defaultLoader: SSRImageService;
 	addStaticImage?: (transform: TransformOptions) => string;
 }
 
 declare global {
 	// eslint-disable-next-line no-var
-	var astroImage: ImageIntegration | undefined;
+	var astroImage: ImageIntegration;
 }
 
 export interface IntegrationOptions {
@@ -62,7 +63,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	return {
 		name: PKG_NAME,
 		hooks: {
-			'astro:config:setup': ({ command, config, updateConfig, injectRoute }) => {
+			'astro:config:setup': async ({ command, config, updateConfig, injectRoute }) => {
 				_config = config;
 
 				updateConfig({ vite: getViteConfiguration() });
@@ -73,11 +74,20 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						entryPoint: '@astrojs/image/endpoint',
 					});
 				}
+				
+				const { default: defaultLoader } = await import(resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp'
+					? './loaders/sharp.js'
+					: './loaders/squoosh.js'
+				);
+				
+				globalThis.astroImage = {
+					defaultLoader
+				}
 			},
-			'astro:build:start': ({ buildConfig }) => {
+			'astro:build:start': async ({ buildConfig }) => {
 				_buildConfig = buildConfig
 			},
-			'astro:build:setup': () => {
+			'astro:build:setup': async () => {
 				// Used to cache all images rendered to HTML
 				// Added to globalThis to share the same map in Node and Vite
 				function addStaticImage(transform: TransformOptions) {
@@ -98,12 +108,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 
 				// Helpers for building static images should only be available for SSG
-				globalThis.astroImage =
-					_config.output === 'static'
-						? {
-								addStaticImage,
-						  }
-						: {};
+				if (_config.output === 'static') {
+					globalThis.astroImage!.addStaticImage = addStaticImage;
+				}
 			},
 			'astro:build:generated': async ({ dir }) => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {

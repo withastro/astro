@@ -30,7 +30,7 @@ describe('SSR pictures - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpg',
+			contentType: 'image/jpeg',
 			alt: 'Social image',
 		},
 		{
@@ -38,7 +38,7 @@ describe('SSR pictures - dev', function () {
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpg',
+			contentType: 'image/jpeg',
 			alt: 'Inline social image',
 		},
 		{
@@ -151,7 +151,7 @@ describe('SSR pictures with subpath - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpg',
+			contentType: 'image/jpeg',
 			alt: 'Social image',
 		},
 		{
@@ -159,7 +159,7 @@ describe('SSR pictures with subpath - dev', function () {
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
-			contentType: 'image/jpg',
+			contentType: 'image/jpeg',
 			alt: 'Inline social image',
 		},
 		{
