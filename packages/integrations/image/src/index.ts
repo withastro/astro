@@ -50,9 +50,13 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			optimizeDeps: {
 				include: [
 					'image-size',
-					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp' && 'sharp',
 				].filter(Boolean),
 			},
+			build: {
+        rollupOptions: {
+          external: ["sharp"]
+        }
+      },
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
 			},
@@ -113,10 +117,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 			},
 			'astro:build:generated': async ({ dir }) => {
-				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(_config.output === 'static' ? dir : _buildConfig.server);
-				}
-
 				if (_config.output === 'static') {
 					// for SSG builds, build all requested image transforms to dist
 					const loader = globalThis?.astroImage?.loader;
@@ -132,6 +132,11 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					}
 				}
 			},
+			'astro:build:done': async ({ dir }) => {
+				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
+					await copyWasmFiles(_config.output === 'static' ? dir : _buildConfig.server);
+				}
+			}
 		},
 	};
 }
