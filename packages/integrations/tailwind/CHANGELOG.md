@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 2.0.1
+
+### Patch Changes
+
+- [#4758](https://github.com/withastro/astro/pull/4758) [`0398efa39`](https://github.com/withastro/astro/commit/0398efa39f14f40e77dc8e87f08e9f100a0fef34) Thanks [@delucis](https://github.com/delucis)! - Update Tailwind manual install guide for v2
+
 ## 2.0.0
 
 ### Migration to v2
