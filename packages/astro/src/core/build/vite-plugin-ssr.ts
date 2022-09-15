@@ -152,8 +152,8 @@ function buildManifest(
 
 	// HACK! Patch this special one.
 	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
-		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
-			'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+		// Set this to an empty string so that the runtime knows not to try and load this.
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
 
 	const ssrManifest: SerializedSSRManifest = {

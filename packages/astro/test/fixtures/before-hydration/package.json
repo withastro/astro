@@ -1,0 +1,7 @@
+{
+  "name": "@test/before-hydration",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/preact": "workspace:*"
+  }
+}

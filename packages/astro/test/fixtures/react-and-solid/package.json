@@ -1,0 +1,8 @@
+{
+  "name": "@test/react-and-solid",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/react": "workspace:*",
+    "@astrojs/solid-js": "workspace:*"
+  }
+}

@@ -1,4 +1,5 @@
 import type { TransformResult } from 'rollup';
+import type { TsConfigJson } from 'tsconfig-resolver';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
@@ -12,6 +13,10 @@ import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
+
+type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
+	jsxImportSource?: string;
+};
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
@@ -221,6 +226,12 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			let importSource = detectImportSourceFromComments(code);
 			if (!importSource && IMPORT_KEYWORD_REGEX.test(code)) {
 				importSource = await detectImportSourceFromImports(code, id, jsxRenderers);
+			}
+
+			// Check the tsconfig
+			if (!importSource) {
+				const compilerOptions = config._ctx.tsConfig?.compilerOptions;
+				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
 			}
 
 			// if we still can’t tell the import source, now is the time to throw an error.

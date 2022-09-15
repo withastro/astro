@@ -9,6 +9,7 @@ import type {
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
 import type { AddressInfo } from 'net';
+import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
 import { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
@@ -876,6 +877,8 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		tsConfig: TsConfigJson | undefined;
+		tsConfigPath: string | undefined;
 		pageExtensions: string[];
 		injectedRoutes: InjectedRoute[];
 		adapter: AstroAdapter | undefined;

@@ -11,6 +11,7 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
+import * as tsr from 'tsconfig-resolver';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
@@ -345,11 +346,14 @@ export async function validateConfig(
 			.optional()
 			.default({}),
 	});
+	const tsconfig = loadTSConfig(root);
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
 		_ctx: {
 			pageExtensions: ['.astro', '.md', '.html'],
+			tsConfig: tsconfig?.config,
+			tsConfigPath: tsconfig?.path,
 			scripts: [],
 			renderers: [jsxRenderer],
 			injectedRoutes: [],
@@ -548,6 +552,16 @@ async function tryLoadConfig(
 	} finally {
 		await finallyCleanup();
 	}
+}
+
+function loadTSConfig(cwd: string | undefined): tsr.TsConfigResult | undefined {
+	for (const searchName of ['tsconfig.json', 'jsconfig.json']) {
+		const config = tsr.tsconfigResolverSync({ cwd, searchName });
+		if (config.exists) {
+			return config;
+		}
+	}
+	return undefined;
 }
 
 /**
