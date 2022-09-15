@@ -2266,42 +2266,62 @@ importers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/image/test/fixtures/basic-picture:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/image/test/fixtures/no-alt-text-image:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/image/test/fixtures/no-alt-text-picture:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/image/test/fixtures/rotation:
+    specifiers:
+      '@astrojs/image': workspace:*
+      '@astrojs/node': workspace:*
+      astro: workspace:*
+      sharp: ^0.31.0
+    dependencies:
+      '@astrojs/image': link:../../..
+      '@astrojs/node': link:../../../../node
+      astro: link:../../../../../astro
+      sharp: 0.31.0
+
+  packages/integrations/image/test/fixtures/wasm-service:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
@@ -2317,11 +2337,13 @@ importers:
       '@astrojs/mdx': workspace:*
       '@astrojs/node': workspace:*
       astro: workspace:*
+      sharp: ^0.31.0
     dependencies:
       '@astrojs/image': link:../../..
       '@astrojs/mdx': link:../../../../mdx
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
+      sharp: 0.31.0
 
   packages/integrations/lit:
     specifiers:
