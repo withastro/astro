@@ -3,7 +3,8 @@ export {
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,
-	resolveRoot 
+	resolveRoot,
+	validateConfig,
 } from './config.js';
 
 export {
