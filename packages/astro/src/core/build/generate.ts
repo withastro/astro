@@ -113,8 +113,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
 
-	await runHookBuildGenerated({ config: opts.astroConfig, buildConfig: opts.buildConfig, logging: opts.logging });
-	
+	await runHookBuildGenerated({
+		config: opts.astroConfig,
+		buildConfig: opts.buildConfig,
+		logging: opts.logging,
+	});
+
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
