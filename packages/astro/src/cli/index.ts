@@ -7,7 +7,7 @@ import yargs from 'yargs-parser';
 import { z } from 'zod';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig, resolveConfigPath, resolveFlags, resolveRoot } from '../core/config.js';
+import { openConfig, resolveConfigPath, resolveFlags, resolveRoot, createSettings, loadTSConfig } from '../core/config/index.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
@@ -161,6 +161,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	});
 	if (!astroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, userConfig, flags));
+	let tsconfig = loadTSConfig(root);
+	let settings = createSettings(astroConfig, tsconfig?.config, tsconfig?.path);
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
@@ -168,7 +170,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	switch (cmd) {
 		case 'dev': {
 			async function startDevServer({ isRestart = false }: { isRestart?: boolean } = {}) {
-				const { watcher, stop } = await devServer(astroConfig, { logging, telemetry, isRestart });
+				const { watcher, stop } = await devServer(settings, { logging, telemetry, isRestart });
 				let restartInFlight = false;
 				const configFlag = resolveFlags(flags).config;
 				const configFlagPath = configFlag
@@ -200,6 +202,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								});
 								info(logging, 'astro', logMsg + '\n');
 								astroConfig = newConfig.astroConfig;
+								tsconfig = loadTSConfig(root);
+								settings = createSettings(astroConfig, tsconfig?.config, tsconfig?.path);
 								await stop();
 								await startDevServer({ isRestart: true });
 							} catch (e) {
@@ -220,16 +224,16 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'build': {
-			return await build(astroConfig, { logging, telemetry });
+			return await build(settings, { logging, telemetry });
 		}
 
 		case 'check': {
-			const ret = await check(astroConfig);
+			const ret = await check(settings);
 			return process.exit(ret);
 		}
 
 		case 'preview': {
-			const server = await preview(astroConfig, { logging, telemetry });
+			const server = await preview(settings, { logging, telemetry });
 			return await server.closed(); // keep alive until the server is closed
 		}
 	}

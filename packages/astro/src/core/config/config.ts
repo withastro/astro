@@ -3,7 +3,7 @@ import fs from 'fs';
 import type * as Postcss from 'postcss';
 import type { ILanguageRegistration, IThemeRegistration, Theme } from 'shiki';
 import type { Arguments as Flags } from 'yargs-parser';
-import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../@types/astro';
+import type { AstroConfig, AstroUserConfig, CLIFlags, ViteUserConfig } from '../../@types/astro';
 
 import load, { ProloadError, resolve } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
@@ -11,15 +11,13 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import postcssrc from 'postcss-load-config';
 import { BUNDLED_THEMES } from 'shiki';
-import * as tsr from 'tsconfig-resolver';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
-import jsxRenderer from '../jsx/renderer.js';
-import { LogOptions } from './logger/core.js';
-import { appendForwardSlash, prependForwardSlash, trimSlashes } from './path.js';
-import { arraify, isObject } from './util.js';
+import { LogOptions } from '../logger/core.js';
+import { appendForwardSlash, prependForwardSlash, trimSlashes } from '../path.js';
+import { arraify, isObject } from '../util.js';
 
 load.use([loadTypeScript]);
 
@@ -346,19 +344,10 @@ export async function validateConfig(
 			.optional()
 			.default({}),
 	});
-	const tsconfig = loadTSConfig(root);
+	
 	// First-Pass Validation
 	const result = {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: {
-			pageExtensions: ['.astro', '.md', '.html'],
-			tsConfig: tsconfig?.config,
-			tsConfigPath: tsconfig?.path,
-			scripts: [],
-			renderers: [jsxRenderer],
-			injectedRoutes: [],
-			adapter: undefined,
-		},
 	};
 
 	// If successful, return the result as a verified AstroConfig object.
@@ -552,16 +541,6 @@ async function tryLoadConfig(
 	} finally {
 		await finallyCleanup();
 	}
-}
-
-function loadTSConfig(cwd: string | undefined): tsr.TsConfigResult | undefined {
-	for (const searchName of ['tsconfig.json', 'jsconfig.json']) {
-		const config = tsr.tsconfigResolverSync({ cwd, searchName });
-		if (config.exists) {
-			return config;
-		}
-	}
-	return undefined;
 }
 
 /**

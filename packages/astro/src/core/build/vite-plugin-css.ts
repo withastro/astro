@@ -22,7 +22,6 @@ interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
 	target: 'client' | 'server';
-	astroConfig: AstroConfig;
 }
 
 // Arbitrary magic number, can change.
@@ -30,13 +29,13 @@ const MAX_NAME_LENGTH = 70;
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
-	const { astroConfig } = buildOptions;
+	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
 
 	// Turn a page location into a name to be used for the CSS file.
 	function nameifyPage(id: string) {
-		let rel = relativeToSrcDir(astroConfig, id);
+		let rel = relativeToSrcDir(settings.config, id);
 		// Remove pages, ex. blog/posts/something.astro
 		if (rel.startsWith('pages/')) {
 			rel = rel.slice(6);
@@ -240,7 +239,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					for (const [, output] of Object.entries(bundle)) {
 						if (output.type === 'asset') {
 							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
-								const cssTarget = options.astroConfig.vite.build?.cssTarget;
+								const cssTarget = settings.config.vite.build?.cssTarget;
 								const { code: minifiedCSS } = await esbuild.transform(output.source, {
 									loader: 'css',
 									minify: true,

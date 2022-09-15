@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroConfig, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
+import type { AstroSettings, BuildConfig, ManifestData, RuntimeMode } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -28,14 +28,14 @@ export interface BuildOptions {
 }
 
 /** `astro build` */
-export default async function build(config: AstroConfig, options: BuildOptions): Promise<void> {
+export default async function build(settings: AstroSettings, options: BuildOptions): Promise<void> {
 	applyPolyfill();
-	const builder = new AstroBuilder(config, options);
+	const builder = new AstroBuilder(settings, options);
 	await builder.run();
 }
 
 class AstroBuilder {
-	private config: AstroConfig;
+	private settings: AstroSettings;
 	private logging: LogOptions;
 	private mode: RuntimeMode = 'production';
 	private origin: string;
@@ -43,16 +43,16 @@ class AstroBuilder {
 	private manifest: ManifestData;
 	private timer: Record<string, number>;
 
-	constructor(config: AstroConfig, options: BuildOptions) {
+	constructor(settings: AstroSettings, options: BuildOptions) {
 		if (options.mode) {
 			this.mode = options.mode;
 		}
-		this.config = config;
+		this.settings = settings;
 		this.logging = options.logging;
 		this.routeCache = new RouteCache(this.logging);
-		this.origin = config.site
-			? new URL(config.site).origin
-			: `http://localhost:${config.server.port}`;
+		this.origin = settings.config.site
+			? new URL(settings.config.site).origin
+			: `http://localhost:${settings.config.server.port}`;
 		this.manifest = { routes: [] };
 		this.timer = {};
 	}
@@ -62,8 +62,8 @@ class AstroBuilder {
 		debug('build', 'Initial setup...');
 		const { logging } = this;
 		this.timer.init = performance.now();
-		this.config = await runHookConfigSetup({ config: this.config, command: 'build', logging });
-		this.manifest = createRouteManifest({ config: this.config }, this.logging);
+		this.settings = await runHookConfigSetup({ settings: this.settings, command: 'build', logging });
+		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
 
 		const viteConfig = await createVite(
 			{
@@ -73,29 +73,29 @@ class AstroBuilder {
 					middlewareMode: true,
 				},
 			},
-			{ astroConfig: this.config, logging, mode: 'build' }
+			{ settings: this.settings, logging, mode: 'build' }
 		);
-		await runHookConfigDone({ config: this.config, logging });
+		await runHookConfigDone({ settings: this.settings, logging });
 		return { viteConfig };
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: ViteConfigWithSSR }) {
 		const buildConfig: BuildConfig = {
-			client: new URL('./client/', this.config.outDir),
-			server: new URL('./server/', this.config.outDir),
+			client: new URL('./client/', this.settings.config.outDir),
+			server: new URL('./server/', this.settings.config.outDir),
 			serverEntry: 'entry.mjs',
 		};
-		await runHookBuildStart({ config: this.config, buildConfig, logging: this.logging });
+		await runHookBuildStart({ config: this.settings.config, buildConfig, logging: this.logging });
 
-		info(this.logging, 'build', `output target: ${colors.green(this.config.output)}`);
-		if (this.config._ctx.adapter) {
-			info(this.logging, 'build', `deploy adapter: ${colors.green(this.config._ctx.adapter.name)}`);
+		info(this.logging, 'build', `output target: ${colors.green(this.settings.config.output)}`);
+		if (this.settings.adapter) {
+			info(this.logging, 'build', `deploy adapter: ${colors.green(this.settings.adapter.name)}`);
 		}
 		info(this.logging, 'build', 'Collecting build info...');
 		this.timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
-			astroConfig: this.config,
+			settings: this.settings,
 			logging: this.logging,
 			manifest: this.manifest,
 		});
@@ -116,7 +116,7 @@ class AstroBuilder {
 
 		await staticBuild({
 			allPages,
-			astroConfig: this.config,
+			settings: this.settings,
 			logging: this.logging,
 			manifest: this.manifest,
 			mode: this.mode,
@@ -140,7 +140,7 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await runHookBuildDone({
-			config: this.config,
+			config: this.settings.config,
 			buildConfig,
 			pages: pageNames,
 			routes: Object.values(allPages).map((pd) => pd.route),
@@ -152,7 +152,7 @@ class AstroBuilder {
 				logging: this.logging,
 				timeStart: this.timer.init,
 				pageCount: pageNames.length,
-				buildMode: this.config.output,
+				buildMode: this.settings.config.output,
 			});
 		}
 	}

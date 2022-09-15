@@ -2,10 +2,10 @@ import MagicString from 'magic-string';
 import { fileURLToPath } from 'url';
 import type * as vite from 'vite';
 import { loadEnv } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig, AstroSettings } from '../@types/astro';
 
 interface EnvPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 }
 
 function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig) {
@@ -51,12 +51,13 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 }
 
 export default function envVitePlugin({
-	config: astroConfig,
+	settings,
 }: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any> | null;
 	let config: vite.ResolvedConfig;
 	let replacements: Record<string, string>;
 	let pattern: RegExp | undefined;
+	const { config: astroConfig } = settings;
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
