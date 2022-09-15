@@ -23,6 +23,11 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
+// absolute path of "astro/jsx-runtime"
+const astroJsxRuntimeModulePath = import.meta.url
+	.replace('vite-plugin-markdown', 'jsx-runtime')
+	.replace('file://', '');
+
 export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
@@ -61,7 +66,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from 'astro/jsx-runtime';
+				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};
