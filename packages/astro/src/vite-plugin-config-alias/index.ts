@@ -12,7 +12,6 @@ export declare interface Alias {
 /** Returns a path with its slashes replaced with posix slashes. */
 const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep);
 
-
 /** Returns a list of compiled aliases. */
 const getConfigAlias = (astroConfig: AstroConfig): Alias[] | null => {
 	/** Closest tsconfig.json or jsconfig.json */

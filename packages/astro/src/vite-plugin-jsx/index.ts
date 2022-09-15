@@ -16,7 +16,7 @@ import tagExportsPlugin from './tag.js';
 
 type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
 	jsxImportSource?: string;
-}
+};
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
@@ -229,7 +229,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			}
 
 			// Check the tsconfig
-			if(!importSource) {
+			if (!importSource) {
 				const compilerOptions = config._ctx.tsConfig?.compilerOptions;
 				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
 			}
