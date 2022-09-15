@@ -111,7 +111,7 @@ class SquooshService extends BaseSSRService {
 		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality || 100);
 
 		return {
-			data,
+			data: Buffer.from(data),
 			format: transform.format
 		}
 	}

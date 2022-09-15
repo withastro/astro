@@ -89,7 +89,7 @@ export async function processBuffer(
   operations: Operation[],
   encoding: OutputFormat,
   quality: number
-): Promise<Buffer> {
+): Promise<Uint8Array> {
 	// @ts-ignore
 	const worker = await getWorker()
 
@@ -116,25 +116,29 @@ export async function processBuffer(
 
 	switch (encoding) {
 		case 'avif':
-			return await worker.dispatchJob({ operation: 'encodeavif', imageData, quality: quality || 100 }) as Buffer;
+			return await worker.dispatchJob({
+				operation: 'encodeavif',
+				imageData,
+				quality: quality || 100
+			}) as Uint8Array;
 		case 'jpeg':
 		case 'jpg':
 			return await worker.dispatchJob({
 				operation: 'encodejpeg',
 				imageData,
 				quality: quality || 100,
-			}) as Buffer;
+			}) as Uint8Array;
 		case 'png':
 			return await worker.dispatchJob({
 				operation: 'encodepng',
 				imageData,
-			}) as Buffer;
+			}) as Uint8Array;
 		case 'webp':
 			return await worker.dispatchJob({
 				operation: 'encodejpeg',
 				imageData,
 				quality: quality || 100,
-			}) as Buffer;
+			}) as Uint8Array;
 		default:
 			throw Error(`Unsupported encoding format`)
 	}
