@@ -136,7 +136,7 @@ export async function processBuffer(
 			}) as Uint8Array;
 		case 'webp':
 			return await worker.dispatchJob({
-				operation: 'encodejpeg',
+				operation: 'encodewebp',
 				imageData,
 				quality: quality || 100,
 			}) as Uint8Array;

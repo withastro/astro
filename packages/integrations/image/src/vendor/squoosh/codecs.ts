@@ -162,6 +162,7 @@ export const preprocessors = {
           width,
           height
         )
+				resize.cleanup()
         return imageData
       }
     },
@@ -334,6 +335,7 @@ export const codecs = {
       return {
         decode: (buffer: Buffer | Uint8Array) => {
           const imageData = pngEncDec.decode(buffer)
+					pngEncDec.cleanup()
           return imageData
         },
       }
@@ -354,6 +356,7 @@ export const codecs = {
             height
           )
           const imageData = oxipng.optimise(simplePng, opts.level, false)
+					oxipng.cleanup()
           return imageData
         },
       }
