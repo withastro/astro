@@ -1,4 +1,5 @@
-import { cpus } from 'os'
+import { cpus } from 'node:os'
+import { fileURLToPath } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
 import WorkerPool from '../../utils/workerPool.js';
 import * as impl from './impl.js';
@@ -22,7 +23,7 @@ const getWorker = execOnce(
 			// There will be at most 7 workers needed since each worker will take
       // at least 1 operation type.
       Math.max(1, Math.min(cpus().length - 1, 7)),
-			'./node_modules/@astrojs/image/dist/vendor/squoosh/image-pool.js'
+			fileURLToPath(import.meta.url)
 		);
 	}
 )
