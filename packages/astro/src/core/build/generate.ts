@@ -19,7 +19,6 @@ import {
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
 import type { RenderOptions } from '../../core/render/core';
-import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
@@ -112,9 +111,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
-
-	await runHookBuildGenerated({ config: opts.astroConfig, buildConfig: opts.buildConfig, logging: opts.logging });
-	
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}.\n`));
 }
 
