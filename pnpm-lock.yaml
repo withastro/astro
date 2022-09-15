@@ -1374,6 +1374,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/before-hydration:
+    specifiers:
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
+      astro: link:../../..
+
   packages/astro/test/fixtures/client-address:
     specifiers:
       astro: workspace:*

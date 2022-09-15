@@ -370,11 +370,8 @@ async function generatePath(
 			if (typeof hashedFilePath !== 'string') {
 				// If no "astro:scripts/before-hydration.js" script exists in the build,
 				// then we can assume that no before-hydration scripts are needed.
-				// Return this as placeholder, which will be ignored by the browser.
-				// TODO: In the future, we hope to run this entire script through Vite,
-				// removing the need to maintain our own custom Vite-mimic resolve logic.
 				if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
-					return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+					return '';
 				}
 				throw new Error(`Cannot find the built path for ${specifier}`);
 			}
