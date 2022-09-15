@@ -1748,6 +1748,16 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/react-and-solid:
+    specifiers:
+      '@astrojs/react': workspace:*
+      '@astrojs/solid-js': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      '@astrojs/solid-js': link:../../../../integrations/solid
+      astro: link:../../..
+
   packages/astro/test/fixtures/react-component:
     specifiers:
       '@astrojs/react': workspace:*
