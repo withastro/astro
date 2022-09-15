@@ -1,5 +1,11 @@
 # astro
 
+## 1.3.0
+
+### Minor Changes
+
+- [#4772](https://github.com/withastro/astro/pull/4772) [`03b18e8d1`](https://github.com/withastro/astro/commit/03b18e8d1b9b88d7e9b22e15809a78cc222cb55b) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds a new "astro:build:generated" hook that runs after SSG builds finish but **before** build artifacts are cleaned up. This is a very specific use case, "astro:build:done" is probably what you're looking for.
+
 ## 1.2.5
 
 ### Patch Changes
