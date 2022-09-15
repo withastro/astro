@@ -2321,7 +2321,7 @@ importers:
       astro: link:../../../../../astro
       sharp: 0.31.0
 
-  packages/integrations/image/test/fixtures/wasm-service:
+  packages/integrations/image/test/fixtures/squoosh-service:
     specifiers:
       '@astrojs/image': workspace:*
       '@astrojs/node': workspace:*
