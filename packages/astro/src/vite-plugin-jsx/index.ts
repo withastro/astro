@@ -230,7 +230,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 
 			// Check the tsconfig
 			if (!importSource) {
-				const compilerOptions = config._ctx.tsConfig?.compilerOptions;
+				const compilerOptions = settings.tsConfig?.compilerOptions;
 				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
 			}
 
