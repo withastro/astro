@@ -1,4 +1,4 @@
-import { htmlColorNames, type NamedColor } from './colornames.js';
+import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 
 /// <reference types="astro/astro-jsx" />
 export type InputFormat =

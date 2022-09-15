@@ -1,8 +1,8 @@
 
 import { isMainThread } from 'node:worker_threads';
-import WorkerPool from './worker-pool.js';
+import WorkerPool from '../../utils/workerPool.js';
 import * as impl from './impl.js';
-import execOnce from './execOnce.js';
+import execOnce from '../../utils/execOnce.js';
 import type { OutputFormat } from '../../loaders/index.js';
 
 type RotateOperation = {
@@ -18,7 +18,7 @@ export type Operation = RotateOperation | ResizeOperation
 
 // HACK!  Find the right import assuming this works
 const getWorker = execOnce(
-  () => new WorkerPool(6, './node_modules/@astrojs/image/dist/vendor/squoosh/main.js')
+  () => new WorkerPool(6, './node_modules/@astrojs/image/dist/vendor/squoosh/image-pool.js')
 )
 
 type DecodeParams = {
