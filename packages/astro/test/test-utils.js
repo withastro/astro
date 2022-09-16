@@ -40,6 +40,12 @@ polyfill(globalThis, {
  * @property {() => Promise<void>} onNextChange
  */
 
+/** @type {import('../src/core/logger/core').LogOptions} */
+export const defaultLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
+
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify `root`)
@@ -76,10 +82,7 @@ export async function loadFixture(inlineConfig) {
 	}
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
-	const logging = {
-		dest: nodeLogDestination,
-		level: 'error',
-	};
+	const logging = defaultLogging;
 
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd), logging });
