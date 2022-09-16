@@ -11,10 +11,10 @@ import type * as babel from '@babel/core';
 import type { AddressInfo } from 'net';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import { z } from 'zod';
+import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroConfigSchema } from '../core/config/config';
+import type { AstroConfigSchema } from '../core/config';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type {

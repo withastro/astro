@@ -1,4 +1,8 @@
 
+export type {
+	AstroConfigSchema
+} from './schema';
+
 export {
 	openConfig,
 	resolveConfigPath,
