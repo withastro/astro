@@ -2,7 +2,8 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { loadConfig } from '../dist/core/config.js';
+import { loadConfig } from '../dist/core/config/config.js';
+import { createSettings, loadTSConfig } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -18,7 +19,7 @@ polyfill(globalThis, {
 
 /**
  * @typedef {import('node-fetch').Response} Response
- * @typedef {import('../src/core/dev/index').DevServer} DevServer
+ * @typedef {import('../src/core/dev/index').DedvServer} DevServer
  * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  * @typedef {import('../src/core/app/index').App} App
@@ -38,6 +39,12 @@ polyfill(globalThis, {
  * @property {() => Promise<App>} loadTestAdapterApp
  * @property {() => Promise<void>} onNextChange
  */
+
+/** @type {import('../src/core/logger/core').LogOptions} */
+export const defaultLogging = {
+	dest: nodeLogDestination,
+	level: 'error',
+};
 
 /**
  * Load Astro fixture
@@ -75,10 +82,7 @@ export async function loadFixture(inlineConfig) {
 	}
 
 	/** @type {import('../src/core/logger/core').LogOptions} */
-	const logging = {
-		dest: nodeLogDestination,
-		level: 'error',
-	};
+	const logging = defaultLogging;
 
 	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd), logging });
@@ -91,10 +95,16 @@ export async function loadFixture(inlineConfig) {
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
 	}
+	let tsconfig = loadTSConfig(fileURLToPath(cwd));
+	let settings = createSettings({
+		config,
+		tsConfig: tsconfig?.config,
+		tsConfigPath: tsconfig?.path,
+	});
 	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');
-		config._ctx.renderers.unshift(jsxRenderer);
+		settings.renderers.unshift(jsxRenderer);
 	}
 
 	/** @type {import('@astrojs/telemetry').AstroTelemetry} */
@@ -133,9 +143,9 @@ export async function loadFixture(inlineConfig) {
 	let devServer;
 
 	return {
-		build: (opts = {}) => build(config, { logging, telemetry, ...opts }),
+		build: (opts = {}) => build(settings, { logging, telemetry, ...opts }),
 		startDevServer: async (opts = {}) => {
-			devServer = await dev(config, { logging, telemetry, ...opts });
+			devServer = await dev(settings, { logging, telemetry, ...opts });
 			config.server.port = devServer.address.port; // update port
 			return devServer;
 		},
@@ -143,7 +153,7 @@ export async function loadFixture(inlineConfig) {
 		resolveUrl,
 		fetch: (url, init) => fetch(resolveUrl(url), init),
 		preview: async (opts = {}) => {
-			const previewServer = await preview(config, { logging, telemetry, ...opts });
+			const previewServer = await preview(settings, { logging, telemetry, ...opts });
 			return previewServer;
 		},
 		readFile: (filePath, encoding) =>

@@ -11,8 +11,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.2.3",
-    "@astrojs/tailwind": "^1.0.1",
+    "astro": "^1.2.5",
+    "@astrojs/tailwind": "^2.0.1",
     "autoprefixer": "^10.4.7",
     "canvas-confetti": "^1.5.1",
     "postcss": "^8.4.14",

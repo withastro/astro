@@ -151,7 +151,10 @@ export async function generateHydrateScript(
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
-	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
+	let beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
+	if (beforeHydrationUrl.length) {
+		island.props['before-hydration-url'] = beforeHydrationUrl;
+	}
 	island.props['opts'] = escapeHTML(
 		JSON.stringify({
 			name: metadata.displayName,

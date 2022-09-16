@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
 import fs from 'fs';
@@ -25,7 +25,7 @@ import { resolveDependency } from './util.js';
 export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
 
 interface CreateViteOptions {
-	astroConfig: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
 }
@@ -59,12 +59,12 @@ function getSsrNoExternalDeps(projectRoot: URL): string[] {
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: ViteConfigWithSSR,
-	{ astroConfig, logging, mode }: CreateViteOptions
+	{ settings, logging, mode }: CreateViteOptions
 ): Promise<ViteConfigWithSSR> {
-	const thirdPartyAstroPackages = await getAstroPackages(astroConfig);
+	const thirdPartyAstroPackages = await getAstroPackages(settings);
 	// Start with the Vite configuration that Astro core needs
 	const commonConfig: ViteConfigWithSSR = {
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.root)), // using local caches allows Astro to be used in monorepos, etc.
+		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
 		appType: 'custom',
@@ -73,27 +73,27 @@ export async function createVite(
 			exclude: ['node-fetch'],
 		},
 		plugins: [
-			configAliasVitePlugin({ config: astroConfig }),
-			astroVitePlugin({ config: astroConfig, logging }),
-			astroScriptsPlugin({ config: astroConfig }),
+			configAliasVitePlugin({ settings }),
+			astroVitePlugin({ settings, logging }),
+			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && astroViteServerPlugin({ config: astroConfig, logging }),
-			envVitePlugin({ config: astroConfig }),
-			astroConfig.legacy.astroFlavoredMarkdown
-				? legacyMarkdownVitePlugin({ config: astroConfig, logging })
-				: markdownVitePlugin({ config: astroConfig, logging }),
+			mode !== 'build' && astroViteServerPlugin({ settings, logging }),
+			envVitePlugin({ settings }),
+			settings.config.legacy.astroFlavoredMarkdown
+				? legacyMarkdownVitePlugin({ settings, logging })
+				: markdownVitePlugin({ settings, logging }),
 			htmlVitePlugin(),
-			jsxVitePlugin({ config: astroConfig, logging }),
-			astroPostprocessVitePlugin({ config: astroConfig }),
-			astroIntegrationsContainerPlugin({ config: astroConfig, logging }),
-			astroScriptsPageSSRPlugin({ config: astroConfig }),
+			jsxVitePlugin({ settings, logging }),
+			astroPostprocessVitePlugin({ settings }),
+			astroIntegrationsContainerPlugin({ settings, logging }),
+			astroScriptsPageSSRPlugin({ settings }),
 		],
-		publicDir: fileURLToPath(astroConfig.publicDir),
-		root: fileURLToPath(astroConfig.root),
+		publicDir: fileURLToPath(settings.config.publicDir),
+		root: fileURLToPath(settings.config.root),
 		envPrefix: 'PUBLIC_',
 		define: {
-			'import.meta.env.SITE': astroConfig.site ? `'${astroConfig.site}'` : 'undefined',
+			'import.meta.env.SITE': settings.config.site ? `'${settings.config.site}'` : 'undefined',
 		},
 		server: {
 			hmr:
@@ -110,7 +110,7 @@ export async function createVite(
 			},
 		},
 		css: {
-			postcss: astroConfig.style.postcss || {},
+			postcss: settings.config.style.postcss || {},
 		},
 		resolve: {
 			alias: [
@@ -129,7 +129,7 @@ export async function createVite(
 			conditions: ['astro'],
 		},
 		ssr: {
-			noExternal: [...getSsrNoExternalDeps(astroConfig.root), ...thirdPartyAstroPackages],
+			noExternal: [...getSsrNoExternalDeps(settings.config.root), ...thirdPartyAstroPackages],
 		},
 	};
 
@@ -140,7 +140,7 @@ export async function createVite(
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;
-	result = vite.mergeConfig(result, astroConfig.vite || {});
+	result = vite.mergeConfig(result, settings.config.vite || {});
 	result = vite.mergeConfig(result, commandConfig);
 	if (result.plugins) {
 		sortPlugins(result.plugins);
@@ -175,8 +175,8 @@ function sortPlugins(pluginOptions: vite.PluginOption[]) {
 
 // Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
 // `.astro` files need to be built by Vite, so these should use `noExternal`
-async function getAstroPackages({ root }: AstroConfig): Promise<string[]> {
-	const { astroPackages } = new DependencyWalker(root);
+async function getAstroPackages(settings: AstroSettings): Promise<string[]> {
+	const { astroPackages } = new DependencyWalker(settings.config.root);
 	return astroPackages;
 }
 

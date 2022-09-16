@@ -83,6 +83,12 @@ describe('React Components', () => {
 			expect($('#client #lazy')).to.have.lengthOf(1);
 			expect($('#server #lazy')).to.have.lengthOf(1);
 		});
+
+		it('Can pass through props with cloneElement', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+			expect($('#cloned').text()).to.equal('Cloned With Props');
+		});
 	});
 
 	if (isWindows) return;

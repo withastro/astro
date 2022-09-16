@@ -1,6 +1,7 @@
 import type { TransformResult } from 'rollup';
+import type { TsConfigJson } from 'tsconfig-resolver';
 import type { Plugin, ResolvedConfig } from 'vite';
-import type { AstroConfig, AstroRenderer } from '../@types/astro';
+import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
@@ -12,6 +13,10 @@ import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
+
+type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
+	jsxImportSource?: string;
+};
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
@@ -147,12 +152,12 @@ async function transformJSX({
 }
 
 interface AstroPluginJSXOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
-export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
+export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugin {
 	let viteConfig: ResolvedConfig;
 	const jsxRenderers = new Map<string, AstroRenderer>();
 	const jsxRenderersIntegrationOnly = new Map<string, AstroRenderer>();
@@ -167,7 +172,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 		enforce: 'pre', // run transforms before other plugins
 		async configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
-			const possibleRenderers = collectJSXRenderers(config._ctx.renderers);
+			const possibleRenderers = collectJSXRenderers(settings.renderers);
 			for (const [importSource, renderer] of possibleRenderers) {
 				jsxRenderers.set(importSource, renderer);
 				if (importSource === 'astro') {
@@ -221,6 +226,12 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			let importSource = detectImportSourceFromComments(code);
 			if (!importSource && IMPORT_KEYWORD_REGEX.test(code)) {
 				importSource = await detectImportSourceFromImports(code, id, jsxRenderers);
+			}
+
+			// Check the tsconfig
+			if (!importSource) {
+				const compilerOptions = settings.tsConfig?.compilerOptions;
+				importSource = (compilerOptions as FixedCompilerOptions | undefined)?.jsxImportSource;
 			}
 
 			// if we still can’t tell the import source, now is the time to throw an error.

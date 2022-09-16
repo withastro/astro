@@ -46,7 +46,10 @@ export function createTransformStyleWithViteFn(
 
 		viteDevServer?.moduleGraph.ensureEntryFromUrl(styleId, ssr, false);
 
-		const transformResult = await transformCss.call(this, source, styleId, ssr);
+		// This function could be called in a custom Vite hook like `handleHotUpdate`
+		// which doesn't have a context
+		const ctx = this ?? { addWatchFile: () => {} };
+		const transformResult = await transformCss.call(ctx, source, styleId, ssr);
 
 		// NOTE: only `code` and `map` are returned by vite:css
 		const { code, map } = transformResult;

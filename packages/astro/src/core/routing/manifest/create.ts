@@ -1,5 +1,6 @@
 import type {
 	AstroConfig,
+	AstroSettings,
 	InjectedRoute,
 	ManifestData,
 	RouteData,
@@ -190,23 +191,19 @@ function injectedRouteToItem(
 
 /** Create manifest of all static routes */
 export function createRouteManifest(
-	{ config, cwd }: { config: AstroConfig; cwd?: string },
+	{ settings, cwd }: { settings: AstroSettings; cwd?: string },
 	logging: LogOptions
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set([
-		'.astro',
-		'.md',
-		...config._ctx.pageExtensions,
-	]);
+	const validPageExtensions: Set<string> = new Set(['.astro', '.md', ...settings.pageExtensions]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
 	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
-			const file = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
+			const file = slash(path.relative(cwd || fileURLToPath(settings.config.root), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
 
 			const ext = path.extname(basename);
@@ -283,7 +280,7 @@ export function createRouteManifest(
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const trailingSlash = item.isPage ? config.trailingSlash : 'never';
+				const trailingSlash = item.isPage ? settings.config.trailingSlash : 'never';
 				const pattern = getPattern(segments, trailingSlash);
 				const generate = getRouteGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic)
@@ -307,17 +304,18 @@ export function createRouteManifest(
 		});
 	}
 
+	const { config } = settings;
 	const pages = resolvePages(config);
 
 	if (fs.existsSync(pages)) {
 		walk(fileURLToPath(pages), [], []);
-	} else if (config?._ctx?.injectedRoutes?.length === 0) {
-		const pagesDirRootRelative = pages.href.slice(config.root.href.length);
+	} else if (settings.injectedRoutes.length === 0) {
+		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
 
-	config?._ctx?.injectedRoutes
+	settings.injectedRoutes
 		?.sort((a, b) =>
 			// sort injected routes in the same way as user-defined routes
 			comparator(injectedRouteToItem({ config, cwd }, a), injectedRouteToItem({ config, cwd }, b))

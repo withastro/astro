@@ -285,6 +285,10 @@ describe('Development Routing', () => {
 			devServer = await fixture.startDevServer();
 		});
 
+		after(async () => {
+			await devServer.stop();
+		});
+
 		it('200 when loading /index.html', async () => {
 			const response = await fixture.fetch('/index.html');
 			expect(response.status).to.equal(200);
