@@ -3,7 +3,7 @@ import fs from 'fs';
 import matter from 'gray-matter';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -30,7 +30,7 @@ const astroJsxRuntimeModulePath = normalizePath(
 	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
 );
 
-export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
+export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
