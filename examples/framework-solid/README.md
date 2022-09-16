@@ -1,7 +1,7 @@
 # Astro + Solid.js Example
 
 ```
-npm init astro -- --template framework-solid
+npm create astro@latest -- --template framework-solid
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-solid)

@@ -5,7 +5,7 @@
 **With NPM:**
 
 ```bash
-npm init astro
+npm create astro@latest
 ```
 
 **With Yarn:**
@@ -18,10 +18,10 @@ yarn create astro
 
 ```bash
 # npm 6.x
-npm init astro my-astro-project --template starter
+npm create astro@latest my-astro-project --template starter
 
 # npm 7+, extra double-dash is needed:
-npm init astro my-astro-project -- --template starter
+npm create astro@latest my-astro-project -- --template starter
 
 # yarn
 yarn create astro my-astro-project --template starter
@@ -31,7 +31,7 @@ yarn create astro my-astro-project --template starter
 You can also use any GitHub repo as a template:
 
 ```bash
-npm init astro my-astro-project -- --template cassidoo/shopify-react-astro
+npm create astro@latest my-astro-project -- --template cassidoo/shopify-react-astro
 ```
 
 ### CLI Flags
@@ -49,10 +49,10 @@ To debug `create-astro`, you can use the `--verbose` flag which will log the out
 
 ```bash
 # npm 6.x
-npm init astro my-astro-project --verbose
+npm create astro@latest my-astro-project --verbose
 
 # npm 7+, extra double-dash is needed:
-npm init astro my-astro-project -- --verbose
+npm create astro@latest my-astro-project -- --verbose
 
 # yarn
 yarn create astro my-astro-project --verbose

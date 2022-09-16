@@ -1,7 +1,7 @@
 # Astro + Vue Example
 
 ```
-npm init astro -- --template framework-vue
+npm create astro@latest -- --template framework-vue
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-vue)

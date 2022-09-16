@@ -3,7 +3,7 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
 
-describe('AstroConfig - config.mode', () => {
+describe('AstroConfig - config.output', () => {
 	describe(`output: 'server'`, () => {
 		describe('deploy config provided', () => {
 			/** @type {import('./test-utils').Fixture} */
@@ -58,7 +58,7 @@ describe('AstroConfig - config.mode', () => {
 	});
 
 	describe(`output: 'static'`, () => {
-		describe('Deploy config omitted', () => {
+		describe('Output config omitted', () => {
 			/** @type {import('./test-utils').Fixture} */
 			let fixture;
 

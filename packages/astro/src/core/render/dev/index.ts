@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
 import type { ViteDevServer } from 'vite';
 import type {
-	AstroConfig,
 	AstroRenderer,
+	AstroSettings,
 	ComponentInstance,
 	RouteData,
 	RuntimeMode,
@@ -20,8 +20,8 @@ import { resolveClientDevPath } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
 
 export interface SSROptions {
-	/** an instance of the AstroConfig */
-	astroConfig: AstroConfig;
+	/** an instance of the AstroSettings */
+	settings: AstroSettings;
 	/** location of file on disk */
 	filePath: URL;
 	/** logging options */
@@ -58,18 +58,18 @@ async function loadRenderer(
 
 export async function loadRenderers(
 	viteServer: ViteDevServer,
-	astroConfig: AstroConfig
+	settings: AstroSettings
 ): Promise<SSRLoadedRenderer[]> {
-	return Promise.all(astroConfig._ctx.renderers.map((r) => loadRenderer(viteServer, r)));
+	return Promise.all(settings.renderers.map((r) => loadRenderer(viteServer, r)));
 }
 
 export async function preload({
-	astroConfig,
+	settings,
 	filePath,
 	viteServer,
-}: Pick<SSROptions, 'astroConfig' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
+}: Pick<SSROptions, 'settings' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
-	const renderers = await loadRenderers(viteServer, astroConfig);
+	const renderers = await loadRenderers(viteServer, settings);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	if (viteServer.config.mode === 'development' || !mod?.$$metadata) {
@@ -92,7 +92,7 @@ export async function render(
 	ssrOpts: SSROptions
 ): Promise<Response> {
 	const {
-		astroConfig,
+		settings,
 		filePath,
 		logging,
 		mode,
@@ -104,10 +104,10 @@ export async function render(
 		viteServer,
 	} = ssrOpts;
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, astroConfig, viteServer);
+	const scripts = await getScriptsForURL(filePath, viteServer);
 
 	// Inject HMR scripts
-	if (isPage(filePath, astroConfig) && mode === 'development') {
+	if (isPage(filePath, settings) && mode === 'development') {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -122,13 +122,13 @@ export async function render(
 	}
 
 	// TODO: We should allow adding generic HTML elements to the head, not just scripts
-	for (const script of astroConfig._ctx.scripts) {
+	for (const script of settings.scripts) {
 		if (script.stage === 'head-inline') {
 			scripts.add({
 				props: {},
 				children: script.content,
 			});
-		} else if (script.stage === 'page' && isPage(filePath, astroConfig)) {
+		} else if (script.stage === 'page' && isPage(filePath, settings)) {
 			scripts.add({
 				props: { type: 'module', src: `/@id/${PAGE_SCRIPT_ID}` },
 				children: '',
@@ -167,13 +167,13 @@ export async function render(
 	});
 
 	let response = await coreRender({
-		adapterName: astroConfig.adapter?.name,
+		adapterName: settings.config.adapter?.name,
 		links,
 		styles,
 		logging,
 		markdown: {
-			...astroConfig.markdown,
-			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+			...settings.config.markdown,
+			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 		},
 		mod,
 		mode,
@@ -191,8 +191,10 @@ export async function render(
 		request,
 		route,
 		routeCache,
-		site: astroConfig.site ? new URL(astroConfig.base, astroConfig.site).toString() : undefined,
-		ssr: astroConfig.output === 'server',
+		site: settings.config.site
+			? new URL(settings.config.base, settings.config.site).toString()
+			: undefined,
+		ssr: settings.config.output === 'server',
 		streaming: true,
 	});
 

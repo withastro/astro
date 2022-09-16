@@ -1,7 +1,7 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroConfig, ManifestData } from '../@types/astro';
+import type { AstroSettings, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
@@ -24,7 +24,7 @@ import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
@@ -94,7 +94,7 @@ async function writeSSRResult(webResponse: Response, res: http.ServerResponse) {
 
 async function handle404Response(
 	origin: string,
-	config: AstroConfig,
+	settings: AstroSettings,
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ) {
@@ -129,7 +129,7 @@ async function handle500Response(
 	}
 }
 
-function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+function getCustom404Route({ config }: AstroSettings, manifest: ManifestData) {
 	// For Windows compat, use relative page paths to match the 404 route
 	const relPages = resolvePages(config).href.replace(config.root.href, '');
 	const pattern = new RegExp(`${appendForwardSlash(relPages)}404.(astro|md)`);
@@ -141,9 +141,10 @@ function log404(logging: LogOptions, pathname: string) {
 }
 
 export function baseMiddleware(
-	config: AstroConfig,
+	settings: AstroSettings,
 	logging: LogOptions
 ): vite.Connect.NextHandleFunction {
+	const { config } = settings;
 	const site = config.site ? new URL(config.base, config.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 
@@ -184,13 +185,13 @@ async function matchRoute(
 	viteServer: vite.ViteDevServer,
 	logging: LogOptions,
 	manifest: ManifestData,
-	config: AstroConfig
+	settings: AstroSettings
 ) {
 	const matches = matchAllRoutes(pathname, manifest);
 
 	for await (const maybeRoute of matches) {
-		const filePath = new URL(`./${maybeRoute.component}`, config.root);
-		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const filePath = new URL(`./${maybeRoute.component}`, settings.config.root);
+		const preloadedComponent = await preload({ settings, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
@@ -200,7 +201,7 @@ async function matchRoute(
 			routeCache,
 			pathname: pathname,
 			logging,
-			ssr: config.output === 'server',
+			ssr: settings.config.output === 'server',
 		});
 
 		if (paramsAndPropsRes !== GetParamsAndPropsError.NoMatchingStaticPath) {
@@ -222,11 +223,11 @@ async function matchRoute(
 	}
 
 	log404(logging, pathname);
-	const custom404 = getCustom404Route(config, manifest);
+	const custom404 = getCustom404Route(settings, manifest);
 
 	if (custom404) {
-		const filePath = new URL(`./${custom404.component}`, config.root);
-		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const filePath = new URL(`./${custom404.component}`, settings.config.root);
+		const preloadedComponent = await preload({ settings, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 
 		return {
@@ -246,10 +247,11 @@ async function handleRequest(
 	viteServer: vite.ViteDevServer,
 	logging: LogOptions,
 	manifest: ManifestData,
-	config: AstroConfig,
+	settings: AstroSettings,
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ) {
+	const { config } = settings;
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const buildingToSSR = config.output === 'server';
 	// Ignore `.html` extensions and `index.html` in request URLS to ensure that
@@ -292,7 +294,7 @@ async function handleRequest(
 			viteServer,
 			logging,
 			manifest,
-			config
+			settings
 		);
 		filePath = matchedRoute?.filePath;
 
@@ -306,7 +308,7 @@ async function handleRequest(
 			viteServer,
 			manifest,
 			logging,
-			config,
+			settings,
 			req,
 			res
 		);
@@ -328,14 +330,15 @@ async function handleRoute(
 	viteServer: vite.ViteDevServer,
 	manifest: ManifestData,
 	logging: LogOptions,
-	config: AstroConfig,
+	settings: AstroSettings,
 	req: http.IncomingMessage,
 	res: http.ServerResponse
 ): Promise<void> {
 	if (!matchedRoute) {
-		return handle404Response(origin, config, req, res);
+		return handle404Response(origin, settings, req, res);
 	}
 
+	const { config } = settings;
 	const filePath: URL | undefined = matchedRoute.filePath;
 	const { route, preloadedComponent, mod } = matchedRoute;
 	const buildingToSSR = config.output === 'server';
@@ -363,7 +366,7 @@ async function handleRoute(
 	});
 
 	const options: SSROptions = {
-		astroConfig: config,
+		settings,
 		filePath,
 		logging,
 		mode: 'development',
@@ -386,7 +389,7 @@ async function handleRoute(
 					viteServer,
 					logging,
 					manifest,
-					config
+					settings
 				);
 				return handleRoute(
 					fourOhFourRoute,
@@ -398,7 +401,7 @@ async function handleRoute(
 					viteServer,
 					manifest,
 					logging,
-					config,
+					settings,
 					req,
 					res
 				);
@@ -423,17 +426,17 @@ async function handleRoute(
 	}
 }
 
-export default function createPlugin({ config, logging }: AstroPluginOptions): vite.Plugin {
+export default function createPlugin({ settings, logging }: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
 		configureServer(viteServer) {
 			let routeCache = new RouteCache(logging);
-			let manifest: ManifestData = createRouteManifest({ config: config }, logging);
+			let manifest: ManifestData = createRouteManifest({ settings }, logging);
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean, file: string) {
 				routeCache.clearAll();
 				if (needsManifestRebuild) {
-					manifest = createRouteManifest({ config: config }, logging);
+					manifest = createRouteManifest({ settings }, logging);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
@@ -442,17 +445,17 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
 				// Push this middleware to the front of the stack so that it can intercept responses.
-				if (config.base !== '/') {
+				if (settings.config.base !== '/') {
 					viteServer.middlewares.stack.unshift({
 						route: '',
-						handle: baseMiddleware(config, logging),
+						handle: baseMiddleware(settings, logging),
 					});
 				}
 				viteServer.middlewares.use(async (req, res) => {
 					if (!req.url || !req.method) {
 						throw new Error('Incomplete request');
 					}
-					handleRequest(routeCache, viteServer, logging, manifest, config, req, res);
+					handleRequest(routeCache, viteServer, logging, manifest, settings, req, res);
 				});
 			};
 		},

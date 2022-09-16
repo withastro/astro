@@ -12,7 +12,7 @@ import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
 import { fileURLToPath } from 'node:url';
 
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
@@ -40,11 +40,11 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		// to escape "import.meta.env" ourselves.
 		async load(id) {
 			if (id.endsWith('.md')) {
-				const { fileId, fileUrl } = getFileInfo(id, config);
+				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 				const renderResult = await renderMarkdown(raw.content, {
-					...config.markdown,
+					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
 				} as any);

@@ -1,7 +1,7 @@
 # Astro + AlpineJS Example
 
 ```
-npm init astro -- --template framework-alpine
+npm create astro@latest -- --template framework-alpine
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-alpine)

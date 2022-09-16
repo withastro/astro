@@ -1,7 +1,7 @@
 # Astro + Lit Example
 
 ```
-npm init astro -- --template framework-lit
+npm create astro@latest -- --template framework-lit
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-lit)

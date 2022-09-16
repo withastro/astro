@@ -23,10 +23,10 @@ import { vitePluginPages } from './vite-plugin-pages.js';
 import { injectManifest, vitePluginSSR } from './vite-plugin-ssr.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
-	const { allPages, astroConfig } = opts;
+	const { allPages, settings } = opts;
 
 	// Verify this app is buildable.
-	if (isModeServerWithNoAdapter(opts.astroConfig)) {
+	if (isModeServerWithNoAdapter(opts.settings)) {
 		throw new Error(`Cannot use \`output: 'server'\` without an adapter.
 Install and configure the appropriate server adapter for your final deployment.
 Learn more: https://docs.astro.build/en/guides/server-side-rendering/
@@ -55,7 +55,7 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 	timer.buildStart = performance.now();
 
 	for (const [component, pageData] of Object.entries(allPages)) {
-		const astroModuleURL = new URL('./' + component, astroConfig.root);
+		const astroModuleURL = new URL('./' + component, settings.config.root);
 		const astroModuleId = prependForwardSlash(component);
 
 		// Track the page data in internals
@@ -68,15 +68,15 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	emptyDir(astroConfig.outDir, new Set('.git'));
+	emptyDir(settings.config.outDir, new Set('.git'));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
-	info(opts.logging, 'build', `Building ${astroConfig.output} entrypoints...`);
+	info(opts.logging, 'build', `Building ${settings.config.output} entrypoints...`);
 	await ssrBuild(opts, internals, pageInput);
 	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}.`));
 
-	const rendererClientEntrypoints = opts.astroConfig._ctx.renderers
+	const rendererClientEntrypoints = settings.renderers
 		.map((r) => r.clientEntrypoint)
 		.filter((a) => typeof a === 'string') as string[];
 
@@ -87,7 +87,7 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 		...internals.discoveredScripts,
 	]);
 
-	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+	if (settings.scripts.some((script) => script.stage === 'page')) {
 		clientInput.add(PAGE_SCRIPT_ID);
 	}
 
@@ -96,7 +96,7 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 	await clientBuild(opts, internals, clientInput);
 
 	timer.generate = performance.now();
-	if (astroConfig.output === 'static') {
+	if (settings.config.output === 'static') {
 		await generatePages(opts, internals);
 		await cleanSsrOutput(opts);
 	} else {
@@ -109,9 +109,9 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
-	const { astroConfig, viteConfig } = opts;
-	const ssr = astroConfig.output === 'server';
-	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(astroConfig.outDir);
+	const { settings, viteConfig } = opts;
+	const ssr = settings.config.output === 'server';
+	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
 
 	const viteBuildConfig: ViteConfigWithSSR = {
 		...viteConfig,
@@ -148,21 +148,19 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				buildOptions: opts,
 				internals,
 				target: 'server',
-				astroConfig,
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig.output === 'server' &&
-				vitePluginSSR(internals, opts.astroConfig._ctx.adapter!),
+			settings.config.output === 'server' && vitePluginSSR(internals, settings.adapter!),
 			vitePluginAnalyzer(internals),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		envPrefix: 'PUBLIC_',
-		base: astroConfig.base,
+		base: settings.config.base,
 	};
 
 	await runHookBuildSetup({
-		config: astroConfig,
+		config: settings.config,
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'server',
@@ -177,16 +175,16 @@ async function clientBuild(
 	internals: BuildInternals,
 	input: Set<string>
 ) {
-	const { astroConfig, viteConfig } = opts;
+	const { settings, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = astroConfig.output === 'server';
-	const out = ssr ? opts.buildConfig.client : astroConfig.outDir;
+	const ssr = settings.config.output === 'server';
+	const out = ssr ? opts.buildConfig.client : settings.config.outDir;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
 		// If SSR, copy public over
 		if (ssr) {
-			await copyFiles(astroConfig.publicDir, out);
+			await copyFiles(settings.config.publicDir, out);
 		}
 
 		return null;
@@ -219,21 +217,20 @@ async function clientBuild(
 		},
 		plugins: [
 			vitePluginInternals(input, internals),
-			vitePluginHoistedScripts(astroConfig, internals),
+			vitePluginHoistedScripts(settings, internals),
 			rollupPluginAstroBuildCSS({
 				buildOptions: opts,
 				internals,
 				target: 'client',
-				astroConfig,
 			}),
 			...(viteConfig.plugins || []),
 		],
 		envPrefix: 'PUBLIC_',
-		base: astroConfig.base,
+		base: settings.config.base,
 	} as ViteConfigWithSSR;
 
 	await runHookBuildSetup({
-		config: astroConfig,
+		config: settings.config,
 		pages: internals.pagesByComponent,
 		vite: viteBuildConfig,
 		target: 'client',
@@ -246,9 +243,9 @@ async function clientBuild(
 }
 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
-	const out = getOutDirWithinCwd(opts.astroConfig.outDir);
+	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// Clean out directly if the outDir is outside of root
-	if (out.toString() !== opts.astroConfig.outDir.toString()) {
+	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		await fs.promises.rm(out, { recursive: true });
 		return;
 	}
@@ -284,7 +281,7 @@ async function copyFiles(fromFolder: URL, toFolder: URL) {
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	info(opts.logging, 'build', 'Rearranging server assets...');
 	const serverRoot =
-		opts.astroConfig.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
+		opts.settings.config.output === 'static' ? opts.buildConfig.client : opts.buildConfig.server;
 	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);
 	const clientAssets = new URL('./assets/', clientRoot);
