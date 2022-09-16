@@ -5,7 +5,7 @@ Documentation for "Non-HTML Pages":
 https://docs.astro.build/en/core-concepts/astro-pages/#non-html-pages
 
 ```
-npm init astro -- --template non-html-pages
+npm create astro@latest -- --template non-html-pages
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/non-html-pages)

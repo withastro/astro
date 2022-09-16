@@ -3,7 +3,7 @@
 This is a template for an Astro component library. Use this template for writing components to use in multiple projects or publish to NPM.
 
 ```
-npm init astro -- --template component
+npm create astro@latest -- --template component
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/non-html-pages)
