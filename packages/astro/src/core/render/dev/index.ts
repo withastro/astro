@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
 import type { ViteDevServer } from 'vite';
 import type {
-	AstroSettings,
 	AstroRenderer,
+	AstroSettings,
 	ComponentInstance,
 	RouteData,
 	RuntimeMode,
@@ -191,7 +191,9 @@ export async function render(
 		request,
 		route,
 		routeCache,
-		site: settings.config.site ? new URL(settings.config.base, settings.config.site).toString() : undefined,
+		site: settings.config.site
+			? new URL(settings.config.base, settings.config.site).toString()
+			: undefined,
 		ssr: settings.config.output === 'server',
 		streaming: true,
 	});

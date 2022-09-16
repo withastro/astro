@@ -62,7 +62,11 @@ class AstroBuilder {
 		debug('build', 'Initial setup...');
 		const { logging } = this;
 		this.timer.init = performance.now();
-		this.settings = await runHookConfigSetup({ settings: this.settings, command: 'build', logging });
+		this.settings = await runHookConfigSetup({
+			settings: this.settings,
+			command: 'build',
+			logging,
+		});
 		this.manifest = createRouteManifest({ settings: this.settings }, this.logging);
 
 		const viteConfig = await createVite(

@@ -3,8 +3,8 @@ import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
 import {
 	AstroConfig,
-	AstroSettings,
 	AstroRenderer,
+	AstroSettings,
 	BuildConfig,
 	HookParameters,
 	RouteData,
@@ -47,7 +47,7 @@ export async function runHookConfigSetup({
 	if (settings.config.adapter) {
 		settings.config.integrations.push(settings.config.adapter);
 	}
-	
+
 	let updatedConfig: AstroConfig = { ...settings.config };
 	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
 	for (const integration of settings.config.integrations) {

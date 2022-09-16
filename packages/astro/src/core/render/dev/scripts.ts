@@ -1,8 +1,6 @@
 import type { ModuleInfo } from 'rollup';
-import slash from 'slash';
-import { fileURLToPath } from 'url';
 import vite from 'vite';
-import type { AstroConfig, SSRElement } from '../../../@types/astro';
+import type { SSRElement } from '../../../@types/astro';
 import type { PluginMetadata as AstroPluginMetadata } from '../../../vite-plugin-astro/types';
 import { viteID } from '../../util.js';
 import { createModuleScriptElementWithSrc } from '../ssr-element.js';
@@ -27,10 +25,7 @@ export async function getScriptsForURL(
 	return elements;
 }
 
-function addHoistedScripts(
-	set: Set<SSRElement>,
-	info: ModuleInfo | null,
-) {
+function addHoistedScripts(set: Set<SSRElement>, info: ModuleInfo | null) {
 	if (!info?.meta?.astro) {
 		return;
 	}

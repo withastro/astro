@@ -28,7 +28,10 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(settings: AstroSettings, options: DevOptions): Promise<DevServer> {
+export default async function dev(
+	settings: AstroSettings,
+	options: DevOptions
+): Promise<DevServer> {
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
@@ -58,7 +61,9 @@ export default async function dev(settings: AstroSettings, options: DevOptions):
 	await viteServer.listen(port);
 
 	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
-	const site = settings.config.site ? new URL(settings.config.base, settings.config.site) : undefined;
+	const site = settings.config.site
+		? new URL(settings.config.base, settings.config.site)
+		: undefined;
 	info(
 		options.logging,
 		null,
@@ -80,7 +85,11 @@ export default async function dev(settings: AstroSettings, options: DevOptions):
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
-	await runHookServerStart({ config: settings.config, address: devServerAddressInfo, logging: options.logging });
+	await runHookServerStart({
+		config: settings.config,
+		address: devServerAddressInfo,
+		logging: options.logging,
+	});
 
 	return {
 		address: devServerAddressInfo,

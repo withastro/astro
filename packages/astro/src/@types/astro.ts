@@ -882,7 +882,7 @@ export interface AstroSettings {
 	renderers: AstroRenderer[];
 	scripts: {
 		stage: InjectedScriptStage;
-		content: string
+		content: string;
 	}[];
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;

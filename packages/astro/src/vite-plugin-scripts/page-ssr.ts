@@ -6,7 +6,11 @@ import ancestor from 'common-ancestor-path';
 import MagicString from 'magic-string';
 import { isPage } from '../core/util.js';
 
-export default function astroScriptsPostPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+export default function astroScriptsPostPlugin({
+	settings,
+}: {
+	settings: AstroSettings;
+}): VitePlugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);

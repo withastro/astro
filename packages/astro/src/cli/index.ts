@@ -7,7 +7,14 @@ import yargs from 'yargs-parser';
 import { z } from 'zod';
 import add from '../core/add/index.js';
 import build from '../core/build/index.js';
-import { openConfig, resolveConfigPath, resolveFlags, resolveRoot, createSettings, loadTSConfig } from '../core/config/index.js';
+import {
+	createSettings,
+	loadTSConfig,
+	openConfig,
+	resolveConfigPath,
+	resolveFlags,
+	resolveRoot,
+} from '../core/config/index.js';
 import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
@@ -210,7 +217,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								settings = createSettings({
 									config: astroConfig,
 									tsConfig: tsconfig?.config,
-									tsConfigPath: tsconfig?.path
+									tsConfigPath: tsconfig?.path,
 								});
 								await stop();
 								await startDevServer({ isRestart: true });

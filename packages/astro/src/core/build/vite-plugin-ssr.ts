@@ -103,7 +103,11 @@ export async function injectManifest(buildOpts: StaticBuildOptions, internals: B
 
 	const staticFiles = internals.staticFiles;
 	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-	await runHookBuildSsr({ config: buildOpts.settings.config, manifest, logging: buildOpts.logging });
+	await runHookBuildSsr({
+		config: buildOpts.settings.config,
+		manifest,
+		logging: buildOpts.logging,
+	});
 
 	const chunk = internals.ssrEntryChunk;
 	const code = chunk.code;

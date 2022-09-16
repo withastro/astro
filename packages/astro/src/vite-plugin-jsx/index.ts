@@ -1,7 +1,7 @@
 import type { TransformResult } from 'rollup';
 import type { TsConfigJson } from 'tsconfig-resolver';
 import type { Plugin, ResolvedConfig } from 'vite';
-import type { AstroSettings, AstroRenderer } from '../@types/astro';
+import type { AstroRenderer, AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 

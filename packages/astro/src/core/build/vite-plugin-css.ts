@@ -1,5 +1,4 @@
 import type { GetModuleInfo, OutputChunk } from 'rollup';
-import type { AstroConfig } from '../../@types/astro';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 

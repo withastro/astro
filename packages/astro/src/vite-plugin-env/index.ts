@@ -50,9 +50,7 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 	return references;
 }
 
-export default function envVitePlugin({
-	settings,
-}: EnvPluginOptions): vite.PluginOption {
+export default function envVitePlugin({ settings }: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any> | null;
 	let config: vite.ResolvedConfig;
 	let replacements: Record<string, string>;

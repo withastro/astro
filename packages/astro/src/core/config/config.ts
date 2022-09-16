@@ -1,9 +1,9 @@
 import type { Arguments as Flags } from 'yargs-parser';
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../../@types/astro';
 
-import fs from 'fs';
 import load, { ProloadError, resolve } from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
+import fs from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -26,7 +26,6 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 	'buildOptions',
 	'devOptions',
 ]);
-
 
 /** Turn raw config values into normalized values */
 export async function validateConfig(
@@ -85,7 +84,7 @@ export async function validateConfig(
 	/* eslint-enable no-console */
 
 	const AstroConfigRelativeSchema = createRelativeSchema(cmd, fileProtocolRoot);
-	
+
 	// First-Pass Validation
 	const result = await AstroConfigRelativeSchema.parseAsync(userConfig);
 

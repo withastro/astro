@@ -1,8 +1,3 @@
-
-export type {
-	AstroConfigSchema
-} from './schema';
-
 export {
 	openConfig,
 	resolveConfigPath,
@@ -10,11 +5,6 @@ export {
 	resolveRoot,
 	validateConfig,
 } from './config.js';
-
-export {
-	createSettings
-} from './settings.js';
-
-export {
-	loadTSConfig
-} from './tsconfig.js';
+export type { AstroConfigSchema } from './schema';
+export { createSettings } from './settings.js';
+export { loadTSConfig } from './tsconfig.js';

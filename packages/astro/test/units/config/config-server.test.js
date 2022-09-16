@@ -11,7 +11,7 @@ describe('config.server', () => {
 			cwd: flags.root || cwd,
 			flags,
 			cmd: 'dev',
-			logging
+			logging,
 		});
 	}
 
@@ -20,7 +20,7 @@ describe('config.server', () => {
 			const projectRootURL = new URL('../../fixtures/astro-basic/', import.meta.url);
 			const { astroConfig } = await openConfigWithFlags({
 				root: fileURLToPath(projectRootURL),
-				host: true
+				host: true,
 			});
 
 			expect(astroConfig.server.host).to.equal(true);
@@ -34,7 +34,7 @@ describe('config.server', () => {
 				const configFileURL = 'my-config.mjs';
 				const { astroConfig } = await openConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
-					config: configFileURL
+					config: configFileURL,
 				});
 				expect(astroConfig.server.port).to.equal(8080);
 			});
@@ -46,7 +46,7 @@ describe('config.server', () => {
 				const configFileURL = './my-config.mjs';
 				const { astroConfig } = await openConfigWithFlags({
 					root: fileURLToPath(projectRootURL),
-					config: configFileURL
+					config: configFileURL,
 				});
 				expect(astroConfig.server.port).to.equal(8080);
 			});
@@ -59,13 +59,13 @@ describe('config.server', () => {
 				try {
 					await openConfigWithFlags({
 						root: fileURLToPath(projectRootURL),
-						config: configFileURL
+						config: configFileURL,
 					});
 					expect(false).to.equal(true, 'this should not have resolved');
-				} catch(err) {
+				} catch (err) {
 					expect(err.message).to.match(/Unable to resolve/);
 				}
 			});
 		});
 	});
-})
+});

@@ -1,8 +1,5 @@
-import type {
-	AstroConfig,
-	AstroSettings,
-} from '../../@types/astro';
 import type { TsConfigJson } from 'tsconfig-resolver';
+import type { AstroConfig, AstroSettings } from '../../@types/astro';
 
 import jsxRenderer from '../../jsx/renderer.js';
 
@@ -12,11 +9,7 @@ export interface CreateSettings {
 	tsConfigPath?: string;
 }
 
-export function createSettings({
-	config,
-	tsConfig,
-	tsConfigPath,
-}: CreateSettings): AstroSettings {
+export function createSettings({ config, tsConfig, tsConfigPath }: CreateSettings): AstroSettings {
 	return {
 		config,
 		tsConfig,
