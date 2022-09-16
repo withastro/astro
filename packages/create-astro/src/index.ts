@@ -284,7 +284,7 @@ export async function main() {
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (gitResponse.git) {
-		await execaCommand('git init', { cwd });
+		await execaCommand('git init -b main', { cwd });
 		ora().succeed('Git repository created!');
 	} else {
 		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
