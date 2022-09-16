@@ -1,5 +1,11 @@
 # astro
 
+## 1.2.6
+
+### Patch Changes
+
+- [#4771](https://github.com/withastro/astro/pull/4771) [`f3a81d82f`](https://github.com/withastro/astro/commit/f3a81d82f6ab4516cb86bf6b5e3eb01cb3ba39fb) Thanks [@matthewp](https://github.com/matthewp)! - Internal refactor
+
 ## 1.2.5
 
 ### Patch Changes
