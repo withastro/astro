@@ -1,4 +1,7 @@
-import { newHTMLDataProvider } from 'vscode-html-languageservice';
+import { newHTMLDataProvider, getDefaultHTMLDataProvider } from 'vscode-html-languageservice';
+
+const defaultProvider = getDefaultHTMLDataProvider();
+const slotAttr = defaultProvider.provideAttributes('div').find((attr) => attr.name === 'slot')!;
 
 export const classListAttribute = newHTMLDataProvider('class-list', {
 	version: 1,
@@ -174,6 +177,7 @@ export const astroAttributes = newHTMLDataProvider('astro-attributes', {
 				},
 			],
 		},
+		slotAttr,
 	],
 });
 

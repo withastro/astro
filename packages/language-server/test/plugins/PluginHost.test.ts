@@ -93,7 +93,7 @@ describe('PluginHost', () => {
 			const completions = await pluginHost.getCompletions(document, pos);
 			const labels = completions.items.map((item) => item.label);
 
-			expect(labels).to.deep.equal(['set:html', 'set:text', 'is:raw']);
+			expect(labels).to.deep.equal(['set:html', 'set:text', 'is:raw', 'slot']);
 		});
 
 		it('filters out TS completions inside framework component starting tag', async () => {
@@ -107,6 +107,7 @@ describe('PluginHost', () => {
 				'set:html',
 				'set:text',
 				'is:raw',
+				'slot',
 				'client:load',
 				'client:idle',
 				'client:visible',

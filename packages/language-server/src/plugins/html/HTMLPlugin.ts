@@ -62,7 +62,7 @@ export class HTMLPlugin implements Plugin {
 		}
 
 		// If the node we're hovering on is a component, instead only provide astro-specific hover info
-		if (isPossibleComponent(node)) {
+		if (isPossibleComponent(node) && node.tag !== 'Fragment') {
 			return this.componentLang.doHover(document, position, html);
 		}
 

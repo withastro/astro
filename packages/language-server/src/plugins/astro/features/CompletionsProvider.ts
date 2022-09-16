@@ -71,7 +71,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			}
 
 			const isAstro = componentFilePath?.endsWith('.astro');
-			if (!isAstro) {
+			if (!isAstro && node.tag !== 'Fragment') {
 				const directives = removeDataAttrCompletion(this.directivesHTMLLang.doComplete(document, position, html).items);
 				items.push(...directives);
 			}
