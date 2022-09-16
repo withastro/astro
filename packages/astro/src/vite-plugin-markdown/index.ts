@@ -1,8 +1,8 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import fs from 'fs';
 import matter from 'gray-matter';
-import { type Plugin, normalizePath } from 'vite';
-
+import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
