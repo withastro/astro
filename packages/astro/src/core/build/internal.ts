@@ -140,7 +140,7 @@ export function* getPageDatasByClientOnlyID(
 		let pageBuildDatas = pagesByClientOnly.get(viteid);
 
 		// 2. Try prepending /@fs
-		if(!pageBuildDatas) {
+		if (!pageBuildDatas) {
 			let pathname = `/@fs${prependForwardSlash(viteid)}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
