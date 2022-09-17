@@ -159,9 +159,15 @@ export class App {
 						throw new Error(`Unable to resolve [${specifier}]`);
 					}
 					const bundlePath = manifest.entryModules[specifier];
-					return bundlePath.startsWith('data:')
-						? bundlePath
-						: prependForwardSlash(joinPaths(manifest.base, bundlePath));
+					switch (true) {
+						case bundlePath.startsWith('data:'):
+						case bundlePath.length === 0: {
+							return bundlePath;
+						}
+						default: {
+							return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+						}
+					}
 				},
 				route: routeData,
 				routeCache: this.#routeCache,
@@ -202,6 +208,13 @@ export class App {
 		});
 
 		if (result.type === 'response') {
+			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
+				const fourOhFourRequest = new Request(new URL('/404', request.url));
+				const fourOhFourRouteData = this.match(fourOhFourRequest);
+				if (fourOhFourRouteData) {
+					return this.render(fourOhFourRequest, fourOhFourRouteData);
+				}
+			}
 			return result.response;
 		} else {
 			const body = result.body;

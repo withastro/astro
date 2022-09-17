@@ -1,5 +1,5 @@
 import type { Plugin as VitePlugin } from 'vite';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { viteID } from '../util.js';
 import { getPageDataByViteID } from './internal.js';
@@ -9,7 +9,7 @@ function virtualHoistedEntry(id: string) {
 }
 
 export function vitePluginHoistedScripts(
-	astroConfig: AstroConfig,
+	settings: AstroSettings,
 	internals: BuildInternals
 ): VitePlugin {
 	return {
@@ -40,7 +40,7 @@ export function vitePluginHoistedScripts(
 		},
 
 		async generateBundle(_options, bundle) {
-			let assetInlineLimit = astroConfig.vite?.build?.assetsInlineLimit || 4096;
+			let assetInlineLimit = settings.config.vite?.build?.assetsInlineLimit || 4096;
 
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.
@@ -58,7 +58,7 @@ export function vitePluginHoistedScripts(
 					const facadeId = output.facadeModuleId!;
 					const pages = internals.hoistedScriptIdToPagesMap.get(facadeId)!;
 					for (const pathname of pages) {
-						const vid = viteID(new URL('.' + pathname, astroConfig.root));
+						const vid = viteID(new URL('.' + pathname, settings.config.root));
 						const pageInfo = getPageDataByViteID(internals, vid);
 						if (pageInfo) {
 							if (canBeInlined) {

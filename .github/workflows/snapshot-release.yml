@@ -40,10 +40,16 @@ jobs:
             }) || core.setFailed('Invalid comment format. Expected: "!preview <one-word-snapshot-name>"'));
             return splitComment[1].trim();
           result-encoding: string
+
+      - name: resolve pr refs
+        id: refs
+        uses: eficode/resolve-pr-refs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ steps.refs.outputs.head_ref }}
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
@@ -52,6 +58,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -62,22 +69,27 @@ jobs:
 
       - name: Bump Package Versions
         id: changesets
-        run: echo "::set-output name=result::$(npx changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }})"
+        run: |
+          pnpm exec changeset version --snapshot ${{ steps.getSnapshotName.outputs.result }} > changesets.output.txt 2>&1
+          echo ::set-output name=result::`cat changesets.output.txt`
         env:
           # Needs access to run the script
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Publish Release
-#        id: publish
-#        run: echo "::set-output name=result::$(pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }})"
-#        env:
-#          # Needs access to publish to npm
-#          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Release
+        id: publish
+        run: |
+          pnpm run release --tag next--${{ steps.getSnapshotName.outputs.result }} > publish.output.txt 2>&1
+          echo ::set-output name=result::`cat publish.output.txt`
+        env:
+          # Needs access to publish to npm
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Pull Request Notification
         uses: actions/github-script@v6
         env:
-          MESSAGE: ${{ steps.changesets.outputs.result }}
+          MESSAGE: ${{ steps.publish.outputs.result }}
         with:
           script: |
             console.log(process.env.MESSAGE);

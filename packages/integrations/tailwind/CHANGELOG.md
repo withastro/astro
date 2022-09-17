@@ -1,5 +1,31 @@
 # @astrojs/tailwind
 
+## 2.0.1
+
+### Patch Changes
+
+- [#4758](https://github.com/withastro/astro/pull/4758) [`0398efa39`](https://github.com/withastro/astro/commit/0398efa39f14f40e77dc8e87f08e9f100a0fef34) Thanks [@delucis](https://github.com/delucis)! - Update Tailwind manual install guide for v2
+
+## 2.0.0
+
+### Migration to v2
+
+Tailwind CSS is now a peer dependency, so you will need to install it manually when updating this integration:
+
+```
+npm install tailwindcss
+```
+
+### Major Changes
+
+- [#4543](https://github.com/withastro/astro/pull/4543) [`664ebf449`](https://github.com/withastro/astro/commit/664ebf449e27f0aef43eaa2482189358a74209d2) Thanks [@aFuzzyBear](https://github.com/aFuzzyBear)! - Update peer dep with Tailwindcss
+
+## 1.0.1
+
+### Patch Changes
+
+- [#4662](https://github.com/withastro/astro/pull/4662) [`8cfb3fb53`](https://github.com/withastro/astro/commit/8cfb3fb535a16ebb1c185de2609435fdd7954611) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update README to reference a `.cjs` config file
+
 ## 1.0.0
 
 ### Major Changes

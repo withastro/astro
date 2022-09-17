@@ -1,7 +1,7 @@
 # Astro Example: Nanostores
 
 ```
-npm init astro -- --template with-nanostores
+npm create astro@latest -- --template with-nanostores
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-nanostores)

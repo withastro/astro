@@ -1,6 +1,6 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
 import type { AddressInfo } from 'net';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 
 import fs from 'fs';
@@ -30,20 +30,20 @@ const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 
 /** The primary dev action */
 export default async function preview(
-	config: AstroConfig,
+	settings: AstroSettings,
 	{ logging }: PreviewOptions
 ): Promise<PreviewServer> {
-	if (config.output === 'server') {
+	if (settings.config.output === 'server') {
 		throw new Error(
 			`[preview] 'output: server' not supported. Use your deploy platform's preview command directly instead, if one exists. (ex: 'netlify dev', 'vercel dev', 'wrangler', etc.)`
 		);
 	}
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
-	const trailingSlash = config.trailingSlash;
+	const trailingSlash = settings.config.trailingSlash;
 	/** Base request URL. */
-	let baseURL = new URL(config.base, new URL(config.site || '/', defaultOrigin));
-	const staticFileServer = sirv(fileURLToPath(config.outDir), {
+	let baseURL = new URL(settings.config.base, new URL(settings.config.site || '/', defaultOrigin));
+	const staticFileServer = sirv(fileURLToPath(settings.config.outDir), {
 		dev: true,
 		etag: true,
 		maxAge: 0,
@@ -84,7 +84,7 @@ export default async function preview(
 				// HACK: rewrite req.url so that sirv finds the file
 				req.url = '/' + req.url?.replace(baseURL.pathname, '');
 				staticFileServer(req, res, () => {
-					const errorPagePath = fileURLToPath(config.outDir + '/404.html');
+					const errorPagePath = fileURLToPath(settings.config.outDir + '/404.html');
 					if (fs.existsSync(errorPagePath)) {
 						res.statusCode = 404;
 						res.setHeader('Content-Type', 'text/html;charset=utf-8');
@@ -100,8 +100,8 @@ export default async function preview(
 		}
 	});
 
-	let { port } = config.server;
-	const host = getResolvedHostForHttpServer(config.server.host);
+	let { port } = settings.config.server;
+	const host = getResolvedHostForHttpServer(settings.config.server.host);
 
 	let httpServer: http.Server;
 
@@ -124,7 +124,7 @@ export default async function preview(
 							msg.serverStart({
 								startupTime: performance.now() - timerStart,
 								resolvedUrls,
-								host: config.server.host,
+								host: settings.config.server.host,
 								site: baseURL,
 							})
 						);

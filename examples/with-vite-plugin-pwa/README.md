@@ -1,7 +1,7 @@
 # Astro Starter Kit: Vite PWA
 
 ```
-npm init astro -- --template with-vite-plugin-pwa
+npm create astro@latest -- --template with-vite-plugin-pwa
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/with-vite-plugin-pwa)

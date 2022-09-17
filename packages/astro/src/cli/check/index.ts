@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro';
 
 import glob from 'fast-glob';
 import * as fs from 'fs';
@@ -16,10 +16,10 @@ interface Result {
 	hints: number;
 }
 
-export async function check(astroConfig: AstroConfig) {
+export async function check(settings: AstroSettings) {
 	console.log(bold('astro check'));
 
-	const root = astroConfig.root;
+	const root = settings.config.root;
 
 	const spinner = ora(` Getting diagnostics for Astro files in ${fileURLToPath(root)}…`).start();
 

@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-vue",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,7 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.2.2",
+    "astro": "^1.2.6",
     "vue": "^3.2.37",
     "@astrojs/vue": "^1.0.2"
   }

@@ -1,7 +1,5 @@
 import * as path from 'path';
-import * as tsr from 'tsconfig-resolver';
-import * as url from 'url';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 
 import type * as vite from 'vite';
 
@@ -14,33 +12,24 @@ export declare interface Alias {
 /** Returns a path with its slashes replaced with posix slashes. */
 const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep);
 
-/** Returns the results of a config file if it exists, otherwise null. */
-const getExistingConfig = (
-	searchName: string,
-	cwd: string | undefined
-): tsr.TsConfigResultSuccess | null => {
-	const config = tsr.tsconfigResolverSync({ cwd, searchName });
-
-	return config.exists ? config : null;
-};
-
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
+const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	/** Closest tsconfig.json or jsconfig.json */
-	const config = getExistingConfig('tsconfig.json', cwd) || getExistingConfig('jsconfig.json', cwd);
+	const config = settings.tsConfig;
+	const configPath = settings.tsConfigPath;
 
 	// if no config was found, return null
-	if (!config) return null;
+	if (!config || !configPath) return null;
 
 	/** Compiler options from tsconfig.json or jsconfig.json. */
-	const compilerOptions = Object(config.config.compilerOptions);
+	const compilerOptions = Object(config.compilerOptions);
 
 	// if no compilerOptions.baseUrl was defined, return null
 	if (!compilerOptions.baseUrl) return null;
 
 	// resolve the base url from the configuration file directory
 	const baseUrl = path.posix.resolve(
-		path.posix.dirname(normalize(config.path).replace(/^\/?/, '/')),
+		path.posix.dirname(normalize(configPath).replace(/^\/?/, '/')),
 		normalize(compilerOptions.baseUrl)
 	);
 
@@ -88,12 +77,13 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 
 /** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
-	config: astroConfig,
+	settings,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 }): vite.PluginOption {
+	const { config } = settings;
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
-	const configAlias = getConfigAlias(astroConfig.root && url.fileURLToPath(astroConfig.root));
+	const configAlias = getConfigAlias(settings);
 
 	// if no config alias was found, bypass this plugin
 	if (!configAlias) return {} as vite.PluginOption;
