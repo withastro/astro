@@ -2841,6 +2841,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       github-slugger: ^1.4.0
+      hast-util-to-html: ^8.0.3
       mdast-util-mdx-expression: ^1.2.1
       mdast-util-mdx-jsx: ^1.2.0
       micromark-extension-mdx-expression: ^1.0.3
@@ -2865,6 +2866,7 @@ importers:
       acorn: 8.8.0
       acorn-jsx: 5.3.2_acorn@8.8.0
       github-slugger: 1.4.0
+      hast-util-to-html: 8.0.3
       mdast-util-mdx-expression: 1.3.0
       mdast-util-mdx-jsx: 1.2.0
       micromark-extension-mdx-expression: 1.0.3
@@ -3243,7 +3245,7 @@ packages:
     dependencies:
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
       unist-util-select: 4.0.1
     dev: false
 
@@ -3253,7 +3255,7 @@ packages:
       astro: ^1.0.0-beta.10
     dependencies:
       '@astro-community/astro-embed-utils': 0.0.3
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /@astro-community/astro-embed-utils/0.0.3:
@@ -3265,7 +3267,7 @@ packages:
     peerDependencies:
       astro: ^1.0.0-beta.10
     dependencies:
-      astro: link:packages/astro
+      astro: link:packages\astro
       lite-youtube-embed: 0.2.0
     dev: false
 
@@ -9839,7 +9841,7 @@ packages:
       '@astro-community/astro-embed-integration': 0.1.0_astro@packages+astro
       '@astro-community/astro-embed-twitter': 0.1.3_astro@packages+astro
       '@astro-community/astro-embed-youtube': 0.1.1_astro@packages+astro
-      astro: link:packages/astro
+      astro: link:packages\astro
     dev: false
 
   /async/3.2.4:
