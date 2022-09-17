@@ -115,7 +115,7 @@ export default async function preview(
 					if (!showedListenMsg) {
 						const resolvedUrls = msg.resolveServerUrls({
 							address: server.address() as AddressInfo,
-							host: config.server.host,
+							host: settings.config.server.host,
 							https: false,
 						});
 						info(
