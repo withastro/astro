@@ -27,7 +27,6 @@ function onlyAvailableInSSR(name: string) {
 export interface CreateResultArgs {
 	adapterName: string | undefined;
 	ssr: boolean;
-	streaming: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdown: MarkdownRenderingOptions;
@@ -126,12 +125,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	const url = new URL(request.url);
 	const headers = new Headers();
-	if (args.streaming) {
-		headers.set('Transfer-Encoding', 'chunked');
-		headers.set('Content-Type', 'text/html');
-	} else {
-		headers.set('Content-Type', 'text/html');
-	}
+	headers.set('Content-Type', 'text/html');
 	const response: ResponseInit = {
 		status: args.status,
 		statusText: 'OK',
