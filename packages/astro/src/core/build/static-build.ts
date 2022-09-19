@@ -179,6 +179,7 @@ async function clientBuild(
 	const timer = performance.now();
 	const ssr = settings.config.output === 'server';
 	const out = ssr ? opts.buildConfig.client : settings.config.outDir;
+	const minify = settings.config.vite.build?.minify ?? 'esbuild';
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
@@ -199,7 +200,7 @@ async function clientBuild(
 		build: {
 			...viteConfig.build,
 			emptyOutDir: false,
-			minify: 'esbuild',
+			minify,
 			outDir: fileURLToPath(out),
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
