@@ -1,0 +1,15 @@
+><button onclick="(hello) => {console.log('hello')};">Click Me!</button>
+#^ source.astro meta.tag.any.button.start.html punctuation.definition.tag.begin.html
+# ^^^^^^ source.astro meta.tag.any.button.start.html entity.name.tag.html
+#       ^ source.astro meta.tag.any.button.start.html
+#        ^^^^^^^ source.astro meta.tag.any.button.start.html meta.attribute.event-handler.click.html entity.other.attribute-name.html
+#               ^ source.astro meta.tag.any.button.start.html meta.attribute.event-handler.click.html punctuation.separator.key-value.html
+#                ^ source.astro meta.tag.any.button.start.html meta.attribute.event-handler.click.html meta.embedded.line.js string.quoted.double.html punctuation.definition.string.begin.html
+#                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astro meta.tag.any.button.start.html meta.attribute.event-handler.click.html meta.embedded.line.js string.quoted.double.html source.js
+#                                                   ^ source.astro meta.tag.any.button.start.html meta.attribute.event-handler.click.html meta.embedded.line.js string.quoted.double.html punctuation.definition.string.end.html
+#                                                    ^ source.astro meta.tag.any.button.start.html punctuation.definition.tag.end.html
+#                                                     ^^^^^^^^^ source.astro
+#                                                              ^^ source.astro meta.tag.any.button.end.html punctuation.definition.tag.begin.html
+#                                                                ^^^^^^ source.astro meta.tag.any.button.end.html entity.name.tag.html
+#                                                                      ^ source.astro meta.tag.any.button.end.html punctuation.definition.tag.end.html
+>
