@@ -5,7 +5,7 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 export const testDir = dirname(__filename);
 export const timeout = 5000;
-export const timeoutDiskAccess = 10000;
+export const timeoutDiskAccess = 20000;
 
 const createAstroError = new Error(
 	'Timed out waiting for create-astro to respond with expected output.'
