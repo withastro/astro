@@ -1,5 +1,11 @@
 # create-astro
 
+## 1.0.2
+
+### Patch Changes
+
+- [#4805](https://github.com/withastro/astro/pull/4805) [`c84d85ba4`](https://github.com/withastro/astro/commit/c84d85ba4d85f250d87bbc98c74665992f6c2768) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Add support for running in cloned empty git repository
+
 ## 1.0.1
 
 ### Patch Changes
