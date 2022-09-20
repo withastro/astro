@@ -3,18 +3,18 @@ import type { ArrowFunctionExpressionKind, CallExpressionKind } from 'ast-types/
 import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 }
 
 // esbuild transforms the component-scoped Astro into Astro2, so need to check both.
 const validAstroGlobalNames = new Set(['Astro', 'Astro2']);
 
-export default function astro({ config }: AstroPluginOptions): Plugin {
+export default function astro(_opts: AstroPluginOptions): Plugin {
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {

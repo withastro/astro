@@ -29,3 +29,13 @@ export const markHTMLString = (value: any) => {
 	// The compiler will recursively stringify these correctly at a later stage.
 	return value;
 };
+
+export function unescapeHTML(str: any) {
+	// If a promise, await the result and mark that.
+	if (!!str && typeof str === 'object' && typeof str.then === 'function') {
+		return Promise.resolve(str).then((value) => {
+			return markHTMLString(value);
+		});
+	}
+	return markHTMLString(str);
+}

@@ -136,13 +136,21 @@ export function* getPageDatasByClientOnlyID(
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		let pathname = `/@fs${prependForwardSlash(viteid)}`;
+		// 1. Try the viteid
 		let pageBuildDatas = pagesByClientOnly.get(viteid);
+
+		// 2. Try prepending /@fs
+		if (!pageBuildDatas) {
+			let pathname = `/@fs${prependForwardSlash(viteid)}`;
+			pageBuildDatas = pagesByClientOnly.get(pathname);
+		}
+
+		// 3. Remove the file extension
 		// BUG! The compiler partially resolves .jsx to remove the file extension so we have to check again.
 		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
 		// but this would be a bigger change.
 		if (!pageBuildDatas) {
-			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
+			let pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
 		if (pageBuildDatas) {
