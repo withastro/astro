@@ -5,7 +5,10 @@ import Layout from '../components/Layout.astro';
 <Layout title="Welcome to Astro (on Deno).">
 	<main>
 		<h1>Welcome to <span class="text-gradient">Astro</span> on Deno</h1>
-		<p class="instructions"><strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check the <code>src/pages</code> directory!</p>
+		<p class="instructions">
+			<strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check
+			the <code>src/pages</code> directory!
+		</p>
 		<ul role="list" class="link-card-grid">
 			<li class="link-card">
 				<a href="https://astro.build/integrations/">
@@ -39,7 +42,9 @@ import Layout from '../components/Layout.astro';
 							fill="currentColor"
 						>
 							<title>heart</title>
-							<path d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.221 97.918 64 162.4 64c36.399 0 70.717 16.742 93.6 43.947C278.882 80.742 313.199 64 349.6 64 414.082 64 464 114.221 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z" />
+							<path
+								d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.221 97.918 64 162.4 64c36.399 0 70.717 16.742 93.6 43.947C278.882 80.742 313.199 64 349.6 64 414.082 64 464 114.221 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z"
+							></path>
 						</svg>
 					</p>
 				</a>
@@ -51,9 +56,15 @@ import Layout from '../components/Layout.astro';
 <style>
 	:root {
 		--color-border: hsl(17, 24%, 90%);
-		--astro-gradient: linear-gradient(0deg,#4F39FA, #DA62C4);
-		--link-gradient: linear-gradient(45deg, #4F39FA, #DA62C4 30%, var(--color-border) 60%);
-		--night-sky-gradient: linear-gradient(0deg, #392362 -33%, #431f69 10%, #30216b 50%, #1f1638 100%);
+		--astro-gradient: linear-gradient(0deg, #4f39fa, #da62c4);
+		--link-gradient: linear-gradient(45deg, #4f39fa, #da62c4 30%, var(--color-border) 60%);
+		--night-sky-gradient: linear-gradient(
+			0deg,
+			#392362 -33%,
+			#431f69 10%,
+			#30216b 50%,
+			#1f1638 100%
+		);
 	}
 
 	h2 {
@@ -75,7 +86,7 @@ import Layout from '../components/Layout.astro';
 
 	main {
 		margin: auto;
-    padding: 1em;
+		padding: 1em;
 		max-width: 60ch;
 	}
 
@@ -83,7 +94,7 @@ import Layout from '../components/Layout.astro';
 		font-weight: 900;
 		background-image: var(--astro-gradient);
 		-webkit-background-clip: text;
-  	-webkit-text-fill-color: transparent;
+		-webkit-text-fill-color: transparent;
 		background-size: 100% 200%;
 		background-position-y: 100%;
 		border-radius: 0.4rem;
@@ -91,7 +102,8 @@ import Layout from '../components/Layout.astro';
 	}
 
 	@keyframes pulse {
-		0%, 100% {
+		0%,
+		100% {
 			background-position-y: 0%;
 		}
 		50% {
@@ -142,7 +154,7 @@ import Layout from '../components/Layout.astro';
 	}
 
 	.link-card:is(:hover, :focus-within) h2 {
-		color: #4F39FA;
+		color: #4f39fa;
 	}
 
 	.link-card:is(:hover, :focus-within) h2 span {
@@ -151,7 +163,7 @@ import Layout from '../components/Layout.astro';
 
 	.heart {
 		display: inline-block;
-		color: #DA62C4;
+		color: #da62c4;
 		animation: heartbeat 3s ease-in-out infinite;
 	}
 
