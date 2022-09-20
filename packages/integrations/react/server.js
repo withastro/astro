@@ -123,7 +123,7 @@ async function renderToStaticNodeStreamAsync(vnode) {
 	let html = '';
 	return new Promise((resolve, reject) => {
 		let stream = ReactDOM.renderToStaticNodeStream(vnode);
-		stream.on('error', err => {
+		stream.on('error', (err) => {
 			reject(err);
 		});
 		stream.pipe(
