@@ -86,7 +86,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		const responseIsBase64Encoded = knownBinaryMediaTypes.has(responseContentType);
 
 		let responseBody: string;
-		if(responseIsBase64Encoded) {
+		if (responseIsBase64Encoded) {
 			const ab = await response.arrayBuffer();
 			responseBody = Buffer.from(ab).toString('base64');
 		} else {
