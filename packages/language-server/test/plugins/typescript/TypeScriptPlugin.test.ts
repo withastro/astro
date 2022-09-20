@@ -50,6 +50,34 @@ describe('TypeScript Plugin', () => {
 		});
 	});
 
+	describe('provide completions', async () => {
+		it('return completions', async () => {
+			const { plugin, document } = setup('completions/basic.astro');
+
+			const completions = await plugin.getCompletions(document, Position.create(1, 8));
+			expect(completions).to.not.be.empty;
+		});
+
+		it('should not provide completions if feature is disabled', async () => {
+			const { plugin, document, configManager } = setup('completions/basic.astro');
+
+			configManager.updateGlobalConfig(<any>{
+				typescript: {
+					completions: {
+						enabled: false,
+					},
+				},
+			});
+
+			const completions = await plugin.doHover(document, Position.create(1, 8));
+
+			const isEnabled = await configManager.isEnabled(document, 'typescript', 'completions');
+
+			expect(isEnabled).to.be.false;
+			expect(completions).to.be.null;
+		});
+	});
+
 	describe('provide hover info', async () => {
 		it('return hover info', async () => {
 			const { plugin, document } = setup('hoverInfo/basic.astro');
@@ -207,6 +235,35 @@ describe('TypeScript Plugin', () => {
 
 			const inlayHints = await plugin.getInlayHints(document, Range.create(0, 0, 7, 0));
 			expect(inlayHints).to.not.be.empty;
+		});
+	});
+
+	describe('provide definitions', async () => {
+		it('return definitions', async () => {
+			const { document, plugin } = setup('definitions/sameFile.astro');
+
+			const functionDefinition = await plugin.getDefinitions(document, Position.create(1, 11));
+			expect(functionDefinition).to.not.be.empty;
+		});
+	});
+
+	describe('provide type definitions', async () => {
+		it('return type definitions', async () => {
+			const { document, plugin } = setup('typeDefinitions/sameFile.astro');
+
+			const variableDeclaration = await plugin.getTypeDefinitions(document, Position.create(2, 10));
+			expect(variableDeclaration).to.not.be.empty;
+		});
+	});
+
+	describe('provide references', async () => {
+		it('return references', async () => {
+			const { document, plugin } = setup('references/frontmatter.astro');
+
+			const references = await plugin.findReferences(document, Position.create(3, 1), {
+				includeDeclaration: true,
+			});
+			expect(references).to.not.be.empty;
 		});
 	});
 

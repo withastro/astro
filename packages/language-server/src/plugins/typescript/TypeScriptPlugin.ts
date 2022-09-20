@@ -12,6 +12,7 @@ import {
 	Location,
 	Position,
 	Range,
+	ReferenceContext,
 	SemanticTokens,
 	SignatureHelp,
 	SignatureHelpContext,
@@ -19,6 +20,7 @@ import {
 	TextDocumentContentChangeEvent,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
 import type { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';
@@ -31,6 +33,7 @@ import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider'
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
+import { FindReferencesProviderImpl } from './features/ReferencesProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
@@ -49,6 +52,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly hoverProvider: HoverProviderImpl;
 	private readonly definitionsProvider: DefinitionsProviderImpl;
 	private readonly typeDefinitionsProvider: TypeDefinitionsProviderImpl;
+	private readonly referencesProvider: FindReferencesProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
@@ -68,6 +72,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.definitionsProvider = new DefinitionsProviderImpl(this.languageServiceManager);
 		this.typeDefinitionsProvider = new TypeDefinitionsProviderImpl(this.languageServiceManager);
+		this.referencesProvider = new FindReferencesProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
 		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
@@ -189,8 +194,16 @@ export class TypeScriptPlugin implements Plugin {
 		return this.definitionsProvider.getDefinitions(document, position);
 	}
 
-	async getTypeDefinition(document: AstroDocument, position: Position): Promise<Location[] | null> {
+	async getTypeDefinitions(document: AstroDocument, position: Position): Promise<Location[] | null> {
 		return this.typeDefinitionsProvider.getTypeDefinitions(document, position);
+	}
+
+	async findReferences(
+		document: AstroDocument,
+		position: Position,
+		context: ReferenceContext
+	): Promise<Location[] | null> {
+		return this.referencesProvider.findReferences(document, position, context);
 	}
 
 	async getDiagnostics(document: AstroDocument, cancellationToken?: CancellationToken): Promise<Diagnostic[]> {

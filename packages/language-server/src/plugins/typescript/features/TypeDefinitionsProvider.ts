@@ -2,13 +2,13 @@ import type ts from 'typescript';
 import { Location, Position } from 'vscode-languageserver-protocol';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
-import type { TypeDefinitionProvider } from '../../interfaces';
+import type { TypeDefinitionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
 import { convertRange, ensureRealFilePath, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 
-export class TypeDefinitionsProviderImpl implements TypeDefinitionProvider {
+export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {
 	constructor(private languageServiceManager: LanguageServiceManager) {}
 
 	async getTypeDefinitions(document: AstroDocument, position: Position): Promise<Location[]> {

@@ -18,6 +18,7 @@ import {
 	Location,
 	Position,
 	Range,
+	ReferenceContext,
 	SemanticTokens,
 	SignatureHelp,
 	SignatureHelpContext,
@@ -234,10 +235,16 @@ export class PluginHost {
 		}
 	}
 
-	getTypeDefinition(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
+	async getTypeDefinitions(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
 		const document = this.getDocument(textDocument.uri);
 
-		return this.execute<Location[] | null>('getTypeDefinitions', [document, position], ExecuteMode.FirstNonNull);
+		return await this.execute<Location[] | null>('getTypeDefinitions', [document, position], ExecuteMode.FirstNonNull);
+	}
+
+	getReferences(textdocument: TextDocumentIdentifier, position: Position, context: ReferenceContext) {
+		const document = this.getDocument(textdocument.uri);
+
+		return this.execute<Location[] | null>('findReferences', [document, position, context], ExecuteMode.FirstNonNull);
 	}
 
 	async rename(

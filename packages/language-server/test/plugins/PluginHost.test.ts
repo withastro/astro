@@ -302,6 +302,32 @@ describe('PluginHost', () => {
 		});
 	});
 
+	it('executes getTypeDefinitions on plugins', async () => {
+		const { docManager, pluginHost, plugin } = setup({
+			getTypeDefinitions: sinon.stub().returns([]),
+		});
+		const document = docManager.openDocument(textDocument);
+		const position = Position.create(0, 0);
+
+		await pluginHost.getTypeDefinitions(textDocument, position);
+
+		sinon.assert.calledOnce(plugin.getTypeDefinitions);
+		sinon.assert.calledWithExactly(plugin.getTypeDefinitions, document, position);
+	});
+
+	it('executes getReferences on plugins', async () => {
+		const { docManager, pluginHost, plugin } = setup({
+			findReferences: sinon.stub().returns([]),
+		});
+		const document = docManager.openDocument(textDocument);
+		const position = Position.create(0, 0);
+
+		await pluginHost.getReferences(textDocument, position, { includeDeclaration: true });
+
+		sinon.assert.calledOnce(plugin.findReferences);
+		sinon.assert.calledWithExactly(plugin.findReferences, document, position, { includeDeclaration: true });
+	});
+
 	it('executes getDocumentColors on plugins', async () => {
 		const { docManager, pluginHost, plugin } = setup({
 			getDocumentColors: sinon.stub().returns([]),
