@@ -115,7 +115,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	}
 
 	await runHookBuildGenerated({
-		config: opts.astroConfig,
+		config: opts.settings.config,
 		buildConfig: opts.buildConfig,
 		logging: opts.logging,
 	});
