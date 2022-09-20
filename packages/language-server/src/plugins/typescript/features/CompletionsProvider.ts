@@ -38,7 +38,6 @@ import {
 	getScriptTagSnapshot,
 	removeAstroComponentSuffix,
 	scriptElementKindToCompletionItemKind,
-	toVirtualAstroFilePath,
 } from '../utils';
 import { isPartOfImportStatement } from './utils';
 

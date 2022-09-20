@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { join } from 'path';
 import sinon from 'sinon';
+import ts from 'typescript/lib/tsserverlibrary';
 import { Color, CompletionTriggerKind } from 'vscode-languageserver';
 import { CompletionItem, Location, LocationLink, Position, Range, TextDocumentItem } from 'vscode-languageserver-types';
 import { ConfigManager } from '../../src/core/config';
@@ -8,7 +9,6 @@ import { AstroDocument, DocumentManager } from '../../src/core/documents';
 import { AstroPlugin, HTMLPlugin, PluginHost, PluginHostConfig, TypeScriptPlugin } from '../../src/plugins';
 import { LanguageServiceManager } from '../../src/plugins/typescript/LanguageServiceManager';
 import { openDocument } from '../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('PluginHost', () => {
 	const textDocument: TextDocumentItem = {

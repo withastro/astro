@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { Hover, InlayHintKind, Position, Range } from 'vscode-languageserver-types';
+import ts from 'typescript/lib/tsserverlibrary';
+import { InlayHintKind, Position, Range } from 'vscode-languageserver-types';
 import { InlayHintsProviderImpl } from '../../../../src/plugins/typescript/features/InlayHintsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#InlayHintsProvider', () => {
 	function setup(filePath: string) {

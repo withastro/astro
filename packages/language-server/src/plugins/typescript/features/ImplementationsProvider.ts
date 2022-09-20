@@ -1,12 +1,12 @@
-import { Position, Location } from 'vscode-languageserver-types';
+import type ts from 'typescript';
+import { Location, Position } from 'vscode-languageserver-types';
 import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
+import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import { ImplementationProvider } from '../../interfaces';
 import { LanguageServiceManager } from '../LanguageServiceManager';
-import type ts from 'typescript';
-import { SnapshotFragmentMap } from './utils';
-import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
-import { convertRange, getScriptTagSnapshot } from '../utils';
 import { AstroSnapshot } from '../snapshots/DocumentSnapshot';
+import { convertRange, getScriptTagSnapshot } from '../utils';
+import { SnapshotFragmentMap } from './utils';
 
 export class ImplementationsProviderImpl implements ImplementationProvider {
 	constructor(private languageServiceManager: LanguageServiceManager) {}

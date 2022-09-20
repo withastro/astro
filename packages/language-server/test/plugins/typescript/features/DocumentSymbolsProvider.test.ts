@@ -1,9 +1,9 @@
 import { expect } from 'chai';
+import ts from 'typescript/lib/tsserverlibrary';
 import { Range, SymbolInformation, SymbolKind } from 'vscode-languageserver-types';
-import { createEnvironment } from '../../../utils';
 import { DocumentSymbolsProviderImpl } from '../../../../src/plugins/typescript/features/DocumentSymbolsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import ts from 'typescript/lib/tsserverlibrary';
+import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#DocumentSymbolsProvider', () => {
 	function setup(filePath: string) {

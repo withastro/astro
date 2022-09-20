@@ -1,9 +1,9 @@
-import { AstroCheck } from '../src/check';
-import { DiagnosticSeverity, Range } from 'vscode-languageserver-types';
-import ts from 'typescript/lib/tsserverlibrary';
-import { pathToUrl } from '../src/utils';
 import { expect } from 'chai';
 import { join } from 'path';
+import ts from 'typescript/lib/tsserverlibrary';
+import { DiagnosticSeverity, Range } from 'vscode-languageserver-types';
+import { AstroCheck } from '../src/check';
+import { pathToUrl } from '../src/utils';
 import { harmonizeNewLines } from './utils';
 
 describe('astro check', async () => {

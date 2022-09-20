@@ -20,7 +20,6 @@ import {
 	TextDocumentContentChangeEvent,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import type { ConfigManager, LSTypescriptConfig } from '../../core/config';
 import type { AstroDocument } from '../../core/documents';
 import type { AppCompletionItem, AppCompletionList, OnWatchFileChangesParam, Plugin } from '../interfaces';

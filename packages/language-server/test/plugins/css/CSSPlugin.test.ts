@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { CSSPlugin } from '../../../src/plugins';
-import { Hover, Position, Range, SymbolKind } from 'vscode-languageserver-types';
 import { CompletionContext } from 'vscode-languageserver-protocol';
+import { Hover, Position, Range, SymbolKind } from 'vscode-languageserver-types';
+import { CSSPlugin } from '../../../src/plugins';
 import { createFakeEnvironment } from '../../utils';
 
 describe('CSS Plugin', () => {

@@ -1,14 +1,11 @@
-import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { createEnvironment } from '../../../utils';
+import { assert, expect } from 'chai';
+import ts from 'typescript/lib/tsserverlibrary';
 import { Position, Range } from 'vscode-languageserver-types';
 import { TypeDefinitionsProviderImpl } from '../../../../src/plugins/typescript/features/TypeDefinitionsProvider';
-import { assert, expect } from 'chai';
-import { pathToUrl, urlToPath } from '../../../../src/utils';
-import {
-	AstroSnapshot,
-	TypeScriptDocumentSnapshot,
-} from '../../../../src/plugins/typescript/snapshots/DocumentSnapshot';
-import ts from 'typescript/lib/tsserverlibrary';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import { TypeScriptDocumentSnapshot } from '../../../../src/plugins/typescript/snapshots/DocumentSnapshot';
+import { urlToPath } from '../../../../src/utils';
+import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#TypeDefinitionsProvider', () => {
 	function setup(filePath: string) {

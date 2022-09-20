@@ -14,7 +14,7 @@ import type { SignatureHelpProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
-import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { getScriptTagSnapshot } from '../utils';
 
 export class SignatureHelpProviderImpl implements SignatureHelpProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');

@@ -4,7 +4,6 @@ import type { ConfigManager } from '../../../core/config';
 import type { AstroDocument } from '../../../core/documents';
 import type { InlayHintsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
-import { toVirtualAstroFilePath } from '../utils';
 
 export class InlayHintsProviderImpl implements InlayHintsProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');

@@ -4,7 +4,7 @@ import type { AstroDocument } from '../../../core/documents';
 import type { FoldingRangesProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
-import { getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { getScriptTagSnapshot } from '../utils';
 
 export class FoldingRangesProviderImpl implements FoldingRangesProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');

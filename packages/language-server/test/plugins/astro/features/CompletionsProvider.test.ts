@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import { createEnvironment } from '../../../utils';
+import ts from 'typescript/lib/tsserverlibrary';
+import { CompletionContext, CompletionTriggerKind } from 'vscode-languageserver-protocol';
+import { InsertTextFormat, Position, Range } from 'vscode-languageserver-types';
 import { CompletionsProviderImpl } from '../../../../src/plugins/astro/features/CompletionsProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { InsertTextFormat, Position, Range } from 'vscode-languageserver-types';
-import { CompletionContext, CompletionTriggerKind } from 'vscode-languageserver-protocol';
-import ts from 'typescript/lib/tsserverlibrary';
+import { createEnvironment } from '../../../utils';
 
 describe('Astro Plugin#CompletionsProvider', () => {
 	function setup(filePath: string) {

@@ -1,10 +1,10 @@
 import { expect } from 'chai';
+import ts from 'typescript/lib/tsserverlibrary';
 import { SemanticTokensBuilder } from 'vscode-languageserver';
 import { SemanticTokensProviderImpl } from '../../../../src/plugins/typescript/features/SemanticTokenProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { TokenModifier, TokenType } from '../../../../src/plugins/typescript/utils';
 import { createEnvironment } from '../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 interface TokenData {
 	line: number;

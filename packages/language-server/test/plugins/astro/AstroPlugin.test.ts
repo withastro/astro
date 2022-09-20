@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { createEnvironment } from '../../utils';
+import ts from 'typescript/lib/tsserverlibrary';
+import { Range } from 'vscode-languageserver-types';
 import { AstroPlugin } from '../../../src/plugins';
 import { LanguageServiceManager } from '../../../src/plugins/typescript/LanguageServiceManager';
-import { Range } from 'vscode-languageserver-types';
-import ts from 'typescript/lib/tsserverlibrary';
+import { createEnvironment } from '../../utils';
 
 describe('Astro Plugin', () => {
 	function setup(filePath: string) {

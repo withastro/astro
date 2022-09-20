@@ -1,13 +1,8 @@
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
 import { Position, Range } from 'vscode-languageserver-types';
 import { FindReferencesProviderImpl } from '../../../../src/plugins/typescript/features/ReferencesProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import {
-	AstroSnapshot,
-	TypeScriptDocumentSnapshot,
-} from '../../../../src/plugins/typescript/snapshots/DocumentSnapshot';
-import { pathToUrl, urlToPath } from '../../../../src/utils';
 import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#ReferencesProvider', () => {

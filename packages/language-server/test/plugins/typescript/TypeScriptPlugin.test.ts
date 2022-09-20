@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import { createEnvironment } from '../../utils';
-import { TypeScriptPlugin } from '../../../src/plugins';
-import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
-import { LanguageServiceManager } from '../../../src/plugins/typescript/LanguageServiceManager';
 import ts from 'typescript/lib/tsserverlibrary';
 import { SignatureHelpTriggerKind } from 'vscode-languageserver-protocol';
+import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
+import { TypeScriptPlugin } from '../../../src/plugins';
+import { LanguageServiceManager } from '../../../src/plugins/typescript/LanguageServiceManager';
+import { createEnvironment } from '../../utils';
 
 // This file only contain basic tests to ensure that the TypeScript plugin does in fact calls the proper methods
 // and returns something. For validity tests, please check the providers themselves in the 'features' folder

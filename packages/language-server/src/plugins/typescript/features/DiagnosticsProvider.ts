@@ -4,7 +4,7 @@ import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import type { DiagnosticsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot, SnapshotFragment } from '../snapshots/DocumentSnapshot';
-import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { convertRange, getScriptTagSnapshot } from '../utils';
 
 type BoundaryTuple = [number, number];
 

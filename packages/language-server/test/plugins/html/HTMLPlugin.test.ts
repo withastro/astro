@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { Hover, Position, Range } from 'vscode-languageserver-types';
-import { createFakeEnvironment, defaultFormattingOptions } from '../../utils';
 import { HTMLPlugin } from '../../../src/plugins';
+import { createFakeEnvironment } from '../../utils';
 
 describe('HTML Plugin', () => {
 	function setup(content: string) {

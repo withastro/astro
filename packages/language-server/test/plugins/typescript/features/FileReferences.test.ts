@@ -1,11 +1,11 @@
 import { expect } from 'chai';
+import * as path from 'path';
 import ts from 'typescript/lib/tsserverlibrary';
 import { Range } from 'vscode-languageserver-types';
 import { FileReferencesProviderImpl } from '../../../../src/plugins/typescript/features/FileReferencesProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { createEnvironment } from '../../../utils';
-import * as path from 'path';
 import { pathToUrl, urlToPath } from '../../../../src/utils';
+import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#FileReferencesProvider', () => {
 	function setup(filePath: string) {

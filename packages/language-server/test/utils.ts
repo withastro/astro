@@ -1,9 +1,9 @@
+import { join } from 'path';
+import ts from 'typescript';
+import { FormattingOptions } from 'vscode-languageserver-types';
 import { ConfigManager } from '../src/core/config';
 import { AstroDocument, DocumentManager } from '../src/core/documents';
-import ts from 'typescript';
-import { join } from 'path';
 import { pathToUrl } from '../src/utils';
-import { FormattingOptions } from 'vscode-languageserver-types';
 
 /**
  *

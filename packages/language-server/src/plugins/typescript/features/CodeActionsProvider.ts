@@ -16,13 +16,7 @@ import { modifyLines } from '../../../utils';
 import type { CodeActionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot, AstroSnapshotFragment, ScriptTagDocumentSnapshot } from '../snapshots/DocumentSnapshot';
-import {
-	checkEndOfFileCodeInsert,
-	convertRange,
-	getScriptTagSnapshot,
-	removeAstroComponentSuffix,
-	toVirtualAstroFilePath,
-} from '../utils';
+import { checkEndOfFileCodeInsert, convertRange, getScriptTagSnapshot, removeAstroComponentSuffix } from '../utils';
 import { codeActionChangeToTextEdit } from './CompletionsProvider';
 import { findContainingNode } from './utils';
 

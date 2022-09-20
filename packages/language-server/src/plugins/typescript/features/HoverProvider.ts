@@ -5,7 +5,7 @@ import type { HoverProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { getMarkdownDocumentation } from '../previewer';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
-import { convertRange, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { convertRange, getScriptTagSnapshot } from '../utils';
 
 const partsMap = new Map([['JSX attribute', 'HTML attribute']]);
 

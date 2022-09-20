@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ts from 'typescript/lib/tsserverlibrary';
-import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 import { createAstroSys } from '../../../src/plugins/typescript/astro-sys';
+import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 
 describe('Astro Sys', () => {
 	afterEach(() => {

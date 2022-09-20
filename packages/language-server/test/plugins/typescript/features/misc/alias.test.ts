@@ -1,8 +1,8 @@
 import { expect } from 'chai';
+import ts from 'typescript/lib/tsserverlibrary';
 import { DiagnosticsProviderImpl } from '../../../../../src/plugins/typescript/features/DiagnosticsProvider';
 import { LanguageServiceManager } from '../../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#Support Aliases', () => {
 	function setup(filePath: string) {

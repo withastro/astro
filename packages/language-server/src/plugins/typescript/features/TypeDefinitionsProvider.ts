@@ -5,7 +5,7 @@ import { isNotNullOrUndefined, pathToUrl } from '../../../utils';
 import type { TypeDefinitionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshot } from '../snapshots/DocumentSnapshot';
-import { convertRange, ensureRealFilePath, getScriptTagSnapshot, toVirtualAstroFilePath } from '../utils';
+import { convertRange, ensureRealFilePath, getScriptTagSnapshot } from '../utils';
 import { SnapshotFragmentMap } from './utils';
 
 export class TypeDefinitionsProviderImpl implements TypeDefinitionsProvider {

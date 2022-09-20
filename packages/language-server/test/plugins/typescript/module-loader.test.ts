@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ts from 'typescript/lib/tsserverlibrary';
 import * as aSys from '../../../src/plugins/typescript/astro-sys';
-import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 import { createAstroModuleLoader } from '../../../src/plugins/typescript/module-loader';
+import { DocumentSnapshot } from '../../../src/plugins/typescript/snapshots/DocumentSnapshot';
 
 describe('createAstroModuleLoader', () => {
 	afterEach(() => {

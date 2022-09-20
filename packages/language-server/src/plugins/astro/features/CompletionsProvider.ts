@@ -18,7 +18,7 @@ import { astroDirectives } from '../../html/features/astro-attributes';
 import { removeDataAttrCompletion } from '../../html/utils';
 import type { AppCompletionList, CompletionsProvider } from '../../interfaces';
 import type { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../../typescript/LanguageServiceManager';
-import { toVirtualAstroFilePath, toVirtualFilePath } from '../../typescript/utils';
+import { toVirtualFilePath } from '../../typescript/utils';
 
 type LastCompletion = {
 	tag: string;

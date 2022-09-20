@@ -1,9 +1,9 @@
 import { expect } from 'chai';
+import ts from 'typescript/lib/tsserverlibrary';
 import { Hover, Position, Range } from 'vscode-languageserver-types';
 import { HoverProviderImpl } from '../../../../src/plugins/typescript/features/HoverProvider';
 import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
 import { createEnvironment } from '../../../utils';
-import ts from 'typescript/lib/tsserverlibrary';
 
 describe('TypeScript Plugin#HoverProvider', () => {
 	function setup(filePath: string) {

@@ -1,10 +1,10 @@
-import { createEnvironment } from '../../../utils';
-import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionsProvider';
-import { CompletionItemKind, Position, Range } from 'vscode-languageserver-types';
-import { CompletionTriggerKind } from 'vscode-languageserver-protocol';
 import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
+import { CompletionTriggerKind } from 'vscode-languageserver-protocol';
+import { Position } from 'vscode-languageserver-types';
+import { CompletionsProviderImpl } from '../../../../src/plugins/typescript/features/CompletionsProvider';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import { createEnvironment } from '../../../utils';
 
 const newLine = ts.sys.newLine;
 

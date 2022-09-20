@@ -1,8 +1,8 @@
-import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import { createEnvironment } from '../../../utils';
-import { FoldingRangesProviderImpl } from '../../../../src/plugins/typescript/features/FoldingRangesProvider';
 import { expect } from 'chai';
 import ts from 'typescript/lib/tsserverlibrary';
+import { FoldingRangesProviderImpl } from '../../../../src/plugins/typescript/features/FoldingRangesProvider';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#FoldingRangesProvider', () => {
 	function setup(filePath: string) {

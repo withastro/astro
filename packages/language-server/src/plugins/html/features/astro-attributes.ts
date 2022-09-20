@@ -1,4 +1,4 @@
-import { newHTMLDataProvider, getDefaultHTMLDataProvider } from 'vscode-html-languageservice';
+import { getDefaultHTMLDataProvider, newHTMLDataProvider } from 'vscode-html-languageservice';
 
 const defaultProvider = getDefaultHTMLDataProvider();
 const slotAttr = defaultProvider.provideAttributes('div').find((attr) => attr.name === 'slot')!;

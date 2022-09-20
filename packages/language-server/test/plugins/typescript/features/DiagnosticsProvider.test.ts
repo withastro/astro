@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { DiagnosticSeverity, Range } from 'vscode-languageserver-types';
-import { createEnvironment } from '../../../utils';
-import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
-import {
-	DiagnosticsProviderImpl,
-	DiagnosticCodes,
-} from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
 import ts from 'typescript/lib/tsserverlibrary';
+import { DiagnosticSeverity, Range } from 'vscode-languageserver-types';
+import {
+	DiagnosticCodes,
+	DiagnosticsProviderImpl,
+} from '../../../../src/plugins/typescript/features/DiagnosticsProvider';
+import { LanguageServiceManager } from '../../../../src/plugins/typescript/LanguageServiceManager';
+import { createEnvironment } from '../../../utils';
 
 describe('TypeScript Plugin#DiagnosticsProvider', () => {
 	function setup(filePath: string) {

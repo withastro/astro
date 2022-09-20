@@ -3,7 +3,6 @@ import { AstroDocument, mapRangeToOriginal } from '../../../core/documents';
 import type { SemanticTokensProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import type { AstroSnapshotFragment } from '../snapshots/DocumentSnapshot';
-import { toVirtualAstroFilePath } from '../utils';
 
 export class SemanticTokensProviderImpl implements SemanticTokensProvider {
 	private ts: typeof import('typescript/lib/tsserverlibrary');
