@@ -56,13 +56,15 @@ describe('[create-astro] select directory', function () {
 	});
 	it('should error on bad directory selection in prompt', function () {
 		return promiseWithTimeout((resolve) => {
+			let wrote = false;
 			const { stdout, stdin } = setup();
 			stdout.on('data', (chunk) => {
 				if (chunk.includes('is not empty!')) {
 					resolve();
 				}
-				if (chunk.includes(PROMPT_MESSAGES.directory)) {
+				if (!wrote && chunk.includes(PROMPT_MESSAGES.directory)) {
 					stdin.write(`${inputs.nonEmptyDir}\x0D`);
+					wrote = true;
 				}
 			});
 		});
