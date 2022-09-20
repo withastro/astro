@@ -3,7 +3,7 @@
 import { performance } from 'perf_hooks';
 import { Benchmark } from './benchmark.js';
 import { runDevServer } from '../helpers.js';
-import del from 'del';
+import { deleteAsync } from 'del';
 
 const docsExampleRoot = new URL('../../../../docs/', import.meta.url);
 
@@ -31,7 +31,7 @@ const benchmarks = [
 		file: new URL('./dev-server-uncached.json', import.meta.url),
 		async setup() {
 			const spcache = new URL('../../node_modules/.cache/', import.meta.url);
-			await del(spcache.pathname);
+			await deleteAsync(spcache.pathname);
 		},
 		run({ root }) {
 			return runToStarted(root);
