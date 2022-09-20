@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 2.0.0
+
+### Major Changes
+
+- [#4815](https://github.com/withastro/astro/pull/4815) [`ce0b92ba7`](https://github.com/withastro/astro/commit/ce0b92ba73072c0f0143829a53f870155ad4c7ff) Thanks [@AirBorne04](https://github.com/AirBorne04)! - adjusted esbuild config to work with worker environment (fixing solid js ssr)
+
 ## 1.0.2
 
 ### Patch Changes
