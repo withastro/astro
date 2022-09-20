@@ -195,15 +195,17 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 **Default:** `undefined`
 </p>
 
-The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
+The background color is used to fill the remaining background when using `contain` for the `fit` property.
+
+The background color is also used for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
 doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
 as default replacement for transparent pixels.
 
 The parameter accepts a `string` as value.
 
 The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
-color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
-`rgb(100,100,100)`.
+color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, an RGB definition in the form
+`rgb(100,100,100)`, an RGBA definition in the form `rgba(100,100,100, 0.5)`.
 
 #### fit
 
