@@ -32,8 +32,8 @@ export const markHTMLString = (value: any) => {
 
 export function unescapeHTML(str: any) {
 	// If a promise, await the result and mark that.
-	if(!!str && typeof str === 'object' && typeof str.then === 'function') {
-		return Promise.resolve(str).then(value => {
+	if (!!str && typeof str === 'object' && typeof str.then === 'function') {
+		return Promise.resolve(str).then((value) => {
 			return markHTMLString(value);
 		});
 	}
