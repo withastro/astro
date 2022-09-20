@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { BaseSSRService } from '../loaders/index.js';
+import { BaseSSRService, isOutputFormatSupportsAlpha } from '../loaders/index.js';
 import type { SSRImageService } from '../loaders/index.js';
 import type { OutputFormat, TransformOptions } from './index.js';
 
@@ -23,13 +23,12 @@ class SharpService extends BaseSSRService {
 			});
 		}
 
-		// remove alpha channel and replace with background color if requested
-		if (transform.background) {
-			sharpImage.flatten({ background: transform.background });
-		}
-
 		if (transform.format) {
 			sharpImage.toFormat(transform.format, { quality: transform.quality });
+
+			if (transform.background && !isOutputFormatSupportsAlpha(transform.format)) {
+				sharpImage.flatten({ background: transform.background });
+			}
 		}
 
 		const { data, info } = await sharpImage.toBuffer({ resolveWithObject: true });
