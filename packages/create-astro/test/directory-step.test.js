@@ -1,6 +1,8 @@
 import path from 'path';
 import { promises, existsSync } from 'fs';
-import { PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeout } from './utils.js';
+import {
+	PROMPT_MESSAGES, testDir, setup, promiseWithVariableTimeout, timeoutNoDisk
+} from './utils.js';
 
 const inputs = {
 	nonEmptyDir: './fixtures/select-directory/nonempty-dir',
@@ -9,7 +11,8 @@ const inputs = {
 };
 
 describe('[create-astro] select directory', function () {
-	this.timeout(timeout);
+	this.timeout(timeoutNoDisk);
+	const promiseWithTimeout = promiseWithVariableTimeout(timeoutNoDisk);
 	it('should prompt for directory when none is provided', function () {
 		return promiseWithTimeout((resolve) => {
 			const { stdout } = setup();

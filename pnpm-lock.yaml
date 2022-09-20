@@ -2145,6 +2145,7 @@ importers:
       mocha: ^9.2.2
       ora: ^6.1.0
       prompts: ^2.4.2
+      strip-ansi: ^7.0.1
       uvu: ^0.5.3
       which-pm-runs: ^1.1.0
       yargs-parser: ^21.0.1
@@ -2156,6 +2157,7 @@ importers:
       kleur: 4.1.5
       ora: 6.1.2
       prompts: 2.4.2
+      strip-ansi: 7.0.1
       which-pm-runs: 1.1.0
       yargs-parser: 21.1.1
     devDependencies:

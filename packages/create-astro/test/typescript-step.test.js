@@ -2,7 +2,10 @@ import { expect } from 'chai';
 import { deleteSync } from 'del';
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
 import path from 'path';
-import { PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeoutDiskAccess } from './utils.js';
+import stripAnsi from 'strip-ansi';
+import {
+	PROMPT_MESSAGES, testDir, setup, promiseWithVariableTimeout, timeoutDiskAccess
+} from './utils.js';
 
 const inputs = {
 	emptyDir: './fixtures/select-typescript/empty-dir',
@@ -29,12 +32,14 @@ function getTsConfig(installDir) {
 
 describe('[create-astro] select typescript', function () {
 	this.timeout(timeoutDiskAccess);
+	const promiseWithTimeout = promiseWithVariableTimeout(timeoutDiskAccess);
 
 	beforeEach(ensureEmptyDir);
 
 	afterEach(ensureEmptyDir);
 
 	it('should prompt for typescript when none is provided', async function () {
+		let lastStdout;
 		return promiseWithTimeout((resolve) => {
 			const { stdout } = setup([
 				inputs.emptyDir,
@@ -43,14 +48,16 @@ describe('[create-astro] select typescript', function () {
 				'--git', '0'
 			]);
 			stdout.on('data', (chunk) => {
+				lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
 				if (chunk.includes(PROMPT_MESSAGES.typescript)) {
 					resolve();
 				}
 			});
-		});
+		}, () => lastStdout);
 	});
 
 	it('should not prompt for typescript when provided', async function () {
+		let lastStdout;
 		return promiseWithTimeout((resolve) => {
 			const { stdout } = setup([
 				inputs.emptyDir,
@@ -60,14 +67,16 @@ describe('[create-astro] select typescript', function () {
 				'--typescript', 'base'
 			]);
 			stdout.on('data', (chunk) => {
+				lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
 				if (chunk.includes(PROMPT_MESSAGES.typescriptSucceed)) {
 					resolve();
 				}
 			});
-		});
+		}, () => lastStdout);
 	});
 
 	it('should use "strict" config when specified', async function () {
+		let lastStdout;
 		return promiseWithTimeout((resolve) => {
 			let wrote = false;
 			const { stdout, stdin } = setup([
@@ -77,6 +86,7 @@ describe('[create-astro] select typescript', function () {
 				'--git', '0'
 			]);
 			stdout.on('data', (chunk) => {
+				lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
 				if (!wrote && chunk.includes(PROMPT_MESSAGES.typescript)) {
 					stdin.write('\x1B\x5B\x42\x0D');
 					wrote = true;
@@ -87,10 +97,11 @@ describe('[create-astro] select typescript', function () {
 					resolve();
 				}
 			});
-		});
+		}, () => lastStdout);
 	});
 
 	it('should create tsconfig.json when missing', async function () {
+		let lastStdout;
 		return promiseWithTimeout((resolve) => {
 			const { stdout } = setup([
 				inputs.emptyDir,
@@ -100,12 +111,13 @@ describe('[create-astro] select typescript', function () {
 				'--typescript', 'base'
 			]);
 			stdout.on('data', (chunk) => {
+				lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
 				if (chunk.includes(PROMPT_MESSAGES.typescriptSucceed)) {
 					const tsConfigJson = getTsConfig(inputs.emptyDir);
 					expect(tsConfigJson).to.deep.equal({'extends': 'astro/tsconfigs/base'});
 					resolve();
 				}
 			});
-		});
+		}, () => lastStdout);
 	});
 });

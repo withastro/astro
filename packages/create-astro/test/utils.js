@@ -4,24 +4,32 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 export const testDir = dirname(__filename);
-export const timeout = 5000;
-export const timeoutDiskAccess = 30000;
+export const timeoutNoDisk = 5000;
+export const timeoutDiskAccess = 10000;
 
-const createAstroError = new Error(
-	'Timed out waiting for create-astro to respond with expected output.'
-);
+const timeoutError = function (details) {
+	let errorMsg =
+	  'Timed out waiting for create-astro to respond with expected output.';
+	if (details) {
+		errorMsg += '\nLast output: "' + details + '"';
+	}
+	return new Error(errorMsg);
+}
 
-export function promiseWithTimeout(testFn) {
-	return new Promise((resolve, reject) => {
-		const timeoutEvent = setTimeout(() => {
-			reject(createAstroError);
-		}, timeout);
-		function resolver() {
-			clearTimeout(timeoutEvent);
-			resolve();
-		}
-		testFn(resolver);
-	});
+export function promiseWithVariableTimeout(timeout) {
+	return function promiseWithTimeout(testFn, onTimeout) {
+		return new Promise((resolve, reject) => {
+			const timeoutEvent = setTimeout(() => {
+				const details = onTimeout ? onTimeout() : null;
+				reject(timeoutError(details));
+			}, timeout);
+			function resolver() {
+				clearTimeout(timeoutEvent);
+				resolve();
+			}
+			testFn(resolver);
+		});
+	}
 }
 
 export const PROMPT_MESSAGES = {
