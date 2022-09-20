@@ -68,7 +68,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 					vite.ssr = {
 						...vite.ssr,
-						target: 'webworker'
+						target: 'webworker',
 					};
 				}
 			},
