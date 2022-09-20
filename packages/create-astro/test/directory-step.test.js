@@ -13,9 +13,10 @@ const inputs = {
 describe('[create-astro] select directory', function () {
 	this.timeout(timeout);
 	it('should prompt for directory when none is provided', function () {
-		return promiseWithTimeout((resolve) => {
+		return promiseWithTimeout((resolve, onStdout) => {
 			const { stdout } = setup();
 			stdout.on('data', (chunk) => {
+				onStdout(chunk);
 				if (chunk.includes(PROMPT_MESSAGES.directory)) {
 					resolve();
 				}
@@ -23,9 +24,10 @@ describe('[create-astro] select directory', function () {
 		});
 	});
 	it('should NOT proceed on a non-empty directory', function () {
-		return promiseWithTimeout((resolve) => {
+		return promiseWithTimeout((resolve, onStdout) => {
 			const { stdout } = setup([inputs.nonEmptyDir]);
 			stdout.on('data', (chunk) => {
+				onStdout(chunk);
 				if (chunk.includes(PROMPT_MESSAGES.directory)) {
 					resolve();
 				}
@@ -37,9 +39,10 @@ describe('[create-astro] select directory', function () {
 		if (!existsSync(resolvedEmptyDirPath)) {
 			await promises.mkdir(resolvedEmptyDirPath);
 		}
-		return promiseWithTimeout((resolve) => {
+		return promiseWithTimeout((resolve, onStdout) => {
 			const { stdout } = setup([inputs.emptyDir]);
 			stdout.on('data', (chunk) => {
+				onStdout(chunk);
 				if (chunk.includes(PROMPT_MESSAGES.template)) {
 					resolve();
 				}
@@ -47,9 +50,10 @@ describe('[create-astro] select directory', function () {
 		});
 	});
 	it('should proceed when directory does not exist', function () {
-		return promiseWithTimeout((resolve) => {
+		return promiseWithTimeout((resolve, onStdout) => {
 			const { stdout } = setup([inputs.nonexistentDir]);
 			stdout.on('data', (chunk) => {
+				onStdout(chunk);
 				if (chunk.includes(PROMPT_MESSAGES.template)) {
 					resolve();
 				}
@@ -57,10 +61,11 @@ describe('[create-astro] select directory', function () {
 		});
 	});
 	it('should error on bad directory selection in prompt', function () {
-		return promiseWithTimeout((resolve) => {
+		return promiseWithTimeout((resolve, onStdout) => {
 			let wrote = false;
 			const { stdout, stdin } = setup();
 			stdout.on('data', (chunk) => {
+				onStdout(chunk);
 				if (chunk.includes('is not empty!')) {
 					resolve();
 				}

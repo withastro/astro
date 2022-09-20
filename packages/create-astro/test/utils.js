@@ -1,6 +1,7 @@
 import { execa } from 'execa';
-import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import stripAnsi from 'strip-ansi';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 export const testDir = dirname(__filename);
@@ -15,17 +16,22 @@ const timeoutError = function (details) {
 	return new Error(errorMsg);
 }
 
-export function promiseWithTimeout(testFn, onTimeout) {
+export function promiseWithTimeout(testFn) {
 	return new Promise((resolve, reject) => {
+		let lastStdout;
+		function onStdout (chunk) {
+			lastStdout = stripAnsi(chunk.toString()).trim() || lastStdout;
+		}
+
 		const timeoutEvent = setTimeout(() => {
-			const details = onTimeout ? onTimeout() : null;
-			reject(timeoutError(details));
+			reject(timeoutError(lastStdout));
 		}, timeout);
 		function resolver() {
 			clearTimeout(timeoutEvent);
 			resolve();
 		}
-		testFn(resolver);
+		
+		testFn(resolver, onStdout);
 	});
 }
 
