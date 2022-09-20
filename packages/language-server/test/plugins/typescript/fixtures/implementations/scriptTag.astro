@@ -1,0 +1,11 @@
+<script>
+	interface Greeting {
+		sayHello(name: string): string;
+	}
+
+	class Greeter implements Greeting {
+		sayHello(name: string) {
+			return "Hello " + name;
+		}
+	}
+</script>

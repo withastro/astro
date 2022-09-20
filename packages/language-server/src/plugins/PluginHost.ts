@@ -240,10 +240,16 @@ export class PluginHost {
 		}
 	}
 
-	async getTypeDefinitions(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
+	getTypeDefinitions(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
 		const document = this.getDocument(textDocument.uri);
 
-		return await this.execute<Location[] | null>('getTypeDefinitions', [document, position], ExecuteMode.FirstNonNull);
+		return this.execute<Location[] | null>('getTypeDefinitions', [document, position], ExecuteMode.FirstNonNull);
+	}
+
+	getImplementations(textDocument: TextDocumentIdentifier, position: Position): Promise<Location[] | null> {
+		const document = this.getDocument(textDocument.uri);
+
+		return this.execute<Location[] | null>('getImplementation', [document, position], ExecuteMode.FirstNonNull);
 	}
 
 	getReferences(textdocument: TextDocumentIdentifier, position: Position, context: ReferenceContext) {

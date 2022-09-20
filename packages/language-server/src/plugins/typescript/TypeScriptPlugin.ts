@@ -33,6 +33,7 @@ import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider'
 import { FileReferencesProviderImpl } from './features/FileReferencesProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
+import { ImplementationsProviderImpl } from './features/ImplementationsProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
 import { FindReferencesProviderImpl } from './features/ReferencesProvider';
 import { SemanticTokensProviderImpl } from './features/SemanticTokenProvider';
@@ -40,7 +41,7 @@ import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 import { TypeDefinitionsProviderImpl } from './features/TypeDefinitionsProvider';
 import type { LanguageServiceManager } from './LanguageServiceManager';
 import { classNameFromFilename } from './snapshots/utils';
-import { convertToLocationRange, ensureRealFilePath, getScriptKindFromFileName, toVirtualAstroFilePath } from './utils';
+import { convertToLocationRange, ensureRealFilePath, getScriptKindFromFileName } from './utils';
 
 export class TypeScriptPlugin implements Plugin {
 	__name = 'typescript';
@@ -54,6 +55,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly fileReferencesProvider: FileReferencesProviderImpl;
 	private readonly definitionsProvider: DefinitionsProviderImpl;
 	private readonly typeDefinitionsProvider: TypeDefinitionsProviderImpl;
+	private readonly implementationsProvider: ImplementationsProviderImpl;
 	private readonly referencesProvider: FindReferencesProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
@@ -75,6 +77,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.fileReferencesProvider = new FileReferencesProviderImpl(this.languageServiceManager);
 		this.definitionsProvider = new DefinitionsProviderImpl(this.languageServiceManager);
 		this.typeDefinitionsProvider = new TypeDefinitionsProviderImpl(this.languageServiceManager);
+		this.implementationsProvider = new ImplementationsProviderImpl(this.languageServiceManager);
 		this.referencesProvider = new FindReferencesProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
@@ -203,6 +206,10 @@ export class TypeScriptPlugin implements Plugin {
 
 	async getTypeDefinitions(document: AstroDocument, position: Position): Promise<Location[] | null> {
 		return this.typeDefinitionsProvider.getTypeDefinitions(document, position);
+	}
+
+	async getImplementation(document: AstroDocument, position: Position): Promise<Location[] | null> {
+		return this.implementationsProvider.getImplementation(document, position);
 	}
 
 	async findReferences(
