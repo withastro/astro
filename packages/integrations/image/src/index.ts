@@ -117,24 +117,24 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 			},
 			'astro:build:generated': async ({ dir }) => {
-				if (_config.output === 'static') {
-					// for SSG builds, build all requested image transforms to dist
-					const loader = globalThis?.astroImage?.loader;
+				// for SSG builds, build all requested image transforms to dist
+				const loader = globalThis?.astroImage?.loader;
 
-					if (loader && 'transform' in loader && staticImages.size > 0) {
-						await ssgBuild({
-							loader,
-							staticImages,
-							config: _config,
-							outDir: dir,
-							logLevel: resolvedOptions.logLevel,
-						});
-					}
+				await copyWasmFiles(new URL('./chunks', dir));
+
+				if (loader && 'transform' in loader && staticImages.size > 0) {
+					await ssgBuild({
+						loader,
+						staticImages,
+						config: _config,
+						outDir: dir,
+						logLevel: resolvedOptions.logLevel,
+					});
 				}
 			},
-			'astro:build:done': async ({ dir }) => {
+			'astro:build:ssr': async () => {
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
-					await copyWasmFiles(_config.output === 'static' ? dir : _buildConfig.server);
+					await copyWasmFiles(_buildConfig.server);
 				}
 			}
 		},

@@ -98,7 +98,7 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 	timer.generate = performance.now();
 	if (settings.config.output === 'static') {
 		await generatePages(opts, internals);
-		await runHookBuildGenerated({ config: opts.astroConfig, buildConfig: opts.buildConfig, logging: opts.logging });
+		await runHookBuildGenerated({ config: opts.settings.config, buildConfig: opts.buildConfig, logging: opts.logging });
 		await cleanSsrOutput(opts);
 	} else {
 		// Inject the manifest

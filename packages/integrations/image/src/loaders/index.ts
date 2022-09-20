@@ -1,3 +1,4 @@
+import { AstroConfig } from 'astro';
 import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 
 /// <reference types="astro/astro-jsx" />

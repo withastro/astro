@@ -6,7 +6,7 @@ import { metadata } from '../utils/metadata.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { OutputFormat, TransformOptions } from './index.js';
 import { processBuffer } from '../vendor/squoosh/image-pool.js';
-import type { Operation } from '../vendor/squoosh/image-pool.js';
+import type { Operation } from '../vendor/squoosh/image.js';
 
 class SquooshService extends BaseSSRService {
 	async processAvif(image: any, transform: TransformOptions) {

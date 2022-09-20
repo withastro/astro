@@ -2,20 +2,10 @@ import { cpus } from 'node:os'
 import { fileURLToPath } from 'node:url';
 import { isMainThread } from 'node:worker_threads';
 import WorkerPool from '../../utils/workerPool.js';
+import type { Operation } from './image.js';
 import * as impl from './impl.js';
 import execOnce from '../../utils/execOnce.js';
 import type { OutputFormat } from '../../loaders/index.js';
-
-type RotateOperation = {
-  type: 'rotate'
-  numRotations: number
-}
-type ResizeOperation = {
-  type: 'resize'
-	width?: number
-	height?: number
-}
-export type Operation = RotateOperation | ResizeOperation
 
 const getWorker = execOnce(
   () => {
