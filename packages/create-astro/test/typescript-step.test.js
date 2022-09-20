@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync } from 'fs';
 import path from 'path';
 import stripAnsi from 'strip-ansi';
 import {
-	PROMPT_MESSAGES, testDir, setup, promiseWithVariableTimeout, timeoutDiskAccess
+	PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeout
 } from './utils.js';
 
 const inputs = {
@@ -31,8 +31,7 @@ function getTsConfig(installDir) {
 }
 
 describe('[create-astro] select typescript', function () {
-	this.timeout(timeoutDiskAccess);
-	const promiseWithTimeout = promiseWithVariableTimeout(timeoutDiskAccess);
+	this.timeout(timeout);
 
 	beforeEach(ensureEmptyDir);
 
