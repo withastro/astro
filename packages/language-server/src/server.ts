@@ -289,12 +289,17 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 	connection.onRenameRequest((evt) => pluginHost.rename(evt.textDocument, evt.position, evt.newName));
 
 	connection.onDidSaveTextDocument(updateAllDiagnostics);
+
 	connection.onNotification('$/onDidChangeNonAstroFile', async (e: any) => {
 		const path = urlToPath(e.uri);
 		if (path) {
 			pluginHost.updateNonAstroFile(path, e.changes);
 		}
 		updateAllDiagnostics();
+	});
+
+	connection.onRequest('$/getFileReferences', async (uri: DocumentUri) => {
+		return pluginHost.fileReferences({ uri });
 	});
 
 	connection.onRequest('$/getTSXOutput', async (uri: DocumentUri) => {

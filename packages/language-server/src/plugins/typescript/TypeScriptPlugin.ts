@@ -30,6 +30,7 @@ import { CompletionItemData, CompletionsProviderImpl } from './features/Completi
 import { DefinitionsProviderImpl } from './features/DefinitionsProvider';
 import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
+import { FileReferencesProviderImpl } from './features/FileReferencesProvider';
 import { FoldingRangesProviderImpl } from './features/FoldingRangesProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
 import { InlayHintsProviderImpl } from './features/InlayHintsProvider';
@@ -50,6 +51,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly codeActionsProvider: CodeActionsProviderImpl;
 	private readonly completionProvider: CompletionsProviderImpl;
 	private readonly hoverProvider: HoverProviderImpl;
+	private readonly fileReferencesProvider: FileReferencesProviderImpl;
 	private readonly definitionsProvider: DefinitionsProviderImpl;
 	private readonly typeDefinitionsProvider: TypeDefinitionsProviderImpl;
 	private readonly referencesProvider: FindReferencesProviderImpl;
@@ -70,6 +72,7 @@ export class TypeScriptPlugin implements Plugin {
 		this.codeActionsProvider = new CodeActionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager, this.configManager);
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
+		this.fileReferencesProvider = new FileReferencesProviderImpl(this.languageServiceManager);
 		this.definitionsProvider = new DefinitionsProviderImpl(this.languageServiceManager);
 		this.typeDefinitionsProvider = new TypeDefinitionsProviderImpl(this.languageServiceManager);
 		this.referencesProvider = new FindReferencesProviderImpl(this.languageServiceManager);
@@ -188,6 +191,10 @@ export class TypeScriptPlugin implements Plugin {
 
 	async getInlayHints(document: AstroDocument, range: Range): Promise<InlayHint[]> {
 		return this.inlayHintsProvider.getInlayHints(document, range);
+	}
+
+	async fileReferences(document: AstroDocument): Promise<Location[] | null> {
+		return this.fileReferencesProvider.fileReferences(document);
 	}
 
 	async getDefinitions(document: AstroDocument, position: Position): Promise<DefinitionLink[]> {

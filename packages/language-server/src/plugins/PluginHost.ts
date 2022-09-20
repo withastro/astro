@@ -220,6 +220,11 @@ export class PluginHost {
 		);
 	}
 
+	async fileReferences(textDocument: TextDocumentIdentifier): Promise<Location[] | null> {
+		const document = this.getDocument(textDocument.uri);
+		return await this.execute<any>('fileReferences', [document], ExecuteMode.FirstNonNull);
+	}
+
 	async getDefinitions(
 		textDocument: TextDocumentIdentifier,
 		position: Position

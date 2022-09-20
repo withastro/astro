@@ -97,8 +97,34 @@
       {
         "command": "astro.selectTypescriptVersion",
         "title": "Astro: Select Typescript Version..."
+      },
+      {
+        "command": "astro.findFileReferences",
+        "title": "Astro: Find File References"
       }
     ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "editorLangId == astro",
+          "group": "4_search"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "resourceLangId == astro && resourceScheme == file"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "astro.findFileReferences",
+          "when": "resourceLangId == astro",
+          "group": "4_search"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Astro configuration",

@@ -9,6 +9,7 @@ import {
 	workspace,
 } from 'vscode';
 import { BaseLanguageClient, LanguageClientOptions } from 'vscode-languageclient';
+import * as fileReferences from './features/fileReferences';
 
 export function getInitOptions(env: 'node' | 'browser', typescript: any): LanguageClientOptions {
 	return {
@@ -93,7 +94,10 @@ export function commonActivate(context: ExtensionContext, client: BaseLanguageCl
 				window.showErrorMessage("Could not open the current document's TSX output");
 			}
 		}),
-		commands.registerCommand('astro.selectTypescriptVersion', () => tsVersion.selectVersionCommand(context, client))
+		commands.registerCommand('astro.selectTypescriptVersion', () => tsVersion.selectVersionCommand(context, client)),
+		commands.registerCommand('astro.findFileReferences', () =>
+			fileReferences.findFileReferences(window.activeTextEditor?.document.uri, getLSClient())
+		)
 	);
 
 	let restartingClient = false;
