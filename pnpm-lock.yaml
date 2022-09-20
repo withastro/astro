@@ -78,6 +78,15 @@ importers:
     devDependencies:
       astro: link:../../packages/astro
 
+  examples/deno:
+    specifiers:
+      '@astrojs/deno': ^1.0.1
+      astro: ^1.1.5
+    dependencies:
+      astro: link:../../packages/astro
+    devDependencies:
+      '@astrojs/deno': link:../../packages/integrations/deno
+
   examples/docs:
     specifiers:
       '@algolia/client-search': ^4.13.1
