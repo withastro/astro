@@ -199,7 +199,6 @@ async function clientBuild(
 			target: 'esnext',
 			...viteConfig.build,
 			emptyOutDir: false,
-			minify: 'esbuild',
 			outDir: fileURLToPath(out),
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
