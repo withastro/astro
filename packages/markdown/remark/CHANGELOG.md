@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 1.1.2
+
+### Patch Changes
+
+- [#4787](https://github.com/withastro/astro/pull/4787) [`df54595a8`](https://github.com/withastro/astro/commit/df54595a8836448a621fceeb38fbaacde1bb27cf) Thanks [@merceyz](https://github.com/merceyz)! - declare `hast-util-to-html` as a dependency
+
 ## 1.1.1
 
 ### Patch Changes

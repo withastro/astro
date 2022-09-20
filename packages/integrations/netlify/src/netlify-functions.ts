@@ -36,6 +36,7 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		'image/bmp',
 		'image/gif',
 		'image/vnd.microsoft.icon',
+		'image/heif',
 		'image/jpeg',
 		'image/png',
 		'image/svg+xml',
@@ -84,9 +85,13 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		const responseContentType = parseContentType(responseHeaders['content-type']);
 		const responseIsBase64Encoded = knownBinaryMediaTypes.has(responseContentType);
 
-		const responseBody = responseIsBase64Encoded
-			? Buffer.from(await response.text(), 'binary').toString('base64')
-			: await response.text();
+		let responseBody: string;
+		if (responseIsBase64Encoded) {
+			const ab = await response.arrayBuffer();
+			responseBody = Buffer.from(ab).toString('base64');
+		} else {
+			responseBody = await response.text();
+		}
 
 		const fnResponse: any = {
 			statusCode: response.status,

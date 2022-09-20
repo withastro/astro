@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 1.1.4
+
+### Patch Changes
+
+- [#4816](https://github.com/withastro/astro/pull/4816) [`8d059faae`](https://github.com/withastro/astro/commit/8d059faaedf212426e0fb6d93843f6855f723f56) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errors in React components from crashing the dev server
+
 ## 1.1.3
 
 ### Patch Changes
