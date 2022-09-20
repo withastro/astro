@@ -4,7 +4,7 @@ export {
 	escapeHTML,
 	HTMLString,
 	markHTMLString,
-	markHTMLString as unescapeHTML,
+	unescapeHTML,
 } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
