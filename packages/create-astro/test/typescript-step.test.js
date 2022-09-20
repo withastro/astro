@@ -15,7 +15,7 @@ function isEmpty(dirPath) {
 function ensureEmptyDir() {
 	const dirPath = path.resolve(testDir, inputs.emptyDir);
 	if (!existsSync(dirPath)) {
-		mkdirSync(dirPath);
+		mkdirSync(dirPath, { recursive: true });
 	} else if (!isEmpty(dirPath)) {
 		deleteSync(dirPath + '/*', { dot: true });
 	}
