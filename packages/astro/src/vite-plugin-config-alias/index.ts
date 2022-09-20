@@ -1,5 +1,5 @@
 import * as path from 'path';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 
 import type * as vite from 'vite';
 
@@ -13,10 +13,10 @@ export declare interface Alias {
 const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep);
 
 /** Returns a list of compiled aliases. */
-const getConfigAlias = (astroConfig: AstroConfig): Alias[] | null => {
+const getConfigAlias = (settings: AstroSettings): Alias[] | null => {
 	/** Closest tsconfig.json or jsconfig.json */
-	const config = astroConfig._ctx.tsConfig;
-	const configPath = astroConfig._ctx.tsConfigPath;
+	const config = settings.tsConfig;
+	const configPath = settings.tsConfigPath;
 
 	// if no config was found, return null
 	if (!config || !configPath) return null;
@@ -77,12 +77,13 @@ const getConfigAlias = (astroConfig: AstroConfig): Alias[] | null => {
 
 /** Returns a Vite plugin used to alias pathes from tsconfig.json and jsconfig.json. */
 export default function configAliasVitePlugin({
-	config: astroConfig,
+	settings,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 }): vite.PluginOption {
+	const { config } = settings;
 	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
-	const configAlias = getConfigAlias(astroConfig);
+	const configAlias = getConfigAlias(settings);
 
 	// if no config alias was found, bypass this plugin
 	if (!configAlias) return {} as vite.PluginOption;

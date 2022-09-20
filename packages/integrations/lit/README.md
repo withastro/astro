@@ -57,7 +57,7 @@ export default {
 To use your first Lit component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. This explains:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
-- 🪆 opportunities to mix and nest frameworks together
+- 🤝 opportunities to mix and nest frameworks together
 
 However, there's a key difference with Lit _custom elements_ over conventional _components_: you can use the element tag name directly.
 

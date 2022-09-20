@@ -67,8 +67,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 
 					vite.ssr = {
+						...vite.ssr,
 						target: 'webworker',
-						noExternal: true,
 					};
 				}
 			},
@@ -77,7 +77,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const pkg = fileURLToPath(entryUrl);
 				await esbuild.build({
 					target: 'es2020',
-					platform: 'browser',
+					platform: 'neutral',
+					mainFields: ['main', 'module'],
+					conditions: ['worker', 'node'],
 					entryPoints: [pkg],
 					outfile: pkg,
 					allowOverwrite: true,

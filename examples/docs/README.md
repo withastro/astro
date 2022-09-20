@@ -1,7 +1,7 @@
 # Astro Starter Kit: Docs Site
 
 ```bash
-npm init astro -- --template docs
+npm create astro@latest -- --template docs
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/docs)

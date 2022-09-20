@@ -1,6 +1,6 @@
 import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
 import type { ViteStyleTransformer } from '../vite-style-transform';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
@@ -22,12 +22,13 @@ import { parseAstroRequest, ParsedRequestResult } from './query.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
+export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin {
+	const { config } = settings;
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
