@@ -1160,6 +1160,7 @@ export interface AstroIntegration {
 			target: 'client' | 'server';
 			updateConfig: (newConfig: ViteConfigWithSSR) => void;
 		}) => void | Promise<void>;
+		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;

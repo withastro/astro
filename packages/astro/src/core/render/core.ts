@@ -149,7 +149,6 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		site,
 		scripts,
 		ssr,
-		streaming,
 		status,
 	});
 

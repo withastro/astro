@@ -304,11 +304,12 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 //  - 123numeric => numeric
 //  - @npm/thingy => npmThingy
 //  - @jane/foo.js => janeFoo
+//  - @tokencss/astro => tokencss
 const toIdent = (name: string) => {
 	const ident = name
 		.trim()
 		// Remove astro or (astrojs) prefix and suffix
-		.replace(/[-_\.]?astro(?:js)?[-_\.]?/g, '')
+		.replace(/[-_\.\/]?astro(?:js)?[-_\.]?/g, '')
 		// drop .js suffix
 		.replace(/\.js/, '')
 		// convert to camel case

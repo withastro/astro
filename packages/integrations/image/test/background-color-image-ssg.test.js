@@ -106,6 +106,17 @@ describe('SSG image with background - build', function () {
 			id: '#rgb-spaced',
 			bg: [105, 105, 105],
 		},
+
+		{
+			title: 'RGBA color',
+			id: '#rgba',
+			bg: [105, 105, 105],
+		},
+		{
+			title: 'RGBA color with spaces',
+			id: '#rgba-spaced',
+			bg: [105, 105, 105],
+		},
 	].forEach(({ title, id, bg }) => {
 		it(title, async () => {
 			const image = $(id);
