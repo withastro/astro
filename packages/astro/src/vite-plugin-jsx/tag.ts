@@ -55,20 +55,27 @@ export default function tagExportsWithRenderer({
 			ExportDeclaration: {
 				/**
 				 * For default anonymous function export, we need to give them a unique name
-				 * @param path 
-				 * @returns 
+				 * @param path
+				 * @returns
 				 */
 				enter(path) {
 					const node = path.node;
-					if(node.type !== 'ExportDefaultDeclaration') return;
+					if (node.type !== 'ExportDefaultDeclaration') return;
 
-					if(node.declaration?.type === 'ArrowFunctionExpression') {
-						const uidIdentifier = path.scope.generateUidIdentifier("_arrow_function");
-						path.insertBefore(t.variableDeclaration('const', [t.variableDeclarator(uidIdentifier, node.declaration)]));
-						node.declaration=(uidIdentifier)
-					} else if(node.declaration?.type === 'FunctionDeclaration' && !node.declaration.id?.name) {
-						const uidIdentifier = path.scope.generateUidIdentifier("_function");
-						node.declaration.id = uidIdentifier
+					if (node.declaration?.type === 'ArrowFunctionExpression') {
+						const uidIdentifier = path.scope.generateUidIdentifier('_arrow_function');
+						path.insertBefore(
+							t.variableDeclaration('const', [
+								t.variableDeclarator(uidIdentifier, node.declaration),
+							])
+						);
+						node.declaration = uidIdentifier;
+					} else if (
+						node.declaration?.type === 'FunctionDeclaration' &&
+						!node.declaration.id?.name
+					) {
+						const uidIdentifier = path.scope.generateUidIdentifier('_function');
+						node.declaration.id = uidIdentifier;
 					}
 				},
 				exit(path, state) {
@@ -79,7 +86,6 @@ export default function tagExportsWithRenderer({
 						const tags = state.get('astro:tags') ?? [];
 						state.set('astro:tags', [...tags, id]);
 					};
-	
 					if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration') {
 						if (t.isIdentifier(node.declaration)) {
 							addTag(node.declaration.name);
@@ -87,7 +93,10 @@ export default function tagExportsWithRenderer({
 							addTag(node.declaration.id.name);
 						} else if (t.isVariableDeclaration(node.declaration)) {
 							node.declaration.declarations?.forEach((declaration) => {
-								if (t.isArrowFunctionExpression(declaration.init) && t.isIdentifier(declaration.id)) {
+								if (
+									t.isArrowFunctionExpression(declaration.init) &&
+									t.isIdentifier(declaration.id)
+								) {
 									addTag(declaration.id.name);
 								}
 							});
@@ -105,8 +114,7 @@ export default function tagExportsWithRenderer({
 							});
 						}
 					}
-				}
-				
+				},
 			},
 			
 		},

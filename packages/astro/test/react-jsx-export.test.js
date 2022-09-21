@@ -4,7 +4,7 @@ import { loadFixture } from './test-utils.js';
 
 describe('react-jsx-export', () => {
 	let fixture;
-    let logs = [];
+	let logs = [];
 
 	const ids = [
 		'anonymous_arrow_default_export',
@@ -17,12 +17,12 @@ describe('react-jsx-export', () => {
 		'default_list_export',
 		'renamed_list_export',
 		'list_as_default_export',
+	];
 
-	]
-
-	const reactInvalidHookWarning = "Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons"
+	const reactInvalidHookWarning =
+		'Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons';
 	before(async () => {
-        const logging = {
+		const logging = {
 			dest: {
 				write(chunk) {
 					logs.push(chunk);
@@ -33,20 +33,19 @@ describe('react-jsx-export', () => {
 		fixture = await loadFixture({
 			root: './fixtures/react-jsx-export/',
 		});
-		await fixture.build({logging});
+		await fixture.build({ logging });
 	});
 
 	it('Can load all JSX components', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 
-		ids.forEach(id => {
-			expect($(`#${id}`).text()).to.equal('Example')
-		})
+		ids.forEach((id) => {
+			expect($(`#${id}`).text()).to.equal('Example');
+		});
 	});
 
 	it('Can not output React Invalid Hook warning', async () => {
-		expect(logs.every(log => log.message.indexOf(reactInvalidHookWarning) === -1)).to.be.true;
-	})
-
+		expect(logs.every((log) => log.message.indexOf(reactInvalidHookWarning) === -1)).to.be.true;
+	});
 });
