@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { markHTMLString, HTMLBytes, isHTMLString } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -50,7 +50,7 @@ export class HTMLParts {
 		this.parts = [];
 	}
 	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
-		if(ArrayBuffer.isView(part)) {
+		if (ArrayBuffer.isView(part)) {
 			this.parts.push(part);
 		} else {
 			this.parts.push(stringifyChunk(result, part));
@@ -58,8 +58,8 @@ export class HTMLParts {
 	}
 	toString() {
 		let html = '';
-		for(const part of this.parts) {
-			if(ArrayBuffer.isView(part)) {
+		for (const part of this.parts) {
+			if (ArrayBuffer.isView(part)) {
 				html += decoder.decode(part);
 			} else {
 				html += part;
@@ -69,7 +69,7 @@ export class HTMLParts {
 	}
 	toArrayBuffer() {
 		this.parts.forEach((part, i) => {
-			if(typeof part === 'string') {
+			if (typeof part === 'string') {
 				this.parts[i] = encoder.encode(String(part));
 			}
 		});
@@ -77,8 +77,11 @@ export class HTMLParts {
 	}
 }
 
-export function chunkToByteArray(result: SSRResult, chunk: string | HTMLBytes | RenderInstruction): Uint8Array {
-	if(chunk instanceof Uint8Array) {
+export function chunkToByteArray(
+	result: SSRResult,
+	chunk: string | HTMLBytes | RenderInstruction
+): Uint8Array {
+	if (chunk instanceof Uint8Array) {
 		return chunk as Uint8Array;
 	}
 	return encoder.encode(stringifyChunk(result, chunk));
@@ -86,10 +89,10 @@ export function chunkToByteArray(result: SSRResult, chunk: string | HTMLBytes | 
 
 export function concatUint8Arrays(arrays: Array<Uint8Array>) {
 	let len = 0;
-	arrays.forEach(arr => len += arr.length);
+	arrays.forEach((arr) => (len += arr.length));
 	let merged = new Uint8Array(len);
 	let offset = 0;
-	arrays.forEach(arr => {
+	arrays.forEach((arr) => {
 		merged.set(arr, offset);
 		offset += arr.length;
 	});

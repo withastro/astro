@@ -1,11 +1,11 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 
+import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
 import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
-import { encoder, chunkToByteArray, HTMLParts } from './common.js';
+import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
-import { isHTMLString } from '../escape.js';
 import { maybeRenderHead } from './head.js';
 
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
@@ -72,14 +72,14 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								if(isHTMLString(chunk)) {
+								if (isHTMLString(chunk)) {
 									if (i === 0) {
 										if (!/<!doctype html/i.test(String(chunk))) {
 											controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
 										}
 									}
 								}
-								
+
 								let bytes = chunkToByteArray(result, chunk);
 								controller.enqueue(bytes);
 								i++;
@@ -96,7 +96,7 @@ export async function renderPage(
 			let parts = new HTMLParts();
 			let i = 0;
 			for await (const chunk of iterable) {
-				if(isHTMLString(chunk)) {
+				if (isHTMLString(chunk)) {
 					if (i === 0) {
 						if (!/<!doctype html/i.test(String(chunk))) {
 							parts.append('<!DOCTYPE html>\n', result);

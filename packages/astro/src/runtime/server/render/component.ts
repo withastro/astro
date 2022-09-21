@@ -1,7 +1,7 @@
 import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { markHTMLString, HTMLBytes } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';

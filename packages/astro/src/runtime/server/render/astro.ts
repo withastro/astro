@@ -2,7 +2,7 @@ import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 import type { RenderInstruction } from './types';
 
-import { markHTMLString, HTMLBytes } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
 import { renderChild } from './any.js';
 import { HTMLParts } from './common.js';

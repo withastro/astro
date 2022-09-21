@@ -3,8 +3,8 @@ import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
-	HTMLString,
 	HTMLBytes,
+	HTMLString,
 	markHTMLString,
 	renderComponent,
 	RenderInstruction,
