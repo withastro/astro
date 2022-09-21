@@ -1,8 +1,9 @@
-import type { RendererContext, SignalLike } from './types';
+import type { AstroPreactAttrs, RendererContext } from './types';
 import { h, Component as BaseComponent } from 'preact';
 import render from 'preact-render-to-string';
 import StaticHtml from './static-html.js';
-import { getContext, incrementId } from './context.js';
+import { getContext } from './context.js';
+import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
@@ -37,10 +38,6 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 	}
 }
 
-function isSignal(x: any): x is SignalLike {
-	return x != null && typeof x === 'object' && typeof x.peek === 'function' && 'value' in x;
-}
-
 function renderToStaticMarkup(this: RendererContext, Component: any, props: Record<string, any>, { default: children, ...slotted }: Record<string, any>) {
 	const ctx = getContext(this.result);
 
@@ -49,30 +46,14 @@ function renderToStaticMarkup(this: RendererContext, Component: any, props: Reco
 		const name = slotName(key);
 		slots[name] = h(StaticHtml, { value, name });
 	}
-	// Note: create newProps to avoid mutating `props` before they are serialized
+
+	// Restore signals back onto props so that they will be passed as-is to components
+	restoreSignalsOnProps(ctx, props);
+
 	const newProps = { ...props, ...slots };
 
-	// Check for signals
-	const signals: Record<string, string> = {};
-	for(const [key, value] of Object.entries(props)) {
-		if(isSignal(value)) {
-			// Set the value to the current signal value
-			newProps[key] = value.peek();
-
-			let id: string;
-			if(ctx.signals.has(value)) {
-				id = ctx.signals.get(value)!;
-			} else {
-				id = incrementId(ctx);
-				ctx.signals.set(value, id);
-			}
-			signals[key] = id;
-		}
-	}
-	const attrs: { ['data-preact-signals']?: string } = {};
-	if(Object.keys(signals).length) {
-		attrs['data-preact-signals'] = JSON.stringify(signals);
-	}
+	const attrs: AstroPreactAttrs = {};
+	serializeSignals(ctx, props, attrs);
 
 	const html = render(
 		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
@@ -82,6 +63,7 @@ function renderToStaticMarkup(this: RendererContext, Component: any, props: Reco
 		html
 	};
 }
+
 
 /**
  * Reduces console noise by filtering known non-problematic errors.

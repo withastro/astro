@@ -2557,16 +2557,16 @@ importers:
     specifiers:
       '@babel/core': '>=7.0.0-0 <8.0.0'
       '@babel/plugin-transform-react-jsx': ^7.17.12
-      '@preact/signals': 1.0.3
+      '@preact/signals': ^1.1.0
       astro: workspace:*
       astro-scripts: workspace:*
       babel-plugin-module-resolver: ^4.1.0
       preact: ^10.7.3
-      preact-render-to-string: ^5.2.0
+      preact-render-to-string: ^5.2.4
     dependencies:
       '@babel/core': 7.19.1
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.19.1
-      '@preact/signals': 1.0.3_preact@10.11.0
+      '@preact/signals': 1.1.0_preact@10.11.0
       babel-plugin-module-resolver: 4.1.0
       preact-render-to-string: 5.2.4_preact@10.11.0
     devDependencies:
@@ -5838,12 +5838,25 @@ packages:
     resolution: {integrity: sha512-1yBu72jd80QWdp8WvNFBg7K+0REv+NqJg1CGIwAl5kJ+qE7I06Lm2+K3z2qVZmABiDjQgjU2vKA9yEjniWv5uA==}
     dev: false
 
+  /@preact/signals-core/1.2.0:
+    resolution: {integrity: sha512-GBjq/8WJkh/aenrEMvWIOr1lRfu6nb25er0m6r+4qVqKC85mXAYIbGHnoHTooNXCKxn2KEMUrATvN54MdMHE1A==}
+    dev: false
+
   /@preact/signals/1.0.3_preact@10.11.0:
     resolution: {integrity: sha512-aBUYPBzdw+UD99t3n2v+OKecjaA2SnvImLDKH7jZtgwPE6E4Jr+B+H3P1tYty+bRsIKnHuFcvYUIZJAP1armFw==}
     peerDependencies:
       preact: 10.x
     dependencies:
       '@preact/signals-core': 1.0.1
+      preact: 10.11.0
+    dev: false
+
+  /@preact/signals/1.1.0_preact@10.11.0:
+    resolution: {integrity: sha512-lW00Ny4q65o0BiymwbhPtIo9Fne8DUflvKVJBNwI6UeN8pZXWLdeZEr3YjMV5aXEP65Eh6yLhKQnn1jCSfzYug==}
+    peerDependencies:
+      preact: 10.x
+    dependencies:
+      '@preact/signals-core': 1.2.0
       preact: 10.11.0
     dev: false
 
