@@ -1,8 +1,6 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
 
-
-
 /**
  * This plugin handles every file that runs through our JSX plugin.
  * Since we statically match every JSX file to an Astro renderer based on import scanning,
@@ -116,7 +114,6 @@ export default function tagExportsWithRenderer({
 					}
 				},
 			},
-			
 		},
 	};
 }
