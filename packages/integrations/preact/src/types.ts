@@ -10,5 +10,5 @@ export type SignalLike = {
 export type PropNameToSignalMap = Map<string, SignalLike>;
 
 export type AstroPreactAttrs = {
-	['data-preact-signals']?: string
+	['data-preact-signals']?: string;
 };

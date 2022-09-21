@@ -93,7 +93,6 @@ describe('Preact component', () => {
 		expect(sigs1Raw).to.not.be.undefined;
 		expect(sigs2Raw).to.not.be.undefined;
 
-
 		const sigs1 = JSON.parse(sigs1Raw);
 		const sigs2 = JSON.parse(sigs2Raw);
 

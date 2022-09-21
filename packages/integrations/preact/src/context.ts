@@ -1,4 +1,4 @@
-import type { RendererContext, SignalLike, PropNameToSignalMap } from './types';
+import type { PropNameToSignalMap, RendererContext, SignalLike } from './types';
 
 export type Context = {
 	id: string;
@@ -19,7 +19,7 @@ export function getContext(result: RendererContext['result']): Context {
 			return 'p' + this.c.toString();
 		},
 		signals: new Map(),
-		propsToSignals: new Map()
+		propsToSignals: new Map(),
 	};
 	contexts.set(result, ctx);
 	return ctx;
