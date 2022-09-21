@@ -1,11 +1,9 @@
 import { h, Fragment } from 'preact';
-import { useState } from 'preact/hooks';
 import './Counter.css';
 
-export default function Counter({ children }) {
-	const [count, setCount] = useState(0);
-	const add = () => setCount((i) => i + 1);
-	const subtract = () => setCount((i) => i - 1);
+export default function Counter({ children, count }) {
+	const add = () => count.value++
+	const subtract = () => count.value--;
 
 	return (
 		<>

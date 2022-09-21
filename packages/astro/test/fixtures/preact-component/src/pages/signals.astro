@@ -1,0 +1,14 @@
+---
+import Signals from '../components/Signals';
+import { signal } from '@preact/signals';
+const count = signal(1);
+---
+<html>
+	<head>
+		<title>Testing</title>
+	</head>
+	<body>
+		<Signals client:load count={count} />
+		<Signals client:load count={count} />
+	</body>
+</html>
