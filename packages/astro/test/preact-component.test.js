@@ -87,8 +87,15 @@ describe('Preact component', () => {
 		const $ = cheerio.load(html);
 		expect($('.preact-signal')).to.have.a.lengthOf(2);
 
-		const sigs1 = JSON.parse($($('astro-island')[0]).attr('data-preact-signals'));
-		const sigs2 = JSON.parse($($('astro-island')[1]).attr('data-preact-signals'));
+		const sigs1Raw = $($('astro-island')[0]).attr('data-preact-signals');
+		const sigs2Raw = $($('astro-island')[1]).attr('data-preact-signals');
+
+		expect(sigs1Raw).to.not.be.undefined;
+		expect(sigs2Raw).to.not.be.undefined;
+
+
+		const sigs1 = JSON.parse(sigs1Raw);
+		const sigs2 = JSON.parse(sigs2Raw);
 
 		expect(sigs1.count).to.not.be.undefined;
 		expect(sigs1.count).to.equal(sigs2.count);

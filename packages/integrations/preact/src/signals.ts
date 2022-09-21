@@ -18,9 +18,10 @@ export function restoreSignalsOnProps(ctx: Context, props: Record<string, any>) 
 	for(const [key, signal] of propMap) {
 		props[key] = signal;
 	}
+	return propMap;
 }
 
-export function serializeSignals(ctx: Context, props: Record<string, any>, attrs: AstroPreactAttrs){ 
+export function serializeSignals(ctx: Context, props: Record<string, any>, attrs: AstroPreactAttrs, map: PropNameToSignalMap){ 
 		// Check for signals
 		const signals: Record<string, string> = {};
 		for(const [key, value] of Object.entries(props)) {
@@ -28,6 +29,7 @@ export function serializeSignals(ctx: Context, props: Record<string, any>, attrs
 				// Set the value to the current signal value
 				// This mutates the props on purpose, so that it will be serialized correct.
 				props[key] = value.peek();
+				map.set(key, value);
 	
 				let id: string;
 				if(ctx.signals.has(value)) {

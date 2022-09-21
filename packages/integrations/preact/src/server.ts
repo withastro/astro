@@ -48,12 +48,12 @@ function renderToStaticMarkup(this: RendererContext, Component: any, props: Reco
 	}
 
 	// Restore signals back onto props so that they will be passed as-is to components
-	restoreSignalsOnProps(ctx, props);
+	let propsMap = restoreSignalsOnProps(ctx, props);
 
 	const newProps = { ...props, ...slots };
 
 	const attrs: AstroPreactAttrs = {};
-	serializeSignals(ctx, props, attrs);
+	serializeSignals(ctx, props, attrs, propsMap);
 
 	const html = render(
 		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
