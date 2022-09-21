@@ -3,6 +3,7 @@ import type { AstroConfig } from '../../@types/astro';
 import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
+import { pathToFileURL } from 'url';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash } from '../path.js';
 import { AggregateError, viteID } from '../util.js';
@@ -38,7 +39,7 @@ async function compile({
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		pathname: filename,
+		pathname: pathToFileURL(filename).pathname,
 		projectRoot: config.root.toString(),
 		site: config.site?.toString(),
 		sourcefile: filename,
