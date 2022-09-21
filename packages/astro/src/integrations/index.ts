@@ -289,6 +289,28 @@ export async function runHookBuildSsr({
 	}
 }
 
+export async function runHookBuildGenerated({
+	config,
+	buildConfig,
+	logging,
+}: {
+	config: AstroConfig;
+	buildConfig: BuildConfig;
+	logging: LogOptions;
+}) {
+	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+
+	for (const integration of config.integrations) {
+		if (integration?.hooks?.['astro:build:generated']) {
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:generated']({ dir }),
+				logging,
+			});
+		}
+	}
+}
+
 export async function runHookBuildDone({
 	config,
 	buildConfig,

@@ -26,6 +26,9 @@ declare const Astro: {
 		5: (value) => new Set(JSON.parse(value, reviver)),
 		6: (value) => BigInt(value),
 		7: (value) => new URL(value),
+		8: (value) => new Uint8Array(JSON.parse(value)),
+		9: (value) => new Uint16Array(JSON.parse(value)),
+		10: (value) => new Uint32Array(JSON.parse(value)),
 	};
 
 	const reviver = (propKey: string, raw: string): any => {
