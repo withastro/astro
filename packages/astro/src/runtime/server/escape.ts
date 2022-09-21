@@ -16,7 +16,7 @@ export class HTMLBytes extends Uint8Array {
  */
 export class HTMLString extends String {
 	get [Symbol.toStringTag]() {
-		return 'HTMLSTring';
+		return 'HTMLString';
 	}
 }
 
