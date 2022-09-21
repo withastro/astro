@@ -148,6 +148,7 @@ describe('Slots', () => {
 			const $ = cheerio.load(html);
 
 			expect($('#render-args')).to.have.lengthOf(1);
+			expect($('#render-args span')).to.have.lengthOf(1);
 			expect($('#render-args').text()).to.equal('render-args');
 		}
 	});

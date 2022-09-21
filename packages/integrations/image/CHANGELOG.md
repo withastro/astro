@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.7.1
+
+### Patch Changes
+
+- [#4800](https://github.com/withastro/astro/pull/4800) [`ea37de86e`](https://github.com/withastro/astro/commit/ea37de86e4b0f1e1e371fabf37495321c71bd24d) Thanks [@obennaci](https://github.com/obennaci)! - Prevent background flattening on formats supporting transparency
+
 ## 0.7.0
 
 ### Minor Changes
