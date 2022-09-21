@@ -1,5 +1,17 @@
 # @astrojs/language-server
 
+## 0.27.0
+
+### Minor Changes
+
+- a88e58b: Add support for Go to References
+- 796d2d2: Add support for finding file references (Right click about anywhere / Command > Astro: Find File References"
+- 2a8fba0: Add support for Go to Implementation inside Astro files
+
+### Patch Changes
+
+- a3daea4: Improve completions on the Fragment element, add completions for slot on components
+
 ## 0.26.2
 
 ### Patch Changes
