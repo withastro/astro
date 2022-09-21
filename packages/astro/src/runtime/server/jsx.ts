@@ -142,7 +142,6 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				);
 			}
 			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				//let parts: Uint8Array[] = [];
 				let parts = new HTMLParts();
 				for await (const chunk of output) {
 					parts.append(chunk, result);
