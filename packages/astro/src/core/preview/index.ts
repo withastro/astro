@@ -113,15 +113,18 @@ export default async function preview(
 			const listen = () => {
 				httpServer = server.listen(port, host, async () => {
 					if (!showedListenMsg) {
-						const devServerAddressInfo = server.address() as AddressInfo;
+						const resolvedUrls = msg.resolveServerUrls({
+							address: server.address() as AddressInfo,
+							host: settings.config.server.host,
+							https: false,
+						});
 						info(
 							logging,
 							null,
-							msg.devStart({
+							msg.serverStart({
 								startupTime: performance.now() - timerStart,
-								config: settings.config,
-								devServerAddressInfo,
-								https: false,
+								resolvedUrls,
+								host: settings.config.server.host,
 								site: baseURL,
 							})
 						);
