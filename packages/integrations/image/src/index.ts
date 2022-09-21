@@ -113,7 +113,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 				// Helpers for building static images should only be available for SSG
 				if (_config.output === 'static') {
-					globalThis.astroImage!.addStaticImage = addStaticImage;
+					globalThis.astroImage.addStaticImage = addStaticImage;
 				}
 			},
 			'astro:build:generated': async ({ dir }) => {
@@ -121,6 +121,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				const loader = globalThis?.astroImage?.loader;
 
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
+					// For the Squoosh service, copy all wasm files to dist/chunks.
+					// Because the default loader is dynamically imported (above),
+					// Vite will bundle squoosh to dist/chunks and expect to find the wasm files there
 					await copyWasmFiles(new URL('./chunks', dir));
 				}
 
