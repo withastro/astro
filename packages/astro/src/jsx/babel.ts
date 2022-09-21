@@ -219,7 +219,7 @@ export default function astroJSX(): PluginObj {
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
 						const fileURL = pathToFileURL(state.filename!);
-						resolvedPath = resolveClientDevPath(`/@fs${new URL(meta.path, fileURL).pathname}`);
+						resolvedPath = resolveClientDevPath(new URL(meta.path, fileURL).pathname);
 					} else {
 						resolvedPath = meta.path;
 					}
@@ -299,7 +299,7 @@ export default function astroJSX(): PluginObj {
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
 						const fileURL = pathToFileURL(state.filename!);
-						resolvedPath = resolveClientDevPath(`/@fs${new URL(meta.path, fileURL).pathname}`);
+						resolvedPath = resolveClientDevPath(new URL(meta.path, fileURL).pathname);
 					} else {
 						resolvedPath = meta.path;
 					}
