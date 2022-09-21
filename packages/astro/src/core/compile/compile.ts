@@ -38,8 +38,7 @@ async function compile({
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		// For Windows compat, prepend the module ID with `/@fs`
-		pathname: `/@fs${prependForwardSlash(moduleId)}`,
+		pathname: filename,
 		projectRoot: config.root.toString(),
 		site: config.site?.toString(),
 		sourcefile: filename,

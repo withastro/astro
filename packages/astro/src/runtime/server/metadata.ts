@@ -40,7 +40,7 @@ export class Metadata {
 		if (specifier.startsWith('.')) {
 			const resolved = new URL(specifier, this.mockURL).pathname;
 			// Vite does not resolve .jsx -> .tsx when coming from the client, so clip the extension.
-			if (resolved.startsWith('/@fs') && resolved.endsWith('.jsx')) {
+			if (resolved.endsWith('.jsx')) {
 				return resolved.slice(0, resolved.length - 4);
 			}
 			return resolved;

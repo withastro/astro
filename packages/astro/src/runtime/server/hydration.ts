@@ -140,6 +140,9 @@ export async function generateHydrateScript(
 	}
 
 	// Add component url
+	// NOTE: `result.resolve` expects a specifier, componentUrl isn't, making
+	// this implementation fragile.
+	// TODO: fix this
 	island.props['component-url'] = await result.resolve(decodeURI(componentUrl));
 
 	// Add renderer url
