@@ -61,13 +61,12 @@ jobs:
         with:
           eslint: true
           eslint_extensions: js,ts,cts,mts,cjs,mjs
-          eslint_auto_fix: true
           prettier: false
-          auto_fix: true
+          auto_fix: false
           git_name: fredkbot
           git_email: fred+astrobot@astro.build
           commit_message: 'chore(lint): ${linter} fix'
-          github_token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
       # Checks that the formatter runs successfully on all files
