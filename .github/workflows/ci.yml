@@ -55,11 +55,13 @@ jobs:
       # Otherwise, run lint autofixer
       - name: Lint
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
-        uses: wearerequired/lint-action@v1.11.1
+        uses: wearerequired/lint-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
+          eslint_extensions: js,ts,cts,mts,cjs,mjs
+          eslint_auto_fix: true
           prettier: false
           auto_fix: true
           git_name: github-actions[bot]
@@ -97,7 +99,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Build Packages
         run: pnpm run build
 
