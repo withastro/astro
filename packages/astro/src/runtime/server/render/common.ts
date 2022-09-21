@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { markHTMLString, HTMLBytes } from '../escape.js';
+import { markHTMLString, HTMLBytes, isHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -41,6 +41,39 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 		default: {
 			return chunk.toString();
 		}
+	}
+}
+
+export class HTMLParts {
+	public parts: Array<HTMLBytes | string>;
+	constructor() {
+		this.parts = [];
+	}
+	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
+		if(ArrayBuffer.isView(part)) {
+			this.parts.push(part);
+		} else {
+			this.parts.push(stringifyChunk(result, part));
+		}
+	}
+	toString() {
+		let html = '';
+		for(const part of this.parts) {
+			if(ArrayBuffer.isView(part)) {
+				html += decoder.decode(part);
+			} else {
+				html += part;
+			}
+		}
+		return html;
+	}
+	toArrayBuffer() {
+		this.parts.forEach((part, i) => {
+			if(typeof part === 'string') {
+				this.parts[i] = encoder.encode(String(part));
+			}
+		});
+		return concatUint8Arrays(this.parts as Uint8Array[]);
 	}
 }
 

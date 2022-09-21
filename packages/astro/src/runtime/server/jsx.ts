@@ -12,7 +12,7 @@ import {
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
-import { chunkToByteArray, decoder, concatUint8Arrays } from './render/common.js';
+import { HTMLParts } from './render/common.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -142,11 +142,12 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				);
 			}
 			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				let parts: Uint8Array[] = [];
+				//let parts: Uint8Array[] = [];
+				let parts = new HTMLParts();
 				for await (const chunk of output) {
-					parts.push(chunkToByteArray(result, chunk));
+					parts.append(chunk, result);
 				}
-				return markHTMLString(decoder.decode(concatUint8Arrays(parts)));
+				return markHTMLString(parts.toString());
 			} else {
 				return markHTMLString(output);
 			}

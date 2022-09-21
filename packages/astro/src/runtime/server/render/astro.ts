@@ -5,7 +5,7 @@ import type { RenderInstruction } from './types';
 import { markHTMLString, HTMLBytes } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
 import { renderChild } from './any.js';
-import { chunkToByteArray, concatUint8Arrays, decoder } from './common.js';
+import { HTMLParts } from './common.js';
 
 // In dev mode, check props and make sure they are valid for an Astro component
 function validateComponentProps(props: any, displayName: string) {
@@ -95,11 +95,11 @@ export async function renderToString(
 		throw response;
 	}
 
-	let bytes: Uint8Array[] = [];
+	let parts = new HTMLParts();
 	for await (const chunk of renderAstroComponent(Component)) {
-		bytes.push(chunkToByteArray(result, chunk));
+		parts.append(chunk, result);
 	}
-	return decoder.decode(concatUint8Arrays(bytes));
+	return parts.toString();
 }
 
 export async function renderToIterable(

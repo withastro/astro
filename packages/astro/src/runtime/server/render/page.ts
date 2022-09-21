@@ -3,7 +3,7 @@ import type { AstroComponentFactory } from './index';
 
 import { createResponse } from '../response.js';
 import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
-import { encoder, chunkToByteArray, concatUint8Arrays } from './common.js';
+import { encoder, chunkToByteArray, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { isHTMLString } from '../escape.js';
 import { maybeRenderHead } from './head.js';
@@ -93,20 +93,20 @@ export async function renderPage(
 				},
 			});
 		} else {
-			let parts: Array<Uint8Array> = [];
+			let parts = new HTMLParts();
 			let i = 0;
 			for await (const chunk of iterable) {
 				if(isHTMLString(chunk)) {
 					if (i === 0) {
 						if (!/<!doctype html/i.test(String(chunk))) {
-							parts.push(encoder.encode('<!DOCTYPE html>\n'));
+							parts.append('<!DOCTYPE html>\n', result);
 						}
 					}
 				}
-				parts.push(chunkToByteArray(result, chunk));
+				parts.append(chunk, result);
 				i++;
 			}
-			body = concatUint8Arrays(parts);
+			body = parts.toArrayBuffer();
 			headers.set('Content-Length', body.byteLength.toString());
 		}
 
