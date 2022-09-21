@@ -11,6 +11,9 @@ const PROP_TYPE = {
 	Set: 5,
 	BigInt: 6,
 	URL: 7,
+	Uint8Array: 8,
+	Uint16Array: 9,
+	Uint32Array: 10,
 };
 
 function serializeArray(
@@ -84,6 +87,15 @@ function convertToSerializedForm(
 		}
 		case '[object Array]': {
 			return [PROP_TYPE.JSON, JSON.stringify(serializeArray(value, metadata, parents))];
+		}
+		case '[object Uint8Array]': {
+			return [PROP_TYPE.Uint8Array, JSON.stringify(Array.from(value as Uint8Array))];
+		}
+		case '[object Uint16Array]': {
+			return [PROP_TYPE.Uint16Array, JSON.stringify(Array.from(value as Uint16Array))];
+		}
+		case '[object Uint32Array]': {
+			return [PROP_TYPE.Uint32Array, JSON.stringify(Array.from(value as Uint32Array))];
 		}
 		default: {
 			if (value !== null && typeof value === 'object') {
