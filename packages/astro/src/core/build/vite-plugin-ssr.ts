@@ -103,7 +103,11 @@ export async function injectManifest(buildOpts: StaticBuildOptions, internals: B
 
 	const staticFiles = internals.staticFiles;
 	const manifest = buildManifest(buildOpts, internals, Array.from(staticFiles));
-	await runHookBuildSsr({ config: buildOpts.astroConfig, manifest, logging: buildOpts.logging });
+	await runHookBuildSsr({
+		config: buildOpts.settings.config,
+		manifest,
+		logging: buildOpts.logging,
+	});
 
 	const chunk = internals.ssrEntryChunk;
 	const code = chunk.code;
@@ -120,11 +124,11 @@ function buildManifest(
 	internals: BuildInternals,
 	staticFiles: string[]
 ): SerializedSSRManifest {
-	const { astroConfig } = opts;
+	const { settings } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+	if (settings.scripts.some((script) => script.stage === 'page')) {
 		staticFiles.push(entryModules[PAGE_SCRIPT_ID]);
 	}
 
@@ -133,7 +137,7 @@ function buildManifest(
 		if (pageData.hoistedScript) {
 			scripts.unshift(pageData.hoistedScript);
 		}
-		if (astroConfig._ctx.scripts.some((script) => script.stage === 'page')) {
+		if (settings.scripts.some((script) => script.stage === 'page')) {
 			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
@@ -142,28 +146,28 @@ function buildManifest(
 			links: sortedCSS(pageData),
 			scripts: [
 				...scripts,
-				...astroConfig._ctx.scripts
+				...settings.scripts
 					.filter((script) => script.stage === 'head-inline')
 					.map(({ stage, content }) => ({ stage, children: content })),
 			],
-			routeData: serializeRouteData(pageData.route, astroConfig.trailingSlash),
+			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
 	}
 
 	// HACK! Patch this special one.
 	if (!(BEFORE_HYDRATION_SCRIPT_ID in entryModules)) {
-		entryModules[BEFORE_HYDRATION_SCRIPT_ID] =
-			'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+		// Set this to an empty string so that the runtime knows not to try and load this.
+		entryModules[BEFORE_HYDRATION_SCRIPT_ID] = '';
 	}
 
 	const ssrManifest: SerializedSSRManifest = {
-		adapterName: opts.astroConfig._ctx.adapter!.name,
+		adapterName: opts.settings.adapter!.name,
 		routes,
-		site: astroConfig.site,
-		base: astroConfig.base,
+		site: settings.config.site,
+		base: settings.config.base,
 		markdown: {
-			...astroConfig.markdown,
-			isAstroFlavoredMd: astroConfig.legacy.astroFlavoredMarkdown,
+			...settings.config.markdown,
+			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 		},
 		pageMap: null as any,
 		renderers: [],

@@ -4,13 +4,14 @@ import type { ViteDevServer } from 'vite';
 import {
 	AstroConfig,
 	AstroRenderer,
+	AstroSettings,
 	BuildConfig,
 	HookParameters,
 	RouteData,
 } from '../@types/astro.js';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import { mergeConfig } from '../core/config.js';
+import { mergeConfig } from '../core/config/config.js';
 import type { ViteConfigWithSSR } from '../core/create-vite.js';
 import { info, LogOptions } from '../core/logger/core.js';
 
@@ -34,21 +35,22 @@ async function withTakingALongTimeMsg<T>({
 }
 
 export async function runHookConfigSetup({
-	config: _config,
+	settings,
 	command,
 	logging,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	command: 'dev' | 'build';
 	logging: LogOptions;
-}): Promise<AstroConfig> {
+}): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
-	if (_config.adapter) {
-		_config.integrations.push(_config.adapter);
+	if (settings.config.adapter) {
+		settings.config.integrations.push(settings.config.adapter);
 	}
 
-	let updatedConfig: AstroConfig = { ..._config };
-	for (const integration of _config.integrations) {
+	let updatedConfig: AstroConfig = { ...settings.config };
+	let updatedSettings: AstroSettings = { ...settings, config: updatedConfig };
+	for (const integration of settings.config.integrations) {
 		/**
 		 * By making integration hooks optional, Astro can now ignore null or undefined Integrations
 		 * instead of giving an internal error most people can't read
@@ -74,22 +76,22 @@ export async function runHookConfigSetup({
 						throw new Error(`Renderer ${bold(renderer.name)} does not provide a serverEntrypoint.`);
 					}
 
-					updatedConfig._ctx.renderers.push(renderer);
+					updatedSettings.renderers.push(renderer);
 				},
 				injectScript: (stage, content) => {
-					updatedConfig._ctx.scripts.push({ stage, content });
+					updatedSettings.scripts.push({ stage, content });
 				},
 				updateConfig: (newConfig) => {
 					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
 				},
 				injectRoute: (injectRoute) => {
-					updatedConfig._ctx.injectedRoutes.push(injectRoute);
+					updatedSettings.injectedRoutes.push(injectRoute);
 				},
 			};
 			// Semi-private `addPageExtension` hook
 			function addPageExtension(...input: (string | string[])[]) {
 				const exts = (input.flat(Infinity) as string[]).map((ext) => `.${ext.replace(/^\./, '')}`);
-				updatedConfig._ctx.pageExtensions.push(...exts);
+				updatedSettings.pageExtensions.push(...exts);
 			}
 			Object.defineProperty(hooks, 'addPageExtension', {
 				value: addPageExtension,
@@ -103,29 +105,31 @@ export async function runHookConfigSetup({
 			});
 		}
 	}
-	return updatedConfig;
+
+	updatedSettings.config = updatedConfig;
+	return updatedSettings;
 }
 
 export async function runHookConfigDone({
-	config,
+	settings,
 	logging,
 }: {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }) {
-	for (const integration of config.integrations) {
+	for (const integration of settings.config.integrations) {
 		if (integration?.hooks?.['astro:config:done']) {
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:config:done']({
-					config,
+					config: settings.config,
 					setAdapter(adapter) {
-						if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
+						if (settings.adapter && settings.adapter.name !== adapter.name) {
 							throw new Error(
-								`Integration "${integration.name}" conflicts with "${config._ctx.adapter.name}". You can only configure one deployment integration.`
+								`Integration "${integration.name}" conflicts with "${settings.adapter.name}". You can only configure one deployment integration.`
 							);
 						}
-						config._ctx.adapter = adapter;
+						settings.adapter = adapter;
 					},
 				}),
 				logging,
@@ -257,6 +261,28 @@ export async function runHookBuildSsr({
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:ssr']({ manifest }),
+				logging,
+			});
+		}
+	}
+}
+
+export async function runHookBuildGenerated({
+	config,
+	buildConfig,
+	logging,
+}: {
+	config: AstroConfig;
+	buildConfig: BuildConfig;
+	logging: LogOptions;
+}) {
+	const dir = config.output === 'server' ? buildConfig.client : config.outDir;
+
+	for (const integration of config.integrations) {
+		if (integration?.hooks?.['astro:build:generated']) {
+			await withTakingALongTimeMsg({
+				name: integration.name,
+				hookResult: integration.hooks['astro:build:generated']({ dir }),
 				logging,
 			});
 		}

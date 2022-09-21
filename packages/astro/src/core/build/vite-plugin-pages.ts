@@ -10,7 +10,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if (opts.astroConfig.output === 'static') {
+			if (opts.settings.config.output === 'static') {
 				return addRollupInput(options, [pagesVirtualModuleId]);
 			}
 		},
@@ -35,7 +35,7 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 				i = 0;
 				let rendererItems = '';
-				for (const renderer of opts.astroConfig._ctx.renderers) {
+				for (const renderer of opts.settings.renderers) {
 					const variable = `_renderer${i}`;
 					// Use unshift so that renderers are imported before user code, in case they set globals
 					// that user code depends on.

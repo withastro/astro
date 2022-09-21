@@ -10,7 +10,7 @@ import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { resolveConfigPath } from '../config.js';
+import { resolveConfigPath } from '../config/index.js';
 import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -304,11 +304,12 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 //  - 123numeric => numeric
 //  - @npm/thingy => npmThingy
 //  - @jane/foo.js => janeFoo
+//  - @tokencss/astro => tokencss
 const toIdent = (name: string) => {
 	const ident = name
 		.trim()
 		// Remove astro or (astrojs) prefix and suffix
-		.replace(/[-_\.]?astro(?:js)?[-_\.]?/g, '')
+		.replace(/[-_\.\/]?astro(?:js)?[-_\.]?/g, '')
 		// drop .js suffix
 		.replace(/\.js/, '')
 		// convert to camel case

@@ -68,8 +68,10 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	const newProps = {
 		...props,
 		...slots,
-		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
 	};
+	if (children != null) {
+		newProps.children = React.createElement(StaticHtml, { value: children });
+	}
 	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {
@@ -119,8 +121,11 @@ async function renderToPipeableStreamAsync(vnode) {
 async function renderToStaticNodeStreamAsync(vnode) {
 	const Writable = await getNodeWritable();
 	let html = '';
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		let stream = ReactDOM.renderToStaticNodeStream(vnode);
+		stream.on('error', (err) => {
+			reject(err);
+		});
 		stream.pipe(
 			new Writable({
 				write(chunk, _encoding, callback) {

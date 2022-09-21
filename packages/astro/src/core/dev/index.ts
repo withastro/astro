@@ -2,7 +2,7 @@ import type { AstroTelemetry } from '@astrojs/telemetry';
 import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
-import type { AstroConfig } from '../../@types/astro';
+import type { AstroSettings } from '../../@types/astro';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
@@ -28,17 +28,20 @@ export interface DevServer {
 }
 
 /** `astro dev` */
-export default async function dev(config: AstroConfig, options: DevOptions): Promise<DevServer> {
+export default async function dev(
+	settings: AstroSettings,
+	options: DevOptions
+): Promise<DevServer> {
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
-	config = await runHookConfigSetup({ config, command: 'dev', logging: options.logging });
-	const { host, port } = config.server;
+	settings = await runHookConfigSetup({ settings, command: 'dev', logging: options.logging });
+	const { host, port } = settings.config.server;
 	const { isRestart = false } = options;
 
 	// The client entrypoint for renderers. Since these are imported dynamically
 	// we need to tell Vite to preoptimize them.
-	const rendererClientEntries = config._ctx.renderers
+	const rendererClientEntries = settings.renderers
 		.map((r) => r.clientEntrypoint)
 		.filter(Boolean) as string[];
 
@@ -50,24 +53,24 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 				include: rendererClientEntries,
 			},
 		},
-		{ astroConfig: config, logging: options.logging, mode: 'dev' }
+		{ settings, logging: options.logging, mode: 'dev' }
 	);
-	await runHookConfigDone({ config, logging: options.logging });
+	await runHookConfigDone({ settings, logging: options.logging });
 	const viteServer = await vite.createServer(viteConfig);
-	runHookServerSetup({ config, server: viteServer, logging: options.logging });
+	runHookServerSetup({ config: settings.config, server: viteServer, logging: options.logging });
 	await viteServer.listen(port);
 
-	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
-	const site = config.site ? new URL(config.base, config.site) : undefined;
+	const site = settings.config.site
+		? new URL(settings.config.base, settings.config.site)
+		: undefined;
 	info(
 		options.logging,
 		null,
-		msg.devStart({
+		msg.serverStart({
 			startupTime: performance.now() - devStart,
-			config,
-			devServerAddressInfo,
+			resolvedUrls: viteServer.resolvedUrls || { local: [], network: [] },
+			host: settings.config.server.host,
 			site,
-			https: !!viteConfig.server?.https,
 			isRestart,
 		})
 	);
@@ -80,7 +83,12 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
-	await runHookServerStart({ config, address: devServerAddressInfo, logging: options.logging });
+	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
+	await runHookServerStart({
+		config: settings.config,
+		address: devServerAddressInfo,
+		logging: options.logging,
+	});
 
 	return {
 		address: devServerAddressInfo,
@@ -89,7 +97,7 @@ export default async function dev(config: AstroConfig, options: DevOptions): Pro
 		},
 		stop: async () => {
 			await viteServer.close();
-			await runHookServerDone({ config, logging: options.logging });
+			await runHookServerDone({ config: settings.config, logging: options.logging });
 		},
 	};
 }

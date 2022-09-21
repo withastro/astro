@@ -9,8 +9,9 @@ import type {
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
 import type { AddressInfo } from 'net';
+import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import { z } from 'zod';
+import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
@@ -870,18 +871,21 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+}
 
-	// Private:
-	// We have a need to pass context based on configured state,
-	// that is different from the user-exposed configuration.
-	// TODO: Create an AstroConfig class to manage this, long-term.
-	_ctx: {
-		pageExtensions: string[];
-		injectedRoutes: InjectedRoute[];
-		adapter: AstroAdapter | undefined;
-		renderers: AstroRenderer[];
-		scripts: { stage: InjectedScriptStage; content: string }[];
-	};
+export interface AstroSettings {
+	config: AstroConfig;
+
+	adapter: AstroAdapter | undefined;
+	injectedRoutes: InjectedRoute[];
+	pageExtensions: string[];
+	renderers: AstroRenderer[];
+	scripts: {
+		stage: InjectedScriptStage;
+		content: string;
+	}[];
+	tsConfig: TsConfigJson | undefined;
+	tsConfigPath: string | undefined;
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -1156,6 +1160,7 @@ export interface AstroIntegration {
 			target: 'client' | 'server';
 			updateConfig: (newConfig: ViteConfigWithSSR) => void;
 		}) => void | Promise<void>;
+		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;

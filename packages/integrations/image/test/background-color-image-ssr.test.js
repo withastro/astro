@@ -31,7 +31,7 @@ describe('SSR image with background', function () {
 			title: 'Hex color',
 			id: '#hex',
 			query: {
-				f: 'avif',
+				f: 'jpeg',
 				w: '256',
 				h: '256',
 				href: /^\/assets\/file-icon.\w{8}.png/,
@@ -42,7 +42,7 @@ describe('SSR image with background', function () {
 			title: 'Hex color short',
 			id: '#hex-short',
 			query: {
-				f: 'png',
+				f: 'jpeg',
 				w: '256',
 				h: '256',
 				href: /^\/assets\/file-icon.\w{8}.png/,
@@ -53,7 +53,7 @@ describe('SSR image with background', function () {
 			title: 'RGB color',
 			id: '#rgb',
 			query: {
-				f: 'webp',
+				f: 'jpeg',
 				w: '256',
 				h: '256',
 				href: /^\/assets\/file-icon.\w{8}.png/,
@@ -69,6 +69,28 @@ describe('SSR image with background', function () {
 				h: '256',
 				href: /^\/assets\/file-icon.\w{8}.png/,
 				bg: 'rgb(105, 105, 105)',
+			},
+		},
+		{
+			title: 'RGBA color',
+			id: '#rgba',
+			query: {
+				f: 'jpeg',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: 'rgb(105,105,105,0.5)',
+			},
+		},
+		{
+			title: 'RGBA color with spaces',
+			id: '#rgba-spaced',
+			query: {
+				f: 'jpeg',
+				w: '256',
+				h: '256',
+				href: /^\/assets\/file-icon.\w{8}.png/,
+				bg: 'rgb(105, 105, 105, 0.5)',
 			},
 		},
 	].forEach(({ title, id, query }) => {

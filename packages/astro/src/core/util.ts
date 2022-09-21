@@ -5,7 +5,7 @@ import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { ErrorPayload, ViteDevServer } from 'vite';
-import type { AstroConfig, RouteType } from '../@types/astro';
+import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 // process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
@@ -172,21 +172,21 @@ function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	return true;
 }
 
-function endsWithPageExt(file: URL, config: AstroConfig): boolean {
-	for (const ext of config._ctx.pageExtensions) {
+function endsWithPageExt(file: URL, settings: AstroSettings): boolean {
+	for (const ext of settings.pageExtensions) {
 		if (file.toString().endsWith(ext)) return true;
 	}
 	return false;
 }
 
-export function isPage(file: URL, config: AstroConfig): boolean {
-	if (!isInPagesDir(file, config)) return false;
-	if (!isPublicRoute(file, config)) return false;
-	return endsWithPageExt(file, config);
+export function isPage(file: URL, settings: AstroSettings): boolean {
+	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isPublicRoute(file, settings.config)) return false;
+	return endsWithPageExt(file, settings);
 }
 
-export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
-	return config.output === 'server' && !config._ctx.adapter;
+export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
+	return settings.config.output === 'server' && !settings.adapter;
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {

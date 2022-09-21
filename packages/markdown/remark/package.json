@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -29,6 +29,7 @@
     "acorn": "^8.7.1",
     "acorn-jsx": "^5.3.2",
     "github-slugger": "^1.4.0",
+    "hast-util-to-html": "^8.0.3",
     "mdast-util-mdx-expression": "^1.2.1",
     "mdast-util-mdx-jsx": "^1.2.0",
     "micromark-extension-mdx-expression": "^1.0.3",

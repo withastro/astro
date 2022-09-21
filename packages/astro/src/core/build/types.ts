@@ -1,5 +1,5 @@
 import type {
-	AstroConfig,
+	AstroSettings,
 	BuildConfig,
 	ComponentInstance,
 	ManifestData,
@@ -26,7 +26,7 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 /** Options for the static build */
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
-	astroConfig: AstroConfig;
+	settings: AstroSettings;
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;

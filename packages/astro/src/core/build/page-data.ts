@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData } from '../../@types/astro';
+import type { AstroSettings, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core';
 import { info } from '../logger/core.js';
 import type { AllPagesData } from './types';
@@ -7,7 +7,7 @@ import * as colors from 'kleur/colors';
 import { debug } from '../logger/core.js';
 
 export interface CollectPagesDataOptions {
-	astroConfig: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 	manifest: ManifestData;
 }
@@ -21,7 +21,7 @@ export interface CollectPagesDataResult {
 export async function collectPagesData(
 	opts: CollectPagesDataOptions
 ): Promise<CollectPagesDataResult> {
-	const { astroConfig, manifest } = opts;
+	const { settings, manifest } = opts;
 
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
@@ -58,7 +58,7 @@ export async function collectPagesData(
 			};
 
 			clearInterval(routeCollectionLogTimeout);
-			if (astroConfig.output === 'static') {
+			if (settings.config.output === 'static') {
 				const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
 				debug(
 					'build',
