@@ -57,17 +57,17 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
         uses: wearerequired/lint-action@v2.1.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
         with:
           eslint: true
           eslint_extensions: js,ts,cts,mts,cjs,mjs
           eslint_auto_fix: true
           prettier: false
           auto_fix: true
-          git_name: github-actions[bot]
-          git_email: github-actions[bot]@users.noreply.github.com
+          git_name: fredkbot
+          git_email: fred+astrobot@astro.build
           commit_message: 'chore(lint): ${linter} fix'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.FREDKBOT_GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
       # Checks that the formatter runs successfully on all files
