@@ -4,14 +4,15 @@ import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
 	HTMLString,
+	HTMLBytes,
 	markHTMLString,
 	renderComponent,
 	RenderInstruction,
 	renderToString,
 	spreadAttributes,
-	stringifyChunk,
 	voidElementNames,
 } from './index.js';
+import { chunkToByteArray, decoder, concatUint8Arrays } from './render/common.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -122,7 +123,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | RenderInstruction>;
+			let output: string | AsyncIterable<string | HTMLBytes | RenderInstruction>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
@@ -141,12 +142,11 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				);
 			}
 			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				let body = '';
+				let parts: Uint8Array[] = [];
 				for await (const chunk of output) {
-					let html = stringifyChunk(result, chunk);
-					body += html;
+					parts.push(chunkToByteArray(result, chunk));
 				}
-				return markHTMLString(body);
+				return markHTMLString(decoder.decode(concatUint8Arrays(parts)));
 			} else {
 				return markHTMLString(output);
 			}
