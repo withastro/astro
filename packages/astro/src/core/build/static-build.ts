@@ -6,7 +6,7 @@ import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { emptyDir, isModeServerWithNoAdapter, removeDir } from '../../core/util.js';
-import { runHookBuildGenerated, runHookBuildSetup } from '../../integrations/index.js';
+import { runHookBuildSetup } from '../../integrations/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import { info } from '../logger/core.js';
@@ -98,7 +98,6 @@ Learn more: https://docs.astro.build/en/guides/server-side-rendering/
 	timer.generate = performance.now();
 	if (settings.config.output === 'static') {
 		await generatePages(opts, internals);
-		await runHookBuildGenerated({ config: opts.settings.config, buildConfig: opts.buildConfig, logging: opts.logging });
 		await cleanSsrOutput(opts);
 	} else {
 		// Inject the manifest

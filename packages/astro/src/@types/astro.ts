@@ -1153,7 +1153,6 @@ export interface AstroIntegration {
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
-		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
 			vite: ViteConfigWithSSR;

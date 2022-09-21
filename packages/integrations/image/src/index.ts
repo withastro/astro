@@ -120,7 +120,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				// for SSG builds, build all requested image transforms to dist
 				const loader = globalThis?.astroImage?.loader;
 
-				await copyWasmFiles(new URL('./chunks', dir));
+				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
+					await copyWasmFiles(new URL('./chunks', dir));
+				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
 					await ssgBuild({
