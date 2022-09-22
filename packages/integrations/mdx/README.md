@@ -259,7 +259,7 @@ const { frontmatter, url } = Astro.props;
 
 #### Layout props
 
-All [exported properties](#exported-properties) are available from `Astro.props` in your layout, **with a couple key differences:**
+All [exported properties](#exported-properties) are available from `Astro.props` in your layout, **with two key differences:**
 - Heading information (i.e. `h1 -> h6` elements) is available via the `headings` array, rather than a `getHeadings()` function.
 - `file` and `url` are _also_ available as nested `frontmatter` properties (i.e. `frontmatter.url` and `frontmatter.file`). This is consistent with Astro's Markdown layout properties.
 
