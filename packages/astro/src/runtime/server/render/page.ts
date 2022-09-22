@@ -1,13 +1,13 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 
+import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
 import { isAstroComponent, isAstroComponentFactory, renderAstroComponent } from './astro.js';
-import { stringifyChunk } from './common.js';
+import { chunkToByteArray, encoder, HTMLParts } from './common.js';
 import { renderComponent } from './component.js';
 import { maybeRenderHead } from './head.js';
 
-const encoder = new TextEncoder();
 const needsHeadRenderingSymbol = Symbol.for('astro.needsHeadRendering');
 
 type NonAstroPageComponent = {
@@ -72,17 +72,16 @@ export async function renderPage(
 						let i = 0;
 						try {
 							for await (const chunk of iterable) {
-								let html = stringifyChunk(result, chunk);
-
-								if (i === 0) {
-									if (!/<!doctype html/i.test(html)) {
-										controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+								if (isHTMLString(chunk)) {
+									if (i === 0) {
+										if (!/<!doctype html/i.test(String(chunk))) {
+											controller.enqueue(encoder.encode('<!DOCTYPE html>\n'));
+										}
 									}
 								}
-								// Convert HTML object to string
-								// for environments that won't "toString" automatically
-								// (ex. Cloudflare and Vercel Edge)
-								controller.enqueue(encoder.encode(String(html)));
+
+								let bytes = chunkToByteArray(result, chunk);
+								controller.enqueue(bytes);
 								i++;
 							}
 							controller.close();
@@ -94,20 +93,21 @@ export async function renderPage(
 				},
 			});
 		} else {
-			body = '';
+			let parts = new HTMLParts();
 			let i = 0;
 			for await (const chunk of iterable) {
-				let html = stringifyChunk(result, chunk);
-				if (i === 0) {
-					if (!/<!doctype html/i.test(html)) {
-						body += '<!DOCTYPE html>\n';
+				if (isHTMLString(chunk)) {
+					if (i === 0) {
+						if (!/<!doctype html/i.test(String(chunk))) {
+							parts.append('<!DOCTYPE html>\n', result);
+						}
 					}
 				}
-				body += html;
+				parts.append(chunk, result);
 				i++;
 			}
-			const bytes = encoder.encode(body);
-			headers.set('Content-Length', bytes.byteLength.toString());
+			body = parts.toArrayBuffer();
+			headers.set('Content-Length', body.byteLength.toString());
 		}
 
 		let response = createResponse(body, { ...init, headers });

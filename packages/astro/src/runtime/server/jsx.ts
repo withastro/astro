@@ -3,15 +3,16 @@ import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
+	HTMLBytes,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
 	RenderInstruction,
 	renderToString,
 	spreadAttributes,
-	stringifyChunk,
 	voidElementNames,
 } from './index.js';
+import { HTMLParts } from './render/common.js';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -122,7 +123,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | RenderInstruction>;
+			let output: string | AsyncIterable<string | HTMLBytes | RenderInstruction>;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
@@ -141,12 +142,11 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				);
 			}
 			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				let body = '';
+				let parts = new HTMLParts();
 				for await (const chunk of output) {
-					let html = stringifyChunk(result, chunk);
-					body += html;
+					parts.append(chunk, result);
 				}
-				return markHTMLString(body);
+				return markHTMLString(parts.toString());
 			} else {
 				return markHTMLString(output);
 			}

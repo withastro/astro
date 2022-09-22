@@ -59,7 +59,7 @@ type CreateResponseFn = (body?: BodyInit | null, init?: ResponseInit) => Respons
 
 export const createResponse: CreateResponseFn = isNodeJS
 	? (body, init) => {
-			if (typeof body === 'string') {
+			if (typeof body === 'string' || ArrayBuffer.isView(body)) {
 				return new Response(body, init);
 			}
 			if (typeof StreamingCompatibleResponse === 'undefined') {

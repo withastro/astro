@@ -1,10 +1,3 @@
-function formatList(values: string[]): string {
-	if (values.length === 1) {
-		return values[0];
-	}
-	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
-}
-
 export function serializeListValue(value: any) {
 	const hash: Record<string, any> = {};
 
@@ -33,4 +26,8 @@ export function serializeListValue(value: any) {
 			}
 		}
 	}
+}
+
+export function isPromise<T = any>(value: any): value is Promise<T> {
+	return !!value && typeof value === 'object' && typeof value.then === 'function';
 }
