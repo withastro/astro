@@ -242,11 +242,6 @@ async function clientBuild(
 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
-	// Clean out directly if the outDir is outside of root
-	if (out.toString() !== opts.settings.config.outDir.toString()) {
-		await fs.promises.rm(out, { recursive: true });
-		return;
-	}
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
 		cwd: fileURLToPath(out),
@@ -257,6 +252,13 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 			await fs.promises.rm(url);
 		})
 	);
+	// Clean out directly if the outDir is outside of root
+	if (out.toString() !== opts.settings.config.outDir.toString()) {
+		// Copy assets before cleaning directory if outside root
+		copyFiles(out, opts.settings.config.outDir);
+		await fs.promises.rm(out, { recursive: true });
+		return;
+	}
 }
 
 async function copyFiles(fromFolder: URL, toFolder: URL) {
