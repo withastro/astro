@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-copy assets even if ourDir is out of process.cwd()
+copy assets even if outDir is out of process.cwd()
