@@ -52,16 +52,8 @@ function getCompatRenderer(development: boolean): AstroRenderer {
 function getViteConfiguration(compat?: boolean): ViteUserConfig {
 	const viteConfig: ViteUserConfig = {
 		optimizeDeps: {
-			include: [
-				'@astrojs/preact/client.js',
-				'preact',
-				'preact/jsx-runtime',
-				'preact-render-to-string',
-			],
+			include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
 			exclude: ['@astrojs/preact/server.js'],
-		},
-		ssr: {
-			external: ['preact-render-to-string'],
 		},
 	};
 
@@ -81,12 +73,9 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 			dedupe: ['preact/compat', 'preact'],
 		};
 		// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-		viteConfig.ssr!.noExternal = [
-			'react',
-			'react-dom',
-			'react-dom/test-utils',
-			'react/jsx-runtime',
-		];
+		viteConfig.ssr = {
+			noExternal: ['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime'],
+		};
 	}
 
 	return viteConfig;
