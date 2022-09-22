@@ -1,8 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 import { dirname } from '../emscripten-utils.js';
+const require = createRequire(import.meta.url);
 
 var Module = (function () {
   return function (Module) {

@@ -1,12 +1,12 @@
 // @ts-ignore
 import { red } from 'kleur/colors';
-import { BaseSSRService } from './index.js';
 import { error } from '../utils/logger.js';
 import { metadata } from '../utils/metadata.js';
 import { isRemoteImage } from '../utils/paths.js';
-import type { OutputFormat, TransformOptions } from './index.js';
 import { processBuffer } from '../vendor/squoosh/image-pool.js';
 import type { Operation } from '../vendor/squoosh/image.js';
+import type { OutputFormat, TransformOptions } from './index.js';
+import { BaseSSRService } from './index.js';
 
 class SquooshService extends BaseSSRService {
 	async processAvif(image: any, transform: TransformOptions) {
@@ -58,7 +58,10 @@ class SquooshService extends BaseSSRService {
 		};
 	}
 
-	async autorotate(transform: TransformOptions, inputBuffer: Buffer): Promise<Operation | undefined> {
+	async autorotate(
+		transform: TransformOptions,
+		inputBuffer: Buffer
+	): Promise<Operation | undefined> {
 		// check EXIF orientation data and rotate the image if needed
 		try {
 			const meta = await metadata(transform.src, inputBuffer);
@@ -74,15 +77,15 @@ class SquooshService extends BaseSSRService {
 				case 8:
 					return { type: 'rotate', numRotations: 3 };
 			}
-		} catch { }
+		} catch {}
 	}
 
 	async transform(inputBuffer: Buffer, transform: TransformOptions) {
 		const operations: Operation[] = [];
 
 		if (!isRemoteImage(transform.src)) {
-			const autorotate = await this.autorotate(transform, inputBuffer)
-			
+			const autorotate = await this.autorotate(transform, inputBuffer);
+
 			if (autorotate) {
 				operations.push(autorotate);
 			}
@@ -96,7 +99,7 @@ class SquooshService extends BaseSSRService {
 				type: 'resize',
 				width,
 				height,
-			})
+			});
 		}
 
 		if (!transform.format) {
@@ -108,12 +111,17 @@ class SquooshService extends BaseSSRService {
 			throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
 		}
 
-		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality || 100);
+		const data = await processBuffer(
+			inputBuffer,
+			operations,
+			transform.format,
+			transform.quality || 100
+		);
 
 		return {
 			data: Buffer.from(data),
-			format: transform.format
-		}
+			format: transform.format,
+		};
 	}
 }
 

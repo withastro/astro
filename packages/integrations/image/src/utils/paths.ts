@@ -1,4 +1,4 @@
-import { OutputFormat, TransformOptions } from '../loaders/index.js';
+import { TransformOptions } from '../loaders/index.js';
 import { shorthash } from './shorthash.js';
 
 export function isRemoteImage(src: string) {

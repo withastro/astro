@@ -1,9 +1,9 @@
 /// <reference types="astro/astro-jsx" />
 import mime from 'mime';
 import { OutputFormat, parseAspectRatio, TransformOptions } from '../loaders/index.js';
+import { extname } from '../utils/paths.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 import { getImage } from './get-image.js';
-import { extname } from '../utils/paths.js';
 
 export interface GetPictureParams {
 	src: string | ImageMetadata | Promise<{ default: ImageMetadata }>;

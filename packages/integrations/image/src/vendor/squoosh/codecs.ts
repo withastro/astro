@@ -83,7 +83,7 @@ const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString
 const rotateWasm = new URL('./rotate/rotate.wasm', import.meta.url)
 
 // Our decoders currently rely on a `ImageData` global.
-import ImageData from './image_data.js';
+import ImageData from './image_data.js'
 (global as any).ImageData = ImageData
 
 function resizeNameToIndex(

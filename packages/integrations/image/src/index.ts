@@ -3,8 +3,8 @@ import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
 import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.js';
-import { createPlugin } from './vite-plugin-astro-image.js';
 import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
+import { createPlugin } from './vite-plugin-astro-image.js';
 
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
@@ -48,19 +48,17 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
 			optimizeDeps: {
-				include: [
-					'image-size',
-				].filter(Boolean),
+				include: ['image-size'].filter(Boolean),
 			},
 			build: {
-        rollupOptions: {
-          external: ["sharp"]
-        }
-      },
+				rollupOptions: {
+					external: ['sharp'],
+				},
+			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
 			},
-			assetsInclude: ['**/*.wasm']
+			assetsInclude: ['**/*.wasm'],
 		};
 	}
 
@@ -78,18 +76,19 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 						entryPoint: '@astrojs/image/endpoint',
 					});
 				}
-				
-				const { default: defaultLoader } = await import(resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp'
-					? './loaders/sharp.js'
-					: './loaders/squoosh.js'
+
+				const { default: defaultLoader } = await import(
+					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp'
+						? './loaders/sharp.js'
+						: './loaders/squoosh.js'
 				);
-				
+
 				globalThis.astroImage = {
-					defaultLoader
-				}
+					defaultLoader,
+				};
 			},
 			'astro:build:start': async ({ buildConfig }) => {
-				_buildConfig = buildConfig
+				_buildConfig = buildConfig;
 			},
 			'astro:build:setup': async () => {
 				// Used to cache all images rendered to HTML
@@ -141,7 +140,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				if (resolvedOptions.serviceEntryPoint === '@astrojs/image/squoosh') {
 					await copyWasmFiles(_buildConfig.server);
 				}
-			}
+			},
 		},
 	};
 }

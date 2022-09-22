@@ -1,4 +1,3 @@
-import { AstroConfig } from 'astro';
 import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 
 /// <reference types="astro/astro-jsx" />
@@ -299,5 +298,8 @@ export abstract class BaseSSRService implements SSRImageService {
 		return transform;
 	}
 
-	abstract transform(inputBuffer: Buffer, transform: TransformOptions): Promise<{ data: Buffer, format: OutputFormat }>;
+	abstract transform(
+		inputBuffer: Buffer,
+		transform: TransformOptions
+	): Promise<{ data: Buffer; format: OutputFormat }>;
 }

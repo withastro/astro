@@ -89,7 +89,9 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 						return next();
 					}
 
-					const transform = await globalThis.astroImage.defaultLoader.parseTransform(url.searchParams);
+					const transform = await globalThis.astroImage.defaultLoader.parseTransform(
+						url.searchParams
+					);
 
 					if (!transform) {
 						return next();

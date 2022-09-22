@@ -1,10 +1,10 @@
-import { cpus } from 'os'
 import { isMainThread } from 'node:worker_threads';
+import { cpus } from 'os';
+import type { OutputFormat } from '../../loaders/index.js';
+import execOnce from '../../utils/execOnce.js';
 import WorkerPool from '../../utils/workerPool.js';
 import type { Operation } from './image.js';
 import * as impl from './impl.js';
-import execOnce from '../../utils/execOnce.js';
-import type { OutputFormat } from '../../loaders/index.js';
 
 const getWorker = execOnce(
   () => {

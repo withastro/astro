@@ -1,6 +1,6 @@
 import sharp from 'sharp';
-import { BaseSSRService, isOutputFormatSupportsAlpha } from '../loaders/index.js';
 import type { SSRImageService } from '../loaders/index.js';
+import { BaseSSRService, isOutputFormatSupportsAlpha } from '../loaders/index.js';
 import type { OutputFormat, TransformOptions } from './index.js';
 
 class SharpService extends BaseSSRService {

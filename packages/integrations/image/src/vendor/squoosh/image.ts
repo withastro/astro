@@ -1,5 +1,5 @@
-import * as impl from './impl.js';
 import type { OutputFormat } from '../../loaders/index.js';
+import * as impl from './impl.js';
 
 type RotateOperation = {
   type: 'rotate'

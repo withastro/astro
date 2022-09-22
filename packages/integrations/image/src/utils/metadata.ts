@@ -9,7 +9,7 @@ export interface Metadata extends ImageMetadata {
 }
 
 export async function metadata(src: URL | string, data?: Buffer): Promise<Metadata | undefined> {
-	const file = data || await fs.readFile(src);
+	const file = data || (await fs.readFile(src));
 
 	const { width, height, type, orientation } = await sizeOf(file);
 	const isPortrait = (orientation || 0) >= 5;
