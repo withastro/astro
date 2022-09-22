@@ -7,7 +7,7 @@ import { h } from 'preact';
  * As a bonus, we can signal to Preact that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value, name }: { value: string; name?: string }) => {
+const StaticHtml = ({ value, name }) => {
 	if (!value) return null;
 	return h('astro-slot', { name, dangerouslySetInnerHTML: { __html: value } });
 };
