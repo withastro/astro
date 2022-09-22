@@ -1698,6 +1698,12 @@ importers:
   packages/astro/test/fixtures/multiple-renderers/renderers/two:
     specifiers: {}
 
+  packages/astro/test/fixtures/non-ascii-path/测试:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../../..
+
   packages/astro/test/fixtures/non-html-pages:
     specifiers:
       astro: workspace:*
