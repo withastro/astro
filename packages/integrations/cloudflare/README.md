@@ -6,8 +6,13 @@ An SSR adapter for use with Cloudflare Pages Functions targets. Write your code 
 
 Add the Cloudflare adapter to enable SSR in your Astro project with the following `astro add` command. This will install the adapter and make the appropriate changes to your `astro.config.mjs` file in one step.
 
-```bash
+```sh
+# Using NPM
 npx astro add cloudflare
+# Using Yarn
+yarn astro add cloudflare
+# Using PNPM
+pnpm astro add cloudflare
 ```
 
 If you prefer to install the adapter manually instead, complete the following two steps:
