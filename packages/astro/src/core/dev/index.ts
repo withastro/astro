@@ -60,19 +60,17 @@ export default async function dev(
 	runHookServerSetup({ config: settings.config, server: viteServer, logging: options.logging });
 	await viteServer.listen(port);
 
-	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
 	const site = settings.config.site
 		? new URL(settings.config.base, settings.config.site)
 		: undefined;
 	info(
 		options.logging,
 		null,
-		msg.devStart({
+		msg.serverStart({
 			startupTime: performance.now() - devStart,
-			config: settings.config,
-			devServerAddressInfo,
+			resolvedUrls: viteServer.resolvedUrls || { local: [], network: [] },
+			host: settings.config.server.host,
 			site,
-			https: !!viteConfig.server?.https,
 			isRestart,
 		})
 	);
@@ -85,6 +83,7 @@ export default async function dev(
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
+	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
 	await runHookServerStart({
 		config: settings.config,
 		address: devServerAddressInfo,

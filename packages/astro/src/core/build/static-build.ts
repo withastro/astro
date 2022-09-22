@@ -118,6 +118,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		mode: 'production',
 		build: {
+			target: 'esnext',
 			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: false,
@@ -134,8 +135,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				},
 			},
 			ssr: true,
-			// must match an esbuild target
-			target: 'esnext',
 			// improve build performance
 			minify: false,
 			polyfillModulePreload: false,
@@ -197,9 +196,9 @@ async function clientBuild(
 		logLevel: 'info',
 		mode: 'production',
 		build: {
+			target: 'esnext',
 			...viteConfig.build,
 			emptyOutDir: false,
-			minify: 'esbuild',
 			outDir: fileURLToPath(out),
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
@@ -213,7 +212,6 @@ async function clientBuild(
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
-			target: 'esnext', // must match an esbuild target
 		},
 		plugins: [
 			vitePluginInternals(input, internals),

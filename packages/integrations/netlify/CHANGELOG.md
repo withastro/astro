@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 1.0.4
+
+### Patch Changes
+
+- [#4820](https://github.com/withastro/astro/pull/4820) [`9bfbd63f0`](https://github.com/withastro/astro/commit/9bfbd63f05d21b51f7fd726fc4c16949919529a0) Thanks [@matthewp](https://github.com/matthewp)! - Fix processing of images in Netlify Functions
+
 ## 1.0.3
 
 ### Patch Changes

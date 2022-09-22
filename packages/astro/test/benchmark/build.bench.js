@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 import { build as astroBuild } from '#astro/build';
 import { loadConfig } from '#astro/config';
 import { Benchmark } from './benchmark.js';
-import del from 'del';
+import { deleteAsync } from 'del';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
 
@@ -47,7 +47,7 @@ const benchmarks = [
 		async setup() {
 			process.chdir(new URL('../../../../', import.meta.url).pathname);
 			const spcache = new URL('../../node_modules/.cache/', import.meta.url);
-			await Promise.all([del(spcache.pathname, { force: true }), setupBuild()]);
+			await Promise.all([deleteAsync(spcache.pathname, { force: true }), setupBuild()]);
 		},
 		run: runBuild,
 	}),

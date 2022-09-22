@@ -1,11 +1,6 @@
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
-export {
-	escapeHTML,
-	HTMLString,
-	markHTMLString,
-	markHTMLString as unescapeHTML,
-} from './escape.js';
+export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 export {

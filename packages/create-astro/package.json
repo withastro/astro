@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -36,6 +36,7 @@
     "kleur": "^4.1.4",
     "ora": "^6.1.0",
     "prompts": "^2.4.2",
+    "strip-ansi": "^7.0.1",
     "which-pm-runs": "^1.1.0",
     "yargs-parser": "^21.0.1"
   },

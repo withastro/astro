@@ -16,9 +16,10 @@ import {
 } from 'kleur/colors';
 import type { AddressInfo } from 'net';
 import os from 'os';
+import { ResolvedServerUrls } from 'vite';
 import { ZodError } from 'zod';
-import type { AstroConfig } from '../@types/astro';
 import { ErrorWithMetadata } from './errors.js';
+import { removeTrailingForwardSlash } from './path.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
 const PREFIX_PADDING = 6;
@@ -51,19 +52,17 @@ export function hmr({ file, style = false }: { file: string; style?: boolean }):
 	return `${green('update'.padStart(PREFIX_PADDING))} ${file}${style ? ` ${dim('style')}` : ''}`;
 }
 
-/** Display dev server host and startup time */
-export function devStart({
+/** Display server host and startup time */
+export function serverStart({
 	startupTime,
-	devServerAddressInfo,
-	config,
-	https,
+	resolvedUrls,
+	host,
 	site,
 	isRestart = false,
 }: {
 	startupTime: number;
-	devServerAddressInfo: AddressInfo;
-	config: AstroConfig;
-	https: boolean;
+	resolvedUrls: ResolvedServerUrls;
+	host: string | boolean;
 	site: URL | undefined;
 	isRestart?: boolean;
 }): string {
@@ -72,37 +71,25 @@ export function devStart({
 	const rootPath = site ? site.pathname : '/';
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
+	const emptyPrefix = ' '.repeat(11);
 
-	const { address: networkAddress, port } = devServerAddressInfo;
-	const localAddress = getLocalAddress(networkAddress, config.server.host);
-	const networkLogging = getNetworkLogging(config.server.host);
-	const toDisplayUrl = (hostname: string) =>
-		`${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	const localUrlMessages = resolvedUrls.local.map((url, i) => {
+		return `${i === 0 ? localPrefix : emptyPrefix}${bold(
+			cyan(removeTrailingForwardSlash(url) + rootPath)
+		)}`;
+	});
+	const networkUrlMessages = resolvedUrls.network.map((url, i) => {
+		return `${i === 0 ? networkPrefix : emptyPrefix}${bold(
+			cyan(removeTrailingForwardSlash(url) + rootPath)
+		)}`;
+	});
 
-	let local = `${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`;
-	let network = null;
-
-	if (networkLogging === 'host-to-expose') {
-		network = `${networkPrefix}${dim('use --host to expose')}`;
-	} else if (networkLogging === 'visible') {
-		const nodeVersion = Number(process.version.substring(1, process.version.indexOf('.', 5)));
-		const ipv4Networks = Object.values(os.networkInterfaces())
-			.flatMap((networkInterface) => networkInterface ?? [])
-			.filter(
-				(networkInterface) =>
-					networkInterface?.address &&
-					networkInterface?.family === (nodeVersion < 18 || nodeVersion >= 18.4 ? 'IPv4' : 4)
-			);
-		for (let { address } of ipv4Networks) {
-			if (address.includes('127.0.0.1')) {
-				const displayAddress = address.replace('127.0.0.1', localAddress);
-				local = `${localPrefix}${bold(cyan(toDisplayUrl(displayAddress)))}`;
-			} else {
-				network = `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
-			}
-		}
-		if (!network) {
-			network = `${networkPrefix}${dim('unable to find network to expose')}`;
+	if (networkUrlMessages.length === 0) {
+		const networkLogging = getNetworkLogging(host);
+		if (networkLogging === 'host-to-expose') {
+			networkUrlMessages.push(`${networkPrefix}${dim('use --host to expose')}`);
+		} else if (networkLogging === 'visible') {
+			networkUrlMessages.push(`${networkPrefix}${dim('unable to find network to expose')}`);
 		}
 	}
 
@@ -111,14 +98,56 @@ export function devStart({
 			`${isRestart ? 're' : ''}started in ${Math.round(startupTime)}ms`
 		)}`,
 		'',
-		local,
-		network,
+		...localUrlMessages,
+		...networkUrlMessages,
 		'',
 	];
 	return messages
 		.filter((msg) => typeof msg === 'string')
 		.map((msg) => `  ${msg}`)
 		.join('\n');
+}
+
+export function resolveServerUrls({
+	address,
+	host,
+	https,
+}: {
+	address: AddressInfo;
+	host: string | boolean;
+	https: boolean;
+}): ResolvedServerUrls {
+	const { address: networkAddress, port } = address;
+	const localAddress = getLocalAddress(networkAddress, host);
+	const networkLogging = getNetworkLogging(host);
+	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}`;
+
+	let local = toDisplayUrl(localAddress);
+	let network: string | null = null;
+
+	if (networkLogging === 'visible') {
+		const nodeVersion = Number(process.version.substring(1, process.version.indexOf('.', 5)));
+		const ipv4Networks = Object.values(os.networkInterfaces())
+			.flatMap((networkInterface) => networkInterface ?? [])
+			.filter(
+				(networkInterface) =>
+					networkInterface?.address &&
+					networkInterface?.family === (nodeVersion < 18 || nodeVersion >= 18.4 ? 'IPv4' : 4)
+			);
+		for (let { address: ipv4Address } of ipv4Networks) {
+			if (ipv4Address.includes('127.0.0.1')) {
+				const displayAddress = ipv4Address.replace('127.0.0.1', localAddress);
+				local = toDisplayUrl(displayAddress);
+			} else {
+				network = toDisplayUrl(ipv4Address);
+			}
+		}
+	}
+
+	return {
+		local: [local],
+		network: network ? [network] : [],
+	};
 }
 
 export function telemetryNotice() {

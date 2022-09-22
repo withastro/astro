@@ -78,7 +78,7 @@ You can [add MDX pages to your project](https://docs.astro.build/en/guides/markd
 To use components in your MDX pages in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
-- 🪆 opportunities to mix and nest frameworks together
+- 🤝 opportunities to mix and nest frameworks together
 
 [**Client Directives**](https://docs.astro.build/en/reference/directives-reference/#client-directives) are still required in `.mdx` files.
 
@@ -203,15 +203,16 @@ title: 'My Blog Post'
 ---
 ```
 
-Then, you can retrieve all other frontmatter properties from your layout via the `frontmatter` property, and render your MDX using the default [`<slot />`](https://docs.astro.build/en/core-concepts/astro-components/#slots):
+Then, you can retrieve all other frontmatter properties from your layout via the `frontmatter` property, and render your MDX using the default [`<slot />`](https://docs.astro.build/en/core-concepts/astro-components/#slots). See [layout props](#layout-props) for a complete list of props available.
 
 ```astro
 ---
 // src/layouts/BaseLayout.astro
-const { frontmatter } = Astro.props;
+const { frontmatter, url } = Astro.props;
 ---
 <html>
   <head>
+    <meta rel="canonical" href={new URL(url, Astro.site).pathname}>
     <title>{frontmatter.title}</title>
   </head>
   <body>
@@ -221,6 +222,48 @@ const { frontmatter } = Astro.props;
   </body>
 </html>
 ```
+
+You can set a layout’s [`Props` type](/en/guides/typescript/#component-props) with the `MDXLayoutProps` helper.
+
+:::note
+`MDXLayoutProps` is the same as the `MarkdownLayoutProps` utility type with `rawContent()` and `compiledContent()` removed (since these are not available for `.mdx` files). Feel free to **use `MarkdownLayoutProps` instead** when sharing a layout across `.md` and `.mdx` files.
+:::
+
+```astro ins={2,4-9}
+---
+// src/layouts/BaseLayout.astro
+import type { MDXLayoutProps } from 'astro';
+
+type Props = MDXLayoutProps<{
+  // Define frontmatter props here
+  title: string;
+  author: string;
+  date: string;
+}>;
+
+// Now, `frontmatter`, `url`, and other MDX layout properties
+// are accessible with type safety
+const { frontmatter, url } = Astro.props;
+---
+<html>
+  <head>
+    <meta rel="canonical" href={new URL(url, Astro.site).pathname}>
+    <title>{frontmatter.title}</title>
+  </head>
+  <body>
+    <h1>{frontmatter.title}</h1>
+    <slot />
+  </body>
+</html>
+```
+
+#### Layout props
+
+All [exported properties](#exported-properties) are available from `Astro.props` in your layout, **with two key differences:**
+- Heading information (i.e. `h1 -> h6` elements) is available via the `headings` array, rather than a `getHeadings()` function.
+- `file` and `url` are _also_ available as nested `frontmatter` properties (i.e. `frontmatter.url` and `frontmatter.file`). This is consistent with Astro's Markdown layout properties.
+
+Astro recommends using the `MDXLayoutProps` type (see previous section) to explore all available properties.
 
 #### Importing layouts manually
 

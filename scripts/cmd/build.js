@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
 import svelte from '../utils/svelte-plugin.js';
-import del from 'del';
+import { deleteAsync } from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
@@ -109,5 +109,5 @@ export default async function build(...args) {
 }
 
 async function clean(outdir) {
-	return del([`${outdir}/**`, `!${outdir}/**/*.d.ts`]);
+	return deleteAsync([`${outdir}/**`, `!${outdir}/**/*.d.ts`]);
 }
