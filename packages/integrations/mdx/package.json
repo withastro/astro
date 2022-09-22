@@ -53,6 +53,7 @@
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
+    "cheerio": "^1.0.0-rc.11",
     "linkedom": "^0.14.12",
     "mdast-util-mdx": "^2.0.0",
     "mdast-util-to-string": "^3.1.0",

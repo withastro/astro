@@ -33,12 +33,15 @@
     "test": "mocha"
   },
   "dependencies": {
-    "@lit-labs/ssr": "^2.2.0"
+    "@lit-labs/ssr": "^2.2.0",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.2"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "cheerio": "^1.0.0-rc.11",
+    "lit": "^2.2.5",
     "sass": "^1.52.2"
   },
   "peerDependencies": {
