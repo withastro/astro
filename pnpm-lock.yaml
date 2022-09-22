@@ -170,12 +170,12 @@ importers:
   examples/framework-preact:
     specifiers:
       '@astrojs/preact': ^1.1.0
-      '@preact/signals': ^1.1.0
+      '@preact/signals': 1.0.3
       astro: ^1.2.8
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
-      '@preact/signals': 1.1.0_preact@10.11.0
+      '@preact/signals': 1.0.3_preact@10.11.0
       astro: link:../../packages/astro
       preact: 10.11.0
 
