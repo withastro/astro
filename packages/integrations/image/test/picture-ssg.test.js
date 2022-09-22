@@ -235,8 +235,6 @@ describe('SSG pictures - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src'), size);
@@ -330,8 +328,6 @@ describe('SSG pictures with subpath - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src').replace('/docs', ''), size);

@@ -60,6 +60,9 @@ const { image, sources } = await getPicture({
 	background,
 	position,
 });
+
+delete image.width;
+delete image.height;
 ---
 
 <picture {...attrs}>
