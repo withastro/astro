@@ -1,3 +1,4 @@
+/* tslint-disable ban-types */
 import { Worker, parentPort } from 'worker_threads';
 import { TransformStream } from 'web-streams-polyfill';
 
@@ -9,8 +10,8 @@ function uuid() {
 
 interface Job<I> {
   msg: I;
-  resolve: Function;
-  reject: Function;
+  resolve: (result: any) => void;
+  reject: (reason: any) => void;
 }
 
 export default class WorkerPool<I, O> {
