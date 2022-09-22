@@ -36,6 +36,6 @@ describe('Using Astro.response in SSR', () => {
 		const headers = response.headers;
 		expect(headers.get('one-two')).to.equal('three');
 		expect(headers.get('four-five')).to.equal('six');
-		expect(headers.get('Cache-Control')).to.equal(`max-age=0, s-maxage=86400`);
+		expect(headers.get('Cache-Control')).to.equal(`max-age=0, s-maxage=86400`)
 	});
 });

@@ -1,9 +1,9 @@
-import { Component as BaseComponent, h } from 'preact';
+import type { AstroPreactAttrs, RendererContext } from './types';
+import { h, Component as BaseComponent } from 'preact';
 import render from 'preact-render-to-string';
+import StaticHtml from './static-html.js';
 import { getContext } from './context.js';
 import { restoreSignalsOnProps, serializeSignals } from './signals.js';
-import StaticHtml from './static-html.js';
-import type { AstroPreactAttrs, RendererContext } from './types';
 
 const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
@@ -38,12 +38,7 @@ function check(this: RendererContext, Component: any, props: Record<string, any>
 	}
 }
 
-function renderToStaticMarkup(
-	this: RendererContext,
-	Component: any,
-	props: Record<string, any>,
-	{ default: children, ...slotted }: Record<string, any>
-) {
+function renderToStaticMarkup(this: RendererContext, Component: any, props: Record<string, any>, { default: children, ...slotted }: Record<string, any>) {
 	const ctx = getContext(this.result);
 
 	const slots: Record<string, ReturnType<typeof h>> = {};
@@ -65,9 +60,10 @@ function renderToStaticMarkup(
 	);
 	return {
 		attrs,
-		html,
+		html
 	};
 }
+
 
 /**
  * Reduces console noise by filtering known non-problematic errors.
