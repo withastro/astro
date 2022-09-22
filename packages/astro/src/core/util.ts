@@ -126,7 +126,7 @@ export function resolveDependency(dep: string, projectRoot: URL) {
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath) + filePath.search);
+	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
