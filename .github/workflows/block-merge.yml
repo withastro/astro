@@ -25,16 +25,19 @@ jobs:
             .changeset/**/*.md
 
       - name: Check if any changesets contain minor changes
+        id: find-blockers
         run: |
-          echo "Listing changed files..."
+          echo "Checking for changesets marked as minor"
+          echo '::set-output name=found::false'
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
             if grep -q "'astro': minor" "$file"; then
+              echo '::set-output name=found::true'
               echo "$file has a minor release tag"
             fi
           done
 
       - name: Send PR review
+        if: steps.find-blockers.outputs.found == 'true'
         run: | # approve the pull request
           curl --request POST \
           --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
