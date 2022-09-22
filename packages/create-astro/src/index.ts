@@ -340,7 +340,7 @@ export async function main() {
 			choices: [
 				{
 					title: 'Relaxed',
-					value: 'default',
+					value: 'base',
 				},
 				{
 					title: 'Strict (recommended)',
@@ -379,42 +379,40 @@ export async function main() {
 		console.log(`  You can safely ignore these files, but don't delete them!`);
 		console.log(dim('  (ex: tsconfig.json, src/env.d.ts)'));
 		console.log(``);
-		tsResponse.typescript = 'default';
+		tsResponse.typescript = 'base';
 		await wait(300);
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
-		if (tsResponse.typescript !== 'default') {
-			const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
-			fs.readFile(templateTSConfigPath, (err, data) => {
-				if (err && err.code === 'ENOENT') {
-					// If the template doesn't have a tsconfig.json, let's add one instead
-					fs.writeFileSync(
-						templateTSConfigPath,
-						stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
-					);
+		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
+		fs.readFile(templateTSConfigPath, (err, data) => {
+			if (err && err.code === 'ENOENT') {
+				// If the template doesn't have a tsconfig.json, let's add one instead
+				fs.writeFileSync(
+					templateTSConfigPath,
+					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+				);
 
-					return;
-				}
+				return;
+			}
 
-				const templateTSConfig = parse(data.toString());
+			const templateTSConfig = parse(data.toString());
 
-				if (templateTSConfig && typeof templateTSConfig === 'object') {
-					const result = assign(templateTSConfig, {
-						extends: `astro/tsconfigs/${tsResponse.typescript}`,
-					});
+			if (templateTSConfig && typeof templateTSConfig === 'object') {
+				const result = assign(templateTSConfig, {
+					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+				});
 
-					fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
-				} else {
-					console.log(
-						yellow(
-							"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
-						)
-					);
-				}
-			});
-		}
+				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
+			} else {
+				console.log(
+					yellow(
+						"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
+					)
+				);
+			}
+		});
 		ora().succeed('TypeScript settings applied!');
 	}
 

@@ -1,6 +1,8 @@
 import { test as testBase, expect } from '@playwright/test';
 import { loadFixture as baseLoadFixture } from '../test/test-utils.js';
 
+export const isWindows = process.platform === 'win32';
+
 export function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
@@ -39,4 +41,12 @@ export async function getErrorOverlayMessage(page) {
 	expect(overlay).toBeTruthy();
 
 	return await overlay.$$eval('.message-body', (m) => m[0].textContent);
+}
+
+/**
+ * @param {import('@playwright/test').Locator} el
+ * @returns {Promise<string>}
+ */
+export async function getColor(el) {
+	return await el.evaluate((e) => getComputedStyle(e).color);
 }
