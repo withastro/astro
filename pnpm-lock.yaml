@@ -2392,6 +2392,7 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
+      cheerio: ^1.0.0-rc.11
       image-size: ^1.0.2
       kleur: ^4.1.4
       magic-string: ^0.25.9
@@ -2413,6 +2414,7 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.6
+      cheerio: 1.0.0-rc.12
       kleur: 4.1.5
       mocha: 9.2.2
       vite: 3.1.3
@@ -2640,6 +2642,7 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
+      cheerio: ^1.0.0-rc.11
       esbuild: ^0.14.43
       mocha: ^9.2.2
       vite: ^3.0.0
@@ -2653,6 +2656,7 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       chai: 4.3.6
+      cheerio: 1.0.0-rc.12
       mocha: 9.2.2
       vite: 3.1.3
 
