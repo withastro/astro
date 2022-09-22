@@ -10,14 +10,15 @@ function removeQueryString(src: string) {
 	return index > 0 ? src.substring(0, index) : src;
 }
 
-function extname(src: string, format?: OutputFormat) {
-	const index = src.lastIndexOf('.');
+export function extname(src: string) {
+	const base = basename(src);
+	const index = base.lastIndexOf('.');
 
 	if (index <= 0) {
 		return '';
 	}
 
-	return src.substring(index);
+	return src.substring(src.length - (base.length - index));
 }
 
 function removeExtname(src: string) {

@@ -57,7 +57,7 @@ describe('SSG images - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 		},
 		{
@@ -150,7 +150,7 @@ describe('SSG images with subpath - dev', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 		},
 		{
@@ -237,7 +237,7 @@ describe('SSG images - build', function () {
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/assets\/300_\w{4,10}/,
+			regex: /^\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 		},
 		{
@@ -313,7 +313,7 @@ describe('SSG images with subpath - build', function () {
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/docs\/assets\/300_\w{4,10}/,
+			regex: /^\/docs\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 		},
 		{
