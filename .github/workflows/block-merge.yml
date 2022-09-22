@@ -24,6 +24,15 @@ jobs:
           files: |
             .changeset/**/*.md
 
+      - name: Check if any changesets contain minor changes
+        run: |
+          echo "Listing changed files..."
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+            if grep -q "'astro': minor" "$file"; then
+              # Some Actions
+            fi
+          done
 
       - name: Send PR review
         run: | # approve the pull request
