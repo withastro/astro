@@ -263,6 +263,12 @@ async function tryLoadConfig(
 			optimizeDeps: { entries: [] },
 			clearScreen: false,
 			appType: 'custom',
+			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
+			// `@astrojs/mdx` has issues loading in a `astro.config.ts` as it imports prismjs which trips
+			// Vite's dev SSR transform. Hardcode this for now.
+			ssr: {
+				external: ['@astrojs/mdx'],
+			},
 		});
 		try {
 			const mod = await viteServer.ssrLoadModule(configPath);
