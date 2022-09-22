@@ -26,7 +26,6 @@ jobs:
           echo "Checking for changesets marked as minor"
           echo '::set-output name=found::false'
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file has changed"
             if grep -q "'astro': minor" "$file"; then
               echo '::set-output name=found::true'
               echo "$file has a minor release tag"
