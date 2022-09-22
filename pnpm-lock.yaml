@@ -585,6 +585,12 @@ importers:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
 
+  packages/astro/e2e/fixtures/css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/error-cyclic:
     specifiers:
       '@astrojs/preact': workspace:*

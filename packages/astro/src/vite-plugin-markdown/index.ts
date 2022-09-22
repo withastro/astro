@@ -1,6 +1,7 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import fs from 'fs';
 import matter from 'gray-matter';
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
@@ -9,7 +10,6 @@ import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
-import { fileURLToPath } from 'node:url';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
