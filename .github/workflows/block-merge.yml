@@ -9,7 +9,7 @@ on: pull_request # run on pull request events
 permissions:
  pull-requests: write # grant write permission on the pull-requests endpoint
 jobs:
- check:
+  check:
    runs-on: ubuntu-latest
    steps:
       - name: Get changed files in the .changeset folder
@@ -17,13 +17,16 @@ jobs:
         uses: tj-actions/changed-files@v29
         with:
           files: |
-            .changeset/**
+            .changeset/**/*.md
 
-      - name: List all changed files
+      - name: Check if any changesets contain minor changes
         run: |
           echo "Listing changed files..."
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$file was changed"
+            if grep -q "'astro': minor" "$file"; then
+              # Some Actions
+            fi
           done
 
      - name: Send PR review
