@@ -55,15 +55,16 @@ jobs:
       # Otherwise, run lint autofixer
       - name: Lint
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
-        uses: wearerequired/lint-action@v1.11.1
+        uses: wearerequired/lint-action@v2.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
+          eslint_extensions: js,ts,cts,mts,cjs,mjs
           prettier: false
-          auto_fix: true
-          git_name: github-actions[bot]
-          git_email: github-actions[bot]@users.noreply.github.com
+          auto_fix: false
+          git_name: fredkbot
+          git_email: fred+astrobot@astro.build
           commit_message: 'chore(lint): ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
@@ -97,7 +98,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Build Packages
         run: pnpm run build
 
