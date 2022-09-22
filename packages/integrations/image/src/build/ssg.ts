@@ -6,9 +6,30 @@ import OS from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { SSRImageService, TransformOptions } from '../loaders/index.js';
-import { loadLocalImage, loadRemoteImage } from '../utils/images.js';
 import { debug, info, LoggerLevel, warn } from '../utils/logger.js';
 import { isRemoteImage } from '../utils/paths.js';
+
+async function loadLocalImage(src: string | URL) {
+	try {
+		return await fs.readFile(src);
+	} catch {
+		return undefined;
+	}
+}
+
+async function loadRemoteImage(src: string) {
+	try {
+		const res = await fetch(src);
+
+		if (!res.ok) {
+			return undefined;
+		}
+
+		return Buffer.from(await res.arrayBuffer());
+	} catch {
+		return undefined;
+	}
+}
 
 function getTimeStat(timeStart: number, timeEnd: number) {
 	const buildTime = timeEnd - timeStart;
@@ -39,8 +60,6 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 		)}`,
 	});
 
-	const inputFiles = new Set<string>();
-
 	async function processStaticImage([src, transformsMap]: [
 		string,
 		Map<string, TransformOptions>
@@ -61,9 +80,6 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel 
 			const inputFileURL = new URL(`.${src}`, outDir);
 			inputFile = fileURLToPath(inputFileURL);
 			inputBuffer = await loadLocalImage(inputFile);
-
-			// track the local file used so the original can be copied over
-			inputFiles.add(inputFile);
 		}
 
 		if (!inputBuffer) {
