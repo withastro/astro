@@ -12,6 +12,20 @@ jobs:
  check:
    runs-on: ubuntu-latest
    steps:
+      - name: Get changed files in the .changeset folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v29
+        with:
+          files: |
+            .changeset/**
+
+      - name: List all changed files
+        run: |
+          echo "Listing changed files..."
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
+
      - name: Send PR review
        run: | # approve the pull request
          curl --request POST \
