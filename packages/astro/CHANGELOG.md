@@ -1,5 +1,77 @@
 # astro
 
+## 1.3.0
+
+### Minor Changes
+
+- [#4775](https://github.com/withastro/astro/pull/4775) [`b0cc93996`](https://github.com/withastro/astro/commit/b0cc93996169fe8a52a7b1119ce2180ae6101e70) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds a new "astro:build:generated" hook that runs after SSG builds finish but **before** build artifacts are cleaned up. This is a very specific use case, "astro:build:done" is probably what you're looking for.
+
+- [#4669](https://github.com/withastro/astro/pull/4669) [`a961aa3c2`](https://github.com/withastro/astro/commit/a961aa3c2fa946898fd209dfc70a7b5472b60817) Thanks [@aggre](https://github.com/aggre)! - astro-island now correctly passes Uint8Array/Uint16Array/Uint32Array
+
+- [#4832](https://github.com/withastro/astro/pull/4832) [`73f215df7`](https://github.com/withastro/astro/commit/73f215df76d238a5ce0cb0e64543af032f468773) Thanks [@matthewp](https://github.com/matthewp)! - Allows Responses to be passed to set:html
+
+  This expands the abilities of `set:html` to ultimate service this use-case:
+
+  ```astro
+  <div set:html={fetch('/legacy-post.html')}></div>
+  ```
+
+  This means you can take a legacy app that has been statically generated to HTML and directly consume that HTML within your templates. As is always the case with `set:html`, this should only be used on trusted content.
+
+  To make this possible, you can also pass several other types into `set:html` now:
+
+  - `Response` objects, since that is what fetch() returns:
+    ```astro
+    <div
+      set:html={new Response('<span>Hello world</span>', {
+        headers: { 'content-type': 'text/html' },
+      })}
+    >
+    </div>
+    ```
+  - `ReadableStream`s:
+    ```astro
+    <div
+      set:html={new ReadableStream({
+        start(controller) {
+          controller.enqueue(`<span>read me</span>`);
+          controller.close();
+        },
+      })}
+    >
+    </div>
+    ```
+  - `AsyncIterable`s:
+    ```astro
+    <div
+      set:html={(async function* () {
+        for await (const num of [1, 2, 3, 4, 5]) {
+          yield `<li>${num}</li>`;
+        }
+      })()}
+    >
+    </div>
+    ```
+  - `Iterable`s (non-async):
+    ```astro
+    <div
+      set:html={(function* () {
+        for (const num of [1, 2, 3, 4, 5]) {
+          yield `<li>${num}</li>`;
+        }
+      })()}
+    >
+    </div>
+    ```
+
+### Patch Changes
+
+- [#4831](https://github.com/withastro/astro/pull/4831) [`29b29e6a8`](https://github.com/withastro/astro/commit/29b29e6a8a54f6ed764e57bb97f1799657d39be7) Thanks [@yuhang-dong](https://github.com/yuhang-dong)! - Update vite-jsx-plugin for jsx export
+
+- [#4754](https://github.com/withastro/astro/pull/4754) [`baae1b3fd`](https://github.com/withastro/astro/commit/baae1b3fd10cf0a74e880c0e0552ba8d58f24453) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Update `astro check` to latest version of the language server
+
+- [#4509](https://github.com/withastro/astro/pull/4509) [`a0619f086`](https://github.com/withastro/astro/commit/a0619f08699de34f1d4c3da8020ac9a9ad3b9ff9) Thanks [@bluwy](https://github.com/bluwy)! - Refactor server url logs
+
 ## 1.2.8
 
 ### Patch Changes

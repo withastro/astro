@@ -27,7 +27,12 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 		Object.prototype.toString.call(child) === '[object AstroComponent]'
 	) {
 		yield* renderAstroComponent(child);
-	} else if (typeof child === 'object' && Symbol.asyncIterator in child) {
+	} else if (ArrayBuffer.isView(child)) {
+		yield child;
+	} else if (
+		typeof child === 'object' &&
+		(Symbol.asyncIterator in child || Symbol.iterator in child)
+	) {
 		yield* child;
 	} else {
 		yield child;

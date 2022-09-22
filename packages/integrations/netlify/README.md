@@ -27,8 +27,13 @@ If you wish to [use server-side rendering (SSR)](https://docs.astro.build/en/gui
 
 Add the Netlify adapter to enable SSR in your Astro project with the following `astro add` command. This will install the adapter and make the appropriate changes to your `astro.config.mjs` file in one step.
 
-```bash
+```sh
+# Using NPM
 npx astro add netlify
+# Using Yarn
+yarn astro add netlify
+# Using PNPM
+pnpm astro add netlify
 ```
 
 If you prefer to install the adapter manually instead, complete the following two steps:
