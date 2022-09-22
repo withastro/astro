@@ -1,8 +1,6 @@
 import path from 'path';
 import { promises, existsSync } from 'fs';
-import {
-	PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeout
-} from './utils.js';
+import { PROMPT_MESSAGES, testDir, setup, promiseWithTimeout, timeout } from './utils.js';
 
 const inputs = {
 	nonEmptyDir: './fixtures/select-directory/nonempty-dir',
