@@ -1,17 +1,18 @@
 name: Check mergeability
- 
+
 on: pull_request # run on pull request events
 
 # TODO
 # 1. Check if there are minor changesets
 # 2. Send PR disapproval
- 
+
 permissions:
- pull-requests: write # grant write permission on the pull-requests endpoint
+  # grant write permission on the pull-requests endpoint
+  pull-requests: write
 jobs:
   check:
-   runs-on: ubuntu-latest
-   steps:
+    runs-on: ubuntu-latest
+    steps:
       - name: Get changed files in the .changeset folder
         id: changed-files-specific
         uses: tj-actions/changed-files@v29
@@ -19,20 +20,11 @@ jobs:
           files: |
             .changeset/**/*.md
 
-      - name: Check if any changesets contain minor changes
-        run: |
-          echo "Listing changed files..."
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-            if grep -q "'astro': minor" "$file"; then
-              # Some Actions
-            fi
-          done
 
-     - name: Send PR review
-       run: | # approve the pull request
-         curl --request POST \
-         --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
-         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-         --header 'content-type: application/json' \
-         -d '{"event":"REQUEST_CHANGES","body":"This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved."}'
+      - name: Send PR review
+        run: | # approve the pull request
+          curl --request POST \
+          --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          -d '{"event":"REQUEST_CHANGES","body":"This PR is blocked because it contains a `minor` changeset. A reviewer will merge this at the next release if approved."}'
