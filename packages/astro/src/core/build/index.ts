@@ -174,10 +174,12 @@ class AstroBuilder {
 
 	private validateConfig() {
 		const { config } = this.settings;
-		
+
 		// outDir gets blown away so it can't be the root.
-		if(config.outDir.toString() === config.root.toString()) {
-			throw new Error(`the outDir cannot be the root folder. Please build to a folder such as dist.`);
+		if (config.outDir.toString() === config.root.toString()) {
+			throw new Error(
+				`the outDir cannot be the root folder. Please build to a folder such as dist.`
+			);
 		}
 	}
 
