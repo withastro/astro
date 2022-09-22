@@ -134,12 +134,12 @@ export function resolveServerUrls({
 					networkInterface?.address &&
 					networkInterface?.family === (nodeVersion < 18 || nodeVersion >= 18.4 ? 'IPv4' : 4)
 			);
-		for (let { address } of ipv4Networks) {
-			if (address.includes('127.0.0.1')) {
-				const displayAddress = address.replace('127.0.0.1', localAddress);
+		for (let { address: ipv4Address } of ipv4Networks) {
+			if (ipv4Address.includes('127.0.0.1')) {
+				const displayAddress = ipv4Address.replace('127.0.0.1', localAddress);
 				local = toDisplayUrl(displayAddress);
 			} else {
-				network = toDisplayUrl(address);
+				network = toDisplayUrl(ipv4Address);
 			}
 		}
 	}
