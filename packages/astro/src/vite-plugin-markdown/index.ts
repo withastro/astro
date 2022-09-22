@@ -2,12 +2,14 @@ import { renderMarkdown } from '@astrojs/markdown-remark';
 import fs from 'fs';
 import matter from 'gray-matter';
 import type { Plugin } from 'vite';
+import { normalizePath } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
+import { fileURLToPath } from 'node:url';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -22,6 +24,11 @@ function safeMatter(source: string, id: string) {
 		throw collectErrorMetadata(e);
 	}
 }
+
+// absolute path of "astro/jsx-runtime"
+const astroJsxRuntimeModulePath = normalizePath(
+	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
+);
 
 export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	return {
@@ -61,7 +68,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from 'astro/jsx-runtime';
+				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};
