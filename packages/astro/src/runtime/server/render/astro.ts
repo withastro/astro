@@ -2,10 +2,10 @@ import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
 import type { RenderInstruction } from './types';
 
-import { markHTMLString } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import { HydrationDirectiveProps } from '../hydration.js';
 import { renderChild } from './any.js';
-import { stringifyChunk } from './common.js';
+import { HTMLParts } from './common.js';
 
 // In dev mode, check props and make sure they are valid for an Astro component
 function validateComponentProps(props: any, displayName: string) {
@@ -62,7 +62,7 @@ export function isAstroComponentFactory(obj: any): obj is AstroComponentFactory 
 
 export async function* renderAstroComponent(
 	component: InstanceType<typeof AstroComponent>
-): AsyncIterable<string | RenderInstruction> {
+): AsyncIterable<string | HTMLBytes | RenderInstruction> {
 	for await (const value of component) {
 		if (value || value === 0) {
 			for await (const chunk of renderChild(value)) {
@@ -95,11 +95,11 @@ export async function renderToString(
 		throw response;
 	}
 
-	let html = '';
+	let parts = new HTMLParts();
 	for await (const chunk of renderAstroComponent(Component)) {
-		html += stringifyChunk(result, chunk);
+		parts.append(chunk, result);
 	}
-	return html;
+	return parts.toString();
 }
 
 export async function renderToIterable(
@@ -108,7 +108,7 @@ export async function renderToIterable(
 	displayName: string,
 	props: any,
 	children: any
-): Promise<AsyncIterable<string | RenderInstruction>> {
+): Promise<AsyncIterable<string | HTMLBytes | RenderInstruction>> {
 	validateComponentProps(props, displayName);
 	const Component = await componentFactory(result, props, children);
 

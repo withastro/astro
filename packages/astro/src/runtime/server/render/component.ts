@@ -1,7 +1,7 @@
 import type { AstroComponentMetadata, SSRLoadedRenderer, SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { markHTMLString } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
@@ -54,7 +54,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<string | AsyncIterable<string | RenderInstruction>> {
+): Promise<string | AsyncIterable<string | HTMLBytes | RenderInstruction>> {
 	Component = await Component;
 
 	switch (getComponentType(Component)) {
@@ -84,7 +84,7 @@ export async function renderComponent(
 
 		case 'astro-factory': {
 			async function* renderAstroComponentInline(): AsyncGenerator<
-				string | RenderInstruction,
+				string | HTMLBytes | RenderInstruction,
 				void,
 				undefined
 			> {
