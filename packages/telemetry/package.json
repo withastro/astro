@@ -36,6 +36,7 @@
     "which-pm-runs": "^1.1.0"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.7",
     "@types/dlv": "^1.1.2",
     "@types/node": "^14.18.21",
     "@types/which-pm-runs": "^1.0.0",

@@ -44,12 +44,15 @@
     "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0",
-    "sharp": "^0.30.6"
+    "sharp": "^0.30.6",
+    "slash": "^4.0.0"
   },
   "devDependencies": {
+    "@types/mime": "^2.0.3",
     "@types/sharp": "^0.30.5",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "kleur": "^4.1.4"
+    "kleur": "^4.1.4",
+    "vite": "^3.0.0"
   }
 }

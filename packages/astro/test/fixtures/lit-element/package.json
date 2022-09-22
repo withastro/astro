@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/lit": "workspace:*",
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "lit": "^2.2.5"
   }
 }
