@@ -2,4 +2,4 @@
 'astro': minor
 ---
 
-Just a test
+Just a test again

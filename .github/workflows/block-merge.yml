@@ -2,10 +2,6 @@ name: Check mergeability
 
 on: pull_request # run on pull request events
 
-# TODO
-# 1. Check if there are minor changesets
-# 2. Send PR disapproval
-
 permissions:
   # grant write permission on the pull-requests endpoint
   pull-requests: write
@@ -30,6 +26,7 @@ jobs:
           echo "Checking for changesets marked as minor"
           echo '::set-output name=found::false'
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file has changed"
             if grep -q "'astro': minor" "$file"; then
               echo '::set-output name=found::true'
               echo "$file has a minor release tag"
