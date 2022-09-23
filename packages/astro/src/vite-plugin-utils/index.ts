@@ -1,6 +1,6 @@
 import { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
-import { appendForwardSlash, appendExtension } from '../core/path.js';
+import { appendExtension, appendForwardSlash } from '../core/path.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
