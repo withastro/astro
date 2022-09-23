@@ -2487,6 +2487,14 @@ importers:
       remark-shiki-twoslash: 3.1.0
       remark-toc: 8.0.1
 
+  packages/integrations/mdx/test/fixtures/mdx-env-variables:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/mdx/test/fixtures/mdx-frontmatter-injection:
     specifiers:
       '@astrojs/mdx': workspace:*
