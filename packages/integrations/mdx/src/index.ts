@@ -7,6 +7,7 @@ import { VFile } from 'vfile';
 import type { Plugin as VitePlugin } from 'vite';
 import { rehypeApplyFrontmatterExport } from './astro-data-utils.js';
 import type { MdxOptions } from './utils.js';
+import fs from 'node:fs/promises';
 import {
 	getFileInfo,
 	getRehypePlugins,
@@ -66,8 +67,12 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								...mdxPlugin(mdxPluginOpts),
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
-								async transform(code, id) {
+								async transform(_, id) {
 									if (!id.endsWith('mdx')) return;
+
+									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
+									const { fileId } = getFileInfo(id, config);
+									const code = await fs.readFile(fileId, 'utf-8');
 
 									const { data: frontmatter, content: pageContent } = parseFrontmatter(code, id);
 									const compiled = await mdxCompile(new VFile({ value: pageContent, path: id }), {
@@ -79,7 +84,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 									});
 
 									return {
-										code: String(compiled.value),
+										code: escapeViteEnvReferences(String(compiled.value)),
 										map: compiled.map,
 									};
 								},
@@ -123,7 +128,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											import.meta.hot.decline();
 										}`;
 									}
-									return code;
+									return escapeViteEnvReferences(code);
 								},
 							},
 						] as VitePlugin[],
@@ -132,4 +137,11 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 			},
 		},
 	};
+}
+
+// Converts the first dot in `import.meta.env` to its Unicode escape sequence,
+// which prevents Vite from replacing strings like `import.meta.env.SITE`
+// in our JS representation of loaded Markdown files
+function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta\.env/g, 'import\\u002Emeta.env');
 }
