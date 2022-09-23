@@ -114,8 +114,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
 
 	const viteBuildConfig: ViteConfigWithSSR = {
-		mode: 'production',
 		...viteConfig,
+		mode: viteConfig.mode || 'production',
 		logLevel: opts.viteConfig.logLevel ?? 'error',
 		build: {
 			target: 'esnext',
@@ -192,8 +192,8 @@ async function clientBuild(
 	info(opts.logging, null, `\n${bgGreen(black(' building client '))}`);
 
 	const viteBuildConfig = {
-		mode: 'production',
 		...viteConfig,
+		mode: viteConfig.mode || 'production',
 		logLevel: 'info',
 		build: {
 			target: 'esnext',
