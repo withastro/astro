@@ -24,21 +24,21 @@ jobs:
             | uniq)
 
       - uses: actions/checkout@v3
-        if: steps.set-blocks.outputs.blocks == 0
+        if: steps.set-blocks.outputs.blocks == '0'
         with:
           fetch-depth: 0
 
       - name: Get changed files in the .changeset folder
         id: changed-files
         uses: tj-actions/changed-files@v29
-        if: steps.set-blocks.outputs.blocks == 0
+        if: steps.set-blocks.outputs.blocks == '0'
         with:
           files: |
             .changeset/**/*.md
 
       - name: Check if any changesets contain minor changes
         id: find-blockers
-        if: steps.set-blocks.outputs.blocks == 0
+        if: steps.set-blocks.outputs.blocks == '0'
         run: |
           echo "Checking for changesets marked as minor"
           echo '::set-output name=found::false'
