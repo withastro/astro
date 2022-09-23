@@ -9,19 +9,36 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Retrieve existing PR reviews
+        id: set-reviews
+        run: |
+          echo ::set-output name=reviews::$(curl --request GET \
+            --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
+            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}')
+
+      - name: Check if there is already a block on this PR
+        id: set-blocks
+        run: |
+          echo ::set-output name=blocks::$(echo '${{ steps.set-reviews.outputs.reviews }}' \
+            | jq '.[] | select(.user.id == 41898282 and .state == "CHANGES_REQUESTED") | length' \
+            | uniq)
+
       - uses: actions/checkout@v3
+        if: steps.set-blocks.outputs.blocks == ''
         with:
           fetch-depth: 0
 
       - name: Get changed files in the .changeset folder
         id: changed-files
         uses: tj-actions/changed-files@v29
+        if: steps.set-blocks.outputs.blocks == ''
         with:
           files: |
             .changeset/**/*.md
 
       - name: Check if any changesets contain minor changes
         id: find-blockers
+        if: steps.set-blocks.outputs.blocks == ''
         run: |
           echo "Checking for changesets marked as minor"
           echo '::set-output name=found::false'
