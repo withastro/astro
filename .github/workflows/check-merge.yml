@@ -9,6 +9,18 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Retrieve existing PR reviews
+        id: set-reviews
+        run: |
+          echo ::set-output name=reviews::$(curl --request GET \
+            --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
+            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}')
+
+      - name: Check if there is already a block on this PR
+        id: blocked
+        run: |
+          echo ${{ fromJSON(steps.set-reviews.outputs.reviews) }}
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -31,7 +43,7 @@ jobs:
               echo "$file has a minor release tag"
             fi
           done
-        
+
       - name: Add label
         if: steps.find-blockers.outputs.found == 'true'
         run: |
@@ -40,7 +52,7 @@ jobs:
             --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             --header 'content-type: application/json' \
             -d '["semver minor"]'
-            
+
 
       - name: Send PR review
         if: steps.find-blockers.outputs.found == 'true'
