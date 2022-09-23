@@ -19,7 +19,7 @@ jobs:
       - name: Check if there is already a block on this PR
         id: blocked
         run: |
-          echo ${{ fromJSON(steps.set-reviews.outputs.reviews) }}
+          echo ${{ steps.set-reviews.outputs.reviews }}
 
       - uses: actions/checkout@v3
         with:
