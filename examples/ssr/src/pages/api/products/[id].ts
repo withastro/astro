@@ -1,7 +1,8 @@
 import { productMap } from '../../../models/db';
+import type { APIContext } from 'astro';
 
-export function get({ id: idStr }) {
-	const id = Number(idStr);
+export function get({ params }: APIContext) {
+	const id = Number(params.id);
 	if (productMap.has(id)) {
 		const product = productMap.get(id);
 
