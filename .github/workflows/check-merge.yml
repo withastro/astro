@@ -19,7 +19,7 @@ jobs:
       - name: Check if there is already a block on this PR
         id: blocked
         run: |
-          echo ${{ steps.set-reviews.outputs.reviews }}
+          echo '${{ contains(fromJSON(steps.set-reviews.outputs.reviews).*.user.id, "41898282") }}'
 
       - uses: actions/checkout@v3
         with:
