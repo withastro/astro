@@ -115,8 +115,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 
 	const viteBuildConfig: ViteConfigWithSSR = {
 		...viteConfig,
+		mode: viteConfig.mode || 'production',
 		logLevel: opts.viteConfig.logLevel ?? 'error',
-		mode: 'production',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,
@@ -193,8 +193,8 @@ async function clientBuild(
 
 	const viteBuildConfig = {
 		...viteConfig,
+		mode: viteConfig.mode || 'production',
 		logLevel: 'info',
-		mode: 'production',
 		build: {
 			target: 'esnext',
 			...viteConfig.build,
