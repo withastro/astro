@@ -239,7 +239,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'build': {
-			return await build(settings, { logging, telemetry });
+			return await build(settings, { ...flags, logging, telemetry });
 		}
 
 		case 'check': {
