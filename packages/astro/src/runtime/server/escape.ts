@@ -10,7 +10,7 @@ export class HTMLBytes extends Uint8Array {}
 Object.defineProperty(HTMLBytes.prototype, Symbol.toStringTag, {
 	get() {
 		return 'HTMLBytes';
-	}
+	},
 });
 
 /**
