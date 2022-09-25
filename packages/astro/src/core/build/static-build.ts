@@ -1,5 +1,6 @@
 import glob from 'fast-glob';
 import fs from 'fs';
+import path from 'path';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
@@ -246,13 +247,27 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 	const files = await glob('**/*.mjs', {
 		cwd: fileURLToPath(out),
 	});
-	await Promise.all(
-		files.map(async (filename) => {
-			const url = new URL(filename, out);
-			await fs.promises.rm(url);
-		})
-	);
-	console.log('')
+	if (files.length) {
+		await Promise.all(
+			files.map(async (filename) => {
+				const url = new URL(filename, out);
+				await fs.promises.rm(url);
+			})
+		);
+		const directories: Set<string> = new Set();
+		files.forEach((i) => {
+			const splitFilePath = i.split(path.sep);
+			if (splitFilePath.length > 1) {
+				directories.add(splitFilePath[0]);
+			}
+		});
+		await Promise.all(
+			Array.from(directories).map(async (filename) => {
+				const url = new URL(filename, out);
+				await fs.promises.rm(url), { recursive: true };
+			})
+		);
+	}
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		// Copy assets before cleaning directory if outside root
