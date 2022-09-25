@@ -252,6 +252,7 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 			await fs.promises.rm(url);
 		})
 	);
+	console.log('')
 	// Clean out directly if the outDir is outside of root
 	if (out.toString() !== opts.settings.config.outDir.toString()) {
 		// Copy assets before cleaning directory if outside root
