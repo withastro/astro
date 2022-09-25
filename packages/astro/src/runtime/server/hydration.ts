@@ -92,8 +92,10 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 				}
 			}
 		} else if (key === 'class:list') {
-			// support "class" from an expression passed into a component (#782)
-			extracted.props[key.slice(0, -5)] = serializeListValue(value);
+			if (value) {
+				// support "class" from an expression passed into a component (#782)
+				extracted.props[key.slice(0, -5)] = serializeListValue(value);
+			}
 		} else {
 			extracted.props[key] = value;
 		}
