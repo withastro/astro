@@ -15,7 +15,7 @@ const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-	k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
+	k.trim().replace(/(?:(?!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
 		if (/[^\w]|\s/.test(match)) return '';
 		return index === 0 ? match : match.toUpperCase();
 	});
