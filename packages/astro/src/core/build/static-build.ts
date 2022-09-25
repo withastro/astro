@@ -248,23 +248,30 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 		cwd: fileURLToPath(out),
 	});
 	if (files.length) {
+		// Remove all the SSR generated .mjs files
 		await Promise.all(
 			files.map(async (filename) => {
 				const url = new URL(filename, out);
 				await fs.promises.rm(url);
 			})
 		);
+		// Map directories heads from the .mjs files
 		const directories: Set<string> = new Set();
 		files.forEach((i) => {
 			const splitFilePath = i.split(path.sep);
+			// If the path is more than just a .mjs filename itself
 			if (splitFilePath.length > 1) {
 				directories.add(splitFilePath[0]);
 			}
 		});
+		// Attempt to remove only those folders which are empty
 		await Promise.all(
 			Array.from(directories).map(async (filename) => {
 				const url = new URL(filename, out);
-				await fs.promises.rm(url), { recursive: true };
+				const folder = await fs.promises.readdir(url);
+				if (!folder.length) {
+					await fs.promises.rmdir(url, { recursive: true });
+				}
 			})
 		);
 	}
