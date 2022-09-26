@@ -1,4 +1,4 @@
-# @astrojs/node 🔲
+# @astrojs/node
 
 This adapter allows Astro to deploy your SSR site to Node targets.
 

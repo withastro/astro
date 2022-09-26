@@ -4,6 +4,7 @@ export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/node',
 		serverEntrypoint: '@astrojs/node/server.js',
+		previewEntrypoint: '@astrojs/node/preview.js',
 		exports: ['handler'],
 	};
 }

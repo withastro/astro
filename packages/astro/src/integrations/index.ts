@@ -39,7 +39,7 @@ export async function runHookConfigSetup({
 	logging,
 }: {
 	settings: AstroSettings;
-	command: 'dev' | 'build';
+	command: 'dev' | 'build' | 'preview';
 	logging: LogOptions;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
