@@ -23,10 +23,10 @@ describe('Directives', async () => {
 			expect($(script).text().at(-1)).to.equal('}');
 			if (i < 2) {
 				// Inline defined variables
-				expect($(script).toString()).to.include('let foo = "bar"');
+				expect($(script).toString()).to.include('const foo = "bar"');
 			} else {
 				// Convert invalid keys to valid identifiers
-				expect($(script).toString()).to.include('let dashCase = "bar"');
+				expect($(script).toString()).to.include('const dashCase = "bar"');
 			}
 			i++;
 		}
