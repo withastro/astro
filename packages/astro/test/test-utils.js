@@ -156,6 +156,7 @@ export async function loadFixture(inlineConfig) {
 			const previewServer = await preview(settings, { logging, telemetry, ...opts });
 			return previewServer;
 		},
+		pathExists: (p) => fs.existsSync(new URL(p.replace(/^\//, ''), config.outDir)),
 		readFile: (filePath, encoding) =>
 			fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.outDir), encoding ?? 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.outDir)),
