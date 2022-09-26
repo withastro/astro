@@ -29,7 +29,7 @@ export async function renderEndpoint(
 	if (!ssr && ssr === false && chosenMethod && chosenMethod === 'post') {
 		// eslint-disable-next-line no-console
 		console.warn(`
-post method in API routes without output: 'server' in astro.config.mjs doesn't work. Note that this route will be ignored during the build time.
+post method in API routes without output: 'server' in astro.config.mjs doesn't work. Note that the post route will be ignored during the build time.
 
 Update your code to remove this warning.`);
 	}
