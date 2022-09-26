@@ -112,7 +112,12 @@ export async function renderPage(
 
 		let response = createResponse(body, { ...init, headers });
 		return response;
-	} else {
-		return factoryReturnValue;
 	}
+
+	// We double check if the file return a Response
+	if (!(factoryReturnValue instanceof Response)) {
+		throw new Error('Only instance of Response can be returned from an Astro file');
+	}
+
+	return factoryReturnValue;
 }
