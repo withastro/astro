@@ -32,7 +32,7 @@ export function stringifyParams(params: Params) {
 	const validatedParams = Object.entries(params).reduce((acc, next) => {
 		validateGetStaticPathsParameter(next);
 		const [key, value] = next;
-		acc[key] = `${value}`;
+		acc[key] = typeof value === 'undefined' ? undefined : `${value}`;
 		return acc;
 	}, {} as Params);
 
