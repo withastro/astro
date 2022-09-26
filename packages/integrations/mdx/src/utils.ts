@@ -13,6 +13,7 @@ import remarkSmartypants from 'remark-smartypants';
 import { remarkInitializeAstroData } from './astro-data-utils.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
 import remarkPrism from './remark-prism.js';
+import remarkPreserveMeta from './remark-preserve-meta.js';
 import remarkShiki from './remark-shiki.js';
 
 export type MdxOptions = {
@@ -137,6 +138,9 @@ export async function getRemarkPlugins(
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
+	}
+	if (!config.markdown.syntaxHighlight && config.markdown.syntaxHighlight === false) {
+		remarkPlugins.push(remarkPreserveMeta);
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];
