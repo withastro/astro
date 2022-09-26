@@ -1,7 +1,7 @@
 import './shim.js';
 
 import type { SSRManifest } from 'astro';
-import { App, getSetCookiesFromResponse } from 'astro/app';
+import { App } from 'astro/app';
 
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
