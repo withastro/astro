@@ -90,3 +90,15 @@ export default {
   },
 }
 ```
+
+## Troubleshooting
+
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
+
+[astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
