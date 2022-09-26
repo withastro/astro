@@ -313,9 +313,9 @@ export class PluginHost {
 		);
 	}
 
-	onWatchFileChanges(onWatchFileChangesParams: any[]): void {
+	async onWatchFileChanges(onWatchFileChangesParams: any[]): Promise<void> {
 		for (const support of this.plugins) {
-			support.onWatchFileChanges?.(onWatchFileChangesParams);
+			await support.onWatchFileChanges?.(onWatchFileChangesParams);
 		}
 	}
 

@@ -1,6 +1,8 @@
 import { expect } from 'chai';
+import * as fs from 'fs';
+import * as path from 'path';
 import ts from 'typescript/lib/tsserverlibrary';
-import { SignatureHelpTriggerKind } from 'vscode-languageserver-protocol';
+import { FileChangeType, SignatureHelpTriggerKind } from 'vscode-languageserver-protocol';
 import { CodeActionKind, Position, Range } from 'vscode-languageserver-types';
 import { TypeScriptPlugin } from '../../../src/plugins';
 import { LanguageServiceManager } from '../../../src/plugins/typescript/LanguageServiceManager';
@@ -286,6 +288,149 @@ describe('TypeScript Plugin', () => {
 			});
 
 			expect(signatureHelp).to.not.be.null;
+		});
+	});
+
+	const setupForOnWatchedFileChanges = async () => {
+		const { plugin, document } = setup('watchUpdates/empty.astro');
+		const targetAstroFile = document.getFilePath()!;
+		const snapshotManager = await plugin.getSnapshotManager(targetAstroFile);
+
+		return {
+			snapshotManager,
+			plugin,
+			targetAstroFile,
+		};
+	};
+
+	const setupForOnWatchedFileUpdateOrDelete = async () => {
+		const { plugin, snapshotManager, targetAstroFile } = await setupForOnWatchedFileChanges();
+
+		const projectJsFile = path.join(path.dirname(targetAstroFile), 'empty.ts');
+		await plugin.onWatchFileChanges([
+			{
+				fileName: projectJsFile,
+				changeType: FileChangeType.Changed,
+			},
+		]);
+
+		return {
+			snapshotManager,
+			plugin,
+			projectJsFile,
+			targetAstroFile,
+		};
+	};
+
+	describe('onWatchFileChanges', async () => {
+		it('should add snapshot when a file is added', async () => {
+			const { snapshotManager, plugin, targetAstroFile } = await setupForOnWatchedFileChanges();
+			const addFile = path.join(path.dirname(targetAstroFile), 'foo.ts');
+
+			const dir = path.dirname(addFile);
+			if (!fs.existsSync(dir)) {
+				fs.mkdirSync(dir);
+			}
+			fs.writeFileSync(addFile, 'export function abc() {}');
+			expect(fs.existsSync(addFile)).to.be.true;
+
+			try {
+				expect(snapshotManager.has(addFile)).to.be.false;
+
+				await plugin.onWatchFileChanges([
+					{
+						fileName: addFile,
+						changeType: FileChangeType.Created,
+					},
+				]);
+
+				expect(snapshotManager.has(addFile)).to.be.true;
+
+				await plugin.onWatchFileChanges([
+					{
+						fileName: addFile,
+						changeType: FileChangeType.Changed,
+					},
+				]);
+
+				expect(snapshotManager.has(addFile)).to.be.true;
+			} finally {
+				fs.unlinkSync(addFile);
+			}
+		});
+
+		it('bumps snapshot version when watched file changes', async () => {
+			const { snapshotManager, projectJsFile, plugin } = await setupForOnWatchedFileUpdateOrDelete();
+
+			const firstSnapshot = snapshotManager.get(projectJsFile);
+			const firstVersion = firstSnapshot?.version;
+
+			expect(firstVersion).to.not.equal(0);
+
+			await plugin.onWatchFileChanges([
+				{
+					fileName: projectJsFile,
+					changeType: FileChangeType.Changed,
+				},
+			]);
+			const secondSnapshot = snapshotManager.get(projectJsFile);
+
+			expect(secondSnapshot?.version).to.not.equal(firstVersion);
+		});
+
+		it('should update ts/js file after document change', async () => {
+			const { snapshotManager, projectJsFile, plugin } = await setupForOnWatchedFileUpdateOrDelete();
+
+			const firstSnapshot = snapshotManager.get(projectJsFile);
+			const firstVersion = firstSnapshot?.version;
+			const firstText = firstSnapshot?.getText(0, firstSnapshot?.getLength());
+
+			expect(firstVersion).to.not.equal(0);
+
+			await plugin.updateNonAstroFile(projectJsFile, [
+				{
+					range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+					text: 'const = "hello world";',
+				},
+			]);
+			const secondSnapshot = snapshotManager.get(projectJsFile);
+
+			expect(secondSnapshot?.version).to.not.equal(firstVersion);
+			expect(secondSnapshot?.getText(0, secondSnapshot?.getLength())).to.equal('const = "hello world";' + firstText);
+		});
+
+		it('should delete snapshot cache when file is deleted', async () => {
+			const { snapshotManager, projectJsFile, plugin } = await setupForOnWatchedFileUpdateOrDelete();
+
+			const firstSnapshot = snapshotManager.get(projectJsFile);
+			expect(firstSnapshot).to.not.be.undefined;
+
+			await plugin.onWatchFileChanges([
+				{
+					fileName: projectJsFile,
+					changeType: FileChangeType.Deleted,
+				},
+			]);
+			const secondSnapshot = snapshotManager.get(projectJsFile);
+
+			expect(secondSnapshot).to.be.undefined;
+		});
+
+		it('should delete snapshot cache for astro file when file is deleted', async () => {
+			const { snapshotManager, plugin, targetAstroFile } = await setupForOnWatchedFileUpdateOrDelete();
+
+			const firstSnapshot = snapshotManager.get(targetAstroFile);
+			expect(firstSnapshot).to.not.be.undefined;
+
+			await plugin.onWatchFileChanges([
+				{
+					fileName: targetAstroFile,
+					changeType: FileChangeType.Deleted,
+				},
+			]);
+			const secondSnapshot = snapshotManager.get(targetAstroFile);
+
+			expect(secondSnapshot).to.be.undefined;
 		});
 	});
 });

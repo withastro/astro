@@ -156,7 +156,7 @@ export interface OnWatchFileChangesParam {
 }
 
 export interface OnWatchFileChangesProvider {
-	onWatchFileChanges(onWatchFileChangesParams: OnWatchFileChangesParam[]): void;
+	onWatchFileChanges(onWatchFileChangesParams: OnWatchFileChangesParam[]): Promise<void>;
 }
 
 export interface UpdateNonAstroFile {

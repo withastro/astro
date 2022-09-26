@@ -213,7 +213,7 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 
 	const updateAllDiagnostics = debounceThrottle(() => diagnosticsManager.updateAll(), 1000);
 
-	connection.onDidChangeWatchedFiles((evt) => {
+	connection.onDidChangeWatchedFiles(async (evt: vscode.DidChangeWatchedFilesParams) => {
 		const params = evt.changes
 			.map((change) => ({
 				fileName: urlToPath(change.uri),
@@ -221,7 +221,7 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 			}))
 			.filter((change) => !!change.fileName);
 
-		pluginHost.onWatchFileChanges(params);
+		await pluginHost.onWatchFileChanges(params);
 		updateAllDiagnostics();
 	});
 

@@ -9,7 +9,7 @@ import {
 	LanguageServiceDocumentContext,
 } from './language-service';
 import type { DocumentSnapshot } from './snapshots/DocumentSnapshot';
-import { GlobalSnapshotManager } from './snapshots/SnapshotManager';
+import { GlobalSnapshotManager, SnapshotManager } from './snapshots/SnapshotManager';
 
 export class LanguageServiceManager {
 	public docContext: LanguageServiceDocumentContext;
@@ -119,5 +119,12 @@ export class LanguageServiceManager {
 
 	async getTypeScriptLanguageService(filePath: string): Promise<LanguageServiceContainer> {
 		return getLanguageService(filePath, this.workspaceUris, this.docContext);
+	}
+
+	/**
+	 * @internal Public for tests only
+	 */
+	async getSnapshotManager(filePath: string): Promise<SnapshotManager> {
+		return (await this.getTypeScriptLanguageService(filePath)).snapshotManager;
 	}
 }

@@ -15,7 +15,12 @@ export function getInitOptions(env: 'node' | 'browser', typescript: any): Langua
 	return {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
-			fileEvents: workspace.createFileSystemWatcher('{**/*.js,**/*.ts}', false, false, false),
+			fileEvents: workspace.createFileSystemWatcher(
+				'{**/*.astro,**/*.js,**/*.ts,**/*.jsx,**/*.tsx,**/*.json,**/*.vue,**/*.svelte}',
+				false,
+				false,
+				false
+			),
 		},
 		initializationOptions: {
 			typescript,
