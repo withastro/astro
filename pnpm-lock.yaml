@@ -15,6 +15,7 @@ importers:
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.23.0
       '@octokit/action': ^3.18.1
+      '@types/node': ^18.7.21
       '@typescript-eslint/eslint-plugin': ^5.27.1
       '@typescript-eslint/parser': ^5.27.1
       del: ^7.0.0
@@ -37,6 +38,7 @@ importers:
       '@changesets/changelog-github': 0.4.4
       '@changesets/cli': 2.23.0_kcozqtpxuwjzskw6zg5royevn4
       '@octokit/action': 3.18.1
+      '@types/node': 18.7.21
       '@typescript-eslint/eslint-plugin': 5.38.0_gl4g3tss5phduo5kw3bd5pm54i
       '@typescript-eslint/parser': 5.38.0_4brgkhw6cq4me3drk3kxrpb2mm
       del: 7.0.0
@@ -568,9 +570,13 @@ importers:
 
   packages/astro/e2e/fixtures/astro-component:
     specifiers:
+      '@astrojs/preact': ^1.1.0
       astro: workspace:*
+      preact: ^10.11.0
     dependencies:
+      '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
+      preact: 10.11.0
 
   packages/astro/e2e/fixtures/client-only:
     specifiers:
@@ -611,9 +617,11 @@ importers:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
+      preact: ^10.11.0
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
+      preact: 10.11.0
 
   packages/astro/e2e/fixtures/error-react-spectrum:
     specifiers:
@@ -645,8 +653,12 @@ importers:
       '@astrojs/svelte': workspace:*
       '@astrojs/vue': workspace:*
       astro: workspace:*
+      preact: ^10.11.0
       react: ^18.1.0
       react-dom: ^18.1.0
+      solid-js: ^1.5.6
+      svelte: ^3.50.1
+      vue: ^3.2.39
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       '@astrojs/react': link:../../../../integrations/react
@@ -654,16 +666,22 @@ importers:
       '@astrojs/svelte': link:../../../../integrations/svelte
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
+      preact: 10.11.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      solid-js: 1.5.6
+      svelte: 3.50.1
+      vue: 3.2.39
 
   packages/astro/e2e/fixtures/hydration-race:
     specifiers:
       '@astrojs/preact': workspace:*
       astro: workspace:*
+      preact: ^10.11.0
     dependencies:
       '@astrojs/preact': link:../../../../integrations/preact
       astro: link:../../..
+      preact: 10.11.0
 
   packages/astro/e2e/fixtures/invalidate-script-deps:
     specifiers:
@@ -999,9 +1017,13 @@ importers:
     specifiers:
       '@astrojs/tailwind': workspace:*
       astro: workspace:*
+      autoprefixer: ^10.4.7
+      tailwindcss: ^3.0.24
     dependencies:
       '@astrojs/tailwind': link:../../../../integrations/tailwind
       astro: link:../../..
+      autoprefixer: 10.4.12
+      tailwindcss: 3.1.8
 
   packages/astro/e2e/fixtures/ts-resolution:
     specifiers:
@@ -1020,10 +1042,12 @@ importers:
       '@astrojs/mdx': workspace:*
       '@astrojs/vue': workspace:*
       astro: workspace:*
+      vue: ^3.2.39
     dependencies:
       '@astrojs/mdx': link:../../../../integrations/mdx
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
+      vue: 3.2.39
 
   packages/astro/test/fixtures/0-css:
     specifiers:
@@ -1745,10 +1769,12 @@ importers:
   packages/astro/test/fixtures/lit-element:
     specifiers:
       '@astrojs/lit': workspace:*
+      '@webcomponents/template-shadowroot': ^0.1.0
       astro: workspace:*
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../../../integrations/lit
+      '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../..
       lit: 2.3.1
 
@@ -9375,6 +9401,10 @@ packages:
   /@types/node/18.7.18:
     resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
 
+  /@types/node/18.7.21:
+    resolution: {integrity: sha512-rLFzK5bhM0YPyCoTC8bolBjMk7bwnZ8qeZUBslBfjZQou2ssJdWslx9CZ8DGM+Dx7QXQiiTVZ/6QO6kwtHkZCA==}
+    dev: true
+
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
@@ -10169,6 +10199,21 @@ packages:
   /at-least-node/1.0.0:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
+    dev: false
+
+  /autoprefixer/10.4.12:
+    resolution: {integrity: sha512-WrCGV9/b97Pa+jtwf5UGaRjgQIg7OK3D06GnoYoZNcG1Xb8Gt3EfuKjlhh9i/VtT16g6PYjZ69jdJ2g8FxSC4Q==}
+    engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.1.0
+    dependencies:
+      browserslist: 4.21.4
+      caniuse-lite: 1.0.30001409
+      fraction.js: 4.2.0
+      normalize-range: 0.1.2
+      picocolors: 1.0.0
+      postcss-value-parser: 4.2.0
     dev: false
 
   /autoprefixer/10.4.12_postcss@8.4.16:
@@ -16893,6 +16938,37 @@ packages:
     dependencies:
       '@pkgr/utils': 2.3.1
       tslib: 2.4.0
+
+  /tailwindcss/3.1.8:
+    resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
+    engines: {node: '>=12.13.0'}
+    hasBin: true
+    dependencies:
+      arg: 5.0.2
+      chokidar: 3.5.3
+      color-name: 1.1.4
+      detective: 5.2.1
+      didyoumean: 1.2.2
+      dlv: 1.1.3
+      fast-glob: 3.2.12
+      glob-parent: 6.0.2
+      is-glob: 4.0.3
+      lilconfig: 2.0.6
+      normalize-path: 3.0.0
+      object-hash: 3.0.0
+      picocolors: 1.0.0
+      postcss: 8.4.16
+      postcss-import: 14.1.0_postcss@8.4.16
+      postcss-js: 4.0.0_postcss@8.4.16
+      postcss-load-config: 3.1.4_postcss@8.4.16
+      postcss-nested: 5.0.6_postcss@8.4.16
+      postcss-selector-parser: 6.0.10
+      postcss-value-parser: 4.2.0
+      quick-lru: 5.1.1
+      resolve: 1.22.1
+    transitivePeerDependencies:
+      - ts-node
+    dev: false
 
   /tailwindcss/3.1.8_postcss@8.4.16:
     resolution: {integrity: sha512-YSneUCZSFDYMwk+TGq8qYFdCA3yfBRdBlS7txSq0LUmzyeqRe3a8fBQzbz9M3WS/iFT4BNf/nmw9mEzrnSaC0g==}
