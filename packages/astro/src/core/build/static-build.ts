@@ -1,7 +1,7 @@
 import glob from 'fast-glob';
 import fs from 'fs';
-import path from 'path';
 import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
+import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
