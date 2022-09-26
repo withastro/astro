@@ -26,12 +26,10 @@ export async function renderEndpoint(
 ) {
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
-	if (!ssr && ssr === false && chosenMethod && chosenMethod === 'post') {
+	if (!ssr && ssr === false && chosenMethod && chosenMethod !== 'get') {
 		// eslint-disable-next-line no-console
 		console.warn(`
-post method in API routes without output: 'server' in astro.config.mjs doesn't work. Note that this route will be ignored during the build time.
-
-Update your code to remove this warning.`);
+${chosenMethod} requests are not available when building a static site. Update your config to output: 'server' to handle ${chosenMethod} requests.`);
 	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header
