@@ -18,9 +18,12 @@ function getHandlerFromModule(mod: EndpointHandler, method: string) {
 }
 
 /** Renders an endpoint request to completion, returning the body. */
-export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params) {
+export async function renderEndpoint(mod: EndpointHandler, request: Request, params: Params, ssr?: boolean) {
 	const chosenMethod = request.method?.toLowerCase();
 	const handler = getHandlerFromModule(mod, chosenMethod);
+	if (!ssr && chosenMethod && chosenMethod === 'post'){
+		// eslint-disable-next-line no-console
+	}
 	if (!handler || typeof handler !== 'function') {
 		// No handler found, so this should be a 404. Using a custom header
 		// to signal to the renderer that this is an internal 404 that should
