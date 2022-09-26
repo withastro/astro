@@ -216,7 +216,7 @@ describe('SSG pictures - build', function () {
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/assets\/300_\w{4,10}/,
+			regex: /^\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 			alt: 'ipsum',
 		},
@@ -235,8 +235,6 @@ describe('SSG pictures - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src'), size);
@@ -311,7 +309,7 @@ describe('SSG pictures with subpath - build', function () {
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/docs\/assets\/300_\w{4,10}/,
+			regex: /^\/docs\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 			alt: 'ipsum',
 		},
@@ -330,8 +328,6 @@ describe('SSG pictures with subpath - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src').replace('/docs', ''), size);

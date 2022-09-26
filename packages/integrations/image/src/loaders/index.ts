@@ -1,4 +1,4 @@
-import { htmlColorNames, type NamedColor } from './colornames.js';
+import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
 
 /// <reference types="astro/astro-jsx" />
 export type InputFormat =
@@ -13,7 +13,7 @@ export type InputFormat =
 	| 'gif';
 
 export type OutputFormatSupportsAlpha = 'avif' | 'png' | 'webp';
-export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg';
+export type OutputFormat = OutputFormatSupportsAlpha | 'jpeg' | 'jpg';
 
 export type ColorDefinition =
 	| NamedColor
@@ -49,7 +49,7 @@ export type CropPosition =
 	| 'attention';
 
 export function isOutputFormat(value: string): value is OutputFormat {
-	return ['avif', 'jpeg', 'png', 'webp'].includes(value);
+	return ['avif', 'jpeg', 'jpg', 'png', 'webp'].includes(value);
 }
 
 export function isOutputFormatSupportsAlpha(value: string): value is OutputFormatSupportsAlpha {
@@ -193,4 +193,113 @@ export function isHostedService(service: ImageService): service is ImageService 
 
 export function isSSRService(service: ImageService): service is SSRImageService {
 	return 'transform' in service;
+}
+
+export abstract class BaseSSRService implements SSRImageService {
+	async getImageAttributes(transform: TransformOptions) {
+		// strip off the known attributes
+		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
+
+		return {
+			...rest,
+			width: width,
+			height: height,
+		};
+	}
+
+	serializeTransform(transform: TransformOptions) {
+		const searchParams = new URLSearchParams();
+
+		if (transform.quality) {
+			searchParams.append('q', transform.quality.toString());
+		}
+
+		if (transform.format) {
+			searchParams.append('f', transform.format);
+		}
+
+		if (transform.width) {
+			searchParams.append('w', transform.width.toString());
+		}
+
+		if (transform.height) {
+			searchParams.append('h', transform.height.toString());
+		}
+
+		if (transform.aspectRatio) {
+			searchParams.append('ar', transform.aspectRatio.toString());
+		}
+
+		if (transform.fit) {
+			searchParams.append('fit', transform.fit);
+		}
+
+		if (transform.background) {
+			searchParams.append('bg', transform.background);
+		}
+
+		if (transform.position) {
+			searchParams.append('p', encodeURI(transform.position));
+		}
+
+		searchParams.append('href', transform.src);
+
+		return { searchParams };
+	}
+
+	parseTransform(searchParams: URLSearchParams) {
+		if (!searchParams.has('href')) {
+			return undefined;
+		}
+
+		let transform: TransformOptions = { src: searchParams.get('href')! };
+
+		if (searchParams.has('q')) {
+			transform.quality = parseInt(searchParams.get('q')!);
+		}
+
+		if (searchParams.has('f')) {
+			const format = searchParams.get('f')!;
+			if (isOutputFormat(format)) {
+				transform.format = format;
+			}
+		}
+
+		if (searchParams.has('w')) {
+			transform.width = parseInt(searchParams.get('w')!);
+		}
+
+		if (searchParams.has('h')) {
+			transform.height = parseInt(searchParams.get('h')!);
+		}
+
+		if (searchParams.has('ar')) {
+			const ratio = searchParams.get('ar')!;
+
+			if (isAspectRatioString(ratio)) {
+				transform.aspectRatio = ratio;
+			} else {
+				transform.aspectRatio = parseFloat(ratio);
+			}
+		}
+
+		if (searchParams.has('fit')) {
+			transform.fit = searchParams.get('fit') as typeof transform.fit;
+		}
+
+		if (searchParams.has('p')) {
+			transform.position = decodeURI(searchParams.get('p')!) as typeof transform.position;
+		}
+
+		if (searchParams.has('bg')) {
+			transform.background = searchParams.get('bg') as ColorDefinition;
+		}
+
+		return transform;
+	}
+
+	abstract transform(
+		inputBuffer: Buffer,
+		transform: TransformOptions
+	): Promise<{ data: Buffer; format: OutputFormat }>;
 }

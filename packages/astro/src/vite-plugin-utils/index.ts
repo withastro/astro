@@ -1,6 +1,6 @@
 import { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
-import { appendForwardSlash } from '../core/path.js';
+import { appendExtension, appendForwardSlash } from '../core/path.js';
 
 export function getFileInfo(id: string, config: AstroConfig) {
 	const sitePathname = appendForwardSlash(
@@ -13,6 +13,9 @@ export function getFileInfo(id: string, config: AstroConfig) {
 		: undefined;
 	if (fileUrl && config.trailingSlash === 'always') {
 		fileUrl = appendForwardSlash(fileUrl);
+	}
+	if (fileUrl && config.build.format === 'file') {
+		fileUrl = appendExtension(fileUrl, 'html');
 	}
 	return { fileId, fileUrl };
 }

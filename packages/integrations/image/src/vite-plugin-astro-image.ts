@@ -8,7 +8,6 @@ import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
 import type { InputFormat } from './loaders/index.js';
-import sharp from './loaders/sharp.js';
 import { metadata } from './utils/metadata.js';
 
 export interface ImageMetadata {
@@ -90,13 +89,15 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 						return next();
 					}
 
-					const transform = await sharp.parseTransform(url.searchParams);
+					const transform = await globalThis.astroImage.defaultLoader.parseTransform(
+						url.searchParams
+					);
 
 					if (!transform) {
 						return next();
 					}
 
-					const result = await sharp.transform(file, transform);
+					const result = await globalThis.astroImage.defaultLoader.transform(file, transform);
 
 					res.setHeader('Content-Type', `image/${result.format}`);
 					res.setHeader('Cache-Control', 'max-age=360000');

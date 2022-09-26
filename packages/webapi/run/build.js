@@ -178,7 +178,7 @@ async function build() {
 			inputOptions: {
 				input: 'src/polyfill.ts',
 				plugins: plugins,
-				external: ['node-fetch'],
+				external: ['node-fetch', 'global-agent'],
 				onwarn(warning, warn) {
 					if (warning.code !== 'UNRESOLVED_IMPORT') warn(warning)
 				},

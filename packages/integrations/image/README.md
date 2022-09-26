@@ -18,7 +18,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 
 Images play a big role in overall site performance and usability. Serving properly sized images makes all the difference but is often tricky to automate.
 
-This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replaceable, opening the door for future integrations that work with your favorite hosted image service.
+This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer, with full support for static sites and server-side rendering. The built-in image transformer is also replaceable, opening the door for future integrations that work with your favorite hosted image service.
 
 ## Installation
 
@@ -57,6 +57,31 @@ export default {
 }
 ```
 
+### Installing `sharp` (optional)
+
+The default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses web assembly libraries to support most deployment environments.
+
+If you are building a static site or using an SSR deployment host that supports NodeJS, we recommend installing [sharp](https://sharp.pixelplumbing.com/) for faster builds and more fine-grained control of image transformations.
+
+
+First, install the `sharp` package using your package manger. If you're using npm or aren't sure, run this in the terminal:
+```sh
+npm install sharp
+```
+Then, update the integration in you `astro.config.*` file to use the built-in `sharp` image transformer.
+```astro title="astro.config.mjs"
+---
+import image from '@astrojs/image';
+
+export default {
+  // ...
+  integrations: [image({
+    serviceEntryPoint: '@astrojs/image/sharp'
+  })],
+}
+---
+```
+
 ### Update `env.d.ts`
 
 For the best development experience, add the integrations type definitions to your project's `env.d.ts` file.
@@ -85,7 +110,7 @@ import { Image, Picture } from '@astrojs/image/components';
 ---
 ```
 
-The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
+The included image transformers support resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
 Astro’s `<Image />` and `<Picture />` components require the `alt` attribute, which provides descriptive text for images. A warning will be logged if alt text is missing, and a future release of the integration will throw an error if no alt text is provided.
 
@@ -195,6 +220,8 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 **Default:** `undefined`
 </p>
 
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
 The background color is used to fill the remaining background when using `contain` for the `fit` property.
 
 The background color is also used for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
@@ -215,6 +242,8 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
 How the image should be resized to fit both `height` and `width`.
 
 #### position
@@ -224,6 +253,8 @@ How the image should be resized to fit both `height` and `width`.
 **Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
 **Default:** `'centre'`
 </p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -316,6 +347,8 @@ The output formats to be used in the optimized image. If not provided, `webp` an
 **Default:** `undefined`
 </p>
 
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
 The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
 doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
 as default replacement for transparent pixels.
@@ -334,6 +367,8 @@ color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`,
 **Default:** `'cover'`
 </p>
 
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
 How the image should be resized to fit both `height` and `width`.
 
 #### position
@@ -345,6 +380,8 @@ How the image should be resized to fit both `height` and `width`.
   'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
 **Default:** `'centre'`
 </p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
 
 Position of the crop when fit is `cover` or `contain`.
 
@@ -380,12 +417,12 @@ This helper takes in an object with the same properties as the `<Picture />` com
 
 The integration can be configured to run with a different image service, either a hosted image service or a full image transformer that runs locally in your build or SSR deployment.
 
-> During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in `sharp` service when using `astro dev`.
+> During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in image service when using `astro dev`.
 
 
  ### config.serviceEntryPoint
 
-The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/sharp`, which resolves to the entry point exported from this integration's `package.json`.
+The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
 ```js
 // astro.config.mjs

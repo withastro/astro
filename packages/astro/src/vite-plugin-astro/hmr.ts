@@ -7,9 +7,10 @@ import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { isAstroScript } from './query.js';
 
-const PKG_PREFIX = new URL('../../', import.meta.url);
+const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
+const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
 const isPkgFile = (id: string | null) => {
-	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname);
+	return id && id.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
 };
 
 export interface HandleHotUpdateOptions {

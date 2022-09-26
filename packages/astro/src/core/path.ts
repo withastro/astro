@@ -1,3 +1,7 @@
+export function appendExtension(path: string, extension: string) {
+	return path + '.' + extension;
+}
+
 export function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }

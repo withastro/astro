@@ -3,12 +3,15 @@ import { escape } from 'html-escaper';
 // Leverage the battle-tested `html-escaper` npm package.
 export const escapeHTML = escape;
 
-export class HTMLBytes extends Uint8Array {
-	// @ts-ignore
-	get [Symbol.toStringTag]() {
+export class HTMLBytes extends Uint8Array {}
+
+// TypeScript won't let us define this in the class body so have to do it
+// this way. Boo.
+Object.defineProperty(HTMLBytes.prototype, Symbol.toStringTag, {
+	get() {
 		return 'HTMLBytes';
-	}
-}
+	},
+});
 
 /**
  * A "blessed" extension of String that tells Astro that the string
