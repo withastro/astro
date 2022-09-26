@@ -9,9 +9,8 @@ function transformer(className: MaybeString) {
 			const { lang, value, meta } = node;
 			node.type = "html";
 			let preClasses = className?.length ? `class=${className}` : ''
-			let codeClasses = lang && lang.length > 0 ? `class=language-${lang}` : ''
 			let metaAttribute = meta && meta.length > 0 ? `meta=${meta}` : ''
-			node.value = `<pre ${preClasses}><code is:raw ${codeClasses} ${metaAttribute}>${value}</code></pre>`;
+			node.value = `<pre ${preClasses}><code is:raw ${metaAttribute}>${value}</code></pre>`;
 			return node;
 		};
 		return visit(tree, 'code', visitor);
