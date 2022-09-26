@@ -15,11 +15,11 @@ import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { MdxOptions } from './index.js';
 
-const importMetaEnv: Record<string, string | number | boolean> = {
-	SITE: 'bagels',
-};
-
-export function recmaInjectImportMetaEnvPlugin() {
+export function recmaInjectImportMetaEnvPlugin({
+	importMetaEnv,
+}: {
+	importMetaEnv: Record<string, any>;
+}) {
 	return (tree: any) => {
 		estreeVisit(tree, (node) => {
 			if (node.type === 'MemberExpression') {

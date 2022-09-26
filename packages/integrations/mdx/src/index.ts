@@ -64,12 +64,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
-					recmaPlugins: [recmaInjectImportMetaEnvPlugin],
 					jsx: true,
 					jsxImportSource: 'astro',
 					// Note: disable `.md` support
 					format: 'mdx',
 					mdExtensions: [],
+				};
+
+				let importMetaEnv: Record<string, any> = {
+					SITE: config.site,
 				};
 
 				updateConfig({
@@ -78,6 +81,9 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 							{
 								enforce: 'pre',
 								...mdxPlugin(mdxPluginOpts),
+								configResolved(resolved) {
+									importMetaEnv = { ...importMetaEnv, ...resolved.env };
+								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
 								async transform(_, id) {
@@ -94,6 +100,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											...(mdxPluginOpts.rehypePlugins ?? []),
 											() => rehypeApplyFrontmatterExport(frontmatter),
 										],
+										recmaPlugins: [() => recmaInjectImportMetaEnvPlugin({ importMetaEnv })],
 									});
 
 									return {
