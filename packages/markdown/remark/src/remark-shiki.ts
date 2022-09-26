@@ -73,6 +73,13 @@ const remarkShiki = async (
 				'<pre class="shiki"',
 				`<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`
 			);
+			let metaAttribute = node.meta && node.meta.length > 0 ? `meta=${node.meta}` : '';
+			if (metaAttribute.length) {
+				html = html.replace(
+					'<code',
+					`<code is:raw ${metaAttribute}`
+				);
+			}
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {
 				html = html.replace(
