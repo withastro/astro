@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import type { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { normalizePath } from '../../../utils';
-import { ensureRealFilePath } from '../utils';
 import { DocumentSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 import * as DocumentSnapshotUtils from './utils';
 
