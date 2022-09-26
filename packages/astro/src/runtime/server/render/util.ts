@@ -15,7 +15,7 @@ const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // converts (most) arbitrary strings to valid JS identifiers
 const toIdent = (k: string) =>
-	k.trim().replace(/(?:(?<!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
+	k.trim().replace(/(?:(?!^)\b\w|\s+|[^\w]+)/g, (match, index) => {
 		if (/[^\w]|\s/.test(match)) return '';
 		return index === 0 ? match : match.toUpperCase();
 	});
@@ -34,7 +34,9 @@ const toStyleString = (obj: Record<string, any>) =>
 export function defineScriptVars(vars: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(vars)) {
-		output += `let ${toIdent(key)} = ${JSON.stringify(value)};\n`;
+		// Use const instead of let as let global unsupported with Safari
+		// https://stackoverflow.com/questions/29194024/cant-use-let-keyword-in-safari-javascript
+		output += `const ${toIdent(key)} = ${JSON.stringify(value)};\n`;
 	}
 	return markHTMLString(output);
 }
