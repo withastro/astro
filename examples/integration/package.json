@@ -1,0 +1,15 @@
+{
+  "name": "@example/integration",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro --root demo dev",
+    "start": "astro --root demo dev",
+    "build": "astro --root demo build",
+    "preview": "astro --root demo preview"
+  },
+  "dependencies": {
+    "astro": "^1.3.0"
+  }
+}
