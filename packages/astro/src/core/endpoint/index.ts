@@ -1,6 +1,8 @@
-import type { EndpointHandler } from '../../@types/astro';
-import { renderEndpoint } from '../../runtime/server/index.js';
+import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
 import type { RenderOptions } from '../render/core';
+
+import { AstroCookies, attachToResponse } from '../cookies/index.js';
+import { renderEndpoint } from '../../runtime/server/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 export type EndpointOptions = Pick<
@@ -28,6 +30,14 @@ type EndpointCallResult =
 			response: Response;
 	  };
 
+function createAPIContext(request: Request, params: Params): APIContext {
+	return {
+		cookies: new AstroCookies(request),
+		request,
+		params
+	};
+}
+
 export async function call(
 	mod: EndpointHandler,
 	opts: EndpointOptions
@@ -41,9 +51,11 @@ export async function call(
 	}
 	const [params] = paramsAndPropsResp;
 
-	const response = await renderEndpoint(mod, opts.request, params, opts.ssr);
+	const context = createAPIContext(opts.request, params);
+	const response = await renderEndpoint(mod, context, opts.ssr);
 
 	if (response instanceof Response) {
+		attachToResponse(response, context.cookies);
 		return {
 			type: 'response',
 			response,

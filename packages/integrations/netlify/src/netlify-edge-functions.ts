@@ -17,7 +17,13 @@ export function createExports(manifest: SSRManifest) {
 		if (app.match(request)) {
 			const ip = request.headers.get('x-nf-client-connection-ip');
 			Reflect.set(request, clientAddressSymbol, ip);
-			return app.render(request);
+			const response = await app.render(request);
+			if(app.setCookieHeaders) {
+				for(const setCookieHeader of app.setCookieHeaders(response)) {
+					response.headers.append('Set-Cookie', setCookieHeader);
+				}
+			}
+			return response;
 		}
 
 		return new Response(null, {

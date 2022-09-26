@@ -21,6 +21,7 @@ import {
 } from '../render/ssr-element.js';
 import { matchRoute } from '../routing/match.js';
 export { deserializeManifest } from './common.js';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 
 export const pagesVirtualModuleId = '@astrojs-pages-virtual-entry';
 export const resolvedPagesVirtualModuleId = '\0' + pagesVirtualModuleId;
@@ -114,6 +115,10 @@ export class App {
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
+	}
+
+	setCookieHeaders(response: Response) {
+		return getSetCookiesFromResponse(response);
 	}
 
 	async #renderPage(

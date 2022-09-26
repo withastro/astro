@@ -369,6 +369,7 @@ importers:
       '@types/chai': ^4.3.1
       '@types/common-ancestor-path': ^1.0.0
       '@types/connect': ^3.4.35
+      '@types/cookie': ^0.5.1
       '@types/debug': ^4.1.7
       '@types/diff': ^5.0.2
       '@types/estree': ^0.0.51
@@ -392,6 +393,7 @@ importers:
       cheerio: ^1.0.0-rc.11
       ci-info: ^3.3.1
       common-ancestor-path: ^1.0.1
+      cookie: ^0.5.0
       debug: ^4.3.4
       diff: ^5.1.0
       eol: ^0.9.1
@@ -407,6 +409,7 @@ importers:
       magic-string: ^0.25.9
       mime: ^3.0.0
       mocha: ^9.2.2
+      ms: ^2.1.3
       node-fetch: ^3.2.5
       ora: ^6.1.0
       path-browserify: ^1.0.1
@@ -460,6 +463,7 @@ importers:
       boxen: 6.2.1
       ci-info: 3.4.0
       common-ancestor-path: 1.0.1
+      cookie: 0.5.0
       debug: 4.3.4
       diff: 5.1.0
       eol: 0.9.1
@@ -474,6 +478,7 @@ importers:
       kleur: 4.1.5
       magic-string: 0.25.9
       mime: 3.0.0
+      ms: 2.1.3
       ora: 6.1.2
       path-browserify: 1.0.1
       path-to-regexp: 6.2.1
@@ -506,6 +511,7 @@ importers:
       '@types/chai': 4.3.3
       '@types/common-ancestor-path': 1.0.0
       '@types/connect': 3.4.35
+      '@types/cookie': 0.5.1
       '@types/debug': 4.1.7
       '@types/diff': 5.0.2
       '@types/estree': 0.0.51
@@ -1195,6 +1201,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-components:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-cookies:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -4997,7 +5009,7 @@ packages:
       babel-plugin-polyfill-corejs2: 0.3.3_@babel+core@7.19.1
       babel-plugin-polyfill-corejs3: 0.6.0_@babel+core@7.19.1
       babel-plugin-polyfill-regenerator: 0.4.1_@babel+core@7.19.1
-      core-js-compat: 3.25.2
+      core-js-compat: 3.25.3
       semver: 6.3.0
     transitivePeerDependencies:
       - supports-color
@@ -9286,6 +9298,10 @@ packages:
       '@types/node': 18.7.23
     dev: true
 
+  /@types/cookie/0.5.1:
+    resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
+    dev: true
+
   /@types/debug/4.1.7:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
@@ -10311,7 +10327,7 @@ packages:
     dependencies:
       '@babel/core': 7.19.1
       '@babel/helper-define-polyfill-provider': 0.3.3_@babel+core@7.19.1
-      core-js-compat: 3.25.2
+      core-js-compat: 3.25.3
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -10823,8 +10839,13 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /core-js-compat/3.25.2:
-    resolution: {integrity: sha512-TxfyECD4smdn3/CjWxczVtJqVLEEC2up7/82t7vC0AzNogr+4nQ8vyF7abxAuTXWvjTClSbvGhU0RgqA4ToQaQ==}
+  /cookie/0.5.0:
+    resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
+  /core-js-compat/3.25.3:
+    resolution: {integrity: sha512-xVtYpJQ5grszDHEUU9O7XbjjcZ0ccX3LgQsyqSvTnjX97ZqEgn9F5srmrwwwMtbKzDllyFPL+O+2OFMl1lU4TQ==}
     dependencies:
       browserslist: 4.21.4
     dev: false

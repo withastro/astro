@@ -26,7 +26,13 @@ export function start(manifest: SSRManifest, options: Options) {
 		if (app.match(request)) {
 			let ip = connInfo?.remoteAddr?.hostname;
 			Reflect.set(request, Symbol.for('astro.clientAddress'), ip);
-			return await app.render(request);
+			const response = await app.render(request);
+			if(app.setCookieHeaders) {
+				for(const setCookieHeader of app.setCookieHeaders(response)) {
+					response.headers.append('Set-Cookie', setCookieHeader);
+				}
+			}
+			return response;
 		}
 
 		// If the request path wasn't found in astro,
@@ -38,7 +44,14 @@ export function start(manifest: SSRManifest, options: Options) {
 		// If the static file can't be found
 		if (fileResp.status == 404) {
 			// Render the astro custom 404 page
-			return await app.render(request);
+			const response = await app.render(request);
+
+			if(app.setCookieHeaders) {
+				for(const setCookieHeader of app.setCookieHeaders(response)) {
+					response.headers.append('Set-Cookie', setCookieHeader);
+				}
+			}
+			return response;
 
 			// If the static file is found
 		} else {
