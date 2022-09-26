@@ -2,4 +2,4 @@
 '@astrojs/mdx': patch
 ---
 
-Avoid parsing import.meta.env in MDX files
+Correctly parse import.meta.env in MDX files
