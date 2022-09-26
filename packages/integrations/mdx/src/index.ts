@@ -5,8 +5,7 @@ import type { AstroIntegration } from 'astro';
 import { parse as parseESM } from 'es-module-lexer';
 import { blue, bold } from 'kleur/colors';
 import fs from 'node:fs/promises';
-import { VFile } from 'vfile';
-import type { Plugin as VitePlugin } from 'vite';
+import { getFileInfo, handleExtendsNotSupported, parseFrontmatter } from './internal-utils.js';
 import {
 	getRehypePlugins,
 	getRemarkPlugins,

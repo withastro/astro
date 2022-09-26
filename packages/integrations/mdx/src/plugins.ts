@@ -1,3 +1,8 @@
+import type { MemberExpression, Literal } from 'estree';
+import type { MarkdownAstroData, AstroConfig } from 'astro';
+import type { Data, VFile } from 'vfile';
+import { visit as estreeVisit } from 'estree-util-visit';
+import { jsToMdxTreeNode } from './internal-utils.js';
 import { nodeTypes } from '@mdx-js/mdx';
 import type { PluggableList } from '@mdx-js/mdx/lib/core.js';
 import type { Options as MdxRollupPluginOptions } from '@mdx-js/rollup';
@@ -57,7 +62,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 		const { frontmatter: injectedFrontmatter } = safelyGetAstroData(vfile.data);
 		const frontmatter = { ...injectedFrontmatter, ...pageFrontmatter };
 		const exportNodes = [
-			jsToTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
+			jsToMdxTreeNode(`export const ${EXPORT_NAME} = ${JSON.stringify(frontmatter)};`),
 		];
 		if (frontmatter.layout) {
 			// NOTE(bholmesdev) 08-22-2022
@@ -65,7 +70,7 @@ export function rehypeApplyFrontmatterExport(pageFrontmatter: Record<string, any
 			// Preserves the dev server import cache when globbing a large set of MDX files
 			// Full explanation: 'https://github.com/withastro/astro/pull/4428'
 			exportNodes.unshift(
-				jsToTreeNode(
+				jsToMdxTreeNode(
 					/** @see 'vite-plugin-markdown' for layout props reference */
 					`import { jsx as layoutJsx } from 'astro/jsx-runtime';
 				

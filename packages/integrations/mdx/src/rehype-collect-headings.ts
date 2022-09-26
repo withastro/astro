@@ -1,6 +1,6 @@
 import Slugger from 'github-slugger';
 import { visit } from 'unist-util-visit';
-import { jsToTreeNode } from './utils.js';
+import { jsToMdxTreeNode } from './internal-utils.js';
 
 export interface MarkdownHeading {
 	depth: number;
@@ -44,7 +44,7 @@ export default function rehypeCollectHeadings() {
 			headings.push({ depth, slug: node.properties.id, text });
 		});
 		tree.children.unshift(
-			jsToTreeNode(`export function getHeadings() { return ${JSON.stringify(headings)} }`)
+			jsToMdxTreeNode(`export function getHeadings() { return ${JSON.stringify(headings)} }`)
 		);
 	};
 }
