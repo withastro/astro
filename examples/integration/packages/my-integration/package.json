@@ -1,24 +1,24 @@
 {
-    "name": "@example/my-integration",
-    "private": true,
-    "version": "0.0.1",
-    "type": "module",
-    "exports": {
-      ".": "./index.ts",
-      "./components": "./components.ts"
-    },
-    "files": [
-      "src",
-      "index.ts"
-    ],
-    "keywords": [
-      "astro-component"
-    ],
-    "scripts": {},
-    "devDependencies": {
-      "astro": "^1.3.0"
-    },
-    "peerDependencies": {
-      "astro": "^1.3.0"
-    }
+  "name": "@example/my-integration",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./components": "./components.ts"
+  },
+  "files": [
+    "src",
+    "index.ts"
+  ],
+  "keywords": [
+    "astro-component"
+  ],
+  "scripts": {},
+  "devDependencies": {
+    "astro": "^1.3.0"
+  },
+  "peerDependencies": {
+    "astro": "^1.3.0"
   }
+}
