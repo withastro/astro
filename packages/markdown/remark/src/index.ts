@@ -10,7 +10,7 @@ import remarkEscape from './remark-escape.js';
 import { remarkInitializeAstroData } from './remark-initialize-astro-data.js';
 import remarkMarkAndUnravel from './remark-mark-and-unravel.js';
 import remarkMdxish from './remark-mdxish.js';
-import remarkPreserveMeta from './remark-preserve-meta';
+import remarkPreserveMeta from './remark-preserve-meta.js';
 import remarkPrism from './remark-prism.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkShiki from './remark-shiki.js';
