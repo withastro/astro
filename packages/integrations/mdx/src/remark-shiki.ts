@@ -67,6 +67,13 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 
 			// Replace "shiki" class naming with "astro".
 			html = html.replace('<pre class="shiki"', `<pre class="astro-code"`);
+			let metaAttribute = node.meta && node.meta.length > 0 ? `meta=${node.meta}` : '';
+			if (metaAttribute.length) {
+				html = html.replace(
+					'<code',
+					`<code ${metaAttribute}`
+				);
+			}
 			// Add "user-select: none;" for "+"/"-" diff symbols
 			if (node.lang === 'diff') {
 				html = html.replace(
