@@ -34,6 +34,7 @@
     "@mdx-js/rollup": "^2.1.1",
     "acorn": "^8.8.0",
     "es-module-lexer": "^0.10.5",
+    "estree-util-visit": "^1.2.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
     "kleur": "^4.1.4",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
+    "@types/estree": "^1.0.0",
     "@types/mocha": "^9.1.1",
     "@types/yargs-parser": "^21.0.0",
     "astro": "workspace:*",
