@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/tailwind": "workspace:*",
     "astro": "workspace:*",
-    "@astrojs/tailwind": "workspace:*"
+    "tailwindcss": "^3.0.24"
   }
 }
