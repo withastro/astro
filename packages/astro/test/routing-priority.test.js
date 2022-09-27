@@ -95,6 +95,17 @@ const routes = [
 		h1: '[id].astro',
 		p: 'injected-2',
 	},
+	{
+		description: 'matches /empty-slug to empty-slug/[...slug].astro',
+		url: '/empty-slug',
+		h1: 'empty-slug/[...slug].astro',
+		p: 'slug: ',
+	},
+	{
+		description: 'do not match /empty-slug/undefined to empty-slug/[...slug].astro',
+		url: '/empty-slug/undefined',
+		fourOhFour: true,
+	},
 ];
 
 function appendForwardSlash(path) {
@@ -112,9 +123,16 @@ describe('Routing priority', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, h1, p }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p }) => {
 			it(description, async () => {
-				const html = await fixture.readFile(`${appendForwardSlash(url)}index.html`);
+				const htmlFile = `${appendForwardSlash(url)}index.html`;
+
+				if (fourOhFour) {
+					expect(fixture.pathExists(htmlFile)).to.be.false;
+					return;
+				}
+
+				const html = await fixture.readFile(htmlFile);
 				const $ = cheerioLoad(html);
 
 				expect($('h1').text()).to.equal(h1);
@@ -142,11 +160,16 @@ describe('Routing priority', () => {
 			await devServer.stop();
 		});
 
-		routes.forEach(({ description, url, h1, p }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p }) => {
 			// checks URLs as written above
 			it(description, async () => {
 				const html = await fixture.fetch(url).then((res) => res.text());
 				const $ = cheerioLoad(html);
+
+				if (fourOhFour) {
+					expect($('title').text()).to.equal('404: Not Found');
+					return;
+				}
 
 				expect($('h1').text()).to.equal(h1);
 
@@ -159,6 +182,11 @@ describe('Routing priority', () => {
 			it(`${description} (trailing slash)`, async () => {
 				const html = await fixture.fetch(appendForwardSlash(url)).then((res) => res.text());
 				const $ = cheerioLoad(html);
+
+				if (fourOhFour) {
+					expect($('title').text()).to.equal('404: Not Found');
+					return;
+				}
 
 				expect($('h1').text()).to.equal(h1);
 
@@ -173,6 +201,11 @@ describe('Routing priority', () => {
 					.fetch(`${appendForwardSlash(url)}index.html`)
 					.then((res) => res.text());
 				const $ = cheerioLoad(html);
+
+				if (fourOhFour) {
+					expect($('title').text()).to.equal('404: Not Found');
+					return;
+				}
 
 				expect($('h1').text()).to.equal(h1);
 
