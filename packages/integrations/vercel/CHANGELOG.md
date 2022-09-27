@@ -1,5 +1,14 @@
 # @astrojs/vercel
 
+## 2.0.1
+
+### Patch Changes
+
+- [#4884](https://github.com/withastro/astro/pull/4884) [`fb91d04a5`](https://github.com/withastro/astro/commit/fb91d04a5cb8f84f5b1be0a4e0c6cd61ec514736) Thanks [@bluwy](https://github.com/bluwy)! - Set SSR target webworker
+
+- Updated dependencies [[`5e4c5252b`](https://github.com/withastro/astro/commit/5e4c5252bd80cbaf6a7ee4d4503ece007664410f)]:
+  - @astrojs/webapi@1.1.0
+
 ## 2.0.0
 
 ### Major Changes
