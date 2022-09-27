@@ -5,7 +5,7 @@ import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
-import { renderSlot } from './any.js';
+import { renderSlot, renderSlots } from './slot.js';
 import {
 	isAstroComponentFactory,
 	renderAstroComponent,
@@ -68,18 +68,15 @@ export async function renderComponent(
 
 		// .html components
 		case 'html': {
-			const children: Record<string, string> = {};
-			if (slots) {
-				await Promise.all(
-					Object.entries(slots).map(([key, value]) =>
-						renderSlot(result, value as string).then((output) => {
-							children[key] = output;
-						})
-					)
-				);
-			}
+			const { slotInstructions, children } = await renderSlots(result, slots);
 			const html = (Component as any).render({ slots: children });
-			return markHTMLString(html);
+
+			return (async function*() {
+				if(slotInstructions) {
+					yield * slotInstructions;
+				}
+				yield markHTMLString(html);
+			})();
 		}
 
 		case 'astro-factory': {
@@ -130,16 +127,7 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		throw new Error(message);
 	}
 
-	const children: Record<string, string> = {};
-	if (slots) {
-		await Promise.all(
-			Object.entries(slots).map(([key, value]) =>
-				renderSlot(result, value as string).then((output) => {
-					children[key] = output;
-				})
-			)
-		);
-	}
+	const { children, slotInstructions } = await renderSlots(result, slots);
 
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: SSRLoadedRenderer | undefined;
@@ -345,6 +333,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	async function* renderAll() {
+		if(slotInstructions) {
+			yield * slotInstructions;
+		}
 		yield { type: 'directive', hydration, result };
 		yield markHTMLString(renderElement('astro-island', island, false));
 	}
