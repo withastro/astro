@@ -4,6 +4,8 @@ import type { AstroConfig, SSRError } from 'astro';
 import matter from 'gray-matter';
 import type { MdxjsEsm } from 'mdast-util-mdx';
 
+console.log()
+
 function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
