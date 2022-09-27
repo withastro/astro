@@ -41,7 +41,7 @@ export async function call(
 	}
 	const [params] = paramsAndPropsResp;
 
-	const response = await renderEndpoint(mod, opts.request, params);
+	const response = await renderEndpoint(mod, opts.request, params, opts.ssr);
 
 	if (response instanceof Response) {
 		return {
