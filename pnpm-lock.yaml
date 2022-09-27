@@ -2460,6 +2460,7 @@ importers:
       '@mdx-js/mdx': ^2.1.2
       '@mdx-js/rollup': ^2.1.1
       '@types/chai': ^4.3.1
+      '@types/estree': ^1.0.0
       '@types/mocha': ^9.1.1
       '@types/yargs-parser': ^21.0.0
       acorn: ^8.8.0
@@ -2467,6 +2468,7 @@ importers:
       astro-scripts: workspace:*
       chai: ^4.3.6
       es-module-lexer: ^0.10.5
+      estree-util-visit: ^1.2.0
       github-slugger: ^1.4.0
       gray-matter: ^4.0.3
       kleur: ^4.1.4
@@ -2489,6 +2491,7 @@ importers:
       '@mdx-js/rollup': 2.1.3
       acorn: 8.8.0
       es-module-lexer: 0.10.5
+      estree-util-visit: 1.2.0
       github-slugger: 1.4.0
       gray-matter: 4.0.3
       kleur: 4.1.5
@@ -2501,6 +2504,7 @@ importers:
       vfile: 5.3.5
     devDependencies:
       '@types/chai': 4.3.3
+      '@types/estree': 1.0.0
       '@types/mocha': 9.1.1
       '@types/yargs-parser': 21.0.0
       astro: link:../../astro
@@ -2553,6 +2557,14 @@ importers:
     dependencies:
       '@astrojs/mdx': link:../../..
       '@astrojs/react': link:../../../../react
+      astro: link:../../../../../astro
+
+  packages/integrations/mdx/test/fixtures/mdx-vite-env-vars:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/mdx': link:../../..
       astro: link:../../../../../astro
 
   packages/integrations/netlify:
@@ -9082,7 +9094,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: false
 
   /@types/extend/3.0.1:
     resolution: {integrity: sha512-R1g/VyKFFI2HLC1QGAeTtCBWCo6n75l41OnsVYNbmKG+kempOESaodf6BeJyUM3Q0rKa/NQcTHbB2+66lNnxLw==}
