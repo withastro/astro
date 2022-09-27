@@ -1664,6 +1664,12 @@ importers:
       '@astrojs/solid-js': link:../../../../integrations/solid
       astro: link:../../..
 
+  packages/astro/test/fixtures/lazy-layout:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/legacy-astro-flavored-markdown:
     specifiers:
       '@astrojs/preact': workspace:*

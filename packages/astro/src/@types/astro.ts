@@ -1212,6 +1212,7 @@ export interface SSRMetadata {
 	pathname: string;
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
 }
 
 export interface SSRResult {
