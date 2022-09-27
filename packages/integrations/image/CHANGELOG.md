@@ -1,5 +1,36 @@
 # @astrojs/image
 
+## 0.8.0
+
+### Minor Changes
+
+- [#4738](https://github.com/withastro/astro/pull/4738) [`fad3867ad`](https://github.com/withastro/astro/commit/fad3867adbfb3a38bec8a1a122d32f953a2072fb) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds a new built-in image service based on web assembly libraries :drum: web container support!
+
+  **Migration:** Happy with the previous image service based on [`sharp`](https://sharp.pixelplumbing.com/)? No problem! Install `sharp` in your project and update your Astro config to match.
+
+  ```sh
+  npm install sharp
+  ```
+
+  ```astro title="astro.config.mjs"
+  ---
+  import image from '@astrojs/image';
+
+  export default {
+    // ...
+    integrations: [
+      image({
+        serviceEntryPoint: '@astrojs/image/sharp',
+      }),
+    ],
+  };
+  ---
+  ```
+
+### Patch Changes
+
+- [#4797](https://github.com/withastro/astro/pull/4797) [`944d24e9e`](https://github.com/withastro/astro/commit/944d24e9ee813bb7dd45776a975b5bccb46b44cd) Thanks [@smeevil](https://github.com/smeevil)! - Do not pass width and height to the img element when wrapped in a picture element
+
 ## 0.7.1
 
 ### Patch Changes

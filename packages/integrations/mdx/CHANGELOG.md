@@ -1,5 +1,13 @@
 # @astrojs/mdx
 
+## 0.11.2
+
+### Patch Changes
+
+- [#4700](https://github.com/withastro/astro/pull/4700) [`e5f71142e`](https://github.com/withastro/astro/commit/e5f71142eb62bd72456e889dad5774347c3753f2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Document MDXLayoutProps utility type
+
+- [#4858](https://github.com/withastro/astro/pull/4858) [`58a2dca22`](https://github.com/withastro/astro/commit/58a2dca2286cb14f6211cf51267c02447e78433a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Correctly parse import.meta.env in MDX files
+
 ## 0.11.1
 
 ### Patch Changes
