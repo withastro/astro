@@ -44,6 +44,7 @@ export default function vercelEdge(): AstroIntegration {
 					}
 
 					vite.ssr = {
+						target: 'webworker',
 						noExternal: true,
 					};
 				}
