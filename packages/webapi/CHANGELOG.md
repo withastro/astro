@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 1.1.0
+
+### Minor Changes
+
+- [#4676](https://github.com/withastro/astro/pull/4676) [`5e4c5252b`](https://github.com/withastro/astro/commit/5e4c5252bd80cbaf6a7ee4d4503ece007664410f) Thanks [@zicklag](https://github.com/zicklag)! - Add HTTP Proxy Support to `fetch` Polyfill
+
 ## 1.0.0
 
 ### Major Changes
