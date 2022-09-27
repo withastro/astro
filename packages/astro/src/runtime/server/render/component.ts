@@ -71,7 +71,7 @@ export async function renderComponent(
 			const { slotInstructions, children } = await renderSlots(result, slots);
 			const html = (Component as any).render({ slots: children });
 			const hydrationHtml = slotInstructions ? slotInstructions.map(instr => stringifyChunk(result, instr)).join('') : '';
-			return hydrationHtml + html;
+			return markHTMLString(hydrationHtml + html);
 		}
 
 		case 'astro-factory': {
