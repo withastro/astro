@@ -29,7 +29,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^1.0.0"
+    "@astrojs/webapi": "^1.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
