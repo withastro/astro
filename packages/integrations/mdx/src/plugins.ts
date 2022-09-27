@@ -11,6 +11,7 @@ import remarkSmartypants from 'remark-smartypants';
 import type { Data, VFile } from 'vfile';
 import { MdxOptions } from './index.js';
 import rehypeCollectHeadings from './rehype-collect-headings.js';
+import remarkPreserveMeta from './remark-preserve-meta.js';
 import remarkPrism from './remark-prism.js';
 import remarkShiki from './remark-shiki.js';
 import { jsToTreeNode } from './utils.js';
@@ -137,6 +138,9 @@ export async function getRemarkPlugins(
 	}
 	if (config.markdown.syntaxHighlight === 'prism') {
 		remarkPlugins.push(remarkPrism);
+	}
+	if (!config.markdown.syntaxHighlight && config.markdown.syntaxHighlight === false) {
+		remarkPlugins.push(remarkPreserveMeta);
 	}
 
 	remarkPlugins = [...remarkPlugins, ...(mdxOptions.remarkPlugins ?? [])];

@@ -74,6 +74,10 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 					'<span class="line"><span style="$1"><span style="user-select: none;">$2</span>'
 				);
 			}
+			let metaAttribute = node.meta && node.meta.length > 0 ? `meta=${node.meta}` : '';
+			if (metaAttribute.length) {
+				html = html.replace('<code', `<code ${metaAttribute}`);
+			}
 			// Handle code wrapping
 			// if wrap=null, do nothing.
 			if (wrap === false) {
