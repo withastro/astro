@@ -1,0 +1,7 @@
+{
+  "name": "@test/mdx-utils-jstomdxtreenode",
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/mdx": "workspace:*"
+  }
+}
