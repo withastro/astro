@@ -37,7 +37,7 @@ interface RenderSlotsResult {
 	children: Record<string, string>;
 }
 
-export async function renderSlots(result: any, slots: any = {}): Promise<RenderSlotsResult> {
+export async function renderSlots(result: SSRResult, slots: any = {}): Promise<RenderSlotsResult> {
 	let slotInstructions: RenderSlotsResult['slotInstructions'] = null;
 	let children: RenderSlotsResult['children'] = {};
 	if (slots) {

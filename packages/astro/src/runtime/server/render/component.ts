@@ -12,7 +12,7 @@ import {
 	renderTemplate,
 	renderToIterable,
 } from './astro.js';
-import { Fragment, Renderer } from './common.js';
+import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
@@ -70,13 +70,8 @@ export async function renderComponent(
 		case 'html': {
 			const { slotInstructions, children } = await renderSlots(result, slots);
 			const html = (Component as any).render({ slots: children });
-
-			return (async function*() {
-				if(slotInstructions) {
-					yield * slotInstructions;
-				}
-				yield markHTMLString(html);
-			})();
+			const hydrationHtml = slotInstructions ? slotInstructions.map(instr => stringifyChunk(result, instr)).join('') : '';
+			return hydrationHtml + html;
 		}
 
 		case 'astro-factory': {
