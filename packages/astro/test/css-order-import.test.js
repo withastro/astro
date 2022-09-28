@@ -12,8 +12,8 @@ describe('CSS ordering - import order', () => {
 	});
 
 	/**
-	 * 
-	 * @param {string} html 
+	 *
+	 * @param {string} html
 	 * @returns {string[]}
 	 */
 	function getLinks(html) {
@@ -84,9 +84,7 @@ describe('CSS ordering - import order', () => {
 		it('Page level CSS is defined lower in the page', async () => {
 			let html = await fixture.readFile('/index.html');
 
-			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(href))
-			);
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
 			const [{ css }] = content;
 			let idx1 = css.indexOf('salmon');
@@ -98,9 +96,7 @@ describe('CSS ordering - import order', () => {
 		it('import order is depth-first', async () => {
 			let html = await fixture.readFile('/component/index.html');
 
-			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(href))
-			);
+			const content = await Promise.all(getLinks(html).map((href) => getLinkContent(href)));
 
 			const [{ css }] = content;
 			let idx1 = css.indexOf('whitesmoke');
