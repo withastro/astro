@@ -6,7 +6,7 @@ import { say, label, color, prompt, generateProjectName, spinner } from '@astroj
 import { random, align } from '@astrojs/cli-kit/utils';
 
 import { banner, getName, getVersion, welcome, info, typescriptByDefault, nextSteps } from './messages.js';
-import { isEmpty } from './actions/shared.js';
+import { isEmpty, toValidName } from './actions/shared.js';
 import checkCwd from './actions/check-cwd.js';
 import copyTemplate from './actions/copy-template.js';
 import installDeps from './actions/install-deps.js';
@@ -28,6 +28,7 @@ export async function main() {
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][2] as string;
 	let { template, yes } = flags;
+	let projectName = cwd;
 
 	if (yes !== true) {
 		await say([
@@ -61,6 +62,7 @@ export async function main() {
 			},
 		});
 		cwd = name!;
+		projectName = toValidName(name!);
 	}
 
 	if (!cwd) {
@@ -90,7 +92,7 @@ export async function main() {
 		await spinner({
 			start: 'Template copying...',
 			end: 'Template copied',
-			while: () => copyTemplate(template, { flags: flags, cwd })
+			while: () => copyTemplate(template, { name: projectName, flags, cwd, pkgManager })
 		})
 	} else {
 		process.exit(1)

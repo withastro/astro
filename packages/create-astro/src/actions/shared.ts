@@ -1,3 +1,4 @@
+import { execa } from 'execa';
 import fs from 'node:fs';
 
 // Some existing files and directories can be safely ignored when checking if a directory is a valid project directory.
@@ -38,4 +39,20 @@ export function isEmpty(dirPath: string) {
 	});
 
 	return conflicts.length === 0;
+}
+
+export function toValidName(name: string) {
+	return name
+		.replace(/^\.\//, '')
+		.replace(/[^a-zA-Z0-9-]/g, '-')
+		.replace(/(^\-|\-$)+/, '');
+}
+
+export async function hasVSCodeExtension(): Promise<boolean> {
+	try {
+		const { stdout } = await execa('code', ['--list-extensions']);
+		return !!stdout.split('\n').find(ln => ln === 'astro.build.astro-vscode');
+	} catch (e) {}
+
+	return false;
 }
