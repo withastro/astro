@@ -27,7 +27,7 @@ function guessRenderers(componentUrl?: string): string[] {
 			return ['@astrojs/vue'];
 		case 'jsx':
 		case 'tsx':
-			return ['@astrojs/react', '@astrojs/preact'];
+			return ['@astrojs/react', '@astrojs/preact', '@astrojs/vue (jsx)'];
 		default:
 			return ['@astrojs/react', '@astrojs/preact', '@astrojs/vue', '@astrojs/svelte'];
 	}

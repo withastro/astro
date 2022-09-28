@@ -34,6 +34,8 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^3.0.0",
+    "@vitejs/plugin-vue-jsx": "^2.0.1",
+    "@vue/babel-plugin-jsx": "^1.1.1",
     "vite": "^3.0.0"
   },
   "devDependencies": {
