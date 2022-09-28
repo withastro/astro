@@ -115,7 +115,7 @@ class SquooshService extends BaseSSRService {
 			inputBuffer,
 			operations,
 			transform.format,
-			transform.quality || 100
+			transform.quality
 		);
 
 		return {
