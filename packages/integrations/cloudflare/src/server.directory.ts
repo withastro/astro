@@ -28,7 +28,15 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
-			return app.render(request, routeData);
+			let response = await app.render(request, routeData);
+
+			if(app.setCookieHeaders) {
+				for(const setCookieHeader of app.setCookieHeaders(response)) {
+					response.headers.append('Set-Cookie', setCookieHeader);
+				}
+			}
+
+			return response;
 		}
 
 		return new Response(null, {

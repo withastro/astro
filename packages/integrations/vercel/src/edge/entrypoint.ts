@@ -15,7 +15,13 @@ export function createExports(manifest: SSRManifest) {
 	const handler = async (request: Request): Promise<Response> => {
 		if (app.match(request)) {
 			Reflect.set(request, clientAddressSymbol, request.headers.get('x-forwarded-for'));
-			return await app.render(request);
+			const response = await app.render(request);
+			if(app.setCookieHeaders) {
+				for(const setCookieHeader of app.setCookieHeaders(response)) {
+					response.headers.append('Set-Cookie', setCookieHeader);
+				}
+			}
+			return response;
 		}
 
 		return new Response(null, {

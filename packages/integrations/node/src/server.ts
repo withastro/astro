@@ -18,7 +18,7 @@ export function createExports(manifest: SSRManifest) {
 				if (route) {
 					try {
 						const response = await app.render(req);
-						await writeWebResponse(res, response);
+						await writeWebResponse(app, res, response);
 					} catch (err: unknown) {
 						if (next) {
 							next(err);
@@ -39,8 +39,16 @@ export function createExports(manifest: SSRManifest) {
 	};
 }
 
-async function writeWebResponse(res: ServerResponse, webResponse: Response) {
+async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
+
+	if(app.setCookieHeaders) {
+		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
+		if(setCookieHeaders.length) {
+			res.setHeader('Set-Cookie', setCookieHeaders);
+		}
+	}
+
 	res.writeHead(status, Object.fromEntries(headers.entries()));
 	if (body) {
 		for await (const chunk of body as unknown as Readable) {

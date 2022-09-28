@@ -11,6 +11,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
+import { AstroCookies } from '../cookies/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { isCSSRequest } from './util.js';
@@ -139,6 +140,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		writable: false,
 	});
 
+	// Astro.cookies is defined lazily to avoid the cost on pages that do not use it.
+	let cookies: AstroCookies | undefined = undefined;
+
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
 	// calling the render() function will populate the object with scripts, styles, etc.
@@ -146,6 +150,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		styles: args.styles ?? new Set<SSRElement>(),
 		scripts: args.scripts ?? new Set<SSRElement>(),
 		links: args.links ?? new Set<SSRElement>(),
+		cookies,
 		/** This function returns the `Astro` faux-global */
 		createAstro(
 			astroGlobal: AstroGlobalPartial,
@@ -170,6 +175,14 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					}
 
 					return Reflect.get(request, clientAddressSymbol);
+				},
+				get cookies() {
+					if(cookies) {
+						return cookies;
+					}
+					cookies = new AstroCookies(request);
+					result.cookies = cookies;
+					return cookies;
 				},
 				params,
 				props,
