@@ -1397,6 +1397,14 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/astro-slots-nested:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+
   packages/astro/test/fixtures/before-hydration:
     specifiers:
       '@astrojs/preact': workspace:*

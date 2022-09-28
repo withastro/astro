@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 
 import { markHTMLString } from '../escape.js';
-import { renderSlot } from './any.js';
+import { renderSlot } from './slot.js';
 import { toAttributeString } from './util.js';
 
 export function componentIsHTMLElement(Component: unknown) {
