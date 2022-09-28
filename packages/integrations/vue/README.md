@@ -111,4 +111,4 @@ export default defineConfig({
 });
 ```
 
-This will enable rendering both Vue and Vue JSX components. To customize the Vue JSX compiler, options can be passed instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://github.com/vitejs/vite/tree/main/packages/plugin-vue-jsx) for more details.
+This will enable rendering for both Vue and Vue JSX components. To customize the Vue JSX compiler, pass an options object instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://github.com/vitejs/vite/tree/main/packages/plugin-vue-jsx) for more details.
