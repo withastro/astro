@@ -53,10 +53,10 @@ __`astro.config.mjs`__
 ```js
 import tailwind from '@astrojs/tailwind';
 
-export default {
+export default defineConfig({
   // ...
   integrations: [tailwind()],
-}
+});
 ```
   
 
