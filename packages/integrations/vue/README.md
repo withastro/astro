@@ -94,3 +94,21 @@ export default {
   })],
 }
 ```
+
+### jsx
+
+You can use Vue JSX by setting `jsx: true`.
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import vue from '@astrojs/vue';
+
+export default defineConfig({
+  integrations: [
+    vue({ jsx: true })
+  ],
+});
+```
+
+This will enable rendering both Vue and Vue JSX components. To customize the Vue JSX compiler, options can be passed instead of a boolean. See the `@vitejs/plugin-vue-jsx` [docs](https://github.com/vitejs/vite/tree/main/packages/plugin-vue-jsx) for more details.
