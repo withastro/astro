@@ -1,8 +1,21 @@
+import path from 'path';
+import { pathToFileURL } from 'url';
 import * as unified from 'unified';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
+
+const cwdUrlStr = pathToFileURL(path.join(process.cwd(), 'package.json')).toString();
 
 async function importPlugin(p: string | unified.Plugin): Promise<unified.Plugin> {
 	if (typeof p === 'string') {
-		const importResult = await import(p);
+		// Try import from this package first
+		try {
+			const importResult = await import(p);
+			return importResult.default;
+		} catch {}
+
+		// Try import from user project
+		const resolved = await importMetaResolve(p, cwdUrlStr);
+		const importResult = await import(resolved);
 		return importResult.default;
 	}
 

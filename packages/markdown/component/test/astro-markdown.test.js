@@ -12,6 +12,8 @@ describe('Astro Markdown', () => {
 		await fixture.build();
 	});
 
+	// NOTE: This test uses legacy markdown, which requires `github-slugger` to be installed.
+	// This breaks in strict dependency installation, but since it's a legacy feature, ignore for now.
 	it('Can load markdown pages with Astro', async () => {
 		const html = await fixture.readFile('/post/index.html');
 		const $ = cheerio.load(html);

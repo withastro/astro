@@ -46,7 +46,7 @@ async function run() {
 		console.log('🤖', 'Testing', name);
 
 		try {
-			await execa('pnpm', ['install', '--ignore-scripts', '--frozen-lockfile=false', isExternal ? '--shamefully-hoist' : ''].filter(x => x), { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['install', '--ignore-scripts', '--frozen-lockfile=false'].filter(x => x), { cwd: fileURLToPath(directory), stdio: 'inherit' });
 			await execa('pnpm', ['astro', 'telemetry', 'disable']);
 			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
