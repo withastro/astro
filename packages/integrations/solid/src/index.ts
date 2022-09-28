@@ -45,7 +45,7 @@ function getViteConfiguration(isDev: boolean) {
 		ssr: {
 			external: ['babel-preset-solid'],
 			target: 'node',
-			noExternal: true
+			noExternal: ['solid-js']
 		},
 	};
 }
