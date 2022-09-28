@@ -16,7 +16,7 @@ export async function processBuffer(
   buffer: Buffer,
   operations: Operation[],
   encoding: OutputFormat,
-  quality: number
+  quality?: number
 ): Promise<Uint8Array> {
   let imageData = await impl.decodeBuffer(buffer)
   for (const operation of operations) {
@@ -29,7 +29,7 @@ export async function processBuffer(
 
 	switch (encoding) {
 		case 'avif':
-			return await impl.encodeAvif(imageData, { quality: quality }) as Uint8Array;
+			return await impl.encodeAvif(imageData, { quality }) as Uint8Array;
 		case 'jpeg':
 		case 'jpg':
 			return await impl.encodeJpeg(imageData, { quality }) as Uint8Array;
