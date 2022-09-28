@@ -9,8 +9,8 @@ describe('astro/src/core/cookies', () => {
 		it('gets the cookie value', () => {
 			const req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			const cookies = new AstroCookies(req);
 			expect(cookies.get('foo').value).to.equal('bar');
@@ -20,8 +20,8 @@ describe('astro/src/core/cookies', () => {
 			it('returns a JavaScript object', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=%7B%22key%22%3A%22value%22%7D'
-					}
+						cookie: 'foo=%7B%22key%22%3A%22value%22%7D',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -42,8 +42,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces into a number', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=22'
-					}
+						cookie: 'foo=22',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -55,8 +55,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces non-number into NaN', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=bar'
-					}
+						cookie: 'foo=bar',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -70,8 +70,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces true into `true`', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=true'
-					}
+						cookie: 'foo=true',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -83,8 +83,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces false into `false`', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=false'
-					}
+						cookie: 'foo=false',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -96,8 +96,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces 1 into `true`', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=1'
-					}
+						cookie: 'foo=1',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -109,8 +109,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces 0 into `false`', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=0'
-					}
+						cookie: 'foo=0',
+					},
 				});
 				let cookies = new AstroCookies(req);
 
@@ -122,8 +122,8 @@ describe('astro/src/core/cookies', () => {
 			it('Coerces truthy strings into `true`', () => {
 				const req = new Request('http://example.com/', {
 					headers: {
-						'cookie': 'foo=bar'
-					}
+						cookie: 'foo=bar',
+					},
 				});
 				let cookies = new AstroCookies(req);
 

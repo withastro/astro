@@ -2,13 +2,13 @@ import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
 
 interface AstroCookieSetOptions {
-  domain?: string;
-  expires?: Date;
-  httpOnly?: boolean;
-  maxAge?: number;
-  path?: string;
-  sameSite?: boolean | 'lax' | 'none' | 'strict';
-  secure?: boolean;
+	domain?: string;
+	expires?: Date;
+	httpOnly?: boolean;
+	maxAge?: number;
+	path?: string;
+	sameSite?: boolean | 'lax' | 'none' | 'strict';
+	secure?: boolean;
 }
 
 interface AstroCookieDeleteOptions {
@@ -16,17 +16,17 @@ interface AstroCookieDeleteOptions {
 }
 
 interface AstroCookieInterface {
-  value: string | undefined;
-  json(): Record<string, any>;
-  number(): number;
+	value: string | undefined;
+	json(): Record<string, any>;
+	number(): number;
 	boolean(): boolean;
 }
 
 interface AstroCookiesInterface {
-  get(key: string): AstroCookieInterface;
+	get(key: string): AstroCookieInterface;
 	has(key: string): boolean;
-  set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void;
-  delete(key: string, options?: AstroCookieDeleteOptions): void;
+	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void;
+	delete(key: string, options?: AstroCookieDeleteOptions): void;
 }
 
 const DELETED_EXPIRATION = new Date(0);
@@ -35,7 +35,7 @@ const DELETED_VALUE = 'deleted';
 class AstroCookie implements AstroCookieInterface {
 	constructor(public value: string | undefined) {}
 	json() {
-		if(this.value === undefined) {
+		if (this.value === undefined) {
 			throw new Error(`Cannot convert undefined to an object.`);
 		}
 		return JSON.parse(this.value);
@@ -44,8 +44,8 @@ class AstroCookie implements AstroCookieInterface {
 		return Number(this.value);
 	}
 	boolean() {
-		if(this.value === 'false') return false;
-		if(this.value === '0') return false;
+		if (this.value === 'false') return false;
+		if (this.value === '0') return false;
 		return Boolean(this.value);
 	}
 }
@@ -68,10 +68,10 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	delete(key: string, options?: AstroCookieDeleteOptions): void {
 		const serializeOptions: CookieSerializeOptions = {
-			expires: DELETED_EXPIRATION
+			expires: DELETED_EXPIRATION,
 		};
 
-		if(options?.path) {
+		if (options?.path) {
 			serializeOptions.path = options.path;
 		}
 
@@ -79,7 +79,7 @@ class AstroCookies implements AstroCookiesInterface {
 		this.#ensureOutgoingMap().set(key, [
 			DELETED_VALUE,
 			serialize(key, DELETED_VALUE, serializeOptions),
-			false
+			false,
 		]);
 	}
 
@@ -92,9 +92,9 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	get(key: string): AstroCookie {
 		// Check for outgoing Set-Cookie values first
-		if(this.#outgoing !== null && this.#outgoing.has(key)) {
-			let [serializedValue,, isSetValue] = this.#outgoing.get(key)!;
-			if(isSetValue) {
+		if (this.#outgoing !== null && this.#outgoing.has(key)) {
+			let [serializedValue, , isSetValue] = this.#outgoing.get(key)!;
+			if (isSetValue) {
 				return new AstroCookie(serializedValue);
 			} else {
 				return new AstroCookie(undefined);
@@ -110,11 +110,11 @@ class AstroCookies implements AstroCookiesInterface {
 	 * Astro.cookies.has(key) returns a boolean indicating whether this cookie is either
 	 * part of the initial request or set via Astro.cookies.set(key)
 	 * @param key The cookie to check for.
-	 * @returns 
+	 * @returns
 	 */
 	has(key: string): boolean {
-		if(this.#outgoing !== null && this.#outgoing.has(key)) {
-			let [,,isSetValue] = this.#outgoing.get(key)!;
+		if (this.#outgoing !== null && this.#outgoing.has(key)) {
+			let [, , isSetValue] = this.#outgoing.get(key)!;
 			return isSetValue;
 		}
 		const values = this.#ensureParsed();
@@ -132,13 +132,13 @@ class AstroCookies implements AstroCookiesInterface {
 	 */
 	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void {
 		let serializedValue: string;
-		if(typeof value === 'string') {
+		if (typeof value === 'string') {
 			serializedValue = value;
 		} else {
 			// Support stringifying JSON objects for convenience. First check that this is
 			// a plain object and if it is, stringify. If not, allow support for toString() overrides.
 			let toStringValue = value.toString();
-			if(toStringValue === Object.prototype.toString.call(value)) {
+			if (toStringValue === Object.prototype.toString.call(value)) {
 				serializedValue = JSON.stringify(value);
 			} else {
 				serializedValue = toStringValue;
@@ -146,14 +146,14 @@ class AstroCookies implements AstroCookiesInterface {
 		}
 
 		const serializeOptions: CookieSerializeOptions = {};
-		if(options) {
+		if (options) {
 			Object.assign(serializeOptions, options);
 		}
 
 		this.#ensureOutgoingMap().set(key, [
 			serializedValue,
 			serialize(key, serializedValue, serializeOptions),
-			true
+			true,
 		]);
 	}
 
@@ -161,27 +161,27 @@ class AstroCookies implements AstroCookiesInterface {
 	 * Astro.cookies.header() returns an iterator for the cookies that have previously
 	 * been set by either Astro.cookies.set() or Astro.cookies.delete().
 	 * This method is primarily used by adapters to set the header on outgoing responses.
-	 * @returns 
+	 * @returns
 	 */
 	*headers(): Generator<string, void, unknown> {
-		if(this.#outgoing == null) return;
-		for(const [,value] of this.#outgoing) {
+		if (this.#outgoing == null) return;
+		for (const [, value] of this.#outgoing) {
 			yield value[1];
 		}
 	}
 
 	#ensureParsed(): Record<string, string> {
-		if(!this.#requestValues) {
+		if (!this.#requestValues) {
 			this.#parse();
 		}
-		if(!this.#requestValues) {
+		if (!this.#requestValues) {
 			this.#requestValues = {};
 		}
 		return this.#requestValues;
 	}
 
 	#ensureOutgoingMap(): Map<string, [string, string, boolean]> {
-		if(!this.#outgoing) {
+		if (!this.#outgoing) {
 			this.#outgoing = new Map();
 		}
 		return this.#outgoing;
@@ -189,7 +189,7 @@ class AstroCookies implements AstroCookiesInterface {
 
 	#parse() {
 		const raw = this.#request.headers.get('cookie');
-		if(!raw) {
+		if (!raw) {
 			return;
 		}
 
@@ -197,6 +197,4 @@ class AstroCookies implements AstroCookiesInterface {
 	}
 }
 
-export {
-	AstroCookies
-};
+export { AstroCookies };

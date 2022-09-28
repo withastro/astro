@@ -42,9 +42,9 @@ export function createExports(manifest: SSRManifest) {
 async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 
-	if(app.setCookieHeaders) {
+	if (app.setCookieHeaders) {
 		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
-		if(setCookieHeaders.length) {
+		if (setCookieHeaders.length) {
 			res.setHeader('Set-Cookie', setCookieHeaders);
 		}
 	}

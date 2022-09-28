@@ -16,8 +16,8 @@ export function createExports(manifest: SSRManifest) {
 		if (app.match(request)) {
 			Reflect.set(request, clientAddressSymbol, request.headers.get('x-forwarded-for'));
 			const response = await app.render(request);
-			if(app.setCookieHeaders) {
-				for(const setCookieHeader of app.setCookieHeaders(response)) {
+			if (app.setCookieHeaders) {
+				for (const setCookieHeader of app.setCookieHeaders(response)) {
 					response.headers.append('Set-Cookie', setCookieHeader);
 				}
 			}

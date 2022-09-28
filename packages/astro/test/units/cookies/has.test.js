@@ -9,8 +9,8 @@ describe('astro/src/core/cookies', () => {
 		it('returns true if the request has the cookie', () => {
 			let req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			let cookies = new AstroCookies(req);
 			expect(cookies.has('foo')).to.equal(true);

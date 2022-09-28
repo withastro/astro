@@ -10,8 +10,8 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 
-import { attachToResponse } from '../cookies/index.js';
 import { Fragment, renderPage } from '../../runtime/server/index.js';
+import { attachToResponse } from '../cookies/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
@@ -169,7 +169,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 
 	// If there is an Astro.cookies instance, attach it to the response so that
 	// adapters can grab the Set-Cookie headers.
-	if(result.cookies) {
+	if (result.cookies) {
 		attachToResponse(response, result.cookies);
 	}
 

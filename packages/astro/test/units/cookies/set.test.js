@@ -20,7 +20,7 @@ describe('astro/src/core/cookies', () => {
 			let cookies = new AstroCookies(req);
 			cookies.set('foo', 'bar', {
 				httpOnly: true,
-				path: '/subpath/'
+				path: '/subpath/',
 			});
 			let headers = Array.from(cookies.headers());
 			expect(headers).to.have.a.lengthOf(1);
@@ -68,12 +68,12 @@ describe('astro/src/core/cookies', () => {
 		it('Overrides a value in the request', () => {
 			let req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			let cookies = new AstroCookies(req);
 			expect(cookies.get('foo').value).to.equal('bar');
-			
+
 			// Set a new value
 			cookies.set('foo', 'baz');
 			expect(cookies.get('foo').value).to.equal('baz');

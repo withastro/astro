@@ -30,19 +30,19 @@ describe('Astro.cookies', () => {
 		it('is able to get cookies from the request', async () => {
 			const response = await fixture.fetch('/get-json', {
 				headers: {
-					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`
-				}
+					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
+				},
 			});
 			expect(response.status).to.equal(200);
 			const html = await response.text();
-	
+
 			const $ = cheerio.load(html);
 			expect($('dd').text()).to.equal('light');
 		});
-	
+
 		it('can set the cookie value', async () => {
 			const response = await fixture.fetch('/set-value', {
-				method: 'POST'
+				method: 'POST',
 			});
 			expect(response.status).to.equal(200);
 			expect(response.headers.has('set-cookie')).to.equal(true);
@@ -61,35 +61,35 @@ describe('Astro.cookies', () => {
 			const response = await app.render(request);
 			return response;
 		}
-	
+
 		it('is able to get cookies from the request', async () => {
 			const response = await fetchResponse('/get-json', {
 				headers: {
-					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`
-				}
+					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
+				},
 			});
 			expect(response.status).to.equal(200);
 			const html = await response.text();
-	
+
 			const $ = cheerio.load(html);
 			expect($('dd').text()).to.equal('light');
 		});
-	
+
 		it('can set the cookie value', async () => {
 			const response = await fetchResponse('/set-value', {
-				method: 'POST'
+				method: 'POST',
 			});
 			expect(response.status).to.equal(200);
 			let headers = Array.from(app.setCookieHeaders(response));
 			expect(headers).to.have.a.lengthOf(1);
 			expect(headers[0]).to.match(/Expires/);
 		});
-	
+
 		it('Early returning a Response still includes set headers', async () => {
 			const response = await fetchResponse('/early-return', {
 				headers: {
-					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`
-				}
+					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
+				},
 			});
 			expect(response.status).to.equal(302);
 			let headers = Array.from(app.setCookieHeaders(response));
@@ -99,13 +99,13 @@ describe('Astro.cookies', () => {
 			expect(data).to.be.an('object');
 			expect(data.mode).to.equal('dark');
 		});
-		
+
 		it('API route can get and set cookies', async () => {
 			const response = await fetchResponse('/set-prefs', {
 				method: 'POST',
 				headers: {
-					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`
-				}
+					cookie: `prefs=${encodeURIComponent(JSON.stringify({ mode: 'light' }))}`,
+				},
 			});
 			expect(response.status).to.equal(302);
 			let headers = Array.from(app.setCookieHeaders(response));
@@ -115,5 +115,5 @@ describe('Astro.cookies', () => {
 			expect(data).to.be.an('object');
 			expect(data.mode).to.equal('dark');
 		});
-	})
+	});
 });

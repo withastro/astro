@@ -1,8 +1,8 @@
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
 import type { RenderOptions } from '../render/core';
 
-import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { renderEndpoint } from '../../runtime/server/index.js';
+import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 export type EndpointOptions = Pick<
@@ -34,7 +34,7 @@ function createAPIContext(request: Request, params: Params): APIContext {
 	return {
 		cookies: new AstroCookies(request),
 		request,
-		params
+		params,
 	};
 }
 

@@ -9,8 +9,8 @@ describe('astro/src/core/cookies', () => {
 		it('creates a Set-Cookie header to delete it', () => {
 			let req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			let cookies = new AstroCookies(req);
 			expect(cookies.get('foo').value).to.equal('bar');
@@ -23,8 +23,8 @@ describe('astro/src/core/cookies', () => {
 		it('calling cookies.get() after returns undefined', () => {
 			let req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			let cookies = new AstroCookies(req);
 			expect(cookies.get('foo').value).to.equal('bar');
@@ -36,8 +36,8 @@ describe('astro/src/core/cookies', () => {
 		it('calling cookies.has() after returns false', () => {
 			let req = new Request('http://example.com/', {
 				headers: {
-					'cookie': 'foo=bar'
-				}
+					cookie: 'foo=bar',
+				},
 			});
 			let cookies = new AstroCookies(req);
 			expect(cookies.has('foo')).to.equal(true);
@@ -50,7 +50,7 @@ describe('astro/src/core/cookies', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);
 			cookies.delete('foo', {
-				path: '/subpath/'
+				path: '/subpath/',
 			});
 			let headers = Array.from(cookies.headers());
 			expect(headers).to.have.a.lengthOf(1);

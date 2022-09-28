@@ -177,7 +177,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					return Reflect.get(request, clientAddressSymbol);
 				},
 				get cookies() {
-					if(cookies) {
+					if (cookies) {
 						return cookies;
 					}
 					cookies = new AstroCookies(request);

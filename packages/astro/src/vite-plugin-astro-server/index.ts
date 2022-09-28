@@ -5,8 +5,8 @@ import type { AstroSettings, ManifestData } from '../@types/astro';
 import type { SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { getSetCookiesFromResponse } from '../core/cookies/index.js';
+import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import {
 	collectErrorMetadata,
 	ErrorWithMetadata,
@@ -65,7 +65,7 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 
 	// Attach any set-cookie headers added via Astro.cookies.set()
 	const setCookieHeaders = Array.from(getSetCookiesFromResponse(webResponse));
-	if(setCookieHeaders.length) {
+	if (setCookieHeaders.length) {
 		res.setHeader('Set-Cookie', setCookieHeaders);
 	}
 	res.writeHead(status, _headers);

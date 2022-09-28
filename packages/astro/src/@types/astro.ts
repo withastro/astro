@@ -14,8 +14,8 @@ import type * as vite from 'vite';
 import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
-import type { AstroCookies } from '../core/cookies';
 import type { AstroConfigSchema } from '../core/config';
+import type { AstroCookies } from '../core/cookies';
 import type { ViteConfigWithSSR } from '../core/create-vite';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type {
@@ -120,7 +120,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	/**
 	 * Utility for getting and setting cookies values.
 	 */
-	cookies: AstroCookies,
+	cookies: AstroCookies;
 	url: URL;
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *

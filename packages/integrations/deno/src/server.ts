@@ -27,8 +27,8 @@ export function start(manifest: SSRManifest, options: Options) {
 			let ip = connInfo?.remoteAddr?.hostname;
 			Reflect.set(request, Symbol.for('astro.clientAddress'), ip);
 			const response = await app.render(request);
-			if(app.setCookieHeaders) {
-				for(const setCookieHeader of app.setCookieHeaders(response)) {
+			if (app.setCookieHeaders) {
+				for (const setCookieHeader of app.setCookieHeaders(response)) {
 					response.headers.append('Set-Cookie', setCookieHeader);
 				}
 			}
@@ -46,8 +46,8 @@ export function start(manifest: SSRManifest, options: Options) {
 			// Render the astro custom 404 page
 			const response = await app.render(request);
 
-			if(app.setCookieHeaders) {
-				for(const setCookieHeader of app.setCookieHeaders(response)) {
+			if (app.setCookieHeaders) {
+				for (const setCookieHeader of app.setCookieHeaders(response)) {
 					response.headers.append('Set-Cookie', setCookieHeader);
 				}
 			}

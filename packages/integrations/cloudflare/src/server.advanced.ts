@@ -28,8 +28,8 @@ export function createExports(manifest: SSRManifest) {
 			);
 			let response = await app.render(request, routeData);
 
-			if(app.setCookieHeaders) {
-				for(const setCookieHeader of app.setCookieHeaders(response)) {
+			if (app.setCookieHeaders) {
+				for (const setCookieHeader of app.setCookieHeaders(response)) {
 					response.headers.append('Set-Cookie', setCookieHeader);
 				}
 			}

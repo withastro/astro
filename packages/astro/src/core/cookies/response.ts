@@ -8,19 +8,19 @@ export function attachToResponse(response: Response, cookies: AstroCookies) {
 
 function getFromResponse(response: Response): AstroCookies | undefined {
 	let cookies = Reflect.get(response, astroCookiesSymbol);
-	if(cookies != null) {
+	if (cookies != null) {
 		return cookies as AstroCookies;
 	} else {
 		return undefined;
 	}
 }
 
-export function * getSetCookiesFromResponse(response: Response): Generator<string, void, unknown> {
+export function* getSetCookiesFromResponse(response: Response): Generator<string, void, unknown> {
 	const cookies = getFromResponse(response);
-	if(!cookies) {
+	if (!cookies) {
 		return;
 	}
-	for(const headerValue of cookies.headers()) {
+	for (const headerValue of cookies.headers()) {
 		yield headerValue;
 	}
 }
