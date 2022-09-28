@@ -4,9 +4,9 @@ import { SlotString } from './slot.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
-	if(child instanceof SlotString) {
-		if(child.instructions) {
-			yield * child.instructions;
+	if (child instanceof SlotString) {
+		if (child.instructions) {
+			yield* child.instructions;
 		}
 		yield child;
 	} else if (child instanceof HTMLString) {

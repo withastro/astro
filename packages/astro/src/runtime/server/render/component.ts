@@ -5,7 +5,6 @@ import { HTMLBytes, markHTMLString } from '../escape.js';
 import { extractDirectives, generateHydrateScript } from '../hydration.js';
 import { serializeProps } from '../serialize.js';
 import { shorthash } from '../shorthash.js';
-import { renderSlot, renderSlots } from './slot.js';
 import {
 	isAstroComponentFactory,
 	renderAstroComponent,
@@ -14,6 +13,7 @@ import {
 } from './astro.js';
 import { Fragment, Renderer, stringifyChunk } from './common.js';
 import { componentIsHTMLElement, renderHTMLElement } from './dom.js';
+import { renderSlot, renderSlots } from './slot.js';
 import { formatList, internalSpreadAttributes, renderElement, voidElementNames } from './util.js';
 
 const rendererAliases = new Map([['solid', 'solid-js']]);
@@ -70,7 +70,9 @@ export async function renderComponent(
 		case 'html': {
 			const { slotInstructions, children } = await renderSlots(result, slots);
 			const html = (Component as any).render({ slots: children });
-			const hydrationHtml = slotInstructions ? slotInstructions.map(instr => stringifyChunk(result, instr)).join('') : '';
+			const hydrationHtml = slotInstructions
+				? slotInstructions.map((instr) => stringifyChunk(result, instr)).join('')
+				: '';
 			return markHTMLString(hydrationHtml + html);
 		}
 
@@ -328,8 +330,8 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	async function* renderAll() {
-		if(slotInstructions) {
-			yield * slotInstructions;
+		if (slotInstructions) {
+			yield* slotInstructions;
 		}
 		yield { type: 'directive', hydration, result };
 		yield markHTMLString(renderElement('astro-island', island, false));

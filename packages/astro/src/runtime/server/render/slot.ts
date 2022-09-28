@@ -1,8 +1,8 @@
-import type { RenderInstruction } from './types.js';
 import type { SSRResult } from '../../../@types/astro.js';
+import type { RenderInstruction } from './types.js';
 
-import { renderChild } from './any.js';
 import { HTMLString, markHTMLString } from '../escape.js';
+import { renderChild } from './any.js';
 
 export class SlotString extends HTMLString {
 	public instructions: null | RenderInstruction[];
@@ -19,7 +19,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 		let instructions: null | RenderInstruction[] = null;
 		for await (const chunk of iterator) {
 			if ((chunk as any).type === 'directive') {
-				if(instructions === null) {
+				if (instructions === null) {
 					instructions = [];
 				}
 				instructions.push(chunk);
@@ -33,7 +33,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any):
 }
 
 interface RenderSlotsResult {
-	slotInstructions: null | RenderInstruction[],
+	slotInstructions: null | RenderInstruction[];
 	children: Record<string, string>;
 }
 
@@ -44,8 +44,8 @@ export async function renderSlots(result: SSRResult, slots: any = {}): Promise<R
 		await Promise.all(
 			Object.entries(slots).map(([key, value]) =>
 				renderSlot(result, value as string).then((output: any) => {
-					if(output.instructions) {
-						if(slotInstructions === null) {
+					if (output.instructions) {
+						if (slotInstructions === null) {
 							slotInstructions = [];
 						}
 						slotInstructions.push(...output.instructions);
