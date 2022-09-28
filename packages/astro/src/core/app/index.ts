@@ -9,6 +9,7 @@ import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
+import { getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error } from '../logger/core.js';
@@ -114,6 +115,10 @@ export class App {
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
 		}
+	}
+
+	setCookieHeaders(response: Response) {
+		return getSetCookiesFromResponse(response);
 	}
 
 	async #renderPage(

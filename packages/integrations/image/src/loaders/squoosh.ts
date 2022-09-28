@@ -111,12 +111,7 @@ class SquooshService extends BaseSSRService {
 			throw new Error(`Unknown image output: "${transform.format}" used for ${transform.src}`);
 		}
 
-		const data = await processBuffer(
-			inputBuffer,
-			operations,
-			transform.format,
-			transform.quality || 100
-		);
+		const data = await processBuffer(inputBuffer, operations, transform.format, transform.quality);
 
 		return {
 			data: Buffer.from(data),
