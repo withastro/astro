@@ -1,4 +1,7 @@
-import { devices } from '@playwright/test';
+// NOTE: Sometimes, tests fail with `TypeError: process.stdout.clearLine is not a function`
+// for some reason. This comes from Vite, and is conditionally called based on `isTTY`.
+// We set it to false here to skip this odd behavior.
+process.stdout.isTTY = false;
 
 const config = {
 	testMatch: 'e2e/*.test.js',

@@ -41,7 +41,7 @@
     "node": "^14.18.0 || >=16.12.0",
     "pnpm": ">=7.9.5"
   },
-  "packageManager": "pnpm@7.9.5",
+  "packageManager": "pnpm@7.12.2",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
@@ -74,6 +74,7 @@
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.23.0",
     "@octokit/action": "^3.18.1",
+    "@types/node": "^18.7.21",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "del": "^7.0.0",

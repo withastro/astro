@@ -34,11 +34,12 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^3.0.0",
-    "vite": "^3.0.0"
+    "@vue/compiler-sfc": "^3.2.39"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
+    "vite": "^3.0.0",
     "vue": "^3.2.37"
   },
   "peerDependencies": {

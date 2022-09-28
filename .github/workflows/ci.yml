@@ -207,8 +207,9 @@ jobs:
           repository: withastro/docs
           path: smoke/docs
 
+      # NOTE: remove shamefully-hoist when docs is also not hoisted
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --shamefully-hoist
 
       - name: Build Packages
         run: pnpm run build

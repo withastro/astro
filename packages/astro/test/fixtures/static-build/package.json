@@ -4,6 +4,7 @@
   "dependencies": {
     "@astrojs/preact": "workspace:*",
     "@test/static-build-pkg": "workspace:*",
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "preact": "^10.11.0"
   }
 }
