@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/react": "workspace:*",
     "astro": "workspace:*",
-    "@astrojs/react": "workspace:*"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

@@ -16,5 +16,9 @@
   ],
   "devDependencies": {
     "astro": "workspace:*"
+  },
+  "dependencies": {
+    "preact": "^10.11.0",
+    "react": "^18.2.0"
   }
 }
