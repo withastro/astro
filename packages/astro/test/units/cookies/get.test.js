@@ -51,6 +51,86 @@ describe('astro/src/core/cookies', () => {
 				expect(value).to.be.an('number');
 				expect(value).to.equal(22);
 			});
+
+			it('Coerces non-number into NaN', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=bar'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').number();
+				expect(value).to.be.an('number');
+				expect(Number.isNaN(value)).to.equal(true);
+			});
+		});
+
+		describe('.boolean()', () => {
+			it('Coerces true into `true`', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=true'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').boolean();
+				expect(value).to.be.an('boolean');
+				expect(value).to.equal(true);
+			});
+
+			it('Coerces false into `false`', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=false'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').boolean();
+				expect(value).to.be.an('boolean');
+				expect(value).to.equal(false);
+			});
+
+			it('Coerces 1 into `true`', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=1'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').boolean();
+				expect(value).to.be.an('boolean');
+				expect(value).to.equal(true);
+			});
+
+			it('Coerces 0 into `false`', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=0'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').boolean();
+				expect(value).to.be.an('boolean');
+				expect(value).to.equal(false);
+			});
+
+			it('Coerces truthy strings into `true`', () => {
+				const req = new Request('http://example.com/', {
+					headers: {
+						'cookie': 'foo=bar'
+					}
+				});
+				let cookies = new AstroCookies(req);
+
+				const value = cookies.get('foo').boolean();
+				expect(value).to.be.an('boolean');
+				expect(value).to.equal(true);
+			});
 		});
 	});
 });

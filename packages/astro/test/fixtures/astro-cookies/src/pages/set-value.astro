@@ -1,7 +1,7 @@
 ---
 if(Astro.request.method === 'POST') {
 	Astro.cookies.set('admin', 'true', {
-		expires: '30 days'
+		expires: new Date()
 	});
 }
 ---

@@ -45,40 +45,6 @@ describe('astro/src/core/cookies', () => {
 			expect(headers[0]).to.equal('one=2');
 		});
 
-		it('can pass a string distance from now as expires', () => {
-			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
-			cookies.set('one', 2, {
-				expires: '1 week'
-			});
-			let headers = Array.from(cookies.headers());
-			expect(headers).to.have.a.lengthOf(1);
-			expect(headers[0]).to.match(/one=2/);
-			expect(headers[0]).to.match(/Expires/);
-		});
-
-		it('can pass a date as a number to expires', () => {
-			let req = new Request('http://example.com/');
-			let expiration = new Date('Fri, 01 Jan 2044 00:00:00 GMT');
-			let cookies = new AstroCookies(req);
-			cookies.set('one', 2, {
-				expires: expiration.valueOf()
-			});
-			let headers = Array.from(cookies.headers());
-			expect(headers).to.have.a.lengthOf(1);
-			expect(headers[0]).to.equal('one=2; Expires=Fri, 01 Jan 2044 00:00:00 GMT');
-		});
-
-		it('throws if passing a string to expires that ms does not convert', () => {
-			let req = new Request('http://example.com/');
-			let cookies = new AstroCookies(req);
-			expect(() => {
-				cookies.set('one', 2, {
-					expires: 'unknown date'
-				});
-			}).to.throw(`Unable to convert expires expression [unknown date]`);
-		});
-
 		it('Can get the value after setting', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);

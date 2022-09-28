@@ -1,10 +1,9 @@
 import type { CookieSerializeOptions } from 'cookie';
 import { parse, serialize } from 'cookie';
-import ms from 'ms';
 
 interface AstroCookieSetOptions {
   domain?: string;
-  expires?: number | Date | string;
+  expires?: Date;
   httpOnly?: boolean;
   maxAge?: number;
   path?: string;
@@ -42,9 +41,6 @@ class AstroCookie implements AstroCookieInterface {
 		return JSON.parse(this.value);
 	}
 	number() {
-		if(this.value === undefined) {
-			throw new Error(`Cannot convert undefined to a number.`);
-		}
 		return Number(this.value);
 	}
 	boolean() {
@@ -149,39 +145,9 @@ class AstroCookies implements AstroCookiesInterface {
 			}
 		}
 
-		let expires: Date | undefined = undefined;
-		if(options?.expires) {
-			let rawExpires = options.expires;
-			switch(typeof rawExpires) {
-				case 'string': {
-					let numberOfMs = ms(rawExpires);
-					if(numberOfMs === undefined) {
-						if(rawExpires.includes('month')) {
-							throw new Error(`Cannot convert months because there is no fixed duration. Use days instead.`);
-						} else {
-							throw new Error(`Unable to convert expires expression [${rawExpires}]`);
-						}
-					}
-					let now = Date.now();
-					expires = new Date(now + numberOfMs);
-					break;
-				}
-				case 'number': {
-					expires = new Date(rawExpires);
-					break;
-				}
-				default: {
-					expires = rawExpires;
-					break;
-				}
-			}
-		}
-
 		const serializeOptions: CookieSerializeOptions = {};
 		if(options) {
-			Object.assign(serializeOptions, options, {
-				expires
-			});
+			Object.assign(serializeOptions, options);
 		}
 
 		this.#ensureOutgoingMap().set(key, [
