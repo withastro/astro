@@ -98,9 +98,9 @@ export default {
 ### jsx
 
 You can use Vue JSX by setting `jsx: true`.
+__`astro.config.mjs`__
 
 ```js
-// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import vue from '@astrojs/vue';
 
