@@ -28,7 +28,7 @@ export const createExports = (manifest: SSRManifest) => {
 			return res.end('Not found');
 		}
 
-		await setResponse(res, await app.render(request, routeData));
+		await setResponse(app, res, await app.render(request, routeData));
 	};
 
 	return { default: handler };
