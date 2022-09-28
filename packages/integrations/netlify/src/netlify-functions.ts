@@ -120,6 +120,16 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 			}
 		}
 
+		// Apply cookies set via Astro.cookies.set/delete
+		if(app.setCookieHeaders) {
+			const setCookieHeaders = Array.from(app.setCookieHeaders(response));
+			fnResponse.multiValueHeaders = fnResponse.multiValueHeaders || {};
+			if(!fnResponse.multiValueHeaders['set-cookie']) {
+				fnResponse.multiValueHeaders['set-cookie'] = [];
+			}
+			fnResponse.multiValueHeaders['set-cookie'].push(...setCookieHeaders);
+		}
+
 		return fnResponse;
 	};
 
