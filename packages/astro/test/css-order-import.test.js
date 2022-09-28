@@ -36,11 +36,10 @@ describe('CSS ordering - import order', () => {
 
 	/**
 	 *
-	 * @param {import('./test-utils').Fixture} fixture
 	 * @param {string} href
 	 * @returns {Promise<{ href: string; css: string; }>}
 	 */
-	async function getLinkContent(fixture, href) {
+	async function getLinkContent(href) {
 		const css = await fixture.readFile(href);
 		return { href, css };
 	}
@@ -86,7 +85,7 @@ describe('CSS ordering - import order', () => {
 			let html = await fixture.readFile('/index.html');
 
 			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(fixture, href))
+				getLinks(html).map((href) => getLinkContent(href))
 			);
 
 			const [{ css }] = content;
@@ -100,7 +99,7 @@ describe('CSS ordering - import order', () => {
 			let html = await fixture.readFile('/component/index.html');
 
 			const content = await Promise.all(
-				getLinks(html).map((href) => getLinkContent(fixture, href))
+				getLinks(html).map((href) => getLinkContent(href))
 			);
 
 			const [{ css }] = content;
