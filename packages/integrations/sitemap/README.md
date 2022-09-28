@@ -186,7 +186,7 @@ export default {
 
 ### changefreq, lastmod, and priority
 
-These options correspond to the `<changefreq>`, `<lastmod>`, and `<priortity>` tags in the [Sitemap XML specification.](https://www.sitemaps.org/protocol.html)
+These options correspond to the `<changefreq>`, `<lastmod>`, and `<priority>` tags in the [Sitemap XML specification.](https://www.sitemaps.org/protocol.html)
 
 Note that `changefreq` and `priority` are ignored by Google.  
 
