@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/markdown-component": "workspace:*",
     "@astrojs/preact": "workspace:*",
     "@astrojs/svelte": "workspace:*",
-    "@astrojs/markdown-component": "workspace:*",
-    "astro": "workspace:*"
+    "astro": "workspace:*",
+    "preact": "^10.11.0",
+    "svelte": "^3.48.0"
   }
 }

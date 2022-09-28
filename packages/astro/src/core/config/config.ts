@@ -263,6 +263,12 @@ async function tryLoadConfig(
 			optimizeDeps: { entries: [] },
 			clearScreen: false,
 			appType: 'custom',
+			// NOTE: Vite doesn't externalize linked packages by default. During testing locally,
+			// these dependencies trip up Vite's dev SSR transform. In the future, we should
+			// avoid `vite.createServer` and use `loadConfigFromFile` instead.
+			ssr: {
+				external: ['@astrojs/mdx', '@astrojs/react'],
+			},
 		});
 		try {
 			const mod = await viteServer.ssrLoadModule(configPath);

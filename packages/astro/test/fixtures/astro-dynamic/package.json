@@ -7,6 +7,7 @@
     "@astrojs/svelte": "workspace:*",
     "astro": "workspace:*",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "svelte": "^3.48.0"
   }
 }
