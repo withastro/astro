@@ -1,5 +1,5 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { App } from 'astro/app';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Readable } from 'node:stream';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
@@ -78,7 +78,11 @@ export async function getRequest(base: string, req: IncomingMessage): Promise<Re
 	return request;
 }
 
-export async function setResponse(app: App, res: ServerResponse, response: Response): Promise<void> {
+export async function setResponse(
+	app: App,
+	res: ServerResponse,
+	response: Response
+): Promise<void> {
 	const headers = Object.fromEntries(response.headers);
 
 	if (response.headers.has('set-cookie')) {
@@ -86,9 +90,9 @@ export async function setResponse(app: App, res: ServerResponse, response: Respo
 		headers['set-cookie'] = response.headers.raw()['set-cookie'];
 	}
 
-	if(app.setCookieHeaders) {
+	if (app.setCookieHeaders) {
 		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(response));
-		if(setCookieHeaders.length) {
+		if (setCookieHeaders.length) {
 			res.setHeader('Set-Cookie', setCookieHeaders);
 		}
 	}
