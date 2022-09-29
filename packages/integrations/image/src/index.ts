@@ -129,7 +129,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
-					const cacheDir = !!resolvedOptions.cacheDir ? new URL(resolvedOptions.cacheDir, _config.root) : undefined;
+					const cacheDir = !!resolvedOptions.cacheDir
+						? new URL(resolvedOptions.cacheDir, _config.root)
+						: undefined;
 
 					await ssgBuild({
 						loader,

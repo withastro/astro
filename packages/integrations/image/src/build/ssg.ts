@@ -1,7 +1,7 @@
 import { doWork } from '@altano/tiny-async-pool';
 import type { AstroConfig } from 'astro';
-import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import CachePolicy from 'http-cache-semantics';
+import { bgGreen, black, cyan, dim, green } from 'kleur/colors';
 import fs from 'node:fs/promises';
 import OS from 'node:os';
 import path from 'node:path';
@@ -19,11 +19,11 @@ async function loadLocalImage(src: string | URL) {
 		// we can safely cache local images here.
 		const timeToLive = new Date();
 		timeToLive.setFullYear(timeToLive.getFullYear() + 1);
-		
+
 		return {
 			data,
 			expires: timeToLive.getTime(),
-		}
+		};
 	} catch {
 		return undefined;
 	}
@@ -32,23 +32,23 @@ async function loadLocalImage(src: string | URL) {
 function webToCachePolicyRequest({ url, method, headers: _headers }: Request): CachePolicy.Request {
 	const headers: CachePolicy.Headers = {};
 	for (const [key, value] of _headers) {
-			headers[key] = value;
+		headers[key] = value;
 	}
 	return {
-			method,
-			url,
-			headers,
+		method,
+		url,
+		headers,
 	};
 }
 
 function webToCachePolicyResponse({ status, headers: _headers }: Response): CachePolicy.Response {
 	const headers: CachePolicy.Headers = {};
 	for (const [key, value] of _headers) {
-			headers[key] = value;
+		headers[key] = value;
 	}
 	return {
-			status,
-			headers,
+		status,
+		headers,
 	};
 }
 
@@ -88,7 +88,14 @@ export interface SSGBuildParams {
 	cacheDir?: URL;
 }
 
-export async function ssgBuild({ loader, staticImages, config, outDir, logLevel, cacheDir }: SSGBuildParams) {
+export async function ssgBuild({
+	loader,
+	staticImages,
+	config,
+	outDir,
+	logLevel,
+	cacheDir,
+}: SSGBuildParams) {
 	let cache: ImageCache | undefined = undefined;
 
 	if (cacheDir) {
@@ -174,7 +181,7 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel,
 			if (cache?.has(pathRelative)) {
 				data = await cache.get(pathRelative);
 			}
-			
+
 			// a valid cache file wasn't found, transform the image and cache it
 			if (!data) {
 				const transformed = await loader.transform(inputBuffer, transform);

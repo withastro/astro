@@ -1,19 +1,19 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { debug, error, warn } from '../utils/logger.js';
 import type { LoggerLevel } from '../utils/logger.js';
+import { debug, warn } from '../utils/logger.js';
 
 const CACHE_FILE = `cache.json`;
 
 interface Cache {
-	[filename: string]: { expires: number }
+	[filename: string]: { expires: number };
 }
 
 export class ImageCache {
 	#cacheDir: URL;
 	#cacheFile: URL;
-	#cache: Cache = { }
+	#cache: Cache = {};
 	#logLevel: LoggerLevel;
 
 	constructor(dir: URL, logLevel: LoggerLevel) {

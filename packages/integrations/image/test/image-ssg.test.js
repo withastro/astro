@@ -263,7 +263,10 @@ describe('SSG images - build', function () {
 
 			verifyImage(image.attr('src'), size);
 
-			const url = new URL('./fixtures/basic-image/node_modules/.astro/image' + image.attr('src'), import.meta.url);
+			const url = new URL(
+				'./fixtures/basic-image/node_modules/.astro/image' + image.attr('src'),
+				import.meta.url
+			);
 			expect(await fs.stat(url), 'transformed image was cached').to.not.be.undefined;
 		});
 	});
