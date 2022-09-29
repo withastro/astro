@@ -1,5 +1,15 @@
 # @astrojs/image
 
+## 0.8.1
+
+### Patch Changes
+
+- [#4906](https://github.com/withastro/astro/pull/4906) [`ec55745ae`](https://github.com/withastro/astro/commit/ec55745ae5454207fa0405170588d898b49b9a48) Thanks [@tony-sull](https://github.com/tony-sull)! - Updates the default image service to use format-specific quality defaults
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Specify sharp as optional peer dependency
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Add missing dependencies, support strict dependency installation (e.g. pnpm)
+
 ## 0.8.0
 
 ### Minor Changes
