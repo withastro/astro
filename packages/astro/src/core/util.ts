@@ -137,6 +137,11 @@ export function unwrapId(id: string): string {
 	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
 }
 
+export function normalizePath(id: string): string {
+	return id
+	// return path.posix.normalize(slash(id));
+}
+
 /** An fs utility, similar to `rimraf` or `rm -rf` */
 export function removeDir(_dir: URL): void {
 	const dir = fileURLToPath(_dir);

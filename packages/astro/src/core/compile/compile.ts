@@ -4,7 +4,7 @@ import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
-import { prependForwardSlash } from '../path.js';
+import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
 import { AggregateError, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
@@ -38,8 +38,11 @@ async function compile({
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		// For Windows compat, prepend the module ID with `/@fs`
-		pathname: `/@fs${prependForwardSlash(moduleId)}`,
+		// For Windows compat, prepend filename with `/`.
+		// Note this is required because the compiler uses URLs to parse and built paths.
+		// This should be fixed, but at the meantime we workaround with a slash and
+		// remove them in `astro:postprocess` when they are used in `client:component-path`.
+		pathname: prependForwardSlash(filename),
 		projectRoot: config.root.toString(),
 		site: config.site?.toString(),
 		sourcefile: filename,
@@ -83,6 +86,19 @@ async function compile({
 			value: source,
 		},
 	});
+
+	// Continuing the above comment, `astro:postprocess` can't handle this part,
+	// so we fix it here before returning. Example resolve paths:
+	// - @astrojs/preact/client.js
+	// - @/components/Foo.vue
+	// - /Users/macos/project/src/Foo.vue
+	// - C:/Windows/project/src/Foo.vue (normalized slash)
+	for (const c of compileResult.clientOnlyComponents) {
+		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
+	}
+	for (const c of compileResult.hydratedComponents) {
+		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
+	}
 
 	return compileResult;
 }

@@ -1,3 +1,7 @@
+import path from 'path';
+import slash from 'slash';
+import { removeLeadingForwardSlashWindows } from '../../core/path.js';
+
 interface ModuleInfo {
 	module: Record<string, any>;
 	specifier: string;
@@ -17,7 +21,7 @@ interface CreateMetadataOptions {
 }
 
 export class Metadata {
-	public mockURL: URL;
+	public filePath: string;
 	public modules: ModuleInfo[];
 	public hoisted: any[];
 	public hydratedComponents: any[];
@@ -32,20 +36,18 @@ export class Metadata {
 		this.hydratedComponents = opts.hydratedComponents;
 		this.clientOnlyComponents = opts.clientOnlyComponents;
 		this.hydrationDirectives = opts.hydrationDirectives;
-		this.mockURL = new URL(filePathname, 'http://example.com');
+		this.filePath = removeLeadingForwardSlashWindows(filePathname);
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
 	}
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
-			const resolved = new URL(specifier, this.mockURL).pathname;
-			// Vite does not resolve .jsx -> .tsx when coming from the client, so clip the extension.
-			if (resolved.startsWith('/@fs') && resolved.endsWith('.jsx')) {
-				return resolved.slice(0, resolved.length - 4);
-			}
-			return resolved;
+			// Copy of `normalizeUrl` from `vite`
+			// TODO: Investigate why can't import from 'vite'
+			return path.posix.normalize(slash(path.resolve(this.filePath, specifier)));
+		} else {
+			return specifier;
 		}
-		return specifier;
 	}
 
 	getPath(Component: any): string | null {
