@@ -1,10 +1,15 @@
 import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
-import { stringifyChunk } from './common.js';
+import { SlotString } from './slot.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
-	if (child instanceof HTMLString) {
+	if (child instanceof SlotString) {
+		if (child.instructions) {
+			yield* child.instructions;
+		}
+		yield child;
+	} else if (child instanceof HTMLString) {
 		yield child;
 	} else if (Array.isArray(child)) {
 		for (const value of child) {
@@ -37,20 +42,4 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 	} else {
 		yield child;
 	}
-}
-
-export async function renderSlot(result: any, slotted: string, fallback?: any): Promise<string> {
-	if (slotted) {
-		let iterator = renderChild(slotted);
-		let content = '';
-		for await (const chunk of iterator) {
-			if ((chunk as any).type === 'directive') {
-				content += stringifyChunk(result, chunk);
-			} else {
-				content += chunk;
-			}
-		}
-		return markHTMLString(content);
-	}
-	return fallback;
 }

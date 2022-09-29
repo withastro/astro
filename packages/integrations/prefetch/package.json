@@ -29,6 +29,7 @@
     "test:match": "playwright test -g"
   },
   "devDependencies": {
+    "@playwright/test": "^1.26.0",
     "@types/chai": "^4.3.1",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^9.1.1",

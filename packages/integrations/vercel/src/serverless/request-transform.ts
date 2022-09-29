@@ -1,3 +1,4 @@
+import type { App } from 'astro/app';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { Readable } from 'node:stream';
 
@@ -77,12 +78,23 @@ export async function getRequest(base: string, req: IncomingMessage): Promise<Re
 	return request;
 }
 
-export async function setResponse(res: ServerResponse, response: Response): Promise<void> {
+export async function setResponse(
+	app: App,
+	res: ServerResponse,
+	response: Response
+): Promise<void> {
 	const headers = Object.fromEntries(response.headers);
 
 	if (response.headers.has('set-cookie')) {
 		// @ts-expect-error (headers.raw() is non-standard)
 		headers['set-cookie'] = response.headers.raw()['set-cookie'];
+	}
+
+	if (app.setCookieHeaders) {
+		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(response));
+		if (setCookieHeaders.length) {
+			res.setHeader('Set-Cookie', setCookieHeaders);
+		}
 	}
 
 	res.writeHead(response.status, headers);

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/mdx",
   "description": "Use MDX within Astro",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -49,17 +49,21 @@
   "devDependencies": {
     "@types/chai": "^4.3.1",
     "@types/estree": "^1.0.0",
+    "@types/github-slugger": "^1.3.0",
     "@types/mocha": "^9.1.1",
     "@types/yargs-parser": "^21.0.0",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
+    "cheerio": "^1.0.0-rc.11",
     "linkedom": "^0.14.12",
+    "mdast-util-mdx": "^2.0.0",
     "mdast-util-to-string": "^3.1.0",
     "mocha": "^9.2.2",
     "reading-time": "^1.5.0",
     "remark-shiki-twoslash": "^3.1.0",
-    "remark-toc": "^8.0.1"
+    "remark-toc": "^8.0.1",
+    "vite": "^3.0.0"
   },
   "engines": {
     "node": "^14.18.0 || >=16.12.0"

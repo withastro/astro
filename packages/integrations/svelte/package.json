@@ -36,13 +36,13 @@
     "@sveltejs/vite-plugin-svelte": "^1.0.1",
     "postcss-load-config": "^3.1.4",
     "svelte-preprocess": "^4.10.7",
-    "svelte2tsx": "^0.5.11",
-    "vite": "^3.0.0"
+    "svelte2tsx": "^0.5.11"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "svelte": "^3.48.0"
+    "svelte": "^3.48.0",
+    "vite": "^3.0.0"
   },
   "peerDependencies": {
     "svelte": "^3.46.4"
