@@ -7,7 +7,9 @@ type Props = {
 };
 
 const { currentPage } = Astro.props as Props;
-const currentPageMatch = currentPage.slice(1);
+const currentPageMatch = currentPage.endsWith('/')
+	? currentPage.slice(1, -1)
+	: currentPage.slice(1);
 const langCode = getLanguageFromURL(currentPage);
 const sidebar = SIDEBAR[langCode];
 ---
