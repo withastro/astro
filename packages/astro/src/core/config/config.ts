@@ -97,6 +97,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
+		base: typeof flags.base === 'string' ? flags.base : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
@@ -114,6 +115,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
+	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
