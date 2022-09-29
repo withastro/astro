@@ -119,7 +119,7 @@ export async function ssgBuild({ loader, staticImages, config, outDir, logLevel,
 		let inputBuffer: Buffer | undefined = undefined;
 
 		// tracks the cache duration for the original source image
-		let expires: number = 0;
+		let expires = 0;
 
 		// Vite will prefix a hashed image with the base path, we need to strip this
 		// off to find the actual file relative to /dist
