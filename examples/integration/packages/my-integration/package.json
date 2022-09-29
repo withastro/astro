@@ -4,11 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    ".": "./index.ts",
-    "./components": "./components.ts"
+    ".": "./index.ts"
   },
   "files": [
-    "src",
     "index.ts"
   ],
   "keywords": [
