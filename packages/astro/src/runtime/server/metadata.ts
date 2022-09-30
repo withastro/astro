@@ -1,6 +1,6 @@
 import path from 'path';
+import slash from 'slash';
 import { removeLeadingForwardSlashWindows } from '../../core/path.js';
-import { normalizePath } from '../../core/util.js';
 
 interface ModuleInfo {
 	module: Record<string, any>;
@@ -42,7 +42,9 @@ export class Metadata {
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
-			return normalizePath(path.resolve(path.dirname(this.filePath), specifier));
+			const resolved = path.resolve(path.dirname(this.filePath), specifier);
+			// TODO: Try to use `normalizePath` from `vite`
+			return path.posix.normalize(slash(resolved));
 		} else {
 			return specifier;
 		}

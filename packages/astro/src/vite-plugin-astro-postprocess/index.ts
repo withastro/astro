@@ -1,12 +1,20 @@
+import npath from 'path';
 import { parse as babelParser } from '@babel/parser';
-import type { ArrowFunctionExpressionKind, CallExpressionKind } from 'ast-types/gen/kinds';
+import type {
+	ArrowFunctionExpressionKind,
+	CallExpressionKind,
+	StringLiteralKind,
+} from 'ast-types/gen/kinds';
 import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { removeLeadingForwardSlashWindows } from '../core/path.js';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
+const CLIENT_COMPONENT_PATH_REGEX = /['"]client:component-path['"]:/;
+
 interface AstroPluginOptions {
 	settings: AstroSettings;
 }
@@ -25,7 +33,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 
 			// Optimization: Detect usage with a quick string match.
 			// Only perform the transform if this function is found
-			if (!ASTRO_GLOB_REGEX.test(code)) {
+			if (!ASTRO_GLOB_REGEX.test(code) && !CLIENT_COMPONENT_PATH_REGEX.test(code)) {
 				return null;
 			}
 
@@ -74,6 +82,27 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 							params: [],
 						} as ArrowFunctionExpressionKind
 					);
+					return false;
+				},
+				visitObjectProperty: function (path) {
+					if (
+						!types.namedTypes.StringLiteral.check(path.node.key) ||
+						path.node.key.value !== 'client:component-path' ||
+						!types.namedTypes.StringLiteral.check(path.node.value)
+					) {
+						this.traverse(path);
+						return;
+					}
+					const valuePath = path.get('value') as NodePath;
+					let value = valuePath.value.value;
+					value = removeLeadingForwardSlashWindows(value);
+					if (code.includes(npath.basename(value) + '.jsx')) {
+						value += '.jsx';
+					}
+					valuePath.replace({
+						type: 'StringLiteral',
+						value,
+					} as StringLiteralKind);
 					return false;
 				},
 			});
