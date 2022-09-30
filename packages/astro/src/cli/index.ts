@@ -61,6 +61,8 @@ function printAstroHelp() {
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
 				['--root <path>', 'Specify your project root folder.'],
+				['--site <url>', 'Specify your project site.'],
+				['--base <pathname>', 'Specify your project base.'],
 				['--verbose', 'Enable verbose logging.'],
 				['--silent', 'Disable all logging.'],
 				['--version', 'Show the version number and exit.'],
