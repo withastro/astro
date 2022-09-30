@@ -10,6 +10,7 @@ import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { removeLeadingForwardSlashWindows } from '../core/path.js';
+import { resolveJsToTs } from '../core/util.js';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
@@ -99,6 +100,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 					if (code.includes(npath.basename(value) + '.jsx')) {
 						value += '.jsx';
 					}
+					value = resolveJsToTs(value);
 					valuePath.replace({
 						type: 'StringLiteral',
 						value,

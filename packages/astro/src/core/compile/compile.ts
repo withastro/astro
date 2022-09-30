@@ -1,3 +1,4 @@
+import path from 'path';
 import type { TransformResult } from '@astrojs/compiler';
 import type { AstroConfig } from '../../@types/astro';
 import type { TransformStyle } from './types';
@@ -5,7 +6,7 @@ import type { TransformStyle } from './types';
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
-import { AggregateError, viteID } from '../util.js';
+import { AggregateError, resolveJsToTs, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
@@ -99,12 +100,18 @@ async function compile({
 		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
 			c.resolvedPath += '.jsx';
 		}
+		if (path.isAbsolute(c.resolvedPath)) {
+			c.resolvedPath = resolveJsToTs(c.resolvedPath);
+		}
 	}
 	for (const c of compileResult.hydratedComponents) {
 		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
 		// The compiler trims .jsx by default, prevent this
 		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
 			c.resolvedPath += '.jsx';
+		}
+		if (path.isAbsolute(c.resolvedPath)) {
+			c.resolvedPath = resolveJsToTs(c.resolvedPath);
 		}
 	}
 
