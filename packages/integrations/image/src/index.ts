@@ -27,14 +27,16 @@ export interface IntegrationOptions {
 	/**
 	 * Entry point for the @type {HostedImageService} or @type {LocalImageService} to be used.
 	 */
-	serviceEntryPoint?: string;
+	serviceEntryPoint?: '@astrojs/image/squoosh' | '@astrojs/image/sharp' | string;
 	logLevel?: LoggerLevel;
+	cacheDir?: false | string;
 }
 
 export default function integration(options: IntegrationOptions = {}): AstroIntegration {
 	const resolvedOptions = {
 		serviceEntryPoint: '@astrojs/image/squoosh',
 		logLevel: 'info' as LoggerLevel,
+		cacheDir: './node_modules/.astro/image',
 		...options,
 	};
 
@@ -127,12 +129,17 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 				}
 
 				if (loader && 'transform' in loader && staticImages.size > 0) {
+					const cacheDir = !!resolvedOptions.cacheDir
+						? new URL(resolvedOptions.cacheDir, _config.root)
+						: undefined;
+
 					await ssgBuild({
 						loader,
 						staticImages,
 						config: _config,
 						outDir: dir,
 						logLevel: resolvedOptions.logLevel,
+						cacheDir,
 					});
 				}
 			},
