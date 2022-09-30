@@ -1,5 +1,4 @@
 import mdx from '@astrojs/mdx';
-import preact from '@astrojs/preact';
 
 import { expect } from 'chai';
 import { loadFixture } from '../../../astro/test/test-utils.js';
@@ -10,7 +9,7 @@ describe('MDX Infinite Loop', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			root: new URL('./fixtures/mdx-infinite-loop/', import.meta.url),
-			integrations: [mdx(), preact()],
+			integrations: [mdx()],
 		});
 	});
 
