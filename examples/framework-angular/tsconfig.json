@@ -1,3 +1,6 @@
 {
+  "compilerOptions": {
+    "experimentalDecorators": true
+  },
   "extends": "astro/tsconfigs/base"
 }
