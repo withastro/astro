@@ -95,9 +95,17 @@ async function compile({
 	// - C:/Windows/project/src/Foo.vue (normalized slash)
 	for (const c of compileResult.clientOnlyComponents) {
 		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
+		// The compiler trims .jsx by default, prevent this
+		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
+			c.resolvedPath += '.jsx';
+		}
 	}
 	for (const c of compileResult.hydratedComponents) {
 		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
+		// The compiler trims .jsx by default, prevent this
+		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
+			c.resolvedPath += '.jsx';
+		}
 	}
 
 	return compileResult;

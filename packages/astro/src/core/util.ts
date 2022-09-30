@@ -138,8 +138,7 @@ export function unwrapId(id: string): string {
 }
 
 export function normalizePath(id: string): string {
-	return id
-	// return path.posix.normalize(slash(id));
+	return path.posix.normalize(slash(id));
 }
 
 /** An fs utility, similar to `rimraf` or `rm -rf` */

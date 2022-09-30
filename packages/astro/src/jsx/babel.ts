@@ -218,7 +218,7 @@ export default function astroJSX(): PluginObj {
 				if (meta) {
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
-						resolvedPath = normalizePath(npath.resolve(state.filename!, meta.path));
+						resolvedPath = normalizePath(npath.resolve(npath.dirname(state.filename!), meta.path));
 					} else {
 						resolvedPath = meta.path;
 					}
@@ -297,7 +297,7 @@ export default function astroJSX(): PluginObj {
 					}
 					let resolvedPath: string;
 					if (meta.path.startsWith('.')) {
-						resolvedPath = normalizePath(npath.resolve(state.filename!, meta.path));
+						resolvedPath = normalizePath(npath.resolve(npath.dirname(state.filename!), meta.path));
 					} else {
 						resolvedPath = meta.path;
 					}
