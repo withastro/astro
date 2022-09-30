@@ -1,0 +1,23 @@
+name: "Mirror"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "examples/**"
+
+jobs:
+  stat:
+    if: github.repository_owner == 'natemoo-re'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code using Git
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Mirror
+        run: |
+          git filter-repo --path examples/minimal
+          git remote set-url origin https://github.com/withastro/astro-template-minimal.git
