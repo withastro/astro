@@ -2729,6 +2729,18 @@ importers:
       reading-time: 1.5.0
       unist-util-visit: 4.1.1
 
+  packages/integrations/mdx/test/fixtures/mdx-infinite-loop:
+    specifiers:
+      '@astrojs/mdx': workspace:*
+      '@astrojs/preact': workspace:*
+      astro: workspace:*
+      preact: ^10.7.3
+    dependencies:
+      '@astrojs/mdx': link:../../..
+      '@astrojs/preact': link:../../../../preact
+      astro: link:../../../../../astro
+      preact: 10.11.0
+
   packages/integrations/mdx/test/fixtures/mdx-namespace:
     specifiers:
       '@astrojs/mdx': workspace:*
