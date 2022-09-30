@@ -11,6 +11,21 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.4.0"
+    "astro": "^1.4.0",
+    "@analogjs/astro-angular": "^0.1.0-beta.2",
+    "@angular-devkit/build-angular": "^14.0.0",
+    "@angular/animations": "^14.0.0",
+    "@angular/common": "^14.0.0",
+    "@angular/compiler": "^14.0.0",
+    "@angular/compiler-cli": "^14.0.0",
+    "@angular/core": "^14.0.0",
+    "@angular/language-service": "^14.0.0",
+    "@angular/platform-browser": "^14.0.0",
+    "@angular/platform-browser-dynamic": "^14.0.0",
+    "@angular/platform-server": "^14.0.0",
+    "@types/alpinejs": "^3.7.0",
+    "rxjs": "^7.5.0",
+    "tslib": "^2.0.0",
+    "zone.js": "~0.11.4"
   }
 }
