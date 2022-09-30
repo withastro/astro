@@ -1,5 +1,39 @@
 /// <reference path="./import-meta.d.ts" />
 
+declare module '*.md' {
+	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}
+
+declare module '*.mdx' {
+	type MDX = import('./dist/@types/astro').MDXInstance<Record<string, any>>;
+
+	export const frontmatter: MDX['frontmatter'];
+	export const file: MDX['file'];
+	export const url: MDX['url'];
+	export const getHeadings: MDX['getHeadings'];
+	export const Content: MDX['Content'];
+	export const rawContent: MDX['rawContent'];
+	export const compiledContent: MDX['compiledContent'];
+
+	const load: MDX['default'];
+	export default load;
+}
+
+// Everything below are Vite's types (apart from image types, which are in `client.d.ts`)
+
 // CSS modules
 type CSSModuleClasses = { readonly [key: string]: string };
 
