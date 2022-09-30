@@ -47,12 +47,3 @@ export function toValidName(name: string) {
 		.replace(/[^a-zA-Z0-9-]/g, '-')
 		.replace(/(^\-|\-$)+/, '');
 }
-
-export async function hasVSCodeExtension(): Promise<boolean> {
-	try {
-		const { stdout } = await execa('code', ['--list-extensions']);
-		return !!stdout.split('\n').find(ln => ln === 'astro.build.astro-vscode');
-	} catch (e) {}
-
-	return false;
-}

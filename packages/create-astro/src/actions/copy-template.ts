@@ -6,7 +6,7 @@ import type { Arguments as Flags } from "yargs-parser";
 import { color } from "@astrojs/cli-kit";
 import { downloadTemplate } from 'giget';
 
-import { hasVSCodeExtension, isEmpty } from "./shared.js";
+import { isEmpty } from "./shared.js";
 
 // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md'];
@@ -51,11 +51,6 @@ export default async function copyTemplate(template: string, { name, flags, cwd,
 			console.debug(err);
 			console.error(err.message);
 			process.exit(1);
-		}
-
-		const hasExtension = await hasVSCodeExtension();
-		if (hasExtension) {
-			FILES_TO_REMOVE.push('.vscode')
 		}
 
 		// Post-process in parallel
