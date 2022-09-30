@@ -55,7 +55,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, injectScript }) => {
+			'astro:config:setup': async ({ config, injectScript, injectWatchTarget }) => {
 				// Inject the Tailwind postcss plugin
 				const userConfig = await getUserConfig(config.root, customConfigPath);
 
@@ -65,6 +65,10 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 							customConfigPath
 						)}. Does the file exist?`
 					);
+				}
+
+				if (userConfig?.filePath) {
+					injectWatchTarget({ path: userConfig.filePath, type: 'absolute' });
 				}
 
 				const tailwindConfig: TailwindConfig =

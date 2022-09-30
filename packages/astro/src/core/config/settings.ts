@@ -20,5 +20,6 @@ export function createSettings({ config, tsConfig, tsConfigPath }: CreateSetting
 		pageExtensions: ['.astro', '.md', '.html'],
 		renderers: [jsxRenderer],
 		scripts: [],
+		watchTargets: [],
 	};
 }
