@@ -36,7 +36,7 @@ describe('SSR images - dev', function () {
 			title: 'Local image no transforms',
 			id: '#no-transforms',
 			url: '/@astroimage/assets/social.jpg',
-			query: { },
+			query: {},
 			contentType: 'image/jpeg',
 		},
 		{
