@@ -1,5 +1,11 @@
 # astro
 
+## 1.4.1
+
+### Patch Changes
+
+- [#4928](https://github.com/withastro/astro/pull/4928) [`7690849a8`](https://github.com/withastro/astro/commit/7690849a87a7e192e28119211b75446ddbbc2ae3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix module definition of Markdown and MDX files not being available outside Astro files
+
 ## 1.4.0
 
 ### Minor Changes
