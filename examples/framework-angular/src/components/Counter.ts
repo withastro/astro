@@ -7,7 +7,9 @@ import { Component, Input } from '@angular/core';
 			<pre>{{ counterValue }}</pre>
 			<button (click)="add()">+</button>
 		</div>
-		<div class="counter-message"><ng-content></ng-content></div>`,
+		<div class="counter-message">
+			<h1>{{ textProp }}</h1>
+		</div>`,
 	styles: [
 		`
 			.counter {
@@ -25,6 +27,8 @@ import { Component, Input } from '@angular/core';
 	],
 })
 export default class Counter {
+	@Input() textProp = '';
+
 	counterValue = 0;
 	add() {
 		this.counterValue++;
