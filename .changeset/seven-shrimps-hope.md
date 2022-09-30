@@ -1,5 +1,5 @@
 ---
-'@astrojs/image': patch
+'@astrojs/image': minor
 ---
 
 Adds caching support for transformed images :tada:
