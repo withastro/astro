@@ -35,7 +35,12 @@ export default async function dev(
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
-	settings = await runHookConfigSetup({ settings, command: 'dev', logging: options.logging });
+	settings = await runHookConfigSetup({
+		settings,
+		command: 'dev',
+		logging: options.logging,
+		isConfigReload: options.isRestart,
+	});
 	const { host, port } = settings.config.server;
 	const { isRestart = false } = options;
 

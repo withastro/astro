@@ -1147,6 +1147,7 @@ export interface AstroIntegration {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
 			command: 'dev' | 'build';
+			isConfigReload: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;

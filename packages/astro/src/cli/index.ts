@@ -207,11 +207,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 						if (!shouldRestart && settings.watchTargets.length > 0) {
 							// If the config file didn't change, check if any of the watched files changed.
 							shouldRestart = settings.watchTargets.some(({ path, type }) => {
-								const regex =
+								const target =
 									type === 'absolute'
-										? new RegExp(`${normalizePath(path)}$`)
-										: new RegExp(`${normalizePath(resolvedRoot)}/${normalizePath(path)}$`);
-								return regex.test(normalizePath(changedFile));
+										? normalizePath(path)
+										: `${normalizePath(resolvedRoot)}/${normalizePath(path)}`;
+								return target === normalizePath(changedFile);
 							});
 						}
 

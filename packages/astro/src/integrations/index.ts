@@ -38,10 +38,12 @@ export async function runHookConfigSetup({
 	settings,
 	command,
 	logging,
+	isConfigReload = false,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
 	logging: LogOptions;
+	isConfigReload?: boolean;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
 	if (settings.config.adapter) {
@@ -67,6 +69,7 @@ export async function runHookConfigSetup({
 			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
+				isConfigReload,
 				addRenderer(renderer: AstroRenderer) {
 					if (!renderer.name) {
 						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
