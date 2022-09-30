@@ -26,6 +26,7 @@
     "@types/alpinejs": "^3.7.0",
     "rxjs": "^7.5.0",
     "tslib": "^2.0.0",
+    "typescript": "^4.8.4",
     "zone.js": "~0.11.4"
   }
 }
