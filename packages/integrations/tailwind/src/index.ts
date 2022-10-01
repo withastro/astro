@@ -18,7 +18,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	}) as TailwindConfig;
 }
 
-async function getUserConfig(root: URL, configPath?: string, isConfigReload: boolean = false) {
+async function getUserConfig(root: URL, configPath?: string, isConfigReload = false) {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
