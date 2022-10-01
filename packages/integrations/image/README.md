@@ -453,6 +453,25 @@ export default {
 }
 ```
 
+### config.cacheDir
+
+During static builds, the integration will cache transformed images to avoid rebuilding the same image for every build. This can be particularly helpful if you are using a hosting service that allows you to cache build assets for future deployments.
+
+Local images will be cached for 1 year and invalidated when the original image file is changed. Remote images will be cached based on the `fetch()` response's cache headers, similar to how a CDN would manage the cache.
+
+By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
+
+```js
+export default defineConfig({
+	integrations: [image({
+    // may be useful if your hosting provider allows caching between CI builds
+    cacheDir: "./.cache/image"
+  })]
+});
+```
+
+Caching can also be disabled by using `cacheDir: false`.
+
 ## Examples
 
 ### Local images

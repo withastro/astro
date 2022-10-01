@@ -12,12 +12,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.3.1",
+    "astro": "^1.4.2",
     "preact": "^10.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "@astrojs/react": "^1.1.4",
-    "@astrojs/preact": "^1.1.0",
+    "@astrojs/preact": "^1.1.1",
     "@algolia/client-search": "^4.13.1",
     "@docsearch/css": "^3.1.0",
     "@docsearch/react": "^3.1.0",

@@ -69,7 +69,7 @@ export class HTMLParts {
 	}
 	toArrayBuffer() {
 		this.parts.forEach((part, i) => {
-			if (typeof part === 'string') {
+			if (!ArrayBuffer.isView(part)) {
 				this.parts[i] = encoder.encode(String(part));
 			}
 		});

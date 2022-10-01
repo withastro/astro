@@ -33,6 +33,13 @@ describe('SSR images - dev', function () {
 			contentType: 'image/jpeg',
 		},
 		{
+			title: 'Local image no transforms',
+			id: '#no-transforms',
+			url: '/@astroimage/assets/social.jpg',
+			query: {},
+			contentType: 'image/jpeg',
+		},
+		{
 			title: 'Filename with spaces',
 			id: '#spaces',
 			url: '/@astroimage/assets/blog/introducing astro.jpg',

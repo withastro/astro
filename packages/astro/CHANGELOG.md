@@ -1,5 +1,114 @@
 # astro
 
+## 1.4.2
+
+### Patch Changes
+
+- [#4932](https://github.com/withastro/astro/pull/4932) [`9898088c0`](https://github.com/withastro/astro/commit/9898088c0a976da2cbf7607d92e5daf5db6a4536) Thanks [@matthewp](https://github.com/matthewp)! - Prevent hydration mismatch in streaming SSR
+
+- [#4939](https://github.com/withastro/astro/pull/4939) [`cf2bba1e4`](https://github.com/withastro/astro/commit/cf2bba1e4a32ff7d424cc1c4954d6328167af8d7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix MDX error handling, preventing a memory leak
+
+## 1.4.1
+
+### Patch Changes
+
+- [#4928](https://github.com/withastro/astro/pull/4928) [`7690849a8`](https://github.com/withastro/astro/commit/7690849a87a7e192e28119211b75446ddbbc2ae3) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix module definition of Markdown and MDX files not being available outside Astro files
+
+## 1.4.0
+
+### Minor Changes
+
+- [#4907](https://github.com/withastro/astro/pull/4907) [`01c1aaa00`](https://github.com/withastro/astro/commit/01c1aaa00397c7fdc7a3ef7fb0212eb43aad6238) Thanks [@matthewp](https://github.com/matthewp)! - Order Astro styles last, to override imported styles
+
+  This fixes CSS ordering so that imported styles are placed _higher_ than page/component level styles. This means that if you do:
+
+  ```astro
+  ---
+  import '../styles/global.css';
+  ---
+
+  <style>
+    body {
+      background: limegreen;
+    }
+  </style>
+  ```
+
+  The `<style>` defined in this component will be placed _below_ the imported CSS. When compiled for production this will result in something like this:
+
+  ```css
+  /* /src/styles/global.css */
+  body {
+    background: blue;
+  }
+
+  /* /src/pages/index.astro */
+  body:where(.astro-12345) {
+    background: limegreen;
+  }
+  ```
+
+  Given Astro's 0-specificity hashing, this change effectively makes it so that Astro styles "win" when they have the same specificity as global styles.
+
+- [#4876](https://github.com/withastro/astro/pull/4876) [`d3091f89e`](https://github.com/withastro/astro/commit/d3091f89e92fcfe1ad48daca74055d54b1c853a3) Thanks [@matthewp](https://github.com/matthewp)! - Adds the Astro.cookies API
+
+  `Astro.cookies` is a new API for manipulating cookies in Astro components and API routes.
+
+  In Astro components, the new `Astro.cookies` object is a map-like object that allows you to get, set, delete, and check for a cookie's existence (`has`):
+
+  ```astro
+  ---
+  type Prefs = {
+    darkMode: boolean;
+  };
+
+  Astro.cookies.set<Prefs>(
+    'prefs',
+    { darkMode: true },
+    {
+      expires: '1 month',
+    }
+  );
+
+  const prefs = Astro.cookies.get<Prefs>('prefs').json();
+  ---
+
+  <body data-theme={prefs.darkMode ? 'dark' : 'light'}></body>
+  ```
+
+  Once you've set a cookie with Astro.cookies it will automatically be included in the outgoing response.
+
+  This API is also available with the same functionality in API routes:
+
+  ```js
+  export function post({ cookies }) {
+    cookies.set('loggedIn', false);
+
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/login',
+      },
+    });
+  }
+  ```
+
+  See [the RFC](https://github.com/withastro/rfcs/blob/main/proposals/0025-cookie-management.md) to learn more.
+
+### Patch Changes
+
+- [#4897](https://github.com/withastro/astro/pull/4897) [`fd9d323a6`](https://github.com/withastro/astro/commit/fd9d323a68c0f0cbb3b019e0a05e2c33450f3d33) Thanks [@bluwy](https://github.com/bluwy)! - Support Vue JSX
+
+- [#4892](https://github.com/withastro/astro/pull/4892) [`ff7ba0ee0`](https://github.com/withastro/astro/commit/ff7ba0ee0fd652a92f5d06d9b644dd646cebe65c) Thanks [@matthewp](https://github.com/matthewp)! - Prevent multiple rendering of head content
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Add missing dependencies, support strict dependency installation (e.g. pnpm)
+
+- [#4891](https://github.com/withastro/astro/pull/4891) [`87a7cf48e`](https://github.com/withastro/astro/commit/87a7cf48e7198ab94aa6310e58e9f30fd234c429) Thanks [@matthewp](https://github.com/matthewp)! - Hoist hydration scripts out of slot templates
+
+- Updated dependencies [[`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46), [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46)]:
+  - @astrojs/markdown-remark@1.1.3
+  - @astrojs/telemetry@1.0.1
+
 ## 1.3.1
 
 ### Patch Changes
