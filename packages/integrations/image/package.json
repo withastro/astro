@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@altano/tiny-async-pool": "^1.0.2",
+    "http-cache-semantics": "^4.1.0",
     "image-size": "^1.0.2",
     "magic-string": "^0.25.9",
     "mime": "^3.0.0",
@@ -56,7 +57,6 @@
     "astro-scripts": "workspace:*",
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.11",
-    "http-cache-semantics": "^4.1.0",
     "kleur": "^4.1.4",
     "mocha": "^9.2.2",
     "rollup-plugin-copy": "^3.4.0",
