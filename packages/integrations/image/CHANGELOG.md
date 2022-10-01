@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.9.1
+
+### Patch Changes
+
+- [#4944](https://github.com/withastro/astro/pull/4944) [`a8f1a91e7`](https://github.com/withastro/astro/commit/a8f1a91e7e0605d847ddcdf4d7824d1b1fe9b838) Thanks [@scottaw66](https://github.com/scottaw66)! - Moves http-cache-semantics from dev dependency to dependency
+
 ## 0.9.0
 
 ### Minor Changes
