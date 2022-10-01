@@ -461,7 +461,7 @@ Local images will be cached for 1 year and invalidated when the original image f
 
 By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
 
-```
+```js
 export default defineConfig({
 	integrations: [image({
     // may be useful if your hosting provider allows caching between CI builds
