@@ -422,11 +422,19 @@ export interface AstroUserConfig {
 	 * @description
 	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `/docs`.
 	 *
+	 * When you are using the `base` option, you need to change all of your imports(Add your `base` to the url of the file that you want to import).
+	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
 	 * }
 	 * ```
+	 * And import your files with a prefix of the base:
+	 * 
+	 * ```astro
+	 * <img src="doc/logo.png">
+	 * ```
+	 * 
 	 */
 	base?: string;
 
