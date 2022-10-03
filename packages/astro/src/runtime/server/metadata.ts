@@ -41,7 +41,10 @@ export class Metadata {
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
-			return normalizePath(path.resolve(path.dirname(this.filePath), specifier));
+			// NOTE: path.posix normalization is only needed for path-browserify
+			const normalizedDir = path.posix.normalize(path.dirname(this.filePath));
+			const normalizedSpecifier = path.posix.normalize(specifier);
+			return normalizePath(path.posix.resolve(normalizedDir, normalizedSpecifier));
 		} else {
 			return specifier;
 		}
