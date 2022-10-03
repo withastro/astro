@@ -1,6 +1,6 @@
 import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
-import type { ViteDevServer } from 'vite';
+import type { InlineConfig, ViteDevServer } from 'vite';
 import {
 	AstroConfig,
 	AstroRenderer,
@@ -12,7 +12,6 @@ import {
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
-import type { ViteConfigWithSSR } from '../core/create-vite.js';
 import { info, LogOptions } from '../core/logger/core.js';
 
 async function withTakingALongTimeMsg<T>({
@@ -224,7 +223,7 @@ export async function runHookBuildSetup({
 	logging,
 }: {
 	config: AstroConfig;
-	vite: ViteConfigWithSSR;
+	vite: InlineConfig;
 	pages: Map<string, PageBuildData>;
 	target: 'server' | 'client';
 	logging: LogOptions;
