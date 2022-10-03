@@ -113,6 +113,7 @@
     "@types/yargs-parser": "^21.0.0",
     "boxen": "^6.2.1",
     "ci-info": "^3.3.1",
+    "comment-json": "^4.2.3",
     "common-ancestor-path": "^1.0.1",
     "cookie": "^0.5.0",
     "debug": "^4.3.4",
