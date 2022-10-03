@@ -15,4 +15,5 @@ const listener = (req, res) => {
 
 const server = http.createServer(listener);
 server.listen(3002);
+// eslint-disable-next-line no-console
 console.log(`Listening at http://localhost:3002`);
