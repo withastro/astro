@@ -1,5 +1,13 @@
 # astro
 
+## 1.4.4
+
+### Patch Changes
+
+- [#4967](https://github.com/withastro/astro/pull/4967) [`e6a881081`](https://github.com/withastro/astro/commit/e6a881081f456b83294e1d85179b20951d7677e9) Thanks [@matthewp](https://github.com/matthewp)! - Final perf fix from 1.3.0 regression
+
+  A regression in rendering perf happened in 1.3.0. This is the final fix for the underlying issue.
+
 ## 1.4.3
 
 ### Patch Changes
