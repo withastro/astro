@@ -89,8 +89,8 @@ export async function runHookConfigSetup({
 				injectRoute: (injectRoute) => {
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
-				addWatchFile: (target) => {
-					updatedSettings.watchTargets.push(target);
+				addWatchFile: (path) => {
+					updatedSettings.watchFiles.push(path);
 				},
 			};
 			// Semi-private `addPageExtension` hook

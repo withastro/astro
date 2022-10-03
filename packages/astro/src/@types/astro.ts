@@ -870,10 +870,6 @@ export interface InjectedRoute {
 	pattern: string;
 	entryPoint: string;
 }
-export interface InjectedWatchTarget {
-	path: string;
-	type: 'relative' | 'absolute';
-}
 export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// Public:
 	// This is a more detailed type than zod validation gives us.
@@ -894,7 +890,7 @@ export interface AstroSettings {
 	}[];
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
-	watchTargets: InjectedWatchTarget[];
+	watchFiles: string[];
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -1149,7 +1145,7 @@ export interface AstroIntegration {
 			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
-			addWatchFile: (target: InjectedWatchTarget) => void;
+			addWatchFile: (path: string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.

@@ -204,15 +204,11 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 									`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
 							  ).test(normalizePath(changedFile));
 
-						if (!shouldRestart && settings.watchTargets.length > 0) {
+						if (!shouldRestart && settings.watchFiles.length > 0) {
 							// If the config file didn't change, check if any of the watched files changed.
-							shouldRestart = settings.watchTargets.some(({ path, type }) => {
-								const target =
-									type === 'absolute'
-										? normalizePath(path)
-										: `${normalizePath(resolvedRoot)}/${normalizePath(path)}`;
-								return target === normalizePath(changedFile);
-							});
+							shouldRestart = settings.watchFiles.some(
+								(path) => normalizePath(path) === normalizePath(changedFile)
+							);
 						}
 
 						if (!shouldRestart) return;

@@ -104,7 +104,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 				}
 
 				if (userConfig?.filePath) {
-					addWatchFile({ path: userConfig.filePath, type: 'absolute' });
+					addWatchFile(userConfig.filePath);
 				}
 
 				const tailwindConfig: TailwindConfig =
