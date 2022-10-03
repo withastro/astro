@@ -1,0 +1,11 @@
+{
+  "name": "@benchmark/simple",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "astro build"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/node": "workspace:*"
+  }
+}
