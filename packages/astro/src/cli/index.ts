@@ -9,7 +9,6 @@ import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import {
 	createSettings,
-	loadTSConfig,
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,
@@ -168,12 +167,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	});
 	if (!initialAstroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	let initialTsConfig = loadTSConfig(root);
-	let settings = createSettings({
-		config: initialAstroConfig,
-		tsConfig: initialTsConfig?.config,
-		tsConfigPath: initialTsConfig?.path,
-	});
+	let settings = createSettings(initialAstroConfig, root);
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
@@ -225,12 +219,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 							});
 							info(logging, 'astro', logMsg + '\n');
 							let astroConfig = newConfig.astroConfig;
-							let tsconfig = loadTSConfig(root);
-							settings = createSettings({
-								config: astroConfig,
-								tsConfig: tsconfig?.config,
-								tsConfigPath: tsconfig?.path,
-							});
+							settings = createSettings(astroConfig, root);
 							await stop();
 							await startDevServer({ isRestart: true });
 						} catch (e) {

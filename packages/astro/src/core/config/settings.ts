@@ -1,25 +1,21 @@
-import type { TsConfigJson } from 'tsconfig-resolver';
 import type { AstroConfig, AstroSettings } from '../../@types/astro';
 
 import jsxRenderer from '../../jsx/renderer.js';
+import { loadTSConfig } from './tsconfig.js';
 
-export interface CreateSettings {
-	config: AstroConfig;
-	tsConfig?: TsConfigJson;
-	tsConfigPath?: string;
-}
+export function createSettings(config: AstroConfig, cwd?: string): AstroSettings {
+	const tsconfig = loadTSConfig(cwd);
 
-export function createSettings({ config, tsConfig, tsConfigPath }: CreateSettings): AstroSettings {
 	return {
 		config,
-		tsConfig,
-		tsConfigPath,
+		tsConfig: tsconfig?.config,
+		tsConfigPath: tsconfig?.path,
 
 		adapter: undefined,
 		injectedRoutes: [],
 		pageExtensions: ['.astro', '.md', '.html'],
 		renderers: [jsxRenderer],
 		scripts: [],
-		watchFiles: tsConfigPath ? [tsConfigPath] : [],
+		watchFiles: tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [],
 	};
 }
