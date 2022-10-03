@@ -1,3 +1,7 @@
+// NOTE: this file should contain browser-friendly code only
+import npath from 'path-browserify';
+import slash from 'slash';
+
 export function appendExtension(path: string, extension: string) {
 	return path + '.' + extension;
 }
@@ -58,4 +62,11 @@ export function joinPaths(...paths: (string | undefined)[]) {
 export function removeFileExtension(path: string) {
 	let idx = path.lastIndexOf('.');
 	return idx === -1 ? path : path.slice(0, idx);
+}
+
+/**
+ * Browser-friendly version of Vite's `normalizePath` api
+ */
+export function normalizePath(path: string) {
+	return npath.posix.normalize(slash(path));
 }
