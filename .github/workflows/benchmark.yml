@@ -4,6 +4,11 @@ on:
   issue_comment:
     types: [created]
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+
 jobs:
   benchmark:
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
@@ -37,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build Packages
+        run: pnpm run build
+
       - name: Run benchmark
         id: benchmark-pr
         run: |
@@ -53,6 +61,9 @@ jobs:
       - name: Install
         run: |
           pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Run benchmark
         id: benchmark-main
