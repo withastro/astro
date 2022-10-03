@@ -42,6 +42,9 @@ export class Metadata {
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
+			// NOTE: ideally we should use `path.resolve` here, but this is part
+			// of server output code, which needs to work on platform that doesn't
+			// have the `path` module. Use `URL` here since we deal with posix only.
 			const url = new URL(specifier, this.mockURL);
 			return removeLeadingForwardSlashWindows(decodeURI(url.pathname));
 		} else {

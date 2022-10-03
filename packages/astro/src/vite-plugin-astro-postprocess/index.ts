@@ -86,6 +86,7 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 					return false;
 				},
 				visitObjectProperty: function (path) {
+					// Filter out none 'client:component-path' properties
 					if (
 						!types.namedTypes.StringLiteral.check(path.node.key) ||
 						path.node.key.value !== 'client:component-path' ||
@@ -94,9 +95,13 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 						this.traverse(path);
 						return;
 					}
+
+					// Patch up client:component-path value that has leading slash on Windows.
+					// See `compile.ts` for more details, this will be fixed in the Astro compiler.
 					const valuePath = path.get('value') as NodePath;
 					let value = valuePath.value.value;
 					value = removeLeadingForwardSlashWindows(value);
+					// Add back `.jsx` stripped by the compiler by loosely checking the code
 					if (code.includes(npath.basename(value) + '.jsx')) {
 						value += '.jsx';
 					}

@@ -20,7 +20,6 @@ const configCache = new WeakMap<AstroConfig, CompilationCache>();
 export interface CompileProps {
 	config: AstroConfig;
 	filename: string;
-	moduleId: string;
 	source: string;
 	transformStyle: TransformStyle;
 }
@@ -28,7 +27,6 @@ export interface CompileProps {
 async function compile({
 	config,
 	filename,
-	moduleId,
 	source,
 	transformStyle,
 }: CompileProps): Promise<CompileResult> {
@@ -41,8 +39,10 @@ async function compile({
 	const transformResult = await transform(source, {
 		// For Windows compat, prepend filename with `/`.
 		// Note this is required because the compiler uses URLs to parse and built paths.
-		// This should be fixed, but at the meantime we workaround with a slash and
-		// remove them in `astro:postprocess` when they are used in `client:component-path`.
+		// TODO: Ideally the compiler could expose a `resolvePath` function so that we can
+		// unify how we handle path in a bundler-agnostic way.
+		// At the meantime workaround with a slash and  remove them in `astro:postprocess`
+		// when they are used in `client:component-path`.
 		pathname: prependForwardSlash(filename),
 		projectRoot: config.root.toString(),
 		site: config.site?.toString(),
@@ -88,12 +88,11 @@ async function compile({
 		},
 	});
 
-	// Continuing the above comment, `astro:postprocess` can't handle this part,
-	// so we fix it here before returning. Example resolve paths:
+	// Also fix path before returning. Example original resolvedPaths:
 	// - @astrojs/preact/client.js
 	// - @/components/Foo.vue
 	// - /Users/macos/project/src/Foo.vue
-	// - C:/Windows/project/src/Foo.vue (normalized slash)
+	// - /C:/Windows/project/src/Foo.vue
 	for (const c of compileResult.clientOnlyComponents) {
 		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
 		// The compiler trims .jsx by default, prevent this
