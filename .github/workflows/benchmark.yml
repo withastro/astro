@@ -83,6 +83,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.issue.number }}
           message: |
             **Node**: 14
             **PR**: ${{ needs.benchmark.outputs.PR-BENCH-14 }}
