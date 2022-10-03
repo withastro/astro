@@ -5,13 +5,14 @@ import type { LogOptions } from '../logger/core';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
+import * as vite from 'vite';
 import {
 	runHookBuildDone,
 	runHookBuildStart,
 	runHookConfigDone,
 	runHookConfigSetup,
 } from '../../integrations/index.js';
-import { createVite, ViteConfigWithSSR } from '../create-vite.js';
+import { createVite } from '../create-vite.js';
 import { fixViteErrorMessage } from '../errors.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
@@ -84,7 +85,7 @@ class AstroBuilder {
 	}
 
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
-	private async build({ viteConfig }: { viteConfig: ViteConfigWithSSR }) {
+	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
 		const buildConfig: BuildConfig = {
 			client: new URL('./client/', this.settings.config.outDir),
 			server: new URL('./server/', this.settings.config.outDir),

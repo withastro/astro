@@ -1,3 +1,4 @@
+import type { InlineConfig } from 'vite';
 import type {
 	AstroSettings,
 	BuildConfig,
@@ -7,7 +8,6 @@ import type {
 	RuntimeMode,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { ViteConfigWithSSR } from '../create-vite';
 import type { LogOptions } from '../logger/core';
 import type { RouteCache } from '../render/route-cache';
 
@@ -34,7 +34,7 @@ export interface StaticBuildOptions {
 	origin: string;
 	pageNames: string[];
 	routeCache: RouteCache;
-	viteConfig: ViteConfigWithSSR;
+	viteConfig: InlineConfig;
 }
 
 export interface SingleFileBuiltModule {
