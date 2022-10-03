@@ -1,5 +1,6 @@
 import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
+import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import {
 	AstroConfig,
@@ -90,7 +91,7 @@ export async function runHookConfigSetup({
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
 				addWatchFile: (path) => {
-					updatedSettings.watchFiles.push(path);
+					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 			};
 			// Semi-private `addPageExtension` hook

@@ -1145,7 +1145,7 @@ export interface AstroIntegration {
 			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
-			addWatchFile: (path: string) => void;
+			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
