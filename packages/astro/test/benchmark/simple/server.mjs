@@ -2,8 +2,8 @@ import http from 'http';
 import { handler } from './dist/server/entry.mjs';
 
 const listener = (req, res) => {
-	handler(req, res, err => {
-		if(err) {
+	handler(req, res, (err) => {
+		if (err) {
 			res.writeHead(500);
 			res.end(err.toString());
 		} else {

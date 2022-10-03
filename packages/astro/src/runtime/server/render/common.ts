@@ -47,7 +47,7 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 export class HTMLParts {
 	public parts: string;
 	constructor() {
-		this.parts = ''
+		this.parts = '';
 	}
 	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
 		if (ArrayBuffer.isView(part)) {
