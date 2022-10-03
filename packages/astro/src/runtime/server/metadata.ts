@@ -1,5 +1,4 @@
-import path from 'path-browserify';
-import { normalizePath, removeLeadingForwardSlashWindows } from '../../core/path.js';
+import { removeLeadingForwardSlashWindows } from '../../core/path.js';
 
 interface ModuleInfo {
 	module: Record<string, any>;
@@ -27,6 +26,7 @@ export class Metadata {
 	public clientOnlyComponents: any[];
 	public hydrationDirectives: Set<string>;
 
+	private mockURL: URL;
 	private metadataCache: Map<any, ComponentMetadata | null>;
 
 	constructor(filePathname: string, opts: CreateMetadataOptions) {
@@ -36,15 +36,14 @@ export class Metadata {
 		this.clientOnlyComponents = opts.clientOnlyComponents;
 		this.hydrationDirectives = opts.hydrationDirectives;
 		this.filePath = removeLeadingForwardSlashWindows(filePathname);
+		this.mockURL = new URL(filePathname, 'http://example.com');
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
 	}
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
-			// NOTE: path.posix normalization is only needed for path-browserify
-			const normalizedDir = path.posix.normalize(path.dirname(this.filePath));
-			const normalizedSpecifier = path.posix.normalize(specifier);
-			return normalizePath(path.posix.resolve(normalizedDir, normalizedSpecifier));
+			const url = new URL(specifier, this.mockURL);
+			return removeLeadingForwardSlashWindows(decodeURI(url.pathname));
 		} else {
 			return specifier;
 		}
