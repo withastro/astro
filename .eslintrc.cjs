@@ -35,7 +35,7 @@ module.exports = {
     {
       files: ['packages/integrations/**/*.ts'],
       rules: {
-        'no-console': 'off',
+        'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
       },
     },
   ],
