@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build Packages
+        run: pnpm run build
+
       - name: Run benchmark
         id: benchmark-pr
         run: |
@@ -53,6 +56,9 @@ jobs:
       - name: Install
         run: |
           pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
 
       - name: Run benchmark
         id: benchmark-main
