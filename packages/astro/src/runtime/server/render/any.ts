@@ -1,4 +1,4 @@
-import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
+import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
 import { SlotString } from './slot.js';
 
@@ -9,7 +9,7 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 			yield* child.instructions;
 		}
 		yield child;
-	} else if (isHTMLString(child)) {
+	} else if (child instanceof HTMLString) {
 		yield child;
 	} else if (Array.isArray(child)) {
 		for (const value of child) {
