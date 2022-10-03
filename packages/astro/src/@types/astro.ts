@@ -1146,12 +1146,12 @@ export interface AstroIntegration {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
 			command: 'dev' | 'build';
-			isConfigReload: boolean;
+			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
+			addWatchFile: (target: InjectedWatchTarget) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
-			injectWatchTarget: (target: InjectedWatchTarget) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
 			// This may require some refactoring of `scripts`, `styles`, and `links` into something
 			// more generalized. Consider the SSR use-case as well.

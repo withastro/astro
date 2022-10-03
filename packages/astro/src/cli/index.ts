@@ -225,7 +225,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								flags,
 								cmd,
 								logging,
-								isConfigReload: true,
+								isRestart: true,
 							});
 							info(logging, 'astro', logMsg + '\n');
 							let astroConfig = newConfig.astroConfig;

@@ -2,5 +2,5 @@
 'astro': minor
 ---
 
-- Added `isConfigReload` and `injectWatchTarget` to integration step `isConfigReload`.
+- Added `isRestart` and `addWatchFile` to integration step `isRestart`.
 - Restart dev server automatically when tsconfig changes.

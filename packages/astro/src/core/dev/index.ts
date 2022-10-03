@@ -39,7 +39,7 @@ export default async function dev(
 		settings,
 		command: 'dev',
 		logging: options.logging,
-		isConfigReload: options.isRestart,
+		isRestart: options.isRestart,
 	});
 	const { host, port } = settings.config.server;
 	const { isRestart = false } = options;

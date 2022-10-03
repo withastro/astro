@@ -18,7 +18,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	}) as TailwindConfig;
 }
 
-async function getUserConfig(root: URL, configPath?: string, isConfigReload = false) {
+async function getUserConfig(root: URL, configPath?: string, isRestart = false) {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
@@ -27,7 +27,7 @@ async function getUserConfig(root: URL, configPath?: string, isConfigReload = fa
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	if (isConfigReload) {
+	if (isRestart) {
 		// Hack: Write config to temporary file at project root
 		// This invalidates and reloads file contents when using ESM imports or "resolve"
 		const resolvedConfigPath = (await resolve('tailwind', {
@@ -91,9 +91,9 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, injectScript, injectWatchTarget, isConfigReload }) => {
+			'astro:config:setup': async ({ config, injectScript, addWatchFile, isRestart }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.root, customConfigPath, isConfigReload);
+				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
 
 				if (customConfigPath && !userConfig?.value) {
 					throw new Error(
@@ -104,7 +104,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 				}
 
 				if (userConfig?.filePath) {
-					injectWatchTarget({ path: userConfig.filePath, type: 'absolute' });
+					addWatchFile({ path: userConfig.filePath, type: 'absolute' });
 				}
 
 				const tailwindConfig: TailwindConfig =

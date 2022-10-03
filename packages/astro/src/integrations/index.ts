@@ -37,12 +37,12 @@ export async function runHookConfigSetup({
 	settings,
 	command,
 	logging,
-	isConfigReload = false,
+	isRestart = false,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
 	logging: LogOptions;
-	isConfigReload?: boolean;
+	isRestart?: boolean;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
 	if (settings.config.adapter) {
@@ -68,7 +68,7 @@ export async function runHookConfigSetup({
 			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
-				isConfigReload,
+				isRestart,
 				addRenderer(renderer: AstroRenderer) {
 					if (!renderer.name) {
 						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
@@ -89,7 +89,7 @@ export async function runHookConfigSetup({
 				injectRoute: (injectRoute) => {
 					updatedSettings.injectedRoutes.push(injectRoute);
 				},
-				injectWatchTarget: (target) => {
+				addWatchFile: (target) => {
 					updatedSettings.watchTargets.push(target);
 				},
 			};
