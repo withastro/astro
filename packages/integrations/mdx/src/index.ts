@@ -50,18 +50,15 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					mdxOptions.extendPlugins === 'markdown' &&
 					(config.markdown.rehypePlugins?.length || config.markdown.remarkPlugins?.length)
 				) {
-					// eslint-disable-next-line no-console
-					console.log(
+					console.info(
 						blue(`[MDX] Now inheriting remark and rehype plugins from "markdown" config.`)
 					);
-					// eslint-disable-next-line no-console
-					console.log(
+					console.info(
 						`If you applied a plugin to both your Markdown and MDX configs, we suggest ${bold(
 							'removing the duplicate MDX entry.'
 						)}`
 					);
-					// eslint-disable-next-line no-console
-					console.log(`See "extendPlugins" option to configure this behavior.`);
+					console.info(`See "extendPlugins" option to configure this behavior.`);
 				}
 
 				const mdxPluginOpts: MdxRollupPluginOptions = {
