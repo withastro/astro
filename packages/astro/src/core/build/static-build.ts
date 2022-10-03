@@ -225,7 +225,7 @@ async function clientBuild(
 		],
 		envPrefix: 'PUBLIC_',
 		base: settings.config.base,
-	} ;
+	};
 
 	await runHookBuildSetup({
 		config: settings.config,
