@@ -17,7 +17,7 @@ jobs:
       MAIN-BENCH-16: ${{ steps.benchmark-main.outputs.BENCH_RESULT16 }}
     strategy:
       matrix:
-        node-version: [16]
+        node-version: [14, 16]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,22 +45,21 @@ jobs:
           echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
       # main benchmark
-      # TODO Enable this once this workflow is in main.
-      # - uses: actions/checkout@v3
-      #   with:
-      #     persist-credentials: false
-      #     ref: 'main'
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          ref: 'main'
 
-      # - name: Install
-      #   run: |
-      #     pnpm install
+      - name: Install
+        run: |
+          pnpm install
 
-      # - name: Run benchmark
-      #   id: benchmark-main
-      #   run: |
-      #     pnpm run --silent benchmark > ./bench-result.md
-      #     result=$(awk '/requests in/' ./bench-result.md)
-      #     echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
+      - name: Run benchmark
+        id: benchmark-main
+        run: |
+          pnpm run --silent benchmark > ./bench-result.md
+          result=$(awk '/requests in/' ./bench-result.md)
+          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
   output-benchmark:
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
