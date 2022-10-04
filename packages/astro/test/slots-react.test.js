@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
+import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Slots: React', () => {
@@ -71,6 +72,33 @@ describe('Slots: React', () => {
 			const html = await fixture.readFile('/mdx/index.html');
 			const $ = cheerio.load(html);
 			expect($('#dash-case').text().trim()).to.equal('Fallback / Dash Case');
+		});
+	});
+
+	describe('Slots.render() API', async () => {
+		it('Simple imperative slot render', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render')).to.have.lengthOf(1);
+			expect($('#render').text()).to.equal('render');
+		});
+
+		it('Child function render without args', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render-fn')).to.have.lengthOf(1);
+			expect($('#render-fn').text()).to.equal('render-fn');
+		});
+
+		it('Child function render with args', async () => {
+			const html = await fixture.readFile('/slottedapi-render/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('#render-args')).to.have.lengthOf(1);
+			expect($('#render-args span')).to.have.lengthOf(1);
+			expect($('#render-args').text()).to.equal('render-args');
 		});
 	});
 });
