@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
-import { describe, it } from 'node:test';
 import { loadFixture } from './test-utils.js';
 
 describe('Slots: React', () => {
