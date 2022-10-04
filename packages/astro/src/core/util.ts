@@ -216,8 +216,13 @@ export function getLocalAddress(serverAddress: string, host: string | boolean): 
  * through a script tag or a dynamic import as-is.
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
+// TODO: Export a helper util from Vite
 export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
-	const result = await viteServer.pluginContainer.resolveId(id);
+	let result = await viteServer.pluginContainer.resolveId(id, undefined);
+	// Try resolve jsx to tsx
+	if (!result && id.endsWith('.jsx')) {
+		result = await viteServer.pluginContainer.resolveId(id.slice(0, -4), undefined);
+	}
 	if (!result) {
 		return VALID_ID_PREFIX + id;
 	}
@@ -225,6 +230,16 @@ export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
 		return '/@fs' + prependForwardSlash(result.id);
 	}
 	return VALID_ID_PREFIX + result.id;
+}
+
+export function resolveJsToTs(filePath: string) {
+	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
+		const tryPath = filePath.slice(0, -4) + '.tsx';
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	return filePath;
 }
 
 export const AggregateError =

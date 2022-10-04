@@ -29,6 +29,12 @@ describe('SSG images - dev', function () {
 			query: { f: 'jpg', w: '506', h: '253' },
 		},
 		{
+			title: 'Local image no transforms',
+			id: '#no-transforms',
+			url: '/@astroimage/assets/social.jpg',
+			query: {},
+		},
+		{
 			title: 'Filename with spaces',
 			id: '#spaces',
 			url: '/@astroimage/assets/blog/introducing astro.jpg',

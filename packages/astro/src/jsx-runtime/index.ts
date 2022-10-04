@@ -1,9 +1,10 @@
-import { Fragment, markHTMLString } from '../runtime/server/index.js';
+import { Fragment, markHTMLString, Renderer } from '../runtime/server/index.js';
 
 const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');
 
 export interface AstroVNode {
+	[Renderer]: string;
 	[AstroJSX]: boolean;
 	type: string | ((...args: any) => any);
 	props: Record<string, any>;
@@ -74,6 +75,7 @@ function transformSetDirectives(vnode: AstroVNode) {
 
 function createVNode(type: any, props: Record<string, any>) {
 	const vnode: AstroVNode = {
+		[Renderer]: 'astro:jsx',
 		[AstroJSX]: true,
 		type,
 		props: props ?? {},

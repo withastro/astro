@@ -1,5 +1,40 @@
 # @astrojs/image
 
+## 0.9.1
+
+### Patch Changes
+
+- [#4944](https://github.com/withastro/astro/pull/4944) [`a8f1a91e7`](https://github.com/withastro/astro/commit/a8f1a91e7e0605d847ddcdf4d7824d1b1fe9b838) Thanks [@scottaw66](https://github.com/scottaw66)! - Moves http-cache-semantics from dev dependency to dependency
+
+## 0.9.0
+
+### Minor Changes
+
+- [#4909](https://github.com/withastro/astro/pull/4909) [`989298961`](https://github.com/withastro/astro/commit/9892989619770f310eed3398dd2cbc98be469afd) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds caching support for transformed images :tada:
+
+  Local images will be cached for 1 year and invalidated when the original image file is changed.
+
+  Remote images will be cached based on the `fetch()` response's cache headers, similar to how a CDN would manage the cache.
+
+  **cacheDir**
+
+  By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
+
+  ```
+  export default defineConfig({
+  	integrations: [image({
+      // may be useful if your hosting provider allows caching between CI builds
+      cacheDir: "./.cache/image"
+    })]
+  });
+  ```
+
+  Caching can also be disabled by using `cacheDir: false`.
+
+### Patch Changes
+
+- [#4933](https://github.com/withastro/astro/pull/4933) [`64a1d712e`](https://github.com/withastro/astro/commit/64a1d712efd3cc80c0b9aed9f2ead1487f8db07b) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug in dev when `<Image />` is used for a local image with no transformations
+
 ## 0.8.1
 
 ### Patch Changes
