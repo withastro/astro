@@ -582,6 +582,14 @@ importers:
       astro: link:../../..
       preact: 10.11.0
 
+  packages/astro/e2e/fixtures/astro-envs:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vue': link:../../../../integrations/vue
+      astro: link:../../..
+
   packages/astro/e2e/fixtures/client-only:
     specifiers:
       '@astrojs/preact': workspace:*
@@ -1421,6 +1429,12 @@ importers:
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-not-response:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-object-style:
     specifiers:
       astro: workspace:*
     dependencies:

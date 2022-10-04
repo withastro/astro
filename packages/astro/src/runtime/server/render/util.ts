@@ -72,7 +72,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		const listValue = toAttributeString(serializeListValue(value));
+		const listValue = toAttributeString(serializeListValue(value), shouldEscape);
 		if (listValue === '') {
 			return '';
 		}
@@ -81,7 +81,7 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support object styles for better JSX compat
 	if (key === 'style' && !(value instanceof HTMLString) && typeof value === 'object') {
-		return markHTMLString(` ${key}="${toStyleString(value)}"`);
+		return markHTMLString(` ${key}="${toAttributeString(toStyleString(value), shouldEscape)}"`);
 	}
 
 	// support `className` for better JSX compat
