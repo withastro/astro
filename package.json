@@ -52,6 +52,9 @@
         }
       }
     },
+    "overrides": {
+      "tsconfig-resolver>type-fest": "3.0.0"
+    },
     "peerDependencyRules": {
       "ignoreMissing": [
         "rollup",

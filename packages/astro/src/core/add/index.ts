@@ -1,6 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
 import boxen from 'boxen';
-import { assign, parse as parseJSON, stringify } from 'comment-json';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
 import { existsSync, promises as fs } from 'fs';
@@ -9,10 +8,15 @@ import ora from 'ora';
 import path from 'path';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
-import type { TsConfigJson } from 'tsconfig-resolver';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
 import { loadTSConfig, resolveConfigPath } from '../config/index.js';
+import {
+	defaultTSConfig,
+	frameworkWithTSSettings,
+	presets,
+	updateTSConfigForFramework,
+} from '../config/tsconfig.js';
 import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -21,7 +25,6 @@ import { apply as applyPolyfill } from '../polyfill.js';
 import { parseNpmName } from '../util.js';
 import { generate, parse, t, visit } from './babel.js';
 import { ensureImport } from './imports.js';
-import { tsconfigsPresets } from './tsconfigs.js';
 import { wrapDefaultExport } from './wrapper.js';
 
 export interface AddOptions {
@@ -277,13 +280,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 		}
 	}
 
-	let updateTSConfigResult: UpdateResult | undefined;
-	try {
-		updateTSConfigResult = await updateTSConfig(cwd, logging, integrations, flags);
-	} catch (err) {
-		debug('add', 'Error updating tsconfig.json', err);
-		throw createPrettyError(err as Error);
-	}
+	const updateTSConfigResult = await updateTSConfig(cwd, logging, integrations, flags);
 
 	switch (updateTSConfigResult) {
 		case UpdateResult.none: {
@@ -296,6 +293,11 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`)
 			);
 			break;
+		}
+		case UpdateResult.failure: {
+			throw new Error(
+				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`
+			);
 		}
 		default:
 			info(logging, null, msg.success(`Successfully updated TypeScript settings`));
@@ -346,8 +348,8 @@ const toIdent = (name: string) => {
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
-function createPrettyError(err: Error) {
-	err.message = `Astro could not update your astro.config.js file safely.
+function createPrettyError(err: Error, configFile = 'astro.config.js') {
+	err.message = `Astro could not update your ${configFile} file safely.
 Reason: ${err.message}
 
 You will need to add these integration(s) manually.
@@ -745,49 +747,35 @@ async function updateTSConfig(
 	integrationsInfo: IntegrationInfo[],
 	flags: yargs.Arguments
 ): Promise<UpdateResult> {
-	const frameworkWithTSSettings = ['solid-js', 'preact', 'react', 'vue'] as const;
 	const integrations = integrationsInfo.map(
-		(integration) => integration.id as 'solid-js' | 'preact' | 'react' | 'vue'
+		(integration) => integration.id as frameworkWithTSSettings
 	);
 	const firstIntegrationWithTSSettings = integrations.find((integration) =>
-		frameworkWithTSSettings.includes(integration)
+		presets.has(integration)
 	);
 
 	if (!firstIntegrationWithTSSettings) {
 		return UpdateResult.none;
 	}
 
-	let inputConfig = loadTSConfig(cwd);
-	const configFileName = inputConfig?.path ? inputConfig.path.split('/').pop() : 'tsconfig.json';
+	const inputConfig = loadTSConfig(cwd, false);
+	const configFileName = inputConfig.exists ? inputConfig.path.split('/').pop() : 'tsconfig.json';
 
-	if (inputConfig?.reason === 'invalid-config') {
-		throw new Error(
-			`Unknown error parsing ${configFileName}. Your ${configFileName} is most likely invalid`
-		);
+	if (inputConfig.reason === 'invalid-config') {
+		return UpdateResult.failure;
 	}
 
-	let baseConfig = {};
-	if (!inputConfig || inputConfig.reason === 'not-found') {
-		debug('add', `Couldn't find ts/jsconfig.json, generating one`);
-		baseConfig = { extends: 'astro/tsconfigs/base' };
+	if (inputConfig.reason === 'not-found') {
+		debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
 	}
 
-	const parsedConfig = inputConfig?.path
-		? parseJSON((await fs.readFile(inputConfig.path)).toString())
-		: {};
+	const outputConfig = updateTSConfigForFramework(
+		inputConfig.exists ? inputConfig.config : defaultTSConfig,
+		firstIntegrationWithTSSettings
+	);
 
-	const input = inputConfig?.path ? stringify(parsedConfig, null, 2) : '';
-
-	const outputConfig = assign<TsConfigJson, TsConfigJson>(parsedConfig ?? {}, {
-		...baseConfig,
-		...(tsconfigsPresets[firstIntegrationWithTSSettings] as TsConfigJson), // Cast needed because `tsconfig-resolver`'s types are outdated
-	});
-
-	if (inputConfig === outputConfig) {
-		return UpdateResult.none;
-	}
-
-	const output = stringify(outputConfig, null, 2);
+	const input = inputConfig.exists ? JSON.stringify(inputConfig.config, null, 2) : '';
+	const output = JSON.stringify(outputConfig, null, 2);
 	const diff = getDiffContent(input, output);
 
 	if (!diff) {
@@ -801,22 +789,19 @@ async function updateTSConfig(
 		title: configFileName,
 	})}\n`;
 
-	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
-	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
-	// can be compatible with some frameworks (ex: Solid), though ultimately run into issues on the current version of Volar
-	const conflictingIntegrations = [
-		...Object.keys(tsconfigsPresets).filter((config) => config !== 'vue'),
-	];
-	const hasConflictingIntegrations =
-		integrations.filter((integration) => frameworkWithTSSettings.includes(integration)).length >
-			1 &&
-		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
-
 	info(
 		logging,
 		null,
 		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`
 	);
+
+	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
+	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
+	// can be compatible with some frameworks (ex: Solid), though ultimately run into issues on the current version of Volar
+	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
+	const hasConflictingIntegrations =
+		integrations.filter((integration) => presets.has(integration)).length > 1 &&
+		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
 
 	if (hasConflictingIntegrations) {
 		info(
@@ -832,11 +817,13 @@ async function updateTSConfig(
 		);
 	}
 
+	// TODO: Remove this when Volar 1.0 ships, as it fixes the issue.
+	// Info: https://github.com/johnsoncodehk/volar/discussions/592#discussioncomment-3660903
 	if (
 		integrations.includes('vue') &&
 		hasConflictingIntegrations &&
 		((outputConfig.compilerOptions?.jsx !== 'preserve' &&
-			(outputConfig as any).compilerOptions['jsxImportSource'] !== undefined) ||
+			outputConfig.compilerOptions?.jsxImportSource !== undefined) ||
 			integrations.includes('react')) // https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed
 	) {
 		info(

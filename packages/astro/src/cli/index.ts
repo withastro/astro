@@ -216,8 +216,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 								let tsconfig = loadTSConfig(root);
 								settings = createSettings({
 									config: astroConfig,
-									tsConfig: tsconfig?.config,
-									tsConfigPath: tsconfig?.path,
+									tsConfig: tsconfig.config,
+									tsConfigPath: tsconfig.path,
 								});
 								await stop();
 								await startDevServer({ isRestart: true });
