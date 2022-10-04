@@ -80,11 +80,9 @@ Several official projects are maintained outside of this repo:
 
 ## Sponsors
 
-Astro is generously supported by Netlify, Vercel, and several other amazing organizations.
+Astro is generously supported by Netlify, Storyblok, and several other amazing organizations.
 
 [❤️ Sponsor Astro! ❤️](https://github.com/withastro/.github/blob/main/FUNDING.md)
-
-### Sponsors
 
 <p align="center">
   <a target="_blank" href="https://github.com/sponsors/withastro">
