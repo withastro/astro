@@ -173,8 +173,6 @@ Astro is generously supported by Netlify, Vercel, and several other amazing orga
         <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/monogram-dark.svg#gh-dark-mode-only" alt="Monogram" />
         </a>
       </td>
-    </tr>
-    <tr>
       <td align="center">
         <a href="https://qoddi.com/#gh-light-mode-only" target="_blank">
         <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/qoddi.svg#gh-light-mode-only" alt="Qoddi App Platform" />
