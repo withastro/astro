@@ -279,10 +279,17 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		if (isPage || renderer?.name === 'astro:jsx') {
-			return html;
-		}
-		return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+		return (async function *() {
+			if (slotInstructions) {
+				yield* slotInstructions;
+			}
+
+			if (isPage || renderer?.name === 'astro:jsx') {
+				return html;
+			}
+			return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+		})();
+
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
