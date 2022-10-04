@@ -3,7 +3,9 @@ import { useState } from 'react';
 
 interface Props {
 	obj: BigNestedObject;
-	num: bigint;
+	// TODO: support BigInt in `astro:postprocess`
+	// num: bigint;
+	num: number;
 	arr: any[];
 	map: Map<string, string>;
 	set: Set<string>;
