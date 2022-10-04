@@ -348,8 +348,8 @@ const toIdent = (name: string) => {
 	return `${ident[0].toLowerCase()}${ident.slice(1)}`;
 };
 
-function createPrettyError(err: Error, configFile = 'astro.config.js') {
-	err.message = `Astro could not update your ${configFile} file safely.
+function createPrettyError(err: Error) {
+	err.message = `Astro could not update your astro.config.js file safely.
 Reason: ${err.message}
 
 You will need to add these integration(s) manually.
