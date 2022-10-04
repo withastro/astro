@@ -53,7 +53,9 @@ export default async function dev(
 				include: rendererClientEntries,
 			},
 			define: {
-				'import.meta.env.BASE_URL': settings.config.base ? `'${settings.config.base}'` : 'undefined',
+				'import.meta.env.BASE_URL': settings.config.base
+					? `'${settings.config.base}'`
+					: 'undefined',
 			},
 		},
 		{ settings, logging: options.logging, mode: 'dev' }

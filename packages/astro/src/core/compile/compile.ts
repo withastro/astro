@@ -1,5 +1,5 @@
-import path from 'path';
 import type { TransformResult } from '@astrojs/compiler';
+import path from 'path';
 import type { AstroConfig } from '../../@types/astro';
 import type { TransformStyle } from './types';
 

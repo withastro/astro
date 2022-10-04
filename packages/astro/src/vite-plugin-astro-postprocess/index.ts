@@ -1,4 +1,3 @@
-import npath from 'path';
 import { parse as babelParser } from '@babel/parser';
 import type {
 	ArrowFunctionExpressionKind,
@@ -6,6 +5,7 @@ import type {
 	StringLiteralKind,
 } from 'ast-types/gen/kinds';
 import type { NodePath } from 'ast-types/lib/node-path';
+import npath from 'path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
