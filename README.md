@@ -86,11 +86,21 @@ Astro is generously supported by Netlify, Vercel, and several other amazing orga
 
 ### Official Hosting Partner
 
-<a href="https://storyblok.com/#gh-light-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/storyblok.svg#gh-light-mode-only" alt="Storyblok" /></a><a href="https://storyblok.com/#gh-dark-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/storyblok-dark.svg#gh-dark-mode-only" alt="Storyblok" />
+<a href="https://netlify.com/#gh-light-mode-only" target="_blank">
+  <img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify.svg#gh-light-mode-only" alt="Netlify" />
+</a>
+<a href="https://netlify.com/#gh-dark-mode-only" target="_blank">
+  <img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify-dark.svg#gh-dark-mode-only" alt="Netlify" />
+</a>
 
 ### Official CMS Partner
 
-<a href="https://storyblok.com//#gh-light-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify.svg#gh-light-mode-only" alt="Netlify" /></a><a href="https://www.netlify.com/#gh-dark-mode-only" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify-dark.svg#gh-dark-mode-only" alt="Netlify" />
+<a href="https://storyblok.com/#gh-light-mode-only" target="_blank">
+  <img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/storyblok.svg#gh-light-mode-only" alt="Storyblok" />
+</a>
+<a href="https://www.storyblok.com/#gh-dark-mode-only" target="_blank">
+  <img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/storyblok-dark.svg#gh-dark-mode-only" alt="Storyblok" />
+</a>
 
 ### Platinum Sponsors
 
@@ -157,18 +167,20 @@ Astro is generously supported by Netlify, Vercel, and several other amazing orga
     <tr>
       <td align="center">
         <a href="https://monogram.io/#gh-light-mode-only" target="_blank">
-        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/monogram.png#gh-light-mode-only" alt="Monogram" />
+        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/monogram.svg#gh-light-mode-only" alt="Monogram" />
         </a>
         <a href="https://monogram.io/#gh-dark-mode-only" target="_blank">
-        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/monogram-dark.png#gh-light-mode-only" alt="Monogram" />
+        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/monogram-dark.svg#gh-dark-mode-only" alt="Monogram" />
         </a>
       </td>
+    </tr>
+    <tr>
       <td align="center">
         <a href="https://qoddi.com/#gh-light-mode-only" target="_blank">
-        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/qoddi.png#gh-light-mode-only" alt="Qoddi App Platform" />
+        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/qoddi.svg#gh-light-mode-only" alt="Qoddi App Platform" />
         </a>
         <a href="https://qoddi.com/#gh-dark-mode-only" target="_blank">
-        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/qoddi-dark.png#gh-light-mode-only" alt="Qoddi App Platform" />
+        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/qoddi-dark.svg#gh-dark-mode-only" alt="Qoddi App Platform" />
         </a>
       </td>
     </tr>
