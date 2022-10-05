@@ -1,19 +1,17 @@
 /* eslint-disable no-console */
-import type { ComponentIterable } from './render/component';
 import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
-	HTMLBytes,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
-	RenderInstruction,
 	renderToString,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
 import { HTMLParts } from './render/common.js';
+import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 

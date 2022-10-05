@@ -1,6 +1,6 @@
 import type { SSRResult } from '../../../@types/astro';
-import type { AstroComponentFactory } from './index';
 import type { ComponentIterable } from './component';
+import type { AstroComponentFactory } from './index';
 
 import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
@@ -32,7 +32,7 @@ async function iterableToHTMLBytes(
 			if (i === 0) {
 				if (!/<!doctype html/i.test(String(chunk))) {
 					parts.append('<!DOCTYPE html>\n', result);
-					if(onDocTypeInjection) {
+					if (onDocTypeInjection) {
 						await onDocTypeInjection(parts);
 					}
 				}

@@ -280,14 +280,14 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		return (async function *() {
+		return (async function* () {
 			if (slotInstructions) {
 				yield* slotInstructions;
 			}
 
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
-			} else {	
+			} else {
 				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
 			}
 		})();
