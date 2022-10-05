@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.11.4
+
+### Patch Changes
+
+- [#4953](https://github.com/withastro/astro/pull/4953) [`a59731995`](https://github.com/withastro/astro/commit/a59731995b93ae69c21dc3adc5c8b482b466d12e) Thanks [@bluwy](https://github.com/bluwy)! - Log markdown hints with console.info
+
 ## 0.11.3
 
 ### Patch Changes

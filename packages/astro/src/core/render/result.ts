@@ -11,6 +11,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
+import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
@@ -94,8 +95,6 @@ class Slots {
 		if (!this.has(name)) return undefined;
 		if (!cacheable) {
 			const component = await this.#slots[name]();
-			const expression = getFunctionExpression(component);
-
 			if (!Array.isArray(args)) {
 				warn(
 					this.#loggingOpts,
@@ -103,9 +102,17 @@ class Slots {
 					`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 				);
 			} else {
+				// Astro
+				const expression = getFunctionExpression(component);
 				if (expression) {
 					const slot = expression(...args);
 					return await renderSlot(this.#result, slot).then((res) =>
+						res != null ? String(res) : res
+					);
+				}
+				// JSX
+				if (typeof component === 'function') {
+					return await renderJSX(this.#result, component(...args)).then((res) =>
 						res != null ? String(res) : res
 					);
 				}

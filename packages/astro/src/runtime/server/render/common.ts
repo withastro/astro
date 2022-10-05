@@ -45,35 +45,22 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 }
 
 export class HTMLParts {
-	public parts: Array<HTMLBytes | string>;
+	public parts: string;
 	constructor() {
-		this.parts = [];
+		this.parts = '';
 	}
 	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
 		if (ArrayBuffer.isView(part)) {
-			this.parts.push(part);
+			this.parts += decoder.decode(part);
 		} else {
-			this.parts.push(stringifyChunk(result, part));
+			this.parts += stringifyChunk(result, part);
 		}
 	}
 	toString() {
-		let html = '';
-		for (const part of this.parts) {
-			if (ArrayBuffer.isView(part)) {
-				html += decoder.decode(part);
-			} else {
-				html += part;
-			}
-		}
-		return html;
+		return this.parts;
 	}
 	toArrayBuffer() {
-		this.parts.forEach((part, i) => {
-			if (typeof part === 'string') {
-				this.parts[i] = encoder.encode(String(part));
-			}
-		});
-		return concatUint8Arrays(this.parts as Uint8Array[]);
+		return encoder.encode(this.parts);
 	}
 }
 
@@ -85,16 +72,4 @@ export function chunkToByteArray(
 		return chunk as Uint8Array;
 	}
 	return encoder.encode(stringifyChunk(result, chunk));
-}
-
-export function concatUint8Arrays(arrays: Array<Uint8Array>) {
-	let len = 0;
-	arrays.forEach((arr) => (len += arr.length));
-	let merged = new Uint8Array(len);
-	let offset = 0;
-	arrays.forEach((arr) => {
-		merged.set(arr, offset);
-		offset += arr.length;
-	});
-	return merged;
 }

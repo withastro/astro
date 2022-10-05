@@ -30,7 +30,8 @@ set.add('test2');
 	</head>
 	<body>
 		<main>
-			<Component client:load obj={obj} num={11n} arr={[0, "foo"]} map={map} set={set} />
+			<!-- TODO: support BigInt in `astro:postprocess` -->
+			<Component client:load obj={obj} num={11} arr={[0, "foo"]} map={map} set={set} />
 		</main>
 	</body>
 </html>

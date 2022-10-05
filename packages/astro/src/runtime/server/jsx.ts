@@ -29,6 +29,8 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
+		case typeof vnode === 'function':
+			return vnode;
 		case !vnode && vnode !== 0:
 			return '';
 		case Array.isArray(vnode):
@@ -38,6 +40,10 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 	}
 	if (isVNode(vnode)) {
 		switch (true) {
+			case !vnode.type: {
+				throw new Error(`Unable to render ${result._metadata.pathname} because it contains an undefined Component!
+Did you forget to import the component or is it possible there is a typo?`);
+			}
 			case (vnode.type as any) === Symbol.for('astro:fragment'):
 				return renderJSX(result, vnode.props.children);
 			case (vnode.type as any).isAstroComponentFactory: {
