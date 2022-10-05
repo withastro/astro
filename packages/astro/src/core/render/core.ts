@@ -68,7 +68,7 @@ export async function getParamsAndProps(
 }
 
 export interface RenderOptions {
-	adapterName: string | undefined;
+	adapterName?: string;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	styles?: Set<SSRElement>;

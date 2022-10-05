@@ -1,0 +1,16 @@
+/**
+ * @param {import('astro').APIContext} api 
+ */
+export function get(ctx) {
+	return {
+		body: JSON.stringify({
+			cookiesExist: !!ctx.cookies,
+			requestExist: !!ctx.request,
+			params: ctx.params,
+			site: ctx.site?.toString(),
+			generator: ctx.generator,
+			url: ctx.url.toString(),
+			clientAddress: ctx.clientAddress,
+		})
+	};
+}

@@ -35,6 +35,20 @@ describe('API routes in SSR', () => {
 		expect(body.length).to.equal(3);
 	});
 
+	it('Has valid api context', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/context/any');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const data = await response.json();
+		expect(data.cookiesExist).to.equal(true);
+		expect(data.requestExist).to.equal(true);
+		expect(data.params).to.deep.equal({ param: 'any' });
+		expect(data.generator).to.match(/^Astro v/);
+		expect(data.url).to.equal('http://example.com/context/any');
+		expect(data.clientAddress).to.equal('0.0.0.0');
+	});
+
 	describe('API Routes - Dev', () => {
 		let devServer;
 		before(async () => {
@@ -85,5 +99,18 @@ describe('API routes in SSR', () => {
 			const setCookie = response.headers.get('set-cookie');
 			expect(setCookie).to.equal('foo=foo; HttpOnly, bar=bar; HttpOnly');
 		});
+	});
+});
+
+describe('API context in SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			root: './fixtures/ssr-api-route/',
+			output: 'server',
+		});
+		await fixture.build();
 	});
 });

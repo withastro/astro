@@ -8,5 +8,7 @@ export async function call(ssrOpts: SSROptions) {
 	return await callEndpoint(mod as unknown as EndpointHandler, {
 		...ssrOpts,
 		ssr: ssrOpts.settings.config.output === 'server',
+		site: ssrOpts.settings.config.site,
+		adapterName: ssrOpts.settings.config.adapter?.name,
 	});
 }

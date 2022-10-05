@@ -2128,8 +2128,10 @@ importers:
 
   packages/astro/test/fixtures/ssr-api-route:
     specifiers:
+      '@astrojs/node': ^1.1.0
       astro: workspace:*
     dependencies:
+      '@astrojs/node': link:../../../../integrations/node
       astro: link:../../..
 
   packages/astro/test/fixtures/ssr-api-route-custom-404:

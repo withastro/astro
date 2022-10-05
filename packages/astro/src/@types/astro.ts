@@ -93,7 +93,7 @@ export interface BuildConfig {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal extends AstroGlobalPartial {
+export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
 	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
@@ -106,21 +106,13 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * ```
 	 */
 	canonicalURL: URL;
-	/** The address (usually IP address) of the user. Used with SSR only.
-	 *
-	 */
-	clientAddress: string;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
 	 */
-	/**
-	 * Utility for getting and setting cookies values.
-	 */
-	cookies: AstroCookies;
-	url: URL;
+	url: AstroSharedContext['url'];
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
@@ -139,7 +131,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
 	 */
-	params: Params;
+	params: AstroSharedContext['params'];
 	/** List of props passed to this component
 	 *
 	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
@@ -1095,10 +1087,46 @@ export interface AstroAdapter {
 
 type Body = string;
 
-export interface APIContext {
+// Shared types between `Astro` global and API context object
+interface AstroSharedContext {
+	/**
+	 * The address (usually IP address) of the user. Used with SSR only.
+	 */
+	clientAddress: string;
+	/**
+	 * Utility for getting and setting cookies values.
+	 */
 	cookies: AstroCookies;
-	params: Params;
+	/**
+	 * Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+	 */
 	request: Request;
+	/**
+	 * A full URL object of the request URL.
+	 */
+	url: URL;
+	/**
+	 * Parameters passed to a dynamic page generated.
+	 */
+	params: Params;
+}
+
+export interface APIContext extends AstroSharedContext {
+	site: URL | undefined;
+	generator: string;
+	/**
+	 * A full URL object of the request URL.
+	 * Equivalent to: `new URL(request.url)`
+	 */
+	url: AstroSharedContext['url'];
+}
+
+interface AstroSharedContext {
+	cookies: AstroCookies;
+	request: Request;
+	clientAddress: string;
+	url: URL;
+	params: Params;
 }
 
 export interface EndpointOutput {

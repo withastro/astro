@@ -4,6 +4,9 @@ import type { RenderOptions } from '../render/core';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { ASTRO_VERSION } from '../util.js';
+
+const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
 export type EndpointOptions = Pick<
 	RenderOptions,
@@ -17,6 +20,7 @@ export type EndpointOptions = Pick<
 	| 'site'
 	| 'ssr'
 	| 'status'
+	| 'adapterName'
 >;
 
 type EndpointCallResult =
@@ -30,11 +34,39 @@ type EndpointCallResult =
 			response: Response;
 	  };
 
-function createAPIContext(request: Request, params: Params): APIContext {
+function createAPIContext({
+	request,
+	params,
+	site,
+	adapterName,
+}: {
+	request: Request;
+	params: Params;
+	site?: string;
+	adapterName?: string;
+}): APIContext {
 	return {
 		cookies: new AstroCookies(request),
 		request,
 		params,
+		site: site ? new URL(site) : undefined,
+		generator: `Astro v${ASTRO_VERSION}`,
+		url: new URL(request.url),
+		get clientAddress() {
+			if (!(clientAddressSymbol in request)) {
+				if (adapterName) {
+					throw new Error(
+						`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`
+					);
+				} else {
+					throw new Error(
+						`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
+					);
+				}
+			}
+
+			return Reflect.get(request, clientAddressSymbol);
+		},
 	};
 }
 
@@ -51,7 +83,12 @@ export async function call(
 	}
 	const [params] = paramsAndPropsResp;
 
-	const context = createAPIContext(opts.request, params);
+	const context = createAPIContext({
+		request: opts.request,
+		params,
+		site: opts.site,
+		adapterName: opts.adapterName,
+	});
 	const response = await renderEndpoint(mod, context, opts.ssr);
 
 	if (response instanceof Response) {
