@@ -1,5 +1,6 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { AstroComponentFactory } from './index';
+import type { ComponentIterable } from './component';
 
 import { isHTMLString } from '../escape.js';
 import { createResponse } from '../response.js';
@@ -19,6 +20,29 @@ function nonAstroPageNeedsHeadInjection(pageComponent: NonAstroPageComponent): b
 	return needsHeadRenderingSymbol in pageComponent && !!pageComponent[needsHeadRenderingSymbol];
 }
 
+async function iterableToHTMLBytes(
+	result: SSRResult,
+	iterable: ComponentIterable,
+	onDocTypeInjection?: (parts: HTMLParts) => Promise<void>
+): Promise<Uint8Array> {
+	const parts = new HTMLParts();
+	let i = 0;
+	for await (const chunk of iterable) {
+		if (isHTMLString(chunk)) {
+			if (i === 0) {
+				if (!/<!doctype html/i.test(String(chunk))) {
+					parts.append('<!DOCTYPE html>\n', result);
+					if(onDocTypeInjection) {
+						await onDocTypeInjection(parts);
+					}
+				}
+			}
+		}
+		parts.append(chunk, result);
+	}
+	return parts.toArrayBuffer();
+}
+
 export async function renderPage(
 	result: SSRResult,
 	componentFactory: AstroComponentFactory | NonAstroPageComponent,
@@ -35,21 +59,16 @@ export async function renderPage(
 			pageProps,
 			null
 		);
-		let html = output.toString();
-		if (!/<!doctype html/i.test(html)) {
-			let rest = html;
-			html = `<!DOCTYPE html>`;
-			// This symbol currently exists for md components, but is something that could
-			// be added for any page-level component that's not an Astro component.
-			// to signal that head rendering is needed.
+
+		// Accumulate the HTML string and append the head if necessary.
+		const bytes = await iterableToHTMLBytes(result, output, async (parts) => {
 			if (nonAstroPageNeedsHeadInjection(componentFactory)) {
 				for await (let chunk of maybeRenderHead(result)) {
-					html += chunk;
+					parts.append(chunk, result);
 				}
 			}
-			html += rest;
-		}
-		const bytes = encoder.encode(html);
+		});
+
 		return new Response(bytes, {
 			headers: new Headers([
 				['Content-Type', 'text/html; charset=utf-8'],
@@ -93,20 +112,7 @@ export async function renderPage(
 				},
 			});
 		} else {
-			let parts = new HTMLParts();
-			let i = 0;
-			for await (const chunk of iterable) {
-				if (isHTMLString(chunk)) {
-					if (i === 0) {
-						if (!/<!doctype html/i.test(String(chunk))) {
-							parts.append('<!DOCTYPE html>\n', result);
-						}
-					}
-				}
-				parts.append(chunk, result);
-				i++;
-			}
-			body = parts.toArrayBuffer();
+			body = await iterableToHTMLBytes(result, iterable);
 			headers.set('Content-Length', body.byteLength.toString());
 		}
 
