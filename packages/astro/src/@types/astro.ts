@@ -1116,7 +1116,7 @@ interface AstroSharedContext {
 	/**
 	 * Redirect to another page
 	 */
-	redirect(path: string): Response;
+	redirect(path: string, status?: number): Response;
 }
 
 export interface APIContext extends AstroSharedContext {

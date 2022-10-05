@@ -52,9 +52,9 @@ function createAPIContext({
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
 		props: {},
-		redirect(path) {
+		redirect(path, status) {
 			return new Response(null, {
-				status: 302,
+				status: status || 302,
 				headers: {
 					Location: path,
 				},
