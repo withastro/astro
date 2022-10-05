@@ -51,6 +51,15 @@ function createAPIContext({
 		params,
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
+		props: {},
+		redirect(path) {
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: path,
+				},
+			});
+		},
 		url: new URL(request.url),
 		get clientAddress() {
 			if (!(clientAddressSymbol in request)) {

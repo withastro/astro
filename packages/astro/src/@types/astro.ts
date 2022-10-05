@@ -141,7 +141,7 @@ export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: Record<string, number | string | any>;
+	props: AstroSharedContext['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -175,7 +175,7 @@ export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
 	 */
-	redirect(path: string): Response;
+	redirect: AstroSharedContext['redirect'];
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
@@ -1109,6 +1109,14 @@ interface AstroSharedContext {
 	 * Parameters passed to a dynamic page generated.
 	 */
 	params: Params;
+	/**
+	 * List of props passed.
+	 */
+	props: Record<string, any>;
+	/**
+	 * Redirect to another page
+	 */
+	redirect(path: string): Response;
 }
 
 export interface APIContext extends AstroSharedContext {
