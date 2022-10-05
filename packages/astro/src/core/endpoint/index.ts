@@ -67,11 +67,11 @@ function createAPIContext({
 			if (!(clientAddressSymbol in request)) {
 				if (adapterName) {
 					throw new Error(
-						`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`
+						`clientAddress is not available in the ${adapterName} adapter. File an issue with the adapter to add support.`
 					);
 				} else {
 					throw new Error(
-						`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
+						`clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
 					);
 				}
 			}
