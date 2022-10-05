@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import type { ComponentIterable } from './render/component';
 import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
@@ -129,7 +130,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | HTMLBytes | RenderInstruction>;
+			let output: ComponentIterable;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,

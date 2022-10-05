@@ -287,8 +287,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 			if (isPage || renderer?.name === 'astro:jsx') {
 				yield html;
+			} else {	
+				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
 			}
-			yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
 		})();
 	}
 

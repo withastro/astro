@@ -99,7 +99,7 @@ export async function renderPage(
 									}
 								}
 
-								let bytes = chunkToByteArray(result, chunk);
+								const bytes = chunkToByteArray(result, chunk);
 								controller.enqueue(bytes);
 								i++;
 							}
