@@ -43,6 +43,8 @@ describe('API routes in SSR', () => {
 		const data = await response.json();
 		expect(data.cookiesExist).to.equal(true);
 		expect(data.requestExist).to.equal(true);
+		expect(data.redirectExist).to.equal(true);
+		expect(data.propsExist).to.equal(true);
 		expect(data.params).to.deep.equal({ param: 'any' });
 		expect(data.generator).to.match(/^Astro v/);
 		expect(data.url).to.equal('http://example.com/context/any');
@@ -99,18 +101,5 @@ describe('API routes in SSR', () => {
 			const setCookie = response.headers.get('set-cookie');
 			expect(setCookie).to.equal('foo=foo; HttpOnly, bar=bar; HttpOnly');
 		});
-	});
-});
-
-describe('API context in SSR', () => {
-	/** @type {import('./test-utils').Fixture} */
-	let fixture;
-
-	before(async () => {
-		fixture = await loadFixture({
-			root: './fixtures/ssr-api-route/',
-			output: 'server',
-		});
-		await fixture.build();
 	});
 });

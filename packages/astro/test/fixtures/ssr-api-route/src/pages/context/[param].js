@@ -6,6 +6,8 @@ export function get(ctx) {
 		body: JSON.stringify({
 			cookiesExist: !!ctx.cookies,
 			requestExist: !!ctx.request,
+			redirectExist: !!ctx.redirect,
+			propsExist: !!ctx.props,
 			params: ctx.params,
 			site: ctx.site?.toString(),
 			generator: ctx.generator,
