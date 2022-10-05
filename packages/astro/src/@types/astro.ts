@@ -1127,6 +1127,60 @@ export interface APIContext extends AstroSharedContext {
 	 * Equivalent to: `new URL(request.url)`
 	 */
 	url: AstroSharedContext['url'];
+	/**
+	 * Parameters passed to a dynamic page generated using `getStaticPaths`.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * export function getStaticPaths() {
+	 *   return [
+	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
+	 *     { params: { id: '1' }, props: { name: 'Chris' } },
+	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
+	 *   ];
+	 * }
+	 *
+	 * export async function getStaticProps({ params }) {
+	 *  return {
+	 * 	  body: `Hello user ${params.id}!`,
+	 *  }
+	 * }
+	 * ```
+	 */
+	params: AstroSharedContext['params'];
+	/**
+	 * List of props passed from `getStaticPaths`.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * export function getStaticPaths() {
+	 *   return [
+	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
+	 *     { params: { id: '1' }, props: { name: 'Chris' } },
+	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
+	 *   ];
+	 * }
+	 *
+	 * export function get({ props }) {
+	 *   return {
+	 *     body: `Hello ${props.name}!`,
+	 *   }
+	 * }
+	 * ```
+	 */
+	props: AstroSharedContext['props'];
+	/**
+	 * Redirect to another page.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * // src/pages/secret.ts
+	 * export function get({ redirect }) {
+	 *   return redirect('/login');
+	 * }
+	 * ```
+	 */
+	redirect: AstroSharedContext['redirect'];
 }
 
 interface AstroSharedContext {
