@@ -38,11 +38,13 @@ function createAPIContext({
 	request,
 	params,
 	site,
+	props,
 	adapterName,
 }: {
 	request: Request;
 	params: Params;
 	site?: string;
+	props: Record<string, any>;
 	adapterName?: string;
 }): APIContext {
 	return {
@@ -51,7 +53,7 @@ function createAPIContext({
 		params,
 		site: site ? new URL(site) : undefined,
 		generator: `Astro v${ASTRO_VERSION}`,
-		props: {},
+		props,
 		redirect(path, status) {
 			return new Response(null, {
 				status: status || 302,
@@ -90,11 +92,12 @@ export async function call(
 			`[getStaticPath] route pattern matched, but no matching static path found. (${opts.pathname})`
 		);
 	}
-	const [params] = paramsAndPropsResp;
+	const [params, props] = paramsAndPropsResp;
 
 	const context = createAPIContext({
 		request: opts.request,
 		params,
+		props,
 		site: opts.site,
 		adapterName: opts.adapterName,
 	});
