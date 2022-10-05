@@ -586,9 +586,11 @@ importers:
     specifiers:
       '@astrojs/vue': workspace:*
       astro: workspace:*
+      vue: ^3.2.40
     dependencies:
       '@astrojs/vue': link:../../../../integrations/vue
       astro: link:../../..
+      vue: 3.2.40
 
   packages/astro/e2e/fixtures/client-only:
     specifiers:
