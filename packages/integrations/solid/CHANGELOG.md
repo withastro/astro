@@ -1,5 +1,12 @@
 # @astrojs/solid-js
 
+## 1.1.1
+
+### Patch Changes
+
+- [#4888](https://github.com/withastro/astro/pull/4888) [`2dc582ac5`](https://github.com/withastro/astro/commit/2dc582ac5e2d6e1d434ccfe21616182e453feec3) Thanks [@AirBorne04](https://github.com/AirBorne04)! - adjusting the build settings for cloudflare (reverting back to platform browser over neutral)
+  adjusting the ssr settings for solidjs (to build for node)
+
 ## 1.1.0
 
 ### Minor Changes
