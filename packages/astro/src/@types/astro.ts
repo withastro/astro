@@ -149,7 +149,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: T;
+	props: Props;
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
