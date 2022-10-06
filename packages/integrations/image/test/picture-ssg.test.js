@@ -31,6 +31,13 @@ describe('SSG pictures - dev', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'jpg', w: '768', h: '414' },
+			alt: 'spaces'
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -117,6 +124,13 @@ describe('SSG pictures with subpath - dev', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'jpg', w: '768', h: '414' },
+			alt: 'spaces'
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -200,6 +214,13 @@ describe('SSG pictures - build', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/assets\/introducing astro.\w{8}_\w{4,10}.jpg/,
+			size: { width: 768, height: 414, type: 'jpg' },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline images',
 			id: '#inline',
 			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
@@ -244,7 +265,13 @@ describe('SSG pictures - build', function () {
 				const srcset = source.attr('srcset');
 
 				for (const src of srcset.split(',')) {
-					const [pathname, width] = src.split(' ');
+					const segments = src.split(' ');
+
+					// filenames may have a space in them, pop the last item for the
+					// width and join the other segments back for the filepath
+					const width = segments.pop();
+					const pathname = segments.join(' ');
+					
 					const widthNum = parseInt(width.substring(0, width.length - 1));
 
 					verifyImage(pathname, {

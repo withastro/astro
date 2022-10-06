@@ -18,7 +18,7 @@ export function extname(src: string) {
 		return '';
 	}
 
-	return removeQueryString(src.substring(src.length - (base.length - index)));
+	return base.substring(index);
 }
 
 function removeExtname(src: string) {
@@ -32,7 +32,7 @@ function removeExtname(src: string) {
 }
 
 function basename(src: string) {
-	return src.replace(/^.*[\\\/]/, '');
+	return removeQueryString(src.replace(/^.*[\\\/]/, ''));
 }
 
 export function propsToFilename(transform: TransformOptions) {
