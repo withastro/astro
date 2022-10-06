@@ -8,9 +8,6 @@ import type { ErrorPayload, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
-
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;

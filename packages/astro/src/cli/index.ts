@@ -22,7 +22,8 @@ import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
-import { ASTRO_VERSION, createSafeError } from '../core/util.js';
+import { ASTRO_VERSION } from '../core/constants.js';
+import { createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';

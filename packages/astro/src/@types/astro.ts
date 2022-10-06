@@ -179,7 +179,7 @@ export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
 	self: AstroComponentFactory;
 	/** Utility functions for modifying an Astro component’s slotted children
