@@ -13,7 +13,7 @@ test.afterAll(async () => {
 	await devServer.stop();
 });
 
-test.describe('Multiple frameworks', () => {
+test.skip('Multiple frameworks', () => {
 	test.skip('React counter', async ({ page }) => {
 		await page.goto('/');
 
