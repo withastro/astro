@@ -24,12 +24,6 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include(pkgVersion);
 	});
 
-	it('astro build', async () => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const proc = await cli('build', '--root', fileURLToPath(projectRootURL));
-		expect(proc.stdout).to.include('Complete');
-	});
-
 	it('astro check no errors', async () => {
 		let proc = undefined;
 		const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
