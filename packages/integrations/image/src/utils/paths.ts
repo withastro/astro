@@ -18,7 +18,7 @@ export function extname(src: string) {
 		return '';
 	}
 
-	return src.substring(src.length - (base.length - index));
+	return removeQueryString(base.substring(base.length - index))
 }
 
 function removeExtname(src: string) {
