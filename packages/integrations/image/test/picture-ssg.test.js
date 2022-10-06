@@ -35,7 +35,7 @@ describe('SSG pictures - dev', function () {
 			id: '#spaces',
 			url: '/@astroimage/assets/blog/introducing astro.jpg',
 			query: { f: 'jpg', w: '768', h: '414' },
-			alt: 'spaces'
+			alt: 'spaces',
 		},
 		{
 			title: 'Inline imports',
@@ -128,7 +128,7 @@ describe('SSG pictures with subpath - dev', function () {
 			id: '#spaces',
 			url: '/@astroimage/assets/blog/introducing astro.jpg',
 			query: { f: 'jpg', w: '768', h: '414' },
-			alt: 'spaces'
+			alt: 'spaces',
 		},
 		{
 			title: 'Inline imports',
@@ -271,7 +271,7 @@ describe('SSG pictures - build', function () {
 					// width and join the other segments back for the filepath
 					const width = segments.pop();
 					const pathname = segments.join(' ');
-					
+
 					const widthNum = parseInt(width.substring(0, width.length - 1));
 
 					verifyImage(pathname, {
