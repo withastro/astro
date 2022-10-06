@@ -93,7 +93,8 @@ export interface BuildConfig {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>> extends AstroGlobalPartial {
+export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
+	extends AstroGlobalPartial {
 	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
