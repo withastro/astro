@@ -44,7 +44,7 @@ test.describe('Multiple frameworks', () => {
 		await expect(count, 'count incremented by 1').toHaveText('1');
 	});
 
-	test('Solid counter', async ({ page }) => {
+	test.skip('Solid counter', async ({ page }) => {
 		await page.goto('/');
 
 		const counter = page.locator('#solid-counter');
