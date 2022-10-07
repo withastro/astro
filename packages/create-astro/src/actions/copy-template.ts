@@ -9,7 +9,7 @@ import { downloadTemplate } from 'giget';
 import { isEmpty } from "./shared.js";
 
 // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
-const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md'];
+const FILES_TO_REMOVE = ['sandbox.config.json', 'CHANGELOG.md'];
 const FILES_TO_UPDATE = {
 	'package.json': (file: string, overrides: { name: string }) => fs.promises.readFile(file, 'utf-8').then(value => (
 		fs.promises.writeFile(file, JSON.stringify(Object.assign(JSON.parse(value), Object.assign(overrides, { private: undefined })), null, '\t'), 'utf-8')
@@ -17,19 +17,12 @@ const FILES_TO_UPDATE = {
 };
 
 export default async function copyTemplate(template: string, { name, flags, cwd, pkgManager }: { name: string, flags: Flags, cwd: string, pkgManager: string }) {
-	if (pkgManager !== 'pnpm') FILES_TO_REMOVE.push('.npmrc');
 	const ref = flags.commit ? `#${flags.commit}` : '';
 	const isThirdParty = template.includes('/');
 
 	const templateTarget = isThirdParty
 		? template
 		: `github:withastro/astro/examples/${template}#latest`;
-
-	// logger.debug('Initialized degit with following config:', `${templateTarget}${hash}`, {
-	// 	cache: false,
-	// 	force: true,
-	// 	verbose: defaultLogLevel === 'debug' ? true : false,
-	// });
 
 	// Copy
 	if (!flags.dryRun) {

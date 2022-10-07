@@ -17,7 +17,6 @@ export default async function setupTypeScript(value: string, { cwd }: { cwd: str
 		}
 
 		const templateTSConfig = parse(data.toString());
-
 		if (templateTSConfig && typeof templateTSConfig === 'object') {
 			const result = assign(templateTSConfig, {
 				extends: `astro/tsconfigs/${value}`,

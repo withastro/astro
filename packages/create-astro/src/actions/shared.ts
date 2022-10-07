@@ -1,4 +1,3 @@
-import { execa } from 'execa';
 import fs from 'node:fs';
 
 // Some existing files and directories can be safely ignored when checking if a directory is a valid project directory.
@@ -6,6 +5,7 @@ import fs from 'node:fs';
 const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
 	'.DS_Store',
 	'.git',
+	'.gitkeep',
 	'.gitattributes',
 	'.gitignore',
 	'.gitlab-ci.yml',

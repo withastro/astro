@@ -1,61 +1,102 @@
-# create-astro
+# `create-astro`
 
-## Scaffolding for Astro projects
+`create-astro` is the fastest way to start a new Astro project from scratch. It will walk you through every step of setting up your new Astro project. It allows you to choose from a few different starter templates or provide your own using the `--template` argument.
 
-**With NPM:**
+## Interactive Mode
+
+Run the following command in your terminal to start our handy install wizard in interactive mode.
 
 ```bash
+# create a new project with npm
 npm create astro@latest
 ```
 
-**With Yarn:**
+```bash
+# create a new project with pnpm
+pnpm create astro@latest
+```
 
 ```bash
+# create a new project with yarn
 yarn create astro
 ```
 
-`create-astro` automatically runs in _interactive_ mode, but you can also specify your project name and template with command line arguments.
+You can run `create-astro` anywhere on your machine, so there’s no need to create a new empty directory for your project before you begin. If you don’t have an empty directory yet for your new project, the wizard will help create one for you automatically.
+
+## Advanced Usage
+
+`create-astro` supports some handy CLI arguments for advanced users.
+
+### Directory
+
+The first argument will be treated as your target directory.
 
 ```bash
-# npm 6.x
-npm create astro@latest my-astro-project --template starter
-
-# npm 7+, extra double-dash is needed:
-npm create astro@latest my-astro-project -- --template starter
-
-# yarn
-yarn create astro my-astro-project --template starter
+# create a new project in a new `my-project/` directory
+npm create astro@latest my-project
 ```
-[Check out the full list][examples] of example starter templates, available on GitHub.
 
-You can also use any GitHub repo as a template:
+### Template
+
+The `--template` flag can be passed to specify any [official starter template](https://github.com/withastro/astro/tree/main/examples) available on GitHub.
 
 ```bash
-npm create astro@latest my-astro-project -- --template cassidoo/shopify-react-astro
+# create a new project from the `minimal` starter template
+npm create astro@latest --template minimal
 ```
 
-### CLI Flags
-
-May be provided in place of prompts
-
-| Name         | Description                                         |
-|:-------------|:----------------------------------------------------|
-| `--template` | Specify the template name ([list][examples])        |
-| `--commit`   | Specify a specific Git commit or branch to use from this repo (by default, `main` branch of this repo will be used) |
-
-### Debugging
-
-To debug `create-astro`, you can use the `--verbose` flag which will log the output of degit and some more information about the command, this can be useful when you encounter an error and want to report it.
+Any GitHub repo can be used as a template, following the `user/repo` format.
 
 ```bash
-# npm 6.x
-npm create astro@latest my-astro-project --verbose
-
-# npm 7+, extra double-dash is needed:
-npm create astro@latest my-astro-project -- --verbose
-
-# yarn
-yarn create astro my-astro-project --verbose
+npm create astro@latest --template mayank99/astro-minimal-starter
 ```
 
-[examples]: https://github.com/withastro/astro/tree/main/examples
+### Yes
+
+The `--yes` (or `-y`) flag can be used to bypass any confirmation prompts and proceed with the default answer.
+
+```bash
+npm create astro@latest -y
+```
+
+Combined with the above directory and template arguments, `create-astro` becomes fully non-interactive for a super quick start.
+
+```bash
+npm create astro@latest my-project --template minimal -y
+```
+
+### Dry Run
+
+Just looking to get the hang of `create-astro`? You can pass the `--dry-run` flag to ensure no files will be created.
+
+```bash
+npm create astro@latest --dry-run
+```
+
+### Install
+
+Dependency installation can be controlled with the `--install` or `--no-install` flags to bypass the installation prompt.
+
+```bash
+npm create astro@latest --install
+```
+
+### Git
+
+Git initialization can be controlled with the `--git` or `--no-git` flags to bypass the git prompt.
+
+```bash
+npm create astro@latest --git
+```
+
+### TypeScript
+
+TypeScript customization can be controlled with the `--typescript` flag. Valid options are `strict`, `strictest`, and `relaxed`.
+
+```bash
+npm create astro@latest --typescript strictest
+```
+
+## Acknowledgements
+
+- Huge thanks to [`giget`](https://github.com/unjs/giget) for handling template downloads!

@@ -16,9 +16,9 @@ import setupTypeScript from './actions/setup-typescript.js';
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
-// fixes the issue so that create-astro now works on all npm version.
+// fixes the issue so that create-astro now works on all npm versions.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const flags = yargs(cleanArgv, { boolean: ['yes'], alias: { 'y': 'yes' }});
+const flags = yargs(cleanArgv, { boolean: ['yes', 'install', 'git', 'skip-houston'], alias: { 'y': 'yes' }});
 
 const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
@@ -27,10 +27,12 @@ export async function main() {
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][2] as string;
-	let { template, yes } = flags;
+	let { template, yes, install, git: init, typescript, skipHouston } = flags;
 	let projectName = cwd;
 
-	if (yes !== true) {
+	skipHouston = skipHouston ?? [yes, install, init, typescript].some(v => v !== undefined);
+
+	if (!skipHouston) {
 		await say([
 			['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
 			random(welcome),
@@ -98,8 +100,8 @@ export async function main() {
 		process.exit(1)
 	}
 
-	let deps = yes;
-	if (yes === undefined) {
+	let deps = install ?? yes;
+	if (deps === undefined) {
 		({ deps } = await prompt({
 			name: 'deps',
 			type: 'confirm',
@@ -115,10 +117,10 @@ export async function main() {
 	} else if (deps) {
 			await spinner({ start: `Dependencies installing with ${pkgManager}...`, end: 'Dependencies installed', while: () => installDeps({ pkgManager, cwd }) });
 	} else {
-			await info('No problem!', 'Remember to install dependencies after setup.')
+			await info(typeof install === 'boolean' ? 'deps [skip]' : 'No problem!', 'Remember to install dependencies after setup.')
 	}
 
-	let git = yes;
+	let git = init ?? yes;
 	if (git === undefined) {
 		({ git } = await prompt({
 			name: 'git',
@@ -135,10 +137,10 @@ export async function main() {
 	} else if (git) {
 			await spinner({ start: 'Git initializing...', end: 'Git initialized', while: () => initializeGit({ cwd }) });
 	} else {
-			await info('Sounds good!', `You can always run ${color.reset('git init')}${color.dim(' manually.')}`)
+			await info(typeof init === 'boolean' ? 'git [skip]' : 'Sounds good!', `You can always run ${color.reset('git init')}${color.dim(' manually.')}`)
 	}
 
-	let ts = yes ? 'strict' : yes;
+	let ts = typescript ?? yes ? 'strict' : yes;
 	if (ts === undefined) {
 		({ ts } = await prompt({
 			name: 'ts',
@@ -153,12 +155,17 @@ export async function main() {
 					{ value: 'unsure', label: `Hmm... I'm not sure` },
 			]
 		}))
+	} else if (!yes) {
+		await info('ts', `Using ${color.reset(typescript)}${color.dim(' TypeScript configuration')}`)
 	}
 
 	if (flags.dryRun) {
 		await info('--dry-run', `Skipping TypeScript setup`);
 	} else if (ts && ts !== 'unsure') {
-			await spinner({ start: 'TypeScript customizing...', end: 'TypeScript customized', while: () => setupTypeScript(ts, { cwd }) });
+		if (ts === 'relaxed') {
+			ts = 'default'
+		}
+		await spinner({ start: 'TypeScript customizing...', end: 'TypeScript customized', while: () => setupTypeScript(ts, { cwd }) });
 	} else {
 			await typescriptByDefault();
 	}
@@ -167,7 +174,9 @@ export async function main() {
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 	await nextSteps({ projectDir, devCmd });
 
-	await say(['Good luck out there, astronaut! 🚀']);
+	if (!skipHouston) {
+		await say(['Good luck out there, astronaut! 🚀']);
+	}
 
 	process.exit(0);
 }
