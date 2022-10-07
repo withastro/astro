@@ -1,6 +1,6 @@
 import { StartServerCallback, runBuildAndStartApp, defaultTestPermissions } from './helpers.ts';
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts";
-import { assert, assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.35-alpha/deno-dom-wasm.ts';
+import { assert, assertEquals } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 
 async function startApp(cb: StartServerCallback) {
 	await runBuildAndStartApp('./fixtures/basics/', cb);
@@ -30,7 +30,7 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });
 
 Deno.test({
@@ -38,7 +38,7 @@ Deno.test({
 	permissions: defaultTestPermissions,
 	async fn() {
 		await startApp(async (baseUrl: URL) => {
-			const resp = await fetch(new URL("this-does-not-exist", baseUrl));
+			const resp = await fetch(new URL('this-does-not-exist', baseUrl));
 			assertEquals(resp.status, 404);
 
 			const html = await resp.text();
@@ -50,7 +50,7 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });
 
 Deno.test({
@@ -73,7 +73,7 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });
 
 Deno.test({
@@ -90,7 +90,7 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });
 
 Deno.test({
@@ -107,7 +107,7 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });
 
 Deno.test({
@@ -124,5 +124,5 @@ Deno.test({
 		});
 	},
 	sanitizeResources: false,
-	sanitizeOps: false
+	sanitizeOps: false,
 });

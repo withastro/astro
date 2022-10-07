@@ -1,15 +1,15 @@
 import { fromFileUrl } from 'https://deno.land/std@0.110.0/path/mod.ts';
-import { assert } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { assert } from 'https://deno.land/std@0.158.0/testing/asserts.ts';
 import { readableStreamFromReader } from 'https://deno.land/std@0.142.0/streams/conversion.ts';
 
 const dir = new URL('./', import.meta.url);
-const defaultURL = new URL("http://localhost:8085/");
+const defaultURL = new URL('http://localhost:8085/');
 
 export const defaultTestPermissions: Deno.PermissionOptions = {
 	read: true,
 	net: true,
 	run: true,
-	env: true
+	env: true,
 };
 
 export declare type StartServerCallback = (url: URL) => Promise<void>;
@@ -22,7 +22,7 @@ export async function runBuild(fixturePath: string) {
 	});
 	try {
 		const status = await proc.status();
-		assert(status.success)
+		assert(status.success);
 	} finally {
 		proc.close();
 	}
@@ -72,7 +72,10 @@ export async function runBuildAndStartApp(fixturePath: string, cb: StartServerCa
 	}
 }
 
-export async function runBuildAndStartAppFromSubprocess(fixturePath: string, cb: StartServerCallback) {
+export async function runBuildAndStartAppFromSubprocess(
+	fixturePath: string,
+	cb: StartServerCallback
+) {
 	const url = new URL(fixturePath, dir);
 
 	await runBuild(fixturePath);
