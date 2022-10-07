@@ -227,23 +227,9 @@ importers:
 
   examples/integration:
     specifiers:
-      astro: ^1.3.0
-    dependencies:
-      astro: link:../../packages/astro
-
-  examples/integration/demo:
-    specifiers:
-      '@example/my-integration': workspace:*
-      astro: ^1.3.0
-    dependencies:
-      '@example/my-integration': link:../packages/my-integration
-      astro: link:../../../packages/astro
-
-  examples/integration/packages/my-integration:
-    specifiers:
-      astro: ^1.3.0
+      astro: ^1.4.2
     devDependencies:
-      astro: link:../../../../packages/astro
+      astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
