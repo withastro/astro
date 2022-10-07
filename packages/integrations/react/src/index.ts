@@ -61,6 +61,10 @@ function getViteConfiguration() {
 			external: ReactVersion.startsWith('18.')
 				? ['react-dom/server', 'react-dom/client']
 				: ['react-dom/server.js', 'react-dom/client.js'],
+			noExternal: [
+				// These are all needed to get mui to work.
+				'@mui/material', '@mui/base', '@babel/runtime'
+			]
 		},
 	};
 }
