@@ -420,7 +420,7 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development. 
+	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
 	 *
 	 * ```js
 	 * {
