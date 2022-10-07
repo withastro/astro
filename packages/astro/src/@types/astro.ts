@@ -93,7 +93,9 @@ export interface BuildConfig {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
+export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
+	extends AstroGlobalPartial,
+		AstroSharedContext<Props> {
 	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
@@ -141,7 +143,7 @@ export interface AstroGlobal extends AstroGlobalPartial, AstroSharedContext {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: AstroSharedContext['props'];
+	props: AstroSharedContext<Props>['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -1088,7 +1090,7 @@ export interface AstroAdapter {
 type Body = string;
 
 // Shared types between `Astro` global and API context object
-interface AstroSharedContext {
+interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
 	/**
 	 * The address (usually IP address) of the user. Used with SSR only.
 	 */
@@ -1112,14 +1114,14 @@ interface AstroSharedContext {
 	/**
 	 * List of props passed.
 	 */
-	props: Record<string, any>;
+	props: Props;
 	/**
 	 * Redirect to another page
 	 */
 	redirect(path: string, status?: number): Response;
 }
 
-export interface APIContext extends AstroSharedContext {
+export interface APIContext<Props extends Record<string, any> = Record<string, any>> extends AstroSharedContext<Props> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1168,7 +1170,7 @@ export interface APIContext extends AstroSharedContext {
 	 * }
 	 * ```
 	 */
-	props: AstroSharedContext['props'];
+	props: AstroSharedContext<Props>['props'];
 	/**
 	 * Redirect to another page.
 	 *
@@ -1181,14 +1183,6 @@ export interface APIContext extends AstroSharedContext {
 	 * ```
 	 */
 	redirect: AstroSharedContext['redirect'];
-}
-
-interface AstroSharedContext {
-	cookies: AstroCookies;
-	request: Request;
-	clientAddress: string;
-	url: URL;
-	params: Params;
 }
 
 export interface EndpointOutput {

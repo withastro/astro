@@ -1,6 +1,7 @@
 ---
 import Counter from '../components/Counter.jsx';
 import ReactComponent from '../components/JSXComponent.jsx';
+import Suffix from '../components/Suffix.react';
 
 const someProps = {
 	count: 0,
@@ -33,5 +34,7 @@ const someProps = {
 		</Counter>
 
 		<ReactComponent id="client-only" client:only="react" />
+
+		<Suffix client:load />
 	</body>
 </html>
