@@ -1094,7 +1094,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	 */
 	clientAddress: string;
 	/**
-	 * Utility for getting and setting cookies values.
+	 * Utility for getting and setting the values of cookies.
 	 */
 	cookies: AstroCookies;
 	/**
