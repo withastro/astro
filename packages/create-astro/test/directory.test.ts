@@ -16,7 +16,7 @@ test('interactive', async () => {
 
 test('override', async () => {
 	const { findByText } = await run('foobar --dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
 	expect(await findByText('How would you like to start your new project?')).toBeInTheConsole()
 })

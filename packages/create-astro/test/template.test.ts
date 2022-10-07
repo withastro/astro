@@ -4,14 +4,14 @@ import { run, type } from './util';
 
 test('override', async () => {
 	const { findByText } = await run('foobar --template minimal --dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
 	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 })
 
 test('override external', async () => {
 	const { findByText } = await run('foobar --template cassidoo/shopify-react-astro --dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
 	expect(await findByText('Using cassidoo/shopify-react-astro as project template')).toBeInTheConsole();
 })

@@ -4,7 +4,7 @@ import { run } from './util';
 
 test('full interactive', async () => {
 	const { findByText, userEvent } = await run('--dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Where should we create your new project?')).toBeInTheConsole();
 
 	expect(await findByText('./')).toBeInTheConsole()
@@ -36,7 +36,7 @@ test('full interactive', async () => {
 
 test('--yes', async () => {
 	const { findByText } = await run('foobar --template minimal --dry-run -y')
-
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
 	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	expect(await findByText('Skipping dependency installation')).toBeInTheConsole();
@@ -47,7 +47,7 @@ test('--yes', async () => {
 
 test('--no', async () => {
 	const { findByText } = await run('foobar --template minimal --dry-run -n')
-
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
 	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	expect(await findByText('Skipping dependency installation')).toBeInTheConsole();
