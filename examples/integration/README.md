@@ -3,7 +3,7 @@
 This is a template for an Astro integration. Use this template for writing integrations to use in multiple projects or publish to NPM.
 
 ```
-npm create astro@latest -- --template integratino
+npm create astro@latest -- --template integration
 ```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/integration)
