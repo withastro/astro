@@ -15,7 +15,7 @@ import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-const skipAstroJSXCheck = new WeakSet();
+const skipAstroJSXCheck = new WeakMap<() => any, null | Error>();
 let originalConsoleError: any;
 let consoleFilterRefs = 0;
 
@@ -68,26 +68,32 @@ Did you forget to import the component or is it possible there is a typo?`);
 
 		if (vnode.type) {
 			if (typeof vnode.type === 'function' && (vnode.type as any)['astro:renderer']) {
-				skipAstroJSXCheck.add(vnode.type);
+				skipAstroJSXCheck.set(vnode.type, null);
 			}
 			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
 			}
-			if (typeof vnode.type === 'function' && !skipAstroJSXCheck.has(vnode.type)) {
-				useConsoleFilter();
-				try {
-					const output = await vnode.type(vnode.props ?? {});
-					if (output && output[AstroJSX]) {
-						return await renderJSX(result, output);
-					} else if (!output) {
-						return await renderJSX(result, output);
+			if (typeof vnode.type === 'function') {
+				if(skipAstroJSXCheck.has(vnode.type)) {
+					const error = skipAstroJSXCheck.get(vnode.type);
+					if(error) {
+						throw error;
 					}
-				} catch (e) {
-					skipAstroJSXCheck.add(vnode.type);
-					throw e;
-				} finally {
-					finishUsingConsoleFilter();
+				} else {
+					useConsoleFilter();
+					try {
+						const output = await vnode.type(vnode.props ?? {});
+						if (output && output[AstroJSX]) {
+							return await renderJSX(result, output);
+						} else if (!output) {
+							return await renderJSX(result, output);
+						}
+					} catch (e: any) {
+						skipAstroJSXCheck.set(vnode.type, e);
+					} finally {
+						finishUsingConsoleFilter();
+					}
 				}
 			}
 
