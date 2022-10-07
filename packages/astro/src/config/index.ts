@@ -1,5 +1,5 @@
-import type { AstroUserConfig } from '../@types/astro';
 import type { UserConfig } from 'vite';
+import type { AstroUserConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core';
 
 export function defineConfig(config: AstroUserConfig) {
@@ -34,7 +34,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			cmd,
 			logging,
 		});
-		const initialTsConfig = loadTSConfig(inlineConfig.root)
+		const initialTsConfig = loadTSConfig(inlineConfig.root);
 		const settings = createSettings({
 			config,
 			tsConfig: initialTsConfig?.config,

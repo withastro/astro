@@ -1,4 +1,1 @@
-export {
-	defineConfig,
-	getViteConfig
-} from './dist/config/index.js';
+export { defineConfig, getViteConfig } from './dist/config/index.js';
