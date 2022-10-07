@@ -11,7 +11,7 @@ describe('getImage', function () {
 	});
 
 	it('Remote images works', async () => {
-		const assets = await fixture.readdir('/assets')
+		const assets = await fixture.readdir('/assets');
 		expect(assets).to.have.a.lengthOf(1);
 	});
 });
