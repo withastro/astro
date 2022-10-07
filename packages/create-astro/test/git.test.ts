@@ -14,6 +14,8 @@ test('flag', async () => {
 test('override', async () => {
 	const { findByText } = await run('foobar --template minimal -y --dry-run')
 	
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	expect(await findByText('Skipping Git initialization')).toBeInTheConsole();
 })
 
