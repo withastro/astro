@@ -225,6 +225,12 @@ importers:
       astro: link:../../packages/astro
       vue: 3.2.40
 
+  examples/integration:
+    specifiers:
+      astro: ^1.4.2
+    devDependencies:
+      astro: link:../../packages/astro
+
   examples/minimal:
     specifiers:
       astro: ^1.4.6
