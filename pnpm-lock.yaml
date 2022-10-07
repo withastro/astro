@@ -2603,6 +2603,16 @@ importers:
       astro: link:../../../../../astro
       sharp: 0.31.1
 
+  packages/integrations/image/test/fixtures/get-image-remote:
+    specifiers:
+      '@astrojs/image': workspace:*
+      astro: workspace:*
+      sharp: ^0.31.0
+    dependencies:
+      '@astrojs/image': link:../../..
+      astro: link:../../../../../astro
+      sharp: 0.31.1
+
   packages/integrations/image/test/fixtures/no-alt-text-image:
     specifiers:
       '@astrojs/image': workspace:*
