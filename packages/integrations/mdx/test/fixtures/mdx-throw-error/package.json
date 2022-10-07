@@ -1,0 +1,7 @@
+{
+  "name": "@test/mdx-throw-error",
+  "dependencies": {
+    "@astrojs/mdx": "workspace:*",
+    "astro": "workspace:*"
+  }
+}

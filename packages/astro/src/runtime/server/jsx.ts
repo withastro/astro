@@ -85,6 +85,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 					}
 				} catch (e) {
 					skipAstroJSXCheck.add(vnode.type);
+					throw e;
 				} finally {
 					finishUsingConsoleFilter();
 				}
