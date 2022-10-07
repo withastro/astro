@@ -18,7 +18,7 @@ import setupTypeScript from './actions/setup-typescript.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm versions.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const flags = yargs(cleanArgv, { boolean: ['yes', 'install', 'git', 'skip-houston'], alias: { 'y': 'yes' }});
+const flags = yargs(cleanArgv, { boolean: ['yes', 'no', 'install', 'git', 'skip-houston'], alias: { 'y': 'yes', 'n': 'no' }});
 
 const title = (text: string) => align(label(text), 'end', 7) + ' ';
 
@@ -27,10 +27,17 @@ export async function main() {
 	const pkgManager = detectPackageManager()?.name ?? 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
 	let cwd = flags['_'][2] as string;
-	let { template, yes, install, git: init, typescript, skipHouston } = flags;
+	let { template, no, yes, install, git: init, typescript, skipHouston } = flags;
 	let projectName = cwd;
 
-	skipHouston = skipHouston ?? [yes, install, init, typescript].some(v => v !== undefined);
+	if (no) {
+		yes = false;
+		install = false;
+		init = false;
+		typescript = 'strict';
+	}
+
+	skipHouston = skipHouston ?? [yes, no, install, init, typescript].some(v => v !== undefined);
 
 	if (!skipHouston) {
 		await say([
@@ -173,10 +180,8 @@ export async function main() {
 	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 	await nextSteps({ projectDir, devCmd });
-
-	if (!skipHouston) {
-		await say(['Good luck out there, astronaut! 🚀']);
-	}
+	
+	await say(['Good luck out there, astronaut! 🚀']);
 
 	process.exit(0);
 }

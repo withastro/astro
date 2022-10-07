@@ -51,7 +51,7 @@ Any GitHub repo can be used as a template, following the `user/repo` format.
 npm create astro@latest --template mayank99/astro-minimal-starter
 ```
 
-### Yes
+### Yes / No
 
 The `--yes` (or `-y`) flag can be used to bypass any confirmation prompts and proceed with the default answer.
 
@@ -59,10 +59,22 @@ The `--yes` (or `-y`) flag can be used to bypass any confirmation prompts and pr
 npm create astro@latest -y
 ```
 
+The `--no` (or `-n`) flag can be used to bypass any confirmations prompts and proceed without executing any actions.
+
+```bash
+npm create astro@latest -n
+```
+
 Combined with the above directory and template arguments, `create-astro` becomes fully non-interactive for a super quick start.
 
 ```bash
+# copy minimal to my-project/ and confirm all prompts
 npm create astro@latest my-project --template minimal -y
+```
+
+```bash
+# copy minimal to my-project/ and dismiss all prompts
+npm create astro@latest my-project --template minimal -n
 ```
 
 ### Dry Run
