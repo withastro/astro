@@ -11,7 +11,7 @@ function shouldPreload({ href }: { href: string }) {
 		const url = new URL(href);
 		return (
 			window.location.origin === url.origin &&
-			window.location.pathname !== url.hash &&
+			//window.location.pathname !== url.hash &&
 			!preloaded.has(href)
 		);
 	} catch {}
