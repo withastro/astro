@@ -34,6 +34,7 @@ test.describe('Basic prefetch', () => {
 					'/contact was prefetched'
 				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				await expect(requests.has(astro.resolveUrl('/')), '/ was skipped').toBeTruthy();
 			});
 		});
 	});
@@ -70,6 +71,7 @@ test.describe('Basic prefetch', () => {
 					'/contact was prefetched'
 				).toBeTruthy();
 				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				await expect(requests.has(astro.resolveUrl('/')), '/ was skipped').toBeTruthy();
 			});
 		});
 	});
