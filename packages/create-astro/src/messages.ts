@@ -96,6 +96,6 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string, de
     await sleep(100);
     console.log(`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan('tailwind')} using ${color.cyan('astro add')}.`)
     await sleep(100);
-    console.log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}.`)
+    console.log(`\n${prefix}Stuck? Join us at ${color.cyan(`https://astro.build/chat`)}`)
     await sleep(200);
 }
