@@ -1,0 +1,10 @@
+{
+  "name": "@test/image-get-image-remote",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@astrojs/image": "workspace:*",
+    "astro": "workspace:*",
+    "sharp": "^0.31.0"
+  }
+}
