@@ -1078,8 +1078,6 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | number | undefined>;
 
-export type Props = Record<string, unknown>;
-
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
@@ -1191,6 +1189,8 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 */
 	redirect: AstroSharedContext['redirect'];
 }
+
+export type Props = Record<string, unknown>;
 
 export interface EndpointOutput {
 	body: Body;
