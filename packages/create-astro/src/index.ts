@@ -1,11 +1,12 @@
 /* eslint no-console: 'off' */
+import fs from 'node:fs';
 import path from 'node:path';
 import yargs from 'yargs-parser';
 import detectPackageManager from 'which-pm-runs';
 import { say, label, color, prompt, generateProjectName, spinner } from '@astrojs/cli-kit';
 import { random, align } from '@astrojs/cli-kit/utils';
 
-import { banner, getName, getVersion, welcome, info, typescriptByDefault, nextSteps } from './messages.js';
+import { banner, getName, getVersion, welcome, info, typescriptByDefault, nextSteps, error } from './messages.js';
 import { isEmpty, toValidName } from './actions/shared.js';
 import checkCwd from './actions/check-cwd.js';
 import copyTemplate from './actions/copy-template.js';
@@ -32,9 +33,9 @@ export async function main() {
 
 	if (no) {
 		yes = false;
-		install = false;
-		init = false;
-		typescript = 'strict';
+		if (install == undefined) install = false;
+		if (init == undefined) init = false;
+		if (typescript == undefined) typescript = 'strict';
 	}
 
 	skipHouston = skipHouston ?? [yes, no, install, init, typescript].some(v => v !== undefined);
@@ -72,6 +73,13 @@ export async function main() {
 		});
 		cwd = name!;
 		projectName = toValidName(name!);
+	} else {
+		let name = cwd;
+		if (name === '.' || name === './') {
+			const parts = process.cwd().split(path.sep);
+			name = parts[parts.length - 1];
+		}
+		projectName = toValidName(name);
 	}
 
 	if (!cwd) {
@@ -147,7 +155,7 @@ export async function main() {
 			await info(typeof init === 'boolean' ? 'git [skip]' : 'Sounds good!', `You can always run ${color.reset('git init')}${color.dim(' manually.')}`)
 	}
 
-	let ts = typescript ?? yes ? 'strict' : yes;
+	let ts = typescript ?? (yes ? 'strict' : yes);
 	if (ts === undefined) {
 		({ ts } = await prompt({
 			name: 'ts',
@@ -162,8 +170,15 @@ export async function main() {
 					{ value: 'unsure', label: `Hmm... I'm not sure` },
 			]
 		}))
-	} else if (!yes) {
-		await info('ts', `Using ${color.reset(typescript)}${color.dim(' TypeScript configuration')}`)
+	} else {
+		if (!['strict', 'strictest', 'relaxed', 'default'].includes(ts)) {
+			if (!flags.dryRun) {
+				fs.rmSync(cwd, { recursive: true, force: true });
+			}
+			error('Error', `Unknown TypeScript option ${color.reset(ts)}${color.dim('! Expected strict | strictest | relaxed')}`)
+			process.exit(1);
+		}
+		await info('ts', `Using ${color.reset(ts)}${color.dim(' TypeScript configuration')}`)
 	}
 
 	if (flags.dryRun) {

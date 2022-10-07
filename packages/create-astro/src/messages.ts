@@ -65,6 +65,15 @@ export const info = async (prefix: string, text: string) => {
     }
 }
 
+export const error = async (prefix: string, text: string) => {
+    if (process.stdout.columns < 80) {
+        console.log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)}`);
+        console.log(`${' '.repeat(9)}${color.dim(text)}`);
+    } else {
+        console.log(`${' '.repeat(5)} ${color.red('▲')}  ${color.red(prefix)} ${color.dim(text)}`);
+    }
+}
+
 export const typescriptByDefault = async () => {
 		await info(`That\'s fine!`, 'Astro comes with TypeScript enabled by default.');
 		console.log(`${' '.repeat(9)}${color.dim(`We'll use the most relaxed settings for you.`)}`);
@@ -78,12 +87,12 @@ export const nextSteps = async ({ projectDir, devCmd }: { projectDir: string, de
     console.log(`\n ${color.bgCyan(` ${color.black('next')} `)}  ${color.bold('Liftoff confirmed. Explore your project!')}`)
 
     await sleep(100);
-		if (projectDir !== '/') {
+		if (projectDir !== '') {
 			const enter = [`\n${prefix}Enter your project directory using`, color.cyan(`cd ./${projectDir}`, '')];
 			const len = enter[0].length + stripAnsi(enter[1]).length;
 			console.log(enter.join((len > max) ? '\n' + prefix : ' '));
 		}
-    console.log(`${prefix}Run ${color.cyan(`pnpm dev`)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`)
+    console.log(`${prefix}Run ${color.cyan(devCmd)} to start the dev server. ${color.cyan('CTRL+C')} to stop.`)
     await sleep(100);
     console.log(`${prefix}Add frameworks like ${color.cyan(`react`)} or ${color.cyan('tailwind')} using ${color.cyan('astro add')}.`)
     await sleep(100);

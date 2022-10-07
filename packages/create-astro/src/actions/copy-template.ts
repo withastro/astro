@@ -6,7 +6,7 @@ import type { Arguments as Flags } from "yargs-parser";
 import { color } from "@astrojs/cli-kit";
 import { downloadTemplate } from 'giget';
 
-import { isEmpty } from "./shared.js";
+import { error } from '../messages.js';
 
 // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 const FILES_TO_REMOVE = ['sandbox.config.json', 'CHANGELOG.md'];
@@ -33,16 +33,13 @@ export default async function copyTemplate(template: string, { name, flags, cwd,
 				cwd,
 				dir: '.',
 			});
-
-			// degit does not return an error when an invalid template is provided, as such we need to handle this manually
-			// It's not very pretty, but to the user eye, we just return a nice message and nothing weird happened
-			if (isEmpty(cwd)) {
-				fs.rmdirSync(cwd);
-				throw new Error(`Error: The provided template (${color.cyan(template)}) does not exist`);
-			}
 		} catch (err: any) {
-			console.debug(err);
-			console.error(err.message);
+			fs.rmdirSync(cwd);
+			if (err.message.includes('404')) {
+				await error('Error', `Template ${color.reset(template)} ${color.dim('does not exist!')}`);
+			} else {
+				console.error(err.message);
+			}
 			process.exit(1);
 		}
 
