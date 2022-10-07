@@ -33,3 +33,25 @@ test('full interactive', async () => {
 
 	expect(await findByText('Liftoff confirmed')).toBeInTheConsole()
 })
+
+test('--yes', async () => {
+	const { findByText } = await run('foobar --template minimal --dry-run -y')
+
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
+	expect(await findByText('Skipping dependency installation')).toBeInTheConsole();
+	expect(await findByText('Skipping Git initialization')).toBeInTheConsole();
+	expect(await findByText('Using strict TypeScript configuration')).toBeInTheConsole();
+	expect(await findByText('Liftoff confirmed')).toBeInTheConsole();
+})
+
+test('--no', async () => {
+	const { findByText } = await run('foobar --template minimal --dry-run -n')
+
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
+	expect(await findByText('Skipping dependency installation')).toBeInTheConsole();
+	expect(await findByText('Skipping Git initialization')).toBeInTheConsole();
+	expect(await findByText('Using strict TypeScript configuration')).toBeInTheConsole();
+	expect(await findByText('Liftoff confirmed')).toBeInTheConsole();
+})
