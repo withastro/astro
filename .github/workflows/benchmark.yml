@@ -1,0 +1,96 @@
+name: Benchmark
+
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  FORCE_COLOR: true
+
+jobs:
+  benchmark:
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      PR-BENCH-14: ${{ steps.benchmark-pr.outputs.BENCH_RESULT14 }}
+      PR-BENCH-16: ${{ steps.benchmark-pr.outputs.BENCH_RESULT16 }}
+      MAIN-BENCH-14: ${{ steps.benchmark-main.outputs.BENCH_RESULT14 }}
+      MAIN-BENCH-16: ${{ steps.benchmark-main.outputs.BENCH_RESULT16 }}
+    strategy:
+      matrix:
+        node-version: [14, 16]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          ref: ${{github.event.pull_request.head.sha}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+
+      - name: Run benchmark
+        id: benchmark-pr
+        run: |
+          pnpm run --silent benchmark > ./bench-result.md
+          result=$(awk '/requests in/' ./bench-result.md)
+          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
+
+      # main benchmark
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          ref: 'main'
+
+      - name: Install
+        run: |
+          pnpm install
+
+      - name: Build Packages
+        run: pnpm run build
+
+      - name: Run benchmark
+        id: benchmark-main
+        run: |
+          pnpm run --silent benchmark > ./bench-result.md
+          result=$(awk '/requests in/' ./bench-result.md)
+          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
+
+  output-benchmark:
+    if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}
+    needs: [benchmark]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pr_number: ${{ github.event.issue.number }}
+          message: |
+            **Node**: 14
+            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-14 }}
+            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-14 }}
+            
+            ---
+            
+            **Node**: 16
+            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-16 }}
+            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-16 }}

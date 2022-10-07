@@ -117,6 +117,33 @@ For help, check out the `#support` channel on [Discord](https://astro.build/chat
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
+Common issues are listed below:
+
+### Browser globals
+
+The Lit integration's SSR works by adding a few browser global properties to the global environment. Some of the properties it adds includes `window`, `document`, and `location`.
+
+These globals *can* interfere with other libraries that might use the existence of these variables to detect that they are running in the browser, when they are actually running in the server. This can cause bugs with these libraries.
+
+Because of this, the Lit integration might not be compatible with these types of libraries. One thing that can help is changing the order of integrations when Lit is interfering with other integrations:
+
+```diff
+import { defineConfig } from 'astro/config';
+import vue from '@astrojs/vue';
+import lit from '@astrojs/lit';
+
+export default defineConfig({
+-  integrations: [vue(), lit()]
++  integrations: [lit(), vue()]
+});
+```
+
+The correct order might be different depending on the underlying cause of the problem. This is not guaranteed to fix every issue however, and some libraries cannot be used if you are using the Lit integration because of this.
+
+### Limitations
+
+The Lit integration is powered by `@lit-labs/ssr` which has some limitations. See their [limitations documentation](https://www.npmjs.com/package/@lit-labs/ssr#user-content-notes-and-limitations) to learn more.
+
 ## Contributing
 
 This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!

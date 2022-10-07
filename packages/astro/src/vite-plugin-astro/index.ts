@@ -127,7 +127,6 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			const compileProps: CompileProps = {
 				config,
 				filename,
-				moduleId: id,
 				source,
 				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
@@ -223,7 +222,6 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			const compileProps: CompileProps = {
 				config,
 				filename,
-				moduleId: id,
 				source,
 				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
@@ -346,7 +344,6 @@ ${source}
 			const compileProps: CompileProps = {
 				config,
 				filename: context.file,
-				moduleId: context.file,
 				source: await context.read(),
 				transformStyle: createTransformStyles(styleTransformer, context.file, true),
 			};

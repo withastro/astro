@@ -52,6 +52,11 @@ export default async function dev(
 			optimizeDeps: {
 				include: rendererClientEntries,
 			},
+			define: {
+				'import.meta.env.BASE_URL': settings.config.base
+					? `'${settings.config.base}'`
+					: 'undefined',
+			},
 		},
 		{ settings, logging: options.logging, mode: 'dev' }
 	);

@@ -211,7 +211,6 @@ ${setup}`.trim();
 				const compileProps: CompileProps = {
 					config,
 					filename,
-					moduleId: id,
 					source: astroResult,
 					transformStyle: createTransformStyles(
 						styleTransformer,

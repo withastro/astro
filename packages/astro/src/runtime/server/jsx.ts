@@ -3,16 +3,15 @@ import { SSRResult } from '../../@types/astro.js';
 import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
-	HTMLBytes,
 	HTMLString,
 	markHTMLString,
 	renderComponent,
-	RenderInstruction,
 	renderToString,
 	spreadAttributes,
 	voidElementNames,
 } from './index.js';
 import { HTMLParts } from './render/common.js';
+import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -29,6 +28,8 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
+		case typeof vnode === 'function':
+			return vnode;
 		case !vnode && vnode !== 0:
 			return '';
 		case Array.isArray(vnode):
@@ -127,7 +128,7 @@ Did you forget to import the component or is it possible there is a typo?`);
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | HTMLBytes | RenderInstruction>;
+			let output: ComponentIterable;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,

@@ -16,7 +16,6 @@ import { render as coreRender } from '../core.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
-import { resolveClientDevPath } from './resolve.js';
 import { getScriptsForURL } from './scripts.js';
 
 export interface SSROptions {
@@ -180,12 +179,20 @@ export async function render(
 		origin,
 		pathname,
 		scripts,
-		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
+		// Resolves specifiers in the inline hydrated scripts, such as:
+		// - @astrojs/preact/client.js
+		// - @/components/Foo.vue
+		// - /Users/macos/project/src/Foo.vue
+		// - C:/Windows/project/src/Foo.vue (normalized slash)
 		async resolve(s: string) {
-			if (s.startsWith('/@fs')) {
-				return resolveClientDevPath(s);
+			const url = await resolveIdToUrl(viteServer, s);
+			// Vite does not resolve .jsx -> .tsx when coming from hydration script import,
+			// clip it so Vite is able to resolve implicitly.
+			if (url.startsWith('/@fs') && url.endsWith('.jsx')) {
+				return url.slice(0, -4);
+			} else {
+				return url;
 			}
-			return await resolveIdToUrl(viteServer, s);
 		},
 		renderers,
 		request,
