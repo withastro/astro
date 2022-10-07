@@ -131,7 +131,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 * <h1>{id}</h1>
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroparams)
 	 */
 	params: AstroSharedContext['params'];
 	/** List of props passed to this component
@@ -1116,12 +1116,13 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	 */
 	props: Props;
 	/**
-	 * Redirect to another page
+	 * Redirect to another page (**SSR Only**)
 	 */
 	redirect(path: string, status?: number): Response;
 }
 
-export interface APIContext<Props extends Record<string, any> = Record<string, any>> extends AstroSharedContext<Props> {
+export interface APIContext<Props extends Record<string, any> = Record<string, any>>
+	extends AstroSharedContext<Props> {
 	site: URL | undefined;
 	generator: string;
 	/**
@@ -1148,6 +1149,8 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *  }
 	 * }
 	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextparams)
 	 */
 	params: AstroSharedContext['params'];
 	/**
@@ -1169,6 +1172,8 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *   }
 	 * }
 	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
 	 */
 	props: AstroSharedContext<Props>['props'];
 	/**
@@ -1181,6 +1186,8 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 *   return redirect('/login');
 	 * }
 	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
 	 */
 	redirect: AstroSharedContext['redirect'];
 }
