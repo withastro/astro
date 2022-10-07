@@ -19,6 +19,7 @@ test('override external', async () => {
 test('select', async () => {
 	const { findByText, userEvent } = await run('--dry-run')
 	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	const where = await findByText('Where should we create your new project?');
 	expect(where).toBeInTheConsole();
 

@@ -4,7 +4,7 @@ import { run, type } from './util';
 
 test('interactive', async () => {
 	const { findByText, userEvent } = await run('--dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Where should we create your new project?')).toBeInTheConsole();
 	expect(await findByText('./')).toBeInTheConsole()
 
@@ -23,7 +23,7 @@ test('override', async () => {
 
 test('nonempty directory', async () => {
 	const { findByText, userEvent } = await run('--dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Where should we create your new project?')).toBeInTheConsole();
 	expect(await findByText('./')).toBeInTheConsole()
 
@@ -35,7 +35,7 @@ test('nonempty directory', async () => {
 
 test('nonempty safe directory', async () => {
 	const { findByText, userEvent } = await run('--dry-run')
-	
+	expect(await findByText('Launch sequence initiated.')).toBeInTheConsole();
 	expect(await findByText('Where should we create your new project?')).toBeInTheConsole();
 	expect(await findByText('./')).toBeInTheConsole()
 
