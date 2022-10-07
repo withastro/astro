@@ -63,8 +63,10 @@ function getViteConfiguration() {
 				: ['react-dom/server.js', 'react-dom/client.js'],
 			noExternal: [
 				// These are all needed to get mui to work.
-				'@mui/material', '@mui/base', '@babel/runtime'
-			]
+				'@mui/material',
+				'@mui/base',
+				'@babel/runtime',
+			],
 		},
 	};
 }
