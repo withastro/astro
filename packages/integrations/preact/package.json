@@ -21,9 +21,9 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/preact/",
   "exports": {
     ".": "./dist/index.js",
-    "./client.js": "./client.js",
-    "./client-dev.js": "./client-dev.js",
-    "./server.js": "./server.js",
+    "./client.js": "./dist/client.js",
+    "./client-dev.js": "./dist/client-dev.js",
+    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -35,7 +35,8 @@
     "@babel/core": ">=7.0.0-0 <8.0.0",
     "@babel/plugin-transform-react-jsx": "^7.17.12",
     "babel-plugin-module-resolver": "^4.1.0",
-    "preact-render-to-string": "^5.2.0"
+    "preact-render-to-string": "^5.2.4",
+    "@preact/signals": "^1.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
