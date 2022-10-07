@@ -22,6 +22,8 @@ test('override', async () => {
 test('select', async () => {
 	const { findByText, userEvent } = await run('foobar --template minimal --dry-run')
 
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	userEvent.keyboard('[Enter]')
 
 	expect(await findByText('Initialize a new git repository?')).toBeInTheConsole()

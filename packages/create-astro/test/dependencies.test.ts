@@ -13,12 +13,16 @@ test('flag', async () => {
 test('override', async () => {
 	const { findByText } = await run('foobar --template minimal -y --dry-run')
 	
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	expect(await findByText('Skipping dependency installation')).toBeInTheConsole();
 })
 
 test('select', async () => {
 	const { findByText, userEvent } = await run('foobar --template minimal --dry-run')
 	
+	expect(await findByText('Using foobar as project directory')).toBeInTheConsole();
+	expect(await findByText('Using minimal as project template')).toBeInTheConsole();
 	expect(await findByText('Install dependencies?')).toBeInTheConsole()
 
 	expect(await findByText('● Yes')).toBeInTheConsole()
