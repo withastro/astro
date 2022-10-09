@@ -34,6 +34,7 @@ function guessRenderers(componentUrl?: string): string[] {
 }
 
 type ComponentType = 'fragment' | 'html' | 'astro-factory' | 'unknown';
+export type ComponentIterable = AsyncIterable<string | HTMLBytes | RenderInstruction>;
 
 function getComponentType(Component: unknown): ComponentType {
 	if (Component === Fragment) {
@@ -54,7 +55,7 @@ export async function renderComponent(
 	Component: unknown,
 	_props: Record<string | number, any>,
 	slots: any = {}
-): Promise<string | AsyncIterable<string | HTMLBytes | RenderInstruction>> {
+): Promise<ComponentIterable> {
 	Component = await Component;
 
 	switch (getComponentType(Component)) {
@@ -279,10 +280,17 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		if (isPage || renderer?.name === 'astro:jsx') {
-			return html;
-		}
-		return markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+		return (async function* () {
+			if (slotInstructions) {
+				yield* slotInstructions;
+			}
+
+			if (isPage || renderer?.name === 'astro:jsx') {
+				yield html;
+			} else {
+				yield markHTMLString(html.replace(/\<\/?astro-slot\>/g, ''));
+			}
+		})();
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands

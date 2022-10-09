@@ -1,3 +1,5 @@
+import { removeLeadingForwardSlashWindows } from '../../core/path.js';
+
 interface ModuleInfo {
 	module: Record<string, any>;
 	specifier: string;
@@ -17,13 +19,14 @@ interface CreateMetadataOptions {
 }
 
 export class Metadata {
-	public mockURL: URL;
+	public filePath: string;
 	public modules: ModuleInfo[];
 	public hoisted: any[];
 	public hydratedComponents: any[];
 	public clientOnlyComponents: any[];
 	public hydrationDirectives: Set<string>;
 
+	private mockURL: URL;
 	private metadataCache: Map<any, ComponentMetadata | null>;
 
 	constructor(filePathname: string, opts: CreateMetadataOptions) {
@@ -32,20 +35,21 @@ export class Metadata {
 		this.hydratedComponents = opts.hydratedComponents;
 		this.clientOnlyComponents = opts.clientOnlyComponents;
 		this.hydrationDirectives = opts.hydrationDirectives;
+		this.filePath = removeLeadingForwardSlashWindows(filePathname);
 		this.mockURL = new URL(filePathname, 'http://example.com');
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
 	}
 
 	resolvePath(specifier: string): string {
 		if (specifier.startsWith('.')) {
-			const resolved = new URL(specifier, this.mockURL).pathname;
-			// Vite does not resolve .jsx -> .tsx when coming from the client, so clip the extension.
-			if (resolved.startsWith('/@fs') && resolved.endsWith('.jsx')) {
-				return resolved.slice(0, resolved.length - 4);
-			}
-			return resolved;
+			// NOTE: ideally we should use `path.resolve` here, but this is part
+			// of server output code, which needs to work on platform that doesn't
+			// have the `path` module. Use `URL` here since we deal with posix only.
+			const url = new URL(specifier, this.mockURL);
+			return removeLeadingForwardSlashWindows(decodeURI(url.pathname));
+		} else {
+			return specifier;
 		}
-		return specifier;
 	}
 
 	getPath(Component: any): string | null {

@@ -93,7 +93,8 @@ export interface BuildConfig {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal extends AstroGlobalPartial {
+export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
+	extends AstroGlobalPartial {
 	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
@@ -149,7 +150,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: Record<string, number | string | any>;
+	props: Props;
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -419,7 +420,7 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `/docs`.
+	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
 	 *
 	 * ```js
 	 * {

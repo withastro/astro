@@ -436,7 +436,7 @@ export default function createPlugin({ settings, logging }: AstroPluginOptions):
 	return {
 		name: 'astro:server',
 		configureServer(viteServer) {
-			let routeCache = new RouteCache(logging);
+			let routeCache = new RouteCache(logging, 'development');
 			let manifest: ManifestData = createRouteManifest({ settings }, logging);
 			/** rebuild the route cache + manifest, as needed. */
 			function rebuildManifest(needsManifestRebuild: boolean, file: string) {

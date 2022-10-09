@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.9.2
+
+### Patch Changes
+
+- [#4997](https://github.com/withastro/astro/pull/4997) [`a2b66c754`](https://github.com/withastro/astro/commit/a2b66c754969af4ce98bb10654286a4445cb0999) Thanks [@panwauu](https://github.com/panwauu)! - Fixes a bug that lost query parameters for remote images in the `<Picture />` component
+
 ## 0.9.1
 
 ### Patch Changes
