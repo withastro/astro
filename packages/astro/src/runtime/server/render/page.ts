@@ -30,6 +30,7 @@ async function iterableToHTMLBytes(
 	for await (const chunk of iterable) {
 		if (isHTMLString(chunk)) {
 			if (i === 0) {
+				i++;
 				if (!/<!doctype html/i.test(String(chunk))) {
 					parts.append('<!DOCTYPE html>\n', result);
 					if (onDocTypeInjection) {
