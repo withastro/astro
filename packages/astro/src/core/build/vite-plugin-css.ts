@@ -30,8 +30,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx));
-		const firstParentId = parents[0]?.[0].id
-		const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index'
+		const firstParentId = parents[0]?.[0].id;
+		const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
 
 		const hash = crypto.createHash('sha256');
 		for (const [page] of parents) {
