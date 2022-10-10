@@ -67,7 +67,12 @@ export async function copyDependenciesToFunction(
 		}
 
 		if (isSymlink) {
-			const realdest = fileURLToPath(new URL(nodePath.relative(commonAncestor, realpath), outDir));
+			const realdest = fileURLToPath(
+				new URL(
+					nodePath.relative(nodePath.join(fileURLToPath(base), commonAncestor), realpath),
+					outDir
+				)
+			);
 			await fs.symlink(
 				nodePath.relative(fileURLToPath(new URL('.', dest)), realdest),
 				dest,
@@ -80,6 +85,6 @@ export async function copyDependenciesToFunction(
 
 	return {
 		// serverEntry location inside the outDir
-		handler: nodePath.relative(nodePath.join(fileURLToPath(base), commonAncestor), entryPath)
+		handler: nodePath.relative(nodePath.join(fileURLToPath(base), commonAncestor), entryPath),
 	};
 }
