@@ -41,7 +41,7 @@ export default function vercelEdge(): AstroIntegration {
 				buildConfig.serverEntry = serverEntry = 'entry.js';
 				buildConfig.client = new URL('./static/', _config.outDir);
 				buildConfig.server = buildTempFolder = new URL('./dist/', _config.root);
-				functionFolder = new URL('./functions/.render.func/', _config.outDir);
+				functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)
