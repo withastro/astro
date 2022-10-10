@@ -1,5 +1,13 @@
 # @astrojs/react
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5016](https://github.com/withastro/astro/pull/5016) [`6efeaeb39`](https://github.com/withastro/astro/commit/6efeaeb39ed7e6642b31603745750ccb9fe0ff1e) Thanks [@matthewp](https://github.com/matthewp)! - Add support for mui
+
+  This adds support for [mui](https://mui.com/) through configuration. Users will now not need to configure this library to get it to work.
+
 ## 1.1.4
 
 ### Patch Changes
