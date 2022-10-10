@@ -5,8 +5,12 @@ export async function writeJson<T>(path: PathLike, data: T) {
 	await fs.writeFile(path, JSON.stringify(data), { encoding: 'utf-8' });
 }
 
-export async function emptyDir(dir: PathLike): Promise<void> {
+export async function removeDir(dir: PathLike) {
 	await fs.rm(dir, { recursive: true, force: true, maxRetries: 3 });
+}
+
+export async function emptyDir(dir: PathLike): Promise<void> {
+	await removeDir(dir);
 	await fs.mkdir(dir, { recursive: true });
 }
 

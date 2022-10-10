@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^1.1.0",
-    "@vercel/nft": "^0.18.2"
+    "@vercel/nft": "^0.22.1"
   },
   "devDependencies": {
     "astro": "workspace:*",
