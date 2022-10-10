@@ -1,13 +1,16 @@
-import { h, Component as BaseComponent } from 'preact';
+import { Component as BaseComponent, h } from 'preact';
 import render from 'preact-render-to-string';
+import { getContext } from './context.js';
+import { restoreSignalsOnProps, serializeSignals } from './signals.js';
 import StaticHtml from './static-html.js';
+import type { AstroPreactAttrs, RendererContext } from './types';
 
-const slotName = (str) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+const slotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
 
-let originalConsoleError;
+let originalConsoleError: typeof console.error;
 let consoleFilterRefs = 0;
 
-function check(Component, props, children) {
+function check(this: RendererContext, Component: any, props: Record<string, any>, children: any) {
 	if (typeof Component !== 'function') return false;
 
 	if (Component.prototype != null && typeof Component.prototype.render === 'function') {
@@ -18,7 +21,7 @@ function check(Component, props, children) {
 
 	try {
 		try {
-			const { html } = renderToStaticMarkup(Component, props, children);
+			const { html } = renderToStaticMarkup.call(this, Component, props, children);
 			if (typeof html !== 'string') {
 				return false;
 			}
@@ -35,18 +38,35 @@ function check(Component, props, children) {
 	}
 }
 
-function renderToStaticMarkup(Component, props, { default: children, ...slotted }) {
-	const slots = {};
+function renderToStaticMarkup(
+	this: RendererContext,
+	Component: any,
+	props: Record<string, any>,
+	{ default: children, ...slotted }: Record<string, any>
+) {
+	const ctx = getContext(this.result);
+
+	const slots: Record<string, ReturnType<typeof h>> = {};
 	for (const [key, value] of Object.entries(slotted)) {
 		const name = slotName(key);
 		slots[name] = h(StaticHtml, { value, name });
 	}
-	// Note: create newProps to avoid mutating `props` before they are serialized
+
+	// Restore signals back onto props so that they will be passed as-is to components
+	let propsMap = restoreSignalsOnProps(ctx, props);
+
 	const newProps = { ...props, ...slots };
+
+	const attrs: AstroPreactAttrs = {};
+	serializeSignals(ctx, props, attrs, propsMap);
+
 	const html = render(
 		h(Component, newProps, children != null ? h(StaticHtml, { value: children }) : children)
 	);
-	return { html };
+	return {
+		attrs,
+		html,
+	};
 }
 
 /**
@@ -91,7 +111,7 @@ function finishUsingConsoleFilter() {
  * Ignores known non-problematic errors while any code is using the console filter.
  * Otherwise, simply forwards all arguments to the original function.
  */
-function filteredConsoleError(msg, ...rest) {
+function filteredConsoleError(msg: string, ...rest: any[]) {
 	if (consoleFilterRefs > 0 && typeof msg === 'string') {
 		// In `check`, we attempt to render JSX components through Preact.
 		// When attempting this on a React component, React may output
