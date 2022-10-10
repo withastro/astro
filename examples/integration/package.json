@@ -1,5 +1,5 @@
 {
-  "name": "@example/component",
+  "name": "@example/integration",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -11,13 +11,13 @@
     "index.ts"
   ],
   "keywords": [
-    "astro-component"
+    "withastro"
   ],
   "scripts": {},
   "devDependencies": {
-    "astro": "^1.4.6"
+    "astro": "^1.4.2"
   },
   "peerDependencies": {
-    "astro": "^1.4.6"
+    "astro": "^1.4.2"
   }
 }

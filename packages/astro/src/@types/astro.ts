@@ -413,21 +413,12 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `/docs`.
+	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
 	 *
 	 * ```js
 	 * {
 	 *   base: '/docs'
 	 * }
-	 * ```
-	 *
-	 * When using this option, you should mind that all of your imports will be affected. In this example, all of the imports including static resources and codes should add a prefix `/docs/`.
-	 *
-	 * For example, if you want to use a image in your Astro component, you need to change it from '/someimg.png' into '/docs/someimg.png'.
-	 *
-	 * ```astro
-	 * <!-- <img src="/someimg.png"> is not correct. -->
-	 * <img src="/docs/someimg.png">
 	 * ```
 	 */
 	base?: string;

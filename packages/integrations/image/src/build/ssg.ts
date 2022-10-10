@@ -164,12 +164,13 @@ export async function ssgBuild({
 		for (const [filename, transform] of transforms) {
 			timeStart = performance.now();
 			let outputFile: string;
+			let outputFileURL: URL;
 
 			if (isRemoteImage(src)) {
-				const outputFileURL = new URL(path.join('./assets', path.basename(filename)), outDir);
+				outputFileURL = new URL(path.join('./assets', path.basename(filename)), outDir);
 				outputFile = fileURLToPath(outputFileURL);
 			} else {
-				const outputFileURL = new URL(path.join('./assets', filename), outDir);
+				outputFileURL = new URL(path.join('./assets', filename), outDir);
 				outputFile = fileURLToPath(outputFileURL);
 			}
 
@@ -193,6 +194,8 @@ export async function ssgBuild({
 				}
 			}
 
+			const outputFolder = new URL('./', outputFileURL);
+			await fs.mkdir(outputFolder, { recursive: true });
 			await fs.writeFile(outputFile, data);
 
 			const timeEnd = performance.now();

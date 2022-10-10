@@ -1,5 +1,11 @@
 # astro
 
+## 1.4.6
+
+### Patch Changes
+
+- [#5013](https://github.com/withastro/astro/pull/5013) [`ffbe4e71e`](https://github.com/withastro/astro/commit/ffbe4e71e36f496f6b9f4315c3145d238e46eb7e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes getViteConfig from astro/config
+
 ## 1.4.5
 
 ### Patch Changes
