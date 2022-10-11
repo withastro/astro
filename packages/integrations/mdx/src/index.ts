@@ -144,7 +144,17 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 										)}) };`;
 									}
 									if (!moduleExports.includes('Content')) {
-										code += `\nexport const Content = MDXContent;`;
+										/*
+										 * Make the behavior of the `Content` component imported
+										 * from an MDX file similar to the behavior of an MDX page,
+										 * i.e. it uses the exported `components` to render HTML
+										 * tags.
+										 */
+										if (moduleExports.includes('components')) {
+											code += `\nexport const Content = ({components: moreComponents = {}, ...props}) => MDXContent({components: {...components, ...moreComponents}, ...props});`;
+										} else {
+											code += `\nexport const Content = MDXContent;`;
+										}
 									}
 
 									if (command === 'dev') {

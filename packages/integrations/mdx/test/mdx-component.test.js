@@ -51,6 +51,17 @@ describe('MDX Component', () => {
 			expect(h1.textContent).to.equal('Hello component!');
 			expect(foo.textContent).to.equal('bar');
 		});
+
+		it('supports exported components - <Content />', async () => {
+			const html = await fixture.readFile('/exported-components/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('#hello-t1');
+			const h2 = document.querySelector('#hello-t2');
+
+			expect(h1.textContent).to.equal('T1: Hello T1');
+			expect(h2.textContent).to.equal('T2: Hello T2');
+		});
 	});
 
 	describe('dev', () => {
@@ -107,6 +118,17 @@ describe('MDX Component', () => {
 
 			expect(h1.textContent).to.equal('Hello component!');
 			expect(foo.textContent).to.equal('bar');
+		});
+
+		it('supports exported components - <Content />', async () => {
+			const html = await fixture.readFile('/exported-components/index.html');
+			const { document } = parseHTML(html);
+
+			const h1 = document.querySelector('#hello-t1');
+			const h2 = document.querySelector('#hello-t2');
+
+			expect(h1.textContent).to.equal('T1: Hello T1');
+			expect(h2.textContent).to.equal('T2: Hello T2');
 		});
 	});
 });
