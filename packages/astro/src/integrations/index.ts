@@ -214,7 +214,6 @@ export async function runHookBuildStart({
 			},
 			set(newValue) {
 				value = newValue;
-				//warn(logging, 'astro:build:start', `The buildConfig property has been deprecated. In order to set [${prop}] you should set config.build.${prop} in the astro:config:setup hook instead.`);
 				warn(logging, 'astro:build:start', `Your adapter ${bold(integration.name)} is using a deprecated API, buildConfig. ${bold(prop)} config should be set via config.build.${prop} instead.`);
 			}
 		});
