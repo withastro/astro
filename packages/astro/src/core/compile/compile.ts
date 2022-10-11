@@ -1,13 +1,13 @@
 import type { TransformResult } from '@astrojs/compiler';
 import path from 'path';
+import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
-import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
+import { preprocessCSS } from 'vite';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
 import { AggregateError, resolveJsToTs, viteID } from '../util.js';
-import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
@@ -18,17 +18,17 @@ type CompileResult = TransformResult & {
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
 export interface CompileProps {
-	config: AstroConfig;
+	astroConfig: AstroConfig;
+	viteConfig: ResolvedConfig;
 	filename: string;
 	source: string;
-	transformStyle: TransformStyle;
 }
 
 async function compile({
-	config,
+	astroConfig,
+	viteConfig,
 	filename,
 	source,
-	transformStyle,
 }: CompileProps): Promise<CompileResult> {
 	let cssDeps = new Set<string>();
 	let cssTransformErrors: Error[] = [];
@@ -44,8 +44,8 @@ async function compile({
 		// At the meantime workaround with a slash and  remove them in `astro:postprocess`
 		// when they are used in `client:component-path`.
 		pathname: prependForwardSlash(filename),
-		projectRoot: config.root.toString(),
-		site: config.site?.toString(),
+		projectRoot: astroConfig.root.toString(),
+		site: astroConfig.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(
@@ -53,7 +53,28 @@ async function compile({
 		)}`,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
-		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps, cssTransformErrors),
+		async preprocessStyle(content, attrs) {
+			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
+			const id = `${filename}?astro&type=style&lang${lang}`;
+			try {
+				const result = await preprocessCSS(content, id, viteConfig);
+				cssDeps = result.deps ?? cssDeps;
+
+				let map: string | undefined;
+				if (result.map) {
+					if (typeof result.map === 'string') {
+						map = result.map;
+					} else if (result.map.mappings) {
+						map = result.map.toString();
+					}
+				}
+
+				return { code: result.code, map };
+			} catch (e) {
+				cssTransformErrors.push(e as Error);
+				return { error: e + '' };
+			}
+		},
 	})
 		.catch((err) => {
 			// throw compiler errors here if encountered
@@ -136,13 +157,13 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 }
 
 export async function cachedCompilation(props: CompileProps): Promise<CompileResult> {
-	const { config, filename } = props;
+	const { astroConfig, filename } = props;
 	let cache: CompilationCache;
-	if (!configCache.has(config)) {
+	if (!configCache.has(astroConfig)) {
 		cache = new Map();
-		configCache.set(config, cache);
+		configCache.set(astroConfig, cache);
 	} else {
-		cache = configCache.get(config)!;
+		cache = configCache.get(astroConfig)!;
 	}
 	if (cache.has(filename)) {
 		return cache.get(filename)!;

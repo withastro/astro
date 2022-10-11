@@ -2,7 +2,6 @@ import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
-import type { ViteStyleTransformer } from '../vite-style-transform';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
@@ -13,10 +12,6 @@ import { cachedCompilation, CompileProps, getCachedSource } from '../core/compil
 import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
 import { viteID } from '../core/util.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import {
-	createTransformStyles,
-	createViteStyleTransformer,
-} from '../vite-style-transform/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
 
@@ -44,8 +39,6 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 	}
 
 	let resolvedConfig: vite.ResolvedConfig;
-	let styleTransformer: ViteStyleTransformer;
-	let viteDevServer: vite.ViteDevServer | undefined;
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
@@ -68,11 +61,6 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(_resolvedConfig) {
 			resolvedConfig = _resolvedConfig;
-			styleTransformer = createViteStyleTransformer(_resolvedConfig);
-		},
-		configureServer(server) {
-			viteDevServer = server;
-			styleTransformer.viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {
@@ -125,10 +113,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 			}
 
 			const compileProps: CompileProps = {
-				config,
+				astroConfig: config,
+				viteConfig: resolvedConfig,
 				filename,
 				source,
-				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
 
 			switch (query.type) {
@@ -220,10 +208,10 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 
 			const filename = normalizeFilename(parsedId.filename);
 			const compileProps: CompileProps = {
-				config,
+				astroConfig: config,
+				viteConfig: resolvedConfig,
 				filename,
 				source,
-				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
 
 			try {
@@ -342,10 +330,10 @@ ${source}
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
 			const compileProps: CompileProps = {
-				config,
+				astroConfig: config,
+				viteConfig: resolvedConfig,
 				filename: context.file,
 				source: await context.read(),
-				transformStyle: createTransformStyles(styleTransformer, context.file, true),
 			};
 			const compile = () => cachedCompilation(compileProps);
 			return handleHotUpdate(context, {

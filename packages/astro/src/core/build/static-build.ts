@@ -139,6 +139,9 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			// improve build performance
 			minify: false,
 			polyfillModulePreload: false,
+			modulePreload: {
+				polyfill: false
+			},
 			reportCompressedSize: false,
 		},
 		plugins: [
