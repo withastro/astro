@@ -1107,7 +1107,7 @@ interface AstroSharedContext<Props extends Record<string, any> = Record<string, 
 	/**
 	 * Redirect to another page (**SSR Only**).
 	 */
-	redirect(path: string, status?: number): Response;
+	redirect(path: string, status?: 301 | 302 | 308): Response;
 }
 
 export interface APIContext<Props extends Record<string, any> = Record<string, any>>
