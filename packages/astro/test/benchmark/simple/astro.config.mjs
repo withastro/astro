@@ -3,5 +3,5 @@ import nodejs from '@astrojs/node';
 
 export default defineConfig({
 	output: 'server',
-	adapter: nodejs(),
+	adapter: nodejs({ mode: 'middleware' }),
 });
