@@ -1,5 +1,12 @@
 # @astrojs/vercel
 
+## 2.1.1
+
+### Patch Changes
+
+- [#5033](https://github.com/withastro/astro/pull/5033) [`c1f991408`](https://github.com/withastro/astro/commit/c1f991408b817217dbd4035dcc4ac0a2fecd08b8) Thanks [@JuanM04](https://github.com/JuanM04)! - - Upgraded @vercel/nft to 0.22.1
+  - Fix monorepos (#5020)
+
 ## 2.1.0
 
 ### Minor Changes

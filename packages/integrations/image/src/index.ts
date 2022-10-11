@@ -49,9 +49,6 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 	function getViteConfiguration() {
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
-			optimizeDeps: {
-				include: ['image-size'].filter(Boolean),
-			},
 			build: {
 				rollupOptions: {
 					external: ['sharp'],
@@ -59,6 +56,8 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
+				// CJS dependencies used by `serviceEntryPoint`
+				external: ['http-cache-semantics', 'image-size', 'mime'],
 			},
 			assetsInclude: ['**/*.wasm'],
 		};
