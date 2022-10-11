@@ -1,10 +1,16 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, BuildConfig, RouteData } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration, RouteData } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as npath from 'path';
 import { fileURLToPath } from 'url';
 import type { Plugin as VitePlugin } from 'vite';
 import { createRedirects } from './shared.js';
+
+interface BuildConfig {
+	server: URL;
+	client: URL;
+	serverEntry: string;
+}
 
 const SHIM = `globalThis.process = {
 	argv: [],
@@ -74,8 +80,8 @@ async function createEdgeManifest(routes: RouteData[], entryFile: string, dir: U
 	await fs.promises.writeFile(manifestURL, _manifest, 'utf-8');
 }
 
-async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
-	const entryUrl = new URL(buildConfig.serverEntry, buildConfig.server);
+async function bundleServerEntry({ serverEntry, server }: BuildConfig, vite: any) {
+	const entryUrl = new URL(serverEntry, server);
 	const pth = fileURLToPath(entryUrl);
 	await esbuild.build({
 		target: 'es2020',
@@ -96,7 +102,7 @@ async function bundleServerEntry(buildConfig: BuildConfig, vite: any) {
 		const chunkFileNames =
 			vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
 		const chunkPath = npath.dirname(chunkFileNames);
-		const chunksDirUrl = new URL(chunkPath + '/', buildConfig.server);
+		const chunksDirUrl = new URL(chunkPath + '/', server);
 		await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
 	} catch {}
 }
@@ -110,12 +116,6 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 		name: '@astrojs/netlify/edge-functions',
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
-				if (dist) {
-					config.outDir = dist;
-				} else {
-					config.outDir = new URL('./dist/', config.root);
-				}
-
 				// Add a plugin that shims the global environment.
 				const injectPlugin: VitePlugin = {
 					name: '@astrojs/netlify/plugin-inject',
@@ -128,8 +128,14 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 						}
 					},
 				};
-
+				const outDir = dist ?? new URL('./dist/', config.root);
 				updateConfig({
+					outDir,
+					build: {
+						client: outDir,
+						server: new URL('./.netlify/edge-functions/', config.root),
+						serverEntry: 'entry.js',
+					},
 					vite: {
 						plugins: [injectPlugin],
 					},
@@ -138,6 +144,8 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 			'astro:config:done': ({ config, setAdapter }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				_buildConfig = config.build;
+				entryFile = config.build.serverEntry.replace(/\.m?js/, '');
 
 				if (config.output === 'static') {
 					console.warn(`[@astrojs/netlify] \`output: "server"\` is required to use this adapter.`);
@@ -145,13 +153,6 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 						`[@astrojs/netlify] Otherwise, this adapter is not required to deploy a static site to Netlify.`
 					);
 				}
-			},
-			'astro:build:start': async ({ buildConfig }) => {
-				_buildConfig = buildConfig;
-				entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');
-				buildConfig.client = _config.outDir;
-				buildConfig.server = new URL('./.netlify/edge-functions/', _config.root);
-				buildConfig.serverEntry = 'entry.js';
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

@@ -4,6 +4,11 @@ import * as fs from 'fs';
 import * as npath from 'path';
 import { fileURLToPath } from 'url';
 
+interface BuildConfig {
+	server: URL;
+	serverEntry: string;
+}
+
 interface Options {
 	port?: number;
 	hostname?: string;
@@ -24,13 +29,14 @@ export function getAdapter(args?: Options): AstroAdapter {
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
-	let _buildConfig: any;
+	let _buildConfig: BuildConfig;
 	let _vite: any;
 	return {
 		name: '@astrojs/deno',
 		hooks: {
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(args));
+				_buildConfig = config.build;
 
 				if (config.output === 'static') {
 					console.warn(`[@astrojs/deno] \`output: "server"\` is required to use this adapter.`);
@@ -38,9 +44,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						`[@astrojs/deno] Otherwise, this adapter is not required to deploy a static site to Deno.`
 					);
 				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				_buildConfig = buildConfig;
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

@@ -1,6 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import { execa } from 'execa';
-import type { AstroSettings } from '../../@types/astro';
+import type { AstroSettings, PreviewModule } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
 import createStaticPreviewServer from './static-preview-server.js';
@@ -41,6 +40,22 @@ export default async function preview(
 	// preview entrypoint of the integration package, relative to the user's project root.
 	const require = createRequire(settings.config.root);
 	const previewEntrypoint = require.resolve(settings.adapter.previewEntrypoint);
-	const previewModule = await import(previewEntrypoint);
-	return previewModule.default({ outDir: settings.config.outDir, host, port });
+
+	type MaybePreviewModule = {
+		default?: PreviewModule['default'];
+	}
+	const previewModule = (await import(previewEntrypoint)) as MaybePreviewModule;
+
+	if(typeof previewModule.default !== 'function') {
+		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
+	}
+
+	const server = await previewModule.default({
+		outDir: settings.config.outDir,
+		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
+		host,
+		port
+	});
+
+	return server.closed();
 }

@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroConfig, AstroIntegration, BuildConfig } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -6,6 +6,12 @@ import { fileURLToPath } from 'url';
 type Options = {
 	mode: 'directory' | 'advanced';
 };
+
+interface BuildConfig {
+	server: URL;
+	client: URL;
+	serverEntry: string;
+}
 
 export function getAdapter(isModeDirectory: boolean): AstroAdapter {
 	return isModeDirectory
@@ -34,9 +40,19 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
+			'astro:config:setup': ({ config, updateConfig }) => {
+				updateConfig({
+					build: {
+						client: new URL('./static/', config.outDir),
+						server: new URL('./', config.outDir),
+						serverEntry: '_worker.js',
+					}
+				});
+			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter(isModeDirectory));
 				_config = config;
+				_buildConfig = config.build;
 
 				if (config.output === 'static') {
 					throw new Error(`
@@ -44,12 +60,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
 
 `);
 				}
-			},
-			'astro:build:start': ({ buildConfig }) => {
-				_buildConfig = buildConfig;
-				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.serverEntry = '_worker.js';
-				buildConfig.server = new URL('./', _config.outDir);
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {

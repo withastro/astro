@@ -23,12 +23,23 @@ export default function vercelEdge(): AstroIntegration {
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config }) => {
-				config.outDir = getVercelOutput(config.root);
+			'astro:config:setup': ({ config, updateConfig }) => {
+				const outDir = getVercelOutput(config.root);
+				updateConfig({
+					outDir,
+					build: {
+						serverEntry: 'entry.js',
+						client: new URL('./static/', outDir),
+						server: new URL('./dist/', config.root),
+					}
+				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				buildTempFolder = config.build.server;
+				functionFolder = new URL('./functions/render.func/', config.outDir);
+				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
 					throw new Error(`
@@ -36,12 +47,6 @@ export default function vercelEdge(): AstroIntegration {
 	
 	`);
 				}
-			},
-			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.serverEntry = serverEntry = 'entry.js';
-				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = buildTempFolder = new URL('./dist/', _config.root);
-				functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)

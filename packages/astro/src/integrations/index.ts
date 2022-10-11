@@ -3,6 +3,7 @@ import type { AddressInfo } from 'net';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import {
 	AstroConfig,
+	AstroIntegration,
 	AstroRenderer,
 	AstroSettings,
 	BuildConfig,
@@ -12,7 +13,7 @@ import {
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import { mergeConfig } from '../core/config/config.js';
-import { info, LogOptions } from '../core/logger/core.js';
+import { info, LogOptions, warn } from '../core/logger/core.js';
 
 async function withTakingALongTimeMsg<T>({
 	name,
@@ -204,13 +205,41 @@ export async function runHookBuildStart({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
+	function warnDeprecated(integration: AstroIntegration, prop: 'server' | 'client' | 'serverEntry') {
+		let value: any = Reflect.get(buildConfig, prop);
+		Object.defineProperty(buildConfig, prop, {
+			enumerable: true,
+			get() {
+				return value;
+			},
+			set(newValue) {
+				value = newValue;
+				//warn(logging, 'astro:build:start', `The buildConfig property has been deprecated. In order to set [${prop}] you should set config.build.${prop} in the astro:config:setup hook instead.`);
+				warn(logging, 'astro:build:start', `Your adapter ${bold(integration.name)} is using a deprecated API, buildConfig. ${bold(prop)} config should be set via config.build.${prop} instead.`);
+			}
+		});
+		return () => {
+			Object.defineProperty(buildConfig, prop, {
+				enumerable: true,
+				value
+			});
+		}
+	}
+
+
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {
+			const undoClientWarning = warnDeprecated(integration, 'client');
+			const undoServerWarning = warnDeprecated(integration, 'server');
+			const undoServerEntryWarning = warnDeprecated(integration, 'serverEntry');
 			await withTakingALongTimeMsg({
 				name: integration.name,
 				hookResult: integration.hooks['astro:build:start']({ buildConfig }),
 				logging,
 			});
+			undoClientWarning();
+			undoServerEntryWarning();
+			undoServerWarning();
 		}
 	}
 }
