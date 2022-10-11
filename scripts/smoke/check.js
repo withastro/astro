@@ -19,14 +19,11 @@ function checkExamples() {
 					let data = '';
 					const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {
 						cwd: path.join('./examples', example.name),
+						env: { ...process.env, FORCE_COLOR: true }
 					});
 
 					child.stdout.on('data', function (buffer) {
 						data += buffer.toString();
-					});
-
-					child.stderr.on('data', (data) => {
-  					console.error(`stderr: ${data}`);
 					});
 
 					child.on('exit', (code) => {
@@ -54,11 +51,13 @@ function prepareExample(examplePath) {
 	if (tsconfig.exists) {
 		tsconfig.config.extends = 'astro/tsconfigs/strictest';
 
-		if (tsconfig.config.compilerOptions) {
-			tsconfig.config.compilerOptions = Object.assign(tsconfig.config.compilerOptions, {
-				types: tsconfig.config.compilerOptions.types ?? [], // Speeds up tests
-			});
+		if (!tsconfig.config.compilerOptions) {
+			tsconfig.config.compilerOptions = {};
 		}
+
+		tsconfig.config.compilerOptions = Object.assign(tsconfig.config.compilerOptions, {
+			types: tsconfig.config.compilerOptions.types ?? [], // Speeds up tests
+		});
 	}
 
 	writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config, null, 2));
