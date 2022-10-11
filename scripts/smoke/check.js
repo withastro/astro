@@ -1,7 +1,7 @@
 // @ts-check
 
 import { spawn } from 'child_process';
-import { readdirSync, writeFileSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
@@ -15,11 +15,11 @@ function checkExamples() {
 		examples.map(
 			(example) =>
 				new Promise((resolve) => {
-					prepareExample(example.name);
+					const originalConfig = prepareExample(example.name);
 					let data = '';
 					const child = spawn('node', ['../../packages/astro/astro.js', 'check'], {
 						cwd: path.join('./examples', example.name),
-						env: { ...process.env, FORCE_COLOR: true }
+						env: { ...process.env, FORCE_COLOR: 'true' },
 					});
 
 					child.stdout.on('data', function (buffer) {
@@ -29,6 +29,9 @@ function checkExamples() {
 					child.on('exit', (code) => {
 						if (code !== 0) {
 							console.error(data);
+						}
+						if (originalConfig) {
+							resetExample(example.name, originalConfig);
 						}
 						resolve(code);
 					});
@@ -47,9 +50,11 @@ function checkExamples() {
 function prepareExample(examplePath) {
 	const tsconfigPath = path.join('./examples/', examplePath, 'tsconfig.json');
 	const tsconfig = tsconfigResolverSync({ filePath: tsconfigPath, cache: false });
+	let originalConfig = undefined;
 
 	if (tsconfig.exists) {
 		tsconfig.config.extends = 'astro/tsconfigs/strictest';
+		originalConfig = readFileSync(tsconfigPath).toString();
 
 		if (!tsconfig.config.compilerOptions) {
 			tsconfig.config.compilerOptions = {};
@@ -60,7 +65,18 @@ function prepareExample(examplePath) {
 		});
 	}
 
-	writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config, null, 2));
+	writeFileSync(tsconfigPath, JSON.stringify(tsconfig.config));
+
+	return originalConfig;
+}
+
+/**
+ * @param {string} examplePath
+ * @param {string} originalConfig
+ */
+function resetExample(examplePath, originalConfig) {
+	const tsconfigPath = path.join('./examples/', examplePath, 'tsconfig.json');
+	writeFileSync(tsconfigPath, originalConfig);
 }
 
 checkExamples();

@@ -322,6 +322,7 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/tailwind': ^2.0.2
+      '@types/canvas-confetti': ^1.4.3
       astro: ^1.4.6
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
@@ -329,6 +330,7 @@ importers:
       tailwindcss: ^3.0.24
     dependencies:
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
+      '@types/canvas-confetti': 1.4.3
       astro: link:../../packages/astro
       autoprefixer: 10.4.12_postcss@8.4.17
       canvas-confetti: 1.5.1
@@ -9370,6 +9372,10 @@ packages:
     dependencies:
       '@types/node': 18.8.3
     dev: true
+
+  /@types/canvas-confetti/1.4.3:
+    resolution: {integrity: sha512-UwFPTsW1ZwVyo/ETp4hPSikSD7yl2V42E3VWBF5P/0+DHO4iajyceWv7hfNdZ2AX5tkZnuViiBWOqyCPohU2FQ==}
+    dev: false
 
   /@types/chai-as-promised/7.1.5:
     resolution: {integrity: sha512-jStwss93SITGBwt/niYrkf2C+/1KTeZCZl1LaeezTlqppAKeoQC7jxyqYuP72sxBGKCIbw7oHgbYssIRzT5FCQ==}

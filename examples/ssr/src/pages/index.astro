@@ -19,16 +19,13 @@ const products = await getProducts(Astro.request);
 			.product-listing-title {
 				text-align: center;
 			}
-
-			.product-listing {
-			}
 		</style>
 	</head>
 	<body>
 		<Header />
 
 		<Container tag="main">
-			<ProductListing products={products} class="product-listing">
+			<ProductListing products={products}>
 				<h2 class="product-listing-title" slot="title">Product Listing</h2>
 			</ProductListing>
 		</Container>
