@@ -1,7 +1,7 @@
 // @ts-check
 
-import { exec, execSync, spawn } from 'child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'fs';
+import { spawn } from 'child_process';
+import { readdirSync, writeFileSync } from 'fs';
 import * as path from 'path';
 import { tsconfigResolverSync } from 'tsconfig-resolver';
 
@@ -23,6 +23,10 @@ function checkExamples() {
 
 					child.stdout.on('data', function (buffer) {
 						data += buffer.toString();
+					});
+
+					child.stderr.on('data', (data) => {
+  					console.error(`stderr: ${data}`);
 					});
 
 					child.on('exit', (code) => {

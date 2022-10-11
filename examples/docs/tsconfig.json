@@ -1,7 +1,8 @@
 {
-  "extends": "astro/tsconfigs/base",
+  "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
     "jsx": "preserve",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": []
   }
 }
