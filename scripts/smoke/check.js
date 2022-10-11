@@ -41,6 +41,8 @@ function checkExamples() {
 		if (codes.some((code) => code !== 0)) {
 			process.exit(1);
 		}
+
+		console.log("No errors found!");
 	});
 }
 
