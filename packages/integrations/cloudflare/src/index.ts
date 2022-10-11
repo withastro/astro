@@ -35,12 +35,14 @@ const SHIM = `globalThis.process = {
 export default function createIntegration(args?: Options): AstroIntegration {
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
+	let needsBuildConfig = false;
 	const isModeDirectory = args?.mode === 'directory';
 
 	return {
 		name: '@astrojs/cloudflare',
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
+				needsBuildConfig = !config.build.client;
 				updateConfig({
 					build: {
 						client: new URL('./static/', config.outDir),
@@ -77,6 +79,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					}
 					vite.ssr = vite.ssr || {};
 					vite.ssr.target = vite.ssr.target || 'webworker';
+				}
+			},
+			'astro:build:start': ({ buildConfig }) => {
+				// Backwards compat
+				if(needsBuildConfig) {
+					buildConfig.client = new URL('./static/', _config.outDir);
+					buildConfig.server = new URL('./', _config.outDir);
+					buildConfig.serverEntry = '_worker.js';
 				}
 			},
 			'astro:build:done': async () => {

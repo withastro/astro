@@ -17,11 +17,13 @@ export default function vercelEdge(): AstroIntegration {
 	let _config: AstroConfig;
 	let functionFolder: URL;
 	let serverEntry: string;
+	let needsBuildConfig = false;
 
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
 			'astro:config:setup': ({ config, updateConfig }) => {
+				needsBuildConfig = !config.build.client;
 				const outDir = getVercelOutput(config.root);
 				updateConfig({
 					outDir,
@@ -37,6 +39,13 @@ export default function vercelEdge(): AstroIntegration {
 				_config = config;
 				serverEntry = config.build.serverEntry;
 				functionFolder = config.build.server;
+			},
+			'astro:build:start': ({ buildConfig }) => {
+				if(needsBuildConfig) {
+					buildConfig.client = new URL('./static/', _config.outDir);
+					serverEntry = buildConfig.serverEntry = 'entry.mjs';
+					functionFolder = buildConfig.server = new URL('./functions/render.func/', _config.outDir);
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
