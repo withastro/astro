@@ -2,7 +2,6 @@
   "extends": "astro/tsconfigs/base",
   "compilerOptions": {
     "jsx": "preserve",
-    "skipLibCheck": true,
-    "types": []
+    "skipLibCheck": true
   }
 }
