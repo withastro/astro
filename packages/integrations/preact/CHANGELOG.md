@@ -1,5 +1,27 @@
 # @astrojs/preact
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5015](https://github.com/withastro/astro/pull/5015) [`b1964e9e1`](https://github.com/withastro/astro/commit/b1964e9e1b7f9178036e266b89d3c8b9cbffd1c6) Thanks [@matthewp](https://github.com/matthewp)! - Shared state in Preact components with signals
+
+  This makes it possible to share client state between Preact islands via signals.
+
+  For example, you can create a signals in an Astro component and then pass it to multiple islands:
+
+  ```astro
+  ---
+  // Component Imports
+  import Counter from '../components/Counter';
+  import { signal } from '@preact/signals';
+  const count = signal(0);
+  ---
+
+  <Count count={count} />
+  <Count count={count} />
+  ```
+
 ## 1.1.1
 
 ### Patch Changes

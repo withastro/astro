@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { getVercelOutput, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 
@@ -16,6 +16,7 @@ function getAdapter(): AstroAdapter {
 
 export default function vercelEdge(): AstroIntegration {
 	let _config: AstroConfig;
+	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
 
@@ -39,11 +40,18 @@ export default function vercelEdge(): AstroIntegration {
 			'astro:build:start': async ({ buildConfig }) => {
 				buildConfig.serverEntry = serverEntry = 'entry.js';
 				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
+				buildConfig.server = buildTempFolder = new URL('./dist/', _config.root);
+				functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)
-				await copyDependenciesToFunction(_config.root, functionFolder, serverEntry);
+				const { handler } = await copyDependenciesToFunction(
+					new URL(serverEntry, buildTempFolder),
+					functionFolder
+				);
+
+				// Remove temporary folder
+				await removeDir(buildTempFolder);
 
 				// Enable ESM
 				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
@@ -55,7 +63,7 @@ export default function vercelEdge(): AstroIntegration {
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 					runtime: getRuntime(),
-					handler: serverEntry,
+					handler,
 					launcherType: 'Nodejs',
 				});
 
