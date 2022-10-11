@@ -1,5 +1,5 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AstroSettings, PreviewModule } from '../../@types/astro';
+import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
 import createStaticPreviewServer from './static-preview-server.js';
@@ -15,7 +15,7 @@ interface PreviewOptions {
 export default async function preview(
 	_settings: AstroSettings,
 	{ logging }: PreviewOptions
-): Promise<any> {
+): Promise<PreviewServer> {
 	const settings = await runHookConfigSetup({
 		settings: _settings,
 		command: 'preview',
@@ -27,7 +27,7 @@ export default async function preview(
 
 	if (settings.config.output === 'static') {
 		const server = await createStaticPreviewServer(settings, { logging, host, port });
-		return server.closed();
+		return server;
 	}
 	if (!settings.adapter) {
 		throw new Error(`[preview] No adapter found.`);
@@ -54,5 +54,5 @@ export default async function preview(
 		port
 	});
 
-	return server.closed();
+	return server;
 }
