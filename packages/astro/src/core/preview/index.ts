@@ -41,17 +41,14 @@ export default async function preview(
 	const require = createRequire(settings.config.root);
 	const previewEntrypoint = require.resolve(settings.adapter.previewEntrypoint);
 
-	type MaybePreviewModule = {
-		default?: PreviewModule['default'];
-	}
-	const previewModule = (await import(previewEntrypoint)) as MaybePreviewModule;
-
+	const previewModule = (await import(previewEntrypoint)) as Partial<PreviewModule>;
 	if(typeof previewModule.default !== 'function') {
 		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
 	}
 
 	const server = await previewModule.default({
 		outDir: settings.config.outDir,
+		client: settings.config.build.client,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host,
 		port

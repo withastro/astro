@@ -1321,11 +1321,14 @@ export interface PreviewServer {
 
 export interface PreviewServerParams {
 	outDir: URL;
+	client: URL;
 	serverEntrypoint: URL;
 	host: string | undefined;
 	port: number;
 }
 
+export type CreatePreviewServer = (params: PreviewServerParams) => PreviewServer | Promise<PreviewServer>;
+
 export interface PreviewModule {
-	default: (params: PreviewServerParams) => PreviewServer | Promise<PreviewServer>;
+	default: CreatePreviewServer;
 }
