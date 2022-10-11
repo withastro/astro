@@ -1288,7 +1288,7 @@ declare namespace astroHTML.JSX {
 		zoomAndPan?: string | undefined | null;
 	}
 
-	interface IntrinsicElements {
+	interface NativeIntrinsicElements {
 		// HTML
 		a: AnchorHTMLAttributes;
 		abbr: HTMLAttributes;
@@ -1461,8 +1461,10 @@ declare namespace astroHTML.JSX {
 		tspan: SVGAttributes;
 		use: SVGAttributes;
 		view: SVGAttributes;
-
-		// Allow for arbitrary elements
-		[name: string]: { [name: string]: any };
 	}
+
+	type IntrinsicElements = NativeIntrinsicElements & {
+		// Allow for arbitrary custom elements
+		[TagName in `${string}-${string}`]: { [attribute: string]: any };
+	};
 }
