@@ -74,6 +74,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectRoute }) => {
 				needsBuildConfig = !config.build?.server;
+				_config = config;
 				updateConfig({ vite: getViteConfiguration() });
 
 				if (command === 'dev' || config.output === 'server') {
