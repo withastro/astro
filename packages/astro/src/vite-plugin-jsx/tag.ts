@@ -104,7 +104,7 @@ export default function tagExportsWithRenderer({
 									addTag(property.key.name);
 								}
 							});
-						} else if (t.isExportNamedDeclaration(node)) {
+						} else if (t.isExportNamedDeclaration(node) && !node.source) {
 							node.specifiers.forEach((specifier) => {
 								if (t.isExportSpecifier(specifier) && t.isIdentifier(specifier.exported)) {
 									addTag(specifier.local.name);
