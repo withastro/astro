@@ -157,7 +157,7 @@ export function netlifyEdgeFunctions({ dist }: NetlifyEdgeFunctionsOptions = {})
 				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					buildConfig.client = _config.outDir;
 					buildConfig.server = new URL('./.netlify/edge-functions/', _config.root);
 					buildConfig.serverEntry = 'entry.js';
