@@ -12,9 +12,11 @@
 			// can fetch them directly in the browser.
 			const response = await fetch(`/about.json`);
 			const data = await response.json();
-			document.getElementById(
-				'result'
-			).innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+			const resultHeader = document.getElementById('result');
+
+			if (resultHeader) {
+				resultHeader.innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+			}
 		</script>
 	</body>
 </html>

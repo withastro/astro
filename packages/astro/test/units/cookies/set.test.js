@@ -45,6 +45,16 @@ describe('astro/src/core/cookies', () => {
 			expect(headers[0]).to.equal('one=2');
 		});
 
+		it('Can pass a boolean', () => {
+			let req = new Request('http://example.com/');
+			let cookies = new AstroCookies(req);
+			cookies.set('admin', true);
+			expect(cookies.get('admin').boolean()).to.equal(true);
+			let headers = Array.from(cookies.headers());
+			expect(headers).to.have.a.lengthOf(1);
+			expect(headers[0]).to.equal('admin=true');
+		});
+
 		it('Can get the value after setting', () => {
 			let req = new Request('http://example.com/');
 			let cookies = new AstroCookies(req);

@@ -16,5 +16,8 @@
     "kleur": "^4.1.4",
     "svelte": "^3.48.0",
     "tar": "^6.1.11"
+  },
+  "devDependencies": {
+    "tsconfig-resolver": "^3.0.1"
   }
 }
