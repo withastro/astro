@@ -3,8 +3,8 @@
 // License: MIT (https://github.com/solidjs/vite-plugin-solid/blob/03130c8a0a2ceaab9a07e16f1e1df832b996e1b8/package.json#L38)
 
 import fs from 'fs';
-import path from 'path';
 import { createRequire } from 'module';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 function containsSolidField(fields: Record<string, any>) {

@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'url';
-import { resolve as importMetaResolve } from 'import-meta-resolve';
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
+import { fileURLToPath } from 'url';
 
 /**
  * This plugin handles every file that runs through our JSX plugin.
