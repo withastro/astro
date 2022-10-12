@@ -413,6 +413,7 @@ importers:
       gray-matter: ^4.0.3
       html-entities: ^2.3.3
       html-escaper: ^3.0.3
+      import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
       magic-string: ^0.25.9
       mime: ^3.0.0
@@ -482,6 +483,7 @@ importers:
       gray-matter: 4.0.3
       html-entities: 2.3.3
       html-escaper: 3.0.3
+      import-meta-resolve: 2.1.0
       kleur: 4.1.5
       magic-string: 0.25.9
       mime: 3.0.0
@@ -3043,9 +3045,11 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       babel-preset-solid: ^1.4.2
+      import-meta-resolve: ^2.1.0
       solid-js: ^1.5.1
     dependencies:
       babel-preset-solid: 1.5.7
+      import-meta-resolve: 2.1.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
