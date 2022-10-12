@@ -3045,11 +3045,9 @@ importers:
       astro: workspace:*
       astro-scripts: workspace:*
       babel-preset-solid: ^1.4.2
-      import-meta-resolve: ^2.1.0
       solid-js: ^1.5.1
     dependencies:
       babel-preset-solid: 1.5.7
-      import-meta-resolve: 2.1.0
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
