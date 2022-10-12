@@ -33,7 +33,7 @@ export default function vercelEdge(): AstroIntegration {
 						serverEntry: 'entry.js',
 						client: new URL('./static/', outDir),
 						server: new URL('./dist/', config.root),
-					}
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -51,7 +51,7 @@ export default function vercelEdge(): AstroIntegration {
 				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					buildConfig.client = new URL('./static/', _config.outDir);
 					buildTempFolder = buildConfig.server = new URL('./dist/', _config.root);
 					serverEntry = buildConfig.serverEntry = 'entry.js';
