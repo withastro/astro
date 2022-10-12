@@ -1,5 +1,6 @@
 import { bold } from 'kleur/colors';
 import type { AddressInfo } from 'net';
+import { fileURLToPath } from 'node:url';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import {
 	AstroConfig,
@@ -37,10 +38,12 @@ export async function runHookConfigSetup({
 	settings,
 	command,
 	logging,
+	isRestart = false,
 }: {
 	settings: AstroSettings;
 	command: 'dev' | 'build';
 	logging: LogOptions;
+	isRestart?: boolean;
 }): Promise<AstroSettings> {
 	// An adapter is an integration, so if one is provided push it.
 	if (settings.config.adapter) {
@@ -66,6 +69,7 @@ export async function runHookConfigSetup({
 			const hooks: HookParameters<'astro:config:setup'> = {
 				config: updatedConfig,
 				command,
+				isRestart,
 				addRenderer(renderer: AstroRenderer) {
 					if (!renderer.name) {
 						throw new Error(`Integration ${bold(integration.name)} has an unnamed renderer.`);
@@ -85,6 +89,9 @@ export async function runHookConfigSetup({
 				},
 				injectRoute: (injectRoute) => {
 					updatedSettings.injectedRoutes.push(injectRoute);
+				},
+				addWatchFile: (path) => {
+					updatedSettings.watchFiles.push(path instanceof URL ? fileURLToPath(path) : path);
 				},
 			};
 			// Semi-private `addPageExtension` hook

@@ -16,7 +16,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 		const [
 			{ mergeConfig },
 			{ nodeLogDestination },
-			{ openConfig, createSettings, loadTSConfig },
+			{ openConfig, createSettings },
 			{ createVite },
 			{ runHookConfigSetup, runHookConfigDone },
 		] = await Promise.all([
@@ -34,12 +34,7 @@ export function getViteConfig(inlineConfig: UserConfig) {
 			cmd,
 			logging,
 		});
-		const initialTsConfig = loadTSConfig(inlineConfig.root);
-		const settings = createSettings({
-			config,
-			tsConfig: initialTsConfig?.config,
-			tsConfigPath: initialTsConfig?.path,
-		});
+		const settings = createSettings(config, inlineConfig.root);
 		await runHookConfigSetup({ settings, command: cmd, logging });
 		const viteConfig = await createVite(
 			{
