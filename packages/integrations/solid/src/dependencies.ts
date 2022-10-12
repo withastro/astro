@@ -20,6 +20,7 @@ function containsSolidField(fields: Record<string, any>) {
 export function getSolidDeps(root: URL) {
 	const pkgPath = path.join(fileURLToPath(root), 'package.json');
 	if (!fs.existsSync(pkgPath)) {
+		// eslint-disable-next-line no-console
 		console.log('No package.json found at project root');
 		return [];
 	}
@@ -29,14 +30,14 @@ export function getSolidDeps(root: URL) {
 	const pkgs = deps.map((dep) => {
 		try {
 			return require(`${dep}/package.json`);
-		} catch (e) {
+		} catch {
 			try {
 				let dir = path.dirname(require.resolve(dep));
 				while (dir) {
-					const pkgPath = path.join(dir, 'package.json');
-					if (fs.existsSync(pkgPath)) {
-						const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-						if (pkg && pkg.name === dep) return pkg;
+					const subPkgPath = path.join(dir, 'package.json');
+					if (fs.existsSync(subPkgPath)) {
+						const subPkg = JSON.parse(fs.readFileSync(subPkgPath, 'utf-8'));
+						if (subPkg && subPkg.name === dep) return subPkg;
 					}
 					const parent = path.dirname(dir);
 					if (parent === dir) {
@@ -45,7 +46,7 @@ export function getSolidDeps(root: URL) {
 					dir = parent;
 				}
 			} catch (e) {
-				console.log("Couldn't find package.json for", dep, e);
+				console.warn("Couldn't find package.json for", dep, e);
 			}
 		}
 	});
