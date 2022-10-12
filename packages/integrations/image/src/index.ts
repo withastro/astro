@@ -100,7 +100,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				// Backwards compat
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					_buildConfig = buildConfig;
 				}
 			},

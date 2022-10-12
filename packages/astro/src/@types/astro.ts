@@ -544,9 +544,9 @@ export interface AstroUserConfig {
 		 * @description
 		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
 		 * `outDir` controls where the code is built to.
-		 * 
+		 *
 		 * This value is relative to the `outDir`.
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   output: 'server',
@@ -564,9 +564,9 @@ export interface AstroUserConfig {
 		 * @default `'./dist/server'`
 		 * @description
 		 * Controls the output directory of server JavaScript when building to SSR.
-		 * 
+		 *
 		 * This value is relative to the `outDir`.
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   build: {
@@ -585,10 +585,10 @@ export interface AstroUserConfig {
 		 * Specifies the file name of the server entrypoint when building to SSR.
 		 * This entrypoint is usually dependent on which host you are deploying to and
 		 * will be set by your adapter for you.
-		 * 
+		 *
 		 * Note that it is recommended that this file ends with `.mjs` so that the runtime
 		 * detects that the file is a JavaScript module.
-		 * 
+		 *
 		 * ```js
 		 * {
 		 *   build: {
@@ -1422,7 +1422,9 @@ export interface PreviewServerParams {
 	port: number;
 }
 
-export type CreatePreviewServer = (params: PreviewServerParams) => PreviewServer | Promise<PreviewServer>;
+export type CreatePreviewServer = (
+	params: PreviewServerParams
+) => PreviewServer | Promise<PreviewServer>;
 
 export interface PreviewModule {
 	default: CreatePreviewServer;

@@ -1,15 +1,15 @@
 import type { NodeApp } from 'astro/app/node';
-import type { Options } from './types';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import middleware from './middleware.js';
 import { createServer } from './http-server.js';
+import middleware from './middleware.js';
+import type { Options } from './types';
 
 function resolvePaths(options: Options) {
 	const clientURLRaw = new URL(options.client);
 	const serverURLRaw = new URL(options.server);
 	const rel = path.relative(fileURLToPath(serverURLRaw), fileURLToPath(clientURLRaw));
-	
+
 	const serverEntryURL = new URL(import.meta.url);
 	const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
 
@@ -35,16 +35,19 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 }
 
 export default function startServer(app: NodeApp, options: Options) {
-	const port = process.env.PORT ? Number(process.env.port) : (options.port ?? 8080);
+	const port = process.env.PORT ? Number(process.env.port) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
 	const handler = middleware(app);
 
 	const host = getResolvedHostForHttpServer(options.host);
-	const server = createServer({
-		client,
-		port,
-		host,
-	}, handler);
+	const server = createServer(
+		{
+			client,
+			port,
+			host,
+		},
+		handler
+	);
 
 	// eslint-disable-next-line no-console
 	console.log(`Server listening on http://${host}:${port}`);

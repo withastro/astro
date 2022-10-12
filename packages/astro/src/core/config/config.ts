@@ -346,7 +346,7 @@ function mergeConfigRecursively(
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
 			continue;
 		}
-		if(isURL(existing) && isURL(value)) {
+		if (isURL(existing) && isURL(value)) {
 			merged[key] = value;
 			continue;
 		}

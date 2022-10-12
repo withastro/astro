@@ -212,7 +212,10 @@ export async function runHookBuildStart({
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 }) {
-	function warnDeprecated(integration: AstroIntegration, prop: 'server' | 'client' | 'serverEntry') {
+	function warnDeprecated(
+		integration: AstroIntegration,
+		prop: 'server' | 'client' | 'serverEntry'
+	) {
 		let value: any = Reflect.get(buildConfig, prop);
 		Object.defineProperty(buildConfig, prop, {
 			enumerable: true,
@@ -221,17 +224,22 @@ export async function runHookBuildStart({
 			},
 			set(newValue) {
 				value = newValue;
-				warn(logging, 'astro:build:start', `Your adapter ${bold(integration.name)} is using a deprecated API, buildConfig. ${bold(prop)} config should be set via config.build.${prop} instead.`);
-			}
+				warn(
+					logging,
+					'astro:build:start',
+					`Your adapter ${bold(integration.name)} is using a deprecated API, buildConfig. ${bold(
+						prop
+					)} config should be set via config.build.${prop} instead.`
+				);
+			},
 		});
 		return () => {
 			Object.defineProperty(buildConfig, prop, {
 				enumerable: true,
-				value
+				value,
 			});
-		}
+		};
 	}
-
 
 	for (const integration of config.integrations) {
 		if (integration?.hooks?.['astro:build:start']) {

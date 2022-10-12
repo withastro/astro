@@ -7,13 +7,13 @@ export function getAdapter(options: Options): AstroAdapter {
 		serverEntrypoint: '@astrojs/node/server.js',
 		previewEntrypoint: '@astrojs/node/preview.js',
 		exports: ['handler'],
-		args: options
+		args: options,
 	};
 }
 
 export default function createIntegration(userOptions: UserOptions): AstroIntegration {
-	if(!userOptions?.mode) {
-		throw new Error(`[@astrojs/node] Setting the 'mode' option is required.`)
+	if (!userOptions?.mode) {
+		throw new Error(`[@astrojs/node] Setting the 'mode' option is required.`);
 	}
 
 	let needsBuildConfig = false;
@@ -38,11 +38,11 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				// Backwards compat
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					_options.client = buildConfig.client.toString();
 					_options.server = buildConfig.server.toString();
 				}
-			}
+			},
 		},
 	};
 }

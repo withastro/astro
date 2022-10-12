@@ -2,8 +2,12 @@ import type { NodeApp } from 'astro/app/node';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { Readable } from 'stream';
 
-export default function(app: NodeApp) {
-	return async function(req: IncomingMessage, res: ServerResponse, next?: (err?: unknown) => void) {
+export default function (app: NodeApp) {
+	return async function (
+		req: IncomingMessage,
+		res: ServerResponse,
+		next?: (err?: unknown) => void
+	) {
 		try {
 			const route = app.match(req);
 

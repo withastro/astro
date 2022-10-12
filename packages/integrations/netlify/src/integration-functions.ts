@@ -34,7 +34,7 @@ function netlifyFunctions({
 					build: {
 						client: outDir,
 						server: new URL('./.netlify/functions-internal/', config.root),
-					}
+					},
 				});
 			},
 			'astro:config:done': ({ config, setAdapter }) => {
@@ -50,7 +50,7 @@ function netlifyFunctions({
 				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					buildConfig.client = _config.outDir;
 					buildConfig.server = new URL('./.netlify/functions-internal/', _config.root);
 					entryFile = buildConfig.serverEntry.replace(/\.m?js/, '');

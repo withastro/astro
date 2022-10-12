@@ -1,9 +1,9 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import { createRequire } from 'module';
 import type { AstroSettings, PreviewModule, PreviewServer } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 import type { LogOptions } from '../logger/core';
 import createStaticPreviewServer from './static-preview-server.js';
-import { createRequire } from 'module';
 import { getResolvedHostForHttpServer } from './util.js';
 
 interface PreviewOptions {
@@ -42,7 +42,7 @@ export default async function preview(
 	const previewEntrypoint = require.resolve(settings.adapter.previewEntrypoint);
 
 	const previewModule = (await import(previewEntrypoint)) as Partial<PreviewModule>;
-	if(typeof previewModule.default !== 'function') {
+	if (typeof previewModule.default !== 'function') {
 		throw new Error(`[preview] ${settings.adapter.name} cannot preview your app.`);
 	}
 
@@ -51,7 +51,7 @@ export default async function preview(
 		client: settings.config.build.client,
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host,
-		port
+		port,
 	});
 
 	return server;

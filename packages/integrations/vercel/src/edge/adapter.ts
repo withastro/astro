@@ -31,7 +31,7 @@ export default function vercelEdge(): AstroIntegration {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
 						server: new URL('./functions/render.func/', config.outDir),
-					}
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -41,7 +41,7 @@ export default function vercelEdge(): AstroIntegration {
 				functionFolder = config.build.server;
 			},
 			'astro:build:start': ({ buildConfig }) => {
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					buildConfig.client = new URL('./static/', _config.outDir);
 					serverEntry = buildConfig.serverEntry = 'entry.mjs';
 					functionFolder = buildConfig.server = new URL('./functions/render.func/', _config.outDir);

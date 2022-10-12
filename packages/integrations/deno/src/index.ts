@@ -49,7 +49,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				// Backwards compat
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					_buildConfig = buildConfig;
 				}
 			},
