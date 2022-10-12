@@ -891,6 +891,7 @@ export interface AstroSettings {
 	}[];
 	tsConfig: TsConfigJson | undefined;
 	tsConfigPath: string | undefined;
+	watchFiles: string[];
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -1142,8 +1143,10 @@ export interface AstroIntegration {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
 			command: 'dev' | 'build';
+			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
+			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.

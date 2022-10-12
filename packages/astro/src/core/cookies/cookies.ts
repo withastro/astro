@@ -25,7 +25,11 @@ interface AstroCookieInterface {
 interface AstroCookiesInterface {
 	get(key: string): AstroCookieInterface;
 	has(key: string): boolean;
-	set(key: string, value: string | Record<string, any>, options?: AstroCookieSetOptions): void;
+	set(
+		key: string,
+		value: string | number | boolean | Record<string, any>,
+		options?: AstroCookieSetOptions
+	): void;
 	delete(key: string, options?: AstroCookieDeleteOptions): void;
 }
 

@@ -19,6 +19,11 @@ import { MyCounter } from '../components/my-counter.js';
 		<h1>Test app</h1>
 		<MyCounter client:load />
 		<Lorem />
-		<CalcAdd num={33} />
+
+		{/**
+		 * Our VS Code extension does not currently properly typecheck attributes on Lit components
+		 * As such, the following code will result in a TypeScript error inside the editor, nonetheless, it works in Astro!
+		 * @ts-expect-error */}
+		<CalcAdd num={0} />
 	</body>
 </html>

@@ -126,3 +126,20 @@ Deno.test({
 	sanitizeResources: false,
 	sanitizeOps: false,
 });
+
+Deno.test({
+	name: 'Astro.cookies',
+	permissions: defaultTestPermissions,
+	async fn() {
+		await startApp(async (baseUrl: URL) => {
+			const url = new URL('/admin', baseUrl);
+			const resp = await fetch(url, { redirect: 'manual' });
+			assertEquals(resp.status, 302);
+
+			const headers = resp.headers;
+			assertEquals(headers.get('set-cookie'), 'logged-in=false; Max-Age=77760000; Path=/');
+		});
+	},
+	sanitizeResources: false,
+	sanitizeOps: false,
+});
