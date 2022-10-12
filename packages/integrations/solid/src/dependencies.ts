@@ -1,3 +1,7 @@
+// This file is a fork of vite-plugin-solid.
+// Original: https://github.com/solidjs/vite-plugin-solid/blob/03130c8a0a2ceaab9a07e16f1e1df832b996e1b8/src/index.ts#L251-L297
+// License: MIT (https://github.com/solidjs/vite-plugin-solid/blob/03130c8a0a2ceaab9a07e16f1e1df832b996e1b8/package.json#L38)
+
 import fs from 'fs';
 import path from 'path';
 import { createRequire } from 'module';
