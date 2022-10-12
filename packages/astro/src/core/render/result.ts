@@ -166,7 +166,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		) {
 			const astroSlots = new Slots(result, slots, args.logging);
 
-			const Astro = {
+			const Astro: AstroGlobal = {
+				// @ts-expect-error set prototype
 				__proto__: astroGlobal,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
@@ -196,9 +197,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				request,
 				url,
 				redirect: args.ssr
-					? (path: string) => {
+					? (path, status) => {
 							return new Response(null, {
-								status: 302,
+								status: status || 302,
 								headers: {
 									Location: path,
 								},
@@ -237,9 +238,9 @@ ${extra}`
 					// Intentionally return an empty string so that it is not relied upon.
 					return '';
 				},
-				response,
-				slots: astroSlots,
-			} as unknown as AstroGlobal;
+				response: response as AstroGlobal['response'],
+				slots: astroSlots as unknown as AstroGlobal['slots'],
+			};
 
 			Object.defineProperty(Astro, 'canonicalURL', {
 				get: function () {
