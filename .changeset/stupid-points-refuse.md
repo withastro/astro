@@ -29,7 +29,7 @@ These new configuration options are only supported in SSR mode and are ignored w
 
 ## Integration hook change
 
-The integration hook `astro:build:start` includes a param `buildConfig` which includes all of these same options. You can continue to use this param in Astro 1.x, but it is deprecated in favor of the new `build.config` options. All if the built-in adapters have been updated to the new format. If you have an integration that depends on this param we suggest upgrading to do this instead:
+The integration hook `astro:build:start` includes a param `buildConfig` which includes all of these same options. You can continue to use this param in Astro 1.x, but it is deprecated in favor of the new `build.config` options. All of the built-in adapters have been updated to the new format. If you have an integration that depends on this param we suggest upgrading to do this instead:
 
 ```js
 export default function myIntegration() {
