@@ -324,6 +324,7 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/tailwind': ^2.0.2
+      '@types/canvas-confetti': ^1.4.3
       astro: ^1.4.7
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
@@ -331,6 +332,7 @@ importers:
       tailwindcss: ^3.0.24
     dependencies:
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
+      '@types/canvas-confetti': 1.4.3
       astro: link:../../packages/astro
       autoprefixer: 10.4.12_postcss@8.4.17
       canvas-confetti: 1.5.1
@@ -3435,6 +3437,7 @@ importers:
       kleur: ^4.1.4
       svelte: ^3.48.0
       tar: ^6.1.11
+      tsconfig-resolver: ^3.0.1
     dependencies:
       '@astrojs/webapi': link:../packages/webapi
       adm-zip: 0.5.9
@@ -3444,6 +3447,8 @@ importers:
       kleur: 4.1.5
       svelte: 3.50.1
       tar: 6.1.11
+    devDependencies:
+      tsconfig-resolver: 3.0.1
 
 packages:
 
@@ -9397,6 +9402,10 @@ packages:
       '@types/node': 18.8.2
     dev: true
 
+  /@types/canvas-confetti/1.4.3:
+    resolution: {integrity: sha512-UwFPTsW1ZwVyo/ETp4hPSikSD7yl2V42E3VWBF5P/0+DHO4iajyceWv7hfNdZ2AX5tkZnuViiBWOqyCPohU2FQ==}
+    dev: false
+
   /@types/chai-as-promised/7.1.5:
     resolution: {integrity: sha512-jStwss93SITGBwt/niYrkf2C+/1KTeZCZl1LaeezTlqppAKeoQC7jxyqYuP72sxBGKCIbw7oHgbYssIRzT5FCQ==}
     dependencies:
@@ -9521,7 +9530,6 @@ packages:
 
   /@types/json5/0.0.30:
     resolution: {integrity: sha512-sqm9g7mHlPY/43fcSNrCYfOeX9zkTTK+euO5E6+CVijSMm5tTjkVdwdqRkY3ljjIAf8679vps5jKUoJBCLsMDA==}
-    dev: false
 
   /@types/mdast/3.0.10:
     resolution: {integrity: sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==}
@@ -13620,7 +13628,6 @@ packages:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
     engines: {node: '>=6'}
     hasBin: true
-    dev: false
 
   /jsonc-parser/2.3.1:
     resolution: {integrity: sha512-H8jvkz1O50L3dMZCsLqiuB2tA7muqbSg1AtGEkN0leAqGjsUzDJir3Zwr02BhqdcITPg3ei3mZ+HjMocAknhhg==}
@@ -16803,7 +16810,6 @@ packages:
   /strip-bom/4.0.0:
     resolution: {integrity: sha512-3xurFv5tEgii33Zi8Jtp55wEIILR9eh34FAW00PZf+JnSsTmV/ioewSgQl97JHvgjoRGwPShsWm+IdrxB35d0w==}
     engines: {node: '>=8'}
-    dev: false
 
   /strip-comments/2.0.1:
     resolution: {integrity: sha512-ZprKx+bBLXv067WTCALv8SSz5l2+XhpYCsVtSqlMnkAXMWDq+/ekVbl1ghqP9rUHTzv6sm/DwCOiYutU/yp1fw==}
@@ -17157,7 +17163,6 @@ packages:
       resolve: 1.22.1
       strip-bom: 4.0.0
       type-fest: 0.13.1
-    dev: false
 
   /tsconfig/7.0.0:
     resolution: {integrity: sha512-vZXmzPrL+EmC4T/4rVlT2jNVMWCi/O4DIiSj3UHg1OE5kCKbk4mfrXc6dZksLgRM/TZlKnousKH9bbTazUWRRw==}
