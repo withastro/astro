@@ -10,7 +10,7 @@
 
 # New build configuration
 
-The ability to customize SSR build configuration more granular is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
+The ability to customize SSR build configuration more granularly is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
 
 ```js
 import { defineConfig } from 'astro/config';
