@@ -10,7 +10,7 @@ New in `@astrojs/node` is support for __standalone mode__. With standalone mode 
 node ./dist/server/entry.mjs
 ```
 
-To enable standalone mode set the new `mode` to `'standalone'` option in your Astro config:
+To enable standalone mode, set the new `mode` to `'standalone'` option in your Astro config:
 
 ```js
 import { defineConfig } from 'astro/config';
