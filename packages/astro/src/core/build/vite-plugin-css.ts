@@ -7,7 +7,6 @@ import esbuild from 'esbuild';
 import npath from 'path';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
-import { relativeToSrcDir } from '../util.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
@@ -23,47 +22,24 @@ interface PluginOptions {
 	target: 'client' | 'server';
 }
 
-// Arbitrary magic number, can change.
-const MAX_NAME_LENGTH = 70;
-
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
 	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
 
-	// Turn a page location into a name to be used for the CSS file.
-	function nameifyPage(id: string) {
-		let rel = relativeToSrcDir(settings.config, id);
-		// Remove pages, ex. blog/posts/something.astro
-		if (rel.startsWith('pages/')) {
-			rel = rel.slice(6);
-		}
-		// Remove extension, ex. blog/posts/something
-		const ext = npath.extname(rel);
-		const noext = rel.slice(0, rel.length - ext.length);
-		// Replace slashes with dashes, ex. blog-posts-something
-		const named = noext.replace(/\//g, '-');
-		return named;
-	}
-
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx));
-		const proposedName = parents
-			.map(([page]) => nameifyPage(page.id))
-			.sort()
-			.join('-');
-
-		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
-		if (proposedName.length <= MAX_NAME_LENGTH) {
-			return proposedName;
-		}
+		const firstParentId = parents[0]?.[0].id;
+		const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
 
 		const hash = crypto.createHash('sha256');
 		for (const [page] of parents) {
 			hash.update(page.id, 'utf-8');
 		}
-		return hash.digest('hex').slice(0, 8);
+		const h = hash.digest('hex').slice(0, 8);
+		const proposedName = firstParentName + '.' + h;
+		return proposedName;
 	}
 
 	function* getParentClientOnlys(

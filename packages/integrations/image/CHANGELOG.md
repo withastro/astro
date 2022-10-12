@@ -1,5 +1,19 @@
 # @astrojs/image
 
+## 0.9.3
+
+### Patch Changes
+
+- [#5021](https://github.com/withastro/astro/pull/5021) [`062335dbf`](https://github.com/withastro/astro/commit/062335dbf7300ad5370e29ebcf7a05d5a4703a1c) Thanks [@matthewp](https://github.com/matthewp)! - Fix remote images in SSG mode
+
+- [#5034](https://github.com/withastro/astro/pull/5034) [`2d9d42216`](https://github.com/withastro/astro/commit/2d9d42216722334db03adb14e59773db8389b7f9) Thanks [@bluwy](https://github.com/bluwy)! - Support strict dependency install
+
+## 0.9.2
+
+### Patch Changes
+
+- [#4997](https://github.com/withastro/astro/pull/4997) [`a2b66c754`](https://github.com/withastro/astro/commit/a2b66c754969af4ce98bb10654286a4445cb0999) Thanks [@panwauu](https://github.com/panwauu)! - Fixes a bug that lost query parameters for remote images in the `<Picture />` component
+
 ## 0.9.1
 
 ### Patch Changes

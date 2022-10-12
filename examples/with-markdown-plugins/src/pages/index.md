@@ -1,6 +1,6 @@
 ---
 layout: ../layouts/main.astro
-title: Asto with Remark Plugins
+title: Astro with Remark Plugins
 ---
 
 # Heading 1

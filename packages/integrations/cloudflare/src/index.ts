@@ -65,11 +65,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
 							(vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
 						}
 					}
-
-					vite.ssr = {
-						...vite.ssr,
-						target: 'webworker',
-					};
+					vite.ssr = vite.ssr || {};
+					vite.ssr.target = vite.ssr.target || 'webworker';
 				}
 			},
 			'astro:build:done': async () => {
@@ -77,9 +74,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 				const pkg = fileURLToPath(entryUrl);
 				await esbuild.build({
 					target: 'es2020',
-					platform: 'neutral',
-					mainFields: ['main', 'module'],
-					conditions: ['worker', 'node'],
+					platform: 'browser',
 					entryPoints: [pkg],
 					outfile: pkg,
 					allowOverwrite: true,

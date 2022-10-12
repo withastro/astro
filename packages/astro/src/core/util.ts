@@ -137,23 +137,6 @@ export function unwrapId(id: string): string {
 	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
 }
 
-/** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
-}
-
-export function emptyDir(_dir: URL, skip?: Set<string>): void {
-	const dir = fileURLToPath(_dir);
-	if (!fs.existsSync(dir)) return undefined;
-	for (const file of fs.readdirSync(dir)) {
-		if (skip?.has(file)) {
-			continue;
-		}
-		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true, maxRetries: 3 });
-	}
-}
-
 export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
 }

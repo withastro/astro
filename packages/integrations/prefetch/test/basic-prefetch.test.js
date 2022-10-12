@@ -17,23 +17,24 @@ test.describe('Basic prefetch', () => {
 
 		test.describe('prefetches rel="prefetch" links', () => {
 			test('skips /admin', async ({ page, astro }) => {
-				const requests = new Set();
+				const requests = [];
 
-				page.on('request', async (request) => requests.add(request.url()));
+				page.on('request', async (request) => requests.push(request.url()));
 
 				await page.goto(astro.resolveUrl('/'));
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(
-					requests.has(astro.resolveUrl('/about')),
-					'/about was prefetched'
-				).toBeTruthy();
-				await expect(
-					requests.has(astro.resolveUrl('/contact')),
+				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
+				expect(
+					requests.includes(astro.resolveUrl('/contact')),
 					'/contact was prefetched'
 				).toBeTruthy();
-				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				expect(requests.includes(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				expect(
+					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
+					'/ was skipped by prefetch and only queried once'
+				).toBeTruthy();
 			});
 		});
 	});
@@ -53,23 +54,24 @@ test.describe('Basic prefetch', () => {
 
 		test.describe('prefetches rel="prefetch" links', () => {
 			test('skips /admin', async ({ page, astro }) => {
-				const requests = new Set();
+				const requests = [];
 
-				page.on('request', async (request) => requests.add(request.url()));
+				page.on('request', async (request) => requests.push(request.url()));
 
 				await page.goto(astro.resolveUrl('/'));
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(
-					requests.has(astro.resolveUrl('/about')),
-					'/about was prefetched'
-				).toBeTruthy();
-				await expect(
-					requests.has(astro.resolveUrl('/contact')),
+				expect(requests.includes(astro.resolveUrl('/about')), '/about was prefetched').toBeTruthy();
+				expect(
+					requests.includes(astro.resolveUrl('/contact')),
 					'/contact was prefetched'
 				).toBeTruthy();
-				await expect(requests.has(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				expect(requests.includes(astro.resolveUrl('/admin')), '/admin was skipped').toBeFalsy();
+				expect(
+					requests.filter((r) => r === astro.resolveUrl('/')).length === 1,
+					'/ was skipped by prefetch and only queried once'
+				).toBeTruthy();
 			});
 		});
 	});
