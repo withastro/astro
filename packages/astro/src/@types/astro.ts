@@ -83,8 +83,17 @@ export interface CLIFlags {
 }
 
 export interface BuildConfig {
+	/**
+	 * @deprecated Use config.build.client instead.
+	 */
 	client: URL;
+	/**
+	 * @deprecated Use config.build.server instead.
+	 */
 	server: URL;
+	/**
+	 * @deprecated Use config.build.serverEntry instead.
+	 */
 	serverEntry: string;
 }
 
@@ -381,6 +390,7 @@ export interface AstroUserConfig {
 	 * @name outDir
 	 * @type {string}
 	 * @default `"./dist"`
+	 * @see build.server
 	 * @description Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
@@ -526,6 +536,68 @@ export interface AstroUserConfig {
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 */
 		format?: 'file' | 'directory';
+		/**
+		 * @docs
+		 * @name build.client
+		 * @type {string}
+		 * @default `'./dist/client'`
+		 * @description
+		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
+		 * `outDir` controls where the code is built to.
+		 * 
+		 * This value is relative to the `outDir`.
+		 * 
+		 * ```js
+		 * {
+		 *   output: 'server',
+		 *   build: {
+		 *     client: './client'
+		 *   }
+		 * }
+		 * ```
+		 */
+		client?: string;
+		/**
+		 * @docs
+		 * @name build.server
+		 * @type {string}
+		 * @default `'./dist/server'`
+		 * @description
+		 * Controls the output directory of server JavaScript when building to SSR.
+		 * 
+		 * This value is relative to the `outDir`.
+		 * 
+		 * ```js
+		 * {
+		 *   build: {
+		 *     server: './server'
+		 *   }
+		 * }
+		 * ```
+		 */
+		server?: string;
+		/**
+		 * @docs
+		 * @name build.serverEntry
+		 * @type {string}
+		 * @default `'entry.mjs'`
+		 * @description
+		 * Specifies the file name of the server entrypoint when building to SSR.
+		 * This entrypoint is usually dependent on which host you are deploying to and
+		 * will be set by your adapter for you.
+		 * 
+		 * Note that it is recommended that this file ends with `.mjs` so that the runtime
+		 * detects that the file is a JavaScript module.
+		 * 
+		 * ```js
+		 * {
+		 *   build: {
+		 *     serverEntry: 'main.mjs'
+		 *   }
+		 * }
+		 * ```
+		 */
+		serverEntry?: string;
 	};
 
 	/**
@@ -1073,6 +1145,7 @@ export type Params = Record<string, string | number | undefined>;
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
+	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
 }
@@ -1234,7 +1307,7 @@ export interface AstroIntegration {
 	hooks: {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
-			command: 'dev' | 'build';
+			command: 'dev' | 'build' | 'preview';
 			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
@@ -1332,3 +1405,25 @@ export interface SSRResult {
 }
 
 export type MarkdownAstroData = { frontmatter: object };
+
+/* Preview server stuff */
+export interface PreviewServer {
+	host?: string;
+	port: number;
+	closed(): Promise<void>;
+	stop(): Promise<void>;
+}
+
+export interface PreviewServerParams {
+	outDir: URL;
+	client: URL;
+	serverEntrypoint: URL;
+	host: string | undefined;
+	port: number;
+}
+
+export type CreatePreviewServer = (params: PreviewServerParams) => PreviewServer | Promise<PreviewServer>;
+
+export interface PreviewModule {
+	default: CreatePreviewServer;
+}

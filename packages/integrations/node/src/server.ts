@@ -1,8 +1,9 @@
-import { polyfill } from '@astrojs/webapi';
 import type { SSRManifest } from 'astro';
+import type { Options } from './types';
+import { polyfill } from '@astrojs/webapi';
 import { NodeApp } from 'astro/app/node';
-import type { IncomingMessage, ServerResponse } from 'http';
-import type { Readable } from 'stream';
+import middleware from './middleware.js';
+import startServer from './standalone.js';
 
 polyfill(globalThis, {
 	exclude: 'window document',
@@ -11,49 +12,15 @@ polyfill(globalThis, {
 export function createExports(manifest: SSRManifest) {
 	const app = new NodeApp(manifest);
 	return {
-		async handler(req: IncomingMessage, res: ServerResponse, next?: (err?: unknown) => void) {
-			try {
-				const route = app.match(req);
-
-				if (route) {
-					try {
-						const response = await app.render(req);
-						await writeWebResponse(app, res, response);
-					} catch (err: unknown) {
-						if (next) {
-							next(err);
-						} else {
-							throw err;
-						}
-					}
-				} else if (next) {
-					return next();
-				}
-			} catch (err: unknown) {
-				if (!res.headersSent) {
-					res.writeHead(500, `Server error`);
-					res.end();
-				}
-			}
-		},
+		handler: middleware(app)
 	};
 }
 
-async function writeWebResponse(app: NodeApp, res: ServerResponse, webResponse: Response) {
-	const { status, headers, body } = webResponse;
-
-	if (app.setCookieHeaders) {
-		const setCookieHeaders: Array<string> = Array.from(app.setCookieHeaders(webResponse));
-		if (setCookieHeaders.length) {
-			res.setHeader('Set-Cookie', setCookieHeaders);
-		}
+export function start(manifest: SSRManifest, options: Options) {
+	if(options.mode !== 'standalone' || process.env.ASTRO_NODE_AUTOSTART === 'disabled') {
+		return;
 	}
 
-	res.writeHead(status, Object.fromEntries(headers.entries()));
-	if (body) {
-		for await (const chunk of body as unknown as Readable) {
-			res.write(chunk);
-		}
-	}
-	res.end();
+	const app = new NodeApp(manifest);
+	startServer(app, options);
 }

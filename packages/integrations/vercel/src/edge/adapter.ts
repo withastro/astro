@@ -17,16 +17,35 @@ export default function vercelEdge(): AstroIntegration {
 	let _config: AstroConfig;
 	let functionFolder: URL;
 	let serverEntry: string;
+	let needsBuildConfig = false;
 
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config }) => {
-				config.outDir = getVercelOutput(config.root);
+			'astro:config:setup': ({ config, updateConfig }) => {
+				needsBuildConfig = !config.build.client;
+				const outDir = getVercelOutput(config.root);
+				updateConfig({
+					outDir,
+					build: {
+						serverEntry: 'entry.mjs',
+						client: new URL('./static/', outDir),
+						server: new URL('./functions/render.func/', config.outDir),
+					}
+				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				serverEntry = config.build.serverEntry;
+				functionFolder = config.build.server;
+			},
+			'astro:build:start': ({ buildConfig }) => {
+				if(needsBuildConfig) {
+					buildConfig.client = new URL('./static/', _config.outDir);
+					serverEntry = buildConfig.serverEntry = 'entry.mjs';
+					functionFolder = buildConfig.server = new URL('./functions/render.func/', _config.outDir);
+				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
 				if (target === 'server') {
@@ -48,11 +67,6 @@ export default function vercelEdge(): AstroIntegration {
 						noExternal: true,
 					};
 				}
-			},
-			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.serverEntry = serverEntry = 'entry.mjs';
-				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Edge function config

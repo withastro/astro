@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { LogOptions } from '../logger/core.js';
-import { arraify, isObject } from '../util.js';
+import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 
 load.use([loadTypeScript]);
@@ -344,6 +344,10 @@ function mergeConfigRecursively(
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
+			continue;
+		}
+		if(isURL(existing) && isURL(value)) {
+			merged[key] = value;
 			continue;
 		}
 		if (isObject(existing) && isObject(value)) {

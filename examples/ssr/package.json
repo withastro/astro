@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "server": "node server/server.mjs"
+    "server": "node dist/server/entry.mjs"
   },
   "devDependencies": {},
   "dependencies": {

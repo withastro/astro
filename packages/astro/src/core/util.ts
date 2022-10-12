@@ -13,6 +13,11 @@ export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
 }
 
+/** Cross-realm compatible URL */
+export function isURL(value: unknown): value is URL {
+	return Object.prototype.toString.call(value) === '[object URL]';
+}
+
 /** Wraps an object in an array. If an array is passed, ignore it. */
 export function arraify<T>(target: T | T[]): T[] {
 	return Array.isArray(target) ? target : [target];
