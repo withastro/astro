@@ -4,8 +4,8 @@ This adapter allows Astro to deploy your SSR site to Node targets.
 
 - <strong>[Why Astro Node](#why-astro-node)</strong>
 - <strong>[Installation](#installation)</strong>
-- <strong>[Usage](#usage)</strong>
 - <strong>[Configuration](#configuration)</strong>
+- <strong>[Usage](#usage)</strong>
 - <strong>[Troubleshooting](#troubleshooting)</strong>
 - <strong>[Contributing](#contributing)</strong>
 - <strong>[Changelog](#changelog)</strong> 
@@ -55,8 +55,6 @@ If you prefer to install the adapter manually instead, complete the following tw
     ```
 
 ## Configuration
-
-This adapter does not expose any configuration options.
 
 @astrojs/node can be configured by passing options into the adapter function. The following options are available:
 
