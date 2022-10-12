@@ -1,8 +1,8 @@
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import { fileURLToPath } from 'url';
 import send from 'send';
+import { fileURLToPath } from 'url';
 
 interface CreateServerOptions {
 	client: URL;
@@ -10,9 +10,12 @@ interface CreateServerOptions {
 	host: string | undefined;
 }
 
-export function createServer({ client, port, host }: CreateServerOptions, handler: http.RequestListener) {
+export function createServer(
+	{ client, port, host }: CreateServerOptions,
+	handler: http.RequestListener
+) {
 	const listener: http.RequestListener = (req, res) => {
-		if(req.url) {
+		if (req.url) {
 			const fileURL = new URL('.' + req.url, client);
 
 			const stream = send(req, fileURLToPath(fileURL), {
@@ -21,8 +24,8 @@ export function createServer({ client, port, host }: CreateServerOptions, handle
 
 			let forwardError = false;
 
-			stream.on('error', err => {
-				if(forwardError) {
+			stream.on('error', (err) => {
+				if (forwardError) {
 					// eslint-disable-next-line no-console
 					console.error(err.toString());
 					res.writeHead(500);
@@ -42,14 +45,18 @@ export function createServer({ client, port, host }: CreateServerOptions, handle
 		}
 	};
 
-	let httpServer: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse> |
-		https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
-	
-	if(process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
-		httpServer = https.createServer({
-			key: fs.readFileSync(process.env.SERVER_KEY_PATH),
-			cert: fs.readFileSync(process.env.SERVER_CERT_PATH),
-		}, listener);
+	let httpServer:
+		| http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
+		| https.Server<typeof http.IncomingMessage, typeof http.ServerResponse>;
+
+	if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
+		httpServer = https.createServer(
+			{
+				key: fs.readFileSync(process.env.SERVER_KEY_PATH),
+				cert: fs.readFileSync(process.env.SERVER_CERT_PATH),
+			},
+			listener
+		);
 	} else {
 		httpServer = http.createServer(listener);
 	}
