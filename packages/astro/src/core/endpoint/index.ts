@@ -2,9 +2,9 @@ import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
 import type { RenderOptions } from '../render/core';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
+import { ASTRO_VERSION } from '../constants.js';
 import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
-import { ASTRO_VERSION } from '../constants.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
