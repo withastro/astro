@@ -48,7 +48,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 						client: new URL('./static/', config.outDir),
 						server: new URL('./', config.outDir),
 						serverEntry: '_worker.js',
-					}
+					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
@@ -83,7 +83,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				// Backwards compat
-				if(needsBuildConfig) {
+				if (needsBuildConfig) {
 					buildConfig.client = new URL('./static/', _config.outDir);
 					buildConfig.server = new URL('./', _config.outDir);
 					buildConfig.serverEntry = '_worker.js';
