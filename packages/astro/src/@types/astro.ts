@@ -548,8 +548,7 @@ export interface AstroUserConfig {
 		 * @type {string}
 		 * @default `'./dist/client'`
 		 * @description
-		 * Controls the output directory of your client-side code, both CSS and JavaScript.
-		 * Note that this config option is only used when `output: 'server'`. In SSG mode
+		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
 		 * `outDir` controls where the code is built to.
 		 * 
 		 * This value is relative to the `outDir`.
