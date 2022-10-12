@@ -17,6 +17,7 @@ describe('react-jsx-export', () => {
 		'default_list_export',
 		'renamed_list_export',
 		'list_as_default_export',
+		'list_export_test_component',
 	];
 
 	const reactInvalidHookWarning =

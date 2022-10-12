@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+export { ListExportTestComponent } from './ListExportTestComponent'
+
 const ListExport = () => {
     const [example] = useState('Example')
     return <h2 id="default_list_export">{example}</h2>
