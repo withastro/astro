@@ -226,8 +226,8 @@ export function resolveJsToTs(filePath: string) {
 }
 
 export const AggregateError =
-	typeof globalThis.AggregateError !== 'undefined'
-		? globalThis.AggregateError
+	typeof (globalThis as any).AggregateError !== 'undefined'
+		? (globalThis as any).AggregateError
 		: class extends Error {
 				errors: Array<any> = [];
 				constructor(errors: Iterable<any>, message?: string | undefined) {
