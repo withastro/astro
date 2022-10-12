@@ -352,6 +352,7 @@ async function handleRoute(
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
 		const result = await callEndpoint(options);
+    
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifest);
@@ -378,7 +379,21 @@ async function handleRoute(
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-			res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
+
+      const header: any = {
+        'Content-Type': `${contentType};charset=utf-8`
+      };
+
+			let cookieHeader = [];
+			for (let cok of result.cookies.headers()) {
+				cookieHeader.push(cok);
+			}
+
+      if (cookieHeader.length > 0) {
+        header['Set-Cookie'] = cookieHeader;
+      }
+
+			res.writeHead(200, header);
 			res.end(result.body);
 		}
 	} else {

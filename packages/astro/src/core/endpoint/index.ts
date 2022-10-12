@@ -13,6 +13,7 @@ type EndpointCallResult =
 			type: 'simple';
 			body: string;
 			encoding?: BufferEncoding;
+			cookies: AstroCookies;
 	  }
 	| {
 			type: 'response';
@@ -109,5 +110,6 @@ export async function call(
 		type: 'simple',
 		body: response.body,
 		encoding: response.encoding,
+		cookies: context.cookies,
 	};
 }
