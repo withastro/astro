@@ -3,7 +3,7 @@ import type { MarkdownInstance } from 'astro';
 import type { Project } from '../types';
 
 interface Props {
-	project: MarkdownInstance<Project>
+	project: MarkdownInstance<Project>;
 }
 
 const { frontmatter, url } = Astro.props.project;
