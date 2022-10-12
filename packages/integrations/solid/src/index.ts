@@ -1,4 +1,5 @@
 import type { AstroIntegration, AstroRenderer } from 'astro';
+import { getSolidDeps } from './dependencies.js';
 
 function getRenderer(): AstroRenderer {
 	return {
@@ -23,7 +24,7 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-function getViteConfiguration(isDev: boolean) {
+function getViteConfiguration(isDev: boolean, root: URL) {
 	// https://github.com/solidjs/vite-plugin-solid
 	// We inject the dev mode only if the user explicitely wants it or if we are in dev (serve) mode
 	const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
@@ -45,7 +46,7 @@ function getViteConfiguration(isDev: boolean) {
 		ssr: {
 			external: ['babel-preset-solid'],
 			target: 'node',
-			noExternal: ['solid-js'],
+			noExternal: ['solid-js', ...getSolidDeps(root)],
 		},
 	};
 }
@@ -54,9 +55,9 @@ export default function (): AstroIntegration {
 	return {
 		name: '@astrojs/solid-js',
 		hooks: {
-			'astro:config:setup': ({ command, addRenderer, updateConfig }) => {
+			'astro:config:setup': ({ command, addRenderer, updateConfig, config }) => {
 				addRenderer(getRenderer());
-				updateConfig({ vite: getViteConfiguration(command === 'dev') });
+				updateConfig({ vite: getViteConfiguration(command === 'dev', config.root) });
 			},
 		},
 	};

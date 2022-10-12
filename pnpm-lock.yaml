@@ -415,6 +415,7 @@ importers:
       gray-matter: ^4.0.3
       html-entities: ^2.3.3
       html-escaper: ^3.0.3
+      import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
       magic-string: ^0.25.9
       mime: ^3.0.0
@@ -484,6 +485,7 @@ importers:
       gray-matter: 4.0.3
       html-entities: 2.3.3
       html-escaper: 3.0.3
+      import-meta-resolve: 2.1.0
       kleur: 4.1.5
       magic-string: 0.25.9
       mime: 3.0.0
@@ -2117,10 +2119,12 @@ importers:
   packages/astro/test/fixtures/solid-component:
     specifiers:
       '@astrojs/solid-js': workspace:*
+      '@solidjs/router': ^0.5.0
       astro: workspace:*
       solid-js: ^1.5.6
     dependencies:
       '@astrojs/solid-js': link:../../../../integrations/solid
+      '@solidjs/router': 0.5.0_solid-js@1.5.7
       astro: link:../../..
       solid-js: 1.5.7
 
@@ -9280,6 +9284,14 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.3.1
+    dev: false
+
+  /@solidjs/router/0.5.0_solid-js@1.5.7:
+    resolution: {integrity: sha512-rNR07l21tWWDVmCbaapggB89rEX7jlM2XChpTLqEGEnj46LzVZ8zgvjcF6NNKScByAlLpoQUkVIjB2KHpcMi+w==}
+    peerDependencies:
+      solid-js: ^1.5.3
+    dependencies:
+      solid-js: 1.5.7
     dev: false
 
   /@spectrum-icons/ui/3.3.3_jshkqybnlidashxgfmbz45rdaq:
