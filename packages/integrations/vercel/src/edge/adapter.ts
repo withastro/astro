@@ -73,6 +73,9 @@ export default function vercelEdge(): AstroIntegration {
 						target: 'webworker',
 						noExternal: true,
 					};
+
+					vite.build ||= {};
+					vite.build.minify = true;
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
