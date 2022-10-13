@@ -37,6 +37,17 @@ describe('Squoosh service', function () {
 			},
 		},
 		{
+			title: 'Remote images with relative protocol',
+			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+		{
 			title: 'Public images',
 			id: '#hero',
 			url: '/_image',

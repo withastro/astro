@@ -2,7 +2,7 @@ import { TransformOptions } from '../loaders/index.js';
 import { shorthash } from './shorthash.js';
 
 export function isRemoteImage(src: string) {
-	return /^http(s?):\/\//.test(src);
+	return /^(https?:)?\/\//.test(src);
 }
 
 function removeQueryString(src: string) {
