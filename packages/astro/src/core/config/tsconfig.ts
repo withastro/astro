@@ -62,8 +62,6 @@ export function loadTSConfig(cwd: string | undefined, resolve = true): tsr.TsCon
 	// the file does not exists. We'll manually handle this so we can provide better errors to users
 	if (!resolve && config.reason === 'invalid-config' && !existsSync(join(cwd, 'tsconfig.json'))) {
 		config = { reason: 'not-found', path: undefined, exists: false };
-	} else {
-		return config;
 	}
 
 	// If we couldn't find a tsconfig.json, try to load a jsconfig.json instead
@@ -80,9 +78,9 @@ export function loadTSConfig(cwd: string | undefined, resolve = true): tsr.TsCon
 			!existsSync(join(cwd, 'jsconfig.json'))
 		) {
 			return { reason: 'not-found', path: undefined, exists: false };
-		} else {
-			return jsconfig;
 		}
+
+		return jsconfig;
 	}
 
 	return config;
