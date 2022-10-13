@@ -56,7 +56,7 @@
 
   ## Adapter API
 
-  We will be updating the other first party Astro adapters to support preview over time. Adapters can opt-in to this feature by providing the `previewEntrypoint` via the `setAdapter` function in `astro:config:done` hook. The Node.js adapter's code looks like this:
+  We will be updating the other first party Astro adapters to support preview over time. Adapters can opt in to this feature by providing the `previewEntrypoint` via the `setAdapter` function in `astro:config:done` hook. The Node.js adapter's code looks like this:
 
   ```diff
   export default function() {
