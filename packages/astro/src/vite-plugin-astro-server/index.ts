@@ -5,7 +5,7 @@ import type { AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import { getSetCookiesFromResponse } from '../core/cookies/index.js';
+import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import {
 	collectErrorMetadata,
@@ -352,7 +352,6 @@ async function handleRoute(
 	// Route successfully matched! Render it.
 	if (route.type === 'endpoint') {
 		const result = await callEndpoint(options);
-    
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
 				const fourOhFourRoute = await matchRoute('/404', env, manifest);
@@ -379,22 +378,14 @@ async function handleRoute(
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-
-      const header: any = {
-        'Content-Type': `${contentType};charset=utf-8`
-      };
-
-			let cookieHeader = [];
-			for (let cok of result.cookies.headers()) {
-				cookieHeader.push(cok);
-			}
-
-      if (cookieHeader.length > 0) {
-        header['Set-Cookie'] = cookieHeader;
-      }
-
-			res.writeHead(200, header);
-			res.end(result.body);
+      const response = new Response(result.body, {
+        status: 200,
+        headers: {
+          'Content-Type': `${contentType};charset=utf-8`,
+        },
+      });
+      attachToResponse(response, result.cookies);
+      await writeWebResponse(res, response);
 		}
 	} else {
 		const result = await renderPage(options);
