@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare pages functions",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
