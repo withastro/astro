@@ -8,7 +8,7 @@ describe('Squoosh service', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-image/' });
+		fixture = await loadFixture({ root: './fixtures/squoosh-service/' });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
