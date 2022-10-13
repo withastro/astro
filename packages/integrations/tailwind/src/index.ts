@@ -103,7 +103,7 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 					);
 				}
 
-				if (userConfig?.filePath) {
+				if (addWatchFile && userConfig?.filePath) {
 					addWatchFile(userConfig.filePath);
 				}
 
