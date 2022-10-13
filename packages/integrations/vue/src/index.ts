@@ -34,16 +34,16 @@ function getJsxRenderer(): AstroRenderer {
 
 function virtualAppEntrypoint(options?: Options) {
 	const virtualModuleId = 'virtual:@astrojs/vue/app';
-	// const resolvedVirtualModuleId = '\0' + virtualModuleId;
+	const resolvedVirtualModuleId = '\0' + virtualModuleId;
 	return {
 		name: '@astrojs/vue/virtual-app',
 		resolveId(id: string) {
-			if (id.endsWith(virtualModuleId)) {
-				return virtualModuleId;
+			if (id == virtualModuleId) {
+				return resolvedVirtualModuleId;
 			}
 		},
 		load(id: string) {
-			if (id === virtualModuleId) {
+			if (id === resolvedVirtualModuleId) {
 				if (options?.appEntrypoint) {
 					return `export { default as setup } from "${options.appEntrypoint}";`;
 				}
