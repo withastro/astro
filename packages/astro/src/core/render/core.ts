@@ -1,12 +1,7 @@
-import type {
-	ComponentInstance,
-	Params,
-	Props,
-	RouteData,
-} from '../../@types/astro';
+import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
-import type { Environment } from './environment.js';
 import type { RenderContext } from './context.js';
+import type { Environment } from './environment.js';
 
 import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';

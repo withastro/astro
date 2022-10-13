@@ -1,15 +1,4 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type {
-	ComponentInstance,
-	Params,
-	Props,
-	RouteData,
-	RuntimeMode,
-	SSRElement,
-	SSRLoadedRenderer,
-} from '../../@types/astro';
-import type { LogOptions } from '../logger/core.js';
-import type { Environment } from './environment.js';
+import type { RouteData, SSRElement } from '../../@types/astro';
 
 /**
  * The RenderContext represents the parts of rendering that are specific to one request.
@@ -29,7 +18,7 @@ export interface RenderContext {
 export type CreateRenderContextArgs = Partial<RenderContext> & {
 	origin?: string;
 	request: RenderContext['request'];
-}
+};
 
 export function createRenderContext(options: CreateRenderContextArgs): RenderContext {
 	const request = options.request;
@@ -40,6 +29,6 @@ export function createRenderContext(options: CreateRenderContextArgs): RenderCon
 		...options,
 		origin,
 		pathname,
-		url
+		url,
 	};
 }

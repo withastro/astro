@@ -1,6 +1,7 @@
 export { createAstro } from './astro-global.js';
 export { renderEndpoint } from './endpoint.js';
 export { escapeHTML, HTMLBytes, HTMLString, markHTMLString, unescapeHTML } from './escape.js';
+export { renderJSX } from './jsx.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
 export {
@@ -21,7 +22,6 @@ export {
 	stringifyChunk,
 	voidElementNames,
 } from './render/index.js';
-export { renderJSX } from './jsx.js';
 export type { AstroComponentFactory, RenderInstruction } from './render/index.js';
 import type { AstroComponentFactory } from './render/index.js';
 

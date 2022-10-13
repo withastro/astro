@@ -1,8 +1,5 @@
 import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type {
-	RuntimeMode,
-	SSRLoadedRenderer,
-} from '../../@types/astro';
+import type { RuntimeMode, SSRLoadedRenderer } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
 import { RouteCache } from './route-cache.js';
 
@@ -34,7 +31,7 @@ export function createEnvironment(options: CreateEnvironmentArgs): Environment {
 
 export type CreateBasicEnvironmentArgs = Partial<Environment> & {
 	logging: CreateEnvironmentArgs['logging'];
-}
+};
 
 export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Environment {
 	const mode = options.mode ?? 'development';
@@ -46,7 +43,6 @@ export function createBasicEnvironment(options: CreateBasicEnvironmentArgs): Env
 		resolve: options.resolve ?? ((s: string) => Promise.resolve(s)),
 		routeCache: new RouteCache(options.logging, mode),
 		ssr: options.ssr ?? true,
-		streaming: options.streaming ?? true
+		streaming: options.streaming ?? true,
 	});
 }
-
