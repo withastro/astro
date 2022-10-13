@@ -4,7 +4,7 @@ import { createRenderContext } from '../../render/index.js';
 import { call as callEndpoint } from '../index.js';
 
 export async function call(options: SSROptions) {
-	const { env, preload: [mod] } = options;
+	const { env, preload: [,mod] } = options;
 	const endpointHandler = mod as unknown as EndpointHandler;
 
 	const ctx = createRenderContext({

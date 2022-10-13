@@ -93,8 +93,8 @@ export async function call(
 		props,
 		site: env.site,
 		adapterName: env.adapterName,
-	})
-	//const context = createAPIContext(ctx.request, params);
+	});
+
 	const response = await renderEndpoint(mod, context, env.ssr);
 
 	if (response instanceof Response) {
