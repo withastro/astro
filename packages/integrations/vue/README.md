@@ -95,6 +95,36 @@ export default {
 }
 ```
 
+### appEntrypoint
+
+You can extend the Vue `app` instance setting the `appEntrypoint` option to a root-relative import specifier (for example, `appEntrypoint: "/src/pages/_app"`).
+
+The default export of this file should be a function that accepts a Vue `App` instance prior to rendering, allowing the use of [custom Vue plugins](https://vuejs.org/guide/reusability/plugins.html), `app.use`, and other customizations for advanced use cases.
+
+__`astro.config.mjs`__
+
+```js
+import { defineConfig } from 'astro/config';
+import vue from '@astrojs/vue';
+
+export default defineConfig({
+  integrations: [
+    vue({ appEntrypoint: '/src/pages/_app' })
+  ],
+});
+```
+
+__`src/pages/_app.ts`__
+
+```js
+import type { App } from 'vue';
+import i18nPlugin from 'my-vue-i18n-plugin';
+
+export default (app: App) => {
+  app.use(i18nPlugin);
+}
+```
+
 ### jsx
 
 You can use Vue JSX by setting `jsx: true`.

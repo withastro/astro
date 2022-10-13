@@ -3142,12 +3142,16 @@ importers:
 
   packages/integrations/vue:
     specifiers:
+      '@types/chai': ^4.3.3
       '@vitejs/plugin-vue': ^3.0.0
       '@vitejs/plugin-vue-jsx': ^2.0.1
       '@vue/babel-plugin-jsx': ^1.1.1
       '@vue/compiler-sfc': ^3.2.39
       astro: workspace:*
       astro-scripts: workspace:*
+      chai: ^4.3.6
+      linkedom: ^0.14.17
+      mocha: ^9.2.2
       vite: ^3.0.0
       vue: ^3.2.37
     dependencies:
@@ -3156,10 +3160,22 @@ importers:
       '@vue/babel-plugin-jsx': 1.1.1
       '@vue/compiler-sfc': 3.2.40
     devDependencies:
+      '@types/chai': 4.3.3
       astro: link:../../astro
       astro-scripts: link:../../../scripts
+      chai: 4.3.6
+      linkedom: 0.14.17
+      mocha: 9.2.2
       vite: 3.1.8
       vue: 3.2.40
+
+  packages/integrations/vue/test/fixtures/app-entrypoint:
+    specifiers:
+      '@astrojs/vue': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/vue': link:../../..
+      astro: link:../../../../../astro
 
   packages/markdown/component:
     specifiers:
