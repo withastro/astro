@@ -8,13 +8,13 @@ describe('App Entrypoint', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			root: './fixtures/app-entrypoint/'
+			root: './fixtures/app-entrypoint/',
 		});
 		await fixture.build();
 	});
 
 	it('loads during SSR', async () => {
-		const data = await fixture.readFile('/index.html')
+		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
 		const bar = document.querySelector('#foo > #bar');
 		expect(bar).not.to.be.undefined;
@@ -22,13 +22,13 @@ describe('App Entrypoint', () => {
 	});
 
 	it('setup included in renderer bundle', async () => {
-		const data = await fixture.readFile('/index.html')
+		const data = await fixture.readFile('/index.html');
 		const { document } = parseHTML(data);
 		const island = document.querySelector('astro-island');
 		const client = island.getAttribute('renderer-url');
 		expect(client).not.to.be.undefined;
 
 		const js = await fixture.readFile(client);
-		expect(js).to.match(/\w+\.component\(\"Bar\"/gm)
+		expect(js).to.match(/\w+\.component\(\"Bar\"/gm);
 	});
 });

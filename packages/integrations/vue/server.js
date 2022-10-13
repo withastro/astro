@@ -1,6 +1,6 @@
 import { h, createSSRApp } from 'vue';
 import { renderToString } from 'vue/server-renderer';
-import { setup } from 'virtual:@astrojs/vue/app'
+import { setup } from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 function check(Component) {

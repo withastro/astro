@@ -1,5 +1,5 @@
 import { h, createSSRApp, createApp } from 'vue';
-import { setup } from 'virtual:@astrojs/vue/app'
+import { setup } from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 export default (element) =>
