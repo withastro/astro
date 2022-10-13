@@ -38,7 +38,7 @@ describe('Squoosh service', function () {
 		},
 		{
 			title: 'Remote images with relative protocol',
-			id: '#google',
+			id: '#google-alt',
 			url: '/_image',
 			query: {
 				f: 'webp',
