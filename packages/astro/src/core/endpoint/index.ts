@@ -77,7 +77,7 @@ export async function call(
 		routeCache: env.routeCache,
 		pathname: ctx.pathname,
 		logging: env.logging,
-		ssr: env.ssr
+		ssr: env.ssr,
 	});
 
 	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {

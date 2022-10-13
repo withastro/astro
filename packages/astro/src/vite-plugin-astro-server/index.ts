@@ -16,8 +16,8 @@ import {
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
-import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createDevelopmentEnvironment, preload, renderPage } from '../core/render/dev/index.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/index.js';
 import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
@@ -183,11 +183,7 @@ export function baseMiddleware(
 	};
 }
 
-async function matchRoute(
-	pathname: string,
-	env: DevelopmentEnvironment,
-	manifest: ManifestData,
-) {
+async function matchRoute(pathname: string, env: DevelopmentEnvironment, manifest: ManifestData) {
 	const { logging, settings, routeCache } = env;
 	const matches = matchAllRoutes(pathname, manifest);
 
@@ -288,24 +284,10 @@ async function handleRequest(
 
 	let filePath: URL | undefined;
 	try {
-		const matchedRoute = await matchRoute(
-			pathname,
-			env,
-			manifest,
-		);
+		const matchedRoute = await matchRoute(pathname, env, manifest);
 		filePath = matchedRoute?.filePath;
 
-		return await handleRoute(
-			matchedRoute,
-			url,
-			pathname,
-			body,
-			origin,
-			env,
-			manifest,
-			req,
-			res
-		);
+		return await handleRoute(matchedRoute, url, pathname, body, origin, env, manifest, req, res);
 	} catch (_err) {
 		const err = fixViteErrorMessage(_err, viteServer, filePath);
 		const errorWithMetadata = collectErrorMetadata(err);
@@ -358,13 +340,13 @@ async function handleRoute(
 	});
 
 	const options: SSROptions = {
-			env,
-			filePath,
-			origin,
-			preload: preloadedComponent,
-			pathname,
-			request,
-			route
+		env,
+		filePath,
+		origin,
+		preload: preloadedComponent,
+		pathname,
+		request,
+		route,
 	};
 
 	// Route successfully matched! Render it.
@@ -372,11 +354,7 @@ async function handleRoute(
 		const result = await callEndpoint(options);
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {
-				const fourOhFourRoute = await matchRoute(
-					'/404',
-					env,
-					manifest
-				);
+				const fourOhFourRoute = await matchRoute('/404', env, manifest);
 				return handleRoute(
 					fourOhFourRoute,
 					new URL('/404', url),

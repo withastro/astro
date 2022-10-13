@@ -14,7 +14,12 @@ import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error } from '../logger/core.js';
 import { joinPaths, prependForwardSlash } from '../path.js';
-import { createEnvironment, Environment, createRenderContext, renderPage } from '../render/index.js';
+import {
+	createEnvironment,
+	createRenderContext,
+	Environment,
+	renderPage,
+} from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,

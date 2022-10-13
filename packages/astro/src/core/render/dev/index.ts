@@ -8,18 +8,18 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import type { DevelopmentEnvironment } from './environment';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage, resolveIdToUrl } from '../../util.js';
-import { renderPage as coreRenderPage, createRenderContext } from '../index.js';
+import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
+import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { RouteCache } from '../route-cache.js';
 import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
+import type { DevelopmentEnvironment } from './environment';
 import { getScriptsForURL } from './scripts.js';
-import { loadRenderer, filterFoundRenderers } from '../renderer.js';
 export { createDevelopmentEnvironment } from './environment.js';
-export type { DevelopmentEnvironment }; 
+export type { DevelopmentEnvironment };
 
 export interface SSROptionsOld {
 	/** an instance of the AstroSettings */
@@ -73,7 +73,6 @@ export interface SSROptions {
 	request: Request;
 	/** optional, in case we need to render something outside of a dev server */
 	route?: RouteData;
-
 }
 
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
@@ -83,7 +82,7 @@ export async function loadRenderers(
 	settings: AstroSettings
 ): Promise<SSRLoadedRenderer[]> {
 	const loader = (entry: string) => viteServer.ssrLoadModule(entry);
-	const renderers = await Promise.all(settings.renderers.map(r => loadRenderer(r, loader)));
+	const renderers = await Promise.all(settings.renderers.map((r) => loadRenderer(r, loader)));
 	return filterFoundRenderers(renderers);
 }
 
@@ -176,7 +175,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 			children: content,
 		});
 	});
-	
+
 	return { scripts, styles, links };
 }
 
@@ -189,7 +188,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 
 	const { scripts, links, styles } = await getScriptsAndStyles({
 		env: options.env,
-		filePath: options.filePath
+		filePath: options.filePath,
 	});
 
 	const ctx = createRenderContext({
@@ -199,7 +198,7 @@ export async function renderPage(options: SSROptions): Promise<Response> {
 		scripts,
 		links,
 		styles,
-		route: options.route
+		route: options.route,
 	});
 
 	return await coreRenderPage(mod, ctx, options.env); // NOTE: without "await", errors won’t get caught below
