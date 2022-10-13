@@ -1,5 +1,5 @@
 import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
-import type { RenderOptions } from '../render/core';
+import type { Environment, RenderContext } from '../render/index';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { ASTRO_VERSION } from '../constants.js';
@@ -7,21 +7,6 @@ import { AstroCookies, attachToResponse } from '../cookies/index.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
-
-export type EndpointOptions = Pick<
-	RenderOptions,
-	| 'logging'
-	| 'origin'
-	| 'request'
-	| 'route'
-	| 'routeCache'
-	| 'pathname'
-	| 'route'
-	| 'site'
-	| 'ssr'
-	| 'status'
-	| 'adapterName'
->;
 
 type EndpointCallResult =
 	| {
@@ -83,25 +68,34 @@ function createAPIContext({
 
 export async function call(
 	mod: EndpointHandler,
-	opts: EndpointOptions
+	env: Environment,
+	ctx: RenderContext
 ): Promise<EndpointCallResult> {
-	const paramsAndPropsResp = await getParamsAndProps({ ...opts, mod: mod as any });
+	const paramsAndPropsResp = await getParamsAndProps({
+		mod: mod as any,
+		route: ctx.route,
+		routeCache: env.routeCache,
+		pathname: ctx.pathname,
+		logging: env.logging,
+		ssr: env.ssr
+	});
 
 	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
 		throw new Error(
-			`[getStaticPath] route pattern matched, but no matching static path found. (${opts.pathname})`
+			`[getStaticPath] route pattern matched, but no matching static path found. (${ctx.pathname})`
 		);
 	}
 	const [params, props] = paramsAndPropsResp;
 
 	const context = createAPIContext({
-		request: opts.request,
+		request: ctx.request,
 		params,
 		props,
-		site: opts.site,
-		adapterName: opts.adapterName,
+		site: env.site,
+		adapterName: env.adapterName,
 	});
-	const response = await renderEndpoint(mod, context, opts.ssr);
+
+	const response = await renderEndpoint(mod, context, env.ssr);
 
 	if (response instanceof Response) {
 		attachToResponse(response, context.cookies);
