@@ -13,10 +13,10 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "astro": "^1.4.7",
+    "astro": "^1.5.0",
     "svelte": "^3.48.0",
-    "@astrojs/svelte": "^1.0.1",
-    "@astrojs/node": "^1.1.0",
+    "@astrojs/svelte": "^1.0.2",
+    "@astrojs/node": "^2.0.0",
     "concurrently": "^7.2.1",
     "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
