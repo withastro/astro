@@ -14,7 +14,7 @@ import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error } from '../logger/core.js';
 import { joinPaths, prependForwardSlash } from '../path.js';
-import { render } from '../render/core.js';
+import { createEnvironment, Environment, createRenderContext, renderPage } from '../render/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import {
 	createLinkStylesheetElementSet,
@@ -31,16 +31,15 @@ export interface MatchOptions {
 }
 
 export class App {
+	#env: Environment;
 	#manifest: Manifest;
 	#manifestData: ManifestData;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
-	#routeCache: RouteCache;
 	#encoder = new TextEncoder();
 	#logging: LogOptions = {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
-	#streaming: boolean;
 
 	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
@@ -48,8 +47,32 @@ export class App {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
-		this.#routeCache = new RouteCache(this.#logging);
-		this.#streaming = streaming;
+		this.#env = createEnvironment({
+			adapterName: manifest.adapterName,
+			logging: this.#logging,
+			markdown: manifest.markdown,
+			mode: 'production',
+			renderers: manifest.renderers,
+			async resolve(specifier: string) {
+				if (!(specifier in manifest.entryModules)) {
+					throw new Error(`Unable to resolve [${specifier}]`);
+				}
+				const bundlePath = manifest.entryModules[specifier];
+				switch (true) {
+					case bundlePath.startsWith('data:'):
+					case bundlePath.length === 0: {
+						return bundlePath;
+					}
+					default: {
+						return prependForwardSlash(joinPaths(manifest.base, bundlePath));
+					}
+				}
+			},
+			routeCache: new RouteCache(this.#logging),
+			site: this.#manifest.site,
+			ssr: true,
+			streaming,
+		});
 	}
 	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
@@ -148,41 +171,17 @@ export class App {
 		}
 
 		try {
-			const response = await render({
-				adapterName: manifest.adapterName,
-				links,
-				logging: this.#logging,
-				markdown: manifest.markdown,
-				mod,
-				mode: 'production',
+			const ctx = createRenderContext({
+				request,
 				origin: url.origin,
 				pathname: url.pathname,
 				scripts,
-				renderers,
-				async resolve(specifier: string) {
-					if (!(specifier in manifest.entryModules)) {
-						throw new Error(`Unable to resolve [${specifier}]`);
-					}
-					const bundlePath = manifest.entryModules[specifier];
-					switch (true) {
-						case bundlePath.startsWith('data:'):
-						case bundlePath.length === 0: {
-							return bundlePath;
-						}
-						default: {
-							return prependForwardSlash(joinPaths(manifest.base, bundlePath));
-						}
-					}
-				},
+				links,
 				route: routeData,
-				routeCache: this.#routeCache,
-				site: this.#manifest.site,
-				ssr: true,
-				request,
-				streaming: this.#streaming,
 				status,
 			});
 
+			const response = await renderPage(mod, ctx, this.#env);
 			return response;
 		} catch (err: any) {
 			error(this.#logging, 'ssr', err.stack || err.message || String(err));
@@ -201,16 +200,16 @@ export class App {
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const handler = mod as unknown as EndpointHandler;
-		const result = await callEndpoint(handler, {
-			logging: this.#logging,
+
+		const ctx = createRenderContext({
+			request,
 			origin: url.origin,
 			pathname: url.pathname,
-			request,
 			route: routeData,
-			routeCache: this.#routeCache,
-			ssr: true,
 			status,
 		});
+
+		const result = await callEndpoint(handler, this.#env, ctx);
 
 		if (result.type === 'response') {
 			if (result.response.headers.get('X-Astro-Response') === 'Not-Found') {

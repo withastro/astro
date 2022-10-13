@@ -129,7 +129,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
+	const { markdown, params, pathname, renderers, request, resolve } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
