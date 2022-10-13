@@ -48,8 +48,8 @@ jobs:
       - name: Run benchmark
         id: benchmark-pr
         run: |
-          pnpm run --silent benchmark &> ./bench-result.md
-          result=$(awk -v RS="" '/┌/' ./bench-result.md)
+          pnpm run --silent benchmark > ./bench-result.md
+          result=$(awk '/requests in/' ./bench-result.md)
           echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
       # main benchmark
@@ -68,8 +68,8 @@ jobs:
       - name: Run benchmark
         id: benchmark-main
         run: |
-          pnpm run --silent benchmark &> ./bench-result.md
-          result=$(awk -v RS="" '/┌/' ./bench-result.md)
+          pnpm run --silent benchmark > ./bench-result.md
+          result=$(awk '/requests in/' ./bench-result.md)
           echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
   output-benchmark:
@@ -86,15 +86,11 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           message: |
             **Node**: 14
-            **PR**:
-            ${{ needs.benchmark.outputs.PR-BENCH-14 }}
-            **MAIN**:
-            ${{ needs.benchmark.outputs.MAIN-BENCH-14 }}
+            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-14 }}
+            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-14 }}
             
             ---
             
             **Node**: 16
-            **PR**:
-            ${{ needs.benchmark.outputs.PR-BENCH-16 }}
-            **MAIN**:
-            ${{ needs.benchmark.outputs.MAIN-BENCH-16 }}
+            **PR**: ${{ needs.benchmark.outputs.PR-BENCH-16 }}
+            **MAIN**: ${{ needs.benchmark.outputs.MAIN-BENCH-16 }}
