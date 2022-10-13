@@ -54,7 +54,7 @@ describe('core/render', () => {
 			const Wrapper = createComponent((result, _props, slots = {}) => {
 				return render`<div>${renderSlot(result, slots['my-slot'])}</div>`;
 			});
-	
+
 			const Page = createAstroJSXComponent(() => {
 				return jsx('main', {
 					children: [
@@ -64,29 +64,31 @@ describe('core/render', () => {
 								jsx('p', {
 									slot: 'my-slot',
 									className: 'n',
-									children: 'works'
-								})
-							]
+									children: 'works',
+								}),
+							],
 						}),
 						jsx(Wrapper, {
 							// Children as a VNode
 							children: jsx('p', {
 								slot: 'my-slot',
 								className: 'p',
-								children: 'works'
-							})
-						})
-					]
-				})
+								children: 'works',
+							}),
+						}),
+					],
+				});
 			});
 
-			const ctx = createRenderContext({ request: new Request('http://example.com/' )});
+			const ctx = createRenderContext({ request: new Request('http://example.com/') });
 			const response = await renderPage(createAstroModule(Page), ctx, env);
-	
+
 			expect(response.status).to.equal(200);
-	
+
 			const html = await response.text();
-			expect(html).to.include('<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>');
+			expect(html).to.include(
+				'<main><div><p class="n">works</p></div><div><p class="p">works</p></div></main>'
+			);
 		});
 	});
 });
