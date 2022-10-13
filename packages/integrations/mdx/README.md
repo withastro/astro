@@ -343,13 +343,13 @@ Now, writing the standard Markdown blockquote syntax (`>`) will use your custom 
 
 #### Custom components with imported `mdx`
 
-When rendering imported MDX content, custom components can be passed via the `components` prop. They can also be used to override mappings.
+When rendering imported MDX content, custom components can be passed via the `components` prop.
 
-You can also import any exported components from an MDX file along with `Content`. Pass these in to your `<Content />` component using the same `components` prop.
+You can also use exported custom components from an MDX file, by importimg them along with `Content` and pass them into the same `components` prop.
 
 ```astro title="src/pages/page.astro" "components={{...components, h1: Heading }}"
 ---
-import Content, { components } from '../content.mdx';
+import { Content, components } from '../content.mdx';
 import Heading from '../Heading.astro';
 ---
 
