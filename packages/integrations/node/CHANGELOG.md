@@ -1,5 +1,125 @@
 # @astrojs/node
 
+## 2.0.0
+
+### Major Changes
+
+- [#5056](https://github.com/withastro/astro/pull/5056) [`e55af8a23`](https://github.com/withastro/astro/commit/e55af8a23233b6335f45b7a04b9d026990fb616c) Thanks [@matthewp](https://github.com/matthewp)! - # Standalone mode for the Node.js adapter
+
+  New in `@astrojs/node` is support for **standalone mode**. With standalone mode you can start your production server without needing to write any server JavaScript yourself. The server starts simply by running the script like so:
+
+  ```shell
+  node ./dist/server/entry.mjs
+  ```
+
+  To enable standalone mode, set the new `mode` to `'standalone'` option in your Astro config:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import nodejs from '@astrojs/node';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: nodejs({
+      mode: 'standalone',
+    }),
+  });
+  ```
+
+  See the @astrojs/node documentation to learn all of the options available in standalone mode.
+
+  ## Breaking change
+
+  This is a semver major change because the new `mode` option is required. Existing @astrojs/node users who are using their own HTTP server framework such as Express can upgrade by setting the `mode` option to `'middleware'` in order to build to a middleware mode, which is the same behavior and API as before.
+
+  ```js
+  import { defineConfig } from 'astro/config';
+  import nodejs from '@astrojs/node';
+
+  export default defineConfig({
+    output: 'server',
+    adapter: nodejs({
+      mode: 'middleware',
+    }),
+  });
+  ```
+
+### Minor Changes
+
+- [#5056](https://github.com/withastro/astro/pull/5056) [`e55af8a23`](https://github.com/withastro/astro/commit/e55af8a23233b6335f45b7a04b9d026990fb616c) Thanks [@matthewp](https://github.com/matthewp)! - # Adapter support for `astro preview`
+
+  Adapters are now about to support the `astro preview` command via a new integration option. The Node.js adapter `@astrojs/node` is the first of the built-in adapters to gain support for this. What this means is that if you are using `@astrojs/node` you can new preview your SSR app by running:
+
+  ```shell
+  npm run preview
+  ```
+
+  ## Adapter API
+
+  We will be updating the other first party Astro adapters to support preview over time. Adapters can opt in to this feature by providing the `previewEntrypoint` via the `setAdapter` function in `astro:config:done` hook. The Node.js adapter's code looks like this:
+
+  ```diff
+  export default function() {
+    return {
+  		name: '@astrojs/node',
+  		hooks: {
+  			'astro:config:done': ({ setAdapter, config }) => {
+          setAdapter({
+            name: '@astrojs/node',
+            serverEntrypoint: '@astrojs/node/server.js',
+  +          previewEntrypoint: '@astrojs/node/preview.js',
+            exports: ['handler'],
+          });
+
+          // more here
+        }
+      }
+    };
+  }
+  ```
+
+  The `previewEntrypoint` is a module in the adapter's package that is a Node.js script. This script is run when `astro preview` is run and is charged with starting up the built server. See the Node.js implementation in `@astrojs/node` to see how that is implemented.
+
+- [#5056](https://github.com/withastro/astro/pull/5056) [`e55af8a23`](https://github.com/withastro/astro/commit/e55af8a23233b6335f45b7a04b9d026990fb616c) Thanks [@matthewp](https://github.com/matthewp)! - # New build configuration
+
+  The ability to customize SSR build configuration more granularly is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    output: 'server',
+    build: {
+      server: './dist/server/',
+      client: './dist/client/',
+      serverEntry: 'entry.mjs',
+    },
+  });
+  ```
+
+  These new configuration options are only supported in SSR mode and are ignored when building to SSG (a static site).
+
+  ## Integration hook change
+
+  The integration hook `astro:build:start` includes a param `buildConfig` which includes all of these same options. You can continue to use this param in Astro 1.x, but it is deprecated in favor of the new `build.config` options. All of the built-in adapters have been updated to the new format. If you have an integration that depends on this param we suggest upgrading to do this instead:
+
+  ```js
+  export default function myIntegration() {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:setup': ({ updateConfig }) => {
+          updateConfig({
+            build: {
+              server: '...',
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
 ## 1.1.0
 
 ### Minor Changes
