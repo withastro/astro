@@ -138,7 +138,7 @@ export async function main() {
 			{
 				type: 'select',
 				name: 'template',
-				message: 'How would you like to start your new project?',
+				message: 'How would you like to setup your new project?',
 				choices: TEMPLATES,
 			},
 		],
@@ -268,7 +268,7 @@ export async function main() {
 				{ value: 'strict', title: 'Strict', description: '(recommended)' },
 				{ value: 'strictest', title: 'Strictest' },
 				{ value: 'base', title: 'Relaxed' },
-				{ value: 'unsure', title: `Hmm... I'm not sure` },
+				{ value: 'unsure', title: 'Help me choose' },
 			],
 		},
 		{

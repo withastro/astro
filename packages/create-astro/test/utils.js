@@ -36,7 +36,7 @@ export function promiseWithTimeout(testFn) {
 
 export const PROMPT_MESSAGES = {
 	directory: 'Where would you like to create your new project?',
-	template: 'How would you like to start your new project?',
+	template: 'How would you like to setup your new project?',
 	typescript: 'How would you like to setup TypeScript?',
 	typescriptSucceed: 'next',
 };

@@ -1,5 +1,5 @@
 export const TEMPLATES = [
-	{ value: 'basics', title: 'Include sample files (recommended)' },
-	{ value: 'blog', title: 'Use blog template' },
-	{ value: 'minimal', title: 'Empty' },
+	{ value: 'basics', title: 'a few best practices (recommended)' },
+	{ value: 'blog', title: 'a personal website starter kit' },
+	{ value: 'minimal', title: 'an empty project' },
 ];
