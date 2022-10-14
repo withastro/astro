@@ -2,7 +2,7 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { getVercelOutput, removeDir, writeJson, copyFilesToFunction } from '../lib/fs.js';
+import { copyFilesToFunction, getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
