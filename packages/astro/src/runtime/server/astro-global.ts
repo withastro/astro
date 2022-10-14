@@ -13,7 +13,7 @@ function createAstroGlobFn() {
 	const globHandler = (importMetaGlobResult: Record<string, any>, globValue: () => any) => {
 		let allEntries = [...Object.values(importMetaGlobResult)];
 		if (allEntries.length === 0) {
-			throw new Error(`Astro.glob(${JSON.stringify(globValue())}) - no matches found.`);
+			return []
 		}
 		// Map over the `import()` promises, calling to load them.
 		return Promise.all(allEntries.map((fn) => fn()));
