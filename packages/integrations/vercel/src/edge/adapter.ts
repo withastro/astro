@@ -1,6 +1,8 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
+import { relative as relativePath } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import { getVercelOutput, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeJson, copyFilesToFunction } from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
@@ -13,8 +15,13 @@ function getAdapter(): AstroAdapter {
 	};
 }
 
-export default function vercelEdge(): AstroIntegration {
+export interface VercelEdgeConfig {
+	includeFiles?: string[];
+}
+
+export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
 	let needsBuildConfig = false;
@@ -30,13 +37,15 @@ export default function vercelEdge(): AstroIntegration {
 					build: {
 						serverEntry: 'entry.mjs',
 						client: new URL('./static/', outDir),
-						server: new URL('./functions/render.func/', config.outDir),
+						server: new URL('./dist/', config.root),
 					},
 				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				buildTempFolder = config.build.server;
+				functionFolder = new URL('./functions/render.func/', config.outDir);
 				serverEntry = config.build.serverEntry;
 				functionFolder = config.build.server;
 
@@ -50,8 +59,8 @@ export default function vercelEdge(): AstroIntegration {
 			'astro:build:start': ({ buildConfig }) => {
 				if (needsBuildConfig) {
 					buildConfig.client = new URL('./static/', _config.outDir);
+					buildTempFolder = buildConfig.server = new URL('./dist/', _config.root);
 					serverEntry = buildConfig.serverEntry = 'entry.mjs';
-					functionFolder = buildConfig.server = new URL('./functions/render.func/', _config.outDir);
 				}
 			},
 			'astro:build:setup': ({ vite, target }) => {
@@ -79,11 +88,25 @@ export default function vercelEdge(): AstroIntegration {
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
+				const entry = new URL(serverEntry, buildTempFolder);
+
+				// Copy entry and other server files
+				const commonAncestor = await copyFilesToFunction(
+					[
+						new URL(serverEntry, buildTempFolder),
+						...includeFiles.map((file) => new URL(file, _config.root)),
+					],
+					functionFolder
+				);
+
+				// Remove temporary folder
+				await removeDir(buildTempFolder);
+
 				// Edge function config
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/edge-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 					runtime: 'edge',
-					entrypoint: serverEntry,
+					entrypoint: relativePath(commonAncestor, fileURLToPath(entry)),
 				});
 
 				// Output configuration
