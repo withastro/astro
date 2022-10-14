@@ -39,6 +39,13 @@ export default function vercelEdge(): AstroIntegration {
 				_config = config;
 				serverEntry = config.build.serverEntry;
 				functionFolder = config.build.server;
+
+				if (config.output === 'static') {
+					throw new Error(`
+		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
+	
+	`);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				if (needsBuildConfig) {
@@ -66,6 +73,9 @@ export default function vercelEdge(): AstroIntegration {
 						target: 'webworker',
 						noExternal: true,
 					};
+
+					vite.build ||= {};
+					vite.build.minify = true;
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
