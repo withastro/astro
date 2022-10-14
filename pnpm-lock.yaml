@@ -2431,7 +2431,6 @@ importers:
       chai: ^4.3.6
       chalk: ^5.0.1
       comment-json: ^4.2.3
-      degit: ^2.8.4
       execa: ^6.1.0
       giget: ^0.1.7
       kleur: ^4.1.4
@@ -2446,7 +2445,6 @@ importers:
       '@astrojs/cli-kit': 0.1.0
       chalk: 5.1.2
       comment-json: 4.2.3
-      degit: 2.8.4
       execa: 6.1.0
       giget: 0.1.7
       kleur: 4.1.5
@@ -11372,12 +11370,6 @@ packages:
       esprima: 4.0.1
       vm2: 3.9.11
     dev: true
-
-  /degit/2.8.4:
-    resolution: {integrity: sha512-vqYuzmSA5I50J882jd+AbAhQtgK6bdKUJIex1JNfEUPENCgYsxugzKVZlFyMwV4i06MmnV47/Iqi5Io86zf3Ng==}
-    engines: {node: '>=8.0.0'}
-    hasBin: true
-    dev: false
 
   /del/7.0.0:
     resolution: {integrity: sha512-tQbV/4u5WVB8HMJr08pgw0b6nG4RGt/tj+7Numvq+zqcvUFeMaIWWOUFltiU+6go8BSO2/ogsB4EasDaj0y68Q==}
