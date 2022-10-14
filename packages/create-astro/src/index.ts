@@ -1,13 +1,12 @@
 /* eslint no-console: 'off' */
 import { assign, parse, stringify } from 'comment-json';
-import degit from 'degit';
+import { downloadTemplate } from 'giget';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
 import { say, label, color, generateProjectName } from '@astrojs/cli-kit';
 import { random } from '@astrojs/cli-kit/utils';
-import { bold, cyan, dim, green, red, reset, yellow } from 'kleur/colors';
+import { bold, dim, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
-import os from 'os';
 import path from 'path';
 import prompts from 'prompts';
 import detectPackageManager from 'which-pm-runs';
@@ -156,92 +155,22 @@ export async function main() {
 		? options.template
 		: `withastro/astro/examples/${options.template}#latest`;
 
-	const emitter = degit(`${templateTarget}${hash}`, {
-		cache: false,
-		force: true,
-		verbose: defaultLogLevel === 'debug' ? true : false,
-	});
-
-	logger.debug('Initialized degit with following config:', `${templateTarget}${hash}`, {
-		cache: false,
-		force: true,
-		verbose: defaultLogLevel === 'debug' ? true : false,
-	});
-
 	// Copy
 	if (!args.dryRun) {
 		try {
-			emitter.on('info', (_info) => {
-				logger.debug(_info.message);
+			await downloadTemplate(`${templateTarget}${hash}`, {
+				force: true,
+				provider: 'github',
+				cwd,
+				dir: '.',
 			});
-			await emitter.clone(cwd);
-
-			// degit does not return an error when an invalid template is provided, as such we need to handle this manually
-			// It's not very pretty, but to the user eye, we just return a nice message and nothing weird happened
-			if (isValidProjectDirectory(cwd)) {
-				if (isEmpty(cwd)) {
-					fs.rmdirSync(cwd);
-				}
-				throw new Error(`Error: The provided template (${cyan(options.template)}) does not exist`);
-			}
 		} catch (err: any) {
-			templateSpinner.fail();
-
-			// degit is compiled, so the stacktrace is pretty noisy. Only report the stacktrace when using verbose mode.
-			logger.debug(err);
-			console.error(red(err.message));
-
-			// Warning for issue #655 and other corrupted cache issue
-			if (
-				err.message === 'zlib: unexpected end of file' ||
-				err.message === 'TAR_BAD_ARCHIVE: Unrecognized archive format'
-			) {
-				console.log(
-					yellow(
-						'Local degit cache seems to be corrupted. For more information check out this issue: https://github.com/withastro/astro/issues/655. '
-					)
-				);
-				const cacheIssueResponse = await prompts({
-					type: 'confirm',
-					name: 'cache',
-					message: 'Would you like us to clear the cache and try again?',
-					initial: true,
-				});
-
-				if (cacheIssueResponse.cache) {
-					const homeDirectory = os.homedir();
-					const cacheDir = path.join(homeDirectory, '.degit', 'github', 'withastro');
-
-					fs.rmSync(cacheDir, { recursive: true, force: true, maxRetries: 3 });
-
-					templateSpinner = await loadWithRocketGradient('Copying project files...');
-					try {
-						await emitter.clone(cwd);
-					} catch (e: any) {
-						logger.debug(e);
-						console.error(red(e.message));
-					}
-				} else {
-					console.log(
-						"Okay, no worries! To fix this manually, remove the folder '~/.degit/github/withastro' and rerun the command."
-					);
-				}
+			fs.rmdirSync(cwd);
+			if (err.message.includes('404')) {
+				console.error(`Template ${color.underline(options.template)} does not exist!`);
+			} else {
+				console.error(err.message);
 			}
-
-			// Helpful message when encountering the "could not find commit hash for ..." error
-			if (err.code === 'MISSING_REF') {
-				console.log(
-					yellow(
-						"This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."
-					)
-				);
-				console.log(
-					yellow(
-						"If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"
-					)
-				);
-			}
-
 			process.exit(1);
 		}
 

@@ -2433,6 +2433,7 @@ importers:
       comment-json: ^4.2.3
       degit: ^2.8.4
       execa: ^6.1.0
+      giget: ^0.1.7
       kleur: ^4.1.4
       mocha: ^9.2.2
       ora: ^6.1.0
@@ -2447,6 +2448,7 @@ importers:
       comment-json: 4.2.3
       degit: 2.8.4
       execa: 6.1.0
+      giget: 0.1.7
       kleur: 4.1.5
       ora: 6.1.2
       prompts: 2.4.2
@@ -11357,6 +11359,10 @@ packages:
     resolution: {integrity: sha512-EPS1carKg+dkEVy3qNTqIdp2qV7mUP08nIsupfwQpz++slCVRw7qbQyWvSTig+kFPwz2XXp5/kIIkH+CwrJKkQ==}
     dev: false
 
+  /defu/6.1.0:
+    resolution: {integrity: sha512-pOFYRTIhoKujrmbTRhcW5lYQLBXw/dlTwfI8IguF1QCDJOcJzNH1w+YFjxqy6BAuJrClTy6MUE8q+oKJ2FLsIw==}
+    dev: false
+
   /degenerator/3.0.2:
     resolution: {integrity: sha512-c0mef3SNQo56t6urUU6tdQAs+ThoD0o9B9MJ8HEt7NQcGEILCRFqQb7ZbP9JAv+QF1Ky5plydhMR/IrqWDm+TQ==}
     engines: {node: '>= 6'}
@@ -12830,6 +12836,18 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /giget/0.1.7:
+    resolution: {integrity: sha512-bvIVgRxfiYDTr6MWOdNjTI5o87sDUjbiFdad4P7j5yYrBJN3c3l0vaNICSrVE81X0Z6qFG0GkAoDgTrJ3K63XA==}
+    hasBin: true
+    dependencies:
+      colorette: 2.0.19
+      defu: 6.1.0
+      mri: 1.2.0
+      node-fetch-native: 0.1.7
+      pathe: 0.3.9
+      tar: 6.1.11
+    dev: false
 
   /github-from-package/0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -14847,6 +14865,10 @@ packages:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
 
+  /node-fetch-native/0.1.7:
+    resolution: {integrity: sha512-hps7dFJM0IEF056JftDSSjWDAwW9v2clwHoUJiHyYgl+ojoqjKyWybljMlpTmlC1O+864qovNlRLyAIjRxu9Ag==}
+    dev: false
+
   /node-fetch/2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
     engines: {node: 4.x || >=6.0.0}
@@ -15262,6 +15284,10 @@ packages:
 
   /pathe/0.2.0:
     resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
+    dev: false
+
+  /pathe/0.3.9:
+    resolution: {integrity: sha512-6Y6s0vT112P3jD8dGfuS6r+lpa0qqNrLyHPOwvXMnyNTQaYiwgau2DP3aNDsR13xqtGj7rrPo+jFUATpU6/s+g==}
     dev: false
 
   /pathval/1.1.1:
