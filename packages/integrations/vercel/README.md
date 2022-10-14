@@ -91,7 +91,7 @@ To configure this adapter, pass an object to the `vercel()` function call in `as
 > **Type:** `string[]`
 > **Available for:** Edge, Serverless
 
-You can force files to be bundled with your function in case something's missing.
+Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
 
 ```js
 import { defineConfig } from 'astro/config';
@@ -114,7 +114,7 @@ export default defineConfig({
 > **Type:** `string[]`
 > **Available for:** Serverless
 
-There might be some files that are being picked up by the bundled that should be there. You can exclude them with this property.
+Use this property to exclude any files from the bundling process that would otherwise be included.
 
 ```js
 import { defineConfig } from 'astro/config';
