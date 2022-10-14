@@ -82,14 +82,17 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
 	const pkgManager = detectPackageManager()?.name || 'npm';
-		const [username, version] = await Promise.all([getName(), getVersion()]);
+	const [username, version] = await Promise.all([getName(), getVersion()]);
+	const skipHouston = Object.entries(args).filter(([k]) => k !== '_').length > 0;
 
 	logger.debug('Verbose logging turned on');
-	await say([
-		['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
-		random(welcome),
-	]);	
-	await banner(version);
+	if (!skipHouston) {
+		await say([
+			['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
+			random(welcome),
+		]);	
+		await banner(version);
+	}
 
 	let cwd = args['_'][2] as string;
 
