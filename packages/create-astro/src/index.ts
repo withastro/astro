@@ -3,7 +3,9 @@ import { assign, parse, stringify } from 'comment-json';
 import degit from 'degit';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import { bgCyan, black, bold, cyan, dim, gray, green, red, reset, yellow } from 'kleur/colors';
+import { say, label, color, generateProjectName } from '@astrojs/cli-kit';
+import { random } from '@astrojs/cli-kit/utils';
+import { bold, cyan, dim, green, red, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
 import os from 'os';
 import path from 'path';
@@ -13,15 +15,8 @@ import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
 import { defaultLogLevel, logger } from './logger.js';
 import { TEMPLATES } from './templates.js';
+import { getName, getVersion, welcome, banner, typescriptByDefault, nextSteps, info } from './messages.js';
 
-function wait(ms: number) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function logAndWait(message: string, ms = 100) {
-	console.log(message);
-	return wait(ms);
-}
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
@@ -83,19 +78,19 @@ function isValidProjectDirectory(dirPath: string) {
 	return conflicts.length === 0;
 }
 
-const { version } = JSON.parse(
-	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
-);
-
 const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']; // some files are only needed for online editors when using astro.new. Remove for create-astro installs.
 
 // Please also update the installation instructions in the docs at https://github.com/withastro/docs/blob/main/src/pages/en/install/auto.md if you make any changes to the flow or wording here.
 export async function main() {
 	const pkgManager = detectPackageManager()?.name || 'npm';
+		const [username, version] = await Promise.all([getName(), getVersion()]);
 
 	logger.debug('Verbose logging turned on');
-	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
-	console.log(`Lets walk through setting up your new Astro project.\n`);
+	await say([
+		['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
+		random(welcome),
+	]);	
+	await banner(version);
 
 	let cwd = args['_'][2] as string;
 
@@ -119,7 +114,7 @@ export async function main() {
 				type: 'text',
 				name: 'directory',
 				message: 'Where would you like to create your new project?',
-				initial: './my-astro-site',
+				initial: `./${generateProjectName()}`,
 				validate(value) {
 					if (!isValidProjectDirectory(value)) {
 						return notEmptyMsg(value);
@@ -141,7 +136,7 @@ export async function main() {
 			{
 				type: 'select',
 				name: 'template',
-				message: 'Which template would you like to use?',
+				message: 'How would you like to start your new project?',
 				choices: TEMPLATES,
 			},
 		],
@@ -176,8 +171,8 @@ export async function main() {
 	// Copy
 	if (!args.dryRun) {
 		try {
-			emitter.on('info', (info) => {
-				logger.debug(info.message);
+			emitter.on('info', (_info) => {
+				logger.debug(_info.message);
 			});
 			await emitter.clone(cwd);
 
@@ -303,7 +298,7 @@ export async function main() {
 		installSpinner.text = green('Packages installed!');
 		installSpinner.succeed();
 	} else {
-		ora().info(dim(`No problem! Remember to install dependencies after setup.`));
+		await info('No problem!', 'Remember to install dependencies after setup.')
 	}
 
 	const gitResponse = await prompts(
@@ -329,7 +324,7 @@ export async function main() {
 		await execaCommand('git init', { cwd });
 		ora().succeed('Git repository created!');
 	} else {
-		ora().info(dim(`Sounds good! You can come back and run ${cyan(`git init`)} later.`));
+		await info('Sounds good!', `You can come back and run ${color.reset(`git init`)}${color.dim(' later.')}`)
 	}
 
 	const tsResponse = await prompts(
@@ -338,25 +333,10 @@ export async function main() {
 			name: 'typescript',
 			message: 'How would you like to setup TypeScript?',
 			choices: [
-				{
-					title: 'Relaxed',
-					value: 'base',
-				},
-				{
-					title: 'Strict (recommended)',
-					description: 'Enable `strict` typechecking rules',
-					value: 'strict',
-				},
-				{
-					title: 'Strictest',
-					description: 'Enable all typechecking rules',
-					value: 'strictest',
-				},
-				{
-					title: 'I prefer not to use TypeScript',
-					description: `That's cool too!`,
-					value: 'optout',
-				},
+				{ value: 'strict', title: 'Strict', description: '(recommended)' },
+				{ value: 'strictest', title: 'Strictest' },
+				{ value: 'base', title: 'Relaxed' },
+				{ value: 'unsure', title: `Hmm... I'm not sure` },
 			],
 		},
 		{
@@ -371,16 +351,9 @@ export async function main() {
 		}
 	);
 
-	if (tsResponse.typescript === 'optout') {
-		console.log(``);
-		ora().warn(yellow(bold(`Astro ❤️ TypeScript!`)));
-		console.log(`  Astro supports TypeScript inside of ".astro" component scripts, so`);
-		console.log(`  we still need to create some TypeScript-related files in your project.`);
-		console.log(`  You can safely ignore these files, but don't delete them!`);
-		console.log(dim('  (ex: tsconfig.json, src/env.d.ts)'));
-		console.log(``);
+	if (tsResponse.typescript === 'unsure') {
+		await typescriptByDefault();
 		tsResponse.typescript = 'base';
-		await wait(300);
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
@@ -415,34 +388,12 @@ export async function main() {
 		});
 		ora().succeed('TypeScript settings applied!');
 	}
-
-	ora().succeed('Setup complete.');
-	ora({ text: green('Ready for liftoff!') }).succeed();
-	await wait(300);
-
-	console.log(`\n${bgCyan(black(' Next steps '))}\n`);
-
+	
 	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
+	await nextSteps({ projectDir, devCmd });
 
-	// If the project dir is the current dir, no need to tell users to cd in the folder
-	if (projectDir !== '/') {
-		await logAndWait(
-			`You can now ${bold(cyan('cd'))} into the ${bold(cyan(projectDir))} project directory.`
-		);
-	}
-	await logAndWait(
-		`Run ${bold(cyan(devCmd))} to start the Astro dev server. ${bold(cyan('CTRL-C'))} to close.`
-	);
-	await logAndWait(
-		`Add frameworks like ${bold(cyan('react'))} and ${bold(
-			cyan('tailwind')
-		)} to your project using ${bold(cyan('astro add'))}`
-	);
-	await logAndWait('');
-	await logAndWait(`Stuck? Come join us at ${bold(cyan('https://astro.build/chat'))}`, 750);
-	await logAndWait(dim('Good luck out there, astronaut.'));
-	await logAndWait('', 300);
+	await say(['Good luck out there, astronaut!']);
 }
 
 function emojiWithFallback(char: string, fallback: string) {
