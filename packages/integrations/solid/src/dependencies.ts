@@ -45,9 +45,7 @@ export function getSolidDeps(root: URL) {
 					}
 					dir = parent;
 				}
-			} catch (e) {
-				console.warn("Couldn't find package.json for", dep, e);
-			}
+			} catch {}
 		}
 	});
 	return deps.reduce<string[]>((acc, dep, i) => {
