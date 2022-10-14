@@ -47,6 +47,14 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 				buildTempFolder = config.build.server;
 				functionFolder = new URL('./functions/render.func/', config.outDir);
 				serverEntry = config.build.serverEntry;
+				functionFolder = config.build.server;
+
+				if (config.output === 'static') {
+					throw new Error(`
+		[@astrojs/vercel] \`output: "server"\` is required to use the edge adapter.
+	
+	`);
+				}
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				if (needsBuildConfig) {
@@ -74,6 +82,9 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 						target: 'webworker',
 						noExternal: true,
 					};
+
+					vite.build ||= {};
+					vite.build.minify = true;
 				}
 			},
 			'astro:build:done': async ({ routes }) => {
