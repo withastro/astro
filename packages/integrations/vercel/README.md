@@ -84,7 +84,49 @@ vercel deploy --prebuilt
 
 ## Configuration
 
-This adapter does not expose any configuration options.
+To configure this adapter, pass an object to the `vercel()` function call in `astro.config.mjs`:
+
+### includeFiles
+
+> **Type:** `string[]`
+> **Available for:** Edge, Serverless
+
+Use this property to force files to be bundled with your function. This is helpful when you notice missing files.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    includeFiles: ['./my-data.json']
+  })
+});
+```
+
+> **Note**
+> When building for the Edge, all the depencies get bundled in a single file to save space. **No extra file will be bundled**. So, if you _need_ some file inside the function, you have to specify it in `includeFiles`.
+
+
+### excludeFiles
+
+> **Type:** `string[]`
+> **Available for:** Serverless
+
+Use this property to exclude any files from the bundling process that would otherwise be included.
+
+```js
+import { defineConfig } from 'astro/config';
+import vercel from '@astrojs/vercel/serverless';
+
+export default defineConfig({
+  output: 'server',
+  adapter: vercel({
+    excludeFiles: ['./src/some_big_file.jpg']
+  })
+});
+```
 
 ## Troubleshooting
 
