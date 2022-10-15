@@ -14,7 +14,15 @@ function getAdapter(): AstroAdapter {
 	};
 }
 
-export default function vercelEdge(): AstroIntegration {
+export interface VercelServerlessConfig {
+	includeFiles?: string[];
+	excludeFiles?: string[];
+}
+
+export default function vercelServerless({
+	includeFiles,
+	excludeFiles,
+}: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
 	let buildTempFolder: URL;
 	let functionFolder: URL;
@@ -59,10 +67,12 @@ export default function vercelEdge(): AstroIntegration {
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)
-				const { handler } = await copyDependenciesToFunction(
-					new URL(serverEntry, buildTempFolder),
-					functionFolder
-				);
+				const { handler } = await copyDependenciesToFunction({
+					entry: new URL(serverEntry, buildTempFolder),
+					outDir: functionFolder,
+					includeFiles: includeFiles?.map((file) => new URL(file, _config.root)) || [],
+					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+				});
 
 				// Remove temporary folder
 				await removeDir(buildTempFolder);

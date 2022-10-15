@@ -56,6 +56,7 @@ export function loadTSConfig(cwd: string | undefined, resolve = true): tsr.TsCon
 	let config = tsr.tsconfigResolverSync({
 		cwd,
 		filePath: resolve ? undefined : cwd,
+		ignoreExtends: !resolve,
 	});
 
 	// When a direct filepath is provided to `tsconfigResolver`, it'll instead return invalid-config even when
@@ -70,6 +71,7 @@ export function loadTSConfig(cwd: string | undefined, resolve = true): tsr.TsCon
 			cwd,
 			filePath: resolve ? undefined : cwd,
 			searchName: 'jsconfig.json',
+			ignoreExtends: !resolve,
 		});
 
 		if (

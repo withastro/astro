@@ -1,12 +1,20 @@
 import { nodeFileTrace } from '@vercel/nft';
-import * as fs from 'node:fs/promises';
-import nodePath from 'node:path';
+import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export async function copyDependenciesToFunction(
-	entry: URL,
-	outDir: URL
-): Promise<{ handler: string }> {
+import { copyFilesToFunction } from './fs.js';
+
+export async function copyDependenciesToFunction({
+	entry,
+	outDir,
+	includeFiles,
+	excludeFiles,
+}: {
+	entry: URL;
+	outDir: URL;
+	includeFiles: URL[];
+	excludeFiles: URL[];
+}): Promise<{ handler: string }> {
 	const entryPath = fileURLToPath(entry);
 
 	// Get root of folder of the system (like C:\ on Windows or / on Linux)
@@ -18,8 +26,6 @@ export async function copyDependenciesToFunction(
 	const result = await nodeFileTrace([entryPath], {
 		base: fileURLToPath(base),
 	});
-
-	if (result.fileList.size === 0) throw new Error('[@astrojs/vercel] No files found');
 
 	for (const error of result.warnings) {
 		if (error.message.startsWith('Failed to resolve dependency')) {
@@ -42,49 +48,14 @@ export async function copyDependenciesToFunction(
 		}
 	}
 
-	const fileList = [...result.fileList];
-
-	let commonAncestor = nodePath.dirname(fileList[0]);
-	for (const file of fileList.slice(1)) {
-		while (!file.startsWith(commonAncestor)) {
-			commonAncestor = nodePath.dirname(commonAncestor);
-		}
-	}
-
-	for (const file of fileList) {
-		const origin = new URL(file, base);
-		const dest = new URL(nodePath.relative(commonAncestor, file), outDir);
-
-		const realpath = await fs.realpath(origin);
-		const isSymlink = realpath !== fileURLToPath(origin);
-		const isDir = (await fs.stat(origin)).isDirectory();
-
-		// Create directories recursively
-		if (isDir && !isSymlink) {
-			await fs.mkdir(new URL('..', dest), { recursive: true });
-		} else {
-			await fs.mkdir(new URL('.', dest), { recursive: true });
-		}
-
-		if (isSymlink) {
-			const realdest = fileURLToPath(
-				new URL(
-					nodePath.relative(nodePath.join(fileURLToPath(base), commonAncestor), realpath),
-					outDir
-				)
-			);
-			await fs.symlink(
-				nodePath.relative(fileURLToPath(new URL('.', dest)), realdest),
-				dest,
-				isDir ? 'dir' : 'file'
-			);
-		} else if (!isDir) {
-			await fs.copyFile(origin, dest);
-		}
-	}
+	const commonAncestor = await copyFilesToFunction(
+		[...result.fileList].map((file) => new URL(file, base)).concat(includeFiles),
+		outDir,
+		excludeFiles
+	);
 
 	return {
 		// serverEntry location inside the outDir
-		handler: nodePath.relative(nodePath.join(fileURLToPath(base), commonAncestor), entryPath),
+		handler: relativePath(commonAncestor, entryPath),
 	};
 }
