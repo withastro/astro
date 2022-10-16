@@ -326,6 +326,7 @@ importers:
 
   examples/with-tailwindcss:
     specifiers:
+      '@astrojs/mdx': ^0.11.4
       '@astrojs/tailwind': ^2.1.0
       '@types/canvas-confetti': ^1.4.3
       astro: ^1.5.0
@@ -334,6 +335,7 @@ importers:
       postcss: ^8.4.14
       tailwindcss: ^3.0.24
     dependencies:
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/tailwind': link:../../packages/integrations/tailwind
       '@types/canvas-confetti': 1.4.3
       astro: link:../../packages/astro
