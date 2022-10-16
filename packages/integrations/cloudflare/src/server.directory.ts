@@ -9,11 +9,13 @@ export function createExports(manifest: SSRManifest) {
 	const onRequest = async ({
 		request,
 		next,
+    ...runtimeEnv
 	}: {
 		request: Request;
 		next: (request: Request) => void;
-	}) => {
+	} & Record<string, unknown>) => {
 		const { origin, pathname } = new URL(request.url);
+    runtimeEnv.name = "cloudflare";
 
 		// static assets
 		if (manifest.assets.has(pathname)) {
@@ -28,6 +30,11 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
+      Reflect.set(
+        request,
+        Symbol.for('runtime'),
+        runtimeEnv
+      );
 			let response = await app.render(request, routeData);
 
 			if (app.setCookieHeaders) {
