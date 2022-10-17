@@ -60,7 +60,7 @@ export async function collectMdMetadata(
 			if (!mdMetadata) return;
 
 			for (let mdMod of mdMetadata.modules) {
-				mdMod.specifier = mdMetadata.resolvePath(mdMod.specifier);
+				mdMod.specifier = mdMod.specifier;
 				metadata.modules.push(mdMod);
 			}
 			for (let mdHoisted of mdMetadata.hoisted) {

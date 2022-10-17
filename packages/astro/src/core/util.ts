@@ -4,7 +4,7 @@ import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import type { ErrorPayload, ViteDevServer } from 'vite';
+import { ErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
@@ -225,6 +225,15 @@ export function resolveJsToTs(filePath: string) {
 		}
 	}
 	return filePath;
+}
+
+export function resolvePath(specifier: string, importer: string) {
+	if (specifier.startsWith('.')) {
+		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
+		return resolveJsToTs(normalizePath(absoluteSpecifier));
+	} else {
+		return specifier;
+	}
 }
 
 export const AggregateError =

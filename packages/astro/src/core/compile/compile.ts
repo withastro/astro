@@ -6,7 +6,7 @@ import type { TransformStyle } from './types';
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
 import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
-import { AggregateError, resolveJsToTs, viteID } from '../util.js';
+import { AggregateError, resolveJsToTs, resolvePath, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
@@ -37,13 +37,7 @@ async function compile({
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		// For Windows compat, prepend filename with `/`.
-		// Note this is required because the compiler uses URLs to parse and built paths.
-		// TODO: Ideally the compiler could expose a `resolvePath` function so that we can
-		// unify how we handle path in a bundler-agnostic way.
-		// At the meantime workaround with a slash and  remove them in `astro:postprocess`
-		// when they are used in `client:component-path`.
-		pathname: prependForwardSlash(filename),
+		pathname: filename,
 		projectRoot: config.root.toString(),
 		site: config.site?.toString(),
 		sourcefile: filename,
@@ -54,6 +48,9 @@ async function compile({
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps, cssTransformErrors),
+		resolvePath(specifier) {
+			return resolvePath(specifier, filename);
+		},
 	})
 		.catch((err) => {
 			// throw compiler errors here if encountered
@@ -87,32 +84,6 @@ async function compile({
 			value: source,
 		},
 	});
-
-	// Also fix path before returning. Example original resolvedPaths:
-	// - @astrojs/preact/client.js
-	// - @/components/Foo.vue
-	// - /Users/macos/project/src/Foo.vue
-	// - /C:/Windows/project/src/Foo.vue
-	for (const c of compileResult.clientOnlyComponents) {
-		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
-		// The compiler trims .jsx by default, prevent this
-		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
-			c.resolvedPath += '.jsx';
-		}
-		if (path.isAbsolute(c.resolvedPath)) {
-			c.resolvedPath = resolveJsToTs(c.resolvedPath);
-		}
-	}
-	for (const c of compileResult.hydratedComponents) {
-		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
-		// The compiler trims .jsx by default, prevent this
-		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
-			c.resolvedPath += '.jsx';
-		}
-		if (path.isAbsolute(c.resolvedPath)) {
-			c.resolvedPath = resolveJsToTs(c.resolvedPath);
-		}
-	}
 
 	return compileResult;
 }
