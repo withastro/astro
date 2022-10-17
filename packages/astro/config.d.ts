@@ -1,5 +1,5 @@
 type ViteUserConfig = import('vite').UserConfig;
-type AstroUserConfig = import('./dist/@types/astro').AstroUserConfig;
+type AstroUserConfig = import('./dist/@types/astro.js').AstroUserConfig;
 
 /**
  * See the full Astro Configuration API Documentation
