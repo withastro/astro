@@ -573,7 +573,7 @@ async function getInstallIntegrationsCommand({
 		case 'yarn':
 			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
-			return { pm: 'pnpm', command: 'install', flags: [], dependencies };
+			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
 		default:
 			return null;
 	}
