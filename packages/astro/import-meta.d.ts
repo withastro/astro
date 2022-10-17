@@ -1,4 +1,4 @@
-// File vendored from Vite itself, as a workaround to https://github.com/vitejs/vite/pull/9827 until Vite 3.2 comes out
+// File vendored from Vite itself, as a workaround to https://github.com/vitejs/vite/pull/9827 until Vite 4 comes out
 
 // This file is an augmentation to the built-in ImportMeta interface
 // Thus cannot contain any top-level imports
