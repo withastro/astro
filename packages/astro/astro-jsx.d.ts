@@ -23,12 +23,12 @@ declare namespace astroHTML.JSX {
 		children?: Children;
 	}
 
-	type AstroBuiltinProps = import('./dist/@types/astro').AstroBuiltinProps;
-	type AstroBuiltinAttributes = import('./dist/@types/astro').AstroBuiltinAttributes;
-	type AstroDefineVarsAttribute = import('./dist/@types/astro').AstroDefineVarsAttribute;
-	type AstroScriptAttributes = import('./dist/@types/astro').AstroScriptAttributes &
+	type AstroBuiltinProps = import('./dist/@types/astro.js').AstroBuiltinProps;
+	type AstroBuiltinAttributes = import('./dist/@types/astro.js').AstroBuiltinAttributes;
+	type AstroDefineVarsAttribute = import('./dist/@types/astro.js').AstroDefineVarsAttribute;
+	type AstroScriptAttributes = import('./dist/@types/astro.js').AstroScriptAttributes &
 		AstroDefineVarsAttribute;
-	type AstroStyleAttributes = import('./dist/@types/astro').AstroStyleAttributes &
+	type AstroStyleAttributes = import('./dist/@types/astro.js').AstroStyleAttributes &
 		AstroDefineVarsAttribute;
 
 	// This is an unfortunate use of `any`, but unfortunately we can't make a type that works for every framework
