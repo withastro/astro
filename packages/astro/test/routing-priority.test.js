@@ -106,6 +106,21 @@ const routes = [
 		url: '/empty-slug/undefined',
 		fourOhFour: true,
 	},
+	{
+		description: 'matches /api/catch/a.json to api/catch/[...slug].json.ts',
+		url: '/api/catch/a.json',
+		htmlMatch: JSON.stringify({ path: 'a' }),
+	},
+	{
+		description: 'matches /api/catch/b/c.json to api/catch/[...slug].json.ts',
+		url: '/api/catch/b/c.json',
+		htmlMatch: JSON.stringify({ path: 'b/c' }),
+	},
+	{
+		description: 'matches /api/catch/a-b.json to api/catch/[foo]-[bar].json.ts',
+		url: '/api/catch/a-b.json',
+		htmlMatch: JSON.stringify({ foo: 'a', bar: 'b' }),
+	},
 ];
 
 function appendForwardSlash(path) {
@@ -123,9 +138,11 @@ describe('Routing priority', () => {
 			await fixture.build();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
+			const isEndpoint = htmlMatch && !h1 && !p;
+
 			it(description, async () => {
-				const htmlFile = `${appendForwardSlash(url)}index.html`;
+				const htmlFile = isEndpoint ? url : `${appendForwardSlash(url)}index.html`;
 
 				if (fourOhFour) {
 					expect(fixture.pathExists(htmlFile)).to.be.false;
@@ -135,10 +152,16 @@ describe('Routing priority', () => {
 				const html = await fixture.readFile(htmlFile);
 				const $ = cheerioLoad(html);
 
-				expect($('h1').text()).to.equal(h1);
+				if (h1) {
+					expect($('h1').text()).to.equal(h1);
+				}
 
 				if (p) {
 					expect($('p').text()).to.equal(p);
+				}
+
+				if (htmlMatch) {
+					expect(html).to.equal(htmlMatch);
 				}
 			});
 		});
@@ -160,7 +183,9 @@ describe('Routing priority', () => {
 			await devServer.stop();
 		});
 
-		routes.forEach(({ description, url, fourOhFour, h1, p }) => {
+		routes.forEach(({ description, url, fourOhFour, h1, p, htmlMatch }) => {
+			const isEndpoint = htmlMatch && !h1 && !p;
+
 			// checks URLs as written above
 			it(description, async () => {
 				const html = await fixture.fetch(url).then((res) => res.text());
@@ -171,12 +196,21 @@ describe('Routing priority', () => {
 					return;
 				}
 
-				expect($('h1').text()).to.equal(h1);
+				if (h1) {
+					expect($('h1').text()).to.equal(h1);
+				}
 
 				if (p) {
 					expect($('p').text()).to.equal(p);
 				}
+
+				if (htmlMatch) {
+					expect(html).to.equal(htmlMatch);
+				}
 			});
+
+			// skip for endpoint page test
+			if (isEndpoint) return;
 
 			// checks with trailing slashes, ex: '/de/' instead of '/de'
 			it(`${description} (trailing slash)`, async () => {
@@ -188,10 +222,16 @@ describe('Routing priority', () => {
 					return;
 				}
 
-				expect($('h1').text()).to.equal(h1);
+				if (h1) {
+					expect($('h1').text()).to.equal(h1);
+				}
 
 				if (p) {
 					expect($('p').text()).to.equal(p);
+				}
+
+				if (htmlMatch) {
+					expect(html).to.equal(htmlMatch);
 				}
 			});
 
@@ -207,10 +247,16 @@ describe('Routing priority', () => {
 					return;
 				}
 
-				expect($('h1').text()).to.equal(h1);
+				if (h1) {
+					expect($('h1').text()).to.equal(h1);
+				}
 
 				if (p) {
 					expect($('p').text()).to.equal(p);
+				}
+
+				if (htmlMatch) {
+					expect(html).to.equal(htmlMatch);
 				}
 			});
 		});

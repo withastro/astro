@@ -37,7 +37,10 @@
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
-    "./config": "./config.mjs",
+    "./config": {
+      "types": "./config.d.ts",
+      "default": "./config.mjs"
+    },
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
