@@ -1,5 +1,27 @@
 # astro
 
+## 1.5.1
+
+### Patch Changes
+
+- [#5110](https://github.com/withastro/astro/pull/5110) [`0edfdd325`](https://github.com/withastro/astro/commit/0edfdd325932b0b493b2228e3a121d217c38a727) Thanks [@bluwy](https://github.com/bluwy)! - Ensure CLI flags override function-style server config
+
+- [#5106](https://github.com/withastro/astro/pull/5106) [`ef0c54316`](https://github.com/withastro/astro/commit/ef0c5431631665c9f6648ee5daee65a3ebf8e9ee) Thanks [@bluwy](https://github.com/bluwy)! - Support spread parameters for server endpoints
+
+- [#5095](https://github.com/withastro/astro/pull/5095) [`ddfbef5ac`](https://github.com/withastro/astro/commit/ddfbef5acbd4c56d8ce1626a458b5cbb27da47fe) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix `astro add` trying to add lines from extended configurations when adding frameworks
+
+- [#5076](https://github.com/withastro/astro/pull/5076) [`6f9a88b31`](https://github.com/withastro/astro/commit/6f9a88b31ba0881acd56fcb62c4a554c867b14d6) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix jsconfig.json aliases not working anymore after 1.5.0
+
+- [#5080](https://github.com/withastro/astro/pull/5080) [`90b715d5c`](https://github.com/withastro/astro/commit/90b715d5c86810ad1edb013156e4810be3252e55) Thanks [@matthewp](https://github.com/matthewp)! - Fix Astro-in-MDX dashes in slot attr
+
+- [#5098](https://github.com/withastro/astro/pull/5098) [`f684e9d36`](https://github.com/withastro/astro/commit/f684e9d361e3780889ea6e6b3394c0f583bd839a) Thanks [@jkjustjoshing](https://github.com/jkjustjoshing)! - Separate type definitions for built-in HTML elements and custom elements. Helpful when implementing an "as" prop similar to [styled-components](https://styled-components.com/docs/api#as-polymorphic-prop).
+
+- [#5108](https://github.com/withastro/astro/pull/5108) [`ce01225a7`](https://github.com/withastro/astro/commit/ce01225a700aff5b437d46f21161e5f557050e12) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix types not working properly when using `moduleResolution: 'node16'`
+
+- [#5060](https://github.com/withastro/astro/pull/5060) [`5923dd77c`](https://github.com/withastro/astro/commit/5923dd77c17c80747f9fe746ff8270ad4c820003) Thanks [@AirBorne04](https://github.com/AirBorne04)! - api routes: adding cookies to the response, also when returning a simple result
+
+- [#5087](https://github.com/withastro/astro/pull/5087) [`49a8d18b4`](https://github.com/withastro/astro/commit/49a8d18b4993d899a05ee8230fdd012fb633533f) Thanks [@JuanM04](https://github.com/JuanM04)! - Fix `astro add` pnpm command
+
 ## 1.5.0
 
 ### Minor Changes
