@@ -101,7 +101,18 @@ describe('TypeScript Plugin#CompletionsProvider', () => {
 		const completions = await provider.getCompletions(document, Position.create(1, 35));
 		const foundFiles = completions?.items.map((completion) => completion.label);
 
-		expect(foundFiles).to.deep.equal(['Astro.astro', 'JSX', 'Svelte.svelte', 'Vue.vue', 'js', 'json.json', 'ts']);
+		expect(foundFiles).to.deep.equal([
+			'Astro.astro',
+			'JSX',
+			'Svelte.svelte',
+			'Vue.vue',
+			'html.html',
+			'js',
+			'json.json',
+			'md.md',
+			'mdx.mdx',
+			'ts',
+		]);
 	});
 
 	it('provide completion inside import statement', async () => {

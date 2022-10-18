@@ -236,7 +236,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionIt
 
 		const tsPreferences = await this.configManager.getTSPreferences(document);
 
-		const data: CompletionItemData | undefined = item.data as any;
+		const data: CompletionItemData | undefined = item.data;
 
 		if (!data || !data.filePath || cancellationToken?.isCancellationRequested) {
 			return item;
