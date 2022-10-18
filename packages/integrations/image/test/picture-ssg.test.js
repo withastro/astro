@@ -78,10 +78,11 @@ describe('SSG pictures - dev', function () {
 		},
 	].forEach(({ title, id, url, query, alt }) => {
 		it(title, () => {
-			const sources = $(`${id} source`);
-			expect(sources.length).to.equal(3);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
-			const image = $(`${id} img`);
+			const sources = picture.children('source');
+			expect(sources.length).to.equal(3);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -158,10 +159,11 @@ describe('SSG pictures with subpath - dev', function () {
 		},
 	].forEach(({ title, id, url, query, alt }) => {
 		it(title, () => {
-			const sources = $(`${id} source`);
-			expect(sources.length).to.equal(3);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
-			const image = $(`${id} img`);
+			const sources = picture.children('source');
+			expect(sources.length).to.equal(3);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -250,10 +252,11 @@ describe('SSG pictures - build', function () {
 		},
 	].forEach(({ title, id, regex, size, alt }) => {
 		it(title, () => {
-			const sources = $(`${id} source`);
-			expect(sources.length).to.equal(3);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
-			const image = $(`${id} img`);
+			const sources = picture.children('source');
+			expect(sources.length).to.equal(3);
 
 			expect(image.attr('src')).to.match(regex);
 			expect(image.attr('alt')).to.equal(alt);
@@ -349,10 +352,11 @@ describe('SSG pictures with subpath - build', function () {
 		},
 	].forEach(({ title, id, regex, size, alt }) => {
 		it(title, () => {
-			const sources = $(`${id} source`);
-			expect(sources.length).to.equal(3);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
-			const image = $(`${id} img`);
+			const sources = picture.children('source');
+			expect(sources.length).to.equal(3);
 
 			expect(image.attr('src')).to.match(regex);
 			expect(image.attr('alt')).to.equal(alt);
