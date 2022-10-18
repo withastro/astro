@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/vercel",
   "description": "Deploy your site to Vercel",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@astrojs/webapi": "^1.1.0",
-    "@vercel/nft": "^0.18.2"
+    "@vercel/nft": "^0.22.1"
   },
   "devDependencies": {
     "astro": "workspace:*",

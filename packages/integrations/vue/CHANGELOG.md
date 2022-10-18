@@ -1,5 +1,37 @@
 # @astrojs/vue
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5075](https://github.com/withastro/astro/pull/5075) [`d25f54cb9`](https://github.com/withastro/astro/commit/d25f54cb9306eea9ed0445af8f77604dacacad43) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for the `appEntrypoint` option, which accepts a root-relative path to an app entrypoint. The default export of this file should be a function that accepts a Vue `App` instance prior to rendering. This opens up the ability to extend the `App` instance with [custom Vue plugins](https://vuejs.org/guide/reusability/plugins.html).
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+
+  export default defineConfig({
+    integrations: [
+      vue({
+        appEntrypoint: '/src/pages/_app',
+      }),
+    ],
+  });
+  ```
+
+  ```js
+  // src/pages/_app.ts
+  import type { App } from 'vue';
+  import i18nPlugin from '../plugins/i18n';
+
+  export default function setup(app: App) {
+    app.use(i18nPlugin, {
+      /* options */
+    });
+  }
+  ```
+
 ## 1.1.0
 
 ### Minor Changes

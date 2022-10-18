@@ -19,12 +19,11 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import type { RenderOptions } from '../../core/render/core';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
-import { render } from '../render/core.js';
+import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
@@ -360,19 +359,14 @@ async function generatePath(
 		opts.settings.config.build.format,
 		pageData.route.type
 	);
-	const options: RenderOptions = {
+	const env = createEnvironment({
 		adapterName: undefined,
-		links,
 		logging,
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 		},
-		mod,
 		mode: opts.mode,
-		origin,
-		pathname,
-		scripts,
 		renderers,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
@@ -386,20 +380,27 @@ async function generatePath(
 			}
 			return prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
 		},
-		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		route: pageData.route,
 		routeCache,
 		site: settings.config.site
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		ssr,
 		streaming: true,
-	};
+	});
+	const ctx = createRenderContext({
+		origin,
+		pathname,
+		request: createRequest({ url, headers: new Headers(), logging, ssr }),
+		scripts,
+		links,
+		route: pageData.route,
+	});
 
 	let body: string;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
-		const result = await callEndpoint(mod as unknown as EndpointHandler, options);
+		const endpointHandler = mod as unknown as EndpointHandler;
+		const result = await callEndpoint(endpointHandler, env, ctx);
 
 		if (result.type === 'response') {
 			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
@@ -407,7 +408,7 @@ async function generatePath(
 		body = result.body;
 		encoding = result.encoding;
 	} else {
-		const response = await render(options);
+		const response = await renderPage(mod, ctx, env);
 
 		// If there's a redirect or something, just do nothing.
 		if (response.status !== 200 || !response.body) {

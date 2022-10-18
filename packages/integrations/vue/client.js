@@ -1,8 +1,9 @@
 import { h, createSSRApp, createApp } from 'vue';
+import { setup } from 'virtual:@astrojs/vue/app';
 import StaticHtml from './static-html.js';
 
 export default (element) =>
-	(Component, props, slotted, { client }) => {
+	async (Component, props, slotted, { client }) => {
 		delete props['class'];
 		if (!element.hasAttribute('ssr')) return;
 
@@ -14,9 +15,11 @@ export default (element) =>
 		}
 		if (client === 'only') {
 			const app = createApp({ name, render: () => h(Component, props, slots) });
+			await setup(app);
 			app.mount(element, false);
 		} else {
 			const app = createSSRApp({ name, render: () => h(Component, props, slots) });
+			await setup(app);
 			app.mount(element, true);
 		}
 	};

@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/deno",
   "description": "Deploy your site to a Deno server",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",

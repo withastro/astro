@@ -8,12 +8,14 @@ import type { ErrorPayload, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
-
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
+}
+
+/** Cross-realm compatible URL */
+export function isURL(value: unknown): value is URL {
+	return Object.prototype.toString.call(value) === '[object URL]';
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
@@ -226,8 +228,8 @@ export function resolveJsToTs(filePath: string) {
 }
 
 export const AggregateError =
-	typeof globalThis.AggregateError !== 'undefined'
-		? globalThis.AggregateError
+	typeof (globalThis as any).AggregateError !== 'undefined'
+		? (globalThis as any).AggregateError
 		: class extends Error {
 				errors: Array<any> = [];
 				constructor(errors: Iterable<any>, message?: string | undefined) {

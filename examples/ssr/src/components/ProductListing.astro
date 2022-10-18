@@ -1,4 +1,10 @@
 ---
+import type { Product } from '../api';
+
+interface Props {
+	products: Product[];
+}
+
 const { products } = Astro.props;
 ---
 

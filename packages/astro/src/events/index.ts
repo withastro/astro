@@ -1,6 +1,6 @@
 import { AstroTelemetry } from '@astrojs/telemetry';
 import { createRequire } from 'module';
-import { ASTRO_VERSION } from '../core/util.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 const require = createRequire(import.meta.url);
 
 function getViteVersion() {

@@ -1,16 +1,9 @@
-import type { MarkdownRenderingOptions } from '@astrojs/markdown-remark';
-import type {
-	ComponentInstance,
-	Params,
-	Props,
-	RouteData,
-	RuntimeMode,
-	SSRElement,
-	SSRLoadedRenderer,
-} from '../../@types/astro';
+import type { ComponentInstance, Params, Props, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger/core.js';
+import type { RenderContext } from './context.js';
+import type { Environment } from './environment.js';
 
-import { Fragment, renderPage } from '../../runtime/server/index.js';
+import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
@@ -67,90 +60,46 @@ export async function getParamsAndProps(
 	return [params, pageProps];
 }
 
-export interface RenderOptions {
-	adapterName: string | undefined;
-	logging: LogOptions;
-	links: Set<SSRElement>;
-	styles?: Set<SSRElement>;
-	markdown: MarkdownRenderingOptions;
-	mod: ComponentInstance;
-	mode: RuntimeMode;
-	origin: string;
-	pathname: string;
-	scripts: Set<SSRElement>;
-	resolve: (s: string) => Promise<string>;
-	renderers: SSRLoadedRenderer[];
-	route?: RouteData;
-	routeCache: RouteCache;
-	site?: string;
-	ssr: boolean;
-	streaming: boolean;
-	request: Request;
-	status?: number;
-}
-
-export async function render(opts: RenderOptions): Promise<Response> {
-	const {
-		adapterName,
-		links,
-		styles,
-		logging,
-		origin,
-		markdown,
-		mod,
-		mode,
-		pathname,
-		scripts,
-		renderers,
-		request,
-		resolve,
-		route,
-		routeCache,
-		site,
-		ssr,
-		streaming,
-		status = 200,
-	} = opts;
-
+export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env: Environment) {
 	const paramsAndPropsRes = await getParamsAndProps({
-		logging,
+		logging: env.logging,
 		mod,
-		route,
-		routeCache,
-		pathname,
-		ssr,
+		route: ctx.route,
+		routeCache: env.routeCache,
+		pathname: ctx.pathname,
+		ssr: env.ssr,
 	});
 
 	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 		throw new Error(
-			`[getStaticPath] route pattern matched, but no matching static path found. (${pathname})`
+			`[getStaticPath] route pattern matched, but no matching static path found. (${ctx.pathname})`
 		);
 	}
 	const [params, pageProps] = paramsAndPropsRes;
 
 	// Validate the page component before rendering the page
-	const Component = await mod.default;
+	const Component = mod.default;
 	if (!Component)
 		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
 	const result = createResult({
-		adapterName,
-		links,
-		styles,
-		logging,
-		markdown,
-		mode,
-		origin,
+		adapterName: env.adapterName,
+		links: ctx.links,
+		styles: ctx.styles,
+		logging: env.logging,
+		markdown: env.markdown,
+		mode: env.mode,
+		origin: ctx.origin,
 		params,
 		props: pageProps,
-		pathname,
-		resolve,
-		renderers,
-		request,
-		site,
-		scripts,
-		ssr,
-		status,
+		pathname: ctx.pathname,
+		resolve: env.resolve,
+		renderers: env.renderers,
+		request: ctx.request,
+		site: env.site,
+		scripts: ctx.scripts,
+		ssr: env.ssr,
+		status: ctx.status ?? 200,
 	});
 
 	// Support `export const components` for `MDX` pages
@@ -165,7 +114,7 @@ export async function render(opts: RenderOptions): Promise<Response> {
 		});
 	}
 
-	const response = await renderPage(result, Component, pageProps, null, streaming);
+	const response = await runtimeRenderPage(result, Component, pageProps, null, env.streaming);
 
 	// If there is an Astro.cookies instance, attach it to the response so that
 	// adapters can grab the Set-Cookie headers.
