@@ -5,7 +5,7 @@ import type { AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import { getSetCookiesFromResponse } from '../core/cookies/index.js';
+import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import {
 	collectErrorMetadata,
@@ -378,8 +378,14 @@ async function handleRoute(
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-			res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
-			res.end(result.body);
+      const response = new Response(result.body, {
+        status: 200,
+        headers: {
+          'Content-Type': `${contentType};charset=utf-8`,
+        },
+      });
+      attachToResponse(response, result.cookies);
+      await writeWebResponse(res, response);
 		}
 	} else {
 		const result = await renderPage(options);

@@ -260,7 +260,6 @@ importers:
       '@astrojs/svelte': ^1.0.2
       astro: ^1.5.0
       concurrently: ^7.2.1
-      lightcookie: ^1.0.25
       svelte: ^3.48.0
       unocss: ^0.15.6
       vite-imagetools: ^4.0.4
@@ -269,7 +268,6 @@ importers:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
       concurrently: 7.4.0
-      lightcookie: 1.0.25
       svelte: 3.52.0
       unocss: 0.15.6
       vite-imagetools: 4.0.11
@@ -13804,10 +13802,6 @@ packages:
       prelude-ls: 1.2.1
       type-check: 0.4.0
     dev: true
-
-  /lightcookie/1.0.25:
-    resolution: {integrity: sha512-SrY/+eBPaKAMnsn7mCsoOMZzoQyCyHHHZlFCu2fjo28XxSyCLjlooKiTxyrXTg8NPaHp1YzWi0lcGG1gDi6KHw==}
-    dev: false
 
   /lilconfig/2.0.6:
     resolution: {integrity: sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==}

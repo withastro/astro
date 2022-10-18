@@ -28,6 +28,7 @@ async function get<T>(
 ): Promise<T> {
 	const response = await fetch(`${getOrigin(incomingReq)}${endpoint}`, {
 		credentials: 'same-origin',
+		headers: incomingReq.headers,
 	});
 	if (!response.ok) {
 		// TODO make this better...
