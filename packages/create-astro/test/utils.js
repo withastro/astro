@@ -42,7 +42,7 @@ export const PROMPT_MESSAGES = {
 };
 
 export function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--dryrun'], { cwd: testDir });
+	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--skip-houston', '--dryrun'], { cwd: testDir });
 	return {
 		stdin,
 		stdout,

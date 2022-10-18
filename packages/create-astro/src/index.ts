@@ -33,10 +33,6 @@ export function mkdirp(dir: string) {
 	}
 }
 
-function isEmpty(dirPath: string) {
-	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
-}
-
 // Some existing files and directories can be safely ignored when checking if a directory is a valid project directory.
 // https://github.com/facebook/create-react-app/blob/d960b9e38c062584ff6cfb1a70e1512509a966e7/packages/create-react-app/createReactApp.js#L907-L934
 const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
@@ -83,10 +79,9 @@ const FILES_TO_REMOVE = ['.stackblitzrc', 'sandbox.config.json', 'CHANGELOG.md']
 export async function main() {
 	const pkgManager = detectPackageManager()?.name || 'npm';
 	const [username, version] = await Promise.all([getName(), getVersion()]);
-	const skipHouston = Object.entries(args).filter(([k]) => k !== '_').length > 0;
 
 	logger.debug('Verbose logging turned on');
-	if (!skipHouston) {
+	if (!args.skipHouston) {
 		await say([
 			['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
 			random(welcome),
