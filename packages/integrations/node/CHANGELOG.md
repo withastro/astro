@@ -1,5 +1,13 @@
 # @astrojs/node
 
+## 2.0.1
+
+### Patch Changes
+
+- [#5114](https://github.com/withastro/astro/pull/5114) [`5c0c6e1ac`](https://github.com/withastro/astro/commit/5c0c6e1ac67e6341625f028794986700197334ae) Thanks [@matthewp](https://github.com/matthewp)! - Fixes finding the client folder for serving assets
+
+- [#5111](https://github.com/withastro/astro/pull/5111) [`df4d84610`](https://github.com/withastro/astro/commit/df4d84610ad2b543a37cb3bcac9887bfef0b8994) Thanks [@rishi-raj-jain](https://github.com/rishi-raj-jain)! - fix port in standalone mode
+
 ## 2.0.0
 
 ### Major Changes
