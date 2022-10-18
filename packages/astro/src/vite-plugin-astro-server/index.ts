@@ -301,8 +301,10 @@ function isRedirect(statusCode: number) {
 }
 
 function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if(config.output !== 'server' && isRedirect(response.status)) {
-		throw new Error(`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`);
+	if (config.output !== 'server' && isRedirect(response.status)) {
+		throw new Error(
+			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
+		);
 	}
 }
 
