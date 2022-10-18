@@ -30,6 +30,8 @@
     "test": "mocha --exit --timeout 30000 test/"
   },
   "dependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "esbuild": "^0.14.42"
   },
   "devDependencies": {

@@ -2473,6 +2473,8 @@ importers:
 
   packages/integrations/cloudflare:
     specifiers:
+      '@esbuild-plugins/node-globals-polyfill': ^0.1.1
+      '@esbuild-plugins/node-modules-polyfill': ^0.1.4
       astro: workspace:*
       astro-scripts: workspace:*
       chai: ^4.3.6
@@ -2481,6 +2483,8 @@ importers:
       mocha: ^9.2.2
       wrangler: ^2.0.23
     dependencies:
+      '@esbuild-plugins/node-globals-polyfill': 0.1.1_esbuild@0.14.54
+      '@esbuild-plugins/node-modules-polyfill': 0.1.4_esbuild@0.14.54
       esbuild: 0.14.54
     devDependencies:
       astro: link:../../astro
@@ -5677,6 +5681,14 @@ packages:
       esbuild: 0.14.51
     dev: true
 
+  /@esbuild-plugins/node-globals-polyfill/0.1.1_esbuild@0.14.54:
+    resolution: {integrity: sha512-MR0oAA+mlnJWrt1RQVQ+4VYuRJW/P2YmRTv1AsplObyvuBMnPHiizUF95HHYiSsMGLhyGtWufaq2XQg6+iurBg==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.14.54
+    dev: false
+
   /@esbuild-plugins/node-modules-polyfill/0.1.4_esbuild@0.14.51:
     resolution: {integrity: sha512-uZbcXi0zbmKC/050p3gJnne5Qdzw8vkXIv+c2BW0Lsc1ji1SkrxbKPUy5Efr0blbTu1SL8w4eyfpnSdPg3G0Qg==}
     peerDependencies:
@@ -5686,6 +5698,16 @@ packages:
       escape-string-regexp: 4.0.0
       rollup-plugin-node-polyfills: 0.2.1
     dev: true
+
+  /@esbuild-plugins/node-modules-polyfill/0.1.4_esbuild@0.14.54:
+    resolution: {integrity: sha512-uZbcXi0zbmKC/050p3gJnne5Qdzw8vkXIv+c2BW0Lsc1ji1SkrxbKPUy5Efr0blbTu1SL8w4eyfpnSdPg3G0Qg==}
+    peerDependencies:
+      esbuild: '*'
+    dependencies:
+      esbuild: 0.14.54
+      escape-string-regexp: 4.0.0
+      rollup-plugin-node-polyfills: 0.2.1
+    dev: false
 
   /@esbuild/android-arm/0.15.10:
     resolution: {integrity: sha512-FNONeQPy/ox+5NBkcSbYJxoXj9GWu8gVGJTVmUyoOCKQFDTrHVKgNSzChdNt0I8Aj/iKcsDf2r9BFwv+FSNUXg==}
@@ -16354,13 +16376,11 @@ packages:
       estree-walker: 0.6.1
       magic-string: 0.25.9
       rollup-pluginutils: 2.8.2
-    dev: true
 
   /rollup-plugin-node-polyfills/0.2.1:
     resolution: {integrity: sha512-4kCrKPTJ6sK4/gLL/U5QzVT8cxJcofO0OU74tnB19F40cmuAKSzH5/siithxlofFEjwvw1YAhPmbvGNA6jEroA==}
     dependencies:
       rollup-plugin-inject: 3.0.2
-    dev: true
 
   /rollup-plugin-terser/7.0.2_rollup@2.79.1:
     resolution: {integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==}

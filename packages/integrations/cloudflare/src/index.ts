@@ -2,9 +2,12 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 type Options = {
 	mode: 'directory' | 'advanced';
+	node: boolean;
 };
 
 interface BuildConfig {
@@ -37,6 +40,7 @@ export default function createIntegration(args?: Options): AstroIntegration {
 	let _buildConfig: BuildConfig;
 	let needsBuildConfig = false;
 	const isModeDirectory = args?.mode === 'directory';
+	const nodeCompat = args?.node === true;
 
 	return {
 		name: '@astrojs/cloudflare',
@@ -104,6 +108,14 @@ export default function createIntegration(args?: Options): AstroIntegration {
 					banner: {
 						js: SHIM,
 					},
+					define: {
+						...(nodeCompat ? { global: 'globalThis' } : {}),
+					},
+					plugins: [
+						...(nodeCompat
+							? [NodeGlobalsPolyfillPlugin({ buffer: true }), NodeModulesPolyfillPlugin()]
+							: []),
+					]
 				});
 
 				// throw the server folder in the bin
