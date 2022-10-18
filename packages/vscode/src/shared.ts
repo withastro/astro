@@ -11,12 +11,29 @@ import {
 import { BaseLanguageClient, LanguageClientOptions } from 'vscode-languageclient';
 import * as fileReferences from './features/fileReferences';
 
+// Files we want to watch for file updates, this only includes files where we actually care
+// about the content, so HTML components and Markdown files are not included
+const supportedFileExtensions = [
+	'astro',
+	'cjs',
+	'mjs',
+	'js',
+	'jsx',
+	'cts',
+	'mts',
+	'ts',
+	'tsx',
+	'json',
+	'vue',
+	'svelte',
+] as const;
+
 export function getInitOptions(env: 'node' | 'browser', typescript: any): LanguageClientOptions {
 	return {
 		documentSelector: [{ scheme: 'file', language: 'astro' }],
 		synchronize: {
 			fileEvents: workspace.createFileSystemWatcher(
-				'{**/*.astro,**/*.js,**/*.ts,**/*.jsx,**/*.tsx,**/*.json,**/*.vue,**/*.svelte}',
+				`{${supportedFileExtensions.map((ext) => `**/*.${ext}`).join(',')}}`,
 				false,
 				false,
 				false
@@ -44,11 +61,10 @@ export function commonActivate(context: ExtensionContext, client: BaseLanguageCl
 		}
 	});
 
+	// Handle unsaved changes for non-Astro files like TypeScript does
 	workspace.onDidChangeTextDocument((params: TextDocumentChangeEvent) => {
 		if (
-			['vue', 'svelte', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'json', 'jsonc'].includes(
-				params.document.languageId
-			)
+			supportedFileExtensions.filter((ext) => ext !== 'astro').some((ext) => params.document.fileName.endsWith(ext))
 		) {
 			// For [j|t]sconfig, we currently handle updates by restarting the client as we need to rebuild the TypeScript
 			// language service whenever the config changes. In the future the server will handle this by itself, but for now
@@ -62,18 +78,22 @@ export function commonActivate(context: ExtensionContext, client: BaseLanguageCl
 				return;
 			}
 
+			// Partial updates are only supported for files TypeScript natively understand. For svelte and vue files, we'll
+			// instead send the full text and recreate a snapshot server-side with the new content
+			const supportPartialUpdate = !['vue', 'svelte'].includes(params.document.languageId);
 			getLSClient().sendNotification('$/onDidChangeNonAstroFile', {
 				uri: params.document.uri.toString(true),
-				// Partial changes are not supported for Vue and Svelte files
-				changes: ['vue', 'svelte'].includes(params.document.languageId)
-					? undefined
-					: params.contentChanges.map((c) => ({
-							range: {
-								start: { line: c.range.start.line, character: c.range.start.character },
-								end: { line: c.range.end.line, character: c.range.end.character },
-							},
-							text: c.text,
-					  })),
+				...(supportPartialUpdate
+					? {
+							changes: params.contentChanges.map((c) => ({
+								range: {
+									start: { line: c.range.start.line, character: c.range.start.character },
+									end: { line: c.range.end.line, character: c.range.end.character },
+								},
+								text: c.text,
+							})),
+					  }
+					: { text: params.document.getText() }),
 			});
 		}
 	});

@@ -34,7 +34,7 @@ export interface LanguageServiceContainer {
 	): DocumentSnapshot;
 	deleteSnapshot(filePath: string): void;
 	updateProjectFiles(): void;
-	updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void;
+	updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[], text?: string): void;
 	/**
 	 * Checks if a file is present in the project.
 	 * Unlike `fileBelongsToProject`, this doesn't run a file search on disk.
@@ -314,11 +314,11 @@ async function createLanguageService(
 		return hasFile(filePath) || getParsedTSConfig().fileNames.includes(filePath);
 	}
 
-	function updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void {
+	function updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[], text?: string): void {
 		if (!snapshotManager.has(fileName)) {
 			astroModuleLoader.deleteUnresolvedResolutionsFromCache(fileName);
 		}
-		snapshotManager.updateNonAstroFile(fileName, changes);
+		snapshotManager.updateNonAstroFile(fileName, changes, text);
 	}
 
 	function createScriptTagsSnapshots(fileName: string, document: AstroDocument): ScriptTagDocumentSnapshot[] {
@@ -341,7 +341,8 @@ async function createLanguageService(
 			doc.version,
 			doc.filePath,
 			(doc as AstroSnapshot).parent.getText(),
-			docContext.ts.ScriptKind.Unknown
+			docContext.ts.ScriptKind.Unknown,
+			false
 		);
 	}
 

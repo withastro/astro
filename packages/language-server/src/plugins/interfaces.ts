@@ -160,7 +160,7 @@ export interface OnWatchFileChangesProvider {
 }
 
 export interface UpdateNonAstroFile {
-	updateNonAstroFile(fileName: string, changes: TextDocumentContentChangeEvent[]): void;
+	updateNonAstroFile(fileName: string, changes: TextDocumentContentChangeEvent[], text?: string): void;
 }
 
 type ProviderBase = DiagnosticsProvider &

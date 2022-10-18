@@ -303,7 +303,7 @@ describe('TypeScript Plugin', () => {
 		};
 	};
 
-	const setupForOnWatchedFileUpdateOrDelete = async () => {
+	const setupForOnWatchedFileUpdateOrDelete = async (files: string[] = []) => {
 		const { plugin, snapshotManager, targetAstroFile } = await setupForOnWatchedFileChanges();
 
 		const projectJsFile = path.join(path.dirname(targetAstroFile), 'empty.ts');
@@ -313,6 +313,15 @@ describe('TypeScript Plugin', () => {
 				changeType: FileChangeType.Changed,
 			},
 		]);
+
+		files.forEach(async (file) => {
+			await plugin.onWatchFileChanges([
+				{
+					fileName: path.join(path.dirname(targetAstroFile), file),
+					changeType: FileChangeType.Changed,
+				},
+			]);
+		});
 
 		return {
 			snapshotManager,
@@ -397,6 +406,42 @@ describe('TypeScript Plugin', () => {
 
 			expect(secondSnapshot?.version).to.not.equal(firstVersion);
 			expect(secondSnapshot?.getText(0, secondSnapshot?.getLength())).to.equal('const = "hello world";' + firstText);
+		});
+
+		it('should update svelte file after document change', async () => {
+			const { snapshotManager, plugin, targetAstroFile } = await setupForOnWatchedFileUpdateOrDelete(['empty.svelte']);
+			const projectSvelteFile = path.join(path.dirname(targetAstroFile), 'empty.svelte');
+
+			const firstSnapshot = snapshotManager.get(projectSvelteFile);
+			const firstVersion = firstSnapshot?.version;
+
+			expect(firstVersion).to.not.equal(0);
+
+			await plugin.updateNonAstroFile(projectSvelteFile, [], '<script>export let thisIsSvelte;</script>{thisIsSvelte}');
+			const secondSnapshot = snapshotManager.get(projectSvelteFile);
+
+			expect(secondSnapshot?.version).to.not.equal(firstVersion);
+			expect(secondSnapshot?.getText(0, secondSnapshot?.getLength())).to.contain('let thisIsSvelte');
+		});
+
+		it('should update vue file after document change', async () => {
+			const { snapshotManager, plugin, targetAstroFile } = await setupForOnWatchedFileUpdateOrDelete(['empty.vue']);
+			const projectVueFile = path.join(path.dirname(targetAstroFile), 'empty.vue');
+
+			const firstSnapshot = snapshotManager.get(projectVueFile);
+			const firstVersion = firstSnapshot?.version;
+
+			expect(firstVersion).to.not.equal(0);
+
+			await plugin.updateNonAstroFile(
+				projectVueFile,
+				[],
+				'<script setup>const props = defineProps({foo: String})</script>'
+			);
+			const secondSnapshot = snapshotManager.get(projectVueFile);
+
+			expect(secondSnapshot?.version).to.not.equal(firstVersion);
+			expect(secondSnapshot?.getText(0, secondSnapshot?.getLength())).to.contain('defineProps');
 		});
 
 		it('should delete snapshot cache when file is deleted', async () => {

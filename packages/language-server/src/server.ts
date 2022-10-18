@@ -42,7 +42,7 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 	const pluginHost = new PluginHost(documentManager);
 
 	let configManager: ConfigManager;
-	let typescriptPlugin: TypeScriptPlugin = undefined as any;
+	let typescriptPlugin: TypeScriptPlugin | undefined = undefined;
 	let hasConfigurationCapability = false;
 
 	connection.onInitialize((params: vscode.InitializeParams) => {
@@ -296,7 +296,7 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 	connection.onNotification('$/onDidChangeNonAstroFile', async (e: any) => {
 		const path = urlToPath(e.uri);
 		if (path) {
-			pluginHost.updateNonAstroFile(path, e.changes);
+			pluginHost.updateNonAstroFile(path, e.changes, e.text);
 		}
 		updateAllDiagnostics();
 	});
@@ -311,16 +311,13 @@ export function startLanguageServer(connection: vscode.Connection, env: RuntimeE
 			return undefined;
 		}
 
-		if (doc) {
+		if (doc && typescriptPlugin) {
 			const tsxOutput = typescriptPlugin.getTSXForDocument(doc);
 			return tsxOutput.code;
 		}
 	});
 
-	documentManager.on(
-		'documentChange',
-		debounceThrottle(async (document: AstroDocument) => diagnosticsManager.update(document), 1000)
-	);
+	documentManager.on('documentChange', updateAllDiagnostics);
 
 	documentManager.on('documentClose', (document: AstroDocument) => {
 		diagnosticsManager.removeDiagnostics(document);

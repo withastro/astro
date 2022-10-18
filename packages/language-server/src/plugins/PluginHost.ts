@@ -319,9 +319,9 @@ export class PluginHost {
 		}
 	}
 
-	updateNonAstroFile(fileName: string, changes: TextDocumentContentChangeEvent[]): void {
+	updateNonAstroFile(fileName: string, changes: TextDocumentContentChangeEvent[], text?: string): void {
 		for (const support of this.plugins) {
-			support.updateNonAstroFile?.(fileName, changes);
+			support.updateNonAstroFile?.(fileName, changes, text);
 		}
 	}
 

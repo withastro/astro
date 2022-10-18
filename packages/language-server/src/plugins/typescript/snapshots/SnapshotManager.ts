@@ -39,21 +39,21 @@ export class GlobalSnapshotManager {
 
 	updateNonAstroFile(
 		fileName: string,
-		changes?: TextDocumentContentChangeEvent[]
+		changes?: TextDocumentContentChangeEvent[],
+		newText?: string
 	): TypeScriptDocumentSnapshot | undefined {
 		fileName = normalizePath(fileName);
 		const previousSnapshot = this.get(fileName);
 
-		if (changes) {
-			// We don't support incremental changes for Framework files, as they need to be rebuilt completely on every change
-			if (!(previousSnapshot instanceof TypeScriptDocumentSnapshot) || previousSnapshot.framework) {
-				return;
-			}
+		const canBePartiallyUpdated =
+			changes && previousSnapshot instanceof TypeScriptDocumentSnapshot && previousSnapshot.supportPartialUpdate;
+
+		if (canBePartiallyUpdated) {
 			previousSnapshot.update(changes);
 			this.emitter.emit('change', fileName, previousSnapshot);
 			return previousSnapshot;
 		} else {
-			const newSnapshot = DocumentSnapshotUtils.createFromNonAstroFilePath(fileName, this.ts);
+			const newSnapshot = DocumentSnapshotUtils.createFromNonAstroFilePath(fileName, this.ts, newText);
 
 			if (previousSnapshot) {
 				newSnapshot.version = previousSnapshot.version + 1;
@@ -63,6 +63,7 @@ export class GlobalSnapshotManager {
 				newSnapshot.version += 1;
 			}
 			this.set(fileName, newSnapshot);
+			this.emitter.emit('change', fileName, newSnapshot);
 			return newSnapshot;
 		}
 	}
@@ -126,8 +127,8 @@ export class SnapshotManager {
 		this.projectFiles = Array.from(new Set([...this.projectFiles, ...projectFiles]));
 	}
 
-	updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[]): void {
-		const snapshot = this.globalSnapshotsManager.updateNonAstroFile(fileName, changes);
+	updateNonAstroFile(fileName: string, changes?: TextDocumentContentChangeEvent[], text?: string): void {
+		const snapshot = this.globalSnapshotsManager.updateNonAstroFile(fileName, changes, text);
 		// This isn't duplicated logic to the listener, because this could
 		// be a new snapshot which the listener wouldn't add.
 		if (snapshot) {

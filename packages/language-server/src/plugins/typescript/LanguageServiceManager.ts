@@ -89,7 +89,11 @@ export class LanguageServiceManager {
 	/**
 	 * Updates file in all ts services where it exists
 	 */
-	async updateExistingNonAstroFile(path: string, changes?: TextDocumentContentChangeEvent[]): Promise<void> {
+	async updateExistingNonAstroFile(
+		path: string,
+		changes?: TextDocumentContentChangeEvent[],
+		text?: string
+	): Promise<void> {
 		path = normalizePath(path);
 		// Only update once because all snapshots are shared between
 		// services. Since we don't have a current version of TS/JS
@@ -98,7 +102,7 @@ export class LanguageServiceManager {
 		await forAllLanguageServices((service) => {
 			if (service.hasFile(path) && !didUpdate) {
 				didUpdate = true;
-				service.updateNonAstroFile(path, changes);
+				service.updateNonAstroFile(path, changes, text);
 			}
 		});
 	}

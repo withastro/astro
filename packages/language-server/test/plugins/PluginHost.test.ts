@@ -399,6 +399,6 @@ describe('PluginHost', () => {
 		pluginHost.updateNonAstroFile('astro.astro', []);
 
 		sinon.assert.calledOnce(plugin.updateNonAstroFile);
-		sinon.assert.calledWithExactly(plugin.updateNonAstroFile, 'astro.astro', []);
+		sinon.assert.calledWithExactly(plugin.updateNonAstroFile, 'astro.astro', [], undefined);
 	});
 });

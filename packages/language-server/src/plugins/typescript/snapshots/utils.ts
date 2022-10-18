@@ -43,12 +43,16 @@ export function createFromFilePath(
  * Return a Framework or a TS snapshot from a file path, depending on the file contents
  * Unlike createFromFilePath, this does not support creating an Astro snapshot
  */
-export function createFromNonAstroFilePath(filePath: string, ts: typeof import('typescript/lib/tsserverlibrary')) {
+export function createFromNonAstroFilePath(
+	filePath: string,
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	forceText?: string
+) {
 	if (isFrameworkFilePath(filePath)) {
 		const framework = getFrameworkFromFilePath(filePath);
-		return createFromFrameworkFilePath(filePath, framework, ts);
+		return createFromFrameworkFilePath(filePath, framework, ts, forceText);
 	} else {
-		return createFromTSFilePath(filePath, ts);
+		return createFromTSFilePath(filePath, ts, forceText);
 	}
 }
 
@@ -57,9 +61,13 @@ export function createFromNonAstroFilePath(filePath: string, ts: typeof import('
  * @param filePath path to the js/ts file
  * @param options options that apply in case it's a svelte file
  */
-export function createFromTSFilePath(filePath: string, ts: typeof import('typescript/lib/tsserverlibrary')) {
-	const originalText = ts.sys.readFile(filePath) ?? '';
-	return new TypeScriptDocumentSnapshot(0, filePath, originalText, getScriptKindFromFileName(filePath, ts));
+export function createFromTSFilePath(
+	filePath: string,
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	forceText?: string
+) {
+	const originalText = forceText ?? ts.sys.readFile(filePath) ?? '';
+	return new TypeScriptDocumentSnapshot(0, filePath, originalText, getScriptKindFromFileName(filePath, ts), true);
 }
 
 /**
@@ -79,10 +87,11 @@ export function createFromAstroFilePath(
 export function createFromFrameworkFilePath(
 	filePath: string,
 	framework: FrameworkExt,
-	ts: typeof import('typescript/lib/tsserverlibrary')
+	ts: typeof import('typescript/lib/tsserverlibrary'),
+	forceText?: string
 ) {
 	const className = classNameFromFilename(filePath);
-	const originalText = ts.sys.readFile(filePath) ?? '';
+	const originalText = forceText ?? ts.sys.readFile(filePath) ?? '';
 	let code = '';
 
 	if (framework === 'svelte') {
@@ -97,7 +106,7 @@ export function createFromFrameworkFilePath(
 		}
 	}
 
-	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX);
+	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX, false);
 }
 
 export function classNameFromFilename(filename: string): string {

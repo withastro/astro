@@ -48,7 +48,7 @@ describe('createAstroModuleLoader', () => {
 			'C:/somerepo/somefile.astro',
 			undefined,
 			undefined,
-			undefined as any
+			{}
 		);
 
 		expect(result).to.deep.equal([resolvedModule]);
@@ -69,13 +69,7 @@ describe('createAstroModuleLoader', () => {
 			resolvedFileName: 'filename.ts',
 		};
 		const { resolveStub, moduleResolver, compilerOptions } = setup(resolvedModule);
-		const result = moduleResolver.resolveModuleNames(
-			['/@/normal'],
-			'C:/repo/file.astro',
-			undefined,
-			undefined,
-			undefined as any
-		);
+		const result = moduleResolver.resolveModuleNames(['/@/normal'], 'C:/repo/file.astro', undefined, undefined, {});
 
 		expect(result).to.deep.equal([resolvedModule]);
 		expect(lastCall(resolveStub).args).to.deep.equal([
@@ -95,13 +89,7 @@ describe('createAstroModuleLoader', () => {
 			resolvedFileName: 'filename.d.ts',
 		};
 		const { resolveStub, moduleResolver, compilerOptions } = setup(resolvedModule);
-		const result = moduleResolver.resolveModuleNames(
-			['./normal.d.ts'],
-			'C:/repo/file.astro',
-			undefined,
-			undefined,
-			undefined as any
-		);
+		const result = moduleResolver.resolveModuleNames(['./normal.d.ts'], 'C:/repo/file.astro', undefined, undefined, {});
 
 		expect(result).to.deep.equal([resolvedModule]);
 		expect(lastCall(resolveStub).args).to.deep.equal([
@@ -121,13 +109,7 @@ describe('createAstroModuleLoader', () => {
 			resolvedFileName: 'filename.astro.tsx',
 		};
 		const { resolveStub, astroSys, moduleResolver, compilerOptions, getAstroSnapshotStub } = setup(resolvedModule);
-		const result = moduleResolver.resolveModuleNames(
-			['./astro.astro'],
-			'C:/repo/file.astro',
-			undefined,
-			undefined,
-			undefined as any
-		);
+		const result = moduleResolver.resolveModuleNames(['./astro.astro'], 'C:/repo/file.astro', undefined, undefined, {});
 
 		expect(result).to.deep.equal([
 			<ts.ResolvedModuleFull>{
@@ -159,7 +141,7 @@ describe('createAstroModuleLoader', () => {
 			'C:/repo/file.astro',
 			undefined,
 			undefined,
-			undefined as any
+			{}
 		);
 
 		expect(result).to.deep.equal([
@@ -187,13 +169,7 @@ describe('createAstroModuleLoader', () => {
 			resolvedFileName: 'filename.vue.tsx',
 		};
 		const { resolveStub, astroSys, moduleResolver, compilerOptions, getAstroSnapshotStub } = setup(resolvedModule);
-		const result = moduleResolver.resolveModuleNames(
-			['./vue.vue'],
-			'C:/repo/file.astro',
-			undefined,
-			undefined,
-			undefined as any
-		);
+		const result = moduleResolver.resolveModuleNames(['./vue.vue'], 'C:/repo/file.astro', undefined, undefined, {});
 
 		expect(result).to.deep.equal([
 			<ts.ResolvedModuleFull>{
