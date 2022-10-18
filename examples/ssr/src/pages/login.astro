@@ -27,12 +27,9 @@ import Container from '../components/Container.astro';
 					})
 						.then((res) => res.json())
 						.then((data) => {
-              document.querySelector("#result").innerHTML = "Progressive login was successful! you will be redirected to the store in 3 seconds";
-              setTimeout(
-                () => location.href = "/",
-                3000
-              );
-							
+							document.querySelector('#result').innerHTML =
+								'Progressive login was successful! you will be redirected to the store in 3 seconds';
+							setTimeout(() => (location.href = '/'), 3000);
 						});
 				});
 			});
@@ -52,7 +49,7 @@ import Container from '../components/Container.astro';
 
 				<input type="submit" value="Submit" />
 			</form>
-      <div id="result"></div>
+			<div id="result"></div>
 		</Container>
 	</body>
 </html>

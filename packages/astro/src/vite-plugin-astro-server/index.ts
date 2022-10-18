@@ -378,14 +378,14 @@ async function handleRoute(
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-      const response = new Response(result.body, {
-        status: 200,
-        headers: {
-          'Content-Type': `${contentType};charset=utf-8`,
-        },
-      });
-      attachToResponse(response, result.cookies);
-      await writeWebResponse(res, response);
+			const response = new Response(result.body, {
+				status: 200,
+				headers: {
+					'Content-Type': `${contentType};charset=utf-8`,
+				},
+			});
+			attachToResponse(response, result.cookies);
+			await writeWebResponse(res, response);
 		}
 	} else {
 		const result = await renderPage(options);
