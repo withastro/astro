@@ -271,8 +271,18 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			.default({}),
 		server: z.preprocess(
 			// preprocess
-			(val) =>
-				typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val,
+			(val) => {
+				if (typeof val === 'function') {
+					const result = val({ command: cmd === 'dev' ? 'dev' : 'preview' });
+					// @ts-expect-error revive attached prop added from CLI flags
+					if (val.port) result.port = val.port;
+					// @ts-expect-error revive attached prop added from CLI flags
+					if (val.host) result.host = val.host;
+					return result;
+				} else {
+					return val;
+				}
+			},
 			// validate
 			z
 				.object({
