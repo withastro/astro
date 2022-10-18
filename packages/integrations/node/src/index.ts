@@ -22,14 +22,14 @@ export default function createIntegration(userOptions: UserOptions): AstroIntegr
 		name: '@astrojs/node',
 		hooks: {
 			'astro:config:setup': ({ updateConfig }) => {
-        updateConfig({
-          vite: {
-            ssr: {
-              noExternal: ['@astrojs/node']
-            }
-          }
-        });
-      },
+				updateConfig({
+					vite: {
+						ssr: {
+							noExternal: ['@astrojs/node'],
+						},
+					},
+				});
+			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				needsBuildConfig = !config.build?.server;
 				_options = {
