@@ -1464,7 +1464,7 @@ declare namespace astroHTML.JSX {
 	}
 
 	interface IntrinsicElements extends DefinedIntrinsicElements {
-	  // Allow for arbitrary elements
-	  [name: string]: { [name: string]: any };
+		// Allow for arbitrary elements
+		[name: string]: { [name: string]: any };
 	}
 }
