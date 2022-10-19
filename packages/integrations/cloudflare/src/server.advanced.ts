@@ -11,7 +11,8 @@ type Env = {
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest, false);
 
-	const fetch = async (request: Request, env: Env) => {
+	const fetch = async (request: Request, env: Env, context: any) => {
+    
 		const { origin, pathname } = new URL(request.url);
     env.name = "cloudflare";
 
@@ -31,7 +32,7 @@ export function createExports(manifest: SSRManifest) {
       Reflect.set(
         request,
         Symbol.for('runtime'),
-        env
+        { env, ...context }
       );
 			let response = await app.render(request, routeData);
 
