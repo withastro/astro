@@ -48,7 +48,7 @@ async function compile({
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
 		preprocessStyle: createStylePreprocessor(transformStyle, cssDeps, cssTransformErrors),
-		resolvePath(specifier) {
+		async resolvePath(specifier) {
 			return resolvePath(specifier, filename);
 		},
 	})
