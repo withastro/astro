@@ -10,8 +10,8 @@ describe('build.format=file with dynamic routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/dynamic-route-build-file',
 			build: {
-				format: 'file'
-			}
+				format: 'file',
+			},
 		});
 		await fixture.build();
 	});
