@@ -15,6 +15,8 @@ import {
 } from './plugins.js';
 import { getFileInfo, handleExtendsNotSupported, parseFrontmatter } from './utils.js';
 
+const FLAG = '?astro-asset-ssr';
+
 const RAW_CONTENT_ERROR =
 	'MDX does not support rawContent()! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins';
 
@@ -86,7 +88,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 								},
 								// Override transform to alter code before MDX compilation
 								// ex. inject layouts
-								async transform(_, id) {
+								async transform(_, unresolvedId) {
+									let id = unresolvedId.endsWith(`.mdx${FLAG}`)
+										? unresolvedId.replace(FLAG, '')
+										: unresolvedId;
 									if (!id.endsWith('mdx')) return;
 
 									// Read code from file manually to prevent Vite from parsing `import.meta.env` expressions
@@ -112,7 +117,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 							{
 								name: '@astrojs/mdx-postprocess',
 								// These transforms must happen *after* JSX runtime transformations
-								transform(code, id) {
+								transform(code, unresolvedId) {
+									let id = unresolvedId.endsWith(`.mdx${FLAG}`)
+										? unresolvedId.replace(FLAG, '')
+										: unresolvedId;
 									if (!id.endsWith('.mdx')) return;
 
 									// Ensures styles and scripts are injected into a `<head>`
