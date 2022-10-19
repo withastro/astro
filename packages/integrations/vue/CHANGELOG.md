@@ -1,5 +1,11 @@
 # @astrojs/vue
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5126](https://github.com/withastro/astro/pull/5126) [`850cc19fd`](https://github.com/withastro/astro/commit/850cc19fda8e092c1a5fcbd7abfe7c7a0e15629c) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Automatically add `vuetify` to `vite.ssr.noExternal`
+
 ## 1.2.0
 
 ### Minor Changes
