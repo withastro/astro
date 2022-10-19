@@ -63,23 +63,30 @@ function getParts(part: string, file: string) {
 function getPattern(segments: RoutePart[][], addTrailingSlash: AstroConfig['trailingSlash']) {
 	const pathname = segments
 		.map((segment) => {
-			return segment[0].spread
-				? '(?:\\/(.*?))?'
-				: '\\/' +
-						segment
-							.map((part) => {
-								if (part)
-									return part.dynamic
-										? '([^/]+?)'
-										: part.content
-												.normalize()
-												.replace(/\?/g, '%3F')
-												.replace(/#/g, '%23')
-												.replace(/%5B/g, '[')
-												.replace(/%5D/g, ']')
-												.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-							})
-							.join('');
+			if (segment.length === 1 && segment[0].spread) {
+				return '(?:\\/(.*?))?';
+			} else {
+				return (
+					'\\/' +
+					segment
+						.map((part) => {
+							if (part.spread) {
+								return '(.*?)';
+							} else if (part.dynamic) {
+								return '([^/]+?)';
+							} else {
+								return part.content
+									.normalize()
+									.replace(/\?/g, '%3F')
+									.replace(/#/g, '%23')
+									.replace(/%5B/g, '[')
+									.replace(/%5D/g, ']')
+									.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+							}
+						})
+						.join('')
+				);
+			}
 		})
 		.join('');
 
@@ -117,7 +124,10 @@ function validateSegment(segment: string, file = '') {
 	if (countOccurrences('[', segment) !== countOccurrences(']', segment)) {
 		throw new Error(`Invalid route ${file} \u2014 brackets are unbalanced`);
 	}
-	if (/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) {
+	if (
+		(/.+\[\.\.\.[^\]]+\]/.test(segment) || /\[\.\.\.[^\]]+\].+/.test(segment)) &&
+		file.endsWith('.astro')
+	) {
 		throw new Error(`Invalid route ${file} \u2014 rest parameter must be a standalone segment`);
 	}
 }

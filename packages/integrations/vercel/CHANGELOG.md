@@ -1,5 +1,13 @@
 # @astrojs/vercel
 
+## 2.3.0
+
+### Minor Changes
+
+- [#5086](https://github.com/withastro/astro/pull/5086) [`f8198d250`](https://github.com/withastro/astro/commit/f8198d2502bbf7f7daf5854e7e12317e39a66fcc) Thanks [@JuanM04](https://github.com/JuanM04)! - Minify Edge Function output to save space
+
+- [#5085](https://github.com/withastro/astro/pull/5085) [`cd25abae5`](https://github.com/withastro/astro/commit/cd25abae594f9c42d3766753dfeee4f476311f1e) Thanks [@JuanM04](https://github.com/JuanM04)! - Added `includeFiles` and `excludeFiles` options
+
 ## 2.2.0
 
 ### Minor Changes
