@@ -15,6 +15,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
+import { FLAG } from '../../vite-plugin-asset-ssr/index.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -112,14 +113,25 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					}
 				};
 
+				let exclude: Set<string> = new Set();
+				for (const [_, chunk] of Object.entries(bundle)) {
+					if (chunk.type === 'chunk' && chunk.facadeModuleId?.includes(FLAG)) {
+						exclude.add(chunk.fileName);
+						for (const imp of chunk.imports) {
+							exclude.add(imp);
+						}
+					}
+				}
+
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
 						const c = chunk;
-						if ('viteMetadata' in chunk) {
+
+						if ('viteMetadata' in chunk && !exclude.has((chunk as OutputChunk).fileName)) {
 							const meta = chunk['viteMetadata'] as ViteMetadata;
 
 							// Chunks that have the viteMetadata.importedCss are CSS chunks
-							if (meta.importedCss.size) {
+							if (meta.importedCss.size && !(chunk as OutputChunk).facadeModuleId?.endsWith(FLAG)) {
 								// In the SSR build, keep track of all CSS chunks' modules as the client build may
 								// duplicate them, e.g. for `client:load` components that render in SSR and client
 								// for hydation.
