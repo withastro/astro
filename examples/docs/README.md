@@ -132,18 +132,24 @@ Last step: you'll need to add a new entry to your sidebar, to create the table o
 ```diff
 // src/config.ts
 export const SIDEBAR = {
-  en: [
-    { text: 'Section Header', header: true, },
-    { text: 'Introduction', link: 'en/introduction' },
-    // ...
-  ],
-+  es: [
-+    { text: 'Encabezado de sección', header: true, },
-+    { text: 'Introducción', link: 'es/introduction' },
-+    // ...
-+  ],
-};
 
+en: {
+ 'Section Header': [
+  { text: 'Introduction', link: 'en/introduction' },
+	{ text: 'Page 2', link: 'en/page-2' },
+	{ text: 'Page 3', link: 'en/page-3' },
+ ],
+ 'Another Section': [{ text: 'Page 4', link: 'en/page-4' }],
+},
++ es: {
++  'Encabezado de sección': [
++  { text: 'Introducción', link: 'es/introduction' },
++  { text: 'Página 2', link: 'es/page-2' },
++  { text: 'Página 3', link: 'es/page-3' },
++  ],
++  'Otra Seccion': [{ text: 'Página 4', link: 'es/page-4' }],
++ },
+  
 // ...
 ```
 
