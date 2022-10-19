@@ -45,9 +45,9 @@ test.describe('Style prefetch', () => {
 
 				await page.waitForLoadState('networkidle');
 
-				await expect(requests.filter(req => req.includes('/style1'))).toBeTruthy();
-				await expect(requests.filter(req => req.includes('/style2'))).toBeTruthy();
-				const cssRequestCount = requests.filter(req => req.includes('/main.css')).length;
+				await expect(requests.filter((req) => req.includes('/style1'))).toBeTruthy();
+				await expect(requests.filter((req) => req.includes('/style2'))).toBeTruthy();
+				const cssRequestCount = requests.filter((req) => req.includes('/main.css')).length;
 				await expect(cssRequestCount).toBe(1);
 			});
 		});
