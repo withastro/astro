@@ -3011,6 +3011,14 @@ importers:
       '@astrojs/prefetch': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/prefetch/test/fixtures/style-prefetch:
+    specifiers:
+      '@astrojs/prefetch': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/prefetch': link:../../..
+      astro: link:../../../../../astro
+
   packages/integrations/react:
     specifiers:
       '@babel/core': '>=7.0.0-0 <8.0.0'
