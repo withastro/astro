@@ -35,8 +35,6 @@ yarn astro add preact
 pnpm astro add preact
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -67,14 +65,12 @@ export default defineConfig({
 });
 ```
 
-Finally, restart the dev server.
-
 ## Usage
 
 To use your first Preact component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
-- 🪆 opportunities to mix and nest frameworks together
+- 🤝 opportunities to mix and nest frameworks together
 
 Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
@@ -129,7 +125,7 @@ Check out the [`pnpm` overrides](https://pnpm.io/package_json#pnpmoverrides) and
 
 ## Troubleshooting
 
-For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 

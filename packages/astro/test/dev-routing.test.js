@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Development Routing', () => {
@@ -41,6 +40,11 @@ describe('Development Routing', () => {
 		it('404 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			expect(response.status).to.equal(404);
+		});
+
+		it('500 when redirecting in SSG mode', async () => {
+			const response = await fixture.fetch('/redirect');
+			expect(response.status).to.equal(500);
 		});
 	});
 
@@ -283,6 +287,10 @@ describe('Development Routing', () => {
 				site: 'http://example.com/',
 			});
 			devServer = await fixture.startDevServer();
+		});
+
+		after(async () => {
+			await devServer.stop();
 		});
 
 		it('200 when loading /index.html', async () => {

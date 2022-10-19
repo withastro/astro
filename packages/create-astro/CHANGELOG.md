@@ -1,5 +1,20 @@
 # create-astro
 
+## 1.1.0
+
+### Minor Changes
+
+- [#4810](https://github.com/withastro/astro/pull/4810) [`7481ffda0`](https://github.com/withastro/astro/commit/7481ffda028d9028d8e28bc7c6e9960ab80acf0f) Thanks [@mrienstra](https://github.com/mrienstra)! - Alway write chosen config to `tsconfig.json`.
+
+  - Before: Only when `strict` & `strictest` was selected
+  - After: Also when `base` is selected (via "Relaxed" or "I prefer not to use TypeScript")
+
+## 1.0.2
+
+### Patch Changes
+
+- [#4805](https://github.com/withastro/astro/pull/4805) [`c84d85ba4`](https://github.com/withastro/astro/commit/c84d85ba4d85f250d87bbc98c74665992f6c2768) Thanks [@HiDeoo](https://github.com/HiDeoo)! - Add support for running in cloned empty git repository
+
 ## 1.0.1
 
 ### Patch Changes

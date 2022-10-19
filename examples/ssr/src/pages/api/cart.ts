@@ -1,9 +1,9 @@
-import lightcookie from 'lightcookie';
+import { APIContext } from 'astro';
 import { userCartItems } from '../../models/session';
 
-export function get(_params: any, request: Request) {
-	let cookie = request.headers.get('cookie');
-	let userId = cookie ? lightcookie.parse(cookie)['user-id'] : '1'; // default for testing
+export function get({ cookies }: APIContext) {
+	let userId = cookies.get('user-id').value;
+
 	if (!userId || !userCartItems.has(userId)) {
 		return {
 			body: JSON.stringify({ items: [] }),
@@ -22,11 +22,10 @@ interface AddToCartItem {
 	name: string;
 }
 
-export async function post(_params: any, request: Request) {
+export async function post({ cookies, request }: APIContext) {
 	const item: AddToCartItem = await request.json();
 
-	let cookie = request.headers.get('cookie');
-	let userId = lightcookie.parse(cookie)['user-id'];
+	let userId = cookies.get('user-id').value;
 
 	if (!userCartItems.has(userId)) {
 		userCartItems.set(userId, new Map());

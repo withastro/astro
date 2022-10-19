@@ -1,5 +1,4 @@
 import type { GetModuleInfo, OutputChunk } from 'rollup';
-import type { AstroConfig } from '../../@types/astro';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 
@@ -8,7 +7,6 @@ import esbuild from 'esbuild';
 import npath from 'path';
 import { Plugin as VitePlugin, ResolvedConfig } from 'vite';
 import { isCSSRequest } from '../render/util.js';
-import { relativeToSrcDir } from '../util.js';
 import { getTopLevelPages, moduleIsTopLevelPage, walkParentInfos } from './graph.js';
 import {
 	eachPageData,
@@ -22,50 +20,26 @@ interface PluginOptions {
 	internals: BuildInternals;
 	buildOptions: StaticBuildOptions;
 	target: 'client' | 'server';
-	astroConfig: AstroConfig;
 }
-
-// Arbitrary magic number, can change.
-const MAX_NAME_LENGTH = 70;
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] {
 	const { internals, buildOptions } = options;
-	const { astroConfig } = buildOptions;
+	const { settings } = buildOptions;
 
 	let resolvedConfig: ResolvedConfig;
 
-	// Turn a page location into a name to be used for the CSS file.
-	function nameifyPage(id: string) {
-		let rel = relativeToSrcDir(astroConfig, id);
-		// Remove pages, ex. blog/posts/something.astro
-		if (rel.startsWith('pages/')) {
-			rel = rel.slice(6);
-		}
-		// Remove extension, ex. blog/posts/something
-		const ext = npath.extname(rel);
-		const noext = rel.slice(0, rel.length - ext.length);
-		// Replace slashes with dashes, ex. blog-posts-something
-		const named = noext.replace(/\//g, '-');
-		return named;
-	}
-
 	function createNameForParentPages(id: string, ctx: { getModuleInfo: GetModuleInfo }): string {
 		const parents = Array.from(getTopLevelPages(id, ctx));
-		const proposedName = parents
-			.map(([page]) => nameifyPage(page.id))
-			.sort()
-			.join('-');
-
-		// We don't want absurdedly long chunk names, so if this is too long create a hashed version instead.
-		if (proposedName.length <= MAX_NAME_LENGTH) {
-			return proposedName;
-		}
+		const firstParentId = parents[0]?.[0].id;
+		const firstParentName = firstParentId ? npath.parse(firstParentId).name : 'index';
 
 		const hash = crypto.createHash('sha256');
 		for (const [page] of parents) {
 			hash.update(page.id, 'utf-8');
 		}
-		return hash.digest('hex').slice(0, 8);
+		const h = hash.digest('hex').slice(0, 8);
+		const proposedName = firstParentName + '.' + h;
+		return proposedName;
 	}
 
 	function* getParentClientOnlys(
@@ -110,7 +84,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					importedCss: Set<string>;
 				};
 
-				const appendCSSToPage = (pageData: PageBuildData, meta: ViteMetadata, depth: number) => {
+				const appendCSSToPage = (
+					pageData: PageBuildData,
+					meta: ViteMetadata,
+					depth: number,
+					order: number
+				) => {
 					for (const importedCssImport of meta.importedCss) {
 						// CSS is prioritized based on depth. Shared CSS has a higher depth due to being imported by multiple pages.
 						// Depth info is used when sorting the links on the page.
@@ -120,8 +99,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 							if (depth < cssInfo.depth) {
 								cssInfo.depth = depth;
 							}
+
+							// Update the order, preferring the lowest order we have.
+							if (cssInfo.order === -1) {
+								cssInfo.order = order;
+							} else if (order < cssInfo.order && order > -1) {
+								cssInfo.order = order;
+							}
 						} else {
-							pageData?.css.set(importedCssImport, { depth });
+							pageData?.css.set(importedCssImport, { depth, order });
 						}
 					}
 				};
@@ -161,7 +147,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									for (const id of Object.keys(c.modules)) {
 										for (const pageData of getParentClientOnlys(id, this)) {
 											for (const importedCssImport of meta.importedCss) {
-												pageData.css.set(importedCssImport, { depth: -1 });
+												pageData.css.set(importedCssImport, { depth: -1, order: -1 });
 											}
 										}
 									}
@@ -169,12 +155,12 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const id of Object.keys(c.modules)) {
-									for (const [pageInfo, depth] of walkParentInfos(id, this)) {
+									for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
 										if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;
 											const pageData = getPageDataByViteID(internals, pageViteID);
 											if (pageData) {
-												appendCSSToPage(pageData, meta, depth);
+												appendCSSToPage(pageData, meta, depth, order);
 											}
 										} else if (
 											options.target === 'client' &&
@@ -184,7 +170,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 												internals,
 												pageInfo.id
 											)) {
-												appendCSSToPage(pageData, meta, -1);
+												appendCSSToPage(pageData, meta, -1, order);
 											}
 										}
 									}
@@ -211,7 +197,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					);
 					if (cssChunk) {
 						for (const pageData of eachPageData(internals)) {
-							pageData.css.set(cssChunk.fileName, { depth: -1 });
+							pageData.css.set(cssChunk.fileName, { depth: -1, order: -1 });
 						}
 					}
 				}
@@ -228,10 +214,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					for (const [, output] of Object.entries(bundle)) {
 						if (output.type === 'asset') {
 							if (output.name?.endsWith('.css') && typeof output.source === 'string') {
-								const cssTarget = options.astroConfig.vite.build?.cssTarget;
+								const cssTarget = settings.config.vite.build?.cssTarget;
+								const minify = settings.config.vite.build?.minify !== false;
 								const { code: minifiedCSS } = await esbuild.transform(output.source, {
 									loader: 'css',
-									minify: true,
+									minify,
 									...(cssTarget ? { target: cssTarget } : {}),
 								});
 								output.source = minifiedCSS;

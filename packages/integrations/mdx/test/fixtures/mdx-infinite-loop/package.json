@@ -1,0 +1,10 @@
+{
+  "name": "@test/mdx-infinite-loop",
+  "type": "module",
+  "dependencies": {
+    "@astrojs/mdx": "workspace:*",
+    "@astrojs/preact": "workspace:*",
+    "preact": "^10.7.3",
+    "astro": "workspace:*"
+  }
+}

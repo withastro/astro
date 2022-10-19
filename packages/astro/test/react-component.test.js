@@ -83,11 +83,18 @@ describe('React Components', () => {
 			expect($('#client #lazy')).to.have.lengthOf(1);
 			expect($('#server #lazy')).to.have.lengthOf(1);
 		});
+
+		it('Can pass through props with cloneElement', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerioLoad(html);
+			expect($('#cloned').text()).to.equal('Cloned With Props');
+		});
 	});
 
 	if (isWindows) return;
 
 	describe('dev', () => {
+		/** @type {import('./test-utils').Fixture} */
 		let devServer;
 
 		before(async () => {
@@ -138,6 +145,11 @@ describe('React Components', () => {
 
 			// test 1: react/jsx-runtime is used for the component
 			expect(jsxRuntime).to.be.ok;
+		});
+
+		it('When a nested component throws it does not crash the server', async () => {
+			const res = await fixture.fetch('/error-rendering');
+			await res.arrayBuffer();
 		});
 	});
 });

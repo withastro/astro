@@ -1,5 +1,39 @@
 # @astrojs/react
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5095](https://github.com/withastro/astro/pull/5095) [`ddfbef5ac`](https://github.com/withastro/astro/commit/ddfbef5acbd4c56d8ce1626a458b5cbb27da47fe) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `@types/` packages as peerDependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [#5016](https://github.com/withastro/astro/pull/5016) [`6efeaeb39`](https://github.com/withastro/astro/commit/6efeaeb39ed7e6642b31603745750ccb9fe0ff1e) Thanks [@matthewp](https://github.com/matthewp)! - Add support for mui
+
+  This adds support for [mui](https://mui.com/) through configuration. Users will now not need to configure this library to get it to work.
+
+## 1.1.4
+
+### Patch Changes
+
+- [#4816](https://github.com/withastro/astro/pull/4816) [`8d059faae`](https://github.com/withastro/astro/commit/8d059faaedf212426e0fb6d93843f6855f723f56) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errors in React components from crashing the dev server
+
+## 1.1.3
+
+### Patch Changes
+
+- [#4756](https://github.com/withastro/astro/pull/4756) [`c271ed35e`](https://github.com/withastro/astro/commit/c271ed35ee634f2f8c9957ee04a3aadc7dd39b3e) Thanks [@matthewp](https://github.com/matthewp)! - Only pass through children prop if there are children
+
+## 1.1.2
+
+### Patch Changes
+
+- [#4679](https://github.com/withastro/astro/pull/4679) [`5986517b4`](https://github.com/withastro/astro/commit/5986517b4f29af90fcfe333d4bb69ac09d4f8778) Thanks [@matthewp](https://github.com/matthewp)! - Prevent decoder from leaking
+
+- [#4667](https://github.com/withastro/astro/pull/4667) [`9290b2414`](https://github.com/withastro/astro/commit/9290b24143d753edd3daf25945990c25a58e5bde) Thanks [@Holben888](https://github.com/Holben888)! - Fix framework components on Vercel Edge
+
 ## 1.1.1
 
 ### Patch Changes

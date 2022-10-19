@@ -1,10 +1,15 @@
-import { escapeHTML, HTMLString, markHTMLString } from '../escape.js';
+import { escapeHTML, isHTMLString, markHTMLString } from '../escape.js';
 import { AstroComponent, renderAstroComponent } from './astro.js';
-import { stringifyChunk } from './common.js';
+import { SlotString } from './slot.js';
 
 export async function* renderChild(child: any): AsyncIterable<any> {
 	child = await child;
-	if (child instanceof HTMLString) {
+	if (child instanceof SlotString) {
+		if (child.instructions) {
+			yield* child.instructions;
+		}
+		yield child;
+	} else if (isHTMLString(child)) {
 		yield child;
 	} else if (Array.isArray(child)) {
 		for (const value of child) {
@@ -27,25 +32,14 @@ export async function* renderChild(child: any): AsyncIterable<any> {
 		Object.prototype.toString.call(child) === '[object AstroComponent]'
 	) {
 		yield* renderAstroComponent(child);
-	} else if (typeof child === 'object' && Symbol.asyncIterator in child) {
+	} else if (ArrayBuffer.isView(child)) {
+		yield child;
+	} else if (
+		typeof child === 'object' &&
+		(Symbol.asyncIterator in child || Symbol.iterator in child)
+	) {
 		yield* child;
 	} else {
 		yield child;
 	}
-}
-
-export async function renderSlot(result: any, slotted: string, fallback?: any): Promise<string> {
-	if (slotted) {
-		let iterator = renderChild(slotted);
-		let content = '';
-		for await (const chunk of iterator) {
-			if ((chunk as any).type === 'directive') {
-				content += stringifyChunk(result, chunk);
-			} else {
-				content += chunk;
-			}
-		}
-		return markHTMLString(content);
-	}
-	return fallback;
 }

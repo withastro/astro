@@ -23,8 +23,6 @@ yarn astro add lit
 pnpm astro add lit
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
@@ -59,7 +57,7 @@ export default {
 To use your first Lit component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. This explains:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
-- 🪆 opportunities to mix and nest frameworks together
+- 🤝 opportunities to mix and nest frameworks together
 
 However, there's a key difference with Lit _custom elements_ over conventional _components_: you can use the element tag name directly.
 
@@ -113,9 +111,42 @@ import {MyElement} from '../components/my-element.js';
 
 The above will only load the element's JavaScript when the user has scrolled it into view. Since it is server rendered they will not see any jank; it will load and hydrate transparently.
 
-### More documentation
+## Troubleshooting
 
-Check our [Astro Integration Documentation][astro-integration] for more on integrations.
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+Common issues are listed below:
+
+### Browser globals
+
+The Lit integration's SSR works by adding a few browser global properties to the global environment. Some of the properties it adds includes `window`, `document`, and `location`.
+
+These globals *can* interfere with other libraries that might use the existence of these variables to detect that they are running in the browser, when they are actually running in the server. This can cause bugs with these libraries.
+
+Because of this, the Lit integration might not be compatible with these types of libraries. One thing that can help is changing the order of integrations when Lit is interfering with other integrations:
+
+```diff
+import { defineConfig } from 'astro/config';
+import vue from '@astrojs/vue';
+import lit from '@astrojs/lit';
+
+export default defineConfig({
+-  integrations: [vue(), lit()]
++  integrations: [lit(), vue()]
+});
+```
+
+The correct order might be different depending on the underlying cause of the problem. This is not guaranteed to fix every issue however, and some libraries cannot be used if you are using the Lit integration because of this.
+
+### Limitations
+
+The Lit integration is powered by `@lit-labs/ssr` which has some limitations. See their [limitations documentation](https://www.npmjs.com/package/@lit-labs/ssr#user-content-notes-and-limitations) to learn more.
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components

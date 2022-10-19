@@ -1,6 +1,6 @@
 {
   "name": "astro-scripts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": true,
   "type": "module",
   "main": "./index.js",
@@ -16,5 +16,8 @@
     "kleur": "^4.1.4",
     "svelte": "^3.48.0",
     "tar": "^6.1.11"
+  },
+  "devDependencies": {
+    "tsconfig-resolver": "^3.0.1"
   }
 }

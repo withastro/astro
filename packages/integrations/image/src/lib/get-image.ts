@@ -6,7 +6,6 @@ import type {
 	TransformOptions,
 } from '../loaders/index.js';
 import { isSSRService, parseAspectRatio } from '../loaders/index.js';
-import sharp from '../loaders/sharp.js';
 import { isRemoteImage } from '../utils/paths.js';
 import type { ImageMetadata } from '../vite-plugin-astro-image.js';
 
@@ -131,7 +130,7 @@ export async function getImage(
 	const isDev = import.meta.env?.DEV;
 	const isLocalImage = !isRemoteImage(resolved.src);
 
-	const _loader = isDev && isLocalImage ? sharp : loader;
+	const _loader = isDev && isLocalImage ? globalThis.astroImage.defaultLoader : loader;
 
 	if (!_loader) {
 		throw new Error('@astrojs/image: loader not found!');
@@ -139,14 +138,16 @@ export async function getImage(
 
 	const { searchParams } = isSSRService(_loader)
 		? _loader.serializeTransform(resolved)
-		: sharp.serializeTransform(resolved);
+		: globalThis.astroImage.defaultLoader.serializeTransform(resolved);
 
+	const imgSrc =
+		!isLocalImage && resolved.src.startsWith('//') ? `https:${resolved.src}` : resolved.src;
 	let src: string;
 
-	if (/^[\/\\]?@astroimage/.test(resolved.src)) {
-		src = `${resolved.src}?${searchParams.toString()}`;
+	if (/^[\/\\]?@astroimage/.test(imgSrc)) {
+		src = `${imgSrc}?${searchParams.toString()}`;
 	} else {
-		searchParams.set('href', resolved.src);
+		searchParams.set('href', imgSrc);
 		src = `/_image?${searchParams.toString()}`;
 	}
 

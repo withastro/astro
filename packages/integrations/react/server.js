@@ -68,8 +68,10 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	const newProps = {
 		...props,
 		...slots,
-		children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
 	};
+	if (children != null) {
+		newProps.children = React.createElement(StaticHtml, { value: children });
+	}
 	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {
@@ -119,8 +121,11 @@ async function renderToPipeableStreamAsync(vnode) {
 async function renderToStaticNodeStreamAsync(vnode) {
 	const Writable = await getNodeWritable();
 	let html = '';
-	return new Promise((resolve) => {
+	return new Promise((resolve, reject) => {
 		let stream = ReactDOM.renderToStaticNodeStream(vnode);
+		stream.on('error', (err) => {
+			reject(err);
+		});
 		stream.pipe(
 			new Writable({
 				write(chunk, _encoding, callback) {
@@ -135,14 +140,32 @@ async function renderToStaticNodeStreamAsync(vnode) {
 	});
 }
 
-async function renderToReadableStreamAsync(vnode) {
-	const decoder = new TextDecoder();
-	const stream = await ReactDOM.renderToReadableStream(vnode);
-	let html = '';
-	for await (const chunk of stream) {
-		html += decoder.decode(chunk);
+/**
+ * Use a while loop instead of "for await" due to cloudflare and Vercel Edge issues
+ * See https://github.com/facebook/react/issues/24169
+ */
+async function readResult(stream) {
+	const reader = stream.getReader();
+	let result = '';
+	const decoder = new TextDecoder('utf-8');
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) {
+			if (value) {
+				result += decoder.decode(value);
+			} else {
+				// This closes the decoder
+				decoder.decode(new Uint8Array());
+			}
+
+			return result;
+		}
+		result += decoder.decode(value, { stream: true });
 	}
-	return html;
+}
+
+async function renderToReadableStreamAsync(vnode) {
+	return await readResult(await ReactDOM.renderToReadableStream(vnode));
 }
 
 export default {

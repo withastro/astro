@@ -1,5 +1,39 @@
 # @astrojs/preact
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5015](https://github.com/withastro/astro/pull/5015) [`b1964e9e1`](https://github.com/withastro/astro/commit/b1964e9e1b7f9178036e266b89d3c8b9cbffd1c6) Thanks [@matthewp](https://github.com/matthewp)! - Shared state in Preact components with signals
+
+  This makes it possible to share client state between Preact islands via signals.
+
+  For example, you can create a signals in an Astro component and then pass it to multiple islands:
+
+  ```astro
+  ---
+  // Component Imports
+  import Counter from '../components/Counter';
+  import { signal } from '@preact/signals';
+  const count = signal(0);
+  ---
+
+  <Count count={count} />
+  <Count count={count} />
+  ```
+
+## 1.1.1
+
+### Patch Changes
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Add missing dependencies, support strict dependency installation (e.g. pnpm)
+
+## 1.1.0
+
+### Minor Changes
+
+- [#4515](https://github.com/withastro/astro/pull/4515) [`999250d65`](https://github.com/withastro/astro/commit/999250d651996c2833b747b84447aa4e97c91a38) Thanks [@marvinhagemeister](https://github.com/marvinhagemeister)! - Automatically set up Preact DevTools bridge when running `astro dev`.
+
 ## 1.0.2
 
 ### Patch Changes

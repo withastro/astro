@@ -1,5 +1,53 @@
 # @astrojs/vue
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5075](https://github.com/withastro/astro/pull/5075) [`d25f54cb9`](https://github.com/withastro/astro/commit/d25f54cb9306eea9ed0445af8f77604dacacad43) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for the `appEntrypoint` option, which accepts a root-relative path to an app entrypoint. The default export of this file should be a function that accepts a Vue `App` instance prior to rendering. This opens up the ability to extend the `App` instance with [custom Vue plugins](https://vuejs.org/guide/reusability/plugins.html).
+
+  ```js
+  // astro.config.mjs
+  import { defineConfig } from 'astro/config';
+  import vue from '@astrojs/vue';
+
+  export default defineConfig({
+    integrations: [
+      vue({
+        appEntrypoint: '/src/pages/_app',
+      }),
+    ],
+  });
+  ```
+
+  ```js
+  // src/pages/_app.ts
+  import type { App } from 'vue';
+  import i18nPlugin from '../plugins/i18n';
+
+  export default function setup(app: App) {
+    app.use(i18nPlugin, {
+      /* options */
+    });
+  }
+  ```
+
+## 1.1.0
+
+### Minor Changes
+
+- [#4897](https://github.com/withastro/astro/pull/4897) [`fd9d323a6`](https://github.com/withastro/astro/commit/fd9d323a68c0f0cbb3b019e0a05e2c33450f3d33) Thanks [@bluwy](https://github.com/bluwy)! - Support Vue JSX
+
+### Patch Changes
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Add missing dependencies, support strict dependency installation (e.g. pnpm)
+
+## 1.0.2
+
+### Patch Changes
+
+- [#4706](https://github.com/withastro/astro/pull/4706) [`b0ee81d0a`](https://github.com/withastro/astro/commit/b0ee81d0a70d8301530c321b670ab784c9bc00a2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix Vue `script setup` with other renderers applied
+
 ## 1.0.1
 
 ### Patch Changes

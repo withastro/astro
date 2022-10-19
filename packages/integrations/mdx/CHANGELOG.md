@@ -1,5 +1,25 @@
 # @astrojs/mdx
 
+## 0.11.4
+
+### Patch Changes
+
+- [#4953](https://github.com/withastro/astro/pull/4953) [`a59731995`](https://github.com/withastro/astro/commit/a59731995b93ae69c21dc3adc5c8b482b466d12e) Thanks [@bluwy](https://github.com/bluwy)! - Log markdown hints with console.info
+
+## 0.11.3
+
+### Patch Changes
+
+- [#4842](https://github.com/withastro/astro/pull/4842) [`812658ad2`](https://github.com/withastro/astro/commit/812658ad2ab3732a99e35c4fd903e302e723db46) Thanks [@bluwy](https://github.com/bluwy)! - Add missing dependencies, support strict dependency installation (e.g. pnpm)
+
+## 0.11.2
+
+### Patch Changes
+
+- [#4700](https://github.com/withastro/astro/pull/4700) [`e5f71142e`](https://github.com/withastro/astro/commit/e5f71142eb62bd72456e889dad5774347c3753f2) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Document MDXLayoutProps utility type
+
+- [#4858](https://github.com/withastro/astro/pull/4858) [`58a2dca22`](https://github.com/withastro/astro/commit/58a2dca2286cb14f6211cf51267c02447e78433a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Correctly parse import.meta.env in MDX files
+
 ## 0.11.1
 
 ### Patch Changes

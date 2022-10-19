@@ -35,8 +35,6 @@ yarn astro add partytown
 pnpm astro add partytown
 ```
   
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Manual Install
@@ -59,7 +57,6 @@ export default defineConfig({
 })
 ```
   
-Then, restart the dev server.
 
 ## Usage
 
@@ -135,7 +132,7 @@ export default defineConfig ({
 
 ## Troubleshooting
 
-For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 

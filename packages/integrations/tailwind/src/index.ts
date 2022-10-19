@@ -1,6 +1,7 @@
-import load from '@proload/core';
+import load, { resolve } from '@proload/core';
 import type { AstroIntegration } from 'astro';
 import autoprefixerPlugin from 'autoprefixer';
+import fs from 'fs/promises';
 import path from 'path';
 import tailwindPlugin, { Config as TailwindConfig } from 'tailwindcss';
 import resolveConfig from 'tailwindcss/resolveConfig.js';
@@ -17,7 +18,7 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	}) as TailwindConfig;
 }
 
-async function getUserConfig(root: URL, configPath?: string) {
+async function getUserConfig(root: URL, configPath?: string, isRestart = false) {
 	const resolvedRoot = fileURLToPath(root);
 	let userConfigPath: string | undefined;
 
@@ -26,7 +27,42 @@ async function getUserConfig(root: URL, configPath?: string) {
 		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, root));
 	}
 
-	return await load('tailwind', { mustExist: false, cwd: resolvedRoot, filePath: userConfigPath });
+	if (isRestart) {
+		// Hack: Write config to temporary file at project root
+		// This invalidates and reloads file contents when using ESM imports or "resolve"
+		const resolvedConfigPath = (await resolve('tailwind', {
+			mustExist: false,
+			cwd: resolvedRoot,
+			filePath: userConfigPath,
+		})) as string;
+
+		const { dir, base } = path.parse(resolvedConfigPath);
+		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
+		await fs.copyFile(resolvedConfigPath, tempConfigPath);
+
+		const result = await load('tailwind', {
+			mustExist: false,
+			cwd: resolvedRoot,
+			filePath: tempConfigPath,
+		});
+
+		try {
+			await fs.unlink(tempConfigPath);
+		} catch {
+			/** file already removed */
+		}
+
+		return {
+			...result,
+			filePath: resolvedConfigPath,
+		};
+	} else {
+		return await load('tailwind', {
+			mustExist: false,
+			cwd: resolvedRoot,
+			filePath: userConfigPath,
+		});
+	}
 }
 
 type TailwindOptions =
@@ -55,9 +91,9 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
-			'astro:config:setup': async ({ config, injectScript }) => {
+			'astro:config:setup': async ({ config, injectScript, addWatchFile, isRestart }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.root, customConfigPath);
+				const userConfig = await getUserConfig(config.root, customConfigPath, isRestart);
 
 				if (customConfigPath && !userConfig?.value) {
 					throw new Error(
@@ -65,6 +101,10 @@ export default function tailwindIntegration(options?: TailwindOptions): AstroInt
 							customConfigPath
 						)}. Does the file exist?`
 					);
+				}
+
+				if (addWatchFile && userConfig?.filePath) {
+					addWatchFile(userConfig.filePath);
 				}
 
 				const tailwindConfig: TailwindConfig =

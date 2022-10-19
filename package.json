@@ -19,11 +19,12 @@
     "test": "turbo run test --output-logs=new-only --concurrency=1 --filter=astro --filter=create-astro --filter=\"@astrojs/*\"",
     "test:match": "cd packages/astro && pnpm run test:match",
     "test:smoke": "turbo run build --filter=\"@example/*\" --filter=\"astro.build\" --filter=\"docs\" --output-logs=new-only --concurrency=1",
+    "test:check-examples": "node ./scripts/smoke/check.js",
     "test:vite-ci": "turbo run test --filter=astro --output-logs=new-only --no-deps --concurrency=1",
     "test:e2e": "cd packages/astro && pnpm playwright install && pnpm run test:e2e",
     "test:e2e:match": "cd packages/astro && pnpm playwright install && pnpm run test:e2e:match",
-    "benchmark": "turbo run benchmark --filter=astro",
-    "lint": "eslint .",
+    "benchmark": "pnpm --filter @benchmark/simple run build && pnpm dlx concurrently -k -s first --raw \"node packages/astro/test/benchmark/simple/server.mjs\" \"pnpm dlx autocannon -c 100 -d 30 -p 10 localhost:3002/\"",
+    "lint": "eslint --cache .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format"
   },
   "workspaces": [
@@ -32,7 +33,6 @@
     "packages/*",
     "examples/*",
     "examples/component/demo",
-    "examples/component/packages/*",
     "scripts",
     "packages/astro/test/fixtures/component-library-shared",
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
@@ -42,7 +42,7 @@
     "node": "^14.18.0 || >=16.12.0",
     "pnpm": ">=7.9.5"
   },
-  "packageManager": "pnpm@7.9.5",
+  "packageManager": "pnpm@7.12.2",
   "pnpm": {
     "packageExtensions": {
       "svelte2tsx": {
@@ -52,6 +52,9 @@
           }
         }
       }
+    },
+    "overrides": {
+      "tsconfig-resolver>type-fest": "3.0.0"
     },
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -75,9 +78,10 @@
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.23.0",
     "@octokit/action": "^3.18.1",
+    "@types/node": "^18.7.21",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
-    "del": "^6.1.1",
+    "del": "^7.0.0",
     "esbuild": "^0.14.43",
     "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",

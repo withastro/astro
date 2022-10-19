@@ -4,8 +4,12 @@ import { fileURLToPath } from 'node:url';
 import { InputFormat } from '../loaders/index.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
 
-export async function metadata(src: URL): Promise<ImageMetadata | undefined> {
-	const file = await fs.readFile(src);
+export interface Metadata extends ImageMetadata {
+	orientation?: number;
+}
+
+export async function metadata(src: URL | string, data?: Buffer): Promise<Metadata | undefined> {
+	const file = data || (await fs.readFile(src));
 
 	const { width, height, type, orientation } = await sizeOf(file);
 	const isPortrait = (orientation || 0) >= 5;
@@ -19,5 +23,6 @@ export async function metadata(src: URL): Promise<ImageMetadata | undefined> {
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as InputFormat,
+		orientation,
 	};
 }

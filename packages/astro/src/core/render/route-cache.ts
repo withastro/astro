@@ -5,6 +5,7 @@ import type {
 	GetStaticPathsResultKeyed,
 	Params,
 	RouteData,
+	RuntimeMode,
 } from '../../@types/astro';
 import { debug, LogOptions, warn } from '../logger/core.js';
 
@@ -77,9 +78,11 @@ export interface RouteCacheEntry {
 export class RouteCache {
 	private logging: LogOptions;
 	private cache: Record<string, RouteCacheEntry> = {};
+	private mode: RuntimeMode;
 
-	constructor(logging: LogOptions) {
+	constructor(logging: LogOptions, mode: RuntimeMode = 'production') {
 		this.logging = logging;
+		this.mode = mode;
 	}
 
 	/** Clear the cache. */
@@ -91,7 +94,7 @@ export class RouteCache {
 		// NOTE: This shouldn't be called on an already-cached component.
 		// Warn here so that an unexpected double-call of getStaticPaths()
 		// isn't invisible and developer can track down the issue.
-		if (this.cache[route.component]) {
+		if (this.mode === 'production' && this.cache[route.component]) {
 			warn(
 				this.logging,
 				'routeCache',
@@ -108,13 +111,9 @@ export class RouteCache {
 
 export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, params: Params) {
 	const paramsKey = stringifyParams(params);
-	let matchedStaticPath = staticPaths.keyed.get(paramsKey);
+	const matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
-
 	debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
-	matchedStaticPath = staticPaths.find(
-		({ params: _params }) => JSON.stringify(_params) === paramsKey
-	);
 }

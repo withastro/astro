@@ -5,5 +5,5 @@ import mdx from '@astrojs/mdx';
 // https://astro.build/config
 export default defineConfig({
 	site: 'http://localhost:3000',
-	integrations: [image({ logLevel: 'silent' }), mdx()]
+	integrations: [image({ logLevel: 'silent', serviceEntryPoint: '@astrojs/image/sharp' }), mdx()]
 });

@@ -1,28 +1,34 @@
 import type { PluginContext, SourceDescription } from 'rollup';
 import type * as vite from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from '../core/logger/core.js';
+import type { ViteStyleTransformer } from '../vite-style-transform';
 import type { PluginMetadata as AstroPluginMetadata } from './types';
 
 import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
+import { cachedCompilation, CompileProps, getCachedSource } from '../core/compile/index.js';
+import { isRelativePath, prependForwardSlash, startsWithForwardSlash } from '../core/path.js';
+import { viteID } from '../core/util.js';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import { cachedCompilation, CompileProps, getCachedSource } from './compile.js';
+import {
+	createTransformStyles,
+	createViteStyleTransformer,
+} from '../vite-style-transform/index.js';
 import { handleHotUpdate } from './hmr.js';
 import { parseAstroRequest, ParsedRequestResult } from './query.js';
-import { createTransformStyleWithViteFn, TransformStyleWithVite } from './styles.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
+export default function astro({ settings, logging }: AstroPluginOptions): vite.Plugin {
+	const { config } = settings;
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -38,12 +44,14 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	}
 
 	let resolvedConfig: vite.ResolvedConfig;
-	let transformStyleWithVite: TransformStyleWithVite;
+	let styleTransformer: ViteStyleTransformer;
 	let viteDevServer: vite.ViteDevServer | undefined;
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+	const isFullFilePath = (path: string) =>
+		path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
 
 	function resolveRelativeFromAstroParent(id: string, parsedFrom: ParsedRequestResult): string {
 		const filename = normalizeFilename(parsedFrom.filename);
@@ -60,10 +68,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(_resolvedConfig) {
 			resolvedConfig = _resolvedConfig;
-			transformStyleWithVite = createTransformStyleWithViteFn(_resolvedConfig);
+			styleTransformer = createViteStyleTransformer(_resolvedConfig);
 		},
 		configureServer(server) {
 			viteDevServer = server;
+			styleTransformer.viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.glob, etc.)
 		async resolveId(id, from, opts) {
@@ -89,7 +98,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if (query.type === 'style' && isBrowserPath(id)) {
 					return relativeToRoot(id);
 				}
-
+				// Convert file paths to ViteID, meaning on Windows it omits the leading slash
+				if (isFullFilePath(id)) {
+					return viteID(new URL('file://' + id));
+				}
 				return id;
 			}
 		},
@@ -115,12 +127,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			const compileProps: CompileProps = {
 				config,
 				filename,
-				moduleId: id,
 				source,
-				ssr: Boolean(opts?.ssr),
-				transformStyleWithVite,
-				viteDevServer,
-				pluginContext: this,
+				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
 
 			switch (query.type) {
@@ -214,12 +222,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			const compileProps: CompileProps = {
 				config,
 				filename,
-				moduleId: id,
 				source,
-				ssr: Boolean(opts?.ssr),
-				transformStyleWithVite,
-				viteDevServer,
-				pluginContext: this,
+				transformStyle: createTransformStyles(styleTransformer, filename, Boolean(opts?.ssr), this),
 			};
 
 			try {
@@ -246,18 +250,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				)};export { $$file as file, $$url as url };\n`;
 				// Add HMR handling in dev mode.
 				if (!resolvedConfig.isProduction) {
-					// HACK: extract dependencies from metadata until compiler static extraction handles them
-					const metadata = transformResult.code.split('$$createMetadata(')[1].split('});\n')[0];
-					const pattern = /specifier:\s*'([^']*)'/g;
-					const deps = new Set();
-					let match;
-					while ((match = pattern.exec(metadata)?.[1])) {
-						deps.add(match);
-					}
-
 					let i = 0;
 					while (i < transformResult.scripts.length) {
-						deps.add(`${id}?astro&type=script&index=${i}&lang.ts`);
 						SUFFIX += `import "${id}?astro&type=script&index=${i}&lang.ts";`;
 						i++;
 					}
@@ -345,20 +339,16 @@ ${source}
 				throw err;
 			}
 		},
-		async handleHotUpdate(this: PluginContext, context) {
+		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
 			const compileProps: CompileProps = {
 				config,
 				filename: context.file,
-				moduleId: context.file,
 				source: await context.read(),
-				ssr: true,
-				transformStyleWithVite,
-				viteDevServer,
-				pluginContext: this,
+				transformStyle: createTransformStyles(styleTransformer, context.file, true),
 			};
 			const compile = () => cachedCompilation(compileProps);
-			return handleHotUpdate.call(this, context, {
+			return handleHotUpdate(context, {
 				config,
 				logging,
 				compile,

@@ -43,6 +43,46 @@ function isEmpty(dirPath: string) {
 	return !fs.existsSync(dirPath) || fs.readdirSync(dirPath).length === 0;
 }
 
+// Some existing files and directories can be safely ignored when checking if a directory is a valid project directory.
+// https://github.com/facebook/create-react-app/blob/d960b9e38c062584ff6cfb1a70e1512509a966e7/packages/create-react-app/createReactApp.js#L907-L934
+const VALID_PROJECT_DIRECTORY_SAFE_LIST = [
+	'.DS_Store',
+	'.git',
+	'.gitattributes',
+	'.gitignore',
+	'.gitlab-ci.yml',
+	'.hg',
+	'.hgcheck',
+	'.hgignore',
+	'.idea',
+	'.npmignore',
+	'.travis.yml',
+	'.yarn',
+	'.yarnrc.yml',
+	'docs',
+	'LICENSE',
+	'mkdocs.yml',
+	'Thumbs.db',
+	/\.iml$/,
+	/^npm-debug\.log/,
+	/^yarn-debug\.log/,
+	/^yarn-error\.log/,
+];
+
+function isValidProjectDirectory(dirPath: string) {
+	if (!fs.existsSync(dirPath)) {
+		return true;
+	}
+
+	const conflicts = fs.readdirSync(dirPath).filter((content) => {
+		return !VALID_PROJECT_DIRECTORY_SAFE_LIST.some((safeContent) => {
+			return typeof safeContent === 'string' ? content === safeContent : safeContent.test(content);
+		});
+	});
+
+	return conflicts.length === 0;
+}
+
 const { version } = JSON.parse(
 	fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8')
 );
@@ -59,7 +99,7 @@ export async function main() {
 
 	let cwd = args['_'][2] as string;
 
-	if (cwd && isEmpty(cwd)) {
+	if (cwd && isValidProjectDirectory(cwd)) {
 		let acknowledgeProjectDir = ora({
 			color: 'green',
 			text: `Using ${bold(cwd)} as project directory.`,
@@ -67,10 +107,10 @@ export async function main() {
 		acknowledgeProjectDir.succeed();
 	}
 
-	if (!cwd || !isEmpty(cwd)) {
+	if (!cwd || !isValidProjectDirectory(cwd)) {
 		const notEmptyMsg = (dirPath: string) => `"${bold(dirPath)}" is not empty!`;
 
-		if (!isEmpty(cwd)) {
+		if (!isValidProjectDirectory(cwd)) {
 			let rejectProjectDir = ora({ color: 'red', text: notEmptyMsg(cwd) });
 			rejectProjectDir.fail();
 		}
@@ -81,7 +121,7 @@ export async function main() {
 				message: 'Where would you like to create your new project?',
 				initial: './my-astro-site',
 				validate(value) {
-					if (!isEmpty(value)) {
+					if (!isValidProjectDirectory(value)) {
 						return notEmptyMsg(value);
 					}
 					return true;
@@ -143,8 +183,10 @@ export async function main() {
 
 			// degit does not return an error when an invalid template is provided, as such we need to handle this manually
 			// It's not very pretty, but to the user eye, we just return a nice message and nothing weird happened
-			if (isEmpty(cwd)) {
-				fs.rmdirSync(cwd);
+			if (isValidProjectDirectory(cwd)) {
+				if (isEmpty(cwd)) {
+					fs.rmdirSync(cwd);
+				}
 				throw new Error(`Error: The provided template (${cyan(options.template)}) does not exist`);
 			}
 		} catch (err: any) {
@@ -298,7 +340,7 @@ export async function main() {
 			choices: [
 				{
 					title: 'Relaxed',
-					value: 'default',
+					value: 'base',
 				},
 				{
 					title: 'Strict (recommended)',
@@ -337,42 +379,40 @@ export async function main() {
 		console.log(`  You can safely ignore these files, but don't delete them!`);
 		console.log(dim('  (ex: tsconfig.json, src/env.d.ts)'));
 		console.log(``);
-		tsResponse.typescript = 'default';
+		tsResponse.typescript = 'base';
 		await wait(300);
 	}
 	if (args.dryRun) {
 		ora().info(dim(`--dry-run enabled, skipping.`));
 	} else if (tsResponse.typescript) {
-		if (tsResponse.typescript !== 'default') {
-			const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
-			fs.readFile(templateTSConfigPath, (err, data) => {
-				if (err && err.code === 'ENOENT') {
-					// If the template doesn't have a tsconfig.json, let's add one instead
-					fs.writeFileSync(
-						templateTSConfigPath,
-						stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
-					);
+		const templateTSConfigPath = path.join(cwd, 'tsconfig.json');
+		fs.readFile(templateTSConfigPath, (err, data) => {
+			if (err && err.code === 'ENOENT') {
+				// If the template doesn't have a tsconfig.json, let's add one instead
+				fs.writeFileSync(
+					templateTSConfigPath,
+					stringify({ extends: `astro/tsconfigs/${tsResponse.typescript}` }, null, 2)
+				);
 
-					return;
-				}
+				return;
+			}
 
-				const templateTSConfig = parse(data.toString());
+			const templateTSConfig = parse(data.toString());
 
-				if (templateTSConfig && typeof templateTSConfig === 'object') {
-					const result = assign(templateTSConfig, {
-						extends: `astro/tsconfigs/${tsResponse.typescript}`,
-					});
+			if (templateTSConfig && typeof templateTSConfig === 'object') {
+				const result = assign(templateTSConfig, {
+					extends: `astro/tsconfigs/${tsResponse.typescript}`,
+				});
 
-					fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
-				} else {
-					console.log(
-						yellow(
-							"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
-						)
-					);
-				}
-			});
-		}
+				fs.writeFileSync(templateTSConfigPath, stringify(result, null, 2));
+			} else {
+				console.log(
+					yellow(
+						"There was an error applying the requested TypeScript settings. This could be because the template's tsconfig.json is malformed"
+					)
+				);
+			}
+		});
 		ora().succeed('TypeScript settings applied!');
 	}
 

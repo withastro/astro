@@ -1,3 +1,7 @@
+export function appendExtension(path: string, extension: string) {
+	return path + '.' + extension;
+}
+
 export function appendForwardSlash(path: string) {
 	return path.endsWith('/') ? path : path + '/';
 }
@@ -12,6 +16,10 @@ export function removeTrailingForwardSlash(path: string) {
 
 export function removeLeadingForwardSlash(path: string) {
 	return path.startsWith('/') ? path.substring(1) : path;
+}
+
+export function removeLeadingForwardSlashWindows(path: string) {
+	return path.startsWith('/') && path[2] === ':' ? path.substring(1) : path;
 }
 
 export function trimSlashes(path: string) {

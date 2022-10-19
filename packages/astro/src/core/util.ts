@@ -5,15 +5,17 @@ import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type { ErrorPayload, ViteDevServer } from 'vite';
-import type { AstroConfig, RouteType } from '../@types/astro';
+import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
-
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
+}
+
+/** Cross-realm compatible URL */
+export function isURL(value: unknown): value is URL {
+	return Object.prototype.toString.call(value) === '[object URL]';
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
@@ -126,7 +128,7 @@ export function resolveDependency(dep: string, projectRoot: URL) {
  *   Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteID(filePath: URL): string {
-	return slash(fileURLToPath(filePath));
+	return slash(fileURLToPath(filePath) + filePath.search).replace(/\\/g, '/');
 }
 
 export const VALID_ID_PREFIX = `/@id/`;
@@ -135,23 +137,6 @@ export const VALID_ID_PREFIX = `/@id/`;
 // not valid browser import specifiers by the importAnalysis plugin.
 export function unwrapId(id: string): string {
 	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
-}
-
-/** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
-}
-
-export function emptyDir(_dir: URL, skip?: Set<string>): void {
-	const dir = fileURLToPath(_dir);
-	if (!fs.existsSync(dir)) return undefined;
-	for (const file of fs.readdirSync(dir)) {
-		if (skip?.has(file)) {
-			continue;
-		}
-		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true, maxRetries: 3 });
-	}
 }
 
 export function resolvePages(config: AstroConfig) {
@@ -172,21 +157,21 @@ function isPublicRoute(file: URL, config: AstroConfig): boolean {
 	return true;
 }
 
-function endsWithPageExt(file: URL, config: AstroConfig): boolean {
-	for (const ext of config._ctx.pageExtensions) {
+function endsWithPageExt(file: URL, settings: AstroSettings): boolean {
+	for (const ext of settings.pageExtensions) {
 		if (file.toString().endsWith(ext)) return true;
 	}
 	return false;
 }
 
-export function isPage(file: URL, config: AstroConfig): boolean {
-	if (!isInPagesDir(file, config)) return false;
-	if (!isPublicRoute(file, config)) return false;
-	return endsWithPageExt(file, config);
+export function isPage(file: URL, settings: AstroSettings): boolean {
+	if (!isInPagesDir(file, settings.config)) return false;
+	if (!isPublicRoute(file, settings.config)) return false;
+	return endsWithPageExt(file, settings);
 }
 
-export function isModeServerWithNoAdapter(config: AstroConfig): boolean {
-	return config.output === 'server' && !config._ctx.adapter;
+export function isModeServerWithNoAdapter(settings: AstroSettings): boolean {
+	return settings.config.output === 'server' && !settings.adapter;
 }
 
 export function relativeToSrcDir(config: AstroConfig, idOrUrl: URL | string) {
@@ -216,8 +201,13 @@ export function getLocalAddress(serverAddress: string, host: string | boolean): 
  * through a script tag or a dynamic import as-is.
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
+// TODO: Export a helper util from Vite
 export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
-	const result = await viteServer.pluginContainer.resolveId(id);
+	let result = await viteServer.pluginContainer.resolveId(id, undefined);
+	// Try resolve jsx to tsx
+	if (!result && id.endsWith('.jsx')) {
+		result = await viteServer.pluginContainer.resolveId(id.slice(0, -4), undefined);
+	}
 	if (!result) {
 		return VALID_ID_PREFIX + id;
 	}
@@ -226,3 +216,24 @@ export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
 	}
 	return VALID_ID_PREFIX + result.id;
 }
+
+export function resolveJsToTs(filePath: string) {
+	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
+		const tryPath = filePath.slice(0, -4) + '.tsx';
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	return filePath;
+}
+
+export const AggregateError =
+	typeof (globalThis as any).AggregateError !== 'undefined'
+		? (globalThis as any).AggregateError
+		: class extends Error {
+				errors: Array<any> = [];
+				constructor(errors: Iterable<any>, message?: string | undefined) {
+					super(message);
+					this.errors = Array.from(errors);
+				}
+		  };

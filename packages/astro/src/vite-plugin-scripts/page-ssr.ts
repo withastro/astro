@@ -1,17 +1,21 @@
 import { Plugin as VitePlugin } from 'vite';
-import { AstroConfig } from '../@types/astro.js';
+import { AstroSettings } from '../@types/astro.js';
 import { PAGE_SSR_SCRIPT_ID } from './index.js';
 
 import ancestor from 'common-ancestor-path';
 import MagicString from 'magic-string';
 import { isPage } from '../core/util.js';
 
-export default function astroScriptsPostPlugin({ config }: { config: AstroConfig }): VitePlugin {
+export default function astroScriptsPostPlugin({
+	settings,
+}: {
+	settings: AstroSettings;
+}): VitePlugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-			filename = new URL('.' + filename, config.root).pathname;
+		} else if (filename.startsWith('/') && !ancestor(filename, settings.config.root.pathname)) {
+			filename = new URL('.' + filename, settings.config.root).pathname;
 		}
 		return filename;
 	}
@@ -23,7 +27,7 @@ export default function astroScriptsPostPlugin({ config }: { config: AstroConfig
 		transform(this, code, id, options) {
 			if (!options?.ssr) return;
 
-			const hasInjectedScript = config._ctx.scripts.some((s) => s.stage === 'page-ssr');
+			const hasInjectedScript = settings.scripts.some((s) => s.stage === 'page-ssr');
 			if (!hasInjectedScript) return;
 
 			const filename = normalizeFilename(id);
@@ -35,7 +39,7 @@ export default function astroScriptsPostPlugin({ config }: { config: AstroConfig
 				return;
 			}
 
-			const fileIsPage = isPage(fileURL, config);
+			const fileIsPage = isPage(fileURL, settings);
 			if (!fileIsPage) return;
 
 			const s = new MagicString(code, { filename });

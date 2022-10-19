@@ -23,8 +23,6 @@ yarn astro add react
 pnpm astro add react
 ```
 
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
-
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
@@ -59,9 +57,17 @@ export default {
 To use your first React component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
 - 📦 how framework components are loaded,
 - 💧 client-side hydration options, and
-- 🪆 opportunities to mix and nest frameworks together
+- 🤝 opportunities to mix and nest frameworks together
 
-Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+## Troubleshooting
+
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+
+You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
+
+## Contributing
+
+This package is maintained by Astro's Core team. You're welcome to submit an issue or PR!
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
 [astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components

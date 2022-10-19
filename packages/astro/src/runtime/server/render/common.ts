@@ -1,7 +1,7 @@
 import type { SSRResult } from '../../../@types/astro';
 import type { RenderInstruction } from './types.js';
 
-import { markHTMLString } from '../escape.js';
+import { HTMLBytes, markHTMLString } from '../escape.js';
 import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
@@ -11,6 +11,9 @@ import {
 
 export const Fragment = Symbol.for('astro:fragment');
 export const Renderer = Symbol.for('astro:renderer');
+
+export const encoder = new TextEncoder();
+export const decoder = new TextDecoder();
 
 // Rendering produces either marked strings of HTML or instructions for hydration.
 // These directive instructions bubble all the way up to renderPage so that we
@@ -39,4 +42,34 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 			return chunk.toString();
 		}
 	}
+}
+
+export class HTMLParts {
+	public parts: string;
+	constructor() {
+		this.parts = '';
+	}
+	append(part: string | HTMLBytes | RenderInstruction, result: SSRResult) {
+		if (ArrayBuffer.isView(part)) {
+			this.parts += decoder.decode(part);
+		} else {
+			this.parts += stringifyChunk(result, part);
+		}
+	}
+	toString() {
+		return this.parts;
+	}
+	toArrayBuffer() {
+		return encoder.encode(this.parts);
+	}
+}
+
+export function chunkToByteArray(
+	result: SSRResult,
+	chunk: string | HTMLBytes | RenderInstruction
+): Uint8Array {
+	if (chunk instanceof Uint8Array) {
+		return chunk as Uint8Array;
+	}
+	return encoder.encode(stringifyChunk(result, chunk));
 }

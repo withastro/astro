@@ -21,7 +21,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['packages/**/test/*.js', 'packages/**/*.test.js'],
+      files: ['packages/**/test/*.js', 'packages/**/*.js'],
       env: {
         mocha: true,
       },
@@ -30,6 +30,12 @@ module.exports = {
       },
       rules: {
         'no-console': 'off',
+      },
+    },
+    {
+      files: ['packages/integrations/**/*.ts'],
+      rules: {
+        'no-console': ['error', { allow: ['warn', 'error', 'info', 'debug'] }],
       },
     },
   ],

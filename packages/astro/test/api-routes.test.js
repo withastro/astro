@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import * as cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('API routes', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {

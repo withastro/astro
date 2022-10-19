@@ -1,8 +1,10 @@
 import { renderMarkdown } from '@astrojs/markdown-remark';
 import fs from 'fs';
 import matter from 'gray-matter';
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import { normalizePath } from 'vite';
+import type { AstroSettings } from '../@types/astro';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { warn } from '../core/logger/core.js';
@@ -10,7 +12,7 @@ import type { PluginMetadata } from '../vite-plugin-astro/types.js';
 import { getFileInfo, safelyGetAstroData } from '../vite-plugin-utils/index.js';
 
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
@@ -23,7 +25,12 @@ function safeMatter(source: string, id: string) {
 	}
 }
 
-export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
+// absolute path of "astro/jsx-runtime"
+const astroJsxRuntimeModulePath = normalizePath(
+	fileURLToPath(new URL('../jsx-runtime/index.js', import.meta.url))
+);
+
+export default function markdown({ settings, logging }: AstroPluginOptions): Plugin {
 	return {
 		enforce: 'pre',
 		name: 'astro:markdown',
@@ -33,11 +40,11 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		// to escape "import.meta.env" ourselves.
 		async load(id) {
 			if (id.endsWith('.md')) {
-				const { fileId, fileUrl } = getFileInfo(id, config);
+				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
 				const renderResult = await renderMarkdown(raw.content, {
-					...config.markdown,
+					...settings.config.markdown,
 					fileURL: new URL(`file://${fileId}`),
 					isAstroFlavoredMd: false,
 				} as any);
@@ -61,7 +68,7 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 				}
 
 				const code = escapeViteEnvReferences(`
-				import { Fragment, jsx as h } from 'astro/jsx-runtime';
+				import { Fragment, jsx as h } from '${astroJsxRuntimeModulePath}';
 				${layout ? `import Layout from ${JSON.stringify(layout)};` : ''}
 
 				const html = ${JSON.stringify(html)};

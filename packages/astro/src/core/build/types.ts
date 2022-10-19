@@ -1,5 +1,6 @@
+import type { InlineConfig } from 'vite';
 import type {
-	AstroConfig,
+	AstroSettings,
 	BuildConfig,
 	ComponentInstance,
 	ManifestData,
@@ -7,7 +8,6 @@ import type {
 	RuntimeMode,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { ViteConfigWithSSR } from '../create-vite';
 import type { LogOptions } from '../logger/core';
 import type { RouteCache } from '../render/route-cache';
 
@@ -18,7 +18,7 @@ export interface PageBuildData {
 	component: ComponentPath;
 	route: RouteData;
 	moduleSpecifier: string;
-	css: Map<string, { depth: number }>;
+	css: Map<string, { depth: number; order: number }>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
@@ -26,7 +26,7 @@ export type AllPagesData = Record<ComponentPath, PageBuildData>;
 /** Options for the static build */
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
-	astroConfig: AstroConfig;
+	settings: AstroSettings;
 	buildConfig: BuildConfig;
 	logging: LogOptions;
 	manifest: ManifestData;
@@ -34,7 +34,7 @@ export interface StaticBuildOptions {
 	origin: string;
 	pageNames: string[];
 	routeCache: RouteCache;
-	viteConfig: ViteConfigWithSSR;
+	viteConfig: InlineConfig;
 }
 
 export interface SingleFileBuiltModule {

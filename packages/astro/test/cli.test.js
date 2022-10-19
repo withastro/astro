@@ -24,12 +24,6 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include(pkgVersion);
 	});
 
-	it('astro build', async () => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		const proc = await cli('build', '--root', fileURLToPath(projectRootURL));
-		expect(proc.stdout).to.include('Complete');
-	});
-
 	it('astro check no errors', async () => {
 		let proc = undefined;
 		const projectRootURL = new URL('./fixtures/astro-check-no-errors/', import.meta.url);
@@ -83,10 +77,17 @@ describe('astro cli', () => {
 				const localURL = new URL(local);
 				const networkURL = new URL(network);
 
-				expect(localURL.hostname).to.be.equal(
-					flagValue ?? 'localhost',
-					`Expected local URL to be on localhost`
-				);
+				if (cmd === 'dev') {
+					expect(localURL.hostname).to.be.oneOf(
+						['localhost', '127.0.0.1'],
+						`Expected local URL to be on localhost`
+					);
+				} else {
+					expect(localURL.hostname).to.be.equal(
+						flagValue ?? 'localhost',
+						`Expected local URL to be on localhost`
+					);
+				}
 				// Note: our tests run in parallel so this could be 3000+!
 				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(
 					3000,
@@ -112,7 +113,17 @@ describe('astro cli', () => {
 				expect(network).to.not.be.undefined;
 				const localURL = new URL(local);
 
-				expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
+				if (cmd === 'dev') {
+					expect(localURL.hostname).to.be.oneOf(
+						['localhost', '127.0.0.1'],
+						`Expected local URL to be on localhost`
+					);
+				} else {
+					expect(localURL.hostname).to.be.equal(
+						'localhost',
+						`Expected local URL to be on localhost`
+					);
+				}
 				expect(() => new URL(networkURL)).to.throw();
 			});
 		});
@@ -129,7 +140,14 @@ describe('astro cli', () => {
 				expect(network).to.be.undefined;
 
 				const localURL = new URL(local);
-				expect(localURL.hostname).to.be.equal(flagValue, `Expected local URL to be on localhost`);
+				if (cmd === 'dev') {
+					expect(localURL.hostname).to.be.oneOf(
+						['localhost', '127.0.0.1'],
+						`Expected local URL to be on localhost`
+					);
+				} else {
+					expect(localURL.hostname).to.be.equal(flagValue, `Expected local URL to be on localhost`);
+				}
 			});
 		});
 	});

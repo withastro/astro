@@ -3,6 +3,7 @@ import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Client only components', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -34,8 +35,26 @@ describe('Client only components', () => {
 		expect(css).to.match(/Courier New/, 'Global styles are added');
 	});
 
+	it('Adds the CSS to the page - standalone svelte component', async () => {
+		const html = await fixture.readFile('/persistent-counter-standalone/index.html');
+		const $ = cheerioLoad(html);
+
+		expect($('head link[rel=stylesheet]')).to.have.a.lengthOf(1);
+
+		const href = $('link[rel=stylesheet]').attr('href');
+		const css = await fixture.readFile(href);
+
+		expect(css).to.match(/tomato/, 'Svelte styles are added');
+	});
+
 	it('Includes CSS from components that use CSS modules', async () => {
 		const html = await fixture.readFile('/css-modules/index.html');
+		const $ = cheerioLoad(html);
+		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
+	});
+
+	it('Includes CSS from package components', async () => {
+		const html = await fixture.readFile('/pkg/index.html');
 		const $ = cheerioLoad(html);
 		expect($('link[rel=stylesheet]')).to.have.a.lengthOf(1);
 	});

@@ -31,6 +31,13 @@ describe('SSG pictures - dev', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'jpg', w: '768', h: '414' },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -117,6 +124,13 @@ describe('SSG pictures with subpath - dev', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/@astroimage/assets/blog/introducing astro.jpg',
+			query: { f: 'jpg', w: '768', h: '414' },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/@astroimage/assets/social.jpg',
@@ -195,35 +209,42 @@ describe('SSG pictures - build', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			regex: /^\/assets\/introducing astro.\w{8}_\w{4,10}.jpg/,
+			size: { width: 768, height: 414, type: 'jpg' },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline images',
 			id: '#inline',
-			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
 			id: '#google',
-			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.png/,
+			regex: /^\/assets\/googlelogo_color_272x92dp_\w{4,10}.png/,
 			size: { width: 544, height: 184, type: 'png' },
 			alt: 'Google logo',
 		},
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/300_\w{4,10}/,
+			regex: /^\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 			alt: 'ipsum',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
-			regex: /^\/hero_\w{4,10}.jpg/,
+			regex: /^\/assets\/hero_\w{4,10}.jpg/,
 			size: { width: 768, height: 414, type: 'jpg' },
 			alt: 'Hero image',
 		},
@@ -235,8 +256,6 @@ describe('SSG pictures - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src'), size);
@@ -246,7 +265,13 @@ describe('SSG pictures - build', function () {
 				const srcset = source.attr('srcset');
 
 				for (const src of srcset.split(',')) {
-					const [pathname, width] = src.split(' ');
+					const segments = src.split(' ');
+
+					// filenames may have a space in them, pop the last item for the
+					// width and join the other segments back for the filepath
+					const width = segments.pop();
+					const pathname = segments.join(' ');
+
 					const widthNum = parseInt(width.substring(0, width.length - 1));
 
 					verifyImage(pathname, {
@@ -290,35 +315,35 @@ describe('SSG pictures with subpath - build', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			regex: /^\/docs\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/docs\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 			alt: 'Social image',
 		},
 		{
 			title: 'Inline images',
 			id: '#inline',
-			regex: /^\/docs\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/docs\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 			alt: 'Inline social image',
 		},
 		{
 			title: 'Remote images',
 			id: '#google',
-			regex: /^\/docs\/googlelogo_color_272x92dp_\w{4,10}.png/,
+			regex: /^\/docs\/assets\/googlelogo_color_272x92dp_\w{4,10}.png/,
 			size: { width: 544, height: 184, type: 'png' },
 			alt: 'Google logo',
 		},
 		{
 			title: 'Remote without file extension',
 			id: '#ipsum',
-			regex: /^\/docs\/300_\w{4,10}/,
+			regex: /^\/docs\/assets\/200x300_\w{4,10}/,
 			size: { width: 200, height: 300, type: 'jpg' },
 			alt: 'ipsum',
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
-			regex: /^\/docs\/hero_\w{4,10}.jpg/,
+			regex: /^\/docs\/assets\/hero_\w{4,10}.jpg/,
 			size: { width: 768, height: 414, type: 'jpg' },
 			alt: 'Hero image',
 		},
@@ -330,8 +355,6 @@ describe('SSG pictures with subpath - build', function () {
 			const image = $(`${id} img`);
 
 			expect(image.attr('src')).to.match(regex);
-			expect(image.attr('width')).to.equal(size.width.toString());
-			expect(image.attr('height')).to.equal(size.height.toString());
 			expect(image.attr('alt')).to.equal(alt);
 
 			verifyImage(image.attr('src').replace('/docs', ''), size);

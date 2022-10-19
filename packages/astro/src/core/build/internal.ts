@@ -136,13 +136,21 @@ export function* getPageDatasByClientOnlyID(
 ): Generator<PageBuildData, void, unknown> {
 	const pagesByClientOnly = internals.pagesByClientOnly;
 	if (pagesByClientOnly.size) {
-		let pathname = `/@fs${prependForwardSlash(viteid)}`;
+		// 1. Try the viteid
 		let pageBuildDatas = pagesByClientOnly.get(viteid);
+
+		// 2. Try prepending /@fs
+		if (!pageBuildDatas) {
+			let pathname = `/@fs${prependForwardSlash(viteid)}`;
+			pageBuildDatas = pagesByClientOnly.get(pathname);
+		}
+
+		// 3. Remove the file extension
 		// BUG! The compiler partially resolves .jsx to remove the file extension so we have to check again.
 		// We should probably get rid of all `@fs` usage and always fully resolve via Vite,
 		// but this would be a bigger change.
 		if (!pageBuildDatas) {
-			pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
+			let pathname = `/@fs${prependForwardSlash(removeFileExtension(viteid))}`;
 			pageBuildDatas = pagesByClientOnly.get(pathname);
 		}
 		if (pageBuildDatas) {
@@ -191,14 +199,26 @@ export function sortedCSS(pageData: PageBuildData) {
 	return Array.from(pageData.css)
 		.sort((a, b) => {
 			let depthA = a[1].depth,
-				depthB = b[1].depth;
+				depthB = b[1].depth,
+				orderA = a[1].order,
+				orderB = b[1].order;
 
-			if (depthA === -1) {
-				return -1;
-			} else if (depthB === -1) {
+			if (orderA === -1 && orderB >= 0) {
 				return 1;
+			} else if (orderB === -1 && orderA >= 0) {
+				return -1;
+			} else if (orderA > orderB) {
+				return 1;
+			} else if (orderA < orderB) {
+				return -1;
 			} else {
-				return depthA > depthB ? -1 : 1;
+				if (depthA === -1) {
+					return -1;
+				} else if (depthB === -1) {
+					return 1;
+				} else {
+					return depthA > depthB ? -1 : 1;
+				}
 			}
 		})
 		.map(([id]) => id);

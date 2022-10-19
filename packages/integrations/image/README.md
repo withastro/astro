@@ -18,7 +18,7 @@ This **[Astro integration][astro-integration]** makes it easy to optimize images
 
 Images play a big role in overall site performance and usability. Serving properly sized images makes all the difference but is often tricky to automate.
 
-This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer powered by [sharp](https://sharp.pixelplumbing.com/), with full support for static sites and server-side rendering. The built-in `sharp` transformer is also replaceable, opening the door for future integrations that work with your favorite hosted image service.
+This integration provides `<Image />` and `<Picture>` components as well as a basic image transformer, with full support for static sites and server-side rendering. The built-in image transformer is also replaceable, opening the door for future integrations that work with your favorite hosted image service.
 
 ## Installation
 
@@ -35,8 +35,6 @@ yarn astro add image
 # Using PNPM
 pnpm astro add image
 ```
-
-Finally, in the terminal window running Astro, press `CTRL+C` and then restart the dev server.
 
 If you run into any issues, [feel free to report them to us on GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
@@ -58,7 +56,31 @@ export default {
   integrations: [image()],
 }
 ```
-Then, restart the dev server.
+
+### Installing `sharp` (optional)
+
+The default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses web assembly libraries to support most deployment environments.
+
+If you are building a static site or using an SSR deployment host that supports NodeJS, we recommend installing [sharp](https://sharp.pixelplumbing.com/) for faster builds and more fine-grained control of image transformations.
+
+
+First, install the `sharp` package using your package manger. If you're using npm or aren't sure, run this in the terminal:
+```sh
+npm install sharp
+```
+Then, update the integration in you `astro.config.*` file to use the built-in `sharp` image transformer.
+```astro title="astro.config.mjs"
+---
+import image from '@astrojs/image';
+
+export default {
+  // ...
+  integrations: [image({
+    serviceEntryPoint: '@astrojs/image/sharp'
+  })],
+}
+---
+```
 
 ### Update `env.d.ts`
 
@@ -88,7 +110,7 @@ import { Image, Picture } from '@astrojs/image/components';
 ---
 ```
 
-The included `sharp` transformer supports resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
+The included image transformers support resizing images and encoding them to different image formats. Third-party image services will be able to add support for custom transformations as well (ex: `blur`, `filter`, `rotate`, etc).
 
 Astro’s `<Image />` and `<Picture />` components require the `alt` attribute, which provides descriptive text for images. A warning will be logged if alt text is missing, and a future release of the integration will throw an error if no alt text is provided.
 
@@ -198,17 +220,45 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 **Default:** `undefined`
 </p>
 
-The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
+The background color is used to fill the remaining background when using `contain` for the `fit` property.
+
+The background color is also used for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
 doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
 as default replacement for transparent pixels.
 
 The parameter accepts a `string` as value.
 
 The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
-color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
-`rgb(100,100,100)`.
+color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, an RGB definition in the form
+`rgb(100,100,100)`, an RGBA definition in the form `rgba(100,100,100, 0.5)`.
 
-### `<Picture /`>
+#### fit
+
+<p>
+
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
+</p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
+How the image should be resized to fit both `height` and `width`.
+
+#### position
+
+<p>
+
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' | 'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' | 'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
+</p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
+Position of the crop when fit is `cover` or `contain`.
+
+### `<Picture />`
 
 #### src
 
@@ -297,6 +347,8 @@ The output formats to be used in the optimized image. If not provided, `webp` an
 **Default:** `undefined`
 </p>
 
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
 The background color to use for replacing the alpha channel with `sharp`'s `flatten` method. In case the output format
 doesn't support transparency (i.e. `jpeg`), it's advisable to include a background color, otherwise black will be used
 as default replacement for transparent pixels.
@@ -306,6 +358,32 @@ The parameter accepts a `string` as value.
 The parameter can be a [named HTML color](https://www.w3schools.com/tags/ref_colornames.asp), a hexadecimal
 color representation with 3 or 6 hexadecimal characters in the form `#123[abc]`, or an RGB definition in the form
 `rgb(100,100,100)`.
+
+#### fit
+
+<p>
+
+**Type:** `'cover' | 'contain' | 'fill' | 'inside' | 'outside'` <br>
+**Default:** `'cover'`
+</p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
+How the image should be resized to fit both `height` and `width`.
+
+#### position
+
+<p>
+
+**Type:** `'top' | 'right top' | 'right' | 'right bottom' | 'bottom' | 'left bottom' | 'left' | 'left top' |
+  'north' | 'northeast' | 'east' | 'southeast' | 'south' | 'southwest' | 'west' | 'northwest' |
+  'center' | 'centre' | 'cover' | 'entropy' | 'attention'` <br>
+**Default:** `'centre'`
+</p>
+
+> This is not supported by the default Squoosh service. See the [installation section](#installing-sharp-optional) for details on using the `sharp` service instead.
+
+Position of the crop when fit is `cover` or `contain`.
 
 ### `getImage`
 
@@ -319,7 +397,7 @@ This can be helpful if you need to add preload links to a page's `<head>`.
 ---
 import { getImage } from '@astrojs/image';
 
-const { src } = await getImage('../assets/hero.png');
+const { src } = await getImage({src: '../assets/hero.png'});
 ---
 
 <html>
@@ -339,12 +417,12 @@ This helper takes in an object with the same properties as the `<Picture />` com
 
 The integration can be configured to run with a different image service, either a hosted image service or a full image transformer that runs locally in your build or SSR deployment.
 
-> During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in `sharp` service when using `astro dev`.
+> During development, local images may not have been published yet and would not be available to hosted image services. Local images will always use the built-in image service when using `astro dev`.
 
 
  ### config.serviceEntryPoint
 
-The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/sharp`, which resolves to the entry point exported from this integration's `package.json`.
+The `serviceEntryPoint` should resolve to the image service installed from NPM. The default entry point is `@astrojs/image/squoosh`, which resolves to the entry point exported from this integration's `package.json`.
 
 ```js
 // astro.config.mjs
@@ -374,6 +452,25 @@ export default {
   })],
 }
 ```
+
+### config.cacheDir
+
+During static builds, the integration will cache transformed images to avoid rebuilding the same image for every build. This can be particularly helpful if you are using a hosting service that allows you to cache build assets for future deployments.
+
+Local images will be cached for 1 year and invalidated when the original image file is changed. Remote images will be cached based on the `fetch()` response's cache headers, similar to how a CDN would manage the cache.
+
+By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
+
+```js
+export default defineConfig({
+	integrations: [image({
+    // may be useful if your hosting provider allows caching between CI builds
+    cacheDir: "./.cache/image"
+  })]
+});
+```
+
+Caching can also be disabled by using `cacheDir: false`.
 
 ## Examples
 
@@ -469,11 +566,11 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 ```
 
 ## Troubleshooting
-- If your installation doesn't seem to be working, make sure to restart the dev server.
+- If your installation doesn't seem to be working, try restarting the dev server.
 - If you edit and save a file and don't see your site update accordingly, try refreshing the page.
 - If refreshing the page doesn't update your preview, or if a new installation doesn't seem to be working, then restart the dev server.
 
-For help, check out the `#support-threads` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
+For help, check out the `#support` channel on [Discord](https://astro.build/chat). Our friendly Support Squad members are here to help!
 
 You can also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 

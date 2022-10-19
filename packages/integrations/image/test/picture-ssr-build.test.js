@@ -24,6 +24,13 @@ describe('SSR pictures - build', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'jpg', href: /^\/assets\/introducing astro.\w{8}.jpg/ },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -49,7 +56,7 @@ describe('SSR pictures - build', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 			alt: 'ipsum',
 		},
@@ -128,6 +135,13 @@ describe('SSR pictures with subpath - build', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'jpg', href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/ },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -153,7 +167,7 @@ describe('SSR pictures with subpath - build', function () {
 			query: {
 				w: '200',
 				h: '300',
-				href: 'https://picsum.photos/200/300',
+				href: 'https://dummyimage.com/200x300',
 			},
 			alt: 'ipsum',
 		},

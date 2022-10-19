@@ -1,5 +1,6 @@
 {
   "name": "@example/framework-svelte",
+  "type": "module",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -11,7 +12,7 @@
   },
   "dependencies": {
     "svelte": "^3.48.0",
-    "@astrojs/svelte": "^1.0.0",
-    "astro": "^1.1.6"
+    "@astrojs/svelte": "^1.0.2",
+    "astro": "^1.5.1"
   }
 }

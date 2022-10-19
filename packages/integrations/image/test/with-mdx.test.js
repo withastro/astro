@@ -28,31 +28,31 @@ describe('Images in MDX - build', function () {
 		{
 			title: 'Local images',
 			id: '#social-jpg',
-			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 		},
 		{
 			title: 'Inline imports',
 			id: '#inline',
-			regex: /^\/social.\w{8}_\w{4,10}.jpg/,
+			regex: /^\/assets\/social.\w{8}_\w{4,10}.jpg/,
 			size: { width: 506, height: 253, type: 'jpg' },
 		},
 		{
 			title: 'Remote images',
 			id: '#google',
-			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.webp/,
+			regex: /^\/assets\/googlelogo_color_272x92dp_\w{4,10}.webp/,
 			size: { width: 544, height: 184, type: 'webp' },
 		},
 		{
 			title: 'Public images',
 			id: '#hero',
-			regex: /^\/hero_\w{4,10}.webp/,
+			regex: /^\/assets\/hero_\w{4,10}.webp/,
 			size: { width: 768, height: 414, type: 'webp' },
 		},
 		{
 			title: 'Background color',
 			id: '#bg-color',
-			regex: /^\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
+			regex: /^\/assets\/googlelogo_color_272x92dp_\w{4,10}.jpeg/,
 			size: { width: 544, height: 184, type: 'jpg' },
 		},
 	].forEach(({ title, id, regex, size }) => {

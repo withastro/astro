@@ -9,12 +9,13 @@ import type {
 } from '@astrojs/markdown-remark';
 import type * as babel from '@babel/core';
 import type { AddressInfo } from 'net';
+import type { TsConfigJson } from 'tsconfig-resolver';
 import type * as vite from 'vite';
-import { z } from 'zod';
+import type { z } from 'zod';
 import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
-import type { ViteConfigWithSSR } from '../core/create-vite';
+import type { AstroCookies } from '../core/cookies';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 export type {
 	MarkdownHeading,
@@ -82,8 +83,17 @@ export interface CLIFlags {
 }
 
 export interface BuildConfig {
+	/**
+	 * @deprecated Use config.build.client instead.
+	 */
 	client: URL;
+	/**
+	 * @deprecated Use config.build.server instead.
+	 */
 	server: URL;
+	/**
+	 * @deprecated Use config.build.serverEntry instead.
+	 */
 	serverEntry: string;
 }
 
@@ -92,7 +102,9 @@ export interface BuildConfig {
  *
  * [Astro reference](https://docs.astro.build/reference/api-reference/#astro-global)
  */
-export interface AstroGlobal extends AstroGlobalPartial {
+export interface AstroGlobal<Props extends Record<string, any> = Record<string, any>>
+	extends AstroGlobalPartial,
+		AstroSharedContext<Props> {
 	/**
 	 * Canonical URL of the current page.
 	 * @deprecated Use `Astro.url` instead.
@@ -105,17 +117,13 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * ```
 	 */
 	canonicalURL: URL;
-	/** The address (usually IP address) of the user. Used with SSR only.
-	 *
-	 */
-	clientAddress: string;
 	/**
 	 * A full URL object of the request URL.
 	 * Equivalent to: `new URL(Astro.request.url)`
 	 *
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#url)
 	 */
-	url: URL;
+	url: AstroSharedContext['url'];
 	/** Parameters passed to a dynamic page generated using [getStaticPaths](https://docs.astro.build/en/reference/api-reference/#getstaticpaths)
 	 *
 	 * Example usage:
@@ -132,9 +140,9 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 * <h1>{id}</h1>
 	 * ```
 	 *
-	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#params)
+	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroparams)
 	 */
-	params: Params;
+	params: AstroSharedContext['params'];
 	/** List of props passed to this component
 	 *
 	 * A common way to get specific props is through [destructuring](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment), ex:
@@ -144,7 +152,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/core-concepts/astro-components/#component-props)
 	 */
-	props: Record<string, number | string | any>;
+	props: AstroSharedContext<Props>['props'];
 	/** Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
 	 *
 	 * For example, to get a URL object of the current URL, you can use:
@@ -178,11 +186,11 @@ export interface AstroGlobal extends AstroGlobalPartial {
 	 *
 	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroredirect)
 	 */
-	redirect(path: string): Response;
+	redirect: AstroSharedContext['redirect'];
 	/**
 	 * The <Astro.self /> element allows a component to reference itself recursively.
 	 *
-	 * [Astro reference](https://docs.astro.build/en/guides/server-side-rendering/#astroself)
+	 * [Astro reference](https://docs.astro.build/en/guides/api-reference/#astroself)
 	 */
 	self: AstroComponentFactory;
 	/** Utility functions for modifying an Astro component’s slotted children
@@ -382,6 +390,7 @@ export interface AstroUserConfig {
 	 * @name outDir
 	 * @type {string}
 	 * @default `"./dist"`
+	 * @see build.server
 	 * @description Set the directory that `astro build` writes your final build to.
 	 *
 	 * The value can be either an absolute file system path or a path relative to the project root.
@@ -414,7 +423,7 @@ export interface AstroUserConfig {
 	 * @name base
 	 * @type {string}
 	 * @description
-	 * The base path you're deploying to. Astro will match this pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `/docs`.
+	 * The base path to deploy to. Astro will build your pages and assets using this path as the root. Currently, this has no effect during development.
 	 *
 	 * ```js
 	 * {
@@ -527,6 +536,68 @@ export interface AstroUserConfig {
 		 * This means that when you create relative URLs using `new URL('./relative', Astro.url)`, you will get consistent behavior between dev and build.
 		 */
 		format?: 'file' | 'directory';
+		/**
+		 * @docs
+		 * @name build.client
+		 * @type {string}
+		 * @default `'./dist/client'`
+		 * @description
+		 * Controls the output directory of your client-side CSS and JavaScript when `output: 'server'` only.
+		 * `outDir` controls where the code is built to.
+		 *
+		 * This value is relative to the `outDir`.
+		 *
+		 * ```js
+		 * {
+		 *   output: 'server',
+		 *   build: {
+		 *     client: './client'
+		 *   }
+		 * }
+		 * ```
+		 */
+		client?: string;
+		/**
+		 * @docs
+		 * @name build.server
+		 * @type {string}
+		 * @default `'./dist/server'`
+		 * @description
+		 * Controls the output directory of server JavaScript when building to SSR.
+		 *
+		 * This value is relative to the `outDir`.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     server: './server'
+		 *   }
+		 * }
+		 * ```
+		 */
+		server?: string;
+		/**
+		 * @docs
+		 * @name build.serverEntry
+		 * @type {string}
+		 * @default `'entry.mjs'`
+		 * @description
+		 * Specifies the file name of the server entrypoint when building to SSR.
+		 * This entrypoint is usually dependent on which host you are deploying to and
+		 * will be set by your adapter for you.
+		 *
+		 * Note that it is recommended that this file ends with `.mjs` so that the runtime
+		 * detects that the file is a JavaScript module.
+		 *
+		 * ```js
+		 * {
+		 *   build: {
+		 *     serverEntry: 'main.mjs'
+		 *   }
+		 * }
+		 * ```
+		 */
+		serverEntry?: string;
 	};
 
 	/**
@@ -870,18 +941,22 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+}
 
-	// Private:
-	// We have a need to pass context based on configured state,
-	// that is different from the user-exposed configuration.
-	// TODO: Create an AstroConfig class to manage this, long-term.
-	_ctx: {
-		pageExtensions: string[];
-		injectedRoutes: InjectedRoute[];
-		adapter: AstroAdapter | undefined;
-		renderers: AstroRenderer[];
-		scripts: { stage: InjectedScriptStage; content: string }[];
-	};
+export interface AstroSettings {
+	config: AstroConfig;
+
+	adapter: AstroAdapter | undefined;
+	injectedRoutes: InjectedRoute[];
+	pageExtensions: string[];
+	renderers: AstroRenderer[];
+	scripts: {
+		stage: InjectedScriptStage;
+		content: string;
+	}[];
+	tsConfig: TsConfigJson | undefined;
+	tsConfigPath: string | undefined;
+	watchFiles: string[];
 }
 
 export type AsyncRendererComponentFn<U> = (
@@ -924,7 +999,7 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	default: AstroComponentFactory;
 }
 
-export interface MDXInstance<T>
+export interface MDXInstance<T extends Record<string, any>>
 	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
 	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
 	rawContent: never;
@@ -944,7 +1019,10 @@ export interface MarkdownLayoutProps<T extends Record<string, any>> {
 	compiledContent: MarkdownInstance<T>['compiledContent'];
 }
 
-export type MDXLayoutProps<T> = Omit<MarkdownLayoutProps<T>, 'rawContent' | 'compiledContent'>;
+export type MDXLayoutProps<T extends Record<string, any>> = Omit<
+	MarkdownLayoutProps<T>,
+	'rawContent' | 'compiledContent'
+>;
 
 export type GetHydrateCallback = () => Promise<() => void | Promise<void>>;
 
@@ -1064,24 +1142,126 @@ export type PaginateFunction = (data: any[], args?: PaginateOptions) => GetStati
 
 export type Params = Record<string, string | number | undefined>;
 
-export type Props = Record<string, unknown>;
-
 export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
+	previewEntrypoint?: string;
 	exports?: string[];
 	args?: any;
 }
 
 type Body = string;
 
-export interface APIContext {
-	params: Params;
+// Shared types between `Astro` global and API context object
+interface AstroSharedContext<Props extends Record<string, any> = Record<string, any>> {
+	/**
+	 * The address (usually IP address) of the user. Used with SSR only.
+	 */
+	clientAddress: string;
+	/**
+	 * Utility for getting and setting the values of cookies.
+	 */
+	cookies: AstroCookies;
+	/**
+	 * Information about the current request. This is a standard [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) object
+	 */
 	request: Request;
+	/**
+	 * A full URL object of the request URL.
+	 */
+	url: URL;
+	/**
+	 * Route parameters for this request if this is a dynamic route.
+	 */
+	params: Params;
+	/**
+	 * List of props returned for this path by `getStaticPaths` (**Static Only**).
+	 */
+	props: Props;
+	/**
+	 * Redirect to another page (**SSR Only**).
+	 */
+	redirect(path: string, status?: 301 | 302 | 308): Response;
 }
+
+export interface APIContext<Props extends Record<string, any> = Record<string, any>>
+	extends AstroSharedContext<Props> {
+	site: URL | undefined;
+	generator: string;
+	/**
+	 * A full URL object of the request URL.
+	 * Equivalent to: `new URL(request.url)`
+	 */
+	url: AstroSharedContext['url'];
+	/**
+	 * Parameters matching the page’s dynamic route pattern.
+	 * In static builds, this will be the `params` generated by `getStaticPaths`.
+	 * In SSR builds, this can be any path segments matching the dynamic route pattern.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * export function getStaticPaths() {
+	 *   return [
+	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
+	 *     { params: { id: '1' }, props: { name: 'Chris' } },
+	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
+	 *   ];
+	 * }
+	 *
+	 * export async function get({ params }) {
+	 *  return {
+	 * 	  body: `Hello user ${params.id}!`,
+	 *  }
+	 * }
+	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextparams)
+	 */
+	params: AstroSharedContext['params'];
+	/**
+	 * List of props passed from `getStaticPaths`. Only available to static builds.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * export function getStaticPaths() {
+	 *   return [
+	 *     { params: { id: '0' }, props: { name: 'Sarah' } },
+	 *     { params: { id: '1' }, props: { name: 'Chris' } },
+	 *     { params: { id: '2' }, props: { name: 'Fuzzy' } },
+	 *   ];
+	 * }
+	 *
+	 * export function get({ props }) {
+	 *   return {
+	 *     body: `Hello ${props.name}!`,
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextprops)
+	 */
+	props: AstroSharedContext<Props>['props'];
+	/**
+	 * Redirect to another page. Only available in SSR builds.
+	 *
+	 * Example usage:
+	 * ```ts
+	 * // src/pages/secret.ts
+	 * export function get({ redirect }) {
+	 *   return redirect('/login');
+	 * }
+	 * ```
+	 *
+	 * [context reference](https://docs.astro.build/en/guides/api-reference/#contextredirect)
+	 */
+	redirect: AstroSharedContext['redirect'];
+}
+
+export type Props = Record<string, unknown>;
 
 export interface EndpointOutput {
 	body: Body;
+	encoding?: BufferEncoding;
 }
 
 export type APIRoute = (
@@ -1127,9 +1307,11 @@ export interface AstroIntegration {
 	hooks: {
 		'astro:config:setup'?: (options: {
 			config: AstroConfig;
-			command: 'dev' | 'build';
+			command: 'dev' | 'build' | 'preview';
+			isRestart: boolean;
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
+			addWatchFile: (path: URL | string) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
 			injectRoute: (injectRoute: InjectedRoute) => void;
 			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
@@ -1147,11 +1329,12 @@ export interface AstroIntegration {
 		'astro:build:ssr'?: (options: { manifest: SerializedSSRManifest }) => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:setup'?: (options: {
-			vite: ViteConfigWithSSR;
+			vite: vite.InlineConfig;
 			pages: Map<string, PageBuildData>;
 			target: 'client' | 'server';
-			updateConfig: (newConfig: ViteConfigWithSSR) => void;
+			updateConfig: (newConfig: vite.InlineConfig) => void;
 		}) => void | Promise<void>;
+		'astro:build:generated'?: (options: { dir: URL }) => void | Promise<void>;
 		'astro:build:done'?: (options: {
 			pages: { pathname: string }[];
 			dir: URL;
@@ -1203,12 +1386,14 @@ export interface SSRMetadata {
 	pathname: string;
 	hasHydrationScript: boolean;
 	hasDirectives: Set<string>;
+	hasRenderedHead: boolean;
 }
 
 export interface SSRResult {
 	styles: Set<SSRElement>;
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
+	cookies: AstroCookies | undefined;
 	createAstro(
 		Astro: AstroGlobalPartial,
 		props: Record<string, any>,
@@ -1220,3 +1405,27 @@ export interface SSRResult {
 }
 
 export type MarkdownAstroData = { frontmatter: object };
+
+/* Preview server stuff */
+export interface PreviewServer {
+	host?: string;
+	port: number;
+	closed(): Promise<void>;
+	stop(): Promise<void>;
+}
+
+export interface PreviewServerParams {
+	outDir: URL;
+	client: URL;
+	serverEntrypoint: URL;
+	host: string | undefined;
+	port: number;
+}
+
+export type CreatePreviewServer = (
+	params: PreviewServerParams
+) => PreviewServer | Promise<PreviewServer>;
+
+export interface PreviewModule {
+	default: CreatePreviewServer;
+}

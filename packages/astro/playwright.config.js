@@ -1,15 +1,18 @@
-import { devices } from '@playwright/test';
+// NOTE: Sometimes, tests fail with `TypeError: process.stdout.clearLine is not a function`
+// for some reason. This comes from Vite, and is conditionally called based on `isTTY`.
+// We set it to false here to skip this odd behavior.
+process.stdout.isTTY = false;
 
 const config = {
 	testMatch: 'e2e/*.test.js',
 	/* Maximum time one test can run for. */
-	timeout: 30 * 1000,
+	timeout: 40 * 1000,
 	expect: {
 		/**
 		 * Maximum time expect() should wait for the condition to be met.
 		 * For example in `await expect(locator).toHaveText();`
 		 */
-		timeout: 3000,
+		timeout: 4 * 1000,
 	},
 	/* Fail the build on CI if you accidentally left test in the source code. */
 	forbidOnly: !!process.env.CI,

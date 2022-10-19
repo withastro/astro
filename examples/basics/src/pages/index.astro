@@ -7,7 +7,7 @@ import Card from '../components/Card.astro';
 	<main>
 		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
 		<p class="instructions">
-			Check out the <code>src/pages</code> directory to get started.<br />
+			To get started, open the directory <code>src/pages</code> in your project.<br />
 			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
 		</p>
 		<ul role="list" class="link-card-grid">
@@ -28,7 +28,7 @@ import Card from '../components/Card.astro';
 			/>
 			<Card
 				href="https://astro.build/chat/"
-				title="Chat"
+				title="Community"
 				body="Come say hi to our amazing Discord community. ❤️"
 			/>
 		</ul>
@@ -36,57 +36,42 @@ import Card from '../components/Card.astro';
 </Layout>
 
 <style>
-	:root {
-		--astro-gradient: linear-gradient(0deg, #4f39fa, #da62c4);
-	}
-
-	h1 {
-		margin: 2rem 0;
-	}
-
 	main {
 		margin: auto;
-		padding: 1em;
+		padding: 1.5rem;
 		max-width: 60ch;
 	}
-
+	h1 {
+		font-size: 3rem;
+		font-weight: 800;
+		margin: 0;
+	}
 	.text-gradient {
-		font-weight: 900;
-		background-image: var(--astro-gradient);
+		background-image: var(--accent-gradient);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-		background-size: 100% 200%;
-		background-position-y: 100%;
-		border-radius: 0.4rem;
-		animation: pulse 4s ease-in-out infinite;
+		background-size: 400%;
+		background-position: 0%;
 	}
-
-	@keyframes pulse {
-		0%,
-		100% {
-			background-position-y: 0%;
-		}
-		50% {
-			background-position-y: 80%;
-		}
-	}
-
 	.instructions {
 		line-height: 1.6;
 		margin: 1rem 0;
-		background: #4f39fa;
+		border: 1px solid rgba(var(--accent), 25%);
+		background-color: white;
 		padding: 1rem;
 		border-radius: 0.4rem;
-		color: var(--color-bg);
 	}
-
 	.instructions code {
 		font-size: 0.875em;
-		border: 0.1em solid var(--color-border);
+		font-weight: bold;
+		background: rgba(var(--accent), 12%);
+		color: rgb(var(--accent));
 		border-radius: 4px;
-		padding: 0.15em 0.25em;
+		padding: 0.3em 0.45em;
 	}
-
+	.instructions strong {
+		color: rgb(var(--accent));
+	}
 	.link-card-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));

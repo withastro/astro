@@ -1,9 +1,9 @@
 import { AstroIntegration, AstroRenderer, ViteUserConfig } from 'astro';
 
-function getRenderer(): AstroRenderer {
+function getRenderer(development: boolean): AstroRenderer {
 	return {
 		name: '@astrojs/preact',
-		clientEntrypoint: '@astrojs/preact/client.js',
+		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
@@ -18,10 +18,10 @@ function getRenderer(): AstroRenderer {
 	};
 }
 
-function getCompatRenderer(): AstroRenderer {
+function getCompatRenderer(development: boolean): AstroRenderer {
 	return {
 		name: '@astrojs/preact',
-		clientEntrypoint: '@astrojs/preact/client.js',
+		clientEntrypoint: development ? '@astrojs/preact/client-dev.js' : '@astrojs/preact/client.js',
 		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'react',
 		jsxTransformOptions: async () => {
@@ -52,16 +52,8 @@ function getCompatRenderer(): AstroRenderer {
 function getViteConfiguration(compat?: boolean): ViteUserConfig {
 	const viteConfig: ViteUserConfig = {
 		optimizeDeps: {
-			include: [
-				'@astrojs/preact/client.js',
-				'preact',
-				'preact/jsx-runtime',
-				'preact-render-to-string',
-			],
+			include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime'],
 			exclude: ['@astrojs/preact/server.js'],
-		},
-		ssr: {
-			external: ['preact-render-to-string'],
 		},
 	};
 
@@ -81,12 +73,9 @@ function getViteConfiguration(compat?: boolean): ViteUserConfig {
 			dedupe: ['preact/compat', 'preact'],
 		};
 		// noExternal React entrypoints to be bundled, resolved, and aliased by Vite
-		viteConfig.ssr!.noExternal = [
-			'react',
-			'react-dom',
-			'react-dom/test-utils',
-			'react/jsx-runtime',
-		];
+		viteConfig.ssr = {
+			noExternal: ['react', 'react-dom', 'react-dom/test-utils', 'react/jsx-runtime'],
+		};
 	}
 
 	return viteConfig;
@@ -96,9 +85,10 @@ export default function ({ compat }: { compat?: boolean } = {}): AstroIntegratio
 	return {
 		name: '@astrojs/preact',
 		hooks: {
-			'astro:config:setup': ({ addRenderer, updateConfig }) => {
-				if (compat) addRenderer(getCompatRenderer());
-				addRenderer(getRenderer());
+			'astro:config:setup': ({ addRenderer, updateConfig, command }) => {
+				const development = command === 'dev';
+				if (compat) addRenderer(getCompatRenderer(development));
+				addRenderer(getRenderer(development));
 				updateConfig({
 					vite: getViteConfiguration(compat),
 				});

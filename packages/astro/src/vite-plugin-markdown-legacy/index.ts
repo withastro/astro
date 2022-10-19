@@ -5,20 +5,21 @@ import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import type { Plugin, ViteDevServer } from 'vite';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
+import { cachedCompilation, CompileProps } from '../core/compile/index.js';
 import { collectErrorMetadata } from '../core/errors.js';
 import type { LogOptions } from '../core/logger/core.js';
-import { cachedCompilation, CompileProps } from '../vite-plugin-astro/compile.js';
-import {
-	createTransformStyleWithViteFn,
-	TransformStyleWithVite,
-} from '../vite-plugin-astro/styles.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
+import {
+	createTransformStyles,
+	createViteStyleTransformer,
+	ViteStyleTransformer,
+} from '../vite-style-transform/index.js';
 
 interface AstroPluginOptions {
-	config: AstroConfig;
+	settings: AstroSettings;
 	logging: LogOptions;
 }
 
@@ -37,7 +38,8 @@ function safeMatter(source: string, id: string) {
 // TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
 // Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
 // logic in how that is done.
-export default function markdown({ config, logging }: AstroPluginOptions): Plugin {
+export default function markdown({ settings }: AstroPluginOptions): Plugin {
+	const { config } = settings;
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -64,14 +66,17 @@ export default function markdown({ config, logging }: AstroPluginOptions): Plugi
 		return false;
 	}
 
-	let transformStyleWithVite: TransformStyleWithVite;
+	let styleTransformer: ViteStyleTransformer;
 	let viteDevServer: ViteDevServer | undefined;
 
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
 		configResolved(_resolvedConfig) {
-			transformStyleWithVite = createTransformStyleWithViteFn(_resolvedConfig);
+			styleTransformer = createViteStyleTransformer(_resolvedConfig);
+		},
+		configureServer(server) {
+			styleTransformer.viteDevServer = server;
 		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md files with the `?content` cache buster. This should only come from
@@ -206,12 +211,13 @@ ${setup}`.trim();
 				const compileProps: CompileProps = {
 					config,
 					filename,
-					moduleId: id,
 					source: astroResult,
-					ssr: Boolean(opts?.ssr),
-					transformStyleWithVite,
-					viteDevServer,
-					pluginContext: this,
+					transformStyle: createTransformStyles(
+						styleTransformer,
+						filename,
+						Boolean(opts?.ssr),
+						this
+					),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);

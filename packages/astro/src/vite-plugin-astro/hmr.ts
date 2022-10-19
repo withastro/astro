@@ -1,15 +1,16 @@
 import { fileURLToPath } from 'node:url';
 import type { HmrContext, ModuleNode } from 'vite';
 import type { AstroConfig } from '../@types/astro';
+import { cachedCompilation, invalidateCompilation, isCached } from '../core/compile/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import { info } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { cachedCompilation, invalidateCompilation, isCached } from './compile.js';
 import { isAstroScript } from './query.js';
 
-const PKG_PREFIX = new URL('../../', import.meta.url);
+const PKG_PREFIX = fileURLToPath(new URL('../../', import.meta.url));
+const E2E_PREFIX = fileURLToPath(new URL('../../e2e', import.meta.url));
 const isPkgFile = (id: string | null) => {
-	return id?.startsWith(fileURLToPath(PKG_PREFIX)) || id?.startsWith(PKG_PREFIX.pathname);
+	return id && id.startsWith(PKG_PREFIX) && !id.startsWith(E2E_PREFIX);
 };
 
 export interface HandleHotUpdateOptions {
@@ -125,6 +126,7 @@ export async function handleHotUpdate(
 	// TODO: Svelte files should be marked as `isSelfAccepting` but they don't appear to be
 	const isSelfAccepting = mods.every((m) => m.isSelfAccepting || m.url.endsWith('.svelte'));
 	if (isSelfAccepting) {
+		if (/astro\.config\.[cm][jt]s$/.test(file)) return mods;
 		info(logging, 'astro', msg.hmr({ file }));
 	} else {
 		info(logging, 'astro', msg.reload({ file }));

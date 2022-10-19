@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
+import { FormData, File } from 'node-fetch';
 
 describe('API routes in SSR', () => {
 	/** @type {import('./test-utils').Fixture} */
@@ -34,6 +35,22 @@ describe('API routes in SSR', () => {
 		expect(body.length).to.equal(3);
 	});
 
+	it('Has valid api context', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/context/any');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const data = await response.json();
+		expect(data.cookiesExist).to.equal(true);
+		expect(data.requestExist).to.equal(true);
+		expect(data.redirectExist).to.equal(true);
+		expect(data.propsExist).to.equal(true);
+		expect(data.params).to.deep.equal({ param: 'any' });
+		expect(data.generator).to.match(/^Astro v/);
+		expect(data.url).to.equal('http://example.com/context/any');
+		expect(data.clientAddress).to.equal('0.0.0.0');
+	});
+
 	describe('API Routes - Dev', () => {
 		let devServer;
 		before(async () => {
@@ -52,6 +69,22 @@ describe('API routes in SSR', () => {
 			expect(response.status).to.equal(200);
 			const text = await response.text();
 			expect(text).to.equal(`ok`);
+		});
+
+		it('Can be passed binary data from multipart formdata', async () => {
+			const formData = new FormData();
+			const raw = await fs.promises.readFile(
+				new URL('./fixtures/ssr-api-route/src/images/penguin.jpg', import.meta.url)
+			);
+			const file = new File([raw], 'penguin.jpg', { type: 'text/jpg' });
+			formData.set('file', file, 'penguin.jpg');
+
+			const res = await fixture.fetch('/binary', {
+				method: 'POST',
+				body: formData,
+			});
+
+			expect(res.status).to.equal(200);
 		});
 
 		it('Infer content type with charset for { body } shorthand', async () => {

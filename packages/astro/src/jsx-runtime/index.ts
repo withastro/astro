@@ -1,15 +1,16 @@
-import { Fragment, markHTMLString } from '../runtime/server/index.js';
+import { Fragment, markHTMLString, Renderer } from '../runtime/server/index.js';
 
 const AstroJSX = 'astro:jsx';
 const Empty = Symbol('empty');
 
 export interface AstroVNode {
+	[Renderer]: string;
 	[AstroJSX]: boolean;
 	type: string | ((...args: any) => any);
 	props: Record<string, any>;
 }
 
-const toSlotName = (str: string) => str.trim().replace(/[-_]([a-z])/g, (_, w) => w.toUpperCase());
+const toSlotName = (slotAttr: string) => slotAttr;
 
 export function isVNode(vnode: any): vnode is AstroVNode {
 	return vnode && typeof vnode === 'object' && vnode[AstroJSX];
@@ -74,6 +75,7 @@ function transformSetDirectives(vnode: AstroVNode) {
 
 function createVNode(type: any, props: Record<string, any>) {
 	const vnode: AstroVNode = {
+		[Renderer]: 'astro:jsx',
 		[AstroJSX]: true,
 		type,
 		props: props ?? {},

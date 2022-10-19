@@ -92,8 +92,10 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 				}
 			}
 		} else if (key === 'class:list') {
-			// support "class" from an expression passed into a component (#782)
-			extracted.props[key.slice(0, -5)] = serializeListValue(value);
+			if (value) {
+				// support "class" from an expression passed into a component (#782)
+				extracted.props[key.slice(0, -5)] = serializeListValue(value);
+			}
 		} else {
 			extracted.props[key] = value;
 		}
@@ -135,7 +137,7 @@ export async function generateHydrateScript(
 	// Attach renderer-provided attributes
 	if (attrs) {
 		for (const [key, value] of Object.entries(attrs)) {
-			island.props[key] = value;
+			island.props[key] = escapeHTML(value);
 		}
 	}
 
@@ -151,7 +153,10 @@ export async function generateHydrateScript(
 
 	island.props['ssr'] = '';
 	island.props['client'] = hydrate;
-	island.props['before-hydration-url'] = await result.resolve('astro:scripts/before-hydration.js');
+	let beforeHydrationUrl = await result.resolve('astro:scripts/before-hydration.js');
+	if (beforeHydrationUrl.length) {
+		island.props['before-hydration-url'] = beforeHydrationUrl;
+	}
 	island.props['opts'] = escapeHTML(
 		JSON.stringify({
 			name: metadata.displayName,

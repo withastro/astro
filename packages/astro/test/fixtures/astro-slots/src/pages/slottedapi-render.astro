@@ -15,6 +15,6 @@ import RenderArgs from '../components/RenderArgs.astro';
   <body>
     <Render id="render">render</Render>
 		<RenderFn id="render-fn">{() => "render-fn"}</RenderFn>
-		<RenderArgs id="render-args" text="render-args">{(text: string) => text}</RenderArgs>
+		<RenderArgs id="render-args" text="render-args">{(text: string) => <span>{text}</span>}</RenderArgs>
   </body>
 </html>

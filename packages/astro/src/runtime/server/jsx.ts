@@ -6,12 +6,12 @@ import {
 	HTMLString,
 	markHTMLString,
 	renderComponent,
-	RenderInstruction,
 	renderToString,
 	spreadAttributes,
-	stringifyChunk,
 	voidElementNames,
 } from './index.js';
+import { HTMLParts } from './render/common.js';
+import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
@@ -28,6 +28,8 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			return vnode;
 		case typeof vnode === 'string':
 			return markHTMLString(escapeHTML(vnode));
+		case typeof vnode === 'function':
+			return vnode;
 		case !vnode && vnode !== 0:
 			return '';
 		case Array.isArray(vnode):
@@ -37,6 +39,10 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 	}
 	if (isVNode(vnode)) {
 		switch (true) {
+			case !vnode.type: {
+				throw new Error(`Unable to render ${result._metadata.pathname} because it contains an undefined Component!
+Did you forget to import the component or is it possible there is a typo?`);
+			}
 			case (vnode.type as any) === Symbol.for('astro:fragment'):
 				return renderJSX(result, vnode.props.children);
 			case (vnode.type as any).isAstroComponentFactory: {
@@ -122,7 +128,7 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 			}
 			await Promise.all(slotPromises);
 
-			let output: string | AsyncIterable<string | RenderInstruction>;
+			let output: ComponentIterable;
 			if (vnode.type === ClientOnlyPlaceholder && vnode.props['client:only']) {
 				output = await renderComponent(
 					result,
@@ -141,12 +147,11 @@ export async function renderJSX(result: SSRResult, vnode: any): Promise<any> {
 				);
 			}
 			if (typeof output !== 'string' && Symbol.asyncIterator in output) {
-				let body = '';
+				let parts = new HTMLParts();
 				for await (const chunk of output) {
-					let html = stringifyChunk(result, chunk);
-					body += html;
+					parts.append(chunk, result);
 				}
-				return markHTMLString(body);
+				return markHTMLString(parts.toString());
 			} else {
 				return markHTMLString(output);
 			}
@@ -222,4 +227,5 @@ function filteredConsoleError(msg: any, ...rest: any[]) {
 			msg.includes('https://reactjs.org/link/invalid-hook-call');
 		if (isKnownReactHookError) return;
 	}
+	originalConsoleError(msg, ...rest);
 }

@@ -1,7 +1,5 @@
 import type { AstroGlobalPartial } from '../../@types/astro';
-
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
+import { ASTRO_VERSION } from '../../core/constants.js';
 
 /** Create the Astro.fetchContent() runtime function. */
 function createDeprecatedFetchContentFn() {
