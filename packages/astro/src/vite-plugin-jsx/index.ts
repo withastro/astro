@@ -11,6 +11,7 @@ import { error } from '../core/logger/core.js';
 import { removeQueryString } from '../core/path.js';
 import { detectImportSource } from './import-source.js';
 import tagExportsPlugin from './tag.js';
+import { FLAG } from '../vite-plugin-asset-ssr/index.js';
 
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx', '.mdx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
@@ -126,7 +127,9 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			}
 			defaultJSXRendererEntry = [...jsxRenderersIntegrationOnly.entries()][0];
 		},
-		async transform(code, id, opts) {
+		async transform(code, unresolvedId, opts) {
+			let id = unresolvedId.endsWith(`.mdx${FLAG}`) ? unresolvedId.replace(FLAG, '') : unresolvedId;
+
 			const ssr = Boolean(opts?.ssr);
 			id = removeQueryString(id);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
