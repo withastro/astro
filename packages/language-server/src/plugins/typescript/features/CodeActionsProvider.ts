@@ -287,7 +287,10 @@ export class CodeActionsProviderImpl implements CodeActionsProvider {
 					// Since our last line is a (virtual) export, organize imports will try to rewrite it, so let's only take
 					// changes that actually happens inside the script tag
 					.filter((change) => {
-						return scriptTagSnapshot.isInGenerated(document.positionAt(change.span.start));
+						return (
+							scriptTagSnapshot.isInGenerated(document.positionAt(change.span.start)) &&
+							!change.newText.includes('export { }')
+						);
 					});
 
 				return edit;

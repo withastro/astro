@@ -398,9 +398,52 @@ describe('TypeScript Plugin#CodeActionsProvider', () => {
 									version: null,
 								},
 							},
+							{
+								edits: [
+									{
+										newText: '',
+										range: Range.create(11, 0, 12, 0),
+									},
+								],
+								textDocument: {
+									uri: document.uri,
+									version: null,
+								},
+							},
 						],
 					},
 					kind: CodeActionKind.SourceOrganizeImports,
+					title: 'Organize Imports',
+				},
+			]);
+		});
+
+		it('can organize imports without virtual code showing', async () => {
+			const { provider, document } = setup('onelineScriptTag.astro');
+
+			const codeActions = await provider.getCodeActions(
+				document,
+				Range.create(Position.create(6, 0), Position.create(6, 0)),
+				{
+					diagnostics: [],
+					only: [CodeActionKind.SourceOrganizeImports],
+				}
+			);
+
+			expect(codeActions).to.deep.equal([
+				{
+					edit: {
+						documentChanges: [
+							{
+								edits: [],
+								textDocument: {
+									uri: document.uri,
+									version: null,
+								},
+							},
+						],
+					},
+					kind: 'source.organizeImports',
 					title: 'Organize Imports',
 				},
 			]);
