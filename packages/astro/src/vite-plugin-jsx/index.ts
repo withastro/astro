@@ -13,7 +13,6 @@ import path from 'path';
 import { error } from '../core/logger/core.js';
 import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
-import { FLAG } from '../vite-plugin-asset-ssr/index.js';
 
 type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
 	jsxImportSource?: string;
@@ -187,7 +186,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 			defaultJSXRendererEntry = [...jsxRenderersIntegrationOnly.entries()][0];
 		},
 		async transform(code, unresolvedId, opts) {
-			let id = unresolvedId.endsWith(`.mdx${FLAG}`) ? unresolvedId.replace(FLAG, '') : unresolvedId;
+			let id = unresolvedId;
 
 			const ssr = Boolean(opts?.ssr);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
