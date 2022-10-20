@@ -1,12 +1,11 @@
 import type { TransformResult } from '@astrojs/compiler';
-import path from 'path';
 import type { AstroConfig } from '../../@types/astro';
 import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
 import { AstroErrorCodes } from '../errors.js';
-import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
-import { AggregateError, resolveJsToTs, resolvePath, viteID } from '../util.js';
+import { prependForwardSlash } from '../path.js';
+import { AggregateError, resolvePath, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;

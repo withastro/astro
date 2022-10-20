@@ -227,6 +227,9 @@ export function resolveJsToTs(filePath: string) {
 	return filePath;
 }
 
+/**
+ * Resolve the hydration paths so that it can be imported in the client
+ */
 export function resolvePath(specifier: string, importer: string) {
 	if (specifier.startsWith('.')) {
 		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);

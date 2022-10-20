@@ -14,7 +14,6 @@ import { isPage, resolveIdToUrl } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
 import { RouteCache } from '../route-cache.js';
-import { collectMdMetadata } from '../util.js';
 import { getStylesForURL } from './css.js';
 import type { DevelopmentEnvironment } from './environment';
 import { getScriptsForURL } from './scripts.js';
@@ -94,16 +93,6 @@ export async function preload({
 	const renderers = await loadRenderers(env.viteServer, env.settings);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await env.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	if (env.viteServer.config.mode === 'development' || !mod?.$$metadata) {
-		return [renderers, mod];
-	}
-
-	// append all nested markdown metadata to mod.$$metadata
-	const modGraph = await env.viteServer.moduleGraph.getModuleByUrl(fileURLToPath(filePath));
-	if (modGraph) {
-		await collectMdMetadata(mod.$$metadata, modGraph, env.viteServer);
-	}
-
 	return [renderers, mod];
 }
 
