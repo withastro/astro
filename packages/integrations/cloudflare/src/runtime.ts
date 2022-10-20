@@ -1,11 +1,11 @@
-export type WorkerRuntime<T> = {
+export type WorkerRuntime<T = unknown> = {
 	name: 'cloudflare';
 	env: T;
 	waitUntil(promise: Promise<any>): void;
 	passThroughOnException(): void;
 };
 
-export type PagesRuntime<T, U> = {
+export type PagesRuntime<T = unknown, U = unknown> = {
 	name: 'cloudflare';
 	env: T;
 	functionPath: string;
@@ -15,6 +15,6 @@ export type PagesRuntime<T, U> = {
 	next(request: Request): void;
 };
 
-export function getRuntime<T, U>(request: Request): WorkerRuntime<T> | PagesRuntime<T, U> {
+export function getRuntime<T = unknown, U = unknown>(request: Request): WorkerRuntime<T> | PagesRuntime<T, U> {
 	return Reflect.get(request, Symbol.for('runtime'));
 }
