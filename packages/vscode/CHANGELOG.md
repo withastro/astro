@@ -1,5 +1,18 @@
 # astro-vscode
 
+## 0.28.0
+
+### Minor Changes
+
+- 4eeb0f3: Fix numerous issues related to file renames, deletes and moves not being properly caught by the extension and resulting in false positives
+- 9b559ca: Add support for getting updated code from unsaved Astro, Svelte and Vue files
+
+### Patch Changes
+
+- 7492907: Add support for import completions of .md, .mdx and .html files
+- 8d352de: Fix Organize Imports sometimes adding code to script tags
+- f4a8513: Fix completions of component props not working if a CSS file was imported before the component
+
 ## 0.27.0
 
 ### Minor Changes
