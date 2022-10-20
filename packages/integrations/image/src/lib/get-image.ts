@@ -140,12 +140,14 @@ export async function getImage(
 		? _loader.serializeTransform(resolved)
 		: globalThis.astroImage.defaultLoader.serializeTransform(resolved);
 
+	const imgSrc =
+		!isLocalImage && resolved.src.startsWith('//') ? `https:${resolved.src}` : resolved.src;
 	let src: string;
 
-	if (/^[\/\\]?@astroimage/.test(resolved.src)) {
-		src = `${resolved.src}?${searchParams.toString()}`;
+	if (/^[\/\\]?@astroimage/.test(imgSrc)) {
+		src = `${imgSrc}?${searchParams.toString()}`;
 	} else {
-		searchParams.set('href', resolved.src);
+		searchParams.set('href', imgSrc);
 		src = `/_image?${searchParams.toString()}`;
 	}
 

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 import sizeOf from 'image-size';
+import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { loadFixture } from './test-utils.js';
 
@@ -26,6 +27,12 @@ describe('SSG images - dev', function () {
 			id: '#social-jpg',
 			url: '/@astroimage/assets/social.jpg',
 			query: { f: 'jpg', w: '506', h: '253' },
+		},
+		{
+			title: 'Local image no transforms',
+			id: '#no-transforms',
+			url: '/@astroimage/assets/social.jpg',
+			query: {},
 		},
 		{
 			title: 'Filename with spaces',
@@ -253,7 +260,7 @@ describe('SSG images - build', function () {
 			size: { width: 544, height: 184, type: 'jpg' },
 		},
 	].forEach(({ title, id, regex, size }) => {
-		it(title, () => {
+		it(title, async () => {
 			const image = $(id);
 
 			expect(image.attr('src')).to.match(regex);
@@ -261,6 +268,12 @@ describe('SSG images - build', function () {
 			expect(image.attr('height')).to.equal(size.height.toString());
 
 			verifyImage(image.attr('src'), size);
+
+			const url = new URL(
+				'./fixtures/basic-image/node_modules/.astro/image' + image.attr('src'),
+				import.meta.url
+			);
+			expect(await fs.stat(url), 'transformed image was cached').to.not.be.undefined;
 		});
 	});
 });

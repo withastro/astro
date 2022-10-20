@@ -6,6 +6,7 @@ import type { UserConfig } from 'vite';
 
 interface Options extends VueOptions {
 	jsx?: boolean | VueJsxOptions;
+	appEntrypoint?: string;
 }
 
 function getRenderer(): AstroRenderer {
@@ -31,16 +32,37 @@ function getJsxRenderer(): AstroRenderer {
 	};
 }
 
+function virtualAppEntrypoint(options?: Options) {
+	const virtualModuleId = 'virtual:@astrojs/vue/app';
+	const resolvedVirtualModuleId = '\0' + virtualModuleId;
+	return {
+		name: '@astrojs/vue/virtual-app',
+		resolveId(id: string) {
+			if (id == virtualModuleId) {
+				return resolvedVirtualModuleId;
+			}
+		},
+		load(id: string) {
+			if (id === resolvedVirtualModuleId) {
+				if (options?.appEntrypoint) {
+					return `export { default as setup } from "${options.appEntrypoint}";`;
+				}
+				return `export const setup = () => {};`;
+			}
+		},
+	};
+}
+
 async function getViteConfiguration(options?: Options): Promise<UserConfig> {
 	const config: UserConfig = {
 		optimizeDeps: {
 			include: ['@astrojs/vue/client.js', 'vue'],
-			exclude: ['@astrojs/vue/server.js'],
+			exclude: ['@astrojs/vue/server.js', 'virtual:@astrojs/vue/app'],
 		},
-		plugins: [vue(options)],
+		plugins: [vue(options), virtualAppEntrypoint(options)],
 		ssr: {
 			external: ['@vue/server-renderer'],
-			noExternal: ['vueperslides'],
+			noExternal: ['vuetify', 'vueperslides'],
 		},
 	};
 

@@ -10,7 +10,7 @@ describe('API routes', () => {
 		fixture = await loadFixture({
 			root: './fixtures/api-route/',
 			output: 'server',
-			adapter: nodejs(),
+			adapter: nodejs({ mode: 'middleware' }),
 		});
 		await fixture.build();
 	});

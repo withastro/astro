@@ -1,5 +1,19 @@
 # @astrojs/tailwind
 
+## 2.1.1
+
+### Patch Changes
+
+- [#5082](https://github.com/withastro/astro/pull/5082) [`5fb7c9383`](https://github.com/withastro/astro/commit/5fb7c9383abf6ccdabdb96b682f683369a8e11fe) Thanks [@matthewp](https://github.com/matthewp)! - Make Tailwind integration compatible with Astro < 1.5
+
+## 2.1.0
+
+### Minor Changes
+
+- [#4947](https://github.com/withastro/astro/pull/4947) [`a5e3ecc80`](https://github.com/withastro/astro/commit/a5e3ecc8039c1e115ce5597362e18cd35d04e40b) Thanks [@JuanM04](https://github.com/JuanM04)! - ## HMR on config file changes
+
+  New in this release is the ability for config changes to automatically reflect via HMR. Now when you edit your `tsconfig.json` or `tailwind.config.js` configs, the changes will reload automatically without the need to restart your dev server.
+
 ## 2.0.2
 
 ### Patch Changes

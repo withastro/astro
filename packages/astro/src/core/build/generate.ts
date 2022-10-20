@@ -19,12 +19,11 @@ import {
 	removeLeadingForwardSlash,
 	removeTrailingForwardSlash,
 } from '../../core/path.js';
-import type { RenderOptions } from '../../core/render/core';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
-import { render } from '../render/core.js';
+import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptsSet } from '../render/ssr-element.js';
 import { createRequest } from '../request.js';
@@ -34,35 +33,6 @@ import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
 import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
-
-// Render is usually compute, which Node.js can't parallelize well.
-// In real world testing, dropping from 10->1 showed a notiable perf
-// improvement. In the future, we can revisit a smarter parallel
-// system, possibly one that parallelizes if async IO is detected.
-const MAX_CONCURRENT_RENDERS = 1;
-
-// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
-function* throttle(max: number, inPaths: string[]) {
-	let tmp = [];
-	let i = 0;
-	for (let path of inPaths) {
-		tmp.push(path);
-		if (i === max) {
-			yield tmp;
-			// Empties the array, to avoid allocating a new one.
-			tmp.length = 0;
-			i = 0;
-		} else {
-			i++;
-		}
-	}
-
-	// If tmp has items in it, that means there were less than {max} paths remaining
-	// at the end, so we need to yield these too.
-	if (tmp.length) {
-		yield tmp;
-	}
-}
 
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
@@ -360,19 +330,14 @@ async function generatePath(
 		opts.settings.config.build.format,
 		pageData.route.type
 	);
-	const options: RenderOptions = {
+	const env = createEnvironment({
 		adapterName: undefined,
-		links,
 		logging,
 		markdown: {
 			...settings.config.markdown,
 			isAstroFlavoredMd: settings.config.legacy.astroFlavoredMarkdown,
 		},
-		mod,
 		mode: opts.mode,
-		origin,
-		pathname,
-		scripts,
 		renderers,
 		async resolve(specifier: string) {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
@@ -386,20 +351,27 @@ async function generatePath(
 			}
 			return prependForwardSlash(npath.posix.join(settings.config.base, hashedFilePath));
 		},
-		request: createRequest({ url, headers: new Headers(), logging, ssr }),
-		route: pageData.route,
 		routeCache,
 		site: settings.config.site
 			? new URL(settings.config.base, settings.config.site).toString()
 			: settings.config.site,
 		ssr,
 		streaming: true,
-	};
+	});
+	const ctx = createRenderContext({
+		origin,
+		pathname,
+		request: createRequest({ url, headers: new Headers(), logging, ssr }),
+		scripts,
+		links,
+		route: pageData.route,
+	});
 
 	let body: string;
 	let encoding: BufferEncoding | undefined;
 	if (pageData.route.type === 'endpoint') {
-		const result = await callEndpoint(mod as unknown as EndpointHandler, options);
+		const endpointHandler = mod as unknown as EndpointHandler;
+		const result = await callEndpoint(endpointHandler, env, ctx);
 
 		if (result.type === 'response') {
 			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
@@ -407,7 +379,7 @@ async function generatePath(
 		body = result.body;
 		encoding = result.encoding;
 	} else {
-		const response = await render(options);
+		const response = await renderPage(mod, ctx, env);
 
 		// If there's a redirect or something, just do nothing.
 		if (response.status !== 200 || !response.body) {

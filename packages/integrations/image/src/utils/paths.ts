@@ -2,7 +2,7 @@ import { TransformOptions } from '../loaders/index.js';
 import { shorthash } from './shorthash.js';
 
 export function isRemoteImage(src: string) {
-	return /^http(s?):\/\//.test(src);
+	return /^(https?:)?\/\//.test(src);
 }
 
 function removeQueryString(src: string) {
@@ -18,7 +18,7 @@ export function extname(src: string) {
 		return '';
 	}
 
-	return src.substring(src.length - (base.length - index));
+	return base.substring(index);
 }
 
 function removeExtname(src: string) {
@@ -32,7 +32,7 @@ function removeExtname(src: string) {
 }
 
 function basename(src: string) {
-	return src.replace(/^.*[\\\/]/, '');
+	return removeQueryString(src.replace(/^.*[\\\/]/, ''));
 }
 
 export function propsToFilename(transform: TransformOptions) {

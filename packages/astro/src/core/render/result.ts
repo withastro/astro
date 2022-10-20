@@ -11,6 +11,7 @@ import type {
 	SSRResult,
 } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
+import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
@@ -94,8 +95,6 @@ class Slots {
 		if (!this.has(name)) return undefined;
 		if (!cacheable) {
 			const component = await this.#slots[name]();
-			const expression = getFunctionExpression(component);
-
 			if (!Array.isArray(args)) {
 				warn(
 					this.#loggingOpts,
@@ -103,9 +102,17 @@ class Slots {
 					`Expected second parameter to be an array, received a ${typeof args}. If you're trying to pass an array as a single argument and getting unexpected results, make sure you're passing your array as a item of an array. Ex: Astro.slots.render('default', [["Hello", "World"]])`
 				);
 			} else {
+				// Astro
+				const expression = getFunctionExpression(component);
 				if (expression) {
 					const slot = expression(...args);
 					return await renderSlot(this.#result, slot).then((res) =>
+						res != null ? String(res) : res
+					);
+				}
+				// JSX
+				if (typeof component === 'function') {
+					return await renderJSX(this.#result, component(...args)).then((res) =>
 						res != null ? String(res) : res
 					);
 				}
@@ -122,7 +129,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, props: pageProps, renderers, request, resolve } = args;
+	const { markdown, params, pathname, renderers, request, resolve } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -159,7 +166,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		) {
 			const astroSlots = new Slots(result, slots, args.logging);
 
-			const Astro = {
+			const Astro: AstroGlobal = {
+				// @ts-expect-error set prototype
 				__proto__: astroGlobal,
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
@@ -189,9 +197,9 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				request,
 				url,
 				redirect: args.ssr
-					? (path: string) => {
+					? (path, status) => {
 							return new Response(null, {
-								status: 302,
+								status: status || 302,
 								headers: {
 									Location: path,
 								},
@@ -230,9 +238,9 @@ ${extra}`
 					// Intentionally return an empty string so that it is not relied upon.
 					return '';
 				},
-				response,
-				slots: astroSlots,
-			} as unknown as AstroGlobal;
+				response: response as AstroGlobal['response'],
+				slots: astroSlots as unknown as AstroGlobal['slots'],
+			};
 
 			Object.defineProperty(Astro, 'canonicalURL', {
 				get: function () {

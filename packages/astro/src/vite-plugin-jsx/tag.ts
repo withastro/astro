@@ -1,5 +1,7 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
+import { resolve as importMetaResolve } from 'import-meta-resolve';
+import { fileURLToPath } from 'url';
 
 /**
  * This plugin handles every file that runs through our JSX plugin.
@@ -9,11 +11,16 @@ import * as t from '@babel/types';
  * This plugin crawls each export in the file and "tags" each export with a given `rendererName`.
  * This allows us to automatically match a component to a renderer and skip the usual `check()` calls.
  */
-export default function tagExportsWithRenderer({
+export default async function tagExportsWithRenderer({
 	rendererName,
+	root,
 }: {
 	rendererName: string;
-}): PluginObj {
+	root: URL;
+}): Promise<PluginObj> {
+	const astroServerPath = fileURLToPath(
+		await importMetaResolve('astro/server/index.js', root.toString())
+	);
 	return {
 		visitor: {
 			Program: {
@@ -29,7 +36,7 @@ export default function tagExportsWithRenderer({
 									t.identifier('__astro_tag_component__')
 								),
 							],
-							t.stringLiteral('astro/server/index.js')
+							t.stringLiteral(astroServerPath)
 						)
 					);
 				},
@@ -104,7 +111,7 @@ export default function tagExportsWithRenderer({
 									addTag(property.key.name);
 								}
 							});
-						} else if (t.isExportNamedDeclaration(node)) {
+						} else if (t.isExportNamedDeclaration(node) && !node.source) {
 							node.specifiers.forEach((specifier) => {
 								if (t.isExportSpecifier(specifier) && t.isIdentifier(specifier.exported)) {
 									addTag(specifier.local.name);

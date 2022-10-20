@@ -1,6 +1,6 @@
 import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 
-import { getVercelOutput, writeJson } from '../lib/fs.js';
+import { getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
 import { copyDependenciesToFunction } from '../lib/nft.js';
 import { getRedirects } from '../lib/redirects.js';
 
@@ -14,20 +14,42 @@ function getAdapter(): AstroAdapter {
 	};
 }
 
-export default function vercelEdge(): AstroIntegration {
+export interface VercelServerlessConfig {
+	includeFiles?: string[];
+	excludeFiles?: string[];
+}
+
+export default function vercelServerless({
+	includeFiles,
+	excludeFiles,
+}: VercelServerlessConfig = {}): AstroIntegration {
 	let _config: AstroConfig;
+	let buildTempFolder: URL;
 	let functionFolder: URL;
 	let serverEntry: string;
+	let needsBuildConfig = false;
 
 	return {
 		name: PACKAGE_NAME,
 		hooks: {
-			'astro:config:setup': ({ config }) => {
-				config.outDir = getVercelOutput(config.root);
+			'astro:config:setup': ({ config, updateConfig }) => {
+				needsBuildConfig = !config.build.client;
+				const outDir = getVercelOutput(config.root);
+				updateConfig({
+					outDir,
+					build: {
+						serverEntry: 'entry.js',
+						client: new URL('./static/', outDir),
+						server: new URL('./dist/', config.root),
+					},
+				});
 			},
 			'astro:config:done': ({ setAdapter, config }) => {
 				setAdapter(getAdapter());
 				_config = config;
+				buildTempFolder = config.build.server;
+				functionFolder = new URL('./functions/render.func/', config.outDir);
+				serverEntry = config.build.serverEntry;
 
 				if (config.output === 'static') {
 					throw new Error(`
@@ -36,14 +58,24 @@ export default function vercelEdge(): AstroIntegration {
 	`);
 				}
 			},
-			'astro:build:start': async ({ buildConfig }) => {
-				buildConfig.serverEntry = serverEntry = 'entry.js';
-				buildConfig.client = new URL('./static/', _config.outDir);
-				buildConfig.server = functionFolder = new URL('./functions/render.func/', _config.outDir);
+			'astro:build:start': ({ buildConfig }) => {
+				if (needsBuildConfig) {
+					buildConfig.client = new URL('./static/', _config.outDir);
+					buildTempFolder = buildConfig.server = new URL('./dist/', _config.root);
+					serverEntry = buildConfig.serverEntry = 'entry.js';
+				}
 			},
 			'astro:build:done': async ({ routes }) => {
 				// Copy necessary files (e.g. node_modules/)
-				await copyDependenciesToFunction(_config.root, functionFolder, serverEntry);
+				const { handler } = await copyDependenciesToFunction({
+					entry: new URL(serverEntry, buildTempFolder),
+					outDir: functionFolder,
+					includeFiles: includeFiles?.map((file) => new URL(file, _config.root)) || [],
+					excludeFiles: excludeFiles?.map((file) => new URL(file, _config.root)) || [],
+				});
+
+				// Remove temporary folder
+				await removeDir(buildTempFolder);
 
 				// Enable ESM
 				// https://aws.amazon.com/blogs/compute/using-node-js-es-modules-and-top-level-await-in-aws-lambda/
@@ -55,7 +87,7 @@ export default function vercelEdge(): AstroIntegration {
 				// https://vercel.com/docs/build-output-api/v3#vercel-primitives/serverless-functions/configuration
 				await writeJson(new URL(`./.vc-config.json`, functionFolder), {
 					runtime: getRuntime(),
-					handler: serverEntry,
+					handler,
 					launcherType: 'Nodejs',
 				});
 

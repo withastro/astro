@@ -8,12 +8,14 @@ import type { ErrorPayload, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
-
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
+}
+
+/** Cross-realm compatible URL */
+export function isURL(value: unknown): value is URL {
+	return Object.prototype.toString.call(value) === '[object URL]';
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
@@ -137,23 +139,6 @@ export function unwrapId(id: string): string {
 	return id.startsWith(VALID_ID_PREFIX) ? id.slice(VALID_ID_PREFIX.length) : id;
 }
 
-/** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(_dir: URL): void {
-	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
-}
-
-export function emptyDir(_dir: URL, skip?: Set<string>): void {
-	const dir = fileURLToPath(_dir);
-	if (!fs.existsSync(dir)) return undefined;
-	for (const file of fs.readdirSync(dir)) {
-		if (skip?.has(file)) {
-			continue;
-		}
-		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true, maxRetries: 3 });
-	}
-}
-
 export function resolvePages(config: AstroConfig) {
 	return new URL('./pages', config.srcDir);
 }
@@ -216,8 +201,13 @@ export function getLocalAddress(serverAddress: string, host: string | boolean): 
  * through a script tag or a dynamic import as-is.
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
+// TODO: Export a helper util from Vite
 export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
-	const result = await viteServer.pluginContainer.resolveId(id);
+	let result = await viteServer.pluginContainer.resolveId(id, undefined);
+	// Try resolve jsx to tsx
+	if (!result && id.endsWith('.jsx')) {
+		result = await viteServer.pluginContainer.resolveId(id.slice(0, -4), undefined);
+	}
 	if (!result) {
 		return VALID_ID_PREFIX + id;
 	}
@@ -227,9 +217,19 @@ export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
 	return VALID_ID_PREFIX + result.id;
 }
 
+export function resolveJsToTs(filePath: string) {
+	if (filePath.endsWith('.jsx') && !fs.existsSync(filePath)) {
+		const tryPath = filePath.slice(0, -4) + '.tsx';
+		if (fs.existsSync(tryPath)) {
+			return tryPath;
+		}
+	}
+	return filePath;
+}
+
 export const AggregateError =
-	typeof globalThis.AggregateError !== 'undefined'
-		? globalThis.AggregateError
+	typeof (globalThis as any).AggregateError !== 'undefined'
+		? (globalThis as any).AggregateError
 		: class extends Error {
 				errors: Array<any> = [];
 				constructor(errors: Iterable<any>, message?: string | undefined) {

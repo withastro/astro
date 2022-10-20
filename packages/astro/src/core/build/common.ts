@@ -30,7 +30,8 @@ export function getOutFolder(
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
 				}
 				case 'file': {
-					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+					const d = pathname === '' ? pathname : npath.dirname(pathname);
+					return new URL('.' + appendForwardSlash(d), outRoot);
 				}
 			}
 	}

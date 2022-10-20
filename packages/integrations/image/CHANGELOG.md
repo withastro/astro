@@ -1,5 +1,104 @@
 # @astrojs/image
 
+## 0.10.0
+
+### Minor Changes
+
+- [#5056](https://github.com/withastro/astro/pull/5056) [`e55af8a23`](https://github.com/withastro/astro/commit/e55af8a23233b6335f45b7a04b9d026990fb616c) Thanks [@matthewp](https://github.com/matthewp)! - # New build configuration
+
+  The ability to customize SSR build configuration more granularly is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    output: 'server',
+    build: {
+      server: './dist/server/',
+      client: './dist/client/',
+      serverEntry: 'entry.mjs',
+    },
+  });
+  ```
+
+  These new configuration options are only supported in SSR mode and are ignored when building to SSG (a static site).
+
+  ## Integration hook change
+
+  The integration hook `astro:build:start` includes a param `buildConfig` which includes all of these same options. You can continue to use this param in Astro 1.x, but it is deprecated in favor of the new `build.config` options. All of the built-in adapters have been updated to the new format. If you have an integration that depends on this param we suggest upgrading to do this instead:
+
+  ```js
+  export default function myIntegration() {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:setup': ({ updateConfig }) => {
+          updateConfig({
+            build: {
+              server: '...',
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#5073](https://github.com/withastro/astro/pull/5073) [`93f72f90b`](https://github.com/withastro/astro/commit/93f72f90bc8b29b1bf1402354f1ed6a110411243) Thanks [@bluwy](https://github.com/bluwy)! - Fix image external config in build
+
+- [#5072](https://github.com/withastro/astro/pull/5072) [`3918787cb`](https://github.com/withastro/astro/commit/3918787cb9676a8c6b9be371ae90edeb676f4e8f) Thanks [@bluwy](https://github.com/bluwy)! - Support relative protocol image URL
+
+## 0.9.3
+
+### Patch Changes
+
+- [#5021](https://github.com/withastro/astro/pull/5021) [`062335dbf`](https://github.com/withastro/astro/commit/062335dbf7300ad5370e29ebcf7a05d5a4703a1c) Thanks [@matthewp](https://github.com/matthewp)! - Fix remote images in SSG mode
+
+- [#5034](https://github.com/withastro/astro/pull/5034) [`2d9d42216`](https://github.com/withastro/astro/commit/2d9d42216722334db03adb14e59773db8389b7f9) Thanks [@bluwy](https://github.com/bluwy)! - Support strict dependency install
+
+## 0.9.2
+
+### Patch Changes
+
+- [#4997](https://github.com/withastro/astro/pull/4997) [`a2b66c754`](https://github.com/withastro/astro/commit/a2b66c754969af4ce98bb10654286a4445cb0999) Thanks [@panwauu](https://github.com/panwauu)! - Fixes a bug that lost query parameters for remote images in the `<Picture />` component
+
+## 0.9.1
+
+### Patch Changes
+
+- [#4944](https://github.com/withastro/astro/pull/4944) [`a8f1a91e7`](https://github.com/withastro/astro/commit/a8f1a91e7e0605d847ddcdf4d7824d1b1fe9b838) Thanks [@scottaw66](https://github.com/scottaw66)! - Moves http-cache-semantics from dev dependency to dependency
+
+## 0.9.0
+
+### Minor Changes
+
+- [#4909](https://github.com/withastro/astro/pull/4909) [`989298961`](https://github.com/withastro/astro/commit/9892989619770f310eed3398dd2cbc98be469afd) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds caching support for transformed images :tada:
+
+  Local images will be cached for 1 year and invalidated when the original image file is changed.
+
+  Remote images will be cached based on the `fetch()` response's cache headers, similar to how a CDN would manage the cache.
+
+  **cacheDir**
+
+  By default, transformed images will be cached to `./node_modules/.astro/image`. This can be configured in the integration's config options.
+
+  ```
+  export default defineConfig({
+  	integrations: [image({
+      // may be useful if your hosting provider allows caching between CI builds
+      cacheDir: "./.cache/image"
+    })]
+  });
+  ```
+
+  Caching can also be disabled by using `cacheDir: false`.
+
+### Patch Changes
+
+- [#4933](https://github.com/withastro/astro/pull/4933) [`64a1d712e`](https://github.com/withastro/astro/commit/64a1d712efd3cc80c0b9aed9f2ead1487f8db07b) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug in dev when `<Image />` is used for a local image with no transformations
+
 ## 0.8.1
 
 ### Patch Changes

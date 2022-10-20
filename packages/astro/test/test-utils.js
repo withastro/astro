@@ -3,7 +3,7 @@ import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config/config.js';
-import { createSettings, loadTSConfig } from '../dist/core/config/index.js';
+import { createSettings } from '../dist/core/config/index.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -95,12 +95,7 @@ export async function loadFixture(inlineConfig) {
 	if (inlineConfig.base && !inlineConfig.base.endsWith('/')) {
 		config.base = inlineConfig.base + '/';
 	}
-	let tsconfig = loadTSConfig(fileURLToPath(cwd));
-	let settings = createSettings({
-		config,
-		tsConfig: tsconfig?.config,
-		tsConfigPath: tsconfig?.path,
-	});
+	let settings = createSettings(config, fileURLToPath(cwd));
 	if (config.integrations.find((integration) => integration.name === '@astrojs/mdx')) {
 		// Enable default JSX integration. It needs to come first, so unshift rather than push!
 		const { default: jsxRenderer } = await import('astro/jsx/renderer.js');

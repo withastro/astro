@@ -35,7 +35,12 @@ export default async function dev(
 	const devStart = performance.now();
 	applyPolyfill();
 	await options.telemetry.record([]);
-	settings = await runHookConfigSetup({ settings, command: 'dev', logging: options.logging });
+	settings = await runHookConfigSetup({
+		settings,
+		command: 'dev',
+		logging: options.logging,
+		isRestart: options.isRestart,
+	});
 	const { host, port } = settings.config.server;
 	const { isRestart = false } = options;
 
@@ -51,6 +56,11 @@ export default async function dev(
 			server: { host },
 			optimizeDeps: {
 				include: rendererClientEntries,
+			},
+			define: {
+				'import.meta.env.BASE_URL': settings.config.base
+					? `'${settings.config.base}'`
+					: 'undefined',
 			},
 		},
 		{ settings, logging: options.logging, mode: 'dev' }

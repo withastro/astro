@@ -1,5 +1,19 @@
 # @astrojs/react
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5095](https://github.com/withastro/astro/pull/5095) [`ddfbef5ac`](https://github.com/withastro/astro/commit/ddfbef5acbd4c56d8ce1626a458b5cbb27da47fe) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Add `@types/` packages as peerDependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [#5016](https://github.com/withastro/astro/pull/5016) [`6efeaeb39`](https://github.com/withastro/astro/commit/6efeaeb39ed7e6642b31603745750ccb9fe0ff1e) Thanks [@matthewp](https://github.com/matthewp)! - Add support for mui
+
+  This adds support for [mui](https://mui.com/) through configuration. Users will now not need to configure this library to get it to work.
+
 ## 1.1.4
 
 ### Patch Changes

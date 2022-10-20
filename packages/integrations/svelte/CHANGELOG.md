@@ -1,5 +1,11 @@
 # @astrojs/svelte
 
+## 1.0.2
+
+### Patch Changes
+
+- [#5045](https://github.com/withastro/astro/pull/5045) [`0f2a88ba5`](https://github.com/withastro/astro/commit/0f2a88ba5c19318854be12cc81609f2dbc5012f7) Thanks [@matthewp](https://github.com/matthewp)! - Allow class to be passed into Svelte islands
+
 ## 1.0.1
 
 ### Patch Changes

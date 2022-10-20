@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { LogOptions } from '../logger/core.js';
-import { arraify, isObject } from '../util.js';
+import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 
 load.use([loadTypeScript]);
@@ -137,7 +137,7 @@ interface LoadConfigOptions {
 	validate?: boolean;
 	logging: LogOptions;
 	/** Invalidate when reloading a previously loaded config */
-	isConfigReload?: boolean;
+	isRestart?: boolean;
 }
 
 /**
@@ -224,7 +224,7 @@ async function tryLoadConfig(
 			flags: configOptions.flags,
 		});
 		if (!configPath) return undefined;
-		if (configOptions.isConfigReload) {
+		if (configOptions.isRestart) {
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
 			const tempConfigPath = path.join(
@@ -346,6 +346,10 @@ function mergeConfigRecursively(
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
+			continue;
+		}
+		if (isURL(existing) && isURL(value)) {
+			merged[key] = value;
 			continue;
 		}
 		if (isObject(existing) && isObject(value)) {

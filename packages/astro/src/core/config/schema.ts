@@ -17,7 +17,12 @@ const ASTRO_CONFIG_DEFAULTS: AstroUserConfig & any = {
 	outDir: './dist',
 	base: '/',
 	trailingSlash: 'ignore',
-	build: { format: 'directory' },
+	build: {
+		format: 'directory',
+		client: './dist/client/',
+		server: './dist/server/',
+		serverEntry: 'entry.mjs',
+	},
 	server: {
 		host: false,
 		port: 3000,
@@ -97,6 +102,17 @@ export const AstroConfigSchema = z.object({
 				.union([z.literal('file'), z.literal('directory')])
 				.optional()
 				.default(ASTRO_CONFIG_DEFAULTS.build.format),
+			client: z
+				.string()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.client)
+				.transform((val) => new URL(val)),
+			server: z
+				.string()
+				.optional()
+				.default(ASTRO_CONFIG_DEFAULTS.build.server)
+				.transform((val) => new URL(val)),
+			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
 		})
 		.optional()
 		.default({}),
@@ -233,10 +249,40 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			.string()
 			.default(ASTRO_CONFIG_DEFAULTS.outDir)
 			.transform((val) => new URL(appendForwardSlash(val), fileProtocolRoot)),
+		build: z
+			.object({
+				format: z
+					.union([z.literal('file'), z.literal('directory')])
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.format),
+				client: z
+					.string()
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.client)
+					.transform((val) => new URL(val, fileProtocolRoot)),
+				server: z
+					.string()
+					.optional()
+					.default(ASTRO_CONFIG_DEFAULTS.build.server)
+					.transform((val) => new URL(val, fileProtocolRoot)),
+				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+			})
+			.optional()
+			.default({}),
 		server: z.preprocess(
 			// preprocess
-			(val) =>
-				typeof val === 'function' ? val({ command: cmd === 'dev' ? 'dev' : 'preview' }) : val,
+			(val) => {
+				if (typeof val === 'function') {
+					const result = val({ command: cmd === 'dev' ? 'dev' : 'preview' });
+					// @ts-expect-error revive attached prop added from CLI flags
+					if (val.port) result.port = val.port;
+					// @ts-expect-error revive attached prop added from CLI flags
+					if (val.host) result.host = val.host;
+					return result;
+				} else {
+					return val;
+				}
+			},
 			// validate
 			z
 				.object({
@@ -265,6 +311,22 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 			})
 			.optional()
 			.default({}),
+	}).transform((config) => {
+		// If the user changed outDir but not build.server, build.config, adjust so those
+		// are relative to the outDir, as is the expected default.
+		if (
+			!config.build.server.toString().startsWith(config.outDir.toString()) &&
+			config.build.server.toString().endsWith('dist/server/')
+		) {
+			config.build.server = new URL('./dist/server/', config.outDir);
+		}
+		if (
+			!config.build.client.toString().startsWith(config.outDir.toString()) &&
+			config.build.client.toString().endsWith('dist/client/')
+		) {
+			config.build.client = new URL('./dist/client/', config.outDir);
+		}
+		return config;
 	});
 
 	return AstroConfigRelativeSchema;

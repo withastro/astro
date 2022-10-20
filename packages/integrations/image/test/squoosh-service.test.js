@@ -8,7 +8,7 @@ describe('Squoosh service', function () {
 	let $;
 
 	before(async () => {
-		fixture = await loadFixture({ root: './fixtures/basic-image/' });
+		fixture = await loadFixture({ root: './fixtures/squoosh-service/' });
 		devServer = await fixture.startDevServer();
 		const html = await fixture.fetch('/').then((res) => res.text());
 		$ = cheerio.load(html);
@@ -28,6 +28,17 @@ describe('Squoosh service', function () {
 		{
 			title: 'Remote images',
 			id: '#google',
+			url: '/_image',
+			query: {
+				f: 'webp',
+				w: '544',
+				h: '184',
+				href: 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png',
+			},
+		},
+		{
+			title: 'Remote images with relative protocol',
+			id: '#google-alt',
 			url: '/_image',
 			query: {
 				f: 'webp',

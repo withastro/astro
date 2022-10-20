@@ -24,6 +24,13 @@ describe('SSR pictures - build', function () {
 			alt: 'Social image',
 		},
 		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'jpg', href: /^\/assets\/introducing astro.\w{8}.jpg/ },
+			alt: 'spaces',
+		},
+		{
 			title: 'Inline imports',
 			id: '#inline',
 			url: '/_image',
@@ -126,6 +133,13 @@ describe('SSR pictures with subpath - build', function () {
 			url: '/_image',
 			query: { f: 'jpg', w: '506', h: '253', href: /^\/docs\/assets\/social.\w{8}.jpg/ },
 			alt: 'Social image',
+		},
+		{
+			title: 'Filename with spaces',
+			id: '#spaces',
+			url: '/_image',
+			query: { w: '768', h: '414', f: 'jpg', href: /^\/docs\/assets\/introducing astro.\w{8}.jpg/ },
+			alt: 'spaces',
 		},
 		{
 			title: 'Inline imports',
