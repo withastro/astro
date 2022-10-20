@@ -9,6 +9,7 @@ import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
+import { assetSsrPlugin } from '../../vite-plugin-asset-ssr/index.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
@@ -142,6 +143,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				target: 'server',
 			}),
 			...(viteConfig.plugins || []),
+			assetSsrPlugin({ internals }),
 			// SSR needs to be last
 			settings.config.output === 'server' && vitePluginSSR(internals, settings.adapter!),
 			vitePluginAnalyzer(internals),
