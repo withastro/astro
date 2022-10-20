@@ -223,6 +223,23 @@ describe('Astro Plugin#CompletionsProvider', () => {
 		});
 	});
 
+	it('provide imports even if the first import in the file has no clauses', async () => {
+		const { provider, document } = setup('cssImport.astro');
+
+		const completions = await provider.getCompletions(document, Position.create(6, 14));
+		const item = completions?.items.find((completion) => completion.filterText === 'name');
+
+		expect(item).to.deep.equal({
+			label: 'name?',
+			detail: 'string',
+			insertText: 'name="$1"',
+			insertTextFormat: InsertTextFormat.Snippet,
+			commitCharacters: [],
+			sortText: '_',
+			filterText: 'name',
+		});
+	});
+
 	it('mark optional props with a ?', async () => {
 		const { provider, document } = setup('optional.astro');
 

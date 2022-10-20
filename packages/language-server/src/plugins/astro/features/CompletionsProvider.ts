@@ -230,7 +230,7 @@ export class CompletionsProviderImpl implements CompletionsProvider {
 			for (let node of list.getChildren()) {
 				if (this.ts.isImportDeclaration(node)) {
 					let clauses = node.importClause;
-					if (!clauses) return null;
+					if (!clauses) continue;
 					let namedImport = clauses.getChildAt(0);
 
 					if (this.ts.isNamedImports(namedImport)) {
