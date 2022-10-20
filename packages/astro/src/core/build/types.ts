@@ -19,6 +19,7 @@ export interface PageBuildData {
 	route: RouteData;
 	moduleSpecifier: string;
 	css: Map<string, { depth: number; order: number }>;
+	delayedCss?: Set<string>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;

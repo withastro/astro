@@ -20,6 +20,7 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors.js';
 import { resolveDependency } from './util.js';
+import { injectDelayedAssetPlugin } from '../vite-plugin-asset-ssr/index.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -85,6 +86,7 @@ export async function createVite(
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
+			injectDelayedAssetPlugin(),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

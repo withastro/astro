@@ -6,6 +6,7 @@ import { resolvedPagesVirtualModuleId } from '../app/index.js';
 export function* walkParentInfos(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo },
+	until?: (importer: string) => boolean,
 	depth = 0,
 	seen = new Set<string>(),
 	childId = ''
@@ -16,12 +17,13 @@ export function* walkParentInfos(
 		let order = childId ? info.importedIds.indexOf(childId) : 0;
 		yield [info, depth, order];
 	}
+	if (until?.(id)) return;
 	const importers = (info?.importers || []).concat(info?.dynamicImporters || []);
 	for (const imp of importers) {
 		if (seen.has(imp)) {
 			continue;
 		}
-		yield* walkParentInfos(imp, ctx, ++depth, seen, id);
+		yield* walkParentInfos(imp, ctx, until, ++depth, seen, id);
 	}
 }
 

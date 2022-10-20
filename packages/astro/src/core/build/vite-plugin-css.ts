@@ -15,7 +15,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
-import { FLAG } from '../../vite-plugin-asset-ssr/index.js';
+import { DELAYED_ASSET_FLAG } from '../../vite-plugin-asset-ssr/index.js';
 
 interface PluginOptions {
 	internals: BuildInternals;
@@ -113,25 +113,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 					}
 				};
 
-				let exclude: Set<string> = new Set();
-				for (const [_, chunk] of Object.entries(bundle)) {
-					if (chunk.type === 'chunk' && chunk.facadeModuleId?.includes(FLAG)) {
-						exclude.add(chunk.fileName);
-						for (const imp of chunk.imports) {
-							exclude.add(imp);
-						}
-					}
-				}
-
 				for (const [_, chunk] of Object.entries(bundle)) {
 					if (chunk.type === 'chunk') {
 						const c = chunk;
 
-						if ('viteMetadata' in chunk && !exclude.has((chunk as OutputChunk).fileName)) {
+						if ('viteMetadata' in chunk) {
 							const meta = chunk['viteMetadata'] as ViteMetadata;
 
 							// Chunks that have the viteMetadata.importedCss are CSS chunks
-							if (meta.importedCss.size && !(chunk as OutputChunk).facadeModuleId?.endsWith(FLAG)) {
+							if (meta.importedCss.size) {
 								// In the SSR build, keep track of all CSS chunks' modules as the client build may
 								// duplicate them, e.g. for `client:load` components that render in SSR and client
 								// for hydation.
@@ -167,8 +157,31 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 
 								// For this CSS chunk, walk parents until you find a page. Add the CSS to that page.
 								for (const id of Object.keys(c.modules)) {
-									for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
-										if (moduleIsTopLevelPage(pageInfo)) {
+									for (const [pageInfo, depth, order] of walkParentInfos(
+										id,
+										this,
+										function until(importer) {
+											return importer.endsWith(DELAYED_ASSET_FLAG);
+										}
+									)) {
+										if (pageInfo.id.endsWith(DELAYED_ASSET_FLAG)) {
+											for (const parent of walkParentInfos(id, this)) {
+												console.log('walking parent...');
+												const parentInfo = parent[0];
+												if (moduleIsTopLevelPage(parentInfo)) {
+													const pageViteID = parentInfo.id;
+													const pageData = getPageDataByViteID(internals, pageViteID);
+													if (pageData) {
+														if (!pageData.delayedCss) {
+															pageData.delayedCss = new Set();
+														}
+														for (const css of meta.importedCss) {
+															pageData.delayedCss.add(css);
+														}
+													}
+												}
+											}
+										} else if (moduleIsTopLevelPage(pageInfo)) {
 											const pageViteID = pageInfo.id;
 											const pageData = getPageDataByViteID(internals, pageViteID);
 											if (pageData) {
