@@ -1,5 +1,11 @@
 # @astrojs/prefetch
 
+## 0.1.0
+
+### Minor Changes
+
+- [#5125](https://github.com/withastro/astro/pull/5125) [`5a674f976`](https://github.com/withastro/astro/commit/5a674f976d6138ec5c87441a579c2ccf37713e73) Thanks [@Jelenkee](https://github.com/Jelenkee)! - Prefetch CSS files once
+
 ## 0.0.8
 
 ### Patch Changes

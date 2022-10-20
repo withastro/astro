@@ -34,35 +34,6 @@ import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
-// Render is usually compute, which Node.js can't parallelize well.
-// In real world testing, dropping from 10->1 showed a notiable perf
-// improvement. In the future, we can revisit a smarter parallel
-// system, possibly one that parallelizes if async IO is detected.
-const MAX_CONCURRENT_RENDERS = 1;
-
-// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
-function* throttle(max: number, inPaths: string[]) {
-	let tmp = [];
-	let i = 0;
-	for (let path of inPaths) {
-		tmp.push(path);
-		if (i === max) {
-			yield tmp;
-			// Empties the array, to avoid allocating a new one.
-			tmp.length = 0;
-			i = 0;
-		} else {
-			i++;
-		}
-	}
-
-	// If tmp has items in it, that means there were less than {max} paths remaining
-	// at the end, so we need to yield these too.
-	if (tmp.length) {
-		yield tmp;
-	}
-}
-
 function shouldSkipDraft(pageModule: ComponentInstance, settings: AstroSettings): boolean {
 	return (
 		// Drafts are disabled
