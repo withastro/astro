@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.28.1
+
+### Patch Changes
+
+- c2a6829: Update Prettier plugin to 0.6.0
+
 ## 0.28.0
 
 ### Minor Changes
