@@ -47,7 +47,6 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 				buildTempFolder = config.build.server;
 				functionFolder = new URL('./functions/render.func/', config.outDir);
 				serverEntry = config.build.serverEntry;
-				functionFolder = config.build.server;
 
 				if (config.output === 'static') {
 					throw new Error(`

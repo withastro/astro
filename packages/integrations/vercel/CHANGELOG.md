@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.3.1
+
+### Patch Changes
+
+- [#5127](https://github.com/withastro/astro/pull/5127) [`fad25aef2`](https://github.com/withastro/astro/commit/fad25aef2f9b51324cd7aa20701042e9574706a9) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed #5120
+
 ## 2.3.0
 
 ### Minor Changes
