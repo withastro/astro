@@ -4,7 +4,7 @@ import { AstroBuiltinAttributes } from './dist/@types/astro';
 /** Enforce that a component accepts no props or slots */
 export type NoProps = Record<string, never>;
 /** Enforce that a component requires a default slot */
-export type RequireDefaultSlot = { children: any; };
+export type WithChildren = { children: any; };
 
 /** Any supported HTML or SVG element name, as defined by the HTML specification */
 export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
