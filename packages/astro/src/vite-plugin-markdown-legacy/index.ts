@@ -120,9 +120,6 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 						export async function compiledContent() {
 							return load().then((m) => m.compiledContent());
 						}
-						export function $$loadMetadata() {
-							return load().then((m) => m.$$metadata);
-						}
 
 						// Deferred
 						export default async function load() {
