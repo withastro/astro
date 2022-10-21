@@ -13,7 +13,7 @@ export function createSettings(config: AstroConfig, cwd?: string): AstroSettings
 
 		adapter: undefined,
 		injectedRoutes: [],
-		pageExtensions: ['.astro', '.md', '.html'],
+		pageExtensions: ['.astro', '.md', '.html', '.markdown'],
 		renderers: [jsxRenderer],
 		scripts: [],
 		watchFiles: tsconfig?.exists ? [tsconfig.path, ...tsconfig.extendedPaths] : [],

@@ -193,7 +193,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
-			if (id.includes('.mdx') || id.includes('.md')) {
+			if (id.includes('.mdx') || id.includes('.md') || id.includes('.markdown')) {
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
 					jsx: 'preserve',

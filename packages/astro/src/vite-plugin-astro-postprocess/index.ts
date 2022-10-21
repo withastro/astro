@@ -16,8 +16,8 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {
-			// Currently only supported in ".astro" & ".md" files
-			if (!id.endsWith('.astro') && !id.endsWith('.md')) {
+			// Currently only supported in ".astro", ".md" & ".markdown" files
+			if (!id.endsWith('.astro') && !id.endsWith('.md') && !id.endsWith('.markdown')) {
 				return null;
 			}
 

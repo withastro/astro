@@ -79,10 +79,13 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			styleTransformer.viteDevServer = server;
 		},
 		async resolveId(id, importer, options) {
-			// Resolve any .md files with the `?content` cache buster. This should only come from
+			// Resolve any .md or .markdown files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
 			// Unclear if this is expected or if cache busting is just working around a Vite bug.
-			if (id.endsWith(`.md${MARKDOWN_CONTENT_FLAG}`)) {
+			if (
+				id.endsWith(`.md${MARKDOWN_CONTENT_FLAG}`) ||
+				id.endsWith(`.markdown${MARKDOWN_CONTENT_FLAG}`)
+			) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				return resolvedId?.id.replace(MARKDOWN_CONTENT_FLAG, '');
 			}
@@ -90,7 +93,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// that defers the markdown -> HTML rendering until it is needed. This is especially useful
 			// when fetching and then filtering many markdown files, like with import.meta.glob() or Astro.glob().
 			// Otherwise, resolve directly to the actual component.
-			if (id.endsWith('.md') && !isRootImport(importer)) {
+			if ((id.endsWith('.md') || id.endsWith('.markdown')) && !isRootImport(importer)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				if (resolvedId) {
 					return resolvedId.id + MARKDOWN_IMPORT_FLAG;
@@ -103,7 +106,10 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
-			if (id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`)) {
+			if (
+				id.endsWith(`.md${MARKDOWN_IMPORT_FLAG}`) ||
+				id.endsWith(`.markdown${MARKDOWN_IMPORT_FLAG}`)
+			) {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
@@ -143,7 +149,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// A markdown file is being rendered! This markdown file was either imported
 			// directly as a page in Vite, or it was a deferred render from a JS module.
 			// This returns the compiled markdown -> astro component that renders to HTML.
-			if (id.endsWith('.md')) {
+			if (id.endsWith('.md') || id.endsWith('.markdown')) {
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;

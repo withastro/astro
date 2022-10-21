@@ -264,7 +264,9 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(
+		globStr: `${any}.md` | `${any}.markdown`
+	): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
@@ -868,7 +870,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 1.0.0-rc.1
 		 * @description
-		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
+		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` and `.markdown` Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
 		 *
 		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).

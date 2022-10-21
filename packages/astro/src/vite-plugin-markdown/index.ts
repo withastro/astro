@@ -39,7 +39,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 		// passing to the transform hook. This lets us get the truly raw value
 		// to escape "import.meta.env" ourselves.
 		async load(id) {
-			if (id.endsWith('.md')) {
+			if (id.endsWith('.md') || id.endsWith('.markdown')) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);
@@ -63,7 +63,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 					warn(
 						logging,
 						'markdown',
-						`[${id}] Astro now supports MDX! Support for components in ".md" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
+						`[${id}] Astro now supports MDX! Support for components in ".md" or ".markdown" files using the "setup" frontmatter is no longer enabled by default. Migrate this file to MDX or add the "legacy.astroFlavoredMarkdown" config flag to re-enable support.`
 					);
 				}
 

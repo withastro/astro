@@ -32,7 +32,7 @@ export function moduleIsTopLevelPage(info: ModuleInfo): boolean {
 }
 
 // This function walks the dependency graph, going up until it finds a page component.
-// This could be a .astro page or a .md page.
+// This could be a .astro page, a .markdown or a .md page.
 export function* getTopLevelPages(
 	id: string,
 	ctx: { getModuleInfo: GetModuleInfo }

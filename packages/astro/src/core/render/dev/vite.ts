@@ -7,7 +7,7 @@ import { STYLE_EXTENSIONS } from '../util.js';
  * List of file extensions signalling we can (and should) SSR ahead-of-time
  * See usage below
  */
-const fileExtensionsToSSR = new Set(['.astro', '.md']);
+const fileExtensionsToSSR = new Set(['.astro', '.md', '.markdown']);
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
