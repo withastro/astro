@@ -9,7 +9,7 @@ import type { LogOptions } from '../logger/core.js';
 import type { RouteInfo, SSRManifest as Manifest } from './types';
 
 import mime from 'mime';
-import { getSetCookiesFromResponse } from '../cookies/index.js';
+import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error } from '../logger/core.js';
@@ -236,10 +236,14 @@ export class App {
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());
-			return new Response(bytes, {
+
+			const response = new Response(bytes, {
 				status: 200,
 				headers,
 			});
+
+			attachToResponse(response, result.cookies);
+			return response;
 		}
 	}
 }

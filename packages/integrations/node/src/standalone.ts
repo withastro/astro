@@ -35,7 +35,7 @@ export function getResolvedHostForHttpServer(host: string | boolean) {
 }
 
 export default function startServer(app: NodeApp, options: Options) {
-	const port = process.env.PORT ? Number(process.env.port) : options.port ?? 8080;
+	const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
 	const { client } = resolvePaths(options);
 	const handler = middleware(app);
 

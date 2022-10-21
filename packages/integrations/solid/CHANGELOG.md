@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5089](https://github.com/withastro/astro/pull/5089) [`0173c2b2d`](https://github.com/withastro/astro/commit/0173c2b2dfa49b3cb6afec7a411cdbad272b8fde) Thanks [@bluwy](https://github.com/bluwy)! - Suppress warnings for dependency crawling
+
 ## 1.2.0
 
 ### Minor Changes

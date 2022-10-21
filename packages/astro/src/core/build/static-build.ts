@@ -270,7 +270,7 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 				const url = new URL(filename, out);
 				const folder = await fs.promises.readdir(url);
 				if (!folder.length) {
-					await fs.promises.rmdir(url, { recursive: true });
+					await fs.promises.rm(url, { recursive: true, force: true });
 				}
 			})
 		);

@@ -1,11 +1,11 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroSettings, ManifestData } from '../@types/astro';
+import type { AstroConfig, AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
-import { getSetCookiesFromResponse } from '../core/cookies/index.js';
+import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import {
 	collectErrorMetadata,
@@ -296,6 +296,18 @@ async function handleRequest(
 	}
 }
 
+function isRedirect(statusCode: number) {
+	return statusCode >= 300 && statusCode < 400;
+}
+
+function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
+	if (config.output !== 'server' && isRedirect(response.status)) {
+		throw new Error(
+			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
+		);
+	}
+}
+
 async function handleRoute(
 	matchedRoute: AsyncReturnType<typeof matchRoute>,
 	url: URL,
@@ -367,6 +379,7 @@ async function handleRoute(
 					res
 				);
 			}
+			throwIfRedirectNotAllowed(result.response, config);
 			await writeWebResponse(res, result.response);
 		} else {
 			let contentType = 'text/plain';
@@ -378,11 +391,18 @@ async function handleRoute(
 			if (computedMimeType) {
 				contentType = computedMimeType;
 			}
-			res.writeHead(200, { 'Content-Type': `${contentType};charset=utf-8` });
-			res.end(result.body);
+			const response = new Response(result.body, {
+				status: 200,
+				headers: {
+					'Content-Type': `${contentType};charset=utf-8`,
+				},
+			});
+			attachToResponse(response, result.cookies);
+			await writeWebResponse(res, response);
 		}
 	} else {
 		const result = await renderPage(options);
+		throwIfRedirectNotAllowed(result, config);
 		return await writeSSRResult(result, res);
 	}
 }

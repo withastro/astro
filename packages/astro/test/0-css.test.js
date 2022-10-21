@@ -266,6 +266,13 @@ describe('CSS', function () {
 				);
 			});
 		});
+
+		describe('Vite features', () => {
+			it('.css?raw return a string', () => {
+				const el = $('#css-raw');
+				expect(el.text()).to.equal('.foo {color: red;}');
+			});
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
@@ -374,6 +381,11 @@ describe('CSS', function () {
 				false,
 				'Should not have found a preload for the dynamic CSS'
 			);
+		});
+
+		it('.css?raw return a string', () => {
+			const el = $('#css-raw');
+			expect(el.text()).to.equal('.foo {color: red;}');
 		});
 	});
 });

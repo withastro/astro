@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 2.1.1
+
+### Patch Changes
+
+- [#5082](https://github.com/withastro/astro/pull/5082) [`5fb7c9383`](https://github.com/withastro/astro/commit/5fb7c9383abf6ccdabdb96b682f683369a8e11fe) Thanks [@matthewp](https://github.com/matthewp)! - Make Tailwind integration compatible with Astro < 1.5
+
 ## 2.1.0
 
 ### Minor Changes

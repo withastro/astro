@@ -89,11 +89,11 @@ describe('SSR pictures - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $(`${id} source`);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
+			const sources = picture.children('source');
 			expect(sources.length).to.equal(3);
-
-			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -200,11 +200,11 @@ describe('SSR pictures with subpath - build', function () {
 			const html = await response.text();
 			const $ = cheerio.load(html);
 
-			const sources = $(`${id} source`);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
+			const sources = picture.children('source');
 			expect(sources.length).to.equal(3);
-
-			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
