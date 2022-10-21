@@ -1,4 +1,4 @@
-import type { GetModuleInfo, OutputChunk } from 'rollup';
+import type { GetModuleInfo } from 'rollup';
 import type { BuildInternals } from './internal';
 import type { PageBuildData, StaticBuildOptions } from './types';
 
