@@ -30,4 +30,13 @@
 #                 ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
 #                   ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
 #                      ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
+><div i18nReady></div>
+#^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.begin.html
+# ^^^ source.astro meta.tag.any.div.start.html entity.name.tag.html
+#    ^ source.astro meta.tag.any.div.start.html
+#     ^^^^^^^^^ source.astro meta.tag.any.div.start.html meta.attribute.i18nReady.html entity.other.attribute-name.html
+#              ^ source.astro meta.tag.any.div.start.html punctuation.definition.tag.end.html
+#               ^^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.begin.html
+#                 ^^^ source.astro meta.tag.any.div.end.html entity.name.tag.html
+#                    ^ source.astro meta.tag.any.div.end.html punctuation.definition.tag.end.html
 >
