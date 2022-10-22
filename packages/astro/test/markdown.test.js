@@ -17,6 +17,13 @@ describe('Markdown tests', () => {
 			await fixture.build();
 		});
 
+		it('Can load a `.markdown` file', async () => {
+			const html = await fixture.readFile('/page-with-markdown-extension/index.html');
+			const $ = cheerio.load(html);
+			expect($('h1').html()).to.equal('Page with markdown extension');
+			expect($('p').html()).to.equal('Hope this loads fine 🤞');
+		});
+
 		it('Can load a simple markdown page with Astro', async () => {
 			const html = await fixture.readFile('/post/index.html');
 			const $ = cheerio.load(html);
