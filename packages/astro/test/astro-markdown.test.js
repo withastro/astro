@@ -14,6 +14,12 @@ describe('Astro Markdown', () => {
 		await fixture.build();
 	});
 
+	it('Can process `.markdown` files', async () => {
+		const html = await fixture.readFile('/page-with-markdown-extension/index.html');
+		const $ = cheerio.load(html);
+		expect($('h1').html()).to.equal('Page with markdown extension');
+	});
+
 	it('Leaves JSX expressions unprocessed', async () => {
 		const html = await fixture.readFile('/jsx-expressions/index.html');
 		const $ = cheerio.load(html);
