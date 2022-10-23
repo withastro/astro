@@ -114,7 +114,7 @@ describe('expressions', () => {
 	it('should unwrap HTML comments in code fences', async () => {
 		const { code } = await renderAstroMd(
 			`
-			  \`\`\`
+				\`\`\`
 				<!-- HTML comment -->
 				\`\`\`
 			`

@@ -63,14 +63,14 @@ const benchmarks = [
 		run: runBuild,
 	}),
 	/*new Benchmark({
-    name: 'Snowpack Example Dev Server Cached',
-    root: snowpackExampleRoot,
-    file: new URL('./dev-server-cached.json', import.meta.url),
-    async setup() {
-      // Execute once to make sure Snowpack is cached.
-      await this.execute();
-    }
-  })*/
+		name: 'Snowpack Example Dev Server Cached',
+		root: snowpackExampleRoot,
+		file: new URL('./dev-server-cached.json', import.meta.url),
+		async setup() {
+			// Execute once to make sure Snowpack is cached.
+			await this.execute();
+		}
+	})*/
 ];
 
 async function run() {

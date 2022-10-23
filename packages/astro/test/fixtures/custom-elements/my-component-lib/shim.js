@@ -1,28 +1,28 @@
 globalThis.customElements = {
-  _elements: new Map(),
-  define(name, ctr) {
-    ctr.tagName = name;
-    this._elements.set(name, ctr);
-  },
-  get(name) {
-    return this._elements.get(name);
-  }
+	_elements: new Map(),
+	define(name, ctr) {
+		ctr.tagName = name;
+		this._elements.set(name, ctr);
+	},
+	get(name) {
+		return this._elements.get(name);
+	}
 };
 
 globalThis.HTMLElement = class {
-  attachShadow() {
-    this.shadowRoot = new HTMLElement();
-  }
+	attachShadow() {
+		this.shadowRoot = new HTMLElement();
+	}
 
-  get localName() {
-    return this.constructor.tagName;
-  }
+	get localName() {
+		return this.constructor.tagName;
+	}
 
-  get innerHTML() {
-    return this._innerHTML;
-  }
+	get innerHTML() {
+		return this._innerHTML;
+	}
 
-  set innerHTML(val) {
-    this._innerHTML = val;
-  }
+	set innerHTML(val) {
+		this._innerHTML = val;
+	}
 };

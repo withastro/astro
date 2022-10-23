@@ -244,13 +244,13 @@ describe('Astro Markdown', () => {
 		const $ = cheerio.load(html);
 		/**
 		 * - list
-		 *  - list
+		 *   - list
 		 */
 		expect($('#target > ul > li').children()).to.have.lengthOf(1);
 		expect($('#target > ul > li > ul > li').text()).to.equal('nested list');
 		/**
 		 * 1. Hello
-		 *  1. nested hello
+		 *   1. nested hello
 		 */
 		expect($('#target > ol > li').children()).to.have.lengthOf(1);
 		expect($('#target > ol > li > ol > li').text()).to.equal('nested hello');

@@ -2,8 +2,8 @@ import type { ExecaChildProcess } from 'execa';
 import { execa } from 'execa';
 
 /**
- *  Credit: Azhar22
- *  @see https://github.com/azhar22k/ourl/blob/master/index.js
+ * Credit: Azhar22
+ * @see https://github.com/azhar22k/ourl/blob/master/index.js
  */
 const getPlatformSpecificCommand = (): [string] | [string, string[]] => {
 	const isGitPod = Boolean(process.env.GITPOD_REPO_ROOT);

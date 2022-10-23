@@ -136,8 +136,8 @@ export async function createVite(
 
 	// Merge configs: we merge vite configuration objects together in the following order,
 	// where future values will override previous values.
-	// 	 1. common vite config
-	// 	 2. user-provided vite config, via AstroConfig
+	//   1. common vite config
+	//   2. user-provided vite config, via AstroConfig
 	//   3. integration-provided vite config, via the `config:setup` hook
 	//   4. command vite config, passed as the argument to this function
 	let result = commonConfig;

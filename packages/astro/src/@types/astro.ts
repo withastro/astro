@@ -130,7 +130,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	 * ```astro
 	 * ---
 	 * export async function getStaticPaths() {
-	 *    return [
+	 *   return [
 	 *     { params: { id: '1' } },
 	 *   ];
 	 * }
@@ -474,7 +474,7 @@ export interface AstroUserConfig {
 	 * import netlify from '@astrojs/netlify/functions';
 	 * {
 	 *   // Example: Build for Netlify serverless deployment
-	 * 	 adapter: netlify(),
+	 *   adapter: netlify(),
 	 * }
 	 * ```
 	 */
@@ -768,7 +768,7 @@ export interface AstroUserConfig {
 		 * {
 		 *   markdown: {
 		 *     extendDefaultPlugins: true,
-		 * 		 remarkPlugins: [exampleRemarkPlugin],
+		 *     remarkPlugins: [exampleRemarkPlugin],
 		 *     rehypePlugins: [exampleRehypePlugin],
 		 *   }
 		 * }
@@ -1208,9 +1208,9 @@ export interface APIContext<Props extends Record<string, any> = Record<string, a
 	 * }
 	 *
 	 * export async function get({ params }) {
-	 *  return {
-	 * 	  body: `Hello user ${params.id}!`,
-	 *  }
+	 *   return {
+	 *     body: `Hello user ${params.id}!`,
+	 *   }
 	 * }
 	 * ```
 	 *
