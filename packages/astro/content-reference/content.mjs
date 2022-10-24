@@ -1,49 +1,13 @@
 import { z } from 'zod';
-import { getFrontmatterErrorLine, errorMap } from 'astro/content-internals';
-
-const NO_SCHEMA_MSG = (/** @type {string} */ collection) =>
-	`${collection} does not have a ~schema file. We suggest adding one for type safety!`;
+import { getErrorMsg, parseEntryData } from 'astro/content-internals';
 
 const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
 /** Used to stub out `schemaMap` entries that don't have a `~schema.ts` file */
 const defaultSchemaFile = (/** @type {string} */ collection) =>
 	new Promise((/** @type {(value: typeof defaultSchemaFileResolved) => void} */ resolve) => {
-		console.warn(NO_SCHEMA_MSG(collection));
+		console.warn(getErrorMsg.schemaMissing(collection));
 		resolve(defaultSchemaFileResolved);
 	});
-
-const getSchemaError = (collection) =>
-	new Error(`${collection}/~schema needs a named \`schema\` export.`);
-
-async function parseEntryData(
-	/** @type {string} */ collection,
-	/** @type {string} */ entryKey,
-	/** @type {{ data: any; rawData: string; }} */ unparsedEntry,
-	/** @type {{ schemaMap: any }} */ { schemaMap }
-) {
-	const defineSchemaResult = await schemaMap[collection];
-	if (!defineSchemaResult) throw getSchemaError(collection);
-	const { schema } = defineSchemaResult;
-
-	try {
-		return schema.parse(unparsedEntry.data, { errorMap });
-	} catch (e) {
-		if (e instanceof z.ZodError) {
-			const formattedError = new Error(
-				[
-					`Could not parse frontmatter in ${String(collection)} → ${String(entryKey)}`,
-					...e.errors.map((e) => e.message),
-				].join('\n')
-			);
-			formattedError.loc = {
-				file: 'TODO',
-				line: getFrontmatterErrorLine(unparsedEntry.rawData, String(e.errors[0].path[0])),
-				column: 1,
-			};
-			throw formattedError;
-		}
-	}
-}
 
 export const contentMap = {
 	// GENERATED_CONTENT_MAP_ENTRIES
