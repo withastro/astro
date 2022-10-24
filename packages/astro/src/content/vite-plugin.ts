@@ -18,6 +18,8 @@ const CONTENT_BASE = 'content-generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
 
+const EXPERIMENTAL_RENDER_CONTENT_OUTPUT = 'render-content-generated.ts';
+
 export function astroContentPlugin({
 	settings,
 	logging,
@@ -115,12 +117,21 @@ async function generateContent(
 	]);
 	let contentMapStr = '';
 	let contentMapTypesStr = '';
+	let renderContentStr = 'export const renderContentMap = {';
 	for (const [collectionName, entries] of contentEntries) {
 		contentMapStr += `${JSON.stringify(collectionName)}: ${JSON.stringify(
 			Object.fromEntries(entries),
 			null,
 			2
 		)},`;
+		renderContentStr += entries.reduce((str, [, { id }]) => {
+			return (
+				str +
+				`\n${JSON.stringify(id)}: () => import(${JSON.stringify(
+					new URL(id, dirs.contentDir).pathname
+				)}),`
+			);
+		}, '');
 		const types = entries.map(([key, { id, slug }]) => {
 			return [
 				key,
@@ -135,6 +146,8 @@ async function generateContent(
 			([key, stringifiedValue]) => `${JSON.stringify(key)}: ${stringifiedValue}`
 		)}\n},`;
 	}
+
+	renderContentStr += '}';
 
 	let schemaMapStr = '';
 	let schemaMapTypesStr = '';
@@ -163,6 +176,7 @@ async function generateContent(
 	await Promise.all([
 		fs.writeFile(new URL(CONTENT_FILE, dirs.cacheDir), generatedMaps),
 		fs.writeFile(new URL(CONTENT_TYPES_FILE, dirs.cacheDir), generatedMapTypes),
+		fs.writeFile(new URL(EXPERIMENTAL_RENDER_CONTENT_OUTPUT, dirs.cacheDir), renderContentStr),
 	]);
 }
 
