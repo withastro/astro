@@ -287,9 +287,11 @@ importers:
 
   examples/with-content:
     specifiers:
+      '@astrojs/mdx': ^0.11.4
       astro: ^1.5.2
       zod: ^3.17.3
     dependencies:
+      '@astrojs/mdx': link:../../packages/integrations/mdx
       astro: link:../../packages/astro
     devDependencies:
       zod: 3.19.1
