@@ -17,35 +17,35 @@ describe('Markdown tests', () => {
 			await fixture.build();
 		});
 
-		it('Can load a `.markdown` file', async () => {
+		it('Can load a markdown page with the `.markdown` extension', async () => {
 			const html = await fixture.readFile('/dot-markdown-page/index.html');
 			const $ = cheerio.load(html);
 			expect($('h1').html()).to.equal('Page with alternative .markdown extension');
 			expect($('p').html()).to.equal('Hope this loads fine 🤞');
 		});
 
-		it('Can load a `.mdwn` file', async () => {
+		it('Can load a markdown page with the `.mdwn` extension', async () => {
 			const html = await fixture.readFile('/dot-mdwn-page/index.html');
 			const $ = cheerio.load(html);
 			expect($('h1').html()).to.equal('Page with alternative .mdwn extension');
 			expect($('p').html()).to.equal('Hope this loads fine 🤞');
 		});
 
-		it('Can load a `.mkdn` file', async () => {
+		it('Can load a markdown page with the `.mkdn` extension', async () => {
 			const html = await fixture.readFile('/dot-mkdn-page/index.html');
 			const $ = cheerio.load(html);
 			expect($('h1').html()).to.equal('Page with alternative .mkdn extension');
 			expect($('p').html()).to.equal('Hope this loads fine 🤞');
 		});
 
-		it('Can load a `.mdown` file', async () => {
+		it('Can load a markdown page with the `.mdown` extension', async () => {
 			const html = await fixture.readFile('/dot-mdown-page/index.html');
 			const $ = cheerio.load(html);
 			expect($('h1').html()).to.equal('Page with alternative .mdown extension');
 			expect($('p').html()).to.equal('Hope this loads fine 🤞');
 		});
 
-		it('Can load a `.mkd` file', async () => {
+		it('Can load a markdown page with the `.mkd` extension', async () => {
 			const html = await fixture.readFile('/dot-mkd-page/index.html');
 			const $ = cheerio.load(html);
 			expect($('h1').html()).to.equal('Page with alternative .mkd extension');
