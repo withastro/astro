@@ -319,7 +319,11 @@ will be converted into this HTML:
 But what if you want to specify your own markup for these blockquotes? In the above example, you could create a custom `<Blockquote />` component (in any language) that either has a `<slot />` component or accepts a `children` prop.
 
 ```astro title="src/components/Blockquote.astro"
-<blockquote class="bg-blue-50 p-4">
+---
+const props = Astro.props;
+---
+
+<blockquote {...props} class="bg-blue-50 p-4">
   <span class="text-4xl text-blue-600 mb-2">“</span>
   <slot />
 </blockquote>
