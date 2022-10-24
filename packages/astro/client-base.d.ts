@@ -16,7 +16,76 @@ declare module '*.md' {
 	const load: MD['default'];
 	export default load;
 }
+
 declare module '*.markdown' {
+	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}
+
+declare module '*.mkdn' {
+	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}
+
+declare module '*.mkd' {
+	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}
+
+declare module '*.mdwn' {
+	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
+
+	export const frontmatter: MD['frontmatter'];
+	export const file: MD['file'];
+	export const url: MD['url'];
+	export const getHeadings: MD['getHeadings'];
+	/** @deprecated Renamed to `getHeadings()` */
+	export const getHeaders: () => void;
+	export const Content: MD['Content'];
+	export const rawContent: MD['rawContent'];
+	export const compiledContent: MD['compiledContent'];
+
+	const load: MD['default'];
+	export default load;
+}
+
+declare module '*.mdown' {
 	type MD = import('./dist/@types/astro').MarkdownInstance<Record<string, any>>;
 
 	export const frontmatter: MD['frontmatter'];
