@@ -1,0 +1,25 @@
+---
+import { fetchContent, fetchContentByEntry } from '.astro';
+
+const blog = await fetchContent('blog');
+
+const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.md');
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>{nestedEntry.id} {nestedEntry.data.title}</h1>
+		{blog.map((entry) => (
+			<p>
+				{entry.slug} - {entry.data.title}
+			</p>
+		))}
+	</body>
+</html>
