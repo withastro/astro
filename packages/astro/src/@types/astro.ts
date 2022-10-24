@@ -16,7 +16,7 @@ import type { SerializedSSRManifest } from '../core/app/types';
 import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
-import type { AstroComponentFactory, Metadata } from '../runtime/server';
+import type { AstroComponentFactory } from '../runtime/server';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -969,7 +969,6 @@ export type AsyncRendererComponentFn<U> = (
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
-	$$metadata: Metadata;
 	default: AstroComponentFactory;
 	css?: string[];
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;

@@ -319,7 +319,11 @@ will be converted into this HTML:
 But what if you want to specify your own markup for these blockquotes? In the above example, you could create a custom `<Blockquote />` component (in any language) that either has a `<slot />` component or accepts a `children` prop.
 
 ```astro title="src/components/Blockquote.astro"
-<blockquote class="bg-blue-50 p-4">
+---
+const props = Astro.props;
+---
+
+<blockquote {...props} class="bg-blue-50 p-4">
   <span class="text-4xl text-blue-600 mb-2">“</span>
   <slot />
 </blockquote>
@@ -504,6 +508,12 @@ export default {
   })],
 }
 ```
+
+### recmaPlugins
+
+These are plugins that modify the output [estree](https://github.com/estree/estree) directly. This is useful for modifying or injecting JavaScript variables in your MDX files.
+
+We suggest [using AST Explorer](https://astexplorer.net/) to play with estree outputs, and trying [`estree-util-visit`](https://unifiedjs.com/explore/package/estree-util-visit/) for searching across JavaScript nodes.
 
 ## Examples
 

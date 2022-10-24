@@ -104,11 +104,11 @@ describe('SSR pictures - dev', function () {
 		},
 	].forEach(({ title, id, url, query, alt, contentType }) => {
 		it(title, async () => {
-			const sources = $(`${id} source`);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
+			const sources = picture.children('source');
 			expect(sources.length).to.equal(3);
-
-			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');
@@ -220,11 +220,11 @@ describe('SSR pictures with subpath - dev', function () {
 		},
 	].forEach(({ title, id, url, query, alt, contentType }) => {
 		it(title, async () => {
-			const sources = $(`${id} source`);
+			const image = $(`${id}`);
+			const picture = image.closest('picture');
 
+			const sources = picture.children('source');
 			expect(sources.length).to.equal(3);
-
-			const image = $(`${id} img`);
 
 			const src = image.attr('src');
 			const [route, params] = src.split('?');

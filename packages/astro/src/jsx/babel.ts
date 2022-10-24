@@ -1,8 +1,6 @@
 import type { PluginObj } from '@babel/core';
 import * as t from '@babel/types';
-import npath from 'path';
-import { normalizePath } from 'vite';
-import { resolveJsToTs } from '../core/util.js';
+import { resolvePath } from '../core/util.js';
 import { HydrationDirectiveProps } from '../runtime/server/hydration.js';
 import type { PluginMetadata } from '../vite-plugin-astro/types';
 
@@ -217,13 +215,7 @@ export default function astroJSX(): PluginObj {
 
 				const meta = path.getData('import');
 				if (meta) {
-					let resolvedPath: string;
-					if (meta.path.startsWith('.')) {
-						resolvedPath = normalizePath(npath.resolve(npath.dirname(state.filename!), meta.path));
-						resolvedPath = resolveJsToTs(resolvedPath);
-					} else {
-						resolvedPath = meta.path;
-					}
+					const resolvedPath = resolvePath(meta.path, state.filename!);
 
 					if (isClientOnly) {
 						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
@@ -297,13 +289,7 @@ export default function astroJSX(): PluginObj {
 							}
 						}
 					}
-					let resolvedPath: string;
-					if (meta.path.startsWith('.')) {
-						resolvedPath = normalizePath(npath.resolve(npath.dirname(state.filename!), meta.path));
-						resolvedPath = resolveJsToTs(resolvedPath);
-					} else {
-						resolvedPath = meta.path;
-					}
+					const resolvedPath = resolvePath(meta.path, state.filename!);
 					if (isClientOnly) {
 						(state.file.metadata as PluginMetadata).astro.clientOnlyComponents.push({
 							exportName: meta.name,

@@ -23,6 +23,7 @@ import SvelteDynamic from '../components/SvelteDynamic.svelte';
 import '../styles/imported-url.css';
 import '../styles/imported.sass';
 import '../styles/imported.scss';
+import raw from '../styles/raw.css?raw'
 ---
 
 <html>
@@ -71,6 +72,7 @@ import '../styles/imported.scss';
       <VueScss />
       <ReactDynamic client:load />
       <SvelteDynamic client:load />
+      <pre id="css-raw">{raw}</pre>
     </div>
   </body>
 </html>
