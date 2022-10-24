@@ -1,25 +1,29 @@
-# Astro Starter Kit: Minimal
-
-```
-npm create astro@latest -- --template minimal
-```
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
+# Astro Starter Kit: Content
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+This project is based on **[the Content Schema RFC](https://www.notion.so/astroinc/Content-Schemas-35f1952fb0a24b30b681b0509ac4d7c2)**. We suggest reading the intro and "detailed usage" sections to understand how content works.
 
 ## 🚀 Project Structure
 
 Inside of your Astro project, you'll see the following folders and files:
 
-```
+```sh
 /
+├── .astro/ # Generated on build
 ├── public/
 ├── src/
+│   └── content/
+│       └── blog/
+│           ├── ~schema.ts
+│           ├── first.md
+│           └── second.md
 │   └── pages/
 │       └── index.astro
 └── package.json
 ```
+
+`src/content/` contains "collections" of Markdown or MDX documents you'll use in your website. Astro will generate a `fetchContent` function to grab posts from `src/content/` (see the generated `.astro` directory), with type-checked frontmatter based on a schema.
 
 Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
