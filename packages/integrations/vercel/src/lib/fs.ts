@@ -16,6 +16,20 @@ export async function emptyDir(dir: PathLike): Promise<void> {
 	await fs.mkdir(dir, { recursive: true });
 }
 
+export async function getFilesFromFolder(dir: URL) {
+	const data = await fs.readdir(dir, { withFileTypes: true });
+	let files: URL[] = [];
+	for (const item of data) {
+		if (item.isDirectory()) {
+			const moreFiles = await getFilesFromFolder(new URL(`./${item.name}/`, dir));
+			files = files.concat(moreFiles);
+		} else {
+			files.push(new URL(`./${item.name}`, dir));
+		}
+	}
+	return files;
+}
+
 export const getVercelOutput = (root: URL) => new URL('./.vercel/output/', root);
 
 /**
