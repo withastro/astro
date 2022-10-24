@@ -200,7 +200,9 @@ describe('rss', () => {
 			} catch (err) {
 				chai
 					.expect(err.message)
-					.to.contain('you can only glob ".md" or ".markdown" files within /pages');
+					.to.contain(
+						'you can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within /pages'
+					);
 			}
 		});
 	});
