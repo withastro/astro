@@ -1,7 +1,7 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
 export interface Props {
 	content: {
@@ -27,7 +27,7 @@ const {
 				margin: 0.25em 0 0;
 			}
 			hr {
-  				border-top: 1px solid #DDD;
+				border-top: 1px solid #ddd;
 				margin: 1rem 0;
 			}
 		</style>
@@ -37,18 +37,15 @@ const {
 		<Header />
 		<main>
 			<article>
-				{heroImage && (
-					<img
-						width={720}
-						height={360}
-						src={heroImage}
-						alt=""
-					/>
-				)}
+				{heroImage && <img width={720} height={360} src={heroImage} alt="" />}
 				<h1 class="title">{title}</h1>
 				{pubDate && <time>{pubDate}</time>}
-				{updatedDate && <div>Last updated on <time>{updatedDate}</time></div>}
-				<hr/>
+				{updatedDate && (
+					<div>
+						Last updated on <time>{updatedDate}</time>
+					</div>
+				)}
+				<hr />
 				<slot />
 			</article>
 		</main>
