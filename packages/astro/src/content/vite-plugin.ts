@@ -183,7 +183,7 @@ async function getEntriesByCollection(
 	collectionPath: string,
 	{ contentDir }: Pick<Dirs, 'contentDir'>
 ): Promise<Entry[]> {
-	const files = await glob(`${collectionPath}/*.{md,mdx}`);
+	const files = await glob(`${collectionPath}/**/*.{md,mdx}`);
 	return Promise.all(
 		files.map(async (filePath) => {
 			const entryKey = path.relative(collectionPath, filePath);
