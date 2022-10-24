@@ -190,8 +190,8 @@ async function getEntriesByCollection(
 			const id = path.relative(contentDir.pathname, filePath);
 			const slug = entryKey.replace(/\.mdx?$/, '');
 			const body = await fs.readFile(filePath, 'utf-8');
-			const { data, matter: rawData } = parseFrontmatter(body, filePath);
-			return [entryKey, { id, slug, body, data, rawData }];
+			const { data, matter } = parseFrontmatter(body, filePath);
+			return [entryKey, { id, slug, body, data, rawData: matter ?? '' }];
 		})
 	);
 }
