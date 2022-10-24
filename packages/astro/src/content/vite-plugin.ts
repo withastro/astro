@@ -14,7 +14,7 @@ type Dirs = {
 	generatedInputDir: URL;
 };
 
-const CONTENT_BASE = 'content';
+const CONTENT_BASE = 'content-generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
 
@@ -29,7 +29,7 @@ export function astroContentPlugin({
 	const dirs: Dirs = {
 		cacheDir: new URL('./.astro/', root),
 		contentDir: new URL('./content/', srcDir),
-		generatedInputDir: new URL('../../content-reference/', import.meta.url),
+		generatedInputDir: new URL('../../', import.meta.url),
 	};
 	let contentDirExists = false;
 

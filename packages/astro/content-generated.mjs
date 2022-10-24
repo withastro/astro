@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getErrorMsg, parseEntryData } from 'astro/content-internals';
+import { getErrorMsg, parseEntryData } from 'astro/content/internals';
 
 const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
 /** Used to stub out `schemaMap` entries that don't have a `~schema.ts` file */

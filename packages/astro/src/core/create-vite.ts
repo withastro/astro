@@ -22,7 +22,7 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
-import { astroContentPlugin } from '../vite-plugin-content/index.js';
+import { astroContentPlugin } from '../content/vite-plugin.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
