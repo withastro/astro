@@ -9,7 +9,6 @@ export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
 export function injectDelayedAssetPlugin(): Plugin {
 	return {
 		name: 'astro-inject-delayed-asset-plugin',
-		enforce: 'post',
 		load(id) {
 			if (id.endsWith(DELAYED_ASSET_FLAG)) {
 				const code = `
