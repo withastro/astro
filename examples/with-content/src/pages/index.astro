@@ -4,8 +4,8 @@ import { renderContent } from '../render-content';
 
 const blog = await fetchContent('blog');
 
-const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.md');
-const { Content } = await renderContent(nestedEntry);
+const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.mdx');
+const { Content } = await renderContent(nestedEntry, $$result);
 ---
 
 <html lang="en">

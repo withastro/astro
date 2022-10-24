@@ -6,6 +6,7 @@ import { cyan } from 'kleur/colors';
 import matter from 'gray-matter';
 import { info, LogOptions } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
+import { DELAYED_ASSET_FLAG } from '../vite-plugin-asset-ssr/index.js';
 
 type TypedMapEntry = { key: string; value: string; type: string };
 type Dirs = {
@@ -128,7 +129,7 @@ async function generateContent(
 			return (
 				str +
 				`\n${JSON.stringify(id)}: () => import(${JSON.stringify(
-					new URL(id, dirs.contentDir).pathname
+					new URL(id, dirs.contentDir).pathname + DELAYED_ASSET_FLAG
 				)}),`
 			);
 		}, '');
