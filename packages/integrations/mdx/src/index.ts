@@ -66,7 +66,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
 					jsx: true,
 					jsxImportSource: 'astro',
-					// Note: disable `.md` and `.markdown` support
+					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
 				};

@@ -17,6 +17,7 @@ import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
 import { getRouteGenerator } from './generator.js';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 const require = createRequire(import.meta.url);
 
 interface Item {
@@ -208,8 +209,7 @@ export function createRouteManifest(
 	const routes: RouteData[] = [];
 	const validPageExtensions: Set<string> = new Set([
 		'.astro',
-		'.md',
-		'.markdown',
+		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
 		...settings.pageExtensions,
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);

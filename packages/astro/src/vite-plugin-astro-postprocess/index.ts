@@ -4,6 +4,7 @@ import type { NodePath } from 'ast-types/lib/node-path';
 import { parse, print, types, visit } from 'recast';
 import type { Plugin } from 'vite';
 import type { AstroSettings } from '../@types/astro';
+import { isMarkdownFile } from '../core/util';
 
 // Check for `Astro.glob()`. Be very forgiving of whitespace. False positives are okay.
 const ASTRO_GLOB_REGEX = /Astro2?\s*\.\s*glob\s*\(/;
@@ -16,8 +17,8 @@ export default function astro(_opts: AstroPluginOptions): Plugin {
 	return {
 		name: 'astro:postprocess',
 		async transform(code, id) {
-			// Currently only supported in ".astro", ".md" & ".markdown" files
-			if (!id.endsWith('.astro') && !id.endsWith('.md') && !id.endsWith('.markdown')) {
+			// Currently only supported in ".astro" and ".md" (or any alternative markdown file extension like `.markdown`) files
+			if (!id.endsWith('.astro') && !isMarkdownFile(id, { criteria: 'endsWith' })) {
 				return null;
 			}
 
