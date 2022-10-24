@@ -247,7 +247,7 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	};
 }
 
-/** Union type of supported markdown extension */
+/** Union type of supported markdown file extensions */
 type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
 
 export interface AstroGlobalPartial {
