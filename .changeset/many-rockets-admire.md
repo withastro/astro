@@ -4,7 +4,7 @@
 ---
 
 Add support for markdown files with the following extensions:
--	`.markdown`
+- `.markdown`
 - `.mdown`
 - `.mkdn`
 - `.mkd`
