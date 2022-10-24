@@ -1,9 +1,11 @@
 ---
 import { fetchContent, fetchContentByEntry } from '.astro';
+import { renderContent } from '../render-content';
 
 const blog = await fetchContent('blog');
 
 const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.md');
+const { Content } = await renderContent(nestedEntry);
 ---
 
 <html lang="en">
@@ -16,6 +18,7 @@ const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.md');
 	</head>
 	<body>
 		<h1>{nestedEntry.id} {nestedEntry.data.title}</h1>
+		<Content />
 		{blog.map((entry) => (
 			<p>
 				{entry.slug} - {entry.data.title}
