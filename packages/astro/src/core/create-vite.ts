@@ -119,7 +119,7 @@ export async function createVite(
 			astroHeadPropagationPlugin({ settings }),
 			settings.config.experimental.prerender && astroScannerPlugin({ settings, logging }),
 			astroContentPlugin({ settings, logging }),
-			injectDelayedAssetPlugin(),
+			injectDelayedAssetPlugin({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
