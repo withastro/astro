@@ -26,7 +26,7 @@
     "benchmark": "pnpm --filter @benchmark/simple run build && pnpm dlx concurrently -k -s first --raw \"node packages/astro/test/benchmark/simple/server.mjs\" \"pnpm dlx autocannon -c 100 -d 30 -p 10 localhost:3002/\"",
     "lint": "eslint --cache .",
     "version": "changeset version && pnpm install --no-frozen-lockfile && pnpm run format",
-    "preinstall": "only-allow pnpm"
+    "preinstall": "npx only-allow pnpm"
   },
   "workspaces": [
     "packages/markdown/*",
@@ -89,7 +89,6 @@
     "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",
-    "only-allow": "^1.1.1",
     "organize-imports-cli": "^0.10.0",
     "prettier": "^2.7.0",
     "prettier-plugin-astro": "^0.3.0",
