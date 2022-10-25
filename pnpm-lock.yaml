@@ -291,7 +291,7 @@ importers:
       astro: ^1.5.2
       zod: ^3.17.3
     dependencies:
-      '@astrojs/mdx': link:../../packages/integrations/mdx
+      '@astrojs/mdx': 0.11.6
       astro: link:../../packages/astro
     devDependencies:
       zod: 3.19.1
@@ -451,6 +451,7 @@ importers:
       node-fetch: ^3.2.5
       node-mocks-http: ^1.11.0
       ora: ^6.1.0
+      parse-imports: ^1.1.0
       path-browserify: ^1.0.1
       path-to-regexp: ^6.2.1
       postcss: ^8.4.14
@@ -519,6 +520,7 @@ importers:
       magic-string: 0.27.0
       mime: 3.0.0
       ora: 6.1.2
+      parse-imports: 1.1.0
       path-browserify: 1.0.1
       path-to-regexp: 6.2.1
       postcss: 8.4.19
@@ -1128,9 +1130,6 @@ importers:
       '@astrojs/node': link:../../../../integrations/node
       astro: link:../../..
 
-  packages/astro/test/benchmark/simple/dist/server:
-    specifiers: {}
-
   packages/astro/test/fixtures/0-css:
     specifiers:
       '@astrojs/react': workspace:*
@@ -1670,9 +1669,6 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
-
-  packages/astro/test/fixtures/config-vite/dist:
-    specifiers: {}
 
   packages/astro/test/fixtures/css-assets:
     specifiers:
@@ -3966,6 +3962,31 @@ packages:
       vscode-uri: 3.0.6
     dev: false
 
+  /@astrojs/mdx/0.11.6:
+    resolution: {integrity: sha512-MEi8CZuz4vXn74/jCb0CMOAKEqd6nsLrShYfE+ddb1//14CwuaVGbXN7V6/zGj8ZvBhFk/darBbNpJBmzfbI6A==}
+    engines: {node: ^14.18.0 || >=16.12.0}
+    dependencies:
+      '@astrojs/prism': 1.0.2
+      '@mdx-js/mdx': 2.1.5
+      '@mdx-js/rollup': 2.1.5
+      acorn: 8.8.1
+      es-module-lexer: 0.10.5
+      estree-util-visit: 1.2.0
+      github-slugger: 1.5.0
+      gray-matter: 4.0.3
+      kleur: 4.1.5
+      rehype-raw: 6.1.1
+      remark-frontmatter: 4.0.1
+      remark-gfm: 3.0.1
+      remark-smartypants: 2.0.0
+      shiki: 0.11.1
+      unist-util-visit: 4.1.1
+      vfile: 5.3.5
+    transitivePeerDependencies:
+      - rollup
+      - supports-color
+    dev: false
+
   /@astrojs/micromark-extension-mdx-jsx/1.0.3:
     resolution: {integrity: sha512-O15+i2DGG0qb1R/1SYbFXgOKDGbYdV8iJMtuboVb1S9YFQfMOJxaCMco0bhXQI7PmZcQ4pZWIjT5oZ64dXUtRA==}
     dependencies:
@@ -3984,6 +4005,13 @@ packages:
     resolution: {integrity: sha512-4KkCEFYtmTUSvU49UZSJD/VQfD/oKzf0ld8COjFW1pxfquBgvevLxRVpYLRanZB20L3c8/xyyQpDq7zMSMqQrg==}
     dependencies:
       '@astrojs/webapi': 1.1.1
+    dev: false
+
+  /@astrojs/prism/1.0.2:
+    resolution: {integrity: sha512-o3cUVoAuALDqdN5puNlsN2eO4Yi1kDh68YO8V7o6U4Ts+J/mMayzlJ7JsgYAmob0xrf/XnADVgu8khfMv/w3uA==}
+    engines: {node: ^14.18.0 || >=16.12.0}
+    dependencies:
+      prismjs: 1.29.0
     dev: false
 
   /@astrojs/webapi/1.1.1:
@@ -11870,6 +11898,10 @@ packages:
     resolution: {integrity: sha512-+7IwY/kiGAacQfY+YBhKMvEmyAJnw5grTUgjG85Pe7vcUI/6b7pZjZG8nQ7+48YhzEAEqrEgD2dCz/JIK+AYvw==}
     dev: false
 
+  /es-module-lexer/0.4.1:
+    resolution: {integrity: sha512-ooYciCUtfw6/d2w56UVeqHPcoCFAiJdz5XOkYpv/Txl1HMUozpXjz/2RIQgqwKdXNDPSF1W7mJCFse3G+HDyAA==}
+    dev: false
+
   /es-module-lexer/1.1.0:
     resolution: {integrity: sha512-fJg+1tiyEeS8figV+fPcPpm8WqJEflG3yPU0NOm5xMvrNkuiy7HzX/Ljng4Y0hAoiw4/3hQTCFYw+ub8+a2pRA==}
     dev: false
@@ -15714,6 +15746,14 @@ packages:
       is-decimal: 2.0.1
       is-hexadecimal: 2.0.1
 
+  /parse-imports/1.1.0:
+    resolution: {integrity: sha512-ov3Rc9e3wX9+BLR7nFx08+ThdLJfzi8ZXQrqZXfmuxdL+JCCN24m2uuBFBoaa/yyiZ9s8HjcHGDKSXJbKAyDQA==}
+    engines: {node: '>= 12.17'}
+    dependencies:
+      es-module-lexer: 0.4.1
+      slashes: 2.0.2
+    dev: false
+
   /parse-json/5.2.0:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
@@ -17256,6 +17296,10 @@ packages:
   /slash/4.0.0:
     resolution: {integrity: sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==}
     engines: {node: '>=12'}
+
+  /slashes/2.0.2:
+    resolution: {integrity: sha512-68p+QkFAQQRetIUzNXAdktNJr8AYLxJukjBegYQz8F7VATsBJG621UYtY/vS2j9jerxdJ1k6Tc25K4DXEw1d5w==}
+    dev: false
 
   /slice-ansi/5.0.0:
     resolution: {integrity: sha512-FC+lgizVPfie0kkhqUScwRu1O/lF6NOgJmlCgK+/LYxDCTk8sGelYaHDhFcDN+Sn3Cv+3VSa4Byeo+IMCzpMgQ==}
