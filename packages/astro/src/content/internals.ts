@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { prependForwardSlash } from '../core/path.js';
 
 export async function parseEntryData(
 	collection: string,
@@ -61,3 +62,23 @@ export const getErrorMsg = {
 	schemaNamedExp: (collection: string) =>
 		new Error(`${collection}/~schema needs a named \`schema\` export.`),
 };
+
+export function createRenderContent(renderContentMap: Record<string, () => Promise<any>>) {
+	return async function renderContent(this: any, entryOrEntryId: { id: string } | string) {
+		const contentKey = typeof entryOrEntryId === 'object' ? entryOrEntryId.id : entryOrEntryId;
+		const modImport = renderContentMap[contentKey];
+		if (!modImport) throw new Error(`${JSON.stringify(contentKey)} does not exist!`);
+
+		const mod = await modImport();
+
+		if (import.meta.env.PROD && 'collectedCss' in mod && 'links' in (this ?? {})) {
+			for (const cssAsset of mod.collectedCss) {
+				this.links.add({
+					props: { rel: 'stylesheet', href: prependForwardSlash(cssAsset) },
+					children: '',
+				});
+			}
+		}
+		return mod;
+	};
+}

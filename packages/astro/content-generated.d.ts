@@ -22,3 +22,9 @@ export declare function fetchContent<
 	collection: C,
 	filter?: (data: typeof contentMap[C][E]) => boolean
 ): Promise<typeof contentMap[C][keyof typeof contentMap[C]][]>;
+export declare function renderContent<
+	C extends keyof typeof contentMap,
+	E extends keyof typeof contentMap[C]
+>(
+	entryOrEntryId: typeof contentMap[C][E] | typeof contentMap[C][E]['id']
+): Promise<{ Content: any }>;

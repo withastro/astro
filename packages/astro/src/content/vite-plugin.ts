@@ -19,7 +19,7 @@ const CONTENT_BASE = 'content-generated';
 const CONTENT_FILE = CONTENT_BASE + '.mjs';
 const CONTENT_TYPES_FILE = CONTENT_BASE + '.d.ts';
 
-const EXPERIMENTAL_RENDER_CONTENT_OUTPUT = 'render-content-generated.ts';
+const EXPERIMENTAL_RENDER_CONTENT_OUTPUT = 'render-content-generated.mjs';
 
 export function astroContentPlugin({
 	settings,

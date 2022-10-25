@@ -10,19 +10,6 @@ const assetPlaceholder = `'@@ASTRO-ASSET-PLACEHOLDER@@'`;
 
 export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
 
-function getRenderContentImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
-	for (const imp of parseImportRes) {
-		if (imp.moduleSpecifier.value === '.astro/render') {
-			for (const namedImp of imp.importClause?.named ?? []) {
-				if (namedImp.specifier === 'renderContent') {
-					// Use `binding` to support `import { renderContent as somethingElse }...
-					return namedImp.binding;
-				}
-			}
-		}
-	}
-}
-
 export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings }): Plugin {
 	return {
 		name: 'astro-inject-delayed-asset-plugin',
@@ -38,13 +25,15 @@ export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings
 		},
 		async transform(code, id, options) {
 			if (options?.ssr && id.endsWith('.astro')) {
-				let renderContentImportName = getRenderContentImportName(await parseImports(code));
+				let renderContentImportName = getRenderContentImportName(
+					await parseImports(escapeViteEnvReferences(code))
+				);
 				if (!renderContentImportName) return;
 
 				const s = new MagicString(code, {
 					filename: normalizeFilename({ fileName: id, projectRoot: settings.config.root }),
 				});
-				s.prepend(`import { renderContent as $$renderContent } from '.astro/render';\n`);
+				s.prepend(`import { renderContent as $$renderContent } from '.astro';\n`);
 				// TODO: not this
 				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
 				const indexOfFrontmatterPreamble = code.indexOf(frontmatterPreamble);
@@ -89,4 +78,23 @@ export function assetSsrPlugin({ internals }: { internals: BuildInternals }): Pl
 			}
 		},
 	};
+}
+
+function getRenderContentImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
+	for (const imp of parseImportRes) {
+		if (imp.moduleSpecifier.value === '.astro' && imp.importClause?.named) {
+			for (const namedImp of imp.importClause.named) {
+				if (namedImp.specifier === 'renderContent') {
+					// Use `binding` to support `import { renderContent as somethingElse }...
+					return namedImp.binding;
+				}
+			}
+		}
+	}
+	return undefined;
+}
+
+// Necessary to avoid checking `import.meta` during import crawl
+function escapeViteEnvReferences(code: string) {
+	return code.replace(/import\.meta/g, 'import\\u002Emeta');
 }

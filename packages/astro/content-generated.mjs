@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { getErrorMsg, parseEntryData } from 'astro/content/internals';
+import { getErrorMsg, parseEntryData, createRenderContent } from 'astro/content/internals';
+import { renderContentMap } from './render-content-generated.mjs';
 
 const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
 /** Used to stub out `schemaMap` entries that don't have a `~schema.ts` file */
@@ -51,3 +51,5 @@ export async function fetchContent(
 		return entries;
 	}
 }
+
+export const renderContent = createRenderContent(renderContentMap);
