@@ -1,11 +1,11 @@
 ---
 import { fetchContent, fetchContentByEntry } from '.astro';
-import { renderContent } from '../render-content';
+import { renderContent as somethingElse } from '.astro/render';
 
 const blog = await fetchContent('blog');
 
 const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.mdx');
-const { Content } = await renderContent(nestedEntry, $$result);
+const { Content } = await somethingElse(nestedEntry);
 ---
 
 <html lang="en">
