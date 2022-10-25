@@ -4,7 +4,8 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      ".astro": [".astro/content-generated"]
+      ".astro": [".astro/content-generated"],
+      ".astro/render": ["./src/render-content"],
     }
   }
 }
