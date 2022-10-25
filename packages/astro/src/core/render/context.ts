@@ -8,6 +8,7 @@ export interface RenderContext {
 	origin: string;
 	pathname: string;
 	url: URL;
+	props?: Record<string|number|symbol, any>;
 	scripts?: Set<SSRElement>;
 	links?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
@@ -22,11 +23,13 @@ export type CreateRenderContextArgs = Partial<RenderContext> & {
 
 export function createRenderContext(options: CreateRenderContextArgs): RenderContext {
 	const request = options.request;
+	const props = options.props ?? {};
 	const url = new URL(request.url);
 	const origin = options.origin ?? url.origin;
 	const pathname = options.pathname ?? url.pathname;
 	return {
 		...options,
+		props,
 		origin,
 		pathname,
 		url,

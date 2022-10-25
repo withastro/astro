@@ -16,6 +16,7 @@ export interface Environment {
 	/** "development" or "production" */
 	mode: RuntimeMode;
 	renderers: SSRLoadedRenderer[];
+	isolation?: boolean;
 	resolve: (s: string) => Promise<string>;
 	routeCache: RouteCache;
 	site?: string;

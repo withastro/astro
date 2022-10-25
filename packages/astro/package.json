@@ -37,6 +37,8 @@
     "./tsconfigs/*": "./tsconfigs/*.json",
     "./jsx/*": "./dist/jsx/*",
     "./jsx-runtime": "./dist/jsx-runtime/index.js",
+    "./render": "./dist/render/index.js",
+    "./render/vite": "./dist/render/vite.js",
     "./config": {
       "types": "./config.d.ts",
       "default": "./config.mjs"
@@ -72,6 +74,7 @@
   "files": [
     "components",
     "tsconfigs",
+    "render",
     "dist",
     "astro.js",
     "config.d.ts",

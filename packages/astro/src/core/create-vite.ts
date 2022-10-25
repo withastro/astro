@@ -17,6 +17,7 @@ import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
+import virtualUserConfig from '../vite-plugin-user-config/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors.js';
 import { resolveDependency } from './util.js';
@@ -30,6 +31,8 @@ interface CreateViteOptions {
 const ALWAYS_NOEXTERNAL = new Set([
 	// This is only because Vite's native ESM doesn't resolve "exports" correctly.
 	'astro',
+	'astro/dist/render',
+	'astro/dist/render/vite.js',
 	// Vite fails on nested `.astro` imports without bundling
 	'astro/components',
 	// Handle recommended nanostores. Only @nanostores/preact is required from our testing!
@@ -60,7 +63,7 @@ export async function createVite(
 ): Promise<vite.InlineConfig> {
 	const thirdPartyAstroPackages = await getAstroPackages(settings);
 	// Start with the Vite configuration that Astro core needs
-	const commonConfig: vite.InlineConfig = {
+	const commonConfig: vite.InlineConfig & { test?: Record<string, any> } = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', settings.config.root)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'warn', // log warnings and errors only
@@ -84,6 +87,7 @@ export async function createVite(
 			jsxVitePlugin({ settings, logging }),
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
+			virtualUserConfig({ settings }),
 			astroScriptsPageSSRPlugin({ settings }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
@@ -132,6 +136,11 @@ export async function createVite(
 			// shiki to load it with node instead.
 			external: mode === 'dev' ? ['shiki'] : [],
 		},
+		test: {
+			deps: {
+				inline: [/astro\/dist\/render/],
+			},
+		}
 	};
 
 	// Merge configs: we merge vite configuration objects together in the following order,

@@ -354,10 +354,16 @@ importers:
 
   examples/with-vitest:
     specifiers:
+      '@astrojs/preact': ^1.2.0
       astro: ^1.5.2
+      preact: ^10.11.2
+      preact-render-to-string: ^5.2.4
       vitest: ^0.20.3
     dependencies:
+      '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
+      preact: 10.11.2
+      preact-render-to-string: 5.2.6_preact@10.11.2
       vitest: 0.20.3
 
   packages/astro:

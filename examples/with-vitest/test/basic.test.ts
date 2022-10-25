@@ -1,4 +1,6 @@
 import { assert, expect, test } from 'vitest';
+import Foo from '../src/components/Foo.astro';
+import * as mod from 'astro/render/vite';
 
 // Edit an assertion and save to see HMR in action
 
@@ -18,4 +20,12 @@ test('JSON', () => {
 
 	expect(output).eq('{"foo":"hello","bar":"world"}');
 	assert.deepEqual(JSON.parse(output), input, 'matches original');
+});
+
+test('Component', async () => {
+	console.log(mod);
+	// const { html, css, js } = await renderComponent(Foo, { name: 'Nate' });
+	// expect(html).eq(false);
+	// expect(css).eq(false);
+	// expect(js).eq(false);
 });

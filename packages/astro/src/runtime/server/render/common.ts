@@ -6,6 +6,7 @@ import {
 	determineIfNeedsHydrationScript,
 	determinesIfNeedsDirectiveScript,
 	getPrescripts,
+	getIsolationPrescripts,
 	PrescriptType,
 } from '../scripts.js';
 
@@ -32,8 +33,13 @@ export function stringifyChunk(result: SSRResult, chunk: string | RenderInstruct
 				? 'directive'
 				: null;
 			if (prescriptType) {
-				let prescripts = getPrescripts(prescriptType, hydration.directive);
-				return markHTMLString(prescripts);
+				if (result._metadata.isolation) {
+					getIsolationPrescripts(result, prescriptType, hydration.directive);	
+					return '';
+				} else {
+					let prescripts = getPrescripts(prescriptType, hydration.directive);
+					return markHTMLString(prescripts);
+				}
 			} else {
 				return '';
 			}

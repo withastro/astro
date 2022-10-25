@@ -12,7 +12,10 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@astrojs/preact": "^1.2.0",
     "astro": "^1.5.2",
+    "preact": "^10.11.2",
+    "preact-render-to-string": "^5.2.4",
     "vitest": "^0.20.3"
   }
 }

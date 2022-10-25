@@ -55,3 +55,17 @@ export function getPrescripts(type: PrescriptType, directive: string): string {
 	}
 	return '';
 }
+
+export function getIsolationPrescripts(result: SSRResult, type: PrescriptType, directive: string): void {
+	switch (type) {
+		case 'both': {
+			result.styles.add({ props: {}, children: 'astro-island,astro-slot{display:contents}' });
+			result.scripts.add({ props: {}, children: getDirectiveScriptText(directive) + islandScript })
+			return;
+		}
+		case 'directive': {
+			result.scripts.add({ props: {}, children: getDirectiveScriptText(directive) })
+			return;
+		}
+	}
+}

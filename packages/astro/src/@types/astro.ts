@@ -1381,6 +1381,7 @@ export interface SSRElement {
 }
 
 export interface SSRMetadata {
+	isolation: boolean;
 	renderers: SSRLoadedRenderer[];
 	pathname: string;
 	hasHydrationScript: boolean;

@@ -3,7 +3,7 @@ import type { LogOptions } from '../logger/core.js';
 import type { RenderContext } from './context.js';
 import type { Environment } from './environment.js';
 
-import { Fragment, renderPage as runtimeRenderPage } from '../../runtime/server/index.js';
+import { Fragment, renderPage as runtimeRenderPage, renderToString as runtimeRenderToString } from '../../runtime/server/index.js';
 import { attachToResponse } from '../cookies/index.js';
 import { getParams } from '../routing/params.js';
 import { createResult } from './result.js';
@@ -75,7 +75,8 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 			`[getStaticPath] route pattern matched, but no matching static path found. (${ctx.pathname})`
 		);
 	}
-	const [params, pageProps] = paramsAndPropsRes;
+	let [params, pageProps] = paramsAndPropsRes;
+	pageProps = ctx.props ?? pageProps;
 
 	// Validate the page component before rendering the page
 	const Component = mod.default;
@@ -123,4 +124,35 @@ export async function renderPage(mod: ComponentInstance, ctx: RenderContext, env
 	}
 
 	return response;
+}
+
+export async function renderComponentInIsolation(Component: any, ctx: RenderContext, env: Environment) {
+	if (!Component)
+		throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
+
+	const props = ctx.props ?? {};
+
+	const result = createResult({
+		adapterName: env.adapterName,
+		links: ctx.links,
+		styles: ctx.styles,
+		logging: env.logging,
+		isolation: env.isolation,
+		markdown: env.markdown,
+		mode: env.mode,
+		origin: ctx.origin,
+		params: {},
+		props,
+		pathname: ctx.pathname,
+		resolve: env.resolve,
+		renderers: env.renderers,
+		request: ctx.request,
+		site: env.site,
+		scripts: ctx.scripts,
+		ssr: env.ssr,
+		status: ctx.status ?? 200,
+	});
+
+	const html = await runtimeRenderToString(result, Component, props, {});
+	return { html, css: Array.from(result.styles).map(style => style.children), js: Array.from(result.scripts).map(script => script.children) };
 }

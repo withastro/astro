@@ -42,6 +42,7 @@ export interface CreateResultArgs {
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 	styles?: Set<SSRElement>;
+	isolation?: boolean;
 	request: Request;
 	status: number;
 }
@@ -129,7 +130,7 @@ class Slots {
 let renderMarkdown: any = null;
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { markdown, params, pathname, renderers, request, resolve } = args;
+	const { markdown, params, pathname, renderers, request, resolve, isolation = false } = args;
 
 	const url = new URL(request.url);
 	const headers = new Headers();
@@ -293,6 +294,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 			hasHydrationScript: false,
 			hasRenderedHead: false,
 			hasDirectives: new Set(),
+			isolation,
 		},
 		response,
 	};

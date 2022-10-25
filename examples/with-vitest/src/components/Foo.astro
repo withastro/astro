@@ -1,0 +1,17 @@
+---
+import Test from './Test';
+const { name = 'world' } = Astro.props;
+---
+
+<h1>Hello {name}!</h1>
+<Test client:load />
+
+<style>
+	h1 {
+		color: red;
+	}
+</style>
+
+<script>
+	interface What {}
+</script>

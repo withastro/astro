@@ -14,6 +14,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 
 export function renderHead(result: SSRResult): Promise<string> {
 	result._metadata.hasRenderedHead = true;
+	if (result._metadata.isolation) return markHTMLString('');
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => renderElement('style', style));
