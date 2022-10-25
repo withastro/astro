@@ -1,5 +1,5 @@
 import ancestor from 'common-ancestor-path';
-import { Data } from 'vfile';
+import type { Data } from 'vfile';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
 import {
 	appendExtension,
@@ -62,11 +62,17 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
  *
  * as absolute file paths with forward slashes.
  */
-export function normalizeFilename(filename: string, config: AstroConfig) {
-	if (filename.startsWith('/@fs')) {
-		filename = filename.slice('/@fs'.length);
-	} else if (filename.startsWith('/') && !ancestor(filename, config.root.pathname)) {
-		filename = new URL('.' + filename, config.root).pathname;
+export function normalizeFilename({
+	fileName,
+	projectRoot,
+}: {
+	fileName: string;
+	projectRoot: URL;
+}) {
+	if (fileName.startsWith('/@fs')) {
+		fileName = fileName.slice('/@fs'.length);
+	} else if (fileName.startsWith('/') && !ancestor(fileName, projectRoot.pathname)) {
+		fileName = new URL('.' + fileName, projectRoot).pathname;
 	}
-	return removeLeadingForwardSlashWindows(filename);
+	return removeLeadingForwardSlashWindows(fileName);
 }
