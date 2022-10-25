@@ -1,4 +1,5 @@
 import { Data } from 'vfile';
+import ancestor from 'common-ancestor-path';
 import type { AstroConfig, MarkdownAstroData } from '../@types/astro';
 import { appendExtension, appendForwardSlash } from '../core/path.js';
 
@@ -47,4 +48,19 @@ export function safelyGetAstroData(vfileData: Data): MarkdownAstroData {
 	}
 
 	return astro;
+}
+
+export function normalizeFilename({
+	fileName,
+	projectRoot,
+}: {
+	fileName: string;
+	projectRoot: URL;
+}) {
+	if (fileName.startsWith('/@fs')) {
+		fileName = fileName.slice('/@fs'.length);
+	} else if (fileName.startsWith('/') && !ancestor(fileName, projectRoot.pathname)) {
+		fileName = new URL('.' + fileName, projectRoot).pathname;
+	}
+	return fileName;
 }

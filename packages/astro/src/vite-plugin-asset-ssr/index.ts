@@ -2,9 +2,9 @@ import { Plugin } from 'vite';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import MagicString from 'magic-string';
-import ancestor from 'common-ancestor-path';
 import parseImports from 'parse-imports';
 import { AstroSettings } from '../@types/astro.js';
+import { normalizeFilename } from '../vite-plugin-utils/index.js';
 
 const assetPlaceholder = `'@@ASTRO-ASSET-PLACEHOLDER@@'`;
 
@@ -24,16 +24,6 @@ function getRenderContentImportName(parseImportRes: Awaited<ReturnType<typeof pa
 }
 
 export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings }): Plugin {
-	// copied from page-ssr.ts
-	function normalizeFilename(filename: string) {
-		if (filename.startsWith('/@fs')) {
-			filename = filename.slice('/@fs'.length);
-		} else if (filename.startsWith('/') && !ancestor(filename, settings.config.root.pathname)) {
-			filename = new URL('.' + filename, settings.config.root).pathname;
-		}
-		return filename;
-	}
-
 	return {
 		name: 'astro-inject-delayed-asset-plugin',
 		enforce: 'post',
@@ -48,12 +38,12 @@ export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings
 		},
 		async transform(code, id, options) {
 			if (options?.ssr && id.endsWith('.astro')) {
-				const filename = normalizeFilename(id);
-
 				let renderContentImportName = getRenderContentImportName(await parseImports(code));
 				if (!renderContentImportName) return;
 
-				const s = new MagicString(code, { filename });
+				const s = new MagicString(code, {
+					filename: normalizeFilename({ fileName: id, projectRoot: settings.config.root }),
+				});
 				s.prepend(`import { renderContent as $$renderContent } from '.astro/render';\n`);
 				// TODO: not this
 				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
