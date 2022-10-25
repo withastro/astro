@@ -1,11 +1,7 @@
 ---
-import { fetchContent, fetchContentByEntry } from '.astro';
-import { renderContent as somethingElse } from '.astro/render';
+import { fetchContent } from '.astro';
 
 const blog = await fetchContent('blog');
-
-const nestedEntry = await fetchContentByEntry('blog', 'nested/entry.mdx');
-const { Content } = await somethingElse(nestedEntry);
 ---
 
 <html lang="en">
@@ -17,12 +13,13 @@ const { Content } = await somethingElse(nestedEntry);
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>{nestedEntry.id} {nestedEntry.data.title}</h1>
-		<Content />
-		{blog.map((entry) => (
-			<p>
-				{entry.slug} - {entry.data.title}
-			</p>
-		))}
+		<h1>Ma blog!</h1>
+		<ul>
+			{blog.map((post) => (
+				<li>
+					<a href={post.slug}>{post.data.title}</a>
+				</li>
+			))}
+		</ul>
 	</body>
 </html>
