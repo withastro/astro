@@ -3,11 +3,25 @@ import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import MagicString from 'magic-string';
 import ancestor from 'common-ancestor-path';
+import parseImports from 'parse-imports';
 import { AstroSettings } from '../@types/astro.js';
 
 const assetPlaceholder = `'@@ASTRO-ASSET-PLACEHOLDER@@'`;
 
 export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
+
+function getRenderContentImportName(parseImportRes: Awaited<ReturnType<typeof parseImports>>) {
+	for (const imp of parseImportRes) {
+		if (imp.moduleSpecifier.value === '.astro/render') {
+			for (const namedImp of imp.importClause?.named ?? []) {
+				if (namedImp.specifier === 'renderContent') {
+					// Use `binding` to support `import { renderContent as somethingElse }...
+					return namedImp.binding;
+				}
+			}
+		}
+	}
+}
 
 export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings }): Plugin {
 	// copied from page-ssr.ts
@@ -32,15 +46,15 @@ export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings
 				return code;
 			}
 		},
-		transform(code, id, options) {
+		async transform(code, id, options) {
 			if (options?.ssr && id.endsWith('.astro')) {
 				const filename = normalizeFilename(id);
 
-				console.log('this', this.getModuleInfo(id));
+				let renderContentImportName = getRenderContentImportName(await parseImports(code));
+				if (!renderContentImportName) return;
 
-				// TODO: check if we should actually insert this
 				const s = new MagicString(code, { filename });
-				s.prepend(`import { renderContent as $$renderContent } from '~renderContent';\n`);
+				s.prepend(`import { renderContent as $$renderContent } from '.astro/render';\n`);
 				// TODO: not this
 				const frontmatterPreamble = '$$createComponent(async ($$result, $$props, $$slots) => {';
 				const indexOfFrontmatterPreamble = code.indexOf(frontmatterPreamble);
@@ -49,7 +63,7 @@ export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings
 
 				s.appendLeft(
 					indexOfFrontmatterPreamble + frontmatterPreamble.length,
-					'\nlet renderContent = $$renderContent.bind($$result);\n'
+					`\nlet ${renderContentImportName} = $$renderContent.bind($$result);\n`
 				);
 
 				return {
