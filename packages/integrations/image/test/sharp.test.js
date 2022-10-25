@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sharp from '../dist/loaders/sharp.js';
 
 describe('Sharp service', () => {
-	describe('serializeTransform', () => {
+	describe('getImageAttributes', () => {
 		const src = '/assets/image.png';
 
 		[
@@ -19,7 +19,13 @@ describe('Sharp service', () => {
 			['crop position', { src, position: 'center' }],
 		].forEach(([description, props]) => {
 			it(description, async () => {
-				const { searchParams } = await sharp.serializeTransform(props);
+				const { src } = await sharp.getImageAttributes(props);
+
+				const [pathname, search] = src.split('?');
+
+				expect(pathname).to.equal('/_image');
+
+				const searchParams = new URLSearchParams(search);
 
 				function verifyProp(expected, search) {
 					if (expected) {

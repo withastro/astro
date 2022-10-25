@@ -123,41 +123,11 @@ export async function getImage(
 
 	const resolved = await resolveTransform(transform);
 
-	const attributes = await loader.getImageAttributes(resolved);
-
-	// `.env` must be optional to support running in environments outside of `vite` (such as `astro.config`)
-	// @ts-ignore
-	const isDev = import.meta.env?.DEV;
-	const isLocalImage = !isRemoteImage(resolved.src);
-
-	const _loader = isDev && isLocalImage ? globalThis.astroImage.defaultLoader : loader;
-
-	if (!_loader) {
-		throw new Error('@astrojs/image: loader not found!');
-	}
-
-	const { searchParams } = isSSRService(_loader)
-		? _loader.serializeTransform(resolved)
-		: globalThis.astroImage.defaultLoader.serializeTransform(resolved);
-
-	const imgSrc =
-		!isLocalImage && resolved.src.startsWith('//') ? `https:${resolved.src}` : resolved.src;
-	let src: string;
-
-	if (/^[\/\\]?@astroimage/.test(imgSrc)) {
-		src = `${imgSrc}?${searchParams.toString()}`;
-	} else {
-		searchParams.set('href', imgSrc);
-		src = `/_image?${searchParams.toString()}`;
-	}
-
-	// cache all images rendered to HTML
-	if (globalThis.astroImage?.addStaticImage) {
-		src = globalThis.astroImage.addStaticImage(resolved);
-	}
+	const { src, ...attributes } = await loader.getImageAttributes(resolved);
 
 	return {
-		...attributes,
-		src,
-	};
+		// TODO: should this go in BaseSSRService? What are the implications for Cloudinary and similar?
+		src: !globalThis.astroImage?.addStaticImage ? src : globalThis.astroImage.addStaticImage(resolved),
+		...attributes
+	}
 }

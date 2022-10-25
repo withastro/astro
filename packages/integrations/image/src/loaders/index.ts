@@ -1,4 +1,5 @@
 import { htmlColorNames, type NamedColor } from '../utils/colornames.js';
+import { isRemoteImage } from '../utils/paths.js';
 
 /// <reference types="astro/astro-jsx" />
 export type InputFormat =
@@ -160,13 +161,6 @@ export interface SSRImageService<T extends TransformOptions = TransformOptions>
 	 */
 	getImageAttributes(transform: T): Promise<Exclude<astroHTML.JSX.ImgHTMLAttributes, 'src'>>;
 	/**
-	 * Serializes image transformation properties to URLSearchParams, used to build
-	 * the final `src` that points to the self-hosted SSR endpoint.
-	 *
-	 * @param transform @type {TransformOptions} defining the requested image transformation.
-	 */
-	serializeTransform(transform: T): { searchParams: URLSearchParams };
-	/**
 	 * The reverse of `serializeTransform(transform)`, this parsed the @type {TransformOptions} back out of a given URL.
 	 *
 	 * @param searchParams @type {URLSearchParams}
@@ -200,14 +194,8 @@ export abstract class BaseSSRService implements SSRImageService {
 		// strip off the known attributes
 		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
 
-		return {
-			...rest,
-			width: width,
-			height: height,
-		};
-	}
+		let resolvedSrc = src;
 
-	serializeTransform(transform: TransformOptions) {
 		const searchParams = new URLSearchParams();
 
 		if (transform.quality) {
@@ -244,7 +232,21 @@ export abstract class BaseSSRService implements SSRImageService {
 
 		searchParams.append('href', transform.src);
 
-		return { searchParams };
+		resolvedSrc = isRemoteImage(src) && src.startsWith('//') ? `https:${src}` : src;
+
+		if (/^[\/\\]?@astroimage/.test(resolvedSrc)) {
+			resolvedSrc = `${resolvedSrc}?${searchParams.toString()}`;
+		} else {
+			searchParams.set('href', resolvedSrc);
+			resolvedSrc = `/_image?${searchParams.toString()}`;
+		}
+
+		return {
+			...rest,
+			src: resolvedSrc,
+			width: width,
+			height: height,
+		};
 	}
 
 	parseTransform(searchParams: URLSearchParams) {
