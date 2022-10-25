@@ -1,5 +1,6 @@
 import type { InlineConfig } from 'vite';
 import type {
+	AstroConfig,
 	AstroSettings,
 	BuildConfig,
 	ComponentInstance,
@@ -13,6 +14,7 @@ import type { RouteCache } from '../render/route-cache';
 
 export type ComponentPath = string;
 export type ViteID = string;
+export type PageBuildOutput = Omit<AstroConfig['output'], 'hybrid'>
 
 export interface PageBuildData {
 	component: ComponentPath;
@@ -20,6 +22,7 @@ export interface PageBuildData {
 	moduleSpecifier: string;
 	css: Map<string, { depth: number; order: number }>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
+	output: PageBuildOutput
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
