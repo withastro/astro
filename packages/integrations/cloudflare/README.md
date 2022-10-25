@@ -70,11 +70,13 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Streams
 
-Some integrations such as [React](https://github.com/withastro/astro/tree/main/packages/integrations/react) rely on web streams. Currently Cloudflare Pages functions are in beta and don't support the `streams_enable_constructors` feature flag.
+Some integrations such as [React](https://github.com/withastro/astro/tree/main/packages/integrations/react) rely on web streams. Currently Cloudflare Pages Functions require enabling a flag to support Streams.
 
-In order to work around this:
-- install the `"web-streams-polyfill"` package
-- add `import "web-streams-polyfill/es2018";` to the top of the front matter of every page which requires streams, such as server rendering a React component.
+To do this:
+- go to the Cloudflare Pages project
+- click on Settings in the top bar, then Functions in the sidebar
+- scroll down to Compatibility Flags, click Configure Production Compatibility Flags, and add `streams_enable_constructors`
+- do this for both the Production Compatibility Flags and Preview Compatibility Flags
 
 ## Environment Variables
 
