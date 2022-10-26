@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { cachedCompilation } from '../../../dist/core/compile/index.js';
-import { AggregateError } from '../../../dist/core/errors/index.js';
+import { AggregateError } from '../../../dist/core/util.js';
 
 describe('astro/src/core/compile', () => {
 	describe('Invalid CSS', () => {
