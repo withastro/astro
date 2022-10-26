@@ -70,7 +70,7 @@ It's then possible to update the preview script in your `package.json` to `"prev
 
 ## Access to the Cloudflare runtime
 
-You can access all the Cloudflare bindings and environment variables from your `.astro` pages and API routes through the adapter API.
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
 
 ```
 import { getRuntime } from "@astrojs/cloudflare/runtime";
