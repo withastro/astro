@@ -15,6 +15,14 @@ export type PagesRuntime<T = unknown, U = unknown> = {
 	next(request: Request): void;
 };
 
-export function getRuntime<T = unknown, U = unknown>(request: Request): WorkerRuntime<T> | PagesRuntime<T, U> {
-	return Reflect.get(request, Symbol.for('runtime'));
+export function getRuntime<T = unknown, U = unknown>(
+	request: Request
+): WorkerRuntime<T> | PagesRuntime<T, U> {
+	if (!!request) {
+		return Reflect.get(request, Symbol.for('runtime'));
+	} else {
+		throw new Error(
+			'To retrieve the current cloudflare runtime you need to pass in the Astro request object'
+		);
+	}
 }
