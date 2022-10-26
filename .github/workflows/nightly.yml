@@ -14,17 +14,8 @@ jobs:
       - name: Check out code using Git
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
 
       - name: Collect stats
         run: node scripts/stats/index.js
@@ -48,14 +39,10 @@ jobs:
       - name: Check out code using Git
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
         with:
-          node-version: 16
-          cache: 'pnpm'
+          install-dependencies: false
 
       - name: Delete the existing pnpm-lock.yaml file
         run: rm pnpm-lock.yaml
