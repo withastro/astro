@@ -1,0 +1,63 @@
+---
+export interface Props {
+    open?: boolean
+}
+
+const { open = false } = Astro.props
+---
+
+<hn-toggle open={open ? '' : undefined}>
+    <div class:list={['toggle', { open }]}>
+        <a class:list={{open}}>{open ? "[-]" : "[+] comments collapsed"}</a>
+    </div>
+    <ul class="comment-children">
+        <slot />
+    </ul>
+</hn-toggle>
+
+<style>
+    hn-toggle:not([open]) .toggle {
+        background-color: rgb(255 247 237);
+    }
+    hn-toggle:not([open]) ul {
+        display: none;
+    }
+</style>
+
+<script>
+    class HnToggle extends HTMLElement {
+        #btn = this.querySelector<HTMLAnchorElement>('a')!
+        #toggle = this.querySelector('.toggle')!
+        #toggleOpen = this.toggleOpen.bind(this)
+
+        connectedCallback() {
+            this.#btn.addEventListener('click', this.#toggleOpen, false)
+        }
+
+        disconnectedCallback() {
+            this.#btn.addEventListener('click', this.#toggleOpen)
+        }
+
+        get open() {
+            return this.hasAttribute('open')
+        }
+
+        set open(value: boolean) {
+            if (value) {
+                this.setAttribute('open', '')
+                this.#btn.textContent = '[-]'
+                this.#toggle.classList.add('open')
+            } else {
+                this.removeAttribute('open')
+                this.#btn.textContent = '[+] comments collapsed'
+                this.#toggle.classList.remove('open')
+            }
+        }
+
+        toggleOpen() {
+            this.open = !this.open
+        }
+    }
+
+    customElements.define('hn-toggle', HnToggle)
+</script>

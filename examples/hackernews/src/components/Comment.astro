@@ -1,0 +1,25 @@
+---
+import For from './For.astro'
+import Show from './Show.astro'
+import Toggle from './Toggle.astro'
+import type { IComment } from '../types.js'
+
+export interface Props {
+    comment: IComment
+}
+
+const { comment } = Astro.props
+---
+
+<li class="comment">
+<div class="by">
+    <a href={`/users/${comment.user}`}>{comment.user}</a>{" "}
+    {comment.time_ago} ago
+</div>
+<div class="text" set:html={comment.content} />
+<Show when={comment.comments.length}>
+    <Toggle open>
+        <For each={comment.comments}>{(comment: IComment) => <Astro.self comment={comment} />}</For>
+    </Toggle>
+</Show>
+</li>

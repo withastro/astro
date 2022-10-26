@@ -1,0 +1,42 @@
+---
+import Show from "../../components/Show.astro";
+import Layout from "../../layouts/Base.astro";
+import fetchAPI from "../../lib/api";
+import type { IUser } from "../../types.js";
+
+const { id } = Astro.params as { id: string };
+
+const user = (await fetchAPI(`user/${id}`)) as IUser;
+---
+
+<Layout>
+  <div class="user-view">
+    <Show when={user}>
+      <Show when={!user.error}>
+        <h1 slot="fallback">User not found.</h1>
+        <h1>User : {user.id}</h1>
+        <ul class="meta">
+          <li>
+            <span class="label">Created:</span>
+            {user.created}
+          </li>
+          <li>
+            <span class="label">Karma:</span>
+            {user.karma}
+          </li>
+          <Show when={user.about}>
+            <li set:html={user.about} class="about"></li>{" "}
+          </Show>
+        </ul>
+        <p class="links">
+          <a href={`https://news.ycombinator.com/submitted?id=${user.id}`}
+            >submissions</a
+          > |{" "}
+          <a href={`https://news.ycombinator.com/threads?id=${user.id}`}
+            >comments</a
+          >
+        </p>
+      </Show>
+    </Show>
+  </div>
+</Layout>

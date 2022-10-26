@@ -1,0 +1,30 @@
+---
+---
+
+<header class="header">
+  <nav class="inner">
+    <a href="/" class="active">
+      <strong>HN</strong>
+    </a>
+    <a href="/new" class:list={{active: Astro.url.pathname === "/new"}}>
+      <strong>New</strong>
+    </a>
+    <a href="/show" class:list={{active: Astro.url.pathname === "/show"}}>
+      <strong>Show</strong>
+    </a>
+    <a href="/ask" class:list={{active: Astro.url.pathname === "/ask"}}>
+      <strong>Ask</strong>
+    </a>
+    <a href="/job" class:list={{active: Astro.url.pathname === "/job"}}>
+      <strong>Jobs</strong>
+    </a>
+    <a
+      class="github"
+      href="http://github.com/withastro/astro"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Built with Astro
+    </a>
+  </nav>
+</header>

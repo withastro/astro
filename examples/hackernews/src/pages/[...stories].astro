@@ -1,0 +1,73 @@
+---
+import For from "../components/For.astro";
+import Show from "../components/Show.astro";
+import Story from "../components/Story.astro";
+import Layout from "../layouts/Base.astro";
+import fetchAPI from "../lib/api";
+import type { IStory } from "../types.js";
+
+const mapStories = {
+  top: "news",
+  new: "newest",
+  show: "show",
+  ask: "ask",
+  job: "jobs",
+};
+
+function safeParseInt(value: any, fallback: number) {
+  try {
+    return parseInt(value) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+const page = safeParseInt(Astro.url.searchParams.get("page"), 1);
+const type =
+  Astro.params.stories && Astro.params.stories in mapStories
+    ? (Astro.params.stories.toString() as keyof typeof mapStories)
+    : "top";
+
+const stories = (await fetchAPI(
+  `${mapStories[type]}?page=${page}`
+)) as IStory[];
+---
+
+<Layout>
+  <div class="news-view">
+    <div class="news-list-nav">
+      <Show when={page > 1}>
+        <a
+          class="page-link"
+          href={`/${type}?page=${page - 1}`}
+          aria-label="Previous Page"
+        >
+          &lt; prev
+        </a>
+        <span slot="fallback" class="page-link disabled" aria-disabled="true">
+          &lt; prev
+        </span>
+      </Show>
+      <span>page {page}</span>
+      <Show when={stories?.length >= 29}>
+        <a
+          class="page-link"
+          href={`/${type}?page=${page + 1}`}
+          aria-label="Next Page"
+        >
+          more &gt;
+        </a>
+        <span slot="fallback" class="page-link disabled" aria-disabled="true">
+          more &gt;
+        </span>
+      </Show>
+    </div>
+    <main class="news-list">
+      <Show when={stories}>
+        <ul>
+          <For each={stories}>{(story: IStory) => <Story story={story} />}</For>
+        </ul>
+      </Show>
+    </main>
+  </div>
+</Layout>

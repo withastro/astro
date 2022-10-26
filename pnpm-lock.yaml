@@ -230,6 +230,14 @@ importers:
       astro: link:../../packages/astro
       vue: 3.2.41
 
+  examples/hackernews:
+    specifiers:
+      '@astrojs/node': ^2.0.1
+      astro: ^1.5.2
+    dependencies:
+      '@astrojs/node': link:../../packages/integrations/node
+      astro: link:../../packages/astro
+
   examples/integration:
     specifiers:
       astro: ^1.5.2

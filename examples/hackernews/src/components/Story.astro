@@ -1,0 +1,42 @@
+---
+import Show from './Show.astro'
+import type { IStory } from '../types.js'
+
+export interface Props {
+  story: IStory;
+}
+
+const { story } = Astro.props;
+---
+
+<li class="news-item">
+  <span class="score">{story.points}</span>
+  <span class="title">
+    <Show when={story.url}>
+      <a href={story.url} target="_blank" rel="noreferrer">
+        {story.title}
+      </a>
+      <span class="host"> ({story.domain})</span>
+      <a slot="fallback" href={`/item/${story.id}`}>{story.title}</a>
+    </Show>
+  </span>
+  <br />
+  <span class="meta">
+    <Show when={story.type !== "job"}>
+      by <a href={`/users/${story.user}`}>{story.user}</a>{" "}
+      {story.time_ago}{" "}|{" "}
+      <a href={`/stories/${story.id}`}>
+        {
+          story.comments_count
+            ? `${story.comments_count} comments`
+            : "discuss"
+        }
+      </a>
+      <a slot="fallback" href={`/stories/${story.id}`}>{story.time_ago}</a>
+    </Show>
+  </span>
+  <Show when={story.type !== "link"}>
+    &nbsp;
+    <span class="label">{story.type}</span>
+  </Show>
+</li>
