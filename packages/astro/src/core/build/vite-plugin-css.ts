@@ -157,7 +157,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 									)) {
 										if (pageInfo.id.endsWith(DELAYED_ASSET_FLAG)) {
 											for (const parent of walkParentInfos(id, this)) {
-												console.log('walking parent...');
 												const parentInfo = parent[0];
 												if (moduleIsTopLevelPage(parentInfo)) {
 													const pageViteID = parentInfo.id;
