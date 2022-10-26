@@ -1,5 +1,11 @@
 # @astrojs/vercel
 
+## 2.3.2
+
+### Patch Changes
+
+- [#5175](https://github.com/withastro/astro/pull/5175) [`abf41da77`](https://github.com/withastro/astro/commit/abf41da774516395a49aca30693dccdc4f8d7114) Thanks [@JuanM04](https://github.com/JuanM04)! - Edge adapter includes all the generated files (all files inside `dist/`) instead of only `entry.mjs`
+
 ## 2.3.1
 
 ### Patch Changes

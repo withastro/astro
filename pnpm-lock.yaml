@@ -61,16 +61,16 @@ importers:
 
   examples/basics:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/blog:
     specifiers:
-      '@astrojs/mdx': ^0.11.4
+      '@astrojs/mdx': ^0.11.5
       '@astrojs/rss': ^1.0.2
       '@astrojs/sitemap': ^1.0.0
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
       '@astrojs/rss': link:../../packages/astro-rss
@@ -79,14 +79,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/deno:
     specifiers:
       '@astrojs/deno': ^1.2.0
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
     devDependencies:
@@ -102,7 +102,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^17.0.45
       '@types/react-dom': ^18.0.0
-      astro: ^1.5.2
+      astro: ^1.5.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -110,10 +110,10 @@ importers:
       '@algolia/client-search': 4.14.2
       '@astrojs/preact': link:../../packages/integrations/preact
       '@astrojs/react': link:../../packages/integrations/react
-      '@docsearch/css': 3.2.2
-      '@docsearch/react': 3.2.2_gp2f66hjvprqsmo7rewhrpia4e
+      '@docsearch/css': 3.3.0
+      '@docsearch/react': 3.3.0_ozja46d2hdfcawewer6noq2pdi
       '@types/node': 18.11.5
-      '@types/react': 17.0.50
+      '@types/react': 17.0.51
       '@types/react-dom': 18.0.7
       astro: link:../../packages/astro
       preact: 10.11.2
@@ -125,18 +125,18 @@ importers:
       '@astrojs/alpinejs': ^0.1.2
       '@types/alpinejs': ^3.7.0
       alpinejs: ^3.10.2
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       '@astrojs/alpinejs': link:../../packages/integrations/alpinejs
       '@types/alpinejs': 3.7.0
-      alpinejs: 3.10.4
+      alpinejs: 3.10.5
       astro: link:../../packages/astro
 
   examples/framework-lit:
     specifiers:
       '@astrojs/lit': ^1.0.0
       '@webcomponents/template-shadowroot': ^0.1.0
-      astro: ^1.5.2
+      astro: ^1.5.3
       lit: ^2.2.5
     dependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
@@ -151,7 +151,7 @@ importers:
       '@astrojs/solid-js': ^1.2.1
       '@astrojs/svelte': ^1.0.2
       '@astrojs/vue': ^1.2.1
-      astro: ^1.5.2
+      astro: ^1.5.3
       preact: ^10.7.3
       react: ^18.1.0
       react-dom: ^18.1.0
@@ -176,7 +176,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@preact/signals': ^1.1.0
-      astro: ^1.5.2
+      astro: ^1.5.3
       preact: ^10.7.3
     dependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -189,12 +189,12 @@ importers:
       '@astrojs/react': ^1.2.1
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
-      astro: ^1.5.2
+      astro: ^1.5.3
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
       '@astrojs/react': link:../../packages/integrations/react
-      '@types/react': 18.0.22
+      '@types/react': 18.0.23
       '@types/react-dom': 18.0.7
       astro: link:../../packages/astro
       react: 18.2.0
@@ -203,7 +203,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/solid-js': ^1.2.1
-      astro: ^1.5.2
+      astro: ^1.5.3
       solid-js: ^1.4.3
     dependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
@@ -213,7 +213,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.5.2
+      astro: ^1.5.3
       svelte: ^3.48.0
     dependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
@@ -223,7 +223,7 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/vue': ^1.2.1
-      astro: ^1.5.2
+      astro: ^1.5.3
       vue: ^3.2.37
     dependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
@@ -232,25 +232,25 @@ importers:
 
   examples/integration:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
 
@@ -258,7 +258,7 @@ importers:
     specifiers:
       '@astrojs/node': ^2.0.1
       '@astrojs/svelte': ^1.0.2
-      astro: ^1.5.2
+      astro: ^1.5.3
       concurrently: ^7.2.1
       svelte: ^3.48.0
       unocss: ^0.15.6
@@ -275,7 +275,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^1.1.3
-      astro: ^1.5.2
+      astro: ^1.5.3
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -292,15 +292,15 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
     dependencies:
       astro: link:../../packages/astro
 
   examples/with-mdx:
     specifiers:
-      '@astrojs/mdx': ^0.11.4
+      '@astrojs/mdx': ^0.11.5
       '@astrojs/preact': ^1.2.0
-      astro: ^1.5.2
+      astro: ^1.5.3
       preact: ^10.6.5
     dependencies:
       '@astrojs/mdx': link:../../packages/integrations/mdx
@@ -312,7 +312,7 @@ importers:
     specifiers:
       '@astrojs/preact': ^1.2.0
       '@nanostores/preact': ^0.1.3
-      astro: ^1.5.2
+      astro: ^1.5.3
       nanostores: ^0.5.12
       preact: ^10.7.3
     dependencies:
@@ -324,10 +324,10 @@ importers:
 
   examples/with-tailwindcss:
     specifiers:
-      '@astrojs/mdx': ^0.11.4
+      '@astrojs/mdx': ^0.11.5
       '@astrojs/tailwind': ^2.1.1
       '@types/canvas-confetti': ^1.4.3
-      astro: ^1.5.2
+      astro: ^1.5.3
       autoprefixer: ^10.4.7
       canvas-confetti: ^1.5.1
       postcss: ^8.4.14
@@ -344,7 +344,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.3
     dependencies:
@@ -354,7 +354,7 @@ importers:
 
   examples/with-vitest:
     specifiers:
-      astro: ^1.5.2
+      astro: ^1.5.3
       vitest: ^0.20.3
     dependencies:
       astro: link:../../packages/astro
@@ -486,7 +486,7 @@ importers:
       esbuild: 0.14.54
       execa: 6.1.0
       fast-glob: 3.2.12
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       gray-matter: 4.0.3
       html-entities: 2.3.3
       html-escaper: 3.0.3
@@ -2759,7 +2759,7 @@ importers:
       acorn: 8.8.1
       es-module-lexer: 0.10.5
       estree-util-visit: 1.2.0
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       gray-matter: 4.0.3
       kleur: 4.1.5
       rehype-raw: 6.1.1
@@ -3033,7 +3033,7 @@ importers:
       '@babel/core': 7.19.6
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.19.6
     devDependencies:
-      '@types/react': 17.0.50
+      '@types/react': 17.0.51
       '@types/react-dom': 17.0.17
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -3208,7 +3208,7 @@ importers:
       astro: link:../../astro
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       mocha: 9.2.2
       rehype-autolink-headings: 6.1.1
       rehype-slug: 5.0.1
@@ -3352,7 +3352,7 @@ importers:
       '@astrojs/prism': link:../../astro-prism
       acorn: 8.8.1
       acorn-jsx: 5.3.2_acorn@8.8.1
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       hast-util-to-html: 8.0.3
       import-meta-resolve: 2.1.0
       mdast-util-from-markdown: 1.2.0
@@ -3590,25 +3590,25 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@algolia/autocomplete-core/1.7.1:
-    resolution: {integrity: sha512-eiZw+fxMzNQn01S8dA/hcCpoWCOCwcIIEUtHHdzN5TGB3IpzLbuhqFeTfh2OUhhgkE8Uo17+wH+QJ/wYyQmmzg==}
+  /@algolia/autocomplete-core/1.7.2:
+    resolution: {integrity: sha512-eclwUDC6qfApNnEfu1uWcL/rudQsn59tjEoUYZYE2JSXZrHLRjBUGMxiCoknobU2Pva8ejb0eRxpIYDtVVqdsw==}
     dependencies:
-      '@algolia/autocomplete-shared': 1.7.1
+      '@algolia/autocomplete-shared': 1.7.2
     dev: false
 
-  /@algolia/autocomplete-preset-algolia/1.7.1_qs6lk5nhygj2o3hj4sf6xnr724:
-    resolution: {integrity: sha512-pJwmIxeJCymU1M6cGujnaIYcY3QPOVYZOXhFkWVM7IxKzy272BwCvMFMyc5NpG/QmiObBxjo7myd060OeTNJXg==}
+  /@algolia/autocomplete-preset-algolia/1.7.2_qs6lk5nhygj2o3hj4sf6xnr724:
+    resolution: {integrity: sha512-+RYEG6B0QiGGfRb2G3MtPfyrl0dALF3cQNTWBzBX6p5o01vCCGTTinAm2UKG3tfc2CnOMAtnPLkzNZyJUpnVJw==}
     peerDependencies:
-      '@algolia/client-search': ^4.9.1
-      algoliasearch: ^4.9.1
+      '@algolia/client-search': '>= 4.9.1 < 6'
+      algoliasearch: '>= 4.9.1 < 6'
     dependencies:
-      '@algolia/autocomplete-shared': 1.7.1
+      '@algolia/autocomplete-shared': 1.7.2
       '@algolia/client-search': 4.14.2
       algoliasearch: 4.14.2
     dev: false
 
-  /@algolia/autocomplete-shared/1.7.1:
-    resolution: {integrity: sha512-eTmGVqY3GeyBTT8IWiB2K5EuURAqhnumfktAEoHxfDY2o7vg2rSnO16ZtIG0fMgt3py28Vwgq42/bVEuaQV7pg==}
+  /@algolia/autocomplete-shared/1.7.2:
+    resolution: {integrity: sha512-QCckjiC7xXHIUaIL3ektBtjJ0w7tTA3iqKcAE/Hjn1lZ5omp7i3Y4e09rAr9ZybqirL7AbxCLLq0Ra5DDPKeug==}
     dev: false
 
   /@algolia/cache-browser-local-storage/4.14.2:
@@ -5645,12 +5645,12 @@ packages:
       postcss-selector-parser: 6.0.10
     dev: true
 
-  /@docsearch/css/3.2.2:
-    resolution: {integrity: sha512-VB0Evx4ikS1ZlW1YVUw+vI9b3H/UXMCo4W/ZWy+n56Sho4KOqyCHcINVays91TJt7HTV/CKO3FCbm2VJg5Wipw==}
+  /@docsearch/css/3.3.0:
+    resolution: {integrity: sha512-rODCdDtGyudLj+Va8b6w6Y85KE85bXRsps/R4Yjwt5vueXKXZQKYw0aA9knxLBT6a/bI/GMrAcmCR75KYOM6hg==}
     dev: false
 
-  /@docsearch/react/3.2.2_gp2f66hjvprqsmo7rewhrpia4e:
-    resolution: {integrity: sha512-1Hn2SNQUFVPrzqvaj+vxXZfsfn3rnW8CoyGAJ1LqXMY9py8GbxK8VfmJ5Z6z4LwG9849tGru/N6dp0cQO6r9Ag==}
+  /@docsearch/react/3.3.0_ozja46d2hdfcawewer6noq2pdi:
+    resolution: {integrity: sha512-fhS5adZkae2SSdMYEMVg6pxI5a/cE+tW16ki1V0/ur4Fdok3hBRkmN/H8VvlXnxzggkQIIRIVvYPn00JPjen3A==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
       react: '>= 16.8.0 < 19.0.0'
@@ -5663,10 +5663,10 @@ packages:
       react-dom:
         optional: true
     dependencies:
-      '@algolia/autocomplete-core': 1.7.1
-      '@algolia/autocomplete-preset-algolia': 1.7.1_qs6lk5nhygj2o3hj4sf6xnr724
-      '@docsearch/css': 3.2.2
-      '@types/react': 17.0.50
+      '@algolia/autocomplete-core': 1.7.2
+      '@algolia/autocomplete-preset-algolia': 1.7.2_qs6lk5nhygj2o3hj4sf6xnr724
+      '@docsearch/css': 3.3.0
+      '@types/react': 17.0.51
       algoliasearch: 4.14.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -9713,24 +9713,24 @@ packages:
   /@types/react-dom/17.0.17:
     resolution: {integrity: sha512-VjnqEmqGnasQKV0CWLevqMTXBYG9GbwuE6x3VetERLh0cq2LTptFE73MrQi2S7GkKXCf2GgwItB/melLnxfnsg==}
     dependencies:
-      '@types/react': 17.0.50
+      '@types/react': 17.0.51
     dev: true
 
   /@types/react-dom/18.0.7:
     resolution: {integrity: sha512-HaXc+BbqAZE1RdsK3tC8SbkFy6UL2xF76lT9rQs5JkPrJg3rWA3Ou/Lhw3YJQzEDkBpmJ79nBsfnd05WrBd2QQ==}
     dependencies:
-      '@types/react': 17.0.50
+      '@types/react': 17.0.51
     dev: false
 
-  /@types/react/17.0.50:
-    resolution: {integrity: sha512-ZCBHzpDb5skMnc1zFXAXnL3l1FAdi+xZvwxK+PkglMmBrwjpp9nKaWuEvrGnSifCJmBFGxZOOFuwC6KH/s0NuA==}
+  /@types/react/17.0.51:
+    resolution: {integrity: sha512-YMddzAE+nSH04BiTJ5GydTxk0/3hckqyuOclg0s6zQYj/XzfRVNzHZAFwZb5SCSavkzTYUtcq/gwjLnvt2Y4cg==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
       csstype: 3.1.1
 
-  /@types/react/18.0.22:
-    resolution: {integrity: sha512-4yWc5PyCkZN8ke8K9rQHkTXxHIWHxLzzW6RI1kXVoepkD3vULpKzC2sDtAMKn78h92BRYuzf+7b/ms7ajE6hFw==}
+  /@types/react/18.0.23:
+    resolution: {integrity: sha512-R1wTULtCiJkudAN2DJGoYYySbGtOdzZyUWAACYinKdiQC8auxso4kLDUhQ7AJ2kh3F6A6z4v69U6tNY39hihVQ==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -10369,8 +10369,8 @@ packages:
       '@algolia/transporter': 4.14.2
     dev: false
 
-  /alpinejs/3.10.4:
-    resolution: {integrity: sha512-AC6Xchlb/xURO7F93OSMItooClpzGNZRM5+rDa6/3Y20mPxQs1TQ/wfiwiH4mtcVt8yTxdkOW5dOl8CBCK095A==}
+  /alpinejs/3.10.5:
+    resolution: {integrity: sha512-qlvnal44Gof2XVfm/lef8fYpXKxR9fjdSki7aFB/9THyFvbsRKZ6lM5SjxXpIs7B0faJt7bgpK2K25gzrraXJw==}
     dependencies:
       '@vue/reactivity': 3.1.5
     dev: false
@@ -12848,8 +12848,8 @@ packages:
   /github-from-package/0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
 
-  /github-slugger/1.4.0:
-    resolution: {integrity: sha512-w0dzqw/nt51xMVmlaV1+JRzN+oCa1KfcgGEWhxUG16wbdA+Xnt/yoFO8Z8x/V82ZcZ0wy6ln9QDup5avbhiDhQ==}
+  /github-slugger/1.5.0:
+    resolution: {integrity: sha512-wIh+gKBI9Nshz2o46B0B3f5k/W+WI9ZAv6y5Dn5WJ5SK1t0TnDimB4WE5rmTD05ZAIn8HALCZVmCsvj0w0v0lw==}
 
   /glob-parent/5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -14216,7 +14216,7 @@ packages:
       '@types/github-slugger': 1.3.0
       '@types/mdast': 3.0.10
       extend: 3.0.2
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       mdast-util-to-string: 3.1.0
       unist-util-is: 5.1.1
       unist-util-visit: 3.1.0
@@ -16145,7 +16145,7 @@ packages:
     resolution: {integrity: sha512-X5v3wV/meuOX9NFcGhJvUpEjIvQl2gDvjg3z40RVprYFt7q3th4qMmYLULiu3gXvbNX1ppx+oaa6JyY1W67pTA==}
     dependencies:
       '@types/hast': 2.3.4
-      github-slugger: 1.4.0
+      github-slugger: 1.5.0
       hast-util-has-property: 2.0.0
       hast-util-heading-rank: 2.1.0
       hast-util-to-string: 2.0.0

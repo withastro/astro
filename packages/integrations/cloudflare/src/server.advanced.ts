@@ -5,12 +5,13 @@ import { App } from 'astro/app';
 
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
+	name: string;
 };
 
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest, false);
 
-	const fetch = async (request: Request, env: Env) => {
+	const fetch = async (request: Request, env: Env, context: any) => {
 		const { origin, pathname } = new URL(request.url);
 
 		// static assets
@@ -26,6 +27,7 @@ export function createExports(manifest: SSRManifest) {
 				Symbol.for('astro.clientAddress'),
 				request.headers.get('cf-connecting-ip')
 			);
+			Reflect.set(request, Symbol.for('runtime'), { env, name: 'cloudflare', ...context });
 			let response = await app.render(request, routeData);
 
 			if (app.setCookieHeaders) {
