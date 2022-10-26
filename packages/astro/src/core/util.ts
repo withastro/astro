@@ -1,9 +1,11 @@
+import type { ModuleLoader } from './module-loader';
+import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { normalizePath, ViteDevServer } from 'vite';
+import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
@@ -180,19 +182,19 @@ export function getLocalAddress(serverAddress: string, host: string | boolean): 
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
 // TODO: Export a helper util from Vite
-export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
-	let result = await viteServer.pluginContainer.resolveId(id, undefined);
+export async function resolveIdToUrl(loader: ModuleLoader, id: string) {
+	let resultId = await loader.resolveId(id, undefined);
 	// Try resolve jsx to tsx
-	if (!result && id.endsWith('.jsx')) {
-		result = await viteServer.pluginContainer.resolveId(id.slice(0, -4), undefined);
+	if (!resultId && id.endsWith('.jsx')) {
+		resultId = await loader.resolveId(id.slice(0, -4), undefined);
 	}
-	if (!result) {
+	if (!resultId) {
 		return VALID_ID_PREFIX + id;
 	}
-	if (path.isAbsolute(result.id)) {
-		return '/@fs' + prependForwardSlash(result.id);
+	if (path.isAbsolute(resultId)) {
+		return '/@fs' + prependForwardSlash(resultId);
 	}
-	return VALID_ID_PREFIX + result.id;
+	return VALID_ID_PREFIX + resultId;
 }
 
 export function resolveJsToTs(filePath: string) {

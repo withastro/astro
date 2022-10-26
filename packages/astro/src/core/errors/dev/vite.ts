@@ -1,3 +1,4 @@
+import type { ModuleLoader } from '../../module-loader/index.js';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import {
@@ -5,7 +6,6 @@ import {
 	type ErrorPayload,
 	type Logger,
 	type LogLevel,
-	type ViteDevServer,
 } from 'vite';
 import { AstroErrorCodes } from '../codes.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
@@ -30,12 +30,12 @@ export function createCustomViteLogger(logLevel: LogLevel): Logger {
 export function enhanceViteSSRError(
 	error: Error,
 	filePath?: URL,
-	viteServer?: ViteDevServer
+	loader?: ModuleLoader,
 ): AstroError {
 	// Vite will give you better stacktraces, using sourcemaps.
-	if (viteServer) {
+	if (loader) {
 		try {
-			viteServer.ssrFixStacktrace(error);
+			loader.fixStacktrace(error);
 		} catch {}
 	}
 

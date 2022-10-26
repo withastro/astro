@@ -1,11 +1,12 @@
 import type { AstroSettings } from '../@types/astro';
 import type { LogOptions } from './logger/core';
 
+import nodeFs from 'fs';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { crawlFrameworkPkgs } from 'vitefu';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
-import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
+import { vitePluginAstroServer } from '../vite-plugin-astro-server/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import envVitePlugin from '../vite-plugin-env/index.js';
@@ -17,12 +18,14 @@ import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
+import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
 	logging: LogOptions;
 	mode: 'dev' | 'build' | string;
+	fs?: typeof nodeFs;
 }
 
 const ALWAYS_NOEXTERNAL = new Set([
@@ -54,7 +57,7 @@ function getSsrNoExternalDeps(projectRoot: URL): string[] {
 /** Return a common starting point for all Vite actions */
 export async function createVite(
 	commandConfig: vite.InlineConfig,
-	{ settings, logging, mode }: CreateViteOptions
+	{ settings, logging, mode, fs = nodeFs }: CreateViteOptions
 ): Promise<vite.InlineConfig> {
 	const astroPkgsConfig = await crawlFrameworkPkgs({
 		root: fileURLToPath(settings.config.root),
@@ -97,7 +100,7 @@ export async function createVite(
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
-			mode !== 'build' && astroViteServerPlugin({ settings, logging }),
+			mode !== 'build' && vitePluginAstroServer({ settings, logging, fs }),
 			envVitePlugin({ settings }),
 			settings.config.legacy.astroFlavoredMarkdown
 				? legacyMarkdownVitePlugin({ settings, logging })
@@ -107,6 +110,7 @@ export async function createVite(
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
+			astroLoadFallbackPlugin({ fs })
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

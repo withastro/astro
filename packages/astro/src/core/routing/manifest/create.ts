@@ -8,7 +8,7 @@ import type {
 } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core';
 
-import fs from 'fs';
+import nodeFs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
@@ -200,9 +200,18 @@ function injectedRouteToItem(
 	};
 }
 
+export interface CreateRouteManifestParams {
+	/** Astro Settings object */
+	settings: AstroSettings;
+	/** Current working directory */
+	cwd?: string;
+	/** fs module, for testing */
+	fsMod?: typeof nodeFs;
+}
+
 /** Create manifest of all static routes */
 export function createRouteManifest(
-	{ settings, cwd }: { settings: AstroSettings; cwd?: string },
+	{ settings, cwd, fsMod }: CreateRouteManifestParams,
 	logging: LogOptions
 ): ManifestData {
 	const components: string[] = [];
@@ -213,8 +222,9 @@ export function createRouteManifest(
 		...settings.pageExtensions,
 	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
+	const localFs = fsMod ?? nodeFs;
 
-	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
+	function walk(fs: typeof nodeFs, dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);
@@ -291,7 +301,7 @@ export function createRouteManifest(
 			params.push(...item.parts.filter((p) => p.dynamic).map((p) => p.content));
 
 			if (item.isDir) {
-				walk(path.join(dir, item.basename), segments, params);
+				walk(fsMod ?? fs, path.join(dir, item.basename), segments, params);
 			} else {
 				components.push(item.file);
 				const component = item.file;
@@ -322,8 +332,8 @@ export function createRouteManifest(
 	const { config } = settings;
 	const pages = resolvePages(config);
 
-	if (fs.existsSync(pages)) {
-		walk(fileURLToPath(pages), [], []);
+	if (localFs.existsSync(pages)) {
+		walk(localFs, fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {
 		const pagesDirRootRelative = pages.href.slice(settings.config.root.href.length);
 
