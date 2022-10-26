@@ -1,4 +1,4 @@
-import { getErrorMsg, parseEntryData, createRenderContent } from 'astro/content/internals';
+import { getErrorMsg, parseEntryData, createRenderContent } from 'astro/content/internal';
 import { renderContentMap } from './render-content-generated.mjs';
 
 const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
