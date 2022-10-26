@@ -68,9 +68,9 @@ $ pnpm install wrangler --save-dev
 
 It's then possible to update the preview script in your `package.json` to `"preview": "wrangler pages dev ./dist"`.This will allow you run your entire application locally with [Wrangler](https://github.com/cloudflare/wrangler2), which supports secrets, environment variables, KV namespaces, Durable Objects and [all other supported Cloudflare bindings](https://developers.cloudflare.com/pages/platform/functions/#adding-bindings).
 
-## Access to the cloudflare runtime
+## Access to the Cloudflare runtime
 
-You have the posibility to access all the cloudflare bindings and environment variables from your astro pages and api routes through the adapter API
+You can access all the Cloudflare bindings and environment variables from Astro components and API routes through the adapter API.
 
 ```
 import { getRuntime } from "@astrojs/cloudflare/runtime";
@@ -78,7 +78,7 @@ import { getRuntime } from "@astrojs/cloudflare/runtime";
 getRuntime(Astro.request);
 ```
 
-Depending your adapter mode (advanced = worker, directory = pages) the runtime object will look a little different due to the difference in the cloudflare API.
+Depending on your adapter mode (advanced = worker, directory = pages), the runtime object will look a little different due to differences in the Cloudflare API.
 
 ## Streams
 
