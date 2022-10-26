@@ -36,13 +36,13 @@ export function promiseWithTimeout(testFn) {
 
 export const PROMPT_MESSAGES = {
 	directory: 'Where would you like to create your new project?',
-	template: 'Which template would you like to use?',
+	template: 'How would you like to setup your new project?',
 	typescript: 'How would you like to setup TypeScript?',
-	typescriptSucceed: 'Next steps',
+	typescriptSucceed: 'next',
 };
 
 export function setup(args = []) {
-	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--dryrun'], { cwd: testDir });
+	const { stdout, stdin } = execa('../create-astro.mjs', [...args, '--skip-houston', '--dryrun'], { cwd: testDir });
 	return {
 		stdin,
 		stdout,
