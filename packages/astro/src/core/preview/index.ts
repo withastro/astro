@@ -33,7 +33,7 @@ export default async function preview(
 		throw new Error(`[preview] No adapter found.`);
 	}
 	if (!settings.adapter.previewEntrypoint) {
-		throw new Error(`[preview] adapter does not have previewEntrypoint.`);
+		throw new Error(`[preview] The ${settings.adapter.name} adapter does not support the preview command.`);
 	}
 	// We need to use require.resolve() here so that advanced package managers like pnpm
 	// don't treat this as a dependency of Astro itself. This correctly resolves the
