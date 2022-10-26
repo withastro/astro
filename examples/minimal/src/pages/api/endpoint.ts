@@ -1,4 +1,5 @@
-export const get = ({ request }) => {
-	console.log(request);
+export const output = 'server';
+
+export const get = () => {
 	return new Response("Hello world!");
 }

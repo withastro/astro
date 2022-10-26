@@ -104,9 +104,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		case 'hybrid': {
 			await injectManifest(opts, internals);
 			await generatePages(opts, internals);
-			// await cleanSsrOutput(opts);
-			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
-			// await ssrMoveAssets(opts);
+			await ssrMoveAssets(opts);
 			return;
 		}
 	}
@@ -180,8 +178,8 @@ async function clientBuild(
 ) {
 	const { settings, viteConfig } = opts;
 	const timer = performance.now();
-	const ssr = settings.config.output === 'server';
-	const out = ssr ? opts.buildConfig.client : settings.config.outDir;
+	const ssr = settings.config.output !== 'static';
+	const out = ssr ? settings.config.build.client : settings.config.outDir;
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {

@@ -76,7 +76,12 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
-	const ssrEntry = await import(ssrEntryURL.toString());
+	const ssrEntry = await import(ssrEntryURL.toString()).then(mod => {
+		if (opts.settings.config.output === 'hybrid') {
+			return mod.$$manifest
+		}
+		return mod;
+	});
 	const builtPaths = new Set<string>();
 
 	for (const pageData of eachPageData(internals)) {
@@ -165,7 +170,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: opts.settings.config.output === 'server',
+			ssr: pageData.output !== 'static',
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
@@ -370,7 +375,7 @@ async function generatePath(
 	if (pageData.route.type === 'endpoint') {
 		const endpointHandler = mod as unknown as EndpointHandler;
 		const result = await callEndpoint(endpointHandler, env, ctx);
-
+		
 		if (result.type === 'response') {
 			throwIfRedirectNotAllowed(result.response, opts.settings.config);
 			// If there's no body, do nothing

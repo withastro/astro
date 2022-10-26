@@ -49,15 +49,15 @@ export default function astroOutputPlugin({ settings }: { settings: AstroSetting
 					if (!VALID_OUTPUT.has(value)) {
 						throw new Error(`Invalid export "output" value ${expr}!`);
 					}
+					output = value;
 				}
 			}
 
 			if (!output) return;
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
-			if (meta.astro) {
-				meta.astro.output = output;
-			}
+			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [] };
+			meta.astro.output = output;
 
 			return {
 				code,

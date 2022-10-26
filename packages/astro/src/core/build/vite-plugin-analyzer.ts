@@ -74,11 +74,17 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 			const hoistScanner = hoistedScriptScanner();
 
 			const ids = this.getModuleIds();
+
 			for (const id of ids) {
 				const info = this.getModuleInfo(id);
 				if (!info || !info.meta?.astro) continue;
 
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
+
+				const pageData = getPageDataByViteID(internals, id);
+				if (pageData && astro.output) {
+					pageData.output = astro.output;
+				}
 
 				for (const c of astro.hydratedComponents) {
 					const rid = c.resolvedPath ? decodeURI(c.resolvedPath) : c.specifier;
