@@ -455,6 +455,7 @@ importers:
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
       vite: ~3.1.3
+      vitefu: ^0.0.1
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
@@ -517,6 +518,7 @@ importers:
       unist-util-visit: 4.1.1
       vfile: 5.3.5
       vite: 3.1.8_sass@1.55.0
+      vitefu: 0.0.1_vite@3.1.8
       yargs-parser: 21.1.1
       zod: 3.19.1
     devDependencies:
@@ -18012,6 +18014,18 @@ packages:
       sass: 1.55.0
     optionalDependencies:
       fsevents: 2.3.2
+    dev: false
+
+  /vitefu/0.0.1_vite@3.1.8:
+    resolution: {integrity: sha512-lOPcUgjTPi7hs1nAIgv8wOkIlMiNMzuWe8Ts7mM9IsH0OZkNjv24CZ0XX0ET/nS6CP8+Lij8j2ZpiLe7bVKVVQ==}
+    peerDependencies:
+      vite: ^3.0.0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+    dependencies:
+      import-meta-resolve: 2.1.0
+      vite: 3.1.8_sass@1.55.0
     dev: false
 
   /vitest/0.20.3:
