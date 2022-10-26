@@ -77,6 +77,7 @@ export interface AstroComponentMetadata {
 export interface CLIFlags {
 	root?: string;
 	site?: string;
+	base?: string;
 	host?: string | boolean;
 	port?: number;
 	config?: string;
