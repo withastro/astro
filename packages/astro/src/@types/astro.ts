@@ -1,4 +1,3 @@
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 import type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -18,6 +17,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
 import type { AstroComponentFactory } from '../runtime/server';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,

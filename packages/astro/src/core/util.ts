@@ -6,8 +6,8 @@ import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { ErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
-import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
+import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {

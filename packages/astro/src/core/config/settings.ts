@@ -1,5 +1,5 @@
-import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 import type { AstroConfig, AstroSettings } from '../../@types/astro';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
 import jsxRenderer from '../../jsx/renderer.js';
 import { loadTSConfig } from './tsconfig.js';
