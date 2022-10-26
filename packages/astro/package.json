@@ -42,7 +42,7 @@
       "types": "./config.d.ts",
       "default": "./config.mjs"
     },
-    "./content/internals": "./dist/content/internals.js",
+    "./content/internal": "./dist/content/internal.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
