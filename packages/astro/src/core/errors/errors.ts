@@ -116,11 +116,14 @@ export class MarkdownError extends AstroError {
 
 export class AggregateError extends AstroError {
 	type: ErrorTypes = 'AstroAggregateError';
+	errors: AstroError[];
 
 	// Despite being a collection of errors, AggregateError still needs to have a main error attached to it
 	// This is because Vite expects every thrown errors handled during HMR to be, well, Error and have a message
 	constructor(props: ErrorProperties & { errors: AstroError[] }, ...params: any) {
 		super(props, ...params);
+
+		this.errors = props.errors;
 	}
 
 	static is(err: Error | unknown): boolean {

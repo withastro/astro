@@ -52,9 +52,13 @@ export function createTransformStyles(
 			const fileContent = readFileSync(filename).toString();
 			const styleTagBeginning = fileContent.indexOf(err.input?.source ?? err.code);
 
+			// PostCSS Syntax Error
 			if (err.name === 'CssSyntaxError') {
 				const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
-				const cssError = new CSSError({
+
+				// Vite will handle creating the frame for us with proper line numbers, no need to create one
+
+				throw new CSSError({
 					errorCode: AstroErrorCodes.CssSyntaxError,
 					message: err.reason,
 					location: {
@@ -63,18 +67,29 @@ export function createTransformStyles(
 						column: err.column,
 					},
 				});
-
-				// Vite will handle creating the frame for us with proper line numbers, no need to create one
-
-				throw cssError;
 			}
 
-			// PostCSS only return complete information (position, type of error etc) for syntax errors
-			// so for other errors we'll just point to the beginning of the style tag
+			// Some CSS processor will return a line and a column, so let's try to show a pretty error
+			if (err.line && err.column) {
+				const errorLine = positionAt(styleTagBeginning, fileContent).line + (err.line ?? 0);
+
+				throw new CSSError({
+					errorCode: AstroErrorCodes.CssUnknownError,
+					message: err.message,
+					location: {
+						file: filename,
+						line: errorLine,
+						column: err.column,
+					},
+					frame: err.frame,
+				});
+			}
+
+			// For other errors we'll just point to the beginning of the style tag
 			const errorPosition = positionAt(styleTagBeginning, fileContent);
 			errorPosition.line += 1;
 
-			const unknownCSSError = new CSSError({
+			throw new CSSError({
 				errorCode: AstroErrorCodes.CssUnknownError,
 				message: err.message,
 				location: {
@@ -82,16 +97,8 @@ export function createTransformStyles(
 					line: errorPosition.line,
 					column: 0,
 				},
+				frame: err.frame,
 			});
-
-			// Our frame is better than Vite's here
-			unknownCSSError.setFrame(fileContent, {
-				file: filename,
-				line: errorPosition.line,
-				column: 0,
-			});
-
-			throw unknownCSSError;
 		}
 
 		return result;
