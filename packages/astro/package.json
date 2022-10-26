@@ -29,6 +29,7 @@
       "default": "./astro.js"
     },
     "./env": "./env.d.ts",
+    "./types": "./types.d.ts",
     "./client": "./client.d.ts",
     "./client-base": "./client-base.d.ts",
     "./import-meta": "./import-meta.d.ts",
