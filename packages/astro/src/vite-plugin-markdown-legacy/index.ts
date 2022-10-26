@@ -8,7 +8,7 @@ import type { Plugin, ViteDevServer } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
-import { collectErrorMetadata } from '../core/errors.js';
+import { AstroErrorCodes, MarkdownError } from '../core/errors/index.js';
 import type { LogOptions } from '../core/logger/core.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
@@ -29,9 +29,28 @@ const MARKDOWN_CONTENT_FLAG = '?content';
 function safeMatter(source: string, id: string) {
 	try {
 		return matter(source);
-	} catch (e) {
-		(e as any).id = id;
-		throw collectErrorMetadata(e);
+	} catch (err: any) {
+		const markdownError = new MarkdownError({
+			errorCode: AstroErrorCodes.GenericMarkdownError,
+			message: err.message,
+			stack: err.stack,
+			location: {
+				file: id,
+			},
+		});
+
+		if (err.name === 'YAMLException') {
+			markdownError.setErrorCode(AstroErrorCodes.MarkdownFrontmatterParseError);
+			markdownError.setLocation({
+				file: id,
+				line: err.mark.line,
+				column: err.mark.column,
+			});
+
+			markdownError.setMessage(err.reason);
+		}
+
+		throw markdownError;
 	}
 }
 

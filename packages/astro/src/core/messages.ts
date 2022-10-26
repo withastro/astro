@@ -18,7 +18,7 @@ import type { AddressInfo } from 'net';
 import os from 'os';
 import { ResolvedServerUrls } from 'vite';
 import { ZodError } from 'zod';
-import { ErrorWithMetadata } from './errors.js';
+import { ErrorWithMetadata } from './errors/index.js';
 import { removeTrailingForwardSlash } from './path.js';
 import { emoji, getLocalAddress, padMultilineString } from './util.js';
 
@@ -257,9 +257,15 @@ export function formatErrorMessage(err: ErrorWithMetadata, args: string[] = []):
 		args.push(`  ${bold('Hint:')}`);
 		args.push(yellow(padMultilineString(err.hint, 4)));
 	}
-	if (err.id) {
+	if (err.id || err.loc?.file) {
 		args.push(`  ${bold('File:')}`);
-		args.push(red(`    ${err.id}`));
+		args.push(
+			red(
+				`    ${err.id ?? err.loc?.file}${
+					err.loc?.line && err.loc.column ? `:${err.loc.line}:${err.loc.column}` : ''
+				}`
+			)
+		);
 	}
 	if (err.frame) {
 		args.push(`  ${bold('Code:')}`);

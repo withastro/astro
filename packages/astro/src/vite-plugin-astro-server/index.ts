@@ -8,11 +8,12 @@ import { Readable } from 'stream';
 import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import {
-	collectErrorMetadata,
-	ErrorWithMetadata,
-	fixViteErrorMessage,
+	AstroError,
 	getViteErrorPayload,
-} from '../core/errors.js';
+	AstroErrorCodes,
+	ErrorWithMetadata,
+	collectErrorMetadata,
+} from '../core/errors/index.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -282,15 +283,14 @@ async function handleRequest(
 		body = Buffer.concat(bytes);
 	}
 
-	let filePath: URL | undefined;
 	try {
 		const matchedRoute = await matchRoute(pathname, env, manifest);
-		filePath = matchedRoute?.filePath;
-
 		return await handleRoute(matchedRoute, url, pathname, body, origin, env, manifest, req, res);
 	} catch (_err) {
-		const err = fixViteErrorMessage(_err, viteServer, filePath);
-		const errorWithMetadata = collectErrorMetadata(err);
+		// This is our last line of defense regarding errors where we still might have some information about the request
+		// Our error should already be complete, but let's try to add a bit more through some guesswork
+		const errorWithMetadata = collectErrorMetadata(_err);
+
 		error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
 	}
@@ -383,7 +383,7 @@ async function handleRoute(
 			await writeWebResponse(res, result.response);
 		} else {
 			let contentType = 'text/plain';
-			// Dynamic routes don’t include `route.pathname`, so synthesise a path for these (e.g. 'src/pages/[slug].svg')
+			// Dynamic routes don’t include `route.pathname`, so synthesize a path for these (e.g. 'src/pages/[slug].svg')
 			const filepath =
 				route.pathname ||
 				route.segments.map((segment) => segment.map((p) => p.content).join('')).join('/');

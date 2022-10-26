@@ -311,7 +311,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				}
 
 				// improve compiler errors
-				if (err.stack.includes('wasm-function')) {
+				if (err.stack && err.stack.includes('wasm-function')) {
 					const search = new URLSearchParams({
 						labels: 'compiler',
 						title: '🐛 BUG: `@astrojs/compiler` panic',
