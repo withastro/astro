@@ -13,6 +13,7 @@ import type {
 import { renderSlot } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorCodes } from '../errors/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { isCSSRequest } from './util.js';
@@ -22,7 +23,11 @@ const clientAddressSymbol = Symbol.for('astro.clientAddress');
 function onlyAvailableInSSR(name: string) {
 	return function _onlyAvailableInSSR() {
 		// TODO add more guidance when we have docs and adapters.
-		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`);
+		throw new AstroError({
+			errorCode: AstroErrorCodes.UnavailableInSSR,
+			message: `Oops, you are trying to use ${name}, which is only available with SSR.`,
+			hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#enabling-ssr-in-your-project for information on how to enable SSR',
+		});
 	};
 }
 

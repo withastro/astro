@@ -302,9 +302,11 @@ function isRedirect(statusCode: number) {
 
 function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
 	if (config.output !== 'server' && isRedirect(response.status)) {
-		throw new Error(
-			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
-		);
+		throw new AstroError({
+			errorCode: AstroErrorCodes.StaticRedirectNotAllowed,
+			message:
+				"Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.",
+		});
 	}
 }
 
@@ -441,13 +443,22 @@ export default function createPlugin({ settings, logging }: AstroPluginOptions):
 				});
 			};
 		},
-		// HACK: hide `.tip` in Vite's ErrorOverlay and replace [vite] messages with [astro]
 		transform(code, id, opts = {}) {
 			if (opts.ssr) return;
 			if (!id.includes('vite/dist/client/client.mjs')) return;
-			return code
-				.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
-				.replace(/\[vite\]/g, '[astro]');
+			return (
+				code
+					// Transform links in the message to clickable links
+					.replace(
+						"this.text('.message-body', message.trim());",
+						`const urlPattern = /(\\b(https?|ftp):\\/\\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
+					this.root.querySelector(".message-body").innerHTML = message.trim().replace(urlPattern, '<a href="$1" target="_blank">$1</a>');`
+					)
+					// Remove Vite's ErrorOverlay tip as it refers to some Viteism
+					.replace(/\.tip \{[^}]*\}/gm, '.tip {\n  display: none;\n}')
+					// Replace all mentions of [vite] with [astro]
+					.replace(/\[vite\]/g, '[astro]')
+			);
 		},
 	};
 }
