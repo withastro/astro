@@ -161,11 +161,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin[] 
 													const pageViteID = parentInfo.id;
 													const pageData = getPageDataByViteID(internals, pageViteID);
 													if (pageData) {
-														if (!pageData.delayedCss) {
-															pageData.delayedCss = new Set();
+														if (!pageData.contentDeferredCss) {
+															// TODO: make required to avoid `!`
+															pageData.contentDeferredCss = new Map();
 														}
 														for (const css of meta.importedCss) {
-															pageData.delayedCss.add(css);
+															const existingCss =
+																pageData.contentDeferredCss!.get(pageInfo.id) ?? new Set();
+															pageData.contentDeferredCss!.set(
+																pageInfo.id,
+																new Set([...existingCss, css])
+															);
 														}
 													}
 												}

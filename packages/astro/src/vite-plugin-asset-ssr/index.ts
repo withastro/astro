@@ -65,12 +65,13 @@ export function assetSsrPlugin({ internals }: { internals: BuildInternals }): Pl
 							if (moduleIsTopLevelPage(pageInfo)) {
 								const pageViteID = pageInfo.id;
 								const pageData = getPageDataByViteID(internals, pageViteID);
-								if (pageData) {
-									chunk.code = chunk.code.replace(
-										assetPlaceholder,
-										JSON.stringify([...(pageData.delayedCss ?? [])])
-									);
-								}
+								if (!pageData) continue;
+								const entryDeferredCss = pageData.contentDeferredCss?.get(id);
+								if (!entryDeferredCss) continue;
+								chunk.code = chunk.code.replace(
+									assetPlaceholder,
+									JSON.stringify([...entryDeferredCss])
+								);
 							}
 						}
 					}
