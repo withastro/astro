@@ -1,20 +1,28 @@
 /* eslint no-console: 'off' */
+import { color, generateProjectName, label, say } from '@astrojs/cli-kit';
+import { random } from '@astrojs/cli-kit/utils';
 import { assign, parse, stringify } from 'comment-json';
-import { downloadTemplate } from 'giget';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
-import { say, label, color, generateProjectName } from '@astrojs/cli-kit';
-import { random } from '@astrojs/cli-kit/utils';
-import { bold, dim, green, red, reset, yellow } from 'kleur/colors';
+import { downloadTemplate } from 'giget';
+import { bold, dim, green, reset, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import prompts from 'prompts';
 import detectPackageManager from 'which-pm-runs';
 import yargs from 'yargs-parser';
 import { loadWithRocketGradient, rocketAscii } from './gradient.js';
-import { defaultLogLevel, logger } from './logger.js';
+import { logger } from './logger.js';
+import {
+	banner,
+	getName,
+	getVersion,
+	info,
+	nextSteps,
+	typescriptByDefault,
+	welcome,
+} from './messages.js';
 import { TEMPLATES } from './templates.js';
-import { getName, getVersion, welcome, banner, typescriptByDefault, nextSteps, info } from './messages.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
@@ -83,9 +91,15 @@ export async function main() {
 	logger.debug('Verbose logging turned on');
 	if (!args.skipHouston) {
 		await say([
-			['Welcome', 'to', label('astro', color.bgGreen, color.black), color.green(`v${version}`) + ',', `${username}!`],
+			[
+				'Welcome',
+				'to',
+				label('astro', color.bgGreen, color.black),
+				color.green(`v${version}`) + ',',
+				`${username}!`,
+			],
 			random(welcome),
-		]);	
+		]);
 		await banner(version);
 	}
 
@@ -225,7 +239,7 @@ export async function main() {
 		installSpinner.text = green('Packages installed!');
 		installSpinner.succeed();
 	} else {
-		await info('No problem!', 'Remember to install dependencies after setup.')
+		await info('No problem!', 'Remember to install dependencies after setup.');
 	}
 
 	const gitResponse = await prompts(
@@ -251,7 +265,10 @@ export async function main() {
 		await execaCommand('git init', { cwd });
 		ora().succeed('Git repository created!');
 	} else {
-		await info('Sounds good!', `You can come back and run ${color.reset(`git init`)}${color.dim(' later.')}`)
+		await info(
+			'Sounds good!',
+			`You can come back and run ${color.reset(`git init`)}${color.dim(' later.')}`
+		);
 	}
 
 	const tsResponse = await prompts(
@@ -315,7 +332,7 @@ export async function main() {
 		});
 		ora().succeed('TypeScript settings applied!');
 	}
-	
+
 	let projectDir = path.relative(process.cwd(), cwd);
 	const devCmd = pkgManager === 'npm' ? 'npm run dev' : `${pkgManager} dev`;
 	await nextSteps({ projectDir, devCmd });
