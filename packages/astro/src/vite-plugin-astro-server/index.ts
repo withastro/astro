@@ -18,7 +18,7 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import { createSafeError } from '../core/errors/utils.js';
+import { createSafeError } from '../core/errors/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
