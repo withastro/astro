@@ -24,7 +24,7 @@ describe('AstroConfig - config.output', () => {
 				const request = new Request('http://example.com/');
 				const response = await app.render(request);
 				expect(response.status).to.equal(200);
-				expect(response.headers.get('content-type')).to.equal('text/html');
+				expect(response.headers.get('content-type')).to.equal('text/html; charset=utf-8');
 				const html = await response.text();
 				expect(html.length).to.be.greaterThan(0);
 			});

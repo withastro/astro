@@ -1,0 +1,18 @@
+---
+function wait(ms: number): Promise<void> {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function * iterable() {
+	const chars = ['A', 's', 't', 'r', 'o' , '🚀'];
+	for(const char of chars) {
+		await wait(15);
+		yield char;
+	}
+}
+---
+<p id="text">{(async function * () {
+  for await(const value of iterable()) {
+    yield <Fragment set:html={value} />;
+  }
+})()}</p>

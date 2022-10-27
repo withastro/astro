@@ -124,7 +124,7 @@ describe('Streaming disabled', () => {
 			const response = await app.render(request);
 
 			expect(response.status).to.equal(200);
-			expect(response.headers.get('content-type')).to.equal('text/html');
+			expect(response.headers.get('content-type')).to.equal('text/html; charset=utf-8');
 			expect(response.headers.has('content-length')).to.equal(true);
 			expect(parseInt(response.headers.get('content-length'))).to.be.greaterThan(0);
 
