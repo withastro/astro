@@ -65,7 +65,11 @@ async function compile({
 			});
 		})
 		.then((result) => {
-			const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
+			const compilerError = result.diagnostics.find(
+				// HACK: The compiler currently mistakenly returns the wrong severity for warnings, so we'll also filter by code
+				// https://github.com/withastro/compiler/issues/595
+				(diag) => diag.severity === 1 && diag.code < 2000
+			);
 
 			if (compilerError) {
 				throw new CompilerError({
