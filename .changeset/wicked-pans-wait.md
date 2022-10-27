@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Allow root imports in SSR
+Allow importing public files in SSR
