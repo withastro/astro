@@ -18,7 +18,7 @@ export function createServer(
 		if (req.url) {
 			const stream = send(req, encodeURI(req.url), {
 				root: fileURLToPath(client),
-				dotfiles: "deny"
+				dotfiles: 'deny',
 			});
 
 			let forwardError = false;
