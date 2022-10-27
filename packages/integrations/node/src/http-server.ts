@@ -16,10 +16,9 @@ export function createServer(
 ) {
 	const listener: http.RequestListener = (req, res) => {
 		if (req.url) {
-			const fileURL = new URL('.' + req.url, client);
-
-			const stream = send(req, fileURLToPath(fileURL), {
-				dotfiles: 'deny',
+			const stream = send(req, encodeURI(req.url), {
+				root: fileURLToPath(client),
+				dotfiles: "deny"
 			});
 
 			let forwardError = false;
