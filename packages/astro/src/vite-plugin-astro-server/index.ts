@@ -9,6 +9,7 @@ import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/ind
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { collectErrorMetadata, getViteErrorPayload } from '../core/errors/dev/index.js';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
+import { createSafeError } from '../core/errors/index.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -18,7 +19,6 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import { createSafeError } from '../core/errors/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
