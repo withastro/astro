@@ -5,7 +5,7 @@ inputs:
   node-version:
     description: 'Node version'
     required: false
-    default: 16
+    default: '16'
   js-runtime:
     description: 'JS runtime'
     required: false
@@ -13,18 +13,19 @@ inputs:
   install-dependencies:
     description: 'Install dependencies'
     required: false
-    default: true
+    default: 'true'
 
 runs:
   using: composite
   steps:
-    - name: Temp output
-      run: |
-        echo "node-version ${{ inputs.node-version }}"
-        echo "js-runtime ${{ inputs.js-runtime }}"
-        echo "install-dependencies ${{ inputs.install-dependencies }}"
-        echo "install-dependencies ${{ inputs.install-dependencies == false }}"
-        echo "install-dependencies ${{ inputs.install-dependencies == 'false' }}"
+    - name: Sanitize inputs.js-runtime
+      if: ${{ !contains(fromJson('["node", "deno"]'), inputs.js-runtime) }}
+      run: echo "::warning::unknown 'js-runtime' value '${{ inputs.js-runtime }}'"
+      shell: bash
+
+    - name: Sanitize install-dependencies
+      if: ${{ !contains(fromJson('["true", "false"]'), inputs.install-dependencies) }}
+      run: echo "::warning::unknown 'install-dependencies' value '${{ inputs.install-dependencies }}'"
       shell: bash
 
     - name: Setup pnpm
@@ -43,6 +44,6 @@ runs:
         deno-version: v1.26.1
 
     - name: Install dependencies
-      if: ${{ inputs.install-dependencies }}
+      if: ${{ fromJSON(inputs.install-dependencies) }}
       run: pnpm install
       shell: bash
