@@ -1,4 +1,8 @@
-# Welcome to [Astro](https://astro.build) Hackernews
+# Astro Starter Kit: Hackernews
+
+```
+npm create astro@latest -- --template hackernews
+```
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/hackernews)
 
