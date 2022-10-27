@@ -114,7 +114,9 @@ export function enhanceViteSSRError(
 ): AstroError {
 	// Vite will give you better stacktraces, using sourcemaps.
 	if (viteServer) {
-		viteServer?.ssrFixStacktrace(error);
+		try {
+			viteServer.ssrFixStacktrace(error);
+		} catch {}
 	}
 
 	const newError = new AstroError({
