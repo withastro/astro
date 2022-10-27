@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { parseHTML } from 'linkedom';
 import { loadFixture } from '../../../astro/test/test-utils.js';
 import remarkToc from 'remark-toc';
+import { visit as estreeVisit } from 'estree-util-visit';
 
 const FIXTURE_ROOT = new URL('./fixtures/mdx-plugins/', import.meta.url);
 const FILE = '/with-plugins/index.html';
@@ -164,6 +165,21 @@ describe('MDX plugins', () => {
 		expect(selectGfmLink(document)).to.be.null;
 		expect(selectRemarkExample(document)).to.be.null;
 	});
+
+	it('supports custom recma plugins', async () => {
+		const fixture = await buildFixture({
+			integrations: [
+				mdx({
+					recmaPlugins: [recmaExamplePlugin],
+				}),
+			],
+		});
+
+		const html = await fixture.readFile(FILE);
+		const { document } = parseHTML(html);
+
+		expect(selectRecmaExample(document)).to.not.be.null;
+	});
 });
 
 async function buildFixture(config) {
@@ -194,6 +210,24 @@ function rehypeExamplePlugin() {
 	};
 }
 
+function recmaExamplePlugin() {
+	return (tree) => {
+		estreeVisit(tree, (node) => {
+			if (
+				node.type === 'VariableDeclarator' &&
+				node.id.name === 'recmaPluginWorking' &&
+				node.init?.type === 'Literal'
+			) {
+				node.init = {
+					...(node.init ?? {}),
+					value: true,
+					raw: 'true',
+				};
+			}
+		});
+	};
+}
+
 function selectTocLink(document) {
 	return document.querySelector('ul a[href="#section-1"]');
 }
@@ -208,4 +242,8 @@ function selectRemarkExample(document) {
 
 function selectRehypeExample(document) {
 	return document.querySelector('div[data-rehype-plugin-works]');
+}
+
+function selectRecmaExample(document) {
+	return document.querySelector('div[data-recma-plugin-works]');
 }

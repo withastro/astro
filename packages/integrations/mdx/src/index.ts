@@ -24,6 +24,7 @@ const COMPILED_CONTENT_ERROR =
 export type MdxOptions = {
 	remarkPlugins?: PluggableList;
 	rehypePlugins?: PluggableList;
+	recmaPlugins?: PluggableList;
 	/**
 	 * Choose which remark and rehype plugins to inherit, if any.
 	 *
@@ -64,9 +65,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 				const mdxPluginOpts: MdxRollupPluginOptions = {
 					remarkPlugins: await getRemarkPlugins(mdxOptions, config),
 					rehypePlugins: getRehypePlugins(mdxOptions, config),
+					recmaPlugins: mdxOptions.recmaPlugins,
 					jsx: true,
 					jsxImportSource: 'astro',
-					// Note: disable `.md` support
+					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
 				};
@@ -100,7 +102,10 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 											...(mdxPluginOpts.rehypePlugins ?? []),
 											() => rehypeApplyFrontmatterExport(frontmatter),
 										],
-										recmaPlugins: [() => recmaInjectImportMetaEnvPlugin({ importMetaEnv })],
+										recmaPlugins: [
+											...(mdxPluginOpts.recmaPlugins ?? []),
+											() => recmaInjectImportMetaEnvPlugin({ importMetaEnv }),
+										],
 									});
 
 									return {
