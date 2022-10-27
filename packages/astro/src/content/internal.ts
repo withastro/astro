@@ -47,7 +47,6 @@ const errorMap: z.ZodErrorMap = (error, ctx) => {
 
 // WARNING: MAXIMUM JANK AHEAD
 function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string) {
-	console.log({ rawFrontmatter, frontmatterKey });
 	const indexOfFrontmatterKey = rawFrontmatter.indexOf(`\n${frontmatterKey}`);
 	if (indexOfFrontmatterKey === -1) return 0;
 
@@ -73,6 +72,7 @@ export function createRenderContent(renderContentMap: Record<string, () => Promi
 
 		if (import.meta.env.PROD && 'collectedCss' in mod && 'links' in (this ?? {})) {
 			for (const cssAsset of mod.collectedCss) {
+				// console.log('that', this, mod, contentKey, renderContentMap);
 				this.links.add({
 					props: { rel: 'stylesheet', href: prependForwardSlash(cssAsset) },
 					children: '',
