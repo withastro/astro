@@ -30,7 +30,7 @@ importers:
       execa: ^6.1.0
       organize-imports-cli: ^0.10.0
       prettier: ^2.7.0
-      prettier-plugin-astro: ^0.3.0
+      prettier-plugin-astro: ^0.4.0
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
       turbo: 1.2.5
@@ -53,7 +53,7 @@ importers:
       execa: 6.1.0
       organize-imports-cli: 0.10.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.3.0
+      prettier-plugin-astro: 0.4.1
       pretty-bytes: 6.0.0
       tiny-glob: 0.2.9
       turbo: 1.2.5
@@ -15792,8 +15792,8 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-astro/0.3.0:
-    resolution: {integrity: sha512-ApEy5U3FPdylBa72L8k7W/h/zgegAyuHppDu9geVwFHzaaEQpaRCrT3Wt0nc6tNcbDaOgotBfcaUzMr0Cw6a8w==}
+  /prettier-plugin-astro/0.4.1:
+    resolution: {integrity: sha512-AvYyg4WDnhmqH5S85EFgJAMU20p1lLypVt4sn4tuGW+lnPfWr70SaHZD9gevx20o3FnALgZxDu1enFSkN/MSwQ==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
       '@astrojs/compiler': 0.19.0
