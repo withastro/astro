@@ -3,7 +3,7 @@ import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { ErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';

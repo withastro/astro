@@ -1,6 +1,6 @@
+import eol from 'eol';
 import stripAnsi from 'strip-ansi';
 import type { SSRError } from '../../@types/astro.js';
-import eol from 'eol';
 
 export function collectInfoFromStacktrace(error: SSRError): SSRError {
 	if (!error.stack) return error;
