@@ -9,7 +9,7 @@ export interface Props {
 const { story } = Astro.props;
 ---
 
-<li class="news-item">
+<li>
   <span class="score">{story.points}</span>
   <span class="title">
     <Show when={story.url}>
@@ -40,3 +40,39 @@ const { story } = Astro.props;
     <span class="label">{story.type}</span>
   </Show>
 </li>
+
+<style>
+  li {
+    background-color: rgb(248 250 252);
+    padding: 20px 30px 20px 80px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    line-height: 20px;
+  }
+
+  .score {
+    color: rgb(88 28 135);
+    font-size: 1.1em;
+    font-weight: 700;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 80px;
+    text-align: center;
+    margin-top: -10px;
+  }
+
+  .host, .meta {
+    font-size: 0.85em;
+    color: rgb(51 65 85);
+  }
+
+  .host a, .meta a {
+    color: rgb(51 65 85);
+    text-decoration: underline;
+  }
+
+  .host a:hover, .meta a:hover {
+    color: #335d92;
+  }
+</style>

@@ -1,63 +1,79 @@
 ---
 export interface Props {
-    open?: boolean
+  open?: boolean;
 }
 
-const { open = false } = Astro.props
+const { open = false } = Astro.props;
 ---
 
-<hn-toggle open={open ? '' : undefined}>
-    <div class:list={['toggle', { open }]}>
-        <a class:list={{open}}>{open ? "[-]" : "[+] comments collapsed"}</a>
-    </div>
-    <ul class="comment-children">
-        <slot />
-    </ul>
+<hn-toggle open={open ? "" : undefined}>
+  <div class="toggle">
+    <a>{open ? "[-]" : "[+] comments collapsed"}</a>
+  </div>
+  <ul class="comment-children">
+    <slot />
+  </ul>
 </hn-toggle>
 
 <style>
-    hn-toggle:not([open]) .toggle {
-        background-color: rgb(255 247 237);
-    }
-    hn-toggle:not([open]) ul {
-        display: none;
-    }
+  hn-toggle[open] > .toggle {
+    padding: 0;
+    background-color: transparent;
+    margin-bottom: -0.5em;
+  }
+
+  hn-toggle:not([open]) > .toggle {
+    background-color: rgb(255 247 237);
+  }
+  hn-toggle:not([open]) ul {
+    display: none;
+  }
+
+  .toggle {
+    font-size: 0.9em;
+    margin: 1em 0;
+    padding: 0.3em 0.5em;
+    border-radius: 4px;
+  }
+
+  a {
+    color: rgb(51 65 85);
+    cursor: pointer;
+  }
 </style>
 
 <script>
-    class HnToggle extends HTMLElement {
-        #btn = this.querySelector<HTMLAnchorElement>('a')!
-        #toggle = this.querySelector('.toggle')!
-        #toggleOpen = this.toggleOpen.bind(this)
+  class HnToggle extends HTMLElement {
+    #btn = this.querySelector<HTMLAnchorElement>("a")!;
+    #toggle = this.querySelector(".toggle")!;
+    #toggleOpen = this.toggleOpen.bind(this);
 
-        connectedCallback() {
-            this.#btn.addEventListener('click', this.#toggleOpen, false)
-        }
-
-        disconnectedCallback() {
-            this.#btn.addEventListener('click', this.#toggleOpen)
-        }
-
-        get open() {
-            return this.hasAttribute('open')
-        }
-
-        set open(value: boolean) {
-            if (value) {
-                this.setAttribute('open', '')
-                this.#btn.textContent = '[-]'
-                this.#toggle.classList.add('open')
-            } else {
-                this.removeAttribute('open')
-                this.#btn.textContent = '[+] comments collapsed'
-                this.#toggle.classList.remove('open')
-            }
-        }
-
-        toggleOpen() {
-            this.open = !this.open
-        }
+    connectedCallback() {
+      this.#btn.addEventListener("click", this.#toggleOpen, false);
     }
 
-    customElements.define('hn-toggle', HnToggle)
+    disconnectedCallback() {
+      this.#btn.addEventListener("click", this.#toggleOpen);
+    }
+
+    get open() {
+      return this.hasAttribute("open");
+    }
+
+    set open(value: boolean) {
+      if (value) {
+        this.setAttribute("open", "");
+        this.#btn.textContent = "[-]";
+      } else {
+        this.removeAttribute("open");
+        this.#btn.textContent = "[+] comments collapsed";
+      }
+    }
+
+    toggleOpen() {
+      this.open = !this.open;
+    }
+  }
+
+  customElements.define("hn-toggle", HnToggle);
 </script>

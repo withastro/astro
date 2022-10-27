@@ -1,6 +1,6 @@
 ---
 import Show from "../../components/Show.astro";
-import Layout from "../../layouts/Base.astro";
+import Layout from "../../layouts/Layout.astro";
 import fetchAPI from "../../lib/api";
 import type { IUser } from "../../types.js";
 
@@ -10,7 +10,7 @@ const user = (await fetchAPI(`user/${id}`)) as IUser;
 ---
 
 <Layout>
-  <div class="user-view">
+  <main>
     <Show when={user}>
       <Show when={!user.error}>
         <h1 slot="fallback">User not found.</h1>
@@ -28,7 +28,7 @@ const user = (await fetchAPI(`user/${id}`)) as IUser;
             <li set:html={user.about} class="about"></li>{" "}
           </Show>
         </ul>
-        <p class="links">
+        <p>
           <a href={`https://news.ycombinator.com/submitted?id=${user.id}`}
             >submissions</a
           > |{" "}
@@ -38,5 +38,36 @@ const user = (await fetchAPI(`user/${id}`)) as IUser;
         </p>
       </Show>
     </Show>
-  </div>
+  </main>
 </Layout>
+
+<style>
+  main {
+    background-color: rgb(248 250 252);
+    box-sizing: border-box;
+    padding: 2em 3em;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5em;
+  }
+
+  .meta {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .label {
+    display: inline-block;
+    min-width: 4em;
+  }
+
+  .about {
+    margin: 1em 0;
+  }
+
+  p a {
+    text-decoration: underline;
+  }
+</style>

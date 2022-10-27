@@ -1,5 +1,4 @@
 ---
-import '../assets/root.css'
 import Nav from '../components/Nav.astro'
 ---
 
@@ -17,3 +16,21 @@ import Nav from '../components/Nav.astro'
     <slot />
   </body>
 </html>
+
+<style is:global>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    font-size: 15px;
+    background-color: rgb(226 232 240);
+    margin: 0;
+    padding-top: 55px;
+    color: rgb(15 23 42);
+    overflow-y: scroll;
+  }
+
+  a {
+    color: rgb(15 23 42);
+    text-decoration: none;
+  }
+</style>
