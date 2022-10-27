@@ -1,4 +1,4 @@
-import { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
+import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
 import { AstroErrorCodes } from './codes.js';
 import { codeFrame } from './printer.js';
 

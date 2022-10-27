@@ -9,10 +9,4 @@ export {
 } from './errors.js';
 export type { ErrorLocation, ErrorWithMetadata } from './errors';
 export { codeFrame } from './printer.js';
-export {
-	positionAt,
-	enhanceViteSSRError,
-	getViteErrorPayload,
-	collectErrorMetadata,
-	createCustomViteLogger,
-} from './utils.js';
+export { positionAt, collectInfoFromStacktrace } from './utils.js';

@@ -16,7 +16,7 @@ import {
 } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import devServer from '../core/dev/index.js';
-import { collectErrorMetadata } from '../core/errors/index.js';
+import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';

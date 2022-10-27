@@ -9,12 +9,8 @@ import type {
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
-import {
-	MarkdownError,
-	enhanceViteSSRError,
-	CSSError,
-	AggregateError,
-} from '../../errors/index.js';
+import { enhanceViteSSRError } from '../../errors/dev/index.js';
+import { MarkdownError, CSSError, AggregateError } from '../../errors/index.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage, resolveIdToUrl } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';

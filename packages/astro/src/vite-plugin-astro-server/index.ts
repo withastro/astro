@@ -7,13 +7,6 @@ import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 import { Readable } from 'stream';
 import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
-import {
-	AstroError,
-	getViteErrorPayload,
-	AstroErrorCodes,
-	ErrorWithMetadata,
-	collectErrorMetadata,
-} from '../core/errors/index.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -23,6 +16,8 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
+import { collectErrorMetadata, getViteErrorPayload } from '../core/errors/dev/index.js';
+import type { ErrorWithMetadata } from '../core/errors/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;

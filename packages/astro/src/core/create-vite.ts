@@ -18,7 +18,7 @@ import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
-import { createCustomViteLogger } from './errors/index.js';
+import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {

@@ -1,5 +1,5 @@
 import eol from 'eol';
-import { ErrorLocation } from './errors.js';
+import type { ErrorLocation } from './errors.js';
 
 /** Generate a code frame from string and an error location */
 export function codeFrame(src: string, loc: ErrorLocation): string {
