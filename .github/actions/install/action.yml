@@ -18,10 +18,19 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Temp output
+      run: |
+        echo "node-version ${{ inputs.node-version }}"
+        echo "js-runtime ${{ inputs.js-runtime }}"
+        echo "install-dependencies ${{ inputs.install-dependencies }}"
+        echo "install-dependencies ${{ inputs.install-dependencies == false }}"
+        echo "install-dependencies ${{ inputs.install-dependencies == 'false' }}"
+      shell: bash
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v2.2.4
 
-    - name: Setup Node ${{ inputs.node-version }}
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
