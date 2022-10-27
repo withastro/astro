@@ -118,3 +118,10 @@ function getLineOffsets(text: string) {
 
 	return lineOffsets;
 }
+
+/** Coalesce any throw variable to an Error instance. */
+export function createSafeError(err: any): Error {
+	return err instanceof Error || (err && err.name && err.message)
+		? err
+		: new Error(JSON.stringify(err));
+}
