@@ -1,11 +1,8 @@
-# Welcome to [Astro](https://astro.build)
+# Welcome to [Astro](https://astro.build) Hackernews
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/hackernews)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-![basics](https://user-images.githubusercontent.com/4677417/186188965-73453154-fdec-4d6b-9c34-cb35c248ae5b.png)
-
 
 ## 🚀 Project Structure
 
@@ -17,19 +14,26 @@ Inside of your Astro project, you'll see the following folders and files:
 │   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   └── Card.astro
 │   ├── layouts/
 │   │   └── Layout.astro
 │   └── pages/
-│       └── index.astro
+        └── stories/
+            └── [id].astro
+        └── users/
+            └── [id].astro
+│       └── [...stories].astro
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name. Because the list of stories and users is always changing, dynamic routes like `[id].astro` are used to build pages when a specific page is requested.
 
 There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
 
 Any static assets, like images, can be placed in the `public/` directory.
+
+## Server-side rendering (SSR)
+
+This project uses the [`@astrojs/node`](https://docs.astro.build/en/guides/integrations-guide/node/) adapter to deploy the SSR site to Node targets. Check out Astro's [deployment docs](https://docs.astro.build/en/guides/deploy/) for details on other adapters and hosting environments.
 
 ## 🧞 Commands
 
