@@ -45,7 +45,6 @@ const { open = false } = Astro.props;
 <script>
 	class HnToggle extends HTMLElement {
 		#btn = this.querySelector<HTMLAnchorElement>('a')!;
-		#toggle = this.querySelector('.toggle')!;
 		#toggleOpen = this.toggleOpen.bind(this);
 
 		connectedCallback() {
