@@ -4,6 +4,7 @@ import { codeFrame } from './printer.js';
 
 interface ErrorProperties {
 	errorCode: AstroErrorCodes | DiagnosticCode;
+	name?: string;
 	message?: string;
 	location?: ErrorLocation;
 	hint?: string;
@@ -35,10 +36,15 @@ export class AstroError extends Error {
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { errorCode, message, stack, location, hint, frame } = props;
+		const { errorCode, name, message, stack, location, hint, frame } = props;
 
 		this.errorCode = errorCode;
-		this.name = AstroErrorCodes[errorCode];
+		if (name) {
+			this.name = name;
+		} else {
+			// If we don't have a name, let's generate one from the code
+			this.name = AstroErrorCodes[errorCode];
+		}
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
 		this.stack = stack ? stack : this.stack;
