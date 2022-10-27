@@ -133,7 +133,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 	const url = new URL(request.url);
 	const headers = new Headers();
-	headers.set('Content-Type', 'text/html');
+	headers.set('Content-Type', 'text/html; charset=utf-8');
 	const response: ResponseInit = {
 		status: args.status,
 		statusText: 'OK',
