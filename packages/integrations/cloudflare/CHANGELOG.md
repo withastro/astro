@@ -1,5 +1,12 @@
 # @astrojs/cloudflare
 
+## 3.1.1
+
+### Patch Changes
+
+- [#5103](https://github.com/withastro/astro/pull/5103) [`d151d9f3f`](https://github.com/withastro/astro/commit/d151d9f3f29c0a57c59b8029a18717808ccc7f8f) Thanks [@AirBorne04](https://github.com/AirBorne04)! - enable access to cloudflare runtime [KV, R2, Durable Objects]
+  - access native cloudflare runtime through `import { getRuntime } from "@astrojs/cloudflare/runtime"` now you can call `getRuntime(Astro.request)` and get access to the runtime environment
+
 ## 3.1.0
 
 ### Minor Changes
