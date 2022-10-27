@@ -118,8 +118,9 @@ export function enhanceViteSSRError(
 	}
 
 	const newError = new AstroError({
-		...(error as any),
+		message: error.message,
 		location: (error as any).loc,
+		stack: error.stack,
 		errorCode: (error as AstroError).errorCode
 			? (error as AstroError).errorCode
 			: AstroErrorCodes.UnknownViteSSRError,
