@@ -1,5 +1,4 @@
 import { getErrorMsg, parseEntryData, createRenderContent } from 'astro/content/internal';
-import { renderContentMap } from './render-content-generated.mjs';
 
 const defaultSchemaFileResolved = { schema: { parse: (mod) => mod } };
 /** Used to stub out `schemaMap` entries that don't have a `~schema.ts` file */
@@ -15,6 +14,10 @@ export const contentMap = {
 
 export const schemaMap = {
 	// GENERATED_SCHEMA_MAP_ENTRIES
+};
+
+export const renderContentMap = {
+	// GENERATED_RENDER_CONTENT_MAP_ENTRIES
 };
 
 export async function fetchContentByEntry(
