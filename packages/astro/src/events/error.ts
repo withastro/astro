@@ -1,5 +1,5 @@
 import { ZodError } from 'zod';
-import { AstroErrorCodes, ErrorWithMetadata } from '../core/errors.js';
+import { AstroErrorCodes, ErrorWithMetadata } from '../core/errors/index.js';
 
 const EVENT_ERROR = 'ASTRO_CLI_ERROR';
 

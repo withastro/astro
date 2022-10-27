@@ -9,6 +9,8 @@ import type {
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
+import { enhanceViteSSRError } from '../../errors/dev/index.js';
+import { MarkdownError, CSSError, AggregateError } from '../../errors/index.js';
 import { LogOptions } from '../../logger/core.js';
 import { isPage, resolveIdToUrl } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
@@ -91,9 +93,19 @@ export async function preload({
 }: Pick<SSROptions, 'env' | 'filePath'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
 	const renderers = await loadRenderers(env.viteServer, env.settings);
-	// Load the module from the Vite SSR Runtime.
-	const mod = (await env.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	return [renderers, mod];
+
+	try {
+		// Load the module from the Vite SSR Runtime.
+		const mod = (await env.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+		return [renderers, mod];
+	} catch (err) {
+		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
+		if (MarkdownError.is(err) || CSSError.is(err) || AggregateError.is(err)) {
+			throw err;
+		}
+
+		throw enhanceViteSSRError(err as Error, filePath, env.viteServer);
+	}
 }
 
 interface GetScriptsAndStylesParams {
