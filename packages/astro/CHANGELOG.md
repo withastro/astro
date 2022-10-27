@@ -1,5 +1,40 @@
 # astro
 
+## 1.6.0
+
+### Minor Changes
+
+- [#5147](https://github.com/withastro/astro/pull/5147) [`0bf0758fb`](https://github.com/withastro/astro/commit/0bf0758fb831a91f6628e10a5baabf02f30f1f41) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add `astro/types` entrypoint. These utilities can be used for common prop type patterns.
+
+  ## `HTMLAttributes`
+
+  If you would like to extend valid HTML attributes for a given HTML element, you may use the provided `HTMLAttributes` type—it accepts an element name and returns the valid HTML attributes for that element name.
+
+  ```ts
+  import { HTMLAttributes } from 'astro/types';
+  interface Props extends HTMLAttributes<'a'> {
+    myProp?: string;
+  }
+  ```
+
+- [#5164](https://github.com/withastro/astro/pull/5164) [`4a8a346ca`](https://github.com/withastro/astro/commit/4a8a346ca9a6d6ed8def2fa32329c1db922893d2) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Add support for markdown files with the following extensions:
+
+  - `.markdown`
+  - `.mdown`
+  - `.mkdn`
+  - `.mkd`
+  - `.mdwn`
+
+- [#4917](https://github.com/withastro/astro/pull/4917) [`ddf2f8390`](https://github.com/withastro/astro/commit/ddf2f8390e8dcc64b44636524bdcddae977779f4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for `--base` CLI argument, which will override the [`base`](https://docs.astro.build/en/reference/configuration-reference/#base) set in your `astro.config.mjs` file.
+
+  ```
+  astro --site https://astro.build --base /docs
+  ```
+
+### Patch Changes
+
+- [#5203](https://github.com/withastro/astro/pull/5203) [`3d99fdd1e`](https://github.com/withastro/astro/commit/3d99fdd1e7ea563775d86d1b00196c4c0c024500) Thanks [@bluwy](https://github.com/bluwy)! - Improve Astro libraries config handling
+
 ## 1.5.3
 
 ### Patch Changes
