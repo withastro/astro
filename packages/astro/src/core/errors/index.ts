@@ -9,4 +9,4 @@ export {
 	RuntimeError,
 } from './errors.js';
 export { codeFrame } from './printer.js';
-export { collectInfoFromStacktrace, positionAt } from './utils.js';
+export { collectInfoFromStacktrace, createSafeError, positionAt } from './utils.js';

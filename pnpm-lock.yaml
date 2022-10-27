@@ -1700,6 +1700,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/error-non-error:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/fetch:
     specifiers:
       '@astrojs/preact': workspace:*

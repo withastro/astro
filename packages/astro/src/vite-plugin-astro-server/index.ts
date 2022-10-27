@@ -9,6 +9,7 @@ import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/ind
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import { collectErrorMetadata, getViteErrorPayload } from '../core/errors/dev/index.js';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
+import { createSafeError } from '../core/errors/index.js';
 import { error, info, LogOptions, warn } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
@@ -284,7 +285,8 @@ async function handleRequest(
 	} catch (_err) {
 		// This is our last line of defense regarding errors where we still might have some information about the request
 		// Our error should already be complete, but let's try to add a bit more through some guesswork
-		const errorWithMetadata = collectErrorMetadata(_err);
+		const err = createSafeError(_err);
+		const errorWithMetadata = collectErrorMetadata(err);
 
 		error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
