@@ -1,29 +1,63 @@
-import { Plugin } from 'vite';
+import { Plugin, ViteDevServer } from 'vite';
 import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
 import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import MagicString from 'magic-string';
 import parseImports from 'parse-imports';
 import { AstroSettings } from '../@types/astro.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
+import { getStylesForURL } from '../core/render/dev/css.js';
+import { pathToFileURL } from 'url';
 
-const assetPlaceholder = `'@@ASTRO-ASSET-PLACEHOLDER@@'`;
+const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
+const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
 
 export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
 
-export function injectDelayedAssetPlugin({ settings }: { settings: AstroSettings }): Plugin {
+export function injectDelayedAssetPlugin({
+	settings,
+	mode,
+}: {
+	settings: AstroSettings;
+	mode: string;
+}): Plugin {
+	let viteDevServer: ViteDevServer;
 	return {
 		name: 'astro-inject-delayed-asset-plugin',
 		enforce: 'post',
+		configureServer(server) {
+			if (mode === 'dev') {
+				viteDevServer = server;
+			}
+		},
 		load(id) {
 			if (id.endsWith(DELAYED_ASSET_FLAG)) {
 				const code = `
 					export { Content } from ${JSON.stringify(id.replace(DELAYED_ASSET_FLAG, ''))};
-					export const collectedCss = ${assetPlaceholder}
+					export const collectedLinks = ${LINKS_PLACEHOLDER};
+					export const collectedStyles = ${STYLES_PLACEHOLDER};
 				`;
 				return code;
 			}
 		},
 		async transform(code, id, options) {
+			if (id.endsWith(DELAYED_ASSET_FLAG) && viteDevServer) {
+				const baseId = id.replace(DELAYED_ASSET_FLAG, '');
+				if (!viteDevServer.moduleGraph.getModuleById(baseId)?.ssrModule) {
+					await viteDevServer.ssrLoadModule(baseId);
+				}
+				const { stylesMap, urls } = await getStylesForURL(
+					pathToFileURL(baseId),
+					viteDevServer,
+					'development'
+				);
+
+				return {
+					code: code
+						.replace(LINKS_PLACEHOLDER, JSON.stringify([...urls]))
+						.replace(STYLES_PLACEHOLDER, JSON.stringify([...stylesMap.values()])),
+				};
+			}
+
 			if (options?.ssr && id.endsWith('.astro')) {
 				let renderContentImportName = getRenderContentImportName(
 					await parseImports(escapeViteEnvReferences(code))
@@ -59,7 +93,7 @@ export function assetSsrPlugin({ internals }: { internals: BuildInternals }): Pl
 		name: 'astro-asset-ssr-plugin',
 		async generateBundle(_options, bundle) {
 			for (const [_, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk' && chunk.code.includes(assetPlaceholder)) {
+				if (chunk.type === 'chunk' && chunk.code.includes(LINKS_PLACEHOLDER)) {
 					for (const id of Object.keys(chunk.modules)) {
 						for (const [pageInfo, depth, order] of walkParentInfos(id, this)) {
 							if (moduleIsTopLevelPage(pageInfo)) {
@@ -69,7 +103,7 @@ export function assetSsrPlugin({ internals }: { internals: BuildInternals }): Pl
 								const entryDeferredCss = pageData.contentDeferredCss?.get(id);
 								if (!entryDeferredCss) continue;
 								chunk.code = chunk.code.replace(
-									assetPlaceholder,
+									LINKS_PLACEHOLDER,
 									JSON.stringify([...entryDeferredCss])
 								);
 							}

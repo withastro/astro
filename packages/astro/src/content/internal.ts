@@ -70,12 +70,19 @@ export function createRenderContent(renderContentMap: Record<string, () => Promi
 
 		const mod = await modImport();
 
-		if (import.meta.env.PROD && 'collectedCss' in mod && 'links' in (this ?? {})) {
-			for (const cssAsset of mod.collectedCss) {
-				// console.log('that', this, mod, contentKey, renderContentMap);
+		if ('collectedLinks' in mod && 'links' in (this ?? {})) {
+			for (const link of mod.collectedLinks) {
 				this.links.add({
-					props: { rel: 'stylesheet', href: prependForwardSlash(cssAsset) },
+					props: { rel: 'stylesheet', href: prependForwardSlash(link) },
 					children: '',
+				});
+			}
+		}
+		if ('collectedStyles' in mod && 'styles' in (this ?? {})) {
+			for (const style of mod.collectedStyles) {
+				this.styles.add({
+					props: {},
+					children: style,
 				});
 			}
 		}
