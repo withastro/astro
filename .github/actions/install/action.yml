@@ -18,12 +18,12 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Sanitize inputs.js-runtime
+    - name: Check inputs.js-runtime
       if: ${{ !contains(fromJson('["node", "deno"]'), inputs.js-runtime) }}
       run: echo "::warning::unknown 'js-runtime' value '${{ inputs.js-runtime }}'"
       shell: bash
 
-    - name: Sanitize install-dependencies
+    - name: Check inputs.install-dependencies
       if: ${{ !contains(fromJson('["true", "false"]'), inputs.install-dependencies) }}
       run: echo "::warning::unknown 'install-dependencies' value '${{ inputs.install-dependencies }}'"
       shell: bash
