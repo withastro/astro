@@ -7,7 +7,7 @@ import { readFileSync } from 'fs';
 import type * as vite from 'vite';
 import { AstroErrorCodes } from '../core/errors/codes.js';
 import { CSSError } from '../core/errors/errors.js';
-import { positionAt } from '../core/errors/utils.js';
+import { positionAt } from '../core/errors/index.js';
 
 export type ViteStyleTransformer = {
 	viteDevServer?: vite.ViteDevServer;

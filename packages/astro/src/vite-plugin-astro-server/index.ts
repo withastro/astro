@@ -18,6 +18,7 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
+import { createSafeError } from '../core/errors/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -284,7 +285,8 @@ async function handleRequest(
 	} catch (_err) {
 		// This is our last line of defense regarding errors where we still might have some information about the request
 		// Our error should already be complete, but let's try to add a bit more through some guesswork
-		const errorWithMetadata = collectErrorMetadata(_err);
+		const err = createSafeError(_err);
+		const errorWithMetadata = collectErrorMetadata(err);
 
 		error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);

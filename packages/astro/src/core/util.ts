@@ -91,13 +91,6 @@ export function parseNpmName(
 	};
 }
 
-/** Coalesce any throw variable to an Error instance. */
-export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message)
-		? err
-		: new Error(JSON.stringify(err));
-}
-
 export function resolveDependency(dep: string, projectRoot: URL) {
 	const resolved = resolve.sync(dep, {
 		basedir: fileURLToPath(projectRoot),

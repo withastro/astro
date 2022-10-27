@@ -82,6 +82,7 @@
     "client-base.d.ts",
     "import-meta.d.ts",
     "astro-jsx.d.ts",
+    "types.d.ts",
     "README.md",
     "vendor"
   ],
