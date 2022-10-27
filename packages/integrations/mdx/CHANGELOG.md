@@ -1,5 +1,11 @@
 # @astrojs/mdx
 
+## 0.11.5
+
+### Patch Changes
+
+- [#5146](https://github.com/withastro/astro/pull/5146) [`308e565ad`](https://github.com/withastro/astro/commit/308e565ad39957e3353d72ca5d3bbce1a1b45008) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Support recmaPlugins config option
+
 ## 0.11.4
 
 ### Patch Changes

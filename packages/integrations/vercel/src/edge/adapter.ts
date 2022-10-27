@@ -2,7 +2,13 @@ import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import { relative as relativePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyFilesToFunction, getVercelOutput, removeDir, writeJson } from '../lib/fs.js';
+import {
+	copyFilesToFunction,
+	getFilesFromFolder,
+	getVercelOutput,
+	removeDir,
+	writeJson,
+} from '../lib/fs.js';
 import { getRedirects } from '../lib/redirects.js';
 
 const PACKAGE_NAME = '@astrojs/vercel/edge';
@@ -88,13 +94,11 @@ export default function vercelEdge({ includeFiles = [] }: VercelEdgeConfig = {})
 			},
 			'astro:build:done': async ({ routes }) => {
 				const entry = new URL(serverEntry, buildTempFolder);
+				const generatedFiles = await getFilesFromFolder(buildTempFolder);
 
 				// Copy entry and other server files
 				const commonAncestor = await copyFilesToFunction(
-					[
-						new URL(serverEntry, buildTempFolder),
-						...includeFiles.map((file) => new URL(file, _config.root)),
-					],
+					[...generatedFiles, ...includeFiles.map((file) => new URL(file, _config.root))],
 					functionFolder
 				);
 

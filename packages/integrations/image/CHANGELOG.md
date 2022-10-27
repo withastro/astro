@@ -1,5 +1,23 @@
 # @astrojs/image
 
+## 0.11.0
+
+### Minor Changes
+
+- [#5180](https://github.com/withastro/astro/pull/5180) [`b77200f42`](https://github.com/withastro/astro/commit/b77200f42399ea31b0045bc0e6bfe2c1c5ccc970) Thanks [@tony-sull](https://github.com/tony-sull)! - Removes the `content-visibility: auto` styling added by the `<Picture />` and `<Image />` components.
+
+  **Why:** The [content-visibility](https://developer.mozilla.org/en-US/docs/Web/CSS/content-visibility) style is rarely needed for an `<img>` and can actually break certain layouts.
+
+  **Migration:** Do images in your layout actually depend on `content-visibility`? No problem! You can add these styles where needed in your own component styles.
+
+- [#5038](https://github.com/withastro/astro/pull/5038) [`ed2dfdae5`](https://github.com/withastro/astro/commit/ed2dfdae5bea93746be883bc528c1fb6407af6eb) Thanks [@emmanuelchucks](https://github.com/emmanuelchucks)! - HTML attributes included on the `<Picture />` component are now passed down to the underlying `<img />` element.
+
+  **Why?**
+
+  - when styling a `<picture>` the `class` and `style` attributes belong on the `<img>` itself
+  - `<picture>` elements [should not](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture#attributes) actually provide any `aria-` attributes
+  - `width` and `height` can be added to the `<img>` to help prevent layout shift
+
 ## 0.10.0
 
 ### Minor Changes

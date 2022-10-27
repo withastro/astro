@@ -1,5 +1,21 @@
 # create-astro
 
+## 1.2.0
+
+### Minor Changes
+
+- [#5088](https://github.com/withastro/astro/pull/5088) [`040837628`](https://github.com/withastro/astro/commit/04083762810a1a9e078a7e68edab945c8063b1ab) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Introducing your new automated assistant: Houston! 🎉
+
+  ```
+  ╭─────╮  Houston:
+  │ ◠ ◡ ◠  Initiating launch sequence... right... now!
+  ╰─────╯
+  ```
+
+  Updates template and TypeScript prompts for clarity and friendliness.
+
+  Migrates template copying from [`degit`](https://github.com/Rich-Harris/degit) (unmaintained) to [`giget`](https://github.com/unjs/giget) for stability.
+
 ## 1.1.0
 
 ### Minor Changes
