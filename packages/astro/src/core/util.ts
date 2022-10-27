@@ -6,6 +6,7 @@ import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { ErrorPayload, normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
@@ -16,6 +17,23 @@ export function isObject(value: unknown): value is Record<string, any> {
 /** Cross-realm compatible URL */
 export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
+}
+/** Check if a file is a markdown file based on its extension */
+export function isMarkdownFile(
+	fileId: string,
+	option: { criteria: 'endsWith' | 'includes'; suffix?: string }
+): boolean {
+	const _suffix = option.suffix ?? '';
+	if (option.criteria === 'endsWith') {
+		for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+			if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
+		}
+		return false;
+	}
+	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+		if (fileId.includes(`${markdownFileExtension}${_suffix}`)) return true;
+	}
+	return false;
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */

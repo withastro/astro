@@ -98,7 +98,8 @@ describe('[create-astro] select typescript', function () {
 				stdout.on('data', (chunk) => {
 					onStdout(chunk);
 					if (!wrote && chunk.includes(PROMPT_MESSAGES.typescript)) {
-						stdin.write('\x1B\x5B\x42\x0D');
+						// Enter (strict is default)
+						stdin.write('\n');
 						wrote = true;
 					}
 					if (chunk.includes(PROMPT_MESSAGES.typescriptSucceed)) {
