@@ -3,16 +3,16 @@ import { EventEmitter } from 'events';
 import { Volume } from 'memfs';
 import { fileURLToPath } from 'url';
 import npath from 'path';
+import { unixify } from './correct-path.js';
 
 export function createFs(json, root) {
-	if(root instanceof URL) {
-		root = npath.posix.normalize(fileURLToPath(root));
+	if(typeof root !== 'string') {
+		root = unixify(fileURLToPath(root));
 	}
 
 	const structure = {};
 	for(const [key, value] of Object.entries(json)) {
-		const fullpath = npath.posix.join(root, key)
-		console.log("FULL", fullpath, root, key);
+		const fullpath = npath.join(root, key);
 		structure[fullpath] = value;
 	}
 
