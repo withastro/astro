@@ -9,19 +9,23 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Retrieve existing PR reviews
-        id: set-reviews
-        run: |
-          echo ::set-output name=reviews::$(curl --request GET \
-            --url https://api.github.com/repos/${{github.repository}}/pulls/${{github.event.number}}/reviews \
-            --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}')
-
       - name: Check if there is already a block on this PR
         id: set-blocks
-        run: |
-          echo ::set-output name=blocks::$(echo '${{ steps.set-reviews.outputs.reviews }}' \
-            | jq '.[] | select(.user.id == 41898282 and .state == "CHANGES_REQUESTED") | length' \
-            | uniq)
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const url = 'https://api.github.com/repos/' + context.repo.owner + '/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
+            console.log('reviews URL', url);
+            const result = await github.request(url);
+            console.log(result);
+            const reviews = result.data;
+            for(const review of reviews) {
+              if(review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
+                return 'block';
+              }
+            }
+            return '';
+          result-encoding: string
 
       - uses: actions/checkout@v3
         if: steps.set-blocks.outputs.blocks == ''
