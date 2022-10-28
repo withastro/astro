@@ -13,6 +13,7 @@ import { createRequire } from 'module';
 import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { warn } from '../../logger/core.js';
 import { removeLeadingForwardSlash } from '../../path.js';
 import { resolvePages } from '../../util.js';
@@ -206,7 +207,11 @@ export function createRouteManifest(
 ): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validPageExtensions: Set<string> = new Set(['.astro', '.md', ...settings.pageExtensions]);
+	const validPageExtensions: Set<string> = new Set([
+		'.astro',
+		...SUPPORTED_MARKDOWN_FILE_EXTENSIONS,
+		...settings.pageExtensions,
+	]);
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
 	function walk(dir: string, parentSegments: RoutePart[][], parentParams: string[]) {

@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Fix `.css?raw` usage
+Upgrade Vite to 3.2

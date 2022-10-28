@@ -39,6 +39,9 @@ describe('Vue component', () => {
 			// test 5: components with identical render output and props have been deduplicated
 			const uniqueRootUIDs = $('astro-island').map((i, el) => $(el).attr('uid'));
 			expect(new Set(uniqueRootUIDs).size).to.equal(5);
+
+			// test 6: import public files work
+			expect($('#vue-img')).to.be.ok;
 		});
 	});
 

@@ -1,5 +1,50 @@
 # astro
 
+## 1.6.0
+
+### Minor Changes
+
+- [#5147](https://github.com/withastro/astro/pull/5147) [`0bf0758fb`](https://github.com/withastro/astro/commit/0bf0758fb831a91f6628e10a5baabf02f30f1f41) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add `astro/types` entrypoint. These utilities can be used for common prop type patterns.
+
+  ## `HTMLAttributes`
+
+  If you would like to extend valid HTML attributes for a given HTML element, you may use the provided `HTMLAttributes` type—it accepts an element name and returns the valid HTML attributes for that element name.
+
+  ```ts
+  import { HTMLAttributes } from 'astro/types';
+  interface Props extends HTMLAttributes<'a'> {
+    myProp?: string;
+  }
+  ```
+
+- [#5164](https://github.com/withastro/astro/pull/5164) [`4a8a346ca`](https://github.com/withastro/astro/commit/4a8a346ca9a6d6ed8def2fa32329c1db922893d2) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Add support for markdown files with the following extensions:
+
+  - `.markdown`
+  - `.mdown`
+  - `.mkdn`
+  - `.mkd`
+  - `.mdwn`
+
+- [#4917](https://github.com/withastro/astro/pull/4917) [`ddf2f8390`](https://github.com/withastro/astro/commit/ddf2f8390e8dcc64b44636524bdcddae977779f4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for `--base` CLI argument, which will override the [`base`](https://docs.astro.build/en/reference/configuration-reference/#base) set in your `astro.config.mjs` file.
+
+  ```
+  astro --site https://astro.build --base /docs
+  ```
+
+### Patch Changes
+
+- [#5203](https://github.com/withastro/astro/pull/5203) [`3d99fdd1e`](https://github.com/withastro/astro/commit/3d99fdd1e7ea563775d86d1b00196c4c0c024500) Thanks [@bluwy](https://github.com/bluwy)! - Improve Astro libraries config handling
+
+## 1.5.3
+
+### Patch Changes
+
+- [#5133](https://github.com/withastro/astro/pull/5133) [`1c477dd8d`](https://github.com/withastro/astro/commit/1c477dd8d9026fcbd533b4e6d11908e167ce7247) Thanks [@bluwy](https://github.com/bluwy)! - Fix `.css?raw` usage
+
+- [#5133](https://github.com/withastro/astro/pull/5133) [`1c477dd8d`](https://github.com/withastro/astro/commit/1c477dd8d9026fcbd533b4e6d11908e167ce7247) Thanks [@bluwy](https://github.com/bluwy)! - Update `@astrojs/compiler` and use the new `resolvePath` option. This allows removing much of the runtime code, which should improve rendering performance for Astro and MDX pages.
+
+- [#5192](https://github.com/withastro/astro/pull/5192) [`8728ee0b9`](https://github.com/withastro/astro/commit/8728ee0b94ef28524900367a06b9fe806babd574) Thanks [@tony-sull](https://github.com/tony-sull)! - `astro add` no longer automatically installs optional peer dependencies
+
 ## 1.5.2
 
 ### Patch Changes

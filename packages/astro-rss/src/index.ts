@@ -17,7 +17,7 @@ type RSSOptions = {
 	/**
 	 * List of RSS feed items to render. Accepts either:
 	 * a) list of RSSFeedItems
-	 * b) import.meta.glob result. You can only glob ".md" files within src/pages/ when using this method!
+	 * b) import.meta.glob result. You can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within src/pages/ when using this method!
 	 */
 	items: RSSFeedItem[] | GlobResult;
 	/** Specify arbitrary metadata on opening <xml> tag */
@@ -58,7 +58,7 @@ function mapGlobResult(items: GlobResult): Promise<RSSFeedItem[]> {
 			const { url, frontmatter } = await getInfo();
 			if (url === undefined || url === null) {
 				throw new Error(
-					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" files within /pages! Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
+					`[RSS] When passing an import.meta.glob result directly, you can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within /pages! Consider mapping the result to an array of RSSFeedItems. See the RSS docs for usage examples: https://docs.astro.build/en/guides/rss/#2-list-of-rss-feed-objects`
 				);
 			}
 			if (!Boolean(frontmatter.title) || !Boolean(frontmatter.pubDate)) {
