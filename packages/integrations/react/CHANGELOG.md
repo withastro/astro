@@ -1,5 +1,11 @@
 # @astrojs/react
 
+## 1.2.2
+
+### Patch Changes
+
+- [#5218](https://github.com/withastro/astro/pull/5218) [`0b1241431`](https://github.com/withastro/astro/commit/0b12414315fa81ded96587779c63c74400466078) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - remove unnecessary `ReactDOM.renderToString` operation
+
 ## 1.2.1
 
 ### Patch Changes

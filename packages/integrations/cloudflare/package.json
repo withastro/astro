@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/cloudflare",
   "description": "Deploy your site to cloudflare workers or cloudflare pages",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -19,7 +19,10 @@
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/cloudflare/",
   "exports": {
     ".": "./dist/index.js",
-    "./runtime": "./dist/runtime.js",
+    "./runtime": {
+      "types": "./runtime.d.ts",
+      "default": "./dist/runtime.js"
+    },
     "./server.advanced.js": "./dist/server.advanced.js",
     "./server.directory.js": "./dist/server.directory.js",
     "./package.json": "./package.json"
