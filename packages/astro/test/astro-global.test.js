@@ -15,12 +15,9 @@ describe('Astro Global', () => {
 
 	describe('dev', () => {
 		let devServer;
-		let $;
 
 		before(async () => {
 			devServer = await fixture.startDevServer();
-			const html = await fixture.fetch('/blog/?foo=42').then((res) => res.text());
-			$ = cheerio.load(html);
 		});
 
 		after(async () => {
@@ -28,10 +25,20 @@ describe('Astro Global', () => {
 		});
 
 		it('Astro.request.url', async () => {
+			const html = await fixture.fetch('/blog/?foo=42').then((res) => res.text());
+			const $ = cheerio.load(html);
 			expect($('#pathname').text()).to.equal('/blog/');
 			expect($('#searchparams').text()).to.equal('{}');
 			expect($('#child-pathname').text()).to.equal('/blog/');
 			expect($('#nested-child-pathname').text()).to.equal('/blog/');
+		});
+
+		it('Astro.glob() returned `url` metadata of each markdown file extensions DOES NOT include the extension', async () => {
+			const html = await fixture.fetch('/blog/omit-markdown-extensions/').then((res) => res.text());
+			const $ = cheerio.load(html);
+			expect($('[data-any-url-contains-extension]').data('any-url-contains-extension')).to.equal(
+				false
+			);
 		});
 	});
 
