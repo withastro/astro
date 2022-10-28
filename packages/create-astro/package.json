@@ -29,7 +29,7 @@
     "tsconfigs"
   ],
   "dependencies": {
-    "@astrojs/cli-kit": "^0.1.0",
+    "@astrojs/cli-kit": "^0.1.3",
     "chalk": "^5.0.1",
     "comment-json": "^4.2.3",
     "execa": "^6.1.0",
