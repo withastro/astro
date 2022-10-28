@@ -1,5 +1,11 @@
 # @astrojs/node
 
+## 2.0.2
+
+### Patch Changes
+
+- [#5207](https://github.com/withastro/astro/pull/5207) [`c203a5cc2`](https://github.com/withastro/astro/commit/c203a5cc2f12d8c1c3e96d4f08bdd2bb2823e997) Thanks [@BeanWei](https://github.com/BeanWei)! - fix static server path for windows system
+
 ## 2.0.1
 
 ### Patch Changes

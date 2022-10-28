@@ -1,5 +1,16 @@
 # @astrojs/rss
 
+## 1.0.3
+
+### Patch Changes
+
+- [#5164](https://github.com/withastro/astro/pull/5164) [`4a8a346ca`](https://github.com/withastro/astro/commit/4a8a346ca9a6d6ed8def2fa32329c1db922893d2) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Add support for markdown files with the following extensions:
+  - `.markdown`
+  - `.mdown`
+  - `.mkdn`
+  - `.mkd`
+  - `.mdwn`
+
 ## 1.0.2
 
 ### Patch Changes

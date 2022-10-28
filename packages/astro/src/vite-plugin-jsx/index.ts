@@ -11,7 +11,7 @@ import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
-import { parseNpmName } from '../core/util.js';
+import { isMarkdownFile, parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
 type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
@@ -193,7 +193,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
-			if (id.includes('.mdx') || id.includes('.md')) {
+			if (id.includes('.mdx') || isMarkdownFile(id, { criteria: 'includes' })) {
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
 					jsx: 'preserve',

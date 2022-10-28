@@ -1,5 +1,6 @@
 import npath from 'path';
 import vite from 'vite';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { unwrapId } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
@@ -7,7 +8,7 @@ import { STYLE_EXTENSIONS } from '../util.js';
  * List of file extensions signalling we can (and should) SSR ahead-of-time
  * See usage below
  */
-const fileExtensionsToSSR = new Set(['.astro', '.md']);
+const fileExtensionsToSSR = new Set(['.astro', ...SUPPORTED_MARKDOWN_FILE_EXTENSIONS]);
 
 const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 

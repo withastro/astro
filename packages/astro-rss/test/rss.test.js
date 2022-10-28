@@ -198,7 +198,11 @@ describe('rss', () => {
 				});
 				chai.expect(false).to.equal(true, 'Should have errored');
 			} catch (err) {
-				chai.expect(err.message).to.contain('you can only glob ".md" files within /pages');
+				chai
+					.expect(err.message)
+					.to.contain(
+						'you can only glob ".md" (or alternative extensions for markdown files like ".markdown") files within /pages'
+					);
 			}
 		});
 	});

@@ -17,6 +17,7 @@ import type { PageBuildData } from '../core/build/types';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroCookies } from '../core/cookies';
 import type { AstroComponentFactory } from '../runtime/server';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../core/constants.js';
 export type {
 	MarkdownHeading,
 	MarkdownMetadata,
@@ -76,6 +77,7 @@ export interface AstroComponentMetadata {
 export interface CLIFlags {
 	root?: string;
 	site?: string;
+	base?: string;
 	host?: string | boolean;
 	port?: number;
 	config?: string;
@@ -246,6 +248,9 @@ export interface AstroGlobal<Props extends Record<string, any> = Record<string, 
 	};
 }
 
+/** Union type of supported markdown file extensions */
+type MarkdowFileExtension = typeof SUPPORTED_MARKDOWN_FILE_EXTENSIONS[number];
+
 export interface AstroGlobalPartial {
 	/**
 	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
@@ -264,7 +269,9 @@ export interface AstroGlobalPartial {
 	 * [Astro reference](https://docs.astro.build/en/reference/api-reference/#astroglob)
 	 */
 	glob(globStr: `${any}.astro`): Promise<AstroInstance[]>;
-	glob<T extends Record<string, any>>(globStr: `${any}.md`): Promise<MarkdownInstance<T>[]>;
+	glob<T extends Record<string, any>>(
+		globStr: `${any}${MarkdowFileExtension}`
+	): Promise<MarkdownInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: `${any}.mdx`): Promise<MDXInstance<T>[]>;
 	glob<T extends Record<string, any>>(globStr: string): Promise<T[]>;
 	/**
@@ -722,7 +729,7 @@ export interface AstroUserConfig {
 		 * Pass [remark plugins](https://github.com/remarkjs/remark) to customize how your Markdown is built. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
+		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
 		 * :::
 		 *
 		 * ```js
@@ -743,7 +750,7 @@ export interface AstroUserConfig {
 		 * Pass [rehype plugins](https://github.com/remarkjs/remark-rehype) to customize how your Markdown's output HTML is processed. You can import and apply the plugin function (recommended), or pass the plugin name as a string.
 		 *
 		 * :::caution
-		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the `extendDefaultPlugins` flag.
+		 * Providing a list of plugins will **remove** our default plugins. To preserve these defaults, see the [`extendDefaultPlugins`](#markdownextenddefaultplugins) flag.
 		 * :::
 		 *
 		 * ```js
@@ -868,7 +875,7 @@ export interface AstroUserConfig {
 		 * @default `false`
 		 * @version 1.0.0-rc.1
 		 * @description
-		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` Markdown files.
+		 * Enable Astro's pre-v1.0 support for components and JSX expressions in `.md` (and alternative extensions for markdown files like ".markdown") Markdown files.
 		 * In Astro `1.0.0-rc`, this original behavior was removed as the default, in favor of our new [MDX integration](/en/guides/integrations-guide/mdx/).
 		 *
 		 * To enable this behavior, set `legacy.astroFlavoredMarkdown` to `true` in your [`astro.config.mjs` configuration file](/en/guides/configuring-astro/#the-astro-config-file).

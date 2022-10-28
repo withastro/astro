@@ -68,7 +68,7 @@ export default function mdx(mdxOptions: MdxOptions = {}): AstroIntegration {
 					recmaPlugins: mdxOptions.recmaPlugins,
 					jsx: true,
 					jsxImportSource: 'astro',
-					// Note: disable `.md` support
+					// Note: disable `.md` (and other alternative extensions for markdown files like `.markdown`) support
 					format: 'mdx',
 					mdExtensions: [],
 				};
