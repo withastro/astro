@@ -15,7 +15,7 @@ function shouldPreload({ href }: { href: string }) {
 			window.location.pathname !== url.pathname &&
 			!preloaded.has(href)
 		);
-	} catch {}
+	} catch { }
 
 	return false;
 }
@@ -44,12 +44,11 @@ function onLinkEvent({ target }: Event) {
 
 async function preloadHref(link: HTMLAnchorElement) {
 	unobserve(link);
-
 	const { href } = link;
 
 	try {
 		const contents = await fetch(href).then((res) => res.text());
-		parser = parser || new DOMParser();
+		parser ||= new DOMParser();
 
 		const html = parser.parseFromString(contents, 'text/html');
 		const styles = Array.from(html.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
@@ -62,7 +61,7 @@ async function preloadHref(link: HTMLAnchorElement) {
 					return fetch(el.href);
 				})
 		);
-	} catch {}
+	} catch { }
 }
 
 export interface PrefetchOptions {
@@ -84,14 +83,21 @@ export default function prefetch({
 	selector = 'a[href][rel~="prefetch"]',
 	throttle = 1,
 }: PrefetchOptions) {
-	const conn = navigator.connection;
+	// If the navigator is offline, it is very unlikely that a request can be made successfully
+	if (!navigator.onLine) {
+		return Promise.reject(new Error('Cannot prefetch, no network connection'));
+	}
 
-	if (typeof conn !== 'undefined') {
-		// Don't prefetch if using 2G or if Save-Data is enabled.
-		if (conn.saveData) {
+	// `Navigator.connection` is an experimental API and is not supported in every browser.
+	if ('connection' in navigator) {
+		const connection = (navigator as any).connection;
+		// Don't prefetch if Save-Data is enabled.
+		if (connection.saveData) {
 			return Promise.reject(new Error('Cannot prefetch, Save-Data is enabled'));
 		}
-		if (/2g/.test(conn.effectiveType)) {
+
+		// Do not prefetch if using 2G or 3G
+		if (/(2|3)g/.test(connection.effectiveType)) {
 			return Promise.reject(new Error('Cannot prefetch, network conditions are poor'));
 		}
 	}
@@ -109,12 +115,8 @@ export default function prefetch({
 		});
 
 	requestIdleCallback(() => {
-		const links = Array.from(document.querySelectorAll<HTMLAnchorElement>(selector)).filter(
-			shouldPreload
-		);
-
-		for (const link of links) {
-			observe(link);
-		}
+		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)]
+			.filter(shouldPreload);
+		links.forEach(observe);
 	});
 }
