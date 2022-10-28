@@ -15,17 +15,17 @@ export default function loadFallbackPlugin({ fs }: LoadFallbackPluginParams): vi
 
   return {
     name: 'astro:load-fallback',
-		enforce: 'post',
+	enforce: 'post',
     async load(id) {
       try {
-				// await is necessary for the catch
+		// await is necessary for the catch
         return await fs.promises.readFile(cleanUrl(id), 'utf-8')
       } catch (e) {
         try {
-					return await fs.promises.readFile(id, 'utf-8');
-				} catch(e2) {
-					// Let fall through to the next
-				}
+			return await fs.promises.readFile(id, 'utf-8');
+		} catch(e2) {
+			// Let fall through to the next
+		}
       }
     }
   }

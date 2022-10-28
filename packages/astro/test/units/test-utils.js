@@ -5,6 +5,15 @@ import { fileURLToPath } from 'url';
 import npath from 'path';
 import { unixify } from './correct-path.js';
 
+class MyVolume extends Volume {
+	existsSync(p) {
+		if(p instanceof URL) {
+			p = fileURLToPath(p);
+		}
+		return super.existsSync(p);
+	}
+}
+
 export function createFs(json, root) {
 	if(typeof root !== 'string') {
 		root = unixify(fileURLToPath(root));
@@ -13,11 +22,12 @@ export function createFs(json, root) {
 	const structure = {};
 	for(const [key, value] of Object.entries(json)) {
 		const fullpath = npath.posix.join(root, key);
-		console.log("DEBUG2", fullpath);
 		structure[fullpath] = value;
 	}
 
-	return Volume.fromJSON(structure);
+	const fs = new MyVolume();
+	fs.fromJSON(structure);
+	return fs;
 }
 
 export function createRequestAndResponse(reqOptions = {}) {

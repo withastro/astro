@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 import { runInContainer } from '../../../dist/core/dev/index.js';
 import { createFs, createRequestAndResponse } from '../test-utils.js';
 
-const root = new URL('../../fixtures/alias', import.meta.url);
+const root = new URL('../../fixtures/alias/', import.meta.url);
 
 describe('dev container', () => {
 	it('can render requests', async function() {
