@@ -22,8 +22,20 @@ This integration provides `<Image />` and `<Picture>` components as well as a ba
 
 ## Installation
 
+The default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses web assembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz and Netlify Edge.
 
- ### Quick Install
+For faster builds and more fine-grained control of image transformations, we recommend also installing [sharp](https://sharp.pixelplumbing.com/) if
+- You are building a static site with Astro.
+- You are using an SSR deployment host that supports NodeJS using `@astrojs/netlify/functions`, `@astrojs/vercel/serverless` or `@astrojs/node`.
+
+
+Note that `@astrojs/image` is not currently supported on
+- Cloudflare SSR
+- @astrojs/deno
+- @astrojs/vercel/edge
+
+
+### Quick Install
 
 The `astro add` command-line tool automates the installation for you. Run one of the following commands in a new terminal window. (If you aren't sure which package manager you're using, run the first command.) Then, follow the prompts, and type "y" in the terminal (meaning "yes") for each one.
 
@@ -58,11 +70,6 @@ export default {
 ```
 
 ### Installing `sharp` (optional)
-
-The default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses web assembly libraries to support most deployment environments.
-
-If you are building a static site or using an SSR deployment host that supports NodeJS, we recommend installing [sharp](https://sharp.pixelplumbing.com/) for faster builds and more fine-grained control of image transformations.
-
 
 First, install the `sharp` package using your package manger. If you're using npm or aren't sure, run this in the terminal:
 ```sh
@@ -160,6 +167,8 @@ Set to an empty string (`alt=""`) if the image is not a key part of the content 
 
 The output format to be used in the optimized image. The original image format will be used if `format` is not provided.
 
+This property is required for remote images only, because the original format cannot be inferred.
+
 #### quality
 
 <p>
@@ -168,7 +177,7 @@ The output format to be used in the optimized image. The original image format w
 **Default:** `undefined`
 </p>
 
-The compression quality used during optimization. The image service will use a default quality if not provided.
+The compression quality used during optimization. The image service will use its own default quality depending on the image format if not provided.
 
 #### width
 
@@ -333,6 +342,8 @@ A `string` can be provided in the form of `{width}:{height}`, ex: `16:9` or `3:4
 
 A `number` can also be provided, useful when the aspect ratio is calculated at build time. This can be an inline number such as `1.777` or inlined as a JSX expression like `aspectRatio={16/9}`.
 
+For remote images only, `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
+
 #### formats
 
 <p>
@@ -342,6 +353,8 @@ A `number` can also be provided, useful when the aspect ratio is calculated at b
 </p>
 
 The output formats to be used in the optimized image. If not provided, `webp` and `avif` will be used in addition to the original image format.
+
+For remote images, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
 
 #### background
 
@@ -480,7 +493,9 @@ Caching can also be disabled by using `cacheDir: false`.
 
 ### Local images
 
-Image files in your project's `src` directory can be imported in frontmatter and passed directly to the `<Image />` component. All other properties are optional and will default to the original image file's properties if not provided.
+Image files in your project's `src/` directory can be imported in frontmatter and passed directly to the `<Image />` component as the `src=` attribute value. `alt` is also required. 
+
+All other properties are optional and will default to the original image file's properties if not provided.
 
 ```astro
 ---
@@ -506,9 +521,9 @@ import heroImage from '../assets/hero.png';
 
 #### Images in `/public`
 
-Files in the `/public` directory are always served or copied as-is, with no processing. We recommend that local images are always kept in `src/` so that Astro can transform, optimize and bundle them. But if you absolutely must keep an image in `public/`, use its relative URL path as the image's `src=` attribute. It will be treated as a remote image, which requires an `aspectRatio` attribute.
+The `<Image />` component can also be used with images stored in the `public/` directory and the `src=` attribute is relative to the public folder. It will be treated as a remote image, which requires either both `width` and `height`, or one dimension and an `aspectRatio` attribute.
 
-Alternatively, you can import an image from your `public/` directory in your frontmatter and use a variable in your `src=` attribute. You cannot, however, import this directly inside the component as its `src` value.
+Your original image will be copied unprocessed to the build folder, like all files located in public/, and Astro’s image integration will also return optimized versions of the image.
 
 For example, use an image located at `public/social.png` in either static or SSR builds like so:
 
@@ -547,7 +562,7 @@ const imageUrl = 'https://www.google.com/images/branding/googlelogo/2x/googlelog
 
 The `<Picture />` component can be used to automatically build a `<picture>` with multiple sizes and formats. Check out [MDN](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) for a deep dive into responsive images and art direction.
 
-By default, the picture will include formats for `avif` and `webp` in addition to the image's original format.
+By default, the picture will include formats for `avif` and `webp`. For local images only, the image's original format will also be included.
 
 For remote images, an `aspectRatio` is required to ensure the correct `height` can be calculated at build time.
 
