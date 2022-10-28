@@ -16,13 +16,13 @@ import {
 } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import devServer from '../core/dev/index.js';
-import { collectErrorMetadata } from '../core/errors.js';
+import { collectErrorMetadata } from '../core/errors/dev/index.js';
+import { createSafeError } from '../core/errors/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
-import { createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';
@@ -61,6 +61,8 @@ function printAstroHelp() {
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
 				['--root <path>', 'Specify your project root folder.'],
+				['--site <url>', 'Specify your project site.'],
+				['--base <pathname>', 'Specify your project base.'],
 				['--verbose', 'Enable verbose logging.'],
 				['--silent', 'Disable all logging.'],
 				['--version', 'Show the version number and exit.'],
