@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Upgrade compiler to 0.25.x
+Upgrade `@astrojs/compiler` to 0.29.x
