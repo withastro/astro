@@ -1,0 +1,17 @@
+---
+const data = await Astro.glob('./post/**/*.{markdown,mdown,mkdn,mkd,mdwn,md}');
+console.log(data);
+const markdownExtensions = /(\.(markdown|mdown|mkdn|mkd|mdwn|md))$/g
+const aUrlContainsExtension = data.some((page:any)=> {
+	console.log(page.url);return markdownExtensions.test(page.url)
+	})
+---
+
+<html>
+  <head>
+    <title>Extensions omitted</title>
+  </head>
+  <body>
+    <p data-any-url-contains-extension={JSON.stringify(aUrlContainsExtension)}>Placeholder</p>
+  </body>
+</html>
