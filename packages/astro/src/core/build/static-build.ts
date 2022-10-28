@@ -14,7 +14,7 @@ import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
 import { runHookBuildSetup } from '../../integrations/index.js';
-import { assetSsrPlugin } from '../../vite-plugin-asset-ssr/index.js';
+import { astroBundleDelayedAssetPlugin } from '../../content/vite-plugin-delayed-assets.js';
 import { PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { AstroError, AstroErrorData } from '../errors/index.js';
 import { info } from '../logger/core.js';
@@ -169,7 +169,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			vitePluginPrerender(opts, internals),
 			...(viteConfig.plugins || []),
-			assetSsrPlugin({ internals }),
+			astroBundleDelayedAssetPlugin({ internals }),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
 		],

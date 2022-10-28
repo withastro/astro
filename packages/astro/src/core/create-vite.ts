@@ -22,8 +22,8 @@ import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
 import { resolveDependency } from './util.js';
-import { astroContentPlugin } from '../content/vite-plugin.js';
-import { injectDelayedAssetPlugin } from '../vite-plugin-asset-ssr/index.js';
+import { astroContentPlugin } from '../content/vite-plugin-content.js';
+import { astroDelayedAssetPlugin } from '../content/vite-plugin-delayed-assets.js';
 
 interface CreateViteOptions {
 	settings: AstroSettings;
@@ -119,7 +119,7 @@ export async function createVite(
 			astroHeadPropagationPlugin({ settings }),
 			settings.config.experimental.prerender && astroScannerPlugin({ settings, logging }),
 			astroContentPlugin({ settings, logging }),
-			injectDelayedAssetPlugin({ settings, mode }),
+			astroDelayedAssetPlugin({ settings, mode }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

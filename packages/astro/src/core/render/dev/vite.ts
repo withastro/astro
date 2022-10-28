@@ -2,7 +2,7 @@ import type { ModuleLoader, ModuleNode } from '../../module-loader/index';
 
 import npath from 'path';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
-import { DELAYED_ASSET_FLAG } from '../../../vite-plugin-asset-ssr/index.js';
+import { DELAYED_ASSET_FLAG } from '../../../content/vite-plugin-delayed-assets.js';
 import { unwrapId } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
 
