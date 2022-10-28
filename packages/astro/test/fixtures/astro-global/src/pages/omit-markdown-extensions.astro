@@ -1,9 +1,8 @@
 ---
-const data = await Astro.glob('./post/**/*.{markdown,mdown,mkdn,mkd,mdwn,md}');
-console.log(data);
+const markdownPosts = await Astro.glob('./post/**/*.{markdown,mdown,mkdn,mkd,mdwn,md}');
 const markdownExtensions = /(\.(markdown|mdown|mkdn|mkd|mdwn|md))$/g
-const aUrlContainsExtension = data.some((page:any)=> {
-	console.log(page.url);return markdownExtensions.test(page.url)
+const aUrlContainsExtension = markdownPosts.some((page:any)=> {
+	return markdownExtensions.test(page.url)
 	})
 ---
 
