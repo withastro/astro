@@ -1,10 +1,9 @@
-import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { ErrorPayload, normalizePath, ViteDevServer } from 'vite';
+import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
@@ -90,45 +89,6 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
-}
-
-/** Coalesce any throw variable to an Error instance. */
-export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message)
-		? err
-		: new Error(JSON.stringify(err));
-}
-
-/** generate code frame from esbuild error */
-export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
-	if (!loc) return '';
-	const lines = eol
-		.lf(src)
-		.split('\n')
-		.map((ln) => ln.replace(/\t/g, '  '));
-	// grab 2 lines before, and 3 lines after focused line
-	const visibleLines = [];
-	for (let n = -2; n <= 2; n++) {
-		if (lines[loc.line + n]) visibleLines.push(loc.line + n);
-	}
-	// figure out gutter width
-	let gutterWidth = 0;
-	for (const lineNo of visibleLines) {
-		let w = `> ${lineNo}`;
-		if (w.length > gutterWidth) gutterWidth = w.length;
-	}
-	// print lines
-	let output = '';
-	for (const lineNo of visibleLines) {
-		const isFocusedLine = lineNo === loc.line - 1;
-		output += isFocusedLine ? '> ' : '  ';
-		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
-		if (isFocusedLine)
-			output += `${Array.from({ length: gutterWidth }).join(' ')}  | ${Array.from({
-				length: loc.column,
-			}).join(' ')}^\n`;
-	}
-	return output;
 }
 
 export function resolveDependency(dep: string, projectRoot: URL) {
@@ -256,14 +216,3 @@ export function resolvePath(specifier: string, importer: string) {
 		return specifier;
 	}
 }
-
-export const AggregateError =
-	typeof (globalThis as any).AggregateError !== 'undefined'
-		? (globalThis as any).AggregateError
-		: class extends Error {
-				errors: Array<any> = [];
-				constructor(errors: Iterable<any>, message?: string | undefined) {
-					super(message);
-					this.errors = Array.from(errors);
-				}
-		  };

@@ -23,7 +23,9 @@ Note: it's generally discouraged to use both Tailwind and another styling method
 
 ## Installation
 
-https://user-images.githubusercontent.com/4033662/169920154-4b42fc52-e2b5-4ca4-b7d2-d9057ab42ddf.mp4
+
+https://user-images.githubusercontent.com/4033662/197398760-8fd30eff-4d13-449d-a598-00a6a1ac4644.mp4
+
 
 ### Quick Install
   
