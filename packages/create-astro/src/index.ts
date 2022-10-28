@@ -1,7 +1,6 @@
 /* eslint no-console: 'off' */
 import { color, generateProjectName, label, say } from '@astrojs/cli-kit';
-import { forceUnicode } from '@astrojs/cli-kit/utils';
-import { random } from '@astrojs/cli-kit/utils';
+import { forceUnicode, random } from '@astrojs/cli-kit/utils';
 import { assign, parse, stringify } from 'comment-json';
 import { execa, execaCommand } from 'execa';
 import fs from 'fs';
@@ -30,7 +29,7 @@ import { TEMPLATES } from './templates.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const args = yargs(cleanArgv, { boolean: ['fancy']});
+const args = yargs(cleanArgv, { boolean: ['fancy'] });
 prompts.override(args);
 
 // Enable full unicode support if the `--fancy` flag is passed
@@ -96,16 +95,19 @@ export async function main() {
 
 	logger.debug('Verbose logging turned on');
 	if (!args.skipHouston) {
-		await say([
+		await say(
 			[
-				'Welcome',
-				'to',
-				label('astro', color.bgGreen, color.black),
-				color.green(`v${version}`) + ',',
-				`${username}!`,
+				[
+					'Welcome',
+					'to',
+					label('astro', color.bgGreen, color.black),
+					color.green(`v${version}`) + ',',
+					`${username}!`,
+				],
+				random(welcome),
 			],
-			random(welcome),
-		], { hat: args.fancy ? '🎩' : undefined });
+			{ hat: args.fancy ? '🎩' : undefined }
+		);
 		await banner(version);
 	}
 
