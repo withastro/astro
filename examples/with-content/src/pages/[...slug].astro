@@ -1,28 +1,20 @@
 ---
 import { fetchContent, renderContent } from '.astro';
+import Layout from 'src/layouts/Layout.astro';
 
 export async function getStaticPaths() {
 	const blog = await fetchContent('blog');
-	return blog.map(({ slug, id, data }) => ({
-		params: { slug },
-		props: { id, title: data.title },
-	}));
+	return blog.map(entry => ({
+		params: { slug: entry.slug },
+		props: { id: entry.id, title: entry.data.title },
+	}))
 }
 
 const { id, title } = Astro.props;
 const { Content } = await renderContent(id);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>{title}</h1>
-		<Content />
-	</body>
-</html>
+<Layout title={title}>
+	<h1>{title}</h1>
+	<Content />
+</Layout>
