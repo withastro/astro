@@ -1,5 +1,11 @@
 # @astrojs/cloudflare
 
+## 3.1.2
+
+### Patch Changes
+
+- [#5230](https://github.com/withastro/astro/pull/5230) [`69a532ab6`](https://github.com/withastro/astro/commit/69a532ab60a85d30c2395969593c4d38f9a2fbbe) Thanks [@matthewp](https://github.com/matthewp)! - Exports new runtime entrypoint's types
+
 ## 3.1.1
 
 ### Patch Changes
