@@ -51,18 +51,8 @@ jobs:
         with:
           ref: ${{ steps.refs.outputs.head_ref }}
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
 
       - name: Build Packages
         run: pnpm run build

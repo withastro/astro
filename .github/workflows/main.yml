@@ -41,17 +41,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
 
       - name: Check Modified
         run: pnpm exec changeset status --output ./status.json

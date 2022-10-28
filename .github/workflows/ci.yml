@@ -32,17 +32,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
 
       - name: Status
         run: git status
@@ -87,17 +78,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@v3
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Build Packages
         run: pnpm run build
@@ -121,22 +105,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@v3
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Use Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.26.1
-
-      - name: Install dependencies
-        run: pnpm install
+          js-runtime: deno
 
       - name: Build Packages
         run: pnpm run build
@@ -160,17 +133,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@v3
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Build Packages
         run: pnpm run build
@@ -192,14 +158,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2.2.1
-
-      - name: Setup node@${{ matrix.NODE_VERSION }}
-        uses: actions/setup-node@v3
+      - name: Install Tools & Dependencies
+        uses: ./.github/actions/install
         with:
           node-version: ${{ matrix.NODE_VERSION }}
-          cache: 'pnpm'
+          install-dependencies: false
 
       - name: Checkout docs
         uses: actions/checkout@v3

@@ -1,0 +1,49 @@
+name: Install Tools & Dependencies
+description: Installs pnpm, JS runtime & package dependencies
+
+inputs:
+  node-version:
+    description: 'Node version'
+    required: false
+    default: '16'
+  js-runtime:
+    description: 'JS runtime'
+    required: false
+    default: 'node'
+  install-dependencies:
+    description: 'Install dependencies'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Check inputs.js-runtime
+      if: ${{ !contains(fromJson('["node", "deno"]'), inputs.js-runtime) }}
+      run: echo "::warning::unknown 'js-runtime' value '${{ inputs.js-runtime }}'"
+      shell: bash
+
+    - name: Check inputs.install-dependencies
+      if: ${{ !contains(fromJson('["true", "false"]'), inputs.install-dependencies) }}
+      run: echo "::warning::unknown 'install-dependencies' value '${{ inputs.install-dependencies }}'"
+      shell: bash
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2.2.4
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+
+    - name: Use Deno
+      if: ${{ inputs.js-runtime == 'deno' }}
+      uses: denoland/setup-deno@v1
+      with:
+        deno-version: v1.26.1
+
+    - name: Install dependencies
+      if: ${{ fromJSON(inputs.install-dependencies) }}
+      run: pnpm install
+      shell: bash
