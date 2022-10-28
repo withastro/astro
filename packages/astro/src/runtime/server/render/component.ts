@@ -56,7 +56,7 @@ export async function renderComponent(
 	_props: Record<string | number, any>,
 	slots: any = {}
 ): Promise<ComponentIterable> {
-	Component = await Component;
+	Component = (await Component) ?? Component;
 
 	switch (getComponentType(Component)) {
 		case 'fragment': {
@@ -133,7 +133,14 @@ Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`')
 		// If this component ran through `__astro_tag_component__`, we already know
 		// which renderer to match to and can skip the usual `check` calls.
 		// This will help us throw most relevant error message for modules with runtime errors
-		if (Component && (Component as any)[Renderer]) {
+		let isTagged = false;
+		try {
+			isTagged = Component && (Component as any)[Renderer];
+		} catch {
+			// Accessing `Component[Renderer]` may throw if `Component` is a Proxy that doesn't
+			// return the actual read-only value. In this case, ignore.
+		}
+		if (isTagged) {
 			const rendererName = (Component as any)[Renderer];
 			renderer = renderers.find(({ name }) => name === rendererName);
 		}
