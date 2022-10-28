@@ -32,7 +32,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "babel-preset-solid": "^1.4.2"
+    "babel-preset-solid": "^1.4.2",
+    "vitefu": "^0.1.0"
   },
   "devDependencies": {
     "astro": "workspace:*",

@@ -22,6 +22,9 @@ describe('Solid component', () => {
 
 			// test 1: Works
 			expect($('.hello')).to.have.lengthOf(1);
+
+			// test 2: Support rendering proxy components
+			expect($('#proxy-component').text()).to.be.equal('Hello world');
 		});
 	});
 
@@ -36,6 +39,17 @@ describe('Solid component', () => {
 
 		after(async () => {
 			await devServer.stop();
+		});
+
+		it('Can load a component', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			// test 1: Works
+			expect($('.hello')).to.have.lengthOf(1);
+
+			// test 2: Support rendering proxy components
+			expect($('#proxy-component').text()).to.be.equal('Hello world');
 		});
 
 		it('scripts proxy correctly', async () => {
