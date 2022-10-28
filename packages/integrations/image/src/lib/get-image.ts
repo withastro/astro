@@ -126,8 +126,14 @@ export async function getImage(
 	const { src, ...attributes } = await loader.getImageAttributes(resolved);
 
 	return {
-		// TODO: should this go in BaseSSRService? What are the implications for Cloudinary and similar?
-		src: !globalThis.astroImage?.addStaticImage ? src : globalThis.astroImage.addStaticImage(resolved),
+		/**
+		 * addStaticImage will only be defined during static builds
+		 * If an SSR image service was loaded, generate a src for the image
+		 * based on the hashed image that will be built to /dist
+		 */
+		src: isSSRService(loader) && globalThis.astroImage?.addStaticImage
+			? globalThis.astroImage.addStaticImage(resolved)
+			: src,
 		...attributes
 	}
 }
