@@ -22,7 +22,9 @@ This integration provides `<Image />` and `<Picture>` components as well as a ba
 
 ## Installation
 
-The default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses WebAssembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz and Netlify Edge.
+Along with our integration, we recommending installing [sharp](https://sharp.pixelplumbing.com/) where appropriate. 
+
+The `@astrojs/image` default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses WebAssembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz and Netlify Edge.
 
 For faster builds and more fine-grained control of image transformations, we recommend also installing [sharp](https://sharp.pixelplumbing.com/) if
 - You are building a static site with Astro.
