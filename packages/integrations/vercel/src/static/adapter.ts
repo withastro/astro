@@ -23,7 +23,7 @@ export default function vercelStatic(): AstroIntegration {
 				setAdapter(getAdapter());
 				_config = config;
 
-				if(config.output === 'server') {
+				if (config.output === 'server') {
 					throw new Error(`${PACKAGE_NAME} should be used with output: 'static'`);
 				}
 			},
