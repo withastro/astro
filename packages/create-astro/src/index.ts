@@ -147,7 +147,7 @@ export async function main() {
 	}
 
 	if (!cwd) {
-		ora().info(dim('No directory provided. See you later, astronaut!'))
+		ora().info(dim('No directory provided. See you later, astronaut!'));
 		process.exit(1);
 	}
 
@@ -164,7 +164,7 @@ export async function main() {
 	);
 
 	if (!options.template) {
-		ora().info(dim('No template provided. See you later, astronaut!'))
+		ora().info(dim('No template provided. See you later, astronaut!'));
 		process.exit(1);
 	}
 
