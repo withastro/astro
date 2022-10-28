@@ -13,7 +13,8 @@ const spaceBlog = await fetchContent('blog');
 				<a href={entry.slug}>
 					<h2>{entry.data.title}</h2>
 					<p>{entry.data.description}</p>
-					</a>
+					<time datetime={entry.data.publishedDate.toISOString()}>{entry.data.publishedDate.toDateString()}</time>
+				</a>	
 			</li>
 		))}
 	</ul>
