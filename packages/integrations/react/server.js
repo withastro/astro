@@ -75,7 +75,6 @@ async function renderToStaticMarkup(Component, props, { default: children, ...sl
 	const vnode = React.createElement(Component, newProps);
 	let html;
 	if (metadata && metadata.hydrate) {
-		html = ReactDOM.renderToString(vnode);
 		if ('renderToReadableStream' in ReactDOM) {
 			html = await renderToReadableStreamAsync(vnode);
 		} else {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AstroErrorCodes } from '../dist/core/errors.js';
+import { AstroErrorCodes } from '../dist/core/errors/codes.js';
 import * as events from '../dist/events/index.js';
 
 describe('Events', () => {
