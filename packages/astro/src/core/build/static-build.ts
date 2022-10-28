@@ -124,7 +124,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			emptyOutDir: false,
 			manifest: false,
 			outDir: fileURLToPath(out),
-			copyPublicDir: false,
+			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: [],
