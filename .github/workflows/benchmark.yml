@@ -22,7 +22,7 @@ jobs:
       MAIN-BENCH-16: ${{ steps.benchmark-main.outputs.BENCH_RESULT16 }}
     strategy:
       matrix:
-        NODE_VERSION: [14, 16]
+        node-version: [14, 16]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -30,10 +30,17 @@ jobs:
           ref: ${{github.event.pull_request.head.sha}}
           repository: ${{github.event.pull_request.head.repo.full_name}}
 
-      - name: Install Tools & Dependencies
-        uses: ./.github/actions/install
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build Packages
         run: pnpm run build
@@ -43,7 +50,7 @@ jobs:
         run: |
           pnpm run --silent benchmark > ./bench-result.md
           result=$(awk '/requests in/' ./bench-result.md)
-          echo "::set-output name=BENCH_RESULT${{matrix.NODE_VERSION}}::$result"
+          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
       # main benchmark
       - uses: actions/checkout@v3
@@ -63,7 +70,7 @@ jobs:
         run: |
           pnpm run --silent benchmark > ./bench-result.md
           result=$(awk '/requests in/' ./bench-result.md)
-          echo "::set-output name=BENCH_RESULT${{matrix.NODE_VERSION}}::$result"
+          echo "::set-output name=BENCH_RESULT${{matrix.node-version}}::$result"
 
   output-benchmark:
     if: ${{ github.repository_owner == 'withastro' && github.event.issue.pull_request && startsWith(github.event.comment.body, '!bench') }}

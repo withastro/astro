@@ -30,8 +30,17 @@ jobs:
           ref: main
           path: main
 
-      - name: Install Tools & Dependencies
-        uses: ./.github/actions/install
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.2.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
       
       - name: Check Bundle Size
         uses: actions/github-script@v6
