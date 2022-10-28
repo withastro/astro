@@ -3,11 +3,11 @@ import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 
 import { transform } from '@astrojs/compiler';
-import { preprocessCSS } from 'vite';
 import { AstroErrorCodes } from '../errors/codes.js';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { prependForwardSlash } from '../path.js';
 import { resolvePath, viteID } from '../util.js';
+import { createStylePreprocessor } from './style';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
@@ -38,8 +38,8 @@ async function compile({
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
 		pathname: filename,
-		projectRoot: config.root.toString(),
-		site: config.site?.toString(),
+		projectRoot: astroConfig.root.toString(),
+		site: astroConfig.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(
@@ -47,28 +47,12 @@ async function compile({
 		)}`,
 		// TODO: baseline flag
 		experimentalStaticExtraction: true,
-		async preprocessStyle(content, attrs) {
-			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-			const id = `${filename}?astro&type=style&lang${lang}`;
-			try {
-				const result = await preprocessCSS(content, id, viteConfig);
-				cssDeps = result.deps ?? cssDeps;
-
-				let map: string | undefined;
-				if (result.map) {
-					if (typeof result.map === 'string') {
-						map = result.map;
-					} else if (result.map.mappings) {
-						map = result.map.toString();
-					}
-				}
-
-				return { code: result.code, map };
-			} catch (e) {
-				cssTransformErrors.push(e as Error);
-				return { error: e + '' };
-			}
-		},
+		preprocessStyle: createStylePreprocessor({
+			filename,
+			viteConfig,
+			cssDeps,
+			cssTransformErrors,
+		}),
 		async resolvePath(specifier) {
 			return resolvePath(specifier, filename);
 		},
