@@ -21,7 +21,10 @@ export function createStylePreprocessor({
 		const id = `${filename}?astro&type=style&lang${lang}`;
 		try {
 			const result = await preprocessCSS(content, id, viteConfig);
-			cssDeps = result.deps ?? cssDeps;
+
+			result.deps?.forEach((dep) => {
+				cssDeps.add(dep);
+			});
 
 			let map: string | undefined;
 			if (result.map) {
@@ -34,7 +37,10 @@ export function createStylePreprocessor({
 
 			return { code: result.code, map };
 		} catch (err: any) {
-			cssTransformErrors.push(enhanceCSSError(err, filename));
+			try {
+				err = enhanceCSSError(err, filename);
+			} catch {}
+			cssTransformErrors.push(err);
 			return { error: err + '' };
 		}
 	};

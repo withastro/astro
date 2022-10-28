@@ -7,7 +7,7 @@ import { AstroErrorCodes } from '../errors/codes.js';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { prependForwardSlash } from '../path.js';
 import { resolvePath, viteID } from '../util.js';
-import { createStylePreprocessor } from './style';
+import { createStylePreprocessor } from './style.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
