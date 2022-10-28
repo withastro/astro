@@ -332,6 +332,8 @@ export function createRouteManifest(
 	const { config } = settings;
 	const pages = resolvePages(config);
 
+	console.log("DEBUG1", pages.pathname, fileURLToPath(pages), localFs.existsSync(pages));
+
 	if (localFs.existsSync(pages)) {
 		walk(localFs, fileURLToPath(pages), [], []);
 	} else if (settings.injectedRoutes.length === 0) {

@@ -13,6 +13,7 @@ export function createFs(json, root) {
 	const structure = {};
 	for(const [key, value] of Object.entries(json)) {
 		const fullpath = npath.join(root, key);
+		console.log("DEBUG2", fullpath);
 		structure[fullpath] = value;
 	}
 
