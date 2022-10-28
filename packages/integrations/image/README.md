@@ -26,7 +26,7 @@ Along with our integration, we recommending installing [sharp](https://sharp.pix
 
 The `@astrojs/image` default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses WebAssembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz and Netlify Edge.
 
-For faster builds and more fine-grained control of image transformations, install sharp if
+For faster builds and more fine-grained control of image transformations, install sharp in addition to `@astrojs/image` if
 - You are building a static site with Astro.
 - You are using an SSR deployment host that supports NodeJS using `@astrojs/netlify/functions`, `@astrojs/vercel/serverless` or `@astrojs/node`.
 
