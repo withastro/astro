@@ -22,7 +22,7 @@ This integration provides `<Image />` and `<Picture>` components as well as a ba
 
 ## Installation
 
-Along with our integration, we recommending installing [sharp](https://sharp.pixelplumbing.com/) when appropriate. 
+Along with our integration, we recommend installing [sharp](https://sharp.pixelplumbing.com/) when appropriate. 
 
 The `@astrojs/image` default image transformer is based on [Squoosh](https://github.com/GoogleChromeLabs/squoosh) and uses WebAssembly libraries to support most deployment environments, including those that do not support sharp, such as StackBlitz and Netlify Edge.
 
