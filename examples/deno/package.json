@@ -10,7 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^1.6.0"
+    "astro": "^1.6.1"
   },
   "devDependencies": {
     "@astrojs/deno": "^1.2.0"

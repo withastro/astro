@@ -1,5 +1,11 @@
 # @astrojs/solid-js
 
+## 1.2.2
+
+### Patch Changes
+
+- [#5208](https://github.com/withastro/astro/pull/5208) [`c98c5aa0a`](https://github.com/withastro/astro/commit/c98c5aa0aecb4625aeedc2ffdad69f8b2cd2c153) Thanks [@bluwy](https://github.com/bluwy)! - Improve third-party solid packages config handling
+
 ## 1.2.1
 
 ### Patch Changes
