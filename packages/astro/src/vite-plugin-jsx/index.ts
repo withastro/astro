@@ -11,7 +11,7 @@ import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
-import { parseNpmName } from '../core/util.js';
+import { isMarkdownFile, parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
 type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
@@ -98,6 +98,7 @@ interface TransformJSXOptions {
 	mode: string;
 	renderer: AstroRenderer;
 	ssr: boolean;
+	root: URL;
 }
 
 async function transformJSX({
@@ -106,12 +107,13 @@ async function transformJSX({
 	id,
 	ssr,
 	renderer,
+	root,
 }: TransformJSXOptions): Promise<TransformResult> {
 	const { jsxTransformOptions } = renderer;
 	const options = await jsxTransformOptions!({ mode, ssr });
 	const plugins = [...(options.plugins || [])];
 	if (ssr) {
-		plugins.push(tagExportsPlugin({ rendererName: renderer.name }));
+		plugins.push(await tagExportsPlugin({ rendererName: renderer.name, root }));
 	}
 	const result = await babel.transformAsync(code, {
 		presets: options.presets,
@@ -191,7 +193,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 
 			const { mode } = viteConfig;
 			// Shortcut: only use Astro renderer for MD and MDX files
-			if (id.includes('.mdx') || id.includes('.md')) {
+			if (id.includes('.mdx') || isMarkdownFile(id, { criteria: 'includes' })) {
 				const { code: jsxCode } = await esbuild.transform(code, {
 					loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
 					jsx: 'preserve',
@@ -204,6 +206,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					renderer: astroJSXRenderer,
 					mode,
 					ssr,
+					root: settings.config.root,
 				});
 			}
 			if (defaultJSXRendererEntry && jsxRenderersIntegrationOnly.size === 1) {
@@ -220,6 +223,7 @@ export default function jsx({ settings, logging }: AstroPluginJSXOptions): Plugi
 					renderer: defaultJSXRendererEntry[1],
 					mode,
 					ssr,
+					root: settings.config.root,
 				});
 			}
 
@@ -286,6 +290,7 @@ https://docs.astro.build/en/core-concepts/framework-components/#installing-integ
 				renderer: selectedJsxRenderer,
 				mode,
 				ssr,
+				root: settings.config.root,
 			});
 		},
 	};

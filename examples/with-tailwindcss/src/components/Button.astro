@@ -11,5 +11,9 @@
 
 <script>
 	import confetti from 'canvas-confetti';
-	document.body.querySelector('button').addEventListener('click', () => confetti());
+	const button = document.body.querySelector('button');
+
+	if (button) {
+		button.addEventListener('click', () => confetti());
+	}
 </script>

@@ -89,6 +89,8 @@ class SquooshService extends BaseSSRService {
 			if (autorotate) {
 				operations.push(autorotate);
 			}
+		} else if (transform.src.startsWith('//')) {
+			transform.src = `https:${transform.src}`;
 		}
 
 		if (transform.width || transform.height) {

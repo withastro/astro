@@ -3,14 +3,20 @@ import boxen from 'boxen';
 import { diffWords } from 'diff';
 import { execa } from 'execa';
 import { existsSync, promises as fs } from 'fs';
-import { bold, cyan, dim, green, magenta, yellow } from 'kleur/colors';
+import { bold, cyan, dim, green, magenta, red, yellow } from 'kleur/colors';
 import ora from 'ora';
 import path from 'path';
 import preferredPM from 'preferred-pm';
 import prompts from 'prompts';
 import { fileURLToPath, pathToFileURL } from 'url';
 import type yargs from 'yargs-parser';
-import { resolveConfigPath } from '../config/index.js';
+import { loadTSConfig, resolveConfigPath } from '../config/index.js';
+import {
+	defaultTSConfig,
+	frameworkWithTSSettings,
+	presets,
+	updateTSConfigForFramework,
+} from '../config/tsconfig.js';
 import { debug, info, LogOptions } from '../logger/core.js';
 import * as msg from '../messages.js';
 import { printHelp } from '../messages.js';
@@ -239,7 +245,7 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 	switch (configResult) {
 		case UpdateResult.cancelled: {
 			info(logging, null, msg.cancelled(`Your configuration has ${bold('NOT')} been updated.`));
-			return;
+			break;
 		}
 		case UpdateResult.none: {
 			const pkgURL = new URL('./package.json', configURL);
@@ -253,12 +259,12 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 				);
 				if (missingDeps.length === 0) {
 					info(logging, null, msg.success(`Configuration up-to-date.`));
-					return;
+					break;
 				}
 			}
 
 			info(logging, null, msg.success(`Configuration up-to-date.`));
-			return;
+			break;
 		}
 		default: {
 			const list = integrations.map((integration) => `  - ${integration.packageName}`).join('\n');
@@ -272,6 +278,29 @@ export default async function add(names: string[], { cwd, flags, logging, teleme
 				)
 			);
 		}
+	}
+
+	const updateTSConfigResult = await updateTSConfig(cwd, logging, integrations, flags);
+
+	switch (updateTSConfigResult) {
+		case UpdateResult.none: {
+			break;
+		}
+		case UpdateResult.cancelled: {
+			info(
+				logging,
+				null,
+				msg.cancelled(`Your TypeScript configuration has ${bold('NOT')} been updated.`)
+			);
+			break;
+		}
+		case UpdateResult.failure: {
+			throw new Error(
+				`Unknown error parsing tsconfig.json or jsconfig.json. Could not update TypeScript settings.`
+			);
+		}
+		default:
+			info(logging, null, msg.success(`Successfully updated TypeScript settings`));
 	}
 }
 
@@ -471,29 +500,13 @@ async function updateAstroConfig({
 		return UpdateResult.none;
 	}
 
-	let changes = [];
-	for (const change of diffWords(input, output)) {
-		let lines = change.value.trim().split('\n').slice(0, change.count);
-		if (lines.length === 0) continue;
-		if (change.added) {
-			if (!change.value.trim()) continue;
-			changes.push(change.value);
-		}
-	}
-	if (changes.length === 0) {
+	const diff = getDiffContent(input, output);
+
+	if (!diff) {
 		return UpdateResult.none;
 	}
 
-	let diffed = output;
-	for (let newContent of changes) {
-		const coloredOutput = newContent
-			.split('\n')
-			.map((ln) => (ln ? green(ln) : ''))
-			.join('\n');
-		diffed = diffed.replace(newContent, coloredOutput);
-	}
-
-	const message = `\n${boxen(diffed, {
+	const message = `\n${boxen(diff, {
 		margin: 0.5,
 		padding: 0.5,
 		borderStyle: 'round',
@@ -533,6 +546,7 @@ interface InstallCommand {
 	flags: string[];
 	dependencies: string[];
 }
+
 async function getInstallIntegrationsCommand({
 	integrations,
 	cwd = process.cwd(),
@@ -559,7 +573,7 @@ async function getInstallIntegrationsCommand({
 		case 'yarn':
 			return { pm: 'yarn', command: 'add', flags: [], dependencies };
 		case 'pnpm':
-			return { pm: 'pnpm', command: 'install', flags: [], dependencies };
+			return { pm: 'pnpm', command: 'add', flags: [], dependencies };
 		default:
 			return null;
 	}
@@ -691,8 +705,12 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				];
 
 				if (pkgJson['peerDependencies']) {
+					const meta = pkgJson['peerDependenciesMeta'] || {};
 					for (const peer in pkgJson['peerDependencies']) {
-						dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
+						const optional = meta[peer]?.optional || false;
+						if (!optional) {
+							dependencies.push([peer, pkgJson['peerDependencies'][peer]]);
+						}
 					}
 				}
 
@@ -727,6 +745,113 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 	}
 }
 
+async function updateTSConfig(
+	cwd = process.cwd(),
+	logging: LogOptions,
+	integrationsInfo: IntegrationInfo[],
+	flags: yargs.Arguments
+): Promise<UpdateResult> {
+	const integrations = integrationsInfo.map(
+		(integration) => integration.id as frameworkWithTSSettings
+	);
+	const firstIntegrationWithTSSettings = integrations.find((integration) =>
+		presets.has(integration)
+	);
+
+	if (!firstIntegrationWithTSSettings) {
+		return UpdateResult.none;
+	}
+
+	const inputConfig = loadTSConfig(cwd, false);
+	const configFileName = inputConfig.exists ? inputConfig.path.split('/').pop() : 'tsconfig.json';
+
+	if (inputConfig.reason === 'invalid-config') {
+		return UpdateResult.failure;
+	}
+
+	if (inputConfig.reason === 'not-found') {
+		debug('add', "Couldn't find tsconfig.json or jsconfig.json, generating one");
+	}
+
+	const outputConfig = updateTSConfigForFramework(
+		inputConfig.exists ? inputConfig.config : defaultTSConfig,
+		firstIntegrationWithTSSettings
+	);
+
+	const input = inputConfig.exists ? JSON.stringify(inputConfig.config, null, 2) : '';
+	const output = JSON.stringify(outputConfig, null, 2);
+	const diff = getDiffContent(input, output);
+
+	if (!diff) {
+		return UpdateResult.none;
+	}
+
+	const message = `\n${boxen(diff, {
+		margin: 0.5,
+		padding: 0.5,
+		borderStyle: 'round',
+		title: configFileName,
+	})}\n`;
+
+	info(
+		logging,
+		null,
+		`\n  ${magenta(`Astro will make the following changes to your ${configFileName}:`)}\n${message}`
+	);
+
+	// Every major framework, apart from Vue and Svelte requires different `jsxImportSource`, as such it's impossible to config
+	// all of them in the same `tsconfig.json`. However, Vue only need `"jsx": "preserve"` for template intellisense which
+	// can be compatible with some frameworks (ex: Solid), though ultimately run into issues on the current version of Volar
+	const conflictingIntegrations = [...Object.keys(presets).filter((config) => config !== 'vue')];
+	const hasConflictingIntegrations =
+		integrations.filter((integration) => presets.has(integration)).length > 1 &&
+		integrations.filter((integration) => conflictingIntegrations.includes(integration)).length > 0;
+
+	if (hasConflictingIntegrations) {
+		info(
+			logging,
+			null,
+			red(
+				`  ${bold(
+					'Caution:'
+				)} Selected UI frameworks require conflicting tsconfig.json settings, as such only settings for ${bold(
+					firstIntegrationWithTSSettings
+				)} were used.\n  More information: https://docs.astro.build/en/guides/typescript/#errors-typing-multiple-jsx-frameworks-at-the-same-time\n`
+			)
+		);
+	}
+
+	// TODO: Remove this when Volar 1.0 ships, as it fixes the issue.
+	// Info: https://github.com/johnsoncodehk/volar/discussions/592#discussioncomment-3660903
+	if (
+		integrations.includes('vue') &&
+		hasConflictingIntegrations &&
+		((outputConfig.compilerOptions?.jsx !== 'preserve' &&
+			outputConfig.compilerOptions?.jsxImportSource !== undefined) ||
+			integrations.includes('react')) // https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed
+	) {
+		info(
+			logging,
+			null,
+			red(
+				`  ${bold(
+					'Caution:'
+				)} Using Vue together with a JSX framework can lead to type checking issues inside Vue files.\n  More information: https://docs.astro.build/en/guides/typescript/#vue-components-are-mistakenly-typed-by-the-typesreact-package-when-installed\n`
+			)
+		);
+	}
+
+	if (await askToContinue({ flags })) {
+		await fs.writeFile(inputConfig?.path ?? path.join(cwd, 'tsconfig.json'), output, {
+			encoding: 'utf-8',
+		});
+		debug('add', `Updated ${configFileName} file`);
+		return UpdateResult.updated;
+	} else {
+		return UpdateResult.cancelled;
+	}
+}
+
 function parseIntegrationName(spec: string) {
 	const result = parseNpmName(spec);
 	if (!result) return;
@@ -754,4 +879,30 @@ async function askToContinue({ flags }: { flags: yargs.Arguments }): Promise<boo
 	});
 
 	return Boolean(response.askToContinue);
+}
+
+function getDiffContent(input: string, output: string): string | null {
+	let changes = [];
+	for (const change of diffWords(input, output)) {
+		let lines = change.value.trim().split('\n').slice(0, change.count);
+		if (lines.length === 0) continue;
+		if (change.added) {
+			if (!change.value.trim()) continue;
+			changes.push(change.value);
+		}
+	}
+	if (changes.length === 0) {
+		return null;
+	}
+
+	let diffed = output;
+	for (let newContent of changes) {
+		const coloredOutput = newContent
+			.split('\n')
+			.map((ln) => (ln ? green(ln) : ''))
+			.join('\n');
+		diffed = diffed.replace(newContent, coloredOutput);
+	}
+
+	return diffed;
 }

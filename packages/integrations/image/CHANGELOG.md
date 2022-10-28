@@ -1,5 +1,73 @@
 # @astrojs/image
 
+## 0.11.0
+
+### Minor Changes
+
+- [#5180](https://github.com/withastro/astro/pull/5180) [`b77200f42`](https://github.com/withastro/astro/commit/b77200f42399ea31b0045bc0e6bfe2c1c5ccc970) Thanks [@tony-sull](https://github.com/tony-sull)! - Removes the `content-visibility: auto` styling added by the `<Picture />` and `<Image />` components.
+
+  **Why:** The [content-visibility](https://developer.mozilla.org/en-US/docs/Web/CSS/content-visibility) style is rarely needed for an `<img>` and can actually break certain layouts.
+
+  **Migration:** Do images in your layout actually depend on `content-visibility`? No problem! You can add these styles where needed in your own component styles.
+
+- [#5038](https://github.com/withastro/astro/pull/5038) [`ed2dfdae5`](https://github.com/withastro/astro/commit/ed2dfdae5bea93746be883bc528c1fb6407af6eb) Thanks [@emmanuelchucks](https://github.com/emmanuelchucks)! - HTML attributes included on the `<Picture />` component are now passed down to the underlying `<img />` element.
+
+  **Why?**
+
+  - when styling a `<picture>` the `class` and `style` attributes belong on the `<img>` itself
+  - `<picture>` elements [should not](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/picture#attributes) actually provide any `aria-` attributes
+  - `width` and `height` can be added to the `<img>` to help prevent layout shift
+
+## 0.10.0
+
+### Minor Changes
+
+- [#5056](https://github.com/withastro/astro/pull/5056) [`e55af8a23`](https://github.com/withastro/astro/commit/e55af8a23233b6335f45b7a04b9d026990fb616c) Thanks [@matthewp](https://github.com/matthewp)! - # New build configuration
+
+  The ability to customize SSR build configuration more granularly is now available in Astro. You can now customize the output folder for `server` (the server code for SSR), `client` (your client-side JavaScript and assets), and `serverEntry` (the name of the entrypoint server module). Here are the defaults:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    output: 'server',
+    build: {
+      server: './dist/server/',
+      client: './dist/client/',
+      serverEntry: 'entry.mjs',
+    },
+  });
+  ```
+
+  These new configuration options are only supported in SSR mode and are ignored when building to SSG (a static site).
+
+  ## Integration hook change
+
+  The integration hook `astro:build:start` includes a param `buildConfig` which includes all of these same options. You can continue to use this param in Astro 1.x, but it is deprecated in favor of the new `build.config` options. All of the built-in adapters have been updated to the new format. If you have an integration that depends on this param we suggest upgrading to do this instead:
+
+  ```js
+  export default function myIntegration() {
+    return {
+      name: 'my-integration',
+      hooks: {
+        'astro:config:setup': ({ updateConfig }) => {
+          updateConfig({
+            build: {
+              server: '...',
+            },
+          });
+        },
+      },
+    };
+  }
+  ```
+
+### Patch Changes
+
+- [#5073](https://github.com/withastro/astro/pull/5073) [`93f72f90b`](https://github.com/withastro/astro/commit/93f72f90bc8b29b1bf1402354f1ed6a110411243) Thanks [@bluwy](https://github.com/bluwy)! - Fix image external config in build
+
+- [#5072](https://github.com/withastro/astro/pull/5072) [`3918787cb`](https://github.com/withastro/astro/commit/3918787cb9676a8c6b9be371ae90edeb676f4e8f) Thanks [@bluwy](https://github.com/bluwy)! - Support relative protocol image URL
+
 ## 0.9.3
 
 ### Patch Changes

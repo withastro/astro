@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import * as vite from 'vite';
 import { mergeConfig as mergeViteConfig } from 'vite';
 import { LogOptions } from '../logger/core.js';
-import { arraify, isObject } from '../util.js';
+import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
 
 load.use([loadTypeScript]);
@@ -97,6 +97,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	return {
 		root: typeof flags.root === 'string' ? flags.root : undefined,
 		site: typeof flags.site === 'string' ? flags.site : undefined,
+		base: typeof flags.base === 'string' ? flags.base : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		host:
@@ -114,6 +115,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags, cmd: strin
 	astroConfig.server = astroConfig.server || {};
 	astroConfig.markdown = astroConfig.markdown || {};
 	if (typeof flags.site === 'string') astroConfig.site = flags.site;
+	if (typeof flags.base === 'string') astroConfig.base = flags.base;
 	if (typeof flags.drafts === 'boolean') astroConfig.markdown.drafts = flags.drafts;
 	if (typeof flags.port === 'number') {
 		// @ts-expect-error astroConfig.server may be a function, but TS doesn't like attaching properties to a function.
@@ -135,7 +137,7 @@ interface LoadConfigOptions {
 	validate?: boolean;
 	logging: LogOptions;
 	/** Invalidate when reloading a previously loaded config */
-	isConfigReload?: boolean;
+	isRestart?: boolean;
 }
 
 /**
@@ -222,7 +224,7 @@ async function tryLoadConfig(
 			flags: configOptions.flags,
 		});
 		if (!configPath) return undefined;
-		if (configOptions.isConfigReload) {
+		if (configOptions.isRestart) {
 			// Hack: Write config to temporary file at project root
 			// This invalidates and reloads file contents when using ESM imports or "resolve"
 			const tempConfigPath = path.join(
@@ -344,6 +346,10 @@ function mergeConfigRecursively(
 
 		if (Array.isArray(existing) || Array.isArray(value)) {
 			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
+			continue;
+		}
+		if (isURL(existing) && isURL(value)) {
+			merged[key] = value;
 			continue;
 		}
 		if (isObject(existing) && isObject(value)) {

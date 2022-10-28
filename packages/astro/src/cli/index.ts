@@ -9,20 +9,20 @@ import add from '../core/add/index.js';
 import build from '../core/build/index.js';
 import {
 	createSettings,
-	loadTSConfig,
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,
 	resolveRoot,
 } from '../core/config/index.js';
+import { ASTRO_VERSION } from '../core/constants.js';
 import devServer from '../core/dev/index.js';
-import { collectErrorMetadata } from '../core/errors.js';
+import { collectErrorMetadata } from '../core/errors/dev/index.js';
+import { createSafeError } from '../core/errors/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
 import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
-import { ASTRO_VERSION, createSafeError } from '../core/util.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';
@@ -61,6 +61,8 @@ function printAstroHelp() {
 			'Global Flags': [
 				['--config <path>', 'Specify your config file.'],
 				['--root <path>', 'Specify your project root folder.'],
+				['--site <url>', 'Specify your project site.'],
+				['--base <pathname>', 'Specify your project base.'],
 				['--verbose', 'Enable verbose logging.'],
 				['--silent', 'Disable all logging.'],
 				['--version', 'Show the version number and exit.'],
@@ -168,12 +170,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	});
 	if (!initialAstroConfig) return;
 	telemetry.record(event.eventCliSession(cmd, initialUserConfig, flags));
-	let initialTsConfig = loadTSConfig(root);
-	let settings = createSettings({
-		config: initialAstroConfig,
-		tsConfig: initialTsConfig?.config,
-		tsConfigPath: initialTsConfig?.path,
-	});
+	let settings = createSettings(initialAstroConfig, root);
 
 	// Common CLI Commands:
 	// These commands run normally. All commands are assumed to have been handled
@@ -191,42 +188,48 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 
 				const handleServerRestart = (logMsg: string) =>
 					async function (changedFile: string) {
-						if (
-							!restartInFlight &&
-							(configFlag
-								? // If --config is specified, only watch changes for this file
-								  configFlagPath && normalizePath(configFlagPath) === normalizePath(changedFile)
-								: // Otherwise, watch for any astro.config.* file changes in project root
-								  new RegExp(
-										`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
-								  ).test(normalizePath(changedFile)))
-						) {
-							restartInFlight = true;
-							console.clear();
-							try {
-								const newConfig = await openConfig({
-									cwd: root,
-									flags,
-									cmd,
-									logging,
-									isConfigReload: true,
-								});
-								info(logging, 'astro', logMsg + '\n');
-								let astroConfig = newConfig.astroConfig;
-								let tsconfig = loadTSConfig(root);
-								settings = createSettings({
-									config: astroConfig,
-									tsConfig: tsconfig?.config,
-									tsConfigPath: tsconfig?.path,
-								});
-								await stop();
-								await startDevServer({ isRestart: true });
-							} catch (e) {
-								await handleConfigError(e, { cwd: root, flags, logging });
-								await stop();
-								info(logging, 'astro', 'Continuing with previous valid configuration\n');
-								await startDevServer({ isRestart: true });
-							}
+						if (restartInFlight) return;
+
+						let shouldRestart = false;
+
+						// If the config file changed, reload the config and restart the server.
+						shouldRestart = configFlag
+							? // If --config is specified, only watch changes for this file
+							  !!configFlagPath && normalizePath(configFlagPath) === normalizePath(changedFile)
+							: // Otherwise, watch for any astro.config.* file changes in project root
+							  new RegExp(
+									`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
+							  ).test(normalizePath(changedFile));
+
+						if (!shouldRestart && settings.watchFiles.length > 0) {
+							// If the config file didn't change, check if any of the watched files changed.
+							shouldRestart = settings.watchFiles.some(
+								(path) => normalizePath(path) === normalizePath(changedFile)
+							);
+						}
+
+						if (!shouldRestart) return;
+
+						restartInFlight = true;
+						console.clear();
+						try {
+							const newConfig = await openConfig({
+								cwd: root,
+								flags,
+								cmd,
+								logging,
+								isRestart: true,
+							});
+							info(logging, 'astro', logMsg + '\n');
+							let astroConfig = newConfig.astroConfig;
+							settings = createSettings(astroConfig, root);
+							await stop();
+							await startDevServer({ isRestart: true });
+						} catch (e) {
+							await handleConfigError(e, { cwd: root, flags, logging });
+							await stop();
+							info(logging, 'astro', 'Continuing with previous valid configuration\n');
+							await startDevServer({ isRestart: true });
 						}
 					};
 

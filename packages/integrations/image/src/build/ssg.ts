@@ -54,6 +54,10 @@ function webToCachePolicyResponse({ status, headers: _headers }: Response): Cach
 
 async function loadRemoteImage(src: string) {
 	try {
+		if (src.startsWith('//')) {
+			src = `https:${src}`;
+		}
+
 		const req = new Request(src);
 		const res = await fetch(req);
 

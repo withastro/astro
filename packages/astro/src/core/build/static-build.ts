@@ -124,6 +124,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			emptyOutDir: false,
 			manifest: false,
 			outDir: fileURLToPath(out),
+			copyPublicDir: !ssr,
 			rollupOptions: {
 				...viteConfig.build?.rollupOptions,
 				input: [],
@@ -138,10 +139,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			ssr: true,
 			// improve build performance
 			minify: false,
-			polyfillModulePreload: false,
-			modulePreload: {
-				polyfill: false
-			},
+			modulePreload: { polyfill: false },
 			reportCompressedSize: false,
 		},
 		plugins: [
@@ -157,7 +155,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			settings.config.output === 'server' && vitePluginSSR(internals, settings.adapter!),
 			vitePluginAnalyzer(internals),
 		],
-		publicDir: ssr ? false : viteConfig.publicDir,
 		envPrefix: 'PUBLIC_',
 		base: settings.config.base,
 	};
@@ -273,7 +270,7 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 				const url = new URL(filename, out);
 				const folder = await fs.promises.readdir(url);
 				if (!folder.length) {
-					await fs.promises.rmdir(url, { recursive: true });
+					await fs.promises.rm(url, { recursive: true, force: true });
 				}
 			})
 		);

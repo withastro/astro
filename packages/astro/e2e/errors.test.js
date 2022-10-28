@@ -38,7 +38,7 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/import-not-found'));
 
 		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch('failed to load module for ssr: ../abc.astro');
+		expect(message).toMatch('Could not import "../abc.astro"');
 
 		await Promise.all([
 			// Wait for page reload

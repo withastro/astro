@@ -13,7 +13,7 @@ import {
 	runHookConfigSetup,
 } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { fixViteErrorMessage } from '../errors.js';
+import { enhanceViteSSRError } from '../errors/dev/index.js';
 import { debug, info, levels, timerMessage } from '../logger/core.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -87,9 +87,9 @@ class AstroBuilder {
 	/** Run the build logic. build() is marked private because usage should go through ".run()" */
 	private async build({ viteConfig }: { viteConfig: vite.InlineConfig }) {
 		const buildConfig: BuildConfig = {
-			client: new URL('./client/', this.settings.config.outDir),
-			server: new URL('./server/', this.settings.config.outDir),
-			serverEntry: 'entry.mjs',
+			client: this.settings.config.build.client,
+			server: this.settings.config.build.server,
+			serverEntry: this.settings.config.build.serverEntry,
 		};
 		await runHookBuildStart({ config: this.settings.config, buildConfig, logging: this.logging });
 		this.validateConfig();
@@ -169,7 +169,7 @@ class AstroBuilder {
 		try {
 			await this.build(setupData);
 		} catch (_err) {
-			throw fixViteErrorMessage(_err);
+			throw enhanceViteSSRError(_err as Error);
 		}
 	}
 

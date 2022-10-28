@@ -1,19 +1,38 @@
-import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import type { ErrorPayload, ViteDevServer } from 'vite';
+import { normalizePath, ViteDevServer } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
+import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
-
-// process.env.PACKAGE_VERSION is injected when we build and publish the astro package.
-export const ASTRO_VERSION = process.env.PACKAGE_VERSION ?? 'development';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
 export function isObject(value: unknown): value is Record<string, any> {
 	return typeof value === 'object' && value != null;
+}
+
+/** Cross-realm compatible URL */
+export function isURL(value: unknown): value is URL {
+	return Object.prototype.toString.call(value) === '[object URL]';
+}
+/** Check if a file is a markdown file based on its extension */
+export function isMarkdownFile(
+	fileId: string,
+	option: { criteria: 'endsWith' | 'includes'; suffix?: string }
+): boolean {
+	const _suffix = option.suffix ?? '';
+	if (option.criteria === 'endsWith') {
+		for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+			if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
+		}
+		return false;
+	}
+	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
+		if (fileId.includes(`${markdownFileExtension}${_suffix}`)) return true;
+	}
+	return false;
 }
 
 /** Wraps an object in an array. If an array is passed, ignore it. */
@@ -70,45 +89,6 @@ export function parseNpmName(
 		name,
 		subpath,
 	};
-}
-
-/** Coalesce any throw variable to an Error instance. */
-export function createSafeError(err: any): Error {
-	return err instanceof Error || (err && err.name && err.message)
-		? err
-		: new Error(JSON.stringify(err));
-}
-
-/** generate code frame from esbuild error */
-export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
-	if (!loc) return '';
-	const lines = eol
-		.lf(src)
-		.split('\n')
-		.map((ln) => ln.replace(/\t/g, '  '));
-	// grab 2 lines before, and 3 lines after focused line
-	const visibleLines = [];
-	for (let n = -2; n <= 2; n++) {
-		if (lines[loc.line + n]) visibleLines.push(loc.line + n);
-	}
-	// figure out gutter width
-	let gutterWidth = 0;
-	for (const lineNo of visibleLines) {
-		let w = `> ${lineNo}`;
-		if (w.length > gutterWidth) gutterWidth = w.length;
-	}
-	// print lines
-	let output = '';
-	for (const lineNo of visibleLines) {
-		const isFocusedLine = lineNo === loc.line - 1;
-		output += isFocusedLine ? '> ' : '  ';
-		output += `${lineNo + 1} | ${lines[lineNo]}\n`;
-		if (isFocusedLine)
-			output += `${Array.from({ length: gutterWidth }).join(' ')}  | ${Array.from({
-				length: loc.column,
-			}).join(' ')}^\n`;
-	}
-	return output;
 }
 
 export function resolveDependency(dep: string, projectRoot: URL) {
@@ -225,13 +205,14 @@ export function resolveJsToTs(filePath: string) {
 	return filePath;
 }
 
-export const AggregateError =
-	typeof globalThis.AggregateError !== 'undefined'
-		? globalThis.AggregateError
-		: class extends Error {
-				errors: Array<any> = [];
-				constructor(errors: Iterable<any>, message?: string | undefined) {
-					super(message);
-					this.errors = Array.from(errors);
-				}
-		  };
+/**
+ * Resolve the hydration paths so that it can be imported in the client
+ */
+export function resolvePath(specifier: string, importer: string) {
+	if (specifier.startsWith('.')) {
+		const absoluteSpecifier = path.resolve(path.dirname(importer), specifier);
+		return resolveJsToTs(normalizePath(absoluteSpecifier));
+	} else {
+		return specifier;
+	}
+}

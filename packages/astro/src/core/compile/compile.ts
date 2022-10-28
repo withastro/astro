@@ -1,13 +1,13 @@
 import type { TransformResult } from '@astrojs/compiler';
-import path from 'path';
 import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 
 import { transform } from '@astrojs/compiler';
 import { preprocessCSS } from 'vite';
-import { AstroErrorCodes } from '../errors.js';
-import { prependForwardSlash, removeLeadingForwardSlashWindows } from '../path.js';
-import { AggregateError, resolveJsToTs, viteID } from '../util.js';
+import { AstroErrorCodes } from '../errors/codes.js';
+import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
+import { prependForwardSlash } from '../path.js';
+import { resolvePath, viteID } from '../util.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & {
@@ -31,21 +31,15 @@ async function compile({
 	source,
 }: CompileProps): Promise<CompileResult> {
 	let cssDeps = new Set<string>();
-	let cssTransformErrors: Error[] = [];
+	let cssTransformErrors: AstroError[] = [];
 
 	// Transform from `.astro` to valid `.ts`
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		// For Windows compat, prepend filename with `/`.
-		// Note this is required because the compiler uses URLs to parse and built paths.
-		// TODO: Ideally the compiler could expose a `resolvePath` function so that we can
-		// unify how we handle path in a bundler-agnostic way.
-		// At the meantime workaround with a slash and  remove them in `astro:postprocess`
-		// when they are used in `client:component-path`.
-		pathname: prependForwardSlash(filename),
-		projectRoot: astroConfig.root.toString(),
-		site: astroConfig.site?.toString(),
+		pathname: filename,
+		projectRoot: config.root.toString(),
+		site: config.site?.toString(),
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${prependForwardSlash(
@@ -75,27 +69,55 @@ async function compile({
 				return { error: e + '' };
 			}
 		},
+		async resolvePath(specifier) {
+			return resolvePath(specifier, filename);
+		},
 	})
-		.catch((err) => {
-			// throw compiler errors here if encountered
-			err.code = err.code || AstroErrorCodes.UnknownCompilerError;
-			throw err;
+		.catch((err: Error) => {
+			// The compiler should be able to handle errors by itself, however
+			// for the rare cases where it can't let's directly throw here with as much info as possible
+			throw new CompilerError({
+				errorCode: AstroErrorCodes.UnknownCompilerError,
+				message: err.message ?? 'Unknown compiler error',
+				stack: err.stack,
+				location: {
+					file: filename,
+				},
+			});
 		})
 		.then((result) => {
+			const compilerError = result.diagnostics.find(
+				// HACK: The compiler currently mistakenly returns the wrong severity for warnings, so we'll also filter by code
+				// https://github.com/withastro/compiler/issues/595
+				(diag) => diag.severity === 1 && diag.code < 2000
+			);
+
+			if (compilerError) {
+				throw new CompilerError({
+					errorCode: compilerError.code,
+					message: compilerError.text,
+					location: {
+						line: compilerError.location.line,
+						column: compilerError.location.column,
+						file: compilerError.location.file,
+					},
+					hint: compilerError.hint ? compilerError.hint : undefined,
+				});
+			}
+
 			switch (cssTransformErrors.length) {
 				case 0:
 					return result;
 				case 1: {
 					let error = cssTransformErrors[0];
-					if (!(error as any).code) {
-						(error as any).code = AstroErrorCodes.UnknownCompilerCSSError;
+					if (!error.errorCode) {
+						error.errorCode = AstroErrorCodes.UnknownCompilerCSSError;
 					}
+
 					throw cssTransformErrors[0];
 				}
 				default: {
-					const aggregateError = new AggregateError(cssTransformErrors);
-					(aggregateError as any).code = AstroErrorCodes.UnknownCompilerCSSError;
-					throw aggregateError;
+					throw new AggregateError({ ...cssTransformErrors[0], errors: cssTransformErrors });
 				}
 			}
 		});
@@ -108,32 +130,6 @@ async function compile({
 			value: source,
 		},
 	});
-
-	// Also fix path before returning. Example original resolvedPaths:
-	// - @astrojs/preact/client.js
-	// - @/components/Foo.vue
-	// - /Users/macos/project/src/Foo.vue
-	// - /C:/Windows/project/src/Foo.vue
-	for (const c of compileResult.clientOnlyComponents) {
-		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
-		// The compiler trims .jsx by default, prevent this
-		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
-			c.resolvedPath += '.jsx';
-		}
-		if (path.isAbsolute(c.resolvedPath)) {
-			c.resolvedPath = resolveJsToTs(c.resolvedPath);
-		}
-	}
-	for (const c of compileResult.hydratedComponents) {
-		c.resolvedPath = removeLeadingForwardSlashWindows(c.resolvedPath);
-		// The compiler trims .jsx by default, prevent this
-		if (c.specifier.endsWith('.jsx') && !c.resolvedPath.endsWith('.jsx')) {
-			c.resolvedPath += '.jsx';
-		}
-		if (path.isAbsolute(c.resolvedPath)) {
-			c.resolvedPath = resolveJsToTs(c.resolvedPath);
-		}
-	}
 
 	return compileResult;
 }

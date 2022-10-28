@@ -5,6 +5,7 @@ import requestIdleCallback from './requestIdleCallback.js';
 const events = ['mouseenter', 'touchstart', 'focus'];
 
 const preloaded = new Set<string>();
+const loadedStyles = new Set<string>();
 
 function shouldPreload({ href }: { href: string }) {
 	try {
@@ -53,7 +54,14 @@ async function preloadHref(link: HTMLAnchorElement) {
 		const html = parser.parseFromString(contents, 'text/html');
 		const styles = Array.from(html.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'));
 
-		await Promise.all(styles.map((el) => fetch(el.href)));
+		await Promise.all(
+			styles
+				.filter((el) => !loadedStyles.has(el.href))
+				.map((el) => {
+					loadedStyles.add(el.href);
+					return fetch(el.href);
+				})
+		);
 	} catch {}
 }
 

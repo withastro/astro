@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroIntegration, BuildConfig } from 'astro';
+import type { AstroConfig, AstroIntegration } from 'astro';
 import { ssgBuild } from './build/ssg.js';
 import type { ImageService, SSRImageService, TransformOptions } from './loaders/index.js';
 import type { LoggerLevel } from './utils/logger.js';
@@ -11,6 +11,11 @@ export { getPicture } from './lib/get-picture.js';
 
 const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
+
+interface BuildConfig {
+	client: URL;
+	server: URL;
+}
 
 interface ImageIntegration {
 	loader?: ImageService;
@@ -42,11 +47,12 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 
 	let _config: AstroConfig;
 	let _buildConfig: BuildConfig;
+	let needsBuildConfig = false;
 
 	// During SSG builds, this is used to track all transformed images required.
 	const staticImages = new Map<string, Map<string, TransformOptions>>();
 
-	function getViteConfiguration() {
+	function getViteConfiguration(isDev: boolean) {
 		return {
 			plugins: [createPlugin(_config, resolvedOptions)],
 			build: {
@@ -56,8 +62,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 			},
 			ssr: {
 				noExternal: ['@astrojs/image', resolvedOptions.serviceEntryPoint],
-				// CJS dependencies used by `serviceEntryPoint`
-				external: ['http-cache-semantics', 'image-size', 'mime'],
+				// Externalize CJS dependencies used by `serviceEntryPoint`. Vite dev mode has trouble
+				// loading these modules with `ssrLoadModule`, but works in build.
+				external: isDev ? ['http-cache-semantics', 'image-size', 'mime'] : [],
 			},
 			assetsInclude: ['**/*.wasm'],
 		};
@@ -67,9 +74,9 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 		name: PKG_NAME,
 		hooks: {
 			'astro:config:setup': async ({ command, config, updateConfig, injectRoute }) => {
+				needsBuildConfig = !config.build?.server;
 				_config = config;
-
-				updateConfig({ vite: getViteConfiguration() });
+				updateConfig({ vite: getViteConfiguration(command === 'dev') });
 
 				if (command === 'dev' || config.output === 'server') {
 					injectRoute({
@@ -88,8 +95,15 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					defaultLoader,
 				};
 			},
-			'astro:build:start': async ({ buildConfig }) => {
-				_buildConfig = buildConfig;
+			'astro:config:done': ({ config }) => {
+				_config = config;
+				_buildConfig = config.build;
+			},
+			'astro:build:start': ({ buildConfig }) => {
+				// Backwards compat
+				if (needsBuildConfig) {
+					_buildConfig = buildConfig;
+				}
 			},
 			'astro:build:setup': async () => {
 				// Used to cache all images rendered to HTML
