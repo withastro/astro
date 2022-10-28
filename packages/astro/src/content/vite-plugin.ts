@@ -33,6 +33,7 @@ export function astroContentPlugin({
 		generatedInputDir: new URL('../../', import.meta.url),
 	};
 	let contentDirExists = false;
+	const generateContent = toGenerateContent({ logging, dirs });
 
 	return {
 		name: 'astro-fetch-content-plugin',
@@ -47,7 +48,7 @@ export function astroContentPlugin({
 			if (!contentDirExists) return;
 
 			info(logging, 'content', 'Generating entries...');
-			await generateContent(logging, dirs);
+			await generateContent();
 		},
 		async configureServer(viteServer) {
 			if (contentDirExists) {
@@ -69,12 +70,12 @@ export function astroContentPlugin({
 			}
 
 			function attachListeners() {
-				viteServer.watcher.on('add', (file) => generateContent(logging, dirs, 'add', file));
-				viteServer.watcher.on('addDir', (file) => generateContent(logging, dirs, 'addDir', file));
-				viteServer.watcher.on('change', (file) => generateContent(logging, dirs, 'change', file));
-				viteServer.watcher.on('unlink', (file) => generateContent(logging, dirs, 'unlink', file));
-				viteServer.watcher.on('unlinkDir', (file) =>
-					generateContent(logging, dirs, 'unlinkDir', file)
+				viteServer.watcher.on('add', (entryChanged) => generateContent('add', entryChanged));
+				viteServer.watcher.on('addDir', (entryChanged) => generateContent('addDir', entryChanged));
+				viteServer.watcher.on('change', (entryChanged) => generateContent('change', entryChanged));
+				viteServer.watcher.on('unlink', (entryChanged) => generateContent('unlink', entryChanged));
+				viteServer.watcher.on('unlinkDir', (entryChanged) =>
+					generateContent('unlinkDir', entryChanged)
 				);
 			}
 		},
@@ -87,95 +88,90 @@ type Entry = [
 ];
 type CollectionEntry = [collectionName: string, entries: Entry[]];
 
-async function generateContent(
-	logging: LogOptions,
-	dirs: Dirs,
-	chokidarEvent?: string,
-	entryChanged?: string
-) {
-	if (chokidarEvent && !entryChanged?.startsWith(dirs.contentDir.pathname)) return;
+function toGenerateContent({ logging, dirs }: { logging: LogOptions; dirs: Dirs }) {
+	return async function generateContent(chokidarEvent?: string, entryChanged?: string) {
+		if (chokidarEvent && !entryChanged?.startsWith(dirs.contentDir.pathname)) return;
 
-	if (chokidarEvent === 'addDir') {
-		info(
-			logging,
-			'content',
-			`${cyan(getCollectionName(entryChanged ?? '', dirs))} collection added`
-		);
-	}
-
-	let [generatedMaps, generatedMapTypes] = await Promise.all([
-		fs.readFile(new URL(CONTENT_FILE, dirs.generatedInputDir), 'utf-8'),
-		fs.readFile(new URL(CONTENT_TYPES_FILE, dirs.generatedInputDir), 'utf-8'),
-	]);
-
-	const collections = await glob(new URL('*', dirs.contentDir).pathname, { onlyDirectories: true });
-
-	const [contentEntries, schemaEntries] = await Promise.all([
-		getContentMapEntries(collections, dirs),
-		getSchemaMapEntries(collections, dirs),
-	]);
-	let contentMapStr = '';
-	let contentMapTypesStr = '';
-	let renderContentStr = '';
-	for (const [collectionName, entries] of contentEntries) {
-		contentMapStr += `${JSON.stringify(collectionName)}: ${JSON.stringify(
-			Object.fromEntries(entries),
-			null,
-			2
-		)},`;
-		renderContentStr += entries.reduce((str, [, { id }]) => {
-			return (
-				str +
-				`\n${JSON.stringify(id)}: () => import(${JSON.stringify(
-					new URL(id, dirs.contentDir).pathname + DELAYED_ASSET_FLAG
-				)}),`
+		if (chokidarEvent === 'addDir') {
+			info(
+				logging,
+				'content',
+				`${cyan(getCollectionName(entryChanged ?? '', dirs))} collection added`
 			);
-		}, '');
-		const types = entries.map(([key, { id, slug }]) => {
-			return [
-				key,
-				`{\n id: ${JSON.stringify(id)},\n  slug: ${JSON.stringify(
-					slug
-				)},\n  body: string,\n data: z.infer<Awaited<typeof schemaMap[${JSON.stringify(
-					collectionName
-				)}]>['schema']>\n}`,
-			];
+		}
+
+		let [generatedMaps, generatedMapTypes] = await Promise.all([
+			fs.readFile(new URL(CONTENT_FILE, dirs.generatedInputDir), 'utf-8'),
+			fs.readFile(new URL(CONTENT_TYPES_FILE, dirs.generatedInputDir), 'utf-8'),
+		]);
+
+		const collections = await glob(new URL('*', dirs.contentDir).pathname, {
+			onlyDirectories: true,
 		});
-		contentMapTypesStr += `${JSON.stringify(collectionName)}: {\n${types.map(
-			([key, stringifiedValue]) => `${JSON.stringify(key)}: ${stringifiedValue}`
-		)}\n},`;
-	}
 
-	let schemaMapStr = '';
-	let schemaMapTypesStr = '';
-	for (const { key: collectionName, ...entry } of schemaEntries) {
-		schemaMapStr += `${JSON.stringify(collectionName)}: ${entry.value},\n`;
-		schemaMapTypesStr += `${JSON.stringify(collectionName)}: ${entry.type},\n`;
-	}
+		const [contentEntries, schemaEntries] = await Promise.all([
+			getContentMapEntries(collections, dirs),
+			getSchemaMapEntries(collections, dirs),
+		]);
+		let contentMapStr = '';
+		let contentMapTypesStr = '';
+		let renderContentStr = '';
+		for (const [collectionName, entries] of contentEntries) {
+			contentMapStr += `${JSON.stringify(collectionName)}: ${JSON.stringify(
+				Object.fromEntries(entries),
+				null,
+				2
+			)},`;
+			renderContentStr += entries.reduce((str, [, { id }]) => {
+				const contentPath = new URL(id, dirs.contentDir).pathname + DELAYED_ASSET_FLAG;
+				return str + `\n${JSON.stringify(id)}: () => import(${JSON.stringify(contentPath)}),`;
+			}, '');
+			const types = entries.map(([key, { id, slug }]) => {
+				return [
+					key,
+					`{\n id: ${JSON.stringify(id)},\n  slug: ${JSON.stringify(
+						slug
+					)},\n  body: string,\n data: z.infer<Awaited<typeof schemaMap[${JSON.stringify(
+						collectionName
+					)}]>['schema']>\n}`,
+				];
+			});
+			contentMapTypesStr += `${JSON.stringify(collectionName)}: {\n${types.map(
+				([key, stringifiedValue]) => `${JSON.stringify(key)}: ${stringifiedValue}`
+			)}\n},`;
+		}
 
-	generatedMaps = generatedMaps
-		.replace('// GENERATED_CONTENT_MAP_ENTRIES', contentMapStr)
-		.replace('// GENERATED_RENDER_CONTENT_MAP_ENTRIES', renderContentStr);
-	generatedMapTypes = generatedMapTypes.replace(
-		'// GENERATED_CONTENT_MAP_ENTRIES',
-		contentMapTypesStr
-	);
-	generatedMaps = generatedMaps.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaMapStr);
-	generatedMapTypes = generatedMapTypes.replace(
-		'// GENERATED_SCHEMA_MAP_ENTRIES',
-		schemaMapTypesStr
-	);
+		let schemaMapStr = '';
+		let schemaMapTypesStr = '';
+		for (const { key: collectionName, ...entry } of schemaEntries) {
+			schemaMapStr += `${JSON.stringify(collectionName)}: ${entry.value},\n`;
+			schemaMapTypesStr += `${JSON.stringify(collectionName)}: ${entry.type},\n`;
+		}
 
-	try {
-		await fs.stat(dirs.cacheDir);
-	} catch {
-		await fs.mkdir(dirs.cacheDir);
-	}
+		generatedMaps = generatedMaps
+			.replace('// GENERATED_CONTENT_MAP_ENTRIES', contentMapStr)
+			.replace('// GENERATED_RENDER_CONTENT_MAP_ENTRIES', renderContentStr);
+		generatedMapTypes = generatedMapTypes.replace(
+			'// GENERATED_CONTENT_MAP_ENTRIES',
+			contentMapTypesStr
+		);
+		generatedMaps = generatedMaps.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaMapStr);
+		generatedMapTypes = generatedMapTypes.replace(
+			'// GENERATED_SCHEMA_MAP_ENTRIES',
+			schemaMapTypesStr
+		);
 
-	await Promise.all([
-		fs.writeFile(new URL(CONTENT_FILE, dirs.cacheDir), generatedMaps),
-		fs.writeFile(new URL(CONTENT_TYPES_FILE, dirs.cacheDir), generatedMapTypes),
-	]);
+		try {
+			await fs.stat(dirs.cacheDir);
+		} catch {
+			await fs.mkdir(dirs.cacheDir);
+		}
+
+		await Promise.all([
+			fs.writeFile(new URL(CONTENT_FILE, dirs.cacheDir), generatedMaps),
+			fs.writeFile(new URL(CONTENT_TYPES_FILE, dirs.cacheDir), generatedMapTypes),
+		]);
+	};
 }
 
 async function getContentMapEntries(
