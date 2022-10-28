@@ -15,7 +15,7 @@ import {
 	getPageDatasByHoistedScriptId,
 	isHoistedScript,
 } from './internal.js';
-import { DELAYED_ASSET_FLAG } from '../../vite-plugin-asset-ssr/index.js';
+import { DELAYED_ASSET_FLAG } from '../../content/vite-plugin-delayed-assets.js';
 
 interface PluginOptions {
 	internals: BuildInternals;

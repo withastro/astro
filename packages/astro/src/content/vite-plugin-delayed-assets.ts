@@ -13,7 +13,7 @@ const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
 
 export const DELAYED_ASSET_FLAG = '?astro-asset-ssr';
 
-export function injectDelayedAssetPlugin({
+export function astroDelayedAssetPlugin({
 	settings,
 	mode,
 }: {
@@ -22,7 +22,7 @@ export function injectDelayedAssetPlugin({
 }): Plugin {
 	let viteDevServer: ViteDevServer;
 	return {
-		name: 'astro-inject-delayed-asset-plugin',
+		name: 'astro-delayed-asset-plugin',
 		enforce: 'post',
 		configureServer(server) {
 			if (mode === 'dev') {
@@ -88,9 +88,13 @@ export function injectDelayedAssetPlugin({
 	};
 }
 
-export function assetSsrPlugin({ internals }: { internals: BuildInternals }): Plugin {
+export function astroBundleDelayedAssetPlugin({
+	internals,
+}: {
+	internals: BuildInternals;
+}): Plugin {
 	return {
-		name: 'astro-asset-ssr-plugin',
+		name: 'astro-bundle-delayed-asset-plugin',
 		async generateBundle(_options, bundle) {
 			for (const [_, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk' && chunk.code.includes(LINKS_PLACEHOLDER)) {
