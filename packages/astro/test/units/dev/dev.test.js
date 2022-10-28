@@ -7,8 +7,8 @@ import { createFs, createRequestAndResponse } from '../test-utils.js';
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 describe('dev container', () => {
-	it('can render requests', async function() {
-		this.timeout(5000);
+	it('can render requests', async () => {
+		
 		const fs = createFs({
 			'/src/pages/index.astro': `
 				---
