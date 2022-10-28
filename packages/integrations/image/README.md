@@ -33,8 +33,9 @@ For faster builds and more fine-grained control of image transformations, instal
 
 Note that `@astrojs/image` is not currently supported on
 - Cloudflare SSR
-- @astrojs/deno
-- @astrojs/vercel/edge
+- `@astrojs/deno`
+- `@astrojs/netlify/edge-functions`
+- `@astrojs/vercel/edge`
 
 
 ### Quick Install
