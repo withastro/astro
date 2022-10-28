@@ -81,8 +81,8 @@ export const initCustomElementRegistry = (
 	const CustomElementRegistry =
 		target.CustomElementRegistry || globalThis.CustomElementRegistry
 
-	const customElements: CustomElementRegistry = (target.customElements =
-		Object.create(CustomElementRegistry.prototype))
+	const customElements: CustomElementRegistry =
+		target.customElements || new CustomElementRegistry()
 
 	_.INTERNALS.set(customElements, {
 		constructorByName: new Map(),
