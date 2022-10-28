@@ -1,5 +1,21 @@
 # astro
 
+## 1.6.1
+
+### Patch Changes
+
+- [#5233](https://github.com/withastro/astro/pull/5233) [`7f8987085`](https://github.com/withastro/astro/commit/7f8987085c9c5bdcd39b9a6700303e9b9f76b9f2) Thanks [@bluwy](https://github.com/bluwy)! - Support rendering `@motionone/solid` components
+
+- [#5238](https://github.com/withastro/astro/pull/5238) [`26ff42905`](https://github.com/withastro/astro/commit/26ff429058c6244767276b9fa20ef58987be13ee) Thanks [@MoustaphaDev](https://github.com/MoustaphaDev)! - Fix not included file extension in `url` metadata for newly added markdown files
+
+- [#5217](https://github.com/withastro/astro/pull/5217) [`8c83359e3`](https://github.com/withastro/astro/commit/8c83359e385b47fb6e453c023aeac2e01a579f38) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Fix missing types.d.ts in npm package
+
+- [#5212](https://github.com/withastro/astro/pull/5212) [`a609a8937`](https://github.com/withastro/astro/commit/a609a8937f9f35c46f3c934d38b83c445da425b9) Thanks [@bluwy](https://github.com/bluwy)! - Upgrade Vite to 3.2
+
+- [#5206](https://github.com/withastro/astro/pull/5206) [`d64d5b9b5`](https://github.com/withastro/astro/commit/d64d5b9b52c66ac0b3435b85c92a877f374fb100) Thanks [@Princesseuh](https://github.com/Princesseuh)! - Improve error messages related to CSS and compiler errors
+
+- [#5212](https://github.com/withastro/astro/pull/5212) [`a609a8937`](https://github.com/withastro/astro/commit/a609a8937f9f35c46f3c934d38b83c445da425b9) Thanks [@bluwy](https://github.com/bluwy)! - Allow importing public files in SSR
+
 ## 1.6.0
 
 ### Minor Changes
