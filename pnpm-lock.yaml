@@ -454,7 +454,7 @@ importers:
       unified: ^10.1.2
       unist-util-visit: ^4.1.0
       vfile: ^5.3.2
-      vite: ~3.2.0
+      vite: ~3.2.1
       vitefu: ^0.1.0
       yargs-parser: ^21.0.1
       zod: ^3.17.3
@@ -517,8 +517,8 @@ importers:
       typescript: 4.8.4
       unist-util-visit: 4.1.1
       vfile: 5.3.5
-      vite: 3.2.0_sass@1.55.0
-      vitefu: 0.1.0_vite@3.2.0
+      vite: 3.2.1_sass@1.55.0
+      vitefu: 0.1.0_vite@3.2.1
       yargs-parser: 21.1.1
       zod: 3.19.1
     devDependencies:
@@ -17977,8 +17977,8 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vite/3.2.0_sass@1.55.0:
-    resolution: {integrity: sha512-Ovj7+cqIdM1I0LPCk2CWxzgADXMix3NLXpUT6g7P7zg/a9grk/TaC3qn9YMg7w7M0POIVCBOp1aBANJW+RH7oA==}
+  /vite/3.2.1_sass@1.55.0:
+    resolution: {integrity: sha512-ADtMkfHuWq4tskJsri2n2FZkORO8ZyhI+zIz7zTrDAgDEtct1jdxOg3YsZBfHhKjmMoWLOSCr+64qrEDGo/DbQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -18008,7 +18008,7 @@ packages:
       fsevents: 2.3.2
     dev: false
 
-  /vitefu/0.1.0_vite@3.2.0:
+  /vitefu/0.1.0_vite@3.2.1:
     resolution: {integrity: sha512-5MQSHP9yr0HIve8q4XNb7QXfO1P4tzZDZP99qH0FM5ClcwYddeGXRDQ4TQYRUeXLjZ+vLecirHtGNpwFFUF7sw==}
     peerDependencies:
       vite: ^3.0.0
@@ -18017,7 +18017,7 @@ packages:
         optional: true
     dependencies:
       import-meta-resolve: 2.1.0
-      vite: 3.2.0_sass@1.55.0
+      vite: 3.2.1_sass@1.55.0
     dev: false
 
   /vitest/0.20.3:
