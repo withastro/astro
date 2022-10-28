@@ -16,9 +16,10 @@ jobs:
           script: |
             const url = 'https://api.github.com/repos/' + context.repo.owner + '/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
             console.log('reviews URL', url);
-            const reviews = await github.request(url);
+            const result = await github.request(url);
+            console.log(result);
+            const reviews = result.data;
             for(const review of reviews) {
-              console.log('checking review', review);
               if(review.user.id === 41898282 && review.state === 'CHANGES_REQUESTED') {
                 return 'block';
               }
