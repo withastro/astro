@@ -14,7 +14,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const url = 'https://api.github.com/repos/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
+            const url = 'https://api.github.com/repos/' + context.repo.owner + '/' + context.repo.repo + '/pulls/' + context.issue.number + '/reviews';
             console.log('reviews URL', url);
             const reviews = await github.request(url);
             for(const review of reviews) {
