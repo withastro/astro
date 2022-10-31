@@ -2586,6 +2586,7 @@ importers:
       magic-string: 0.25.9
       mime: 3.0.0
       slash: 4.0.0
+      web-streams-polyfill: 3.2.1
     devDependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/mime': 2.0.3
@@ -2598,7 +2599,6 @@ importers:
       rollup-plugin-copy: 3.4.0
       sharp: 0.31.1
       vite: 3.2.2
-      web-streams-polyfill: 3.2.1
 
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
