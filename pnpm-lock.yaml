@@ -43,7 +43,7 @@ importers:
       events: ^3.3.0
       mocha: ^9.2.2
       prettier: ^2.7.1
-      prettier-plugin-astro: ^0.6.0
+      prettier-plugin-astro: ^0.7.0
       sinon: ^13.0.1
       source-map: ^0.7.3
       svelte: ^3.49.0
@@ -61,7 +61,7 @@ importers:
       '@vscode/emmet-helper': 2.8.4
       events: 3.3.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.6.0
+      prettier-plugin-astro: 0.7.0
       source-map: 0.7.4
       vscode-css-languageservice: 6.1.0
       vscode-html-languageservice: 5.0.1
@@ -118,14 +118,14 @@ importers:
       mocha: ^9.2.2
       path-browserify: ^1.0.1
       prettier: ^2.7.1
-      prettier-plugin-astro: ^0.6.0
+      prettier-plugin-astro: ^0.7.0
       typescript: ~4.8.2
       vscode-languageclient: ^8.0.1
       vscode-tmgrammar-test: ^0.1.1
     dependencies:
       '@astrojs/ts-plugin': link:../ts-plugin
       prettier: 2.7.1
-      prettier-plugin-astro: 0.6.0
+      prettier-plugin-astro: 0.7.0
     devDependencies:
       '@astrojs/language-server': link:../language-server
       '@types/mocha': 9.1.1
@@ -177,8 +177,8 @@ packages:
     resolution: {integrity: sha512-xZ81C/oMfExdF18I1Tyd2BKKzBqO+qYYctSy4iCwH4UWSo/4Y8A8MAzV1hG67uuE7hFRourSl6H5KUbhyChv/A==}
     dev: true
 
-  /@astrojs/compiler/0.27.2:
-    resolution: {integrity: sha512-VG4X87cUkcmT40HqEwShQzUgl0VSnVTszobbmnhAOkHzdoWMxhwAm61A2o5fEsv6eEK8M0lW/fGwkSofYM5GcQ==}
+  /@astrojs/compiler/0.29.5:
+    resolution: {integrity: sha512-XpSJyBO6ha5mGqsD71ie83SOcv3p7zKq6qzngyeLKhccCXtf9Zn/4tGbi/Iq4YmkRBNCjLEkF0wZMYWY+eJYAA==}
     dev: false
 
   /@astrojs/language-server/0.23.3:
@@ -5007,11 +5007,11 @@ packages:
       synckit: 0.7.3
     dev: true
 
-  /prettier-plugin-astro/0.6.0:
-    resolution: {integrity: sha512-xU67TzyGi1u/pwVbEh55AwoOfcOpsh9BtD2MpUAEVrViAcdrBDcmA9VN0edLgla7f2NYu8ntGakxTSrSNFv1mQ==}
+  /prettier-plugin-astro/0.7.0:
+    resolution: {integrity: sha512-ehCUx7MqHWvkHwUmxxAWLsL35pFaCTM5YXQ8xjG/1W6dY2yBhvEks+2aCfjeI5zmMrZNCXkiMQtpznSlLSLrxw==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
-      '@astrojs/compiler': 0.27.2
+      '@astrojs/compiler': 0.29.5
       prettier: 2.7.1
       sass-formatter: 0.7.5
       synckit: 0.8.4

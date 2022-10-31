@@ -23,7 +23,7 @@
     "@vscode/emmet-helper": "^2.8.4",
     "events": "^3.3.0",
     "prettier": "^2.7.1",
-    "prettier-plugin-astro": "^0.6.0",
+    "prettier-plugin-astro": "^0.7.0",
     "source-map": "^0.7.3",
     "vscode-css-languageservice": "^6.0.1",
     "vscode-html-languageservice": "^5.0.0",
