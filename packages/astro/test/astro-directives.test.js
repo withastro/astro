@@ -19,8 +19,8 @@ describe('Directives', async () => {
 		let i = 0;
 		for (const script of $('script').toArray()) {
 			// Wrap script in scope ({}) to avoid redeclaration errors
-			expect($(script).text().at(0)).to.equal('{');
-			expect($(script).text().at(-1)).to.equal('}');
+			expect($(script).text().startsWith('(function(){')).to.equal(true);
+			expect($(script).text().endsWith('})();')).to.equal(true);
 			if (i < 2) {
 				// Inline defined variables
 				expect($(script).toString()).to.include('const foo = "bar"');
