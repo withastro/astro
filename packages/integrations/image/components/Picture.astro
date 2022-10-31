@@ -44,6 +44,7 @@ const {
 	formats = ['avif', 'webp'],
 	loading = 'lazy',
 	decoding = 'async',
+	quality,
 	...attrs
 } = Astro.props as Props;
 
@@ -59,6 +60,7 @@ const { image, sources } = await getPicture({
 	fit,
 	background,
 	position,
+	quality,
 });
 
 delete image.width;

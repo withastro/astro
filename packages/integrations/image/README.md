@@ -359,6 +359,16 @@ The output formats to be used in the optimized image. If not provided, `webp` an
 
 For remote images, the original image format is unknown. If not provided, only `webp` and `avif` will be used.
 
+#### quality
+
+<p>
+
+**Type:** `number`<br>
+**Default:** `undefined`
+</p>
+
+The compression quality used during optimization. The image service will use its own default quality depending on the image format if not provided.
+
 #### background
 
 <p>

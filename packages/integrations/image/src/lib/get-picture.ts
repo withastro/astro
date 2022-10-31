@@ -13,6 +13,7 @@ export interface GetPictureParams {
 	fit?: TransformOptions['fit'];
 	background?: TransformOptions['background'];
 	position?: TransformOptions['position'];
+	quality?: TransformOptions['quality'];
 }
 
 export interface GetPictureResult {
@@ -43,7 +44,7 @@ async function resolveFormats({ src, formats }: GetPictureParams) {
 }
 
 export async function getPicture(params: GetPictureParams): Promise<GetPictureResult> {
-	const { src, widths, fit, position, background } = params;
+	const { src, widths, fit, position, background, quality } = params;
 
 	if (!src) {
 		throw new Error('[@astrojs/image] `src` is required');
@@ -70,6 +71,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 					position,
 					background,
 					height: Math.round(width / aspectRatio!),
+					quality,
 				});
 				return `${img.src} ${width}w`;
 			})
@@ -92,6 +94,7 @@ export async function getPicture(params: GetPictureParams): Promise<GetPictureRe
 		position,
 		background,
 		format: allFormats[allFormats.length - 1],
+		quality,
 	});
 
 	const sources = await Promise.all(allFormats.map((format) => getSource(format)));
