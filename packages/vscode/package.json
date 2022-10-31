@@ -23,7 +23,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.28.1",
+  "version": "0.28.2",
   "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",

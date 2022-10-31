@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.28.2
+
+### Patch Changes
+
+- 1f9ecaa: Fix numbers inside HTML attributes not being properly highlighted
+
 ## 0.28.1
 
 ### Patch Changes
