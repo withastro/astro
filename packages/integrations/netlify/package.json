@@ -34,7 +34,7 @@
     "test": "npm run test-fn"
   },
   "dependencies": {
-    "@astrojs/webapi": "^1.1.0",
+    "@astrojs/webapi": "^1.1.1",
     "esbuild": "^0.14.43"
   },
   "devDependencies": {
