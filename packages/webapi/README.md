@@ -162,9 +162,9 @@ polyfill(globalThis, {
 
 
 
-## License
+## License & Attribution
 
-Code original to this project is licensed under the CC0-1.0 License.
+Thank you to Jon Neal for his work on the original [webapi](https://github.com/astro-community/webapi) project that this package is forked from. Licensed under the CC0-1.0 License.
 
 Code from [abort-controller](https://www.npmjs.com/package/abort-controller) is licensed under the MIT License (MIT), Copyright Toru Nagashima.
 

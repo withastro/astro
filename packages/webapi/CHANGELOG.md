@@ -1,5 +1,11 @@
 # @astrojs/webapi
 
+## 1.1.1
+
+### Patch Changes
+
+- [#5235](https://github.com/withastro/astro/pull/5235) [`b6a478f37`](https://github.com/withastro/astro/commit/b6a478f37648491321077750bfca7bddf3cafadd) Thanks [@ba55ie](https://github.com/ba55ie)! - Fix CustomElementRegistry for Node SSR Adapter
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,12 +1,13 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroConfig, AstroSettings, ManifestData } from '../@types/astro';
+import type { AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
 import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
+import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { collectErrorMetadata, getViteErrorPayload } from '../core/errors/dev/index.js';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import { createSafeError } from '../core/errors/index.js';
@@ -290,18 +291,6 @@ async function handleRequest(
 
 		error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
-	}
-}
-
-function isRedirect(statusCode: number) {
-	return statusCode >= 300 && statusCode < 400;
-}
-
-function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && isRedirect(response.status)) {
-		throw new Error(
-			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
-		);
 	}
 }
 
