@@ -57,7 +57,7 @@ export function isAstroComponent(obj: any): obj is AstroComponent {
 }
 
 export function isAstroComponentFactory(obj: any): obj is AstroComponentFactory {
-	return obj == null ? false : !!obj.isAstroComponentFactory;
+	return obj == null ? false : obj.isAstroComponentFactory === true;
 }
 
 export async function* renderAstroComponent(
