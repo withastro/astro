@@ -1,5 +1,14 @@
 # astro
 
+## 1.6.2
+
+### Patch Changes
+
+- [#5243](https://github.com/withastro/astro/pull/5243) [`7d678c9ed`](https://github.com/withastro/astro/commit/7d678c9ed05a33380a2153df54abdf87d374f970) Thanks [@matthewp](https://github.com/matthewp)! - Upgrade `@astrojs/compiler` to 0.29.x
+
+- Updated dependencies [[`b6a478f37`](https://github.com/withastro/astro/commit/b6a478f37648491321077750bfca7bddf3cafadd)]:
+  - @astrojs/webapi@1.1.1
+
 ## 1.6.1
 
 ### Patch Changes

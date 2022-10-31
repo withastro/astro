@@ -1,5 +1,13 @@
 # create-astro
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5240](https://github.com/withastro/astro/pull/5240) [`d9be7e36b`](https://github.com/withastro/astro/commit/d9be7e36b872eb48516dc9d0d5c9d333aac4950b) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve error messages when `create-astro` fails
+
+- [#5226](https://github.com/withastro/astro/pull/5226) [`641b6d7d5`](https://github.com/withastro/astro/commit/641b6d7d583886fde9529f296846d7e0a50e8624) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Allow Windows users to pass `--fancy` to enable full unicode support
+
 ## 1.2.0
 
 ### Minor Changes
