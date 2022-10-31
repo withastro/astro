@@ -5,7 +5,7 @@ import { createTransformStyleWithViteFn, TransformStyleWithVite } from './transf
 
 import { readFileSync } from 'fs';
 import type * as vite from 'vite';
-import { AstroErrorCodes } from '../core/errors/codes.js';
+import { AstroErrorCodes } from '../core/errors/errors-data.js';
 import { CSSError } from '../core/errors/errors.js';
 import { positionAt } from '../core/errors/index.js';
 

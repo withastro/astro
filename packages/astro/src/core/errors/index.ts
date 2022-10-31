@@ -1,4 +1,4 @@
-export { AstroErrorCodes } from './codes.js';
+export { AstroErrorCodes } from './errors-data.js';
 export type { ErrorLocation, ErrorWithMetadata } from './errors';
 export {
 	AggregateError,

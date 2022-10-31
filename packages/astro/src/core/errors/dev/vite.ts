@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createLogger, type ErrorPayload, type Logger, type LogLevel } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
-import { AstroErrorCodes } from '../codes.js';
+import { AstroErrorCodes } from '../errors-data.js';
 import { AstroError, type ErrorWithMetadata } from '../errors.js';
 import { incompatPackageExp } from './utils.js';
 

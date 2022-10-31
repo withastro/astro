@@ -22,3 +22,18 @@ export enum AstroErrorCodes {
 	UnknownViteSSRError = 9002,
 	UnknownError = 9999,
 }
+
+interface AstroErrorData {
+	code: number;
+	message: string;
+	hint: string;
+}
+
+export const AstroErrors: Record<string, AstroErrorData> = {
+	// 1xxx and 2xxx codes are reserved for compiler errors and warnings respectively
+	StaticRedirectNotAllowed: {
+		code: 3001,
+		message: '',
+		hint: '',
+	},
+};

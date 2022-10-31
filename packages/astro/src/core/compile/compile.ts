@@ -3,7 +3,7 @@ import type { AstroConfig } from '../../@types/astro';
 import type { TransformStyle } from './types';
 
 import { transform } from '@astrojs/compiler';
-import { AstroErrorCodes } from '../errors/codes.js';
+import { AstroErrorCodes } from '../errors/errors-data.js';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
 import { prependForwardSlash } from '../path.js';
 import { resolvePath, viteID } from '../util.js';
