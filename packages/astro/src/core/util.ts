@@ -19,19 +19,10 @@ export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
 }
 /** Check if a file is a markdown file based on its extension */
-export function isMarkdownFile(
-	fileId: string,
-	option: { criteria: 'endsWith' | 'includes'; suffix?: string }
-): boolean {
-	const _suffix = option.suffix ?? '';
-	if (option.criteria === 'endsWith') {
-		for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-			if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
-		}
-		return false;
-	}
+export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-		if (fileId.includes(`${markdownFileExtension}${_suffix}`)) return true;
+		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
 }
