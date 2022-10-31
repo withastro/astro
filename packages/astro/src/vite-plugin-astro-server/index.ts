@@ -1,12 +1,13 @@
 import type http from 'http';
 import mime from 'mime';
 import type * as vite from 'vite';
-import type { AstroConfig, AstroSettings, ManifestData } from '../@types/astro';
+import type { AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { Readable } from 'stream';
 import { attachToResponse, getSetCookiesFromResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
+import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { collectErrorMetadata, getViteErrorPayload } from '../core/errors/dev/index.js';
 import type { ErrorWithMetadata } from '../core/errors/index.js';
 import { createSafeError } from '../core/errors/index.js';
@@ -19,7 +20,6 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
-import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
