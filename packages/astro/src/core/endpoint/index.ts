@@ -1,4 +1,4 @@
-import type { APIContext, EndpointHandler, Params } from '../../@types/astro';
+import type { APIContext, AstroConfig, EndpointHandler, Params } from '../../@types/astro';
 import type { Environment, RenderContext } from '../render/index';
 
 import { renderEndpoint } from '../../runtime/server/index.js';
@@ -112,4 +112,16 @@ export async function call(
 		encoding: response.encoding,
 		cookies: context.cookies,
 	};
+}
+
+function isRedirect(statusCode: number) {
+	return statusCode >= 300 && statusCode < 400;
+}
+
+export function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
+	if (config.output !== 'server' && isRedirect(response.status)) {
+		throw new Error(
+			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
+		);
+	}
 }

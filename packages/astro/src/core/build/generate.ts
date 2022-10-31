@@ -21,7 +21,7 @@ import {
 } from '../../core/path.js';
 import { runHookBuildGenerated } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
-import { call as callEndpoint } from '../endpoint/index.js';
+import { call as callEndpoint, throwIfRedirectNotAllowed } from '../endpoint/index.js';
 import { debug, info } from '../logger/core.js';
 import { createEnvironment, createRenderContext, renderPage } from '../render/index.js';
 import { callGetStaticPaths } from '../render/route-cache.js';
@@ -374,18 +374,19 @@ async function generatePath(
 		const result = await callEndpoint(endpointHandler, env, ctx);
 
 		if (result.type === 'response') {
-			throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
+			throwIfRedirectNotAllowed(result.response, opts.settings.config);
+			// If there's no body, do nothing
+			if (!result.response.body) return;
+			body = await result.response.text();
+		} else {
+			body = result.body;
+			encoding = result.encoding;
 		}
-		body = result.body;
-		encoding = result.encoding;
 	} else {
 		const response = await renderPage(mod, ctx, env);
-
-		// If there's a redirect or something, just do nothing.
-		if (response.status !== 200 || !response.body) {
-			return;
-		}
-
+		throwIfRedirectNotAllowed(response, opts.settings.config);
+		// If there's no body, do nothing
+		if (!response.body) return;
 		body = await response.text();
 	}
 

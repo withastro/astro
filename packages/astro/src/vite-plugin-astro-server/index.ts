@@ -19,6 +19,7 @@ import { createRequest } from '../core/request.js';
 import { createRouteManifest, matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
+import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -290,18 +291,6 @@ async function handleRequest(
 
 		error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 		handle500Response(viteServer, origin, req, res, errorWithMetadata);
-	}
-}
-
-function isRedirect(statusCode: number) {
-	return statusCode >= 300 && statusCode < 400;
-}
-
-function throwIfRedirectNotAllowed(response: Response, config: AstroConfig) {
-	if (config.output !== 'server' && isRedirect(response.status)) {
-		throw new Error(
-			`Redirects are only available when using output: 'server'. Update your Astro config if you need SSR features.`
-		);
 	}
 }
 
