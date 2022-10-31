@@ -2599,7 +2599,6 @@ importers:
       rollup-plugin-copy: 3.4.0
       sharp: 0.31.1
       vite: 3.2.2
-      web-streams-polyfill: 3.2.1
 
   packages/integrations/image/test/fixtures/background-color-image:
     specifiers:
