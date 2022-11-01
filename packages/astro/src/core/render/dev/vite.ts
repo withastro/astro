@@ -1,5 +1,6 @@
+import type { ModuleLoader, ModuleNode } from '../../module-loader/index';
+
 import npath from 'path';
-import vite from 'vite';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from '../../constants.js';
 import { unwrapId } from '../../util.js';
 import { STYLE_EXTENSIONS } from '../util.js';
@@ -14,21 +15,21 @@ const STRIP_QUERY_PARAMS_REGEX = /\?.*$/;
 
 /** recursively crawl the module graph to get all style files imported by parent id */
 export async function* crawlGraph(
-	viteServer: vite.ViteDevServer,
+	loader: ModuleLoader,
 	_id: string,
 	isRootFile: boolean,
 	scanned = new Set<string>()
-): AsyncGenerator<vite.ModuleNode, void, unknown> {
+): AsyncGenerator<ModuleNode, void, unknown> {
 	const id = unwrapId(_id);
-	const importedModules = new Set<vite.ModuleNode>();
+	const importedModules = new Set<ModuleNode>();
 	const moduleEntriesForId = isRootFile
 		? // "getModulesByFile" pulls from a delayed module cache (fun implementation detail),
 		  // So we can get up-to-date info on initial server load.
 		  // Needed for slower CSS preprocessing like Tailwind
-		  viteServer.moduleGraph.getModulesByFile(id) ?? new Set()
+		  loader.getModulesByFile(id) ?? new Set()
 		: // For non-root files, we're safe to pull from "getModuleById" based on testing.
 		  // TODO: Find better invalidation strat to use "getModuleById" in all cases!
-		  new Set([viteServer.moduleGraph.getModuleById(id)]);
+		  new Set([loader.getModuleById(id)]);
 
 	// Collect all imported modules for the module(s).
 	for (const entry of moduleEntriesForId) {
@@ -57,10 +58,10 @@ export async function* crawlGraph(
 						continue;
 					}
 					if (fileExtensionsToSSR.has(npath.extname(importedModulePathname))) {
-						const mod = viteServer.moduleGraph.getModuleById(importedModule.id);
+						const mod = loader.getModuleById(importedModule.id);
 						if (!mod?.ssrModule) {
 							try {
-								await viteServer.ssrLoadModule(importedModule.id);
+								await loader.import(importedModule.id);
 							} catch {
 								/** Likely an out-of-date module entry! Silently continue. */
 							}
@@ -80,6 +81,6 @@ export async function* crawlGraph(
 		}
 
 		yield importedModule;
-		yield* crawlGraph(viteServer, importedModule.id, false, scanned);
+		yield* crawlGraph(loader, importedModule.id, false, scanned);
 	}
 }

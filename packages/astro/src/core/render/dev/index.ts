@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url';
-import type { ViteDevServer } from 'vite';
 import type {
 	AstroSettings,
 	ComponentInstance,
@@ -8,6 +7,7 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
+import type { ModuleLoader } from '../../module-loader/index';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
@@ -39,25 +39,11 @@ export interface SSROptionsOld {
 	route?: RouteData;
 	/** pass in route cache because SSR can’t manage cache-busting */
 	routeCache: RouteCache;
-	/** Vite instance */
-	viteServer: ViteDevServer;
+	/** Module loader (Vite) */
+	loader: ModuleLoader;
 	/** Request */
 	request: Request;
 }
-
-/*
-		filePath: options.filePath
-	});
-
-	const ctx = createRenderContext({
-		request: options.request,
-		origin: options.origin,
-		pathname: options.pathname,
-		scripts,
-		links,
-		styles,
-		route: options.route
-		*/
 
 export interface SSROptions {
 	/** The environment instance */
@@ -79,10 +65,10 @@ export interface SSROptions {
 export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 
 export async function loadRenderers(
-	viteServer: ViteDevServer,
+	moduleLoader: ModuleLoader,
 	settings: AstroSettings
 ): Promise<SSRLoadedRenderer[]> {
-	const loader = (entry: string) => viteServer.ssrLoadModule(entry);
+	const loader = (entry: string) => moduleLoader.import(entry);
 	const renderers = await Promise.all(settings.renderers.map((r) => loadRenderer(r, loader)));
 	return filterFoundRenderers(renderers);
 }
@@ -92,11 +78,11 @@ export async function preload({
 	filePath,
 }: Pick<SSROptions, 'env' | 'filePath'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
-	const renderers = await loadRenderers(env.viteServer, env.settings);
+	const renderers = await loadRenderers(env.loader, env.settings);
 
 	try {
 		// Load the module from the Vite SSR Runtime.
-		const mod = (await env.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+		const mod = (await env.loader.import(fileURLToPath(filePath))) as ComponentInstance;
 		return [renderers, mod];
 	} catch (err) {
 		// If the error came from Markdown or CSS, we already handled it and there's no need to enhance it
@@ -104,7 +90,7 @@ export async function preload({
 			throw err;
 		}
 
-		throw enhanceViteSSRError(err as Error, filePath, env.viteServer);
+		throw enhanceViteSSRError(err as Error, filePath, env.loader);
 	}
 }
 
@@ -115,7 +101,7 @@ interface GetScriptsAndStylesParams {
 
 async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams) {
 	// Add hoisted script tags
-	const scripts = await getScriptsForURL(filePath, env.viteServer);
+	const scripts = await getScriptsForURL(filePath, env.loader);
 
 	// Inject HMR scripts
 	if (isPage(filePath, env.settings) && env.mode === 'development') {
@@ -126,7 +112,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 		scripts.add({
 			props: {
 				type: 'module',
-				src: await resolveIdToUrl(env.viteServer, 'astro/runtime/client/hmr.js'),
+				src: await resolveIdToUrl(env.loader, 'astro/runtime/client/hmr.js'),
 			},
 			children: '',
 		});
@@ -148,7 +134,7 @@ async function getScriptsAndStyles({ env, filePath }: GetScriptsAndStylesParams)
 	}
 
 	// Pass framework CSS in as style tags to be appended to the page.
-	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.viteServer, env.mode);
+	const { urls: styleUrls, stylesMap } = await getStylesForURL(filePath, env.loader, env.mode);
 	let links = new Set<SSRElement>();
 	[...styleUrls].forEach((href) => {
 		links.add({
