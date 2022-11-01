@@ -7,8 +7,16 @@ export async function parseEntryData(
 	unparsedEntry: { data: any; rawData: string },
 	{ schemaMap }: { schemaMap: Record<string, any> }
 ) {
-	const schemaImport = (await schemaMap[collection]) ?? {};
-	if (!('schema' in schemaImport)) throw getErrorMsg.schemaNamedExp(collection);
+	let schemaImport;
+	try {
+		schemaImport = (await schemaMap[collection]()) ?? {};
+	} catch {
+		schemaImport = { schema: z.any() };
+		console.warn(getErrorMsg.schemaMissing(collection));
+	}
+	if (!('schema' in (schemaImport ?? {}))) {
+		throw new Error(getErrorMsg.schemaNamedExp(collection));
+	}
 	const { schema } = schemaImport;
 
 	try {
@@ -58,8 +66,7 @@ function getFrontmatterErrorLine(rawFrontmatter: string, frontmatterKey: string)
 export const getErrorMsg = {
 	schemaMissing: (collection: string) =>
 		`${collection} does not have a ~schema file. We suggest adding one for type safety!`,
-	schemaNamedExp: (collection: string) =>
-		new Error(`${collection}/~schema needs a named \`schema\` export.`),
+	schemaNamedExp: (collection: string) => `${collection}/~schema needs a named \`schema\` export.`,
 };
 
 export function createRenderContent(renderContentMap: Record<string, () => Promise<any>>) {
