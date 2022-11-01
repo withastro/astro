@@ -5,7 +5,7 @@ export default function (options: PrefetchOptions = {}): AstroIntegration {
 	return {
 		name: '@astrojs/prefetch',
 		hooks: {
-			'astro:config:setup': ({ updateConfig, addRenderer, injectScript }) => {
+			'astro:config:setup': ({ injectScript }) => {
 				// Inject the necessary polyfills on every page (inlined for speed).
 				injectScript(
 					'page',
