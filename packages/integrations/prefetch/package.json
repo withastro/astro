@@ -12,7 +12,9 @@
     "directory": "packages/astro-prefetch"
   },
   "keywords": [
-    "astro-integration"
+    "astro-integration",
+    "performance",
+    "withastro"
   ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://docs.astro.build/en/guides/integrations-guide/prefetch/",
