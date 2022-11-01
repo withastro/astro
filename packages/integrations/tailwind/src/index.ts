@@ -40,7 +40,7 @@ async function getUserConfig(root: URL, configPath?: string, isRestart = false) 
 		const tempConfigPath = path.join(dir, `.temp.${Date.now()}.${base}`);
 		await fs.copyFile(resolvedConfigPath, tempConfigPath);
 
-		let result: Record<any, any> | undefined;
+		let result: load.Config<Record<any, any>> | undefined;
 		try {
 			result = await load('tailwind', {
 				mustExist: false,
