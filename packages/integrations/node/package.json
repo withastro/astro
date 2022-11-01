@@ -30,7 +30,7 @@
     "test": "mocha --exit --timeout 20000 test/"
   },
   "dependencies": {
-    "@astrojs/webapi": "^1.1.0",
+    "@astrojs/webapi": "^1.1.1",
     "send": "^0.18.0"
   },
   "devDependencies": {
