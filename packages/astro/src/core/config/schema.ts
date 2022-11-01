@@ -113,6 +113,12 @@ export const AstroConfigSchema = z.object({
 				.default(ASTRO_CONFIG_DEFAULTS.build.server)
 				.transform((val) => new URL(val)),
 			serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+			envKey: z
+				.function()
+				.args(z.string())
+				.returns(z.string())
+				.optional()
+				.default(() => (key: string) => `process.env.${key}`),
 		})
 		.optional()
 		.default({}),
@@ -266,6 +272,12 @@ export function createRelativeSchema(cmd: string, fileProtocolRoot: URL) {
 					.default(ASTRO_CONFIG_DEFAULTS.build.server)
 					.transform((val) => new URL(val, fileProtocolRoot)),
 				serverEntry: z.string().optional().default(ASTRO_CONFIG_DEFAULTS.build.serverEntry),
+				envKey: z
+					.function()
+					.args(z.string())
+					.returns(z.string())
+					.optional()
+					.default(() => (key: string) => `process.env.${key}`),
 			})
 			.optional()
 			.default({}),
