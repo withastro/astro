@@ -96,11 +96,6 @@ type EntryInfo = {
 	slug: string;
 	collection: string;
 };
-type Entry = EntryInfo & {
-	data: Record<string, any>;
-	rawData: string;
-	body: string;
-};
 
 type GenerateContent = {
 	init(): Promise<void>;
@@ -108,6 +103,9 @@ type GenerateContent = {
 };
 
 type StringifiedInfo = { stringifiedJs: string; stringifiedType: string };
+type ContentMap = Record<string, Record<string, StringifiedInfo>>;
+type SchemaMap = Record<string, StringifiedInfo>;
+type RenderContentMap = Record<string, string>;
 
 async function toGenerateContent({
 	logging,
@@ -116,113 +114,39 @@ async function toGenerateContent({
 	logging: LogOptions;
 	dirs: Dirs;
 }): Promise<GenerateContent> {
-	const contentMap: Record<string, Record<string, StringifiedInfo>> = {};
-	const schemaMap: Record<string, StringifiedInfo> = {};
-	const renderContentMap: Record<string, string> = {};
+	const contentMap: ContentMap = {};
+	const schemaMap: SchemaMap = {};
+	const renderContentMap: RenderContentMap = {};
 
 	let events: Promise<void>[] = [];
 	let debounceTimeout: NodeJS.Timeout | undefined;
 	let eventsSettled: Promise<void> | undefined;
 
-	let [generatedMaps, generatedMapTypes] = await Promise.all([
+	let [contentJsBase, contentTypesBase] = await Promise.all([
 		fs.readFile(new URL(CONTENT_FILE, dirs.generatedInputDir), 'utf-8'),
 		fs.readFile(new URL(CONTENT_TYPES_FILE, dirs.generatedInputDir), 'utf-8'),
 	]);
-
-	function runEventsDebounced() {
-		eventsSettled = new Promise((resolve, reject) => {
-			try {
-				debounceTimeout && clearTimeout(debounceTimeout);
-				debounceTimeout = setTimeout(async () => {
-					await Promise.all(events);
-
-					let contentMapStr = '';
-					let contentMapTypesStr = '';
-					for (const collectionKey in contentMap) {
-						contentMapStr += `${collectionKey}: {\n`;
-						contentMapTypesStr += `${collectionKey}: {\n`;
-						for (const entryKey in contentMap[collectionKey]) {
-							const entry = contentMap[collectionKey][entryKey];
-							contentMapStr += stringifyObjKeyValue(entryKey, entry.stringifiedJs);
-							contentMapTypesStr += stringifyObjKeyValue(entryKey, entry.stringifiedType);
-						}
-						contentMapStr += `},\n`;
-						contentMapTypesStr += `},\n`;
-					}
-
-					let renderContentStr = '';
-					for (const entryKey in renderContentMap) {
-						renderContentStr += stringifyObjKeyValue(entryKey, renderContentMap[entryKey]);
-					}
-
-					let schemaMapStr = '';
-					let schemaMapTypesStr = '';
-					for (const collectionKey in schemaMap) {
-						const entry = schemaMap[collectionKey];
-						schemaMapStr += stringifyObjKeyValue(collectionKey, entry.stringifiedJs);
-						schemaMapTypesStr += stringifyObjKeyValue(collectionKey, entry.stringifiedType);
-					}
-
-					generatedMaps = generatedMaps
-						.replace('// GENERATED_CONTENT_MAP_ENTRIES', contentMapStr)
-						.replace('// GENERATED_RENDER_CONTENT_MAP_ENTRIES', renderContentStr);
-					generatedMapTypes = generatedMapTypes.replace(
-						'// GENERATED_CONTENT_MAP_ENTRIES',
-						contentMapTypesStr
-					);
-					generatedMaps = generatedMaps.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaMapStr);
-					generatedMapTypes = generatedMapTypes.replace(
-						'// GENERATED_SCHEMA_MAP_ENTRIES',
-						schemaMapTypesStr
-					);
-
-					try {
-						await fs.stat(dirs.cacheDir);
-					} catch {
-						await fs.mkdir(dirs.cacheDir);
-					}
-
-					await Promise.all([
-						fs.writeFile(new URL(CONTENT_FILE, dirs.cacheDir), generatedMaps),
-						fs.writeFile(new URL(CONTENT_TYPES_FILE, dirs.cacheDir), generatedMapTypes),
-					]);
-
-					resolve();
-				}, 50 /* debounce 50 ms to batch chokidar events */);
-			} catch (e) {
-				reject(e);
-			}
-		});
-	}
-
-	function stringifyObjKeyValue(key: string, value: string) {
-		return `${key}: ${value},\n`;
-	}
-
-	function queueEvent(event: ContentEvent) {
-		events.push(onEvent(event));
-		runEventsDebounced();
-	}
 
 	async function init() {
 		const pattern = new URL('./**/', dirs.contentDir).pathname + '{*.{md,mdx},~schema.{js,mjs,ts}}';
 		const entries = await glob(pattern);
 		for (const entry of entries) {
-			queueEvent({ name: 'add', entry });
+			queueEvent({ name: 'add', entry }, { shouldLog: false });
 		}
 		await eventsSettled;
 	}
 
-	async function onEvent(event: ContentEvent) {
-		if (!event.entry.startsWith(dirs.contentDir.pathname)) return;
+	async function onEvent(event: ContentEvent, opts?: { shouldLog: boolean }) {
+		const shouldLog = opts?.shouldLog ?? true;
 
 		if (event.name === 'addDir' || event.name === 'unlinkDir') {
 			const collection = path.relative(dirs.contentDir.pathname, event.entry);
+			// If directory is multiple levels deep, it is not a collection!
 			const isCollectionEvent = collection.split(path.sep).length === 1;
 			if (!isCollectionEvent) return;
 			switch (event.name) {
 				case 'addDir':
-					addCollection(contentMap, collection, logging);
+					addCollection(contentMap, collection, shouldLog ? logging : undefined);
 					break;
 				case 'unlinkDir':
 					delete contentMap[collection];
@@ -242,7 +166,7 @@ async function toGenerateContent({
 			const collectionKey = JSON.stringify(collection);
 			if (fileType === 'schema') {
 				if (event.name === 'add' && !(collectionKey in schemaMap)) {
-					addSchema(schemaMap, collection, event.entry, logging);
+					addSchema(schemaMap, collection, event.entry, shouldLog ? logging : undefined);
 				} else if (event.name === 'unlink' && collection in schemaMap) {
 					delete schemaMap[collection];
 				}
@@ -251,43 +175,83 @@ async function toGenerateContent({
 			switch (event.name) {
 				case 'add':
 					if (!(collectionKey in contentMap)) {
-						addCollection(contentMap, collection, logging);
+						addCollection(contentMap, collection, shouldLog ? logging : undefined);
 					}
-					await addEntry(contentMap, event.entry, { id, slug, collection }, logging);
+					await addEntry(
+						contentMap,
+						event.entry,
+						{ id, slug, collection },
+						shouldLog ? logging : undefined
+					);
 					renderContentMap[JSON.stringify(id)] = `() => import(${JSON.stringify(event.entry)})`;
 					break;
 				case 'change':
 					await changeEntry(contentMap, event.entry, { id, slug, collection });
 					break;
 				case 'unlink':
-					delete contentMap[collection][path.relative(collection, id)];
+					delete contentMap[JSON.stringify(collection)][
+						JSON.stringify(path.relative(collection, id))
+					];
 					delete renderContentMap[event.entry];
 					break;
 			}
 		}
 	}
+
+	function queueEvent(event: ContentEvent, eventOpts?: { shouldLog: boolean }) {
+		if (!event.entry.startsWith(dirs.contentDir.pathname)) return;
+
+		events.push(onEvent(event, eventOpts));
+		runEventsDebounced();
+	}
+
+	function runEventsDebounced() {
+		eventsSettled = new Promise((resolve, reject) => {
+			try {
+				debounceTimeout && clearTimeout(debounceTimeout);
+				debounceTimeout = setTimeout(async () => {
+					await Promise.all(events);
+					await writeContentFiles({
+						contentMap,
+						schemaMap,
+						renderContentMap,
+						dirs,
+						contentJsBase,
+						contentTypesBase,
+					});
+					resolve();
+				}, 50 /* debounce 50 ms to batch chokidar events */);
+			} catch (e) {
+				reject(e);
+			}
+		});
+	}
 	return { init, queueEvent };
 }
 
-function addCollection(contentMap: Record<string, any>, collection: string, logging: LogOptions) {
+function addCollection(contentMap: Record<string, any>, collection: string, logging?: LogOptions) {
 	contentMap[JSON.stringify(collection)] = {};
-	info(logging, 'content', `${cyan(collection)} collection added`);
+	if (logging) {
+		info(logging, 'content', `${cyan(collection)} collection added`);
+	}
 }
 
 function addSchema(
 	schemaMap: Record<string, StringifiedInfo>,
 	collection: string,
 	entryPath: string,
-	logging: LogOptions
+	logging?: LogOptions
 ) {
 	const { dir, name } = path.parse(entryPath);
 	const pathWithExtStripped = path.join(dir, name);
 	const importStr = `import(${JSON.stringify(pathWithExtStripped)})`;
 	schemaMap[JSON.stringify(collection)] = {
-		stringifiedJs: importStr,
-		stringifiedType: `typeof ${importStr}`,
+		stringifiedJs: `() => ${importStr}`,
+		stringifiedType: `() => typeof ${importStr}`,
 	};
-	info(logging, 'content', `Schema added to ${collection}`);
+	if (logging) {
+		info(logging, 'content', `${cyan(collection)} schema added`);
+	}
 }
 
 async function changeEntry(
@@ -312,9 +276,9 @@ async function changeEntry(
 			// only do work of stringifying type for new entries
 			`{\n id: ${JSON.stringify(id)},\n  slug: ${JSON.stringify(
 				slug
-			)},\n  body: string,\n data: z.infer<Awaited<typeof schemaMap[${JSON.stringify(
+			)},\n  body: string,\n data: z.infer<Awaited<ReturnType<typeof schemaMap[${JSON.stringify(
 				collection
-			)}]>['schema']>\n}`,
+			)}]>>['schema']>\n}`,
 	};
 }
 
@@ -322,10 +286,12 @@ async function addEntry(
 	contentMap: Record<string, any>,
 	entry: string,
 	entryInfo: EntryInfo,
-	logging: LogOptions
+	logging?: LogOptions
 ) {
 	await changeEntry(contentMap, entry, entryInfo);
-	info(logging, 'content', `${cyan(entryInfo.slug)} added to ${bold(entryInfo.collection)}.`);
+	if (logging) {
+		info(logging, 'content', `${cyan(entryInfo.slug)} added to ${bold(entryInfo.collection)}.`);
+	}
 }
 
 function parseEntryInfo(
@@ -373,4 +339,72 @@ export function parseFrontmatter(fileContents: string, filePath: string) {
 			throw e;
 		}
 	}
+}
+
+function stringifyObjKeyValue(key: string, value: string) {
+	return `${key}: ${value},\n`;
+}
+
+async function writeContentFiles({
+	dirs,
+	contentMap,
+	schemaMap,
+	renderContentMap,
+	contentJsBase,
+	contentTypesBase,
+}: {
+	dirs: Dirs;
+	contentMap: ContentMap;
+	schemaMap: SchemaMap;
+	renderContentMap: RenderContentMap;
+	contentJsBase: string;
+	contentTypesBase: string;
+}) {
+	let contentMapStr = '';
+	let contentMapTypesStr = '';
+	for (const collectionKey in contentMap) {
+		contentMapStr += `${collectionKey}: {\n`;
+		contentMapTypesStr += `${collectionKey}: {\n`;
+		for (const entryKey in contentMap[collectionKey]) {
+			const entry = contentMap[collectionKey][entryKey];
+			contentMapStr += stringifyObjKeyValue(entryKey, entry.stringifiedJs);
+			contentMapTypesStr += stringifyObjKeyValue(entryKey, entry.stringifiedType);
+		}
+		contentMapStr += `},\n`;
+		contentMapTypesStr += `},\n`;
+	}
+
+	let renderContentStr = '';
+	for (const entryKey in renderContentMap) {
+		renderContentStr += stringifyObjKeyValue(entryKey, renderContentMap[entryKey]);
+	}
+
+	let schemaMapStr = '';
+	let schemaMapTypesStr = '';
+	for (const collectionKey in schemaMap) {
+		const entry = schemaMap[collectionKey];
+		schemaMapStr += stringifyObjKeyValue(collectionKey, entry.stringifiedJs);
+		schemaMapTypesStr += stringifyObjKeyValue(collectionKey, entry.stringifiedType);
+	}
+
+	contentJsBase = contentJsBase
+		.replace('// GENERATED_CONTENT_MAP_ENTRIES', contentMapStr)
+		.replace('// GENERATED_RENDER_CONTENT_MAP_ENTRIES', renderContentStr);
+	contentTypesBase = contentTypesBase.replace(
+		'// GENERATED_CONTENT_MAP_ENTRIES',
+		contentMapTypesStr
+	);
+	contentJsBase = contentJsBase.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaMapStr);
+	contentTypesBase = contentTypesBase.replace('// GENERATED_SCHEMA_MAP_ENTRIES', schemaMapTypesStr);
+
+	try {
+		await fs.stat(dirs.cacheDir);
+	} catch {
+		await fs.mkdir(dirs.cacheDir);
+	}
+
+	await Promise.all([
+		fs.writeFile(new URL(CONTENT_FILE, dirs.cacheDir), contentJsBase),
+		fs.writeFile(new URL(CONTENT_TYPES_FILE, dirs.cacheDir), contentTypesBase),
+	]);
 }
