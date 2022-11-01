@@ -346,7 +346,6 @@ function parseEntryInfo(
 
 function getEntryType(entryPath: string): 'content' | 'schema' | 'unknown' {
 	const { base, ext } = path.parse(entryPath);
-	console.log({ entryPath, base, ext });
 	if (['.md', '.mdx'].includes(ext)) {
 		return 'content';
 	} else if (['~schema.js', '~schema.mjs', '~schema.ts'].includes(base)) {
