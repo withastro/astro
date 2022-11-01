@@ -30,7 +30,7 @@ importers:
       execa: ^6.1.0
       organize-imports-cli: ^0.10.0
       prettier: ^2.7.0
-      prettier-plugin-astro: ^0.3.0
+      prettier-plugin-astro: ^0.4.0
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
       turbo: 1.2.5
@@ -53,7 +53,7 @@ importers:
       execa: 6.1.0
       organize-imports-cli: 0.10.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.3.0
+      prettier-plugin-astro: 0.4.1
       pretty-bytes: 6.0.0
       tiny-glob: 0.2.9
       turbo: 1.2.5
@@ -229,6 +229,14 @@ importers:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
       vue: 3.2.41
+
+  examples/hackernews:
+    specifiers:
+      '@astrojs/node': ^2.0.1
+      astro: ^1.5.2
+    dependencies:
+      '@astrojs/node': link:../../packages/integrations/node
+      astro: link:../../packages/astro
 
   examples/integration:
     specifiers:
@@ -422,9 +430,11 @@ importers:
       import-meta-resolve: ^2.1.0
       kleur: ^4.1.4
       magic-string: ^0.25.9
+      memfs: ^3.4.7
       mime: ^3.0.0
       mocha: ^9.2.2
       node-fetch: ^3.2.5
+      node-mocks-http: ^1.11.0
       ora: ^6.1.0
       path-browserify: ^1.0.1
       path-to-regexp: ^6.2.1
@@ -547,8 +557,10 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
+      memfs: 3.4.7
       mocha: 9.2.2
       node-fetch: 3.2.10
+      node-mocks-http: 1.11.0
       rehype-autolink-headings: 6.1.1
       rehype-slug: 5.1.0
       rehype-toc: 3.0.2
@@ -12761,6 +12773,10 @@ packages:
       minipass: 3.3.4
     dev: false
 
+  /fs-monkey/1.0.3:
+    resolution: {integrity: sha512-cybjIfiiE+pTWicSCLFHSrXZ6EilF30oh91FDP9S2B051prEa7QWfrVTQm10/dDpswBDXZugPa1Ogu8Yh+HV0Q==}
+    dev: true
+
   /fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
@@ -14268,6 +14284,13 @@ packages:
   /media-typer/0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
+    dev: true
+
+  /memfs/3.4.7:
+    resolution: {integrity: sha512-ygaiUSNalBX85388uskeCyhSAoOSgzBbtVCr9jA2RROssFL9Q19/ZXFqS+2Th2sr1ewNIWgFdLzLC3Yl1Zv+lw==}
+    engines: {node: '>= 4.0.0'}
+    dependencies:
+      fs-monkey: 1.0.3
     dev: true
 
   /meow/6.1.1:
@@ -15835,8 +15858,8 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-astro/0.3.0:
-    resolution: {integrity: sha512-ApEy5U3FPdylBa72L8k7W/h/zgegAyuHppDu9geVwFHzaaEQpaRCrT3Wt0nc6tNcbDaOgotBfcaUzMr0Cw6a8w==}
+  /prettier-plugin-astro/0.4.1:
+    resolution: {integrity: sha512-AvYyg4WDnhmqH5S85EFgJAMU20p1lLypVt4sn4tuGW+lnPfWr70SaHZD9gevx20o3FnALgZxDu1enFSkN/MSwQ==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
       '@astrojs/compiler': 0.19.0
