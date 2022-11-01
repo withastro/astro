@@ -1,5 +1,3 @@
-import type { ModuleLoader } from './module-loader';
-import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import resolve from 'resolve';
@@ -8,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
+import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */

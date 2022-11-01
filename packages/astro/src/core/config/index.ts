@@ -7,5 +7,5 @@ export {
 	validateConfig,
 } from './config.js';
 export type { AstroConfigSchema } from './schema';
-export { createSettings, createDefaultDevSettings } from './settings.js';
+export { createDefaultDevSettings, createSettings } from './settings.js';
 export { loadTSConfig, updateTSConfigForFramework } from './tsconfig.js';

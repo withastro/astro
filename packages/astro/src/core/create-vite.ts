@@ -13,12 +13,12 @@ import envVitePlugin from '../vite-plugin-env/index.js';
 import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroIntegrationsContainerPlugin from '../vite-plugin-integrations-container/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import legacyMarkdownVitePlugin from '../vite-plugin-markdown-legacy/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import astroScriptsPlugin from '../vite-plugin-scripts/index.js';
 import astroScriptsPageSSRPlugin from '../vite-plugin-scripts/page-ssr.js';
 import { createCustomViteLogger } from './errors/dev/index.js';
-import astroLoadFallbackPlugin from '../vite-plugin-load-fallback/index.js';
 import { resolveDependency } from './util.js';
 
 interface CreateViteOptions {
@@ -110,7 +110,7 @@ export async function createVite(
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroLoadFallbackPlugin({ fs })
+			astroLoadFallbackPlugin({ fs }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),

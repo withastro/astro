@@ -224,7 +224,12 @@ export function createRouteManifest(
 	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 	const localFs = fsMod ?? nodeFs;
 
-	function walk(fs: typeof nodeFs, dir: string, parentSegments: RoutePart[][], parentParams: string[]) {
+	function walk(
+		fs: typeof nodeFs,
+		dir: string,
+		parentSegments: RoutePart[][],
+		parentParams: string[]
+	) {
 		let items: Item[] = [];
 		fs.readdirSync(dir).forEach((basename) => {
 			const resolved = path.join(dir, basename);

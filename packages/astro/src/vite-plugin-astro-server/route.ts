@@ -1,10 +1,11 @@
 import type http from 'http';
 import mime from 'mime';
-import type { AstroConfig, AstroSettings, ManifestData } from '../@types/astro';
+import type { AstroSettings, ManifestData } from '../@types/astro';
 import { DevelopmentEnvironment, SSROptions } from '../core/render/dev/index';
 
 import { attachToResponse } from '../core/cookies/index.js';
 import { call as callEndpoint } from '../core/endpoint/dev/index.js';
+import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
 import { warn } from '../core/logger/core.js';
 import { appendForwardSlash } from '../core/path.js';
 import { preload, renderPage } from '../core/render/dev/index.js';
@@ -13,8 +14,7 @@ import { createRequest } from '../core/request.js';
 import { matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import { log404 } from './common.js';
-import { handle404Response, writeWebResponse, writeSSRResult } from './response.js';
-import { throwIfRedirectNotAllowed } from '../core/endpoint/index.js';
+import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -29,7 +29,11 @@ function getCustom404Route({ config }: AstroSettings, manifest: ManifestData) {
 	return manifest.routes.find((r) => r.component.match(pattern));
 }
 
-export async function matchRoute(pathname: string, env: DevelopmentEnvironment, manifest: ManifestData) {
+export async function matchRoute(
+	pathname: string,
+	env: DevelopmentEnvironment,
+	manifest: ManifestData
+) {
 	const { logging, settings, routeCache } = env;
 	const matches = matchAllRoutes(pathname, manifest);
 

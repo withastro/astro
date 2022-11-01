@@ -1,7 +1,12 @@
-import type { ServerState } from './server-state';
 import type { LoaderEvents, ModuleLoader } from '../core/module-loader/index';
+import type { ServerState } from './server-state';
 
-import { createServerState, setRouteError, setServerError, clearRouteError } from './server-state.js';
+import {
+	clearRouteError,
+	createServerState,
+	setRouteError,
+	setServerError,
+} from './server-state.js';
 
 type ReloadFn = () => void;
 
@@ -11,14 +16,16 @@ export interface DevServerController {
 	onHMRError: LoaderEvents['hmr-error'];
 }
 
-export type CreateControllerParams = {
-	loader: ModuleLoader;
-} | {
-	reload: ReloadFn;
-};
+export type CreateControllerParams =
+	| {
+			loader: ModuleLoader;
+	  }
+	| {
+			reload: ReloadFn;
+	  };
 
 export function createController(params: CreateControllerParams): DevServerController {
-	if('loader' in params) {
+	if ('loader' in params) {
 		return createLoaderController(params.loader);
 	} else {
 		return createBaseController(params);
@@ -29,7 +36,7 @@ export function createBaseController({ reload }: { reload: ReloadFn }): DevServe
 	const serverState = createServerState();
 
 	const onFileChange: LoaderEvents['file-change'] = () => {
-		if(serverState.state === 'error') {
+		if (serverState.state === 'error') {
 			reload();
 		}
 	};
@@ -39,7 +46,7 @@ export function createBaseController({ reload }: { reload: ReloadFn }): DevServe
 		let stack = payload?.err?.stack ?? 'Unknown stack';
 		let error = new Error(msg);
 		Object.defineProperty(error, 'stack', {
-			value: stack
+			value: stack,
 		});
 		setServerError(serverState, error);
 	};
@@ -47,7 +54,7 @@ export function createBaseController({ reload }: { reload: ReloadFn }): DevServe
 	return {
 		state: serverState,
 		onFileChange,
-		onHMRError
+		onHMRError,
 	};
 }
 
@@ -55,21 +62,21 @@ export function createLoaderController(loader: ModuleLoader): DevServerControlle
 	const controller = createBaseController({
 		reload() {
 			loader.clientReload();
-		}
+		},
 	});
 	const baseOnFileChange = controller.onFileChange;
 	controller.onFileChange = (...args) => {
-		if(controller.state.state === 'error') {
+		if (controller.state.state === 'error') {
 			// If we are in an error state, check if there are any modules with errors
 			// and if so invalidate them so that they will be updated on refresh.
-			loader.eachModule(mod => {
-				if(mod.ssrError) {
+			loader.eachModule((mod) => {
+				if (mod.ssrError) {
 					loader.invalidateModule(mod);
 				}
 			});
 		}
 		baseOnFileChange(...args);
-	}
+	};
 
 	loader.events.on('file-change', controller.onFileChange);
 	loader.events.on('hmr-error', controller.onHMRError);
@@ -88,12 +95,12 @@ export async function runWithErrorHandling({
 	controller: { state },
 	pathname,
 	run,
-	onError
+	onError,
 }: RunWithErrorHandlingParams) {
 	try {
 		await run();
 		clearRouteError(state, pathname);
-	} catch(err) {
+	} catch (err) {
 		const error = onError(err);
 		setRouteError(state, pathname, error);
 	}

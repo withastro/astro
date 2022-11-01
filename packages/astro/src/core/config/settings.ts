@@ -2,8 +2,8 @@ import type { AstroConfig, AstroSettings, AstroUserConfig } from '../../@types/a
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './../constants.js';
 
 import { fileURLToPath } from 'url';
-import { createDefaultDevConfig } from './config.js';
 import jsxRenderer from '../../jsx/renderer.js';
+import { createDefaultDevConfig } from './config.js';
 import { loadTSConfig } from './tsconfig.js';
 
 export function createBaseSettings(config: AstroConfig): AstroSettings {
@@ -34,10 +34,9 @@ export async function createDefaultDevSettings(
 	userConfig: AstroUserConfig = {},
 	root?: string | URL
 ): Promise<AstroSettings> {
-	if(root && typeof root !== 'string') {
+	if (root && typeof root !== 'string') {
 		root = fileURLToPath(root);
 	}
 	const config = await createDefaultDevConfig(userConfig, root);
 	return createBaseSettings(config);
 }
-

@@ -1,6 +1,6 @@
-import type TypedEmitter from '../../@types/typed-emitter';
-import type * as fs from 'fs';
 import { EventEmitter } from 'events';
+import type * as fs from 'fs';
+import type TypedEmitter from '../../@types/typed-emitter';
 
 // This is a generic interface for a module loader. In the astro cli this is
 // fulfilled by Vite, see vite.ts
@@ -10,10 +10,10 @@ export type LoaderEvents = {
 	'file-change': (msg: [path: string, stats?: fs.Stats | undefined]) => void;
 	'file-unlink': (msg: [path: string, stats?: fs.Stats | undefined]) => void;
 	'hmr-error': (msg: {
-		type: 'error',
+		type: 'error';
 		err: {
 			message: string;
-			stack: string
+			stack: string;
 		};
 	}) => void;
 };
@@ -53,19 +53,33 @@ export interface ModuleInfo {
 
 export function createLoader(overrides: Partial<ModuleLoader>): ModuleLoader {
 	return {
-		import() { throw new Error(`Not implemented`); },
-		resolveId(id) { return Promise.resolve(id); },
-		getModuleById() {return undefined },
-		getModulesByFile() { return undefined },
-		getModuleInfo() { return null; },
-		eachModule() { throw new Error(`Not implemented`); },
+		import() {
+			throw new Error(`Not implemented`);
+		},
+		resolveId(id) {
+			return Promise.resolve(id);
+		},
+		getModuleById() {
+			return undefined;
+		},
+		getModulesByFile() {
+			return undefined;
+		},
+		getModuleInfo() {
+			return null;
+		},
+		eachModule() {
+			throw new Error(`Not implemented`);
+		},
 		invalidateModule() {},
 		fixStacktrace() {},
 		clientReload() {},
 		webSocketSend() {},
-		isHttps() { return true; },
+		isHttps() {
+			return true;
+		},
 		events: new EventEmitter() as ModuleLoaderEventEmitter,
 
-		...overrides
+		...overrides,
 	};
 }

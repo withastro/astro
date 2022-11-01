@@ -14,7 +14,7 @@ export interface ServerState {
 export function createServerState(): ServerState {
 	return {
 		routes: new Map(),
-		state: 'fresh'
+		state: 'fresh',
 	};
 }
 
@@ -23,14 +23,14 @@ export function hasAnyFailureState(serverState: ServerState) {
 }
 
 export function setRouteError(serverState: ServerState, pathname: string, error: Error) {
-	if(serverState.routes.has(pathname)) {
+	if (serverState.routes.has(pathname)) {
 		const routeState = serverState.routes.get(pathname)!;
 		routeState.state = 'error';
 		routeState.error = error;
 	} else {
 		const routeState: RouteState = {
 			state: 'error',
-			error: error
+			error: error,
 		};
 		serverState.routes.set(pathname, routeState);
 	}
@@ -44,7 +44,7 @@ export function setServerError(serverState: ServerState, error: Error) {
 }
 
 export function clearRouteError(serverState: ServerState, pathname: string) {
-	if(serverState.routes.has(pathname)) {
+	if (serverState.routes.has(pathname)) {
 		serverState.routes.delete(pathname);
 	}
 	serverState.state = 'fresh';

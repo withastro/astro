@@ -1,15 +1,14 @@
-
 import type * as vite from 'vite';
 import type { AstroSettings, ManifestData } from '../@types/astro';
 
+import type fs from 'fs';
 import { LogOptions } from '../core/logger/core.js';
+import { createViteLoader } from '../core/module-loader/index.js';
 import { createDevelopmentEnvironment } from '../core/render/dev/index.js';
 import { createRouteManifest } from '../core/routing/index.js';
-import { createViteLoader } from '../core/module-loader/index.js';
 import { baseMiddleware } from './base.js';
-import { handleRequest } from './request.js';
 import { createController } from './controller.js';
-import type fs from 'fs';
+import { handleRequest } from './request.js';
 
 export interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -17,7 +16,11 @@ export interface AstroPluginOptions {
 	fs: typeof fs;
 }
 
-export default function createVitePluginAstroServer({ settings, logging, fs: fsMod }: AstroPluginOptions): vite.Plugin {
+export default function createVitePluginAstroServer({
+	settings,
+	logging,
+	fs: fsMod,
+}: AstroPluginOptions): vite.Plugin {
 	return {
 		name: 'astro:server',
 		configureServer(viteServer) {

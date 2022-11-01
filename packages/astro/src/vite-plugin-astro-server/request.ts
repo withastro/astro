@@ -1,15 +1,15 @@
 import type http from 'http';
-import type { ManifestData, RouteData } from '../@types/astro';
-import type { DevServerController } from './controller';
+import type { ManifestData } from '../@types/astro';
 import type { DevelopmentEnvironment } from '../core/render/dev/index';
+import type { DevServerController } from './controller';
 
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
+import { createSafeError } from '../core/errors/index.js';
 import { error } from '../core/logger/core.js';
 import * as msg from '../core/messages.js';
-import { handleRoute, matchRoute } from './route.js';
-import { handle500Response } from './response.js';
 import { runWithErrorHandling } from './controller.js';
-import { createSafeError } from '../core/errors/index.js';
+import { handle500Response } from './response.js';
+import { handleRoute, matchRoute } from './route.js';
 
 /** The main logic to route dev server requests to pages in Astro. */
 export async function handleRequest(
@@ -60,7 +60,7 @@ export async function handleRequest(
 		pathname,
 		async run() {
 			const matchedRoute = await matchRoute(pathname, env, manifest);
-	
+
 			return await handleRoute(matchedRoute, url, pathname, body, origin, env, manifest, req, res);
 		},
 		onError(_err) {
@@ -73,6 +73,6 @@ export async function handleRequest(
 			handle500Response(moduleLoader, res, errorWithMetadata);
 
 			return err;
-		}
+		},
 	});
 }

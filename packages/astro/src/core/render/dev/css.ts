@@ -19,8 +19,7 @@ export async function getStylesForURL(
 		const ext = path.extname(importedModule.url).toLowerCase();
 		if (STYLE_EXTENSIONS.has(ext)) {
 			// The SSR module is possibly not loaded. Load it if it's null.
-			const ssrModule =
-				importedModule.ssrModule ?? (await loader.import(importedModule.url));
+			const ssrModule = importedModule.ssrModule ?? (await loader.import(importedModule.url));
 			if (
 				mode === 'development' && // only inline in development
 				typeof ssrModule?.default === 'string' // ignore JS module styles

@@ -1,6 +1,9 @@
 import { expect } from 'chai';
 import { createLoader } from '../../../dist/core/module-loader/index.js';
-import { createController, runWithErrorHandling } from '../../../dist/vite-plugin-astro-server/index.js';
+import {
+	createController,
+	runWithErrorHandling,
+} from '../../../dist/vite-plugin-astro-server/index.js';
 
 describe('vite-plugin-astro-server', () => {
 	describe('controller', () => {
@@ -15,7 +18,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				onError(err) {
 					error = err;
-				}
+				},
 			});
 			expect(error).to.not.be.an('undefined');
 			expect(error).to.be.an.instanceOf(Error);
@@ -29,7 +32,7 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError(){}
+				onError() {},
 			});
 			expect(controller.state.state).to.equal('error');
 		});
@@ -40,7 +43,7 @@ describe('vite-plugin-astro-server', () => {
 				eachModule() {},
 				clientReload() {
 					reloads++;
-				}
+				},
 			});
 			const controller = createController({ loader });
 			loader.events.emit('file-change');
@@ -51,7 +54,7 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError(){}
+				onError() {},
 			});
 			expect(reloads).to.equal(0);
 			loader.events.emit('file-change');
@@ -64,7 +67,7 @@ describe('vite-plugin-astro-server', () => {
 				eachModule() {},
 				clientReload() {
 					reloads++;
-				}
+				},
 			});
 			const controller = createController({ loader });
 			loader.events.emit('file-change');
@@ -75,7 +78,7 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError(){}
+				onError() {},
 			});
 			expect(reloads).to.equal(0);
 			loader.events.emit('file-change');
@@ -87,7 +90,7 @@ describe('vite-plugin-astro-server', () => {
 				controller,
 				pathname: '/',
 				// No error here
-				run() {}
+				run() {},
 			});
 			loader.events.emit('file-change');
 			expect(reloads).to.equal(2);
@@ -106,7 +109,7 @@ describe('vite-plugin-astro-server', () => {
 				},
 				invalidateModule(mod) {
 					mod.ssrError = null;
-				}
+				},
 			});
 			const controller = createController({ loader });
 
@@ -116,9 +119,9 @@ describe('vite-plugin-astro-server', () => {
 				run() {
 					throw new Error('oh no');
 				},
-				onError(){}
+				onError() {},
 			});
-			
+
 			loader.events.emit('file-change');
 
 			expect(mods).to.deep.equal([

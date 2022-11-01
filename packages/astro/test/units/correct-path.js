@@ -25,8 +25,8 @@ function removeTrailingSeparator(str) {
 }
 
 function isSeparator(str, i) {
-    let char = str[i];
-    return i > 0 && (char === '/' || (isWin && char === '\\'));
+	let char = str[i];
+	return i > 0 && (char === '/' || (isWin && char === '\\'));
 }
 
 /*!
@@ -37,34 +37,34 @@ function isSeparator(str, i) {
  * Released under the MIT License.
  */
 function normalizePath(str, stripTrailing) {
-  if (typeof str !== 'string') {
-    throw new TypeError('expected a string');
-  }
-  str = str.replace(/[\\\/]+/g, '/');
-  if (stripTrailing !== false) {
-    str = removeTrailingSeparator(str);
-  }
-  return str;
+	if (typeof str !== 'string') {
+		throw new TypeError('expected a string');
+	}
+	str = str.replace(/[\\\/]+/g, '/');
+	if (stripTrailing !== false) {
+		str = removeTrailingSeparator(str);
+	}
+	return str;
 }
 
 /*!
  * unixify <https://github.com/jonschlinkert/unixify>
- * 
+ *
  * Inlined from:
  * Copyright (c) 2014, 2017, Jon Schlinkert.
  * Released under the MIT License.
  */
 export function unixify(filepath, stripTrailing = true) {
-  if(isWin) {
-    filepath = normalizePath(filepath, stripTrailing);
-    return filepath.replace(/^([a-zA-Z]+:|\.\/)/, '');
-  }
-  return filepath;
+	if (isWin) {
+		filepath = normalizePath(filepath, stripTrailing);
+		return filepath.replace(/^([a-zA-Z]+:|\.\/)/, '');
+	}
+	return filepath;
 }
 
 /*
-* Corrects a windows path to unix format (including \\?\c:...)
-*/
+ * Corrects a windows path to unix format (including \\?\c:...)
+ */
 export function correctPath(filepath) {
-    return unixify(filepath.replace(/^\\\\\?\\.:\\/,'\\'));
+	return unixify(filepath.replace(/^\\\\\?\\.:\\/, '\\'));
 }

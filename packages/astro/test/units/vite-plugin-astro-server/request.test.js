@@ -12,7 +12,7 @@ import { createRequestAndResponse, createFs, createAstroModule } from '../test-u
 async function createDevEnvironment(overrides = {}) {
 	const env = createBasicEnvironment({
 		logging,
-		renderers: []
+		renderers: [],
 	});
 	env.settings = await createDefaultDevSettings({}, '/');
 	env.settings.renderers = [];
@@ -31,31 +31,31 @@ describe('vite-plugin-astro-server', () => {
 							return render`<div id="test">testing</div>`;
 						});
 						return createAstroModule(Page);
-					}
-				})
+					},
+				}),
 			});
 			const controller = createController({ loader: env.loader });
 			const { req, res, text } = createRequestAndResponse();
-			const fs = createFs({
-				// Note that the content doesn't matter here because we are using a custom loader.
-				'/src/pages/index.astro': ''
-			}, '/');
-			const manifest = createRouteManifest({
-				fsMod: fs,
-				settings: env.settings
-			}, logging);
+			const fs = createFs(
+				{
+					// Note that the content doesn't matter here because we are using a custom loader.
+					'/src/pages/index.astro': '',
+				},
+				'/'
+			);
+			const manifest = createRouteManifest(
+				{
+					fsMod: fs,
+					settings: env.settings,
+				},
+				logging
+			);
 
 			try {
-				await handleRequest(
-					env,
-					manifest,
-					controller,
-					req,
-					res
-				);
+				await handleRequest(env, manifest, controller, req, res);
 				const html = await text();
 				expect(html).to.include('<div id="test">');
-			} catch(err) {
+			} catch (err) {
 				expect(err).to.be.undefined();
 			}
 		});

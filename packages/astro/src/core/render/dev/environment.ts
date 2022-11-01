@@ -1,8 +1,7 @@
-import type { ViteDevServer } from 'vite';
 import type { AstroSettings, RuntimeMode } from '../../../@types/astro';
 import type { LogOptions } from '../../logger/core.js';
-import type { Environment } from '../index';
 import type { ModuleLoader } from '../../module-loader/index';
+import type { Environment } from '../index';
 
 import { createEnvironment } from '../index.js';
 import { RouteCache } from '../route-cache.js';

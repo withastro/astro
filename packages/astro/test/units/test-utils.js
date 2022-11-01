@@ -7,7 +7,7 @@ import { unixify } from './correct-path.js';
 
 class MyVolume extends Volume {
 	existsSync(p) {
-		if(p instanceof URL) {
+		if (p instanceof URL) {
 			p = fileURLToPath(p);
 		}
 		return super.existsSync(p);
@@ -15,12 +15,12 @@ class MyVolume extends Volume {
 }
 
 export function createFs(json, root) {
-	if(typeof root !== 'string') {
+	if (typeof root !== 'string') {
 		root = unixify(fileURLToPath(root));
 	}
 
 	const structure = {};
-	for(const [key, value] of Object.entries(json)) {
+	for (const [key, value] of Object.entries(json)) {
 		const fullpath = npath.posix.join(root, key);
 		structure[fullpath] = value;
 	}
@@ -61,8 +61,8 @@ export function toPromise(res) {
 		// node-mocks-http doesn't correctly handle non-Buffer typed arrays,
 		// so override the write method to fix it.
 		const write = res.write;
-		res.write = function(data, encoding) {
-			if(ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
+		res.write = function (data, encoding) {
+			if (ArrayBuffer.isView(data) && !Buffer.isBuffer(data)) {
 				data = Buffer.from(data);
 			}
 			return write.call(this, data, encoding);
@@ -77,7 +77,7 @@ export function toPromise(res) {
 export function buffersToString(buffers) {
 	let decoder = new TextDecoder();
 	let str = '';
-	for(const buffer of buffers) {
+	for (const buffer of buffers) {
 		str += decoder.decode(buffer);
 	}
 	return str;

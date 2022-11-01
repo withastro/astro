@@ -8,9 +8,9 @@ const root = new URL('../../fixtures/alias/', import.meta.url);
 
 describe('dev container', () => {
 	it('can render requests', async () => {
-		
-		const fs = createFs({
-			'/src/pages/index.astro': `
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': `
 				---
 				const name = 'Testing';
 				---
@@ -20,13 +20,15 @@ describe('dev container', () => {
 						<h1>{name}</h1>
 					</body>
 				</html>
-			`
-		}, root);
+			`,
+			},
+			root
+		);
 
-		await runInContainer({ fs, root }, async container => {
+		await runInContainer({ fs, root }, async (container) => {
 			const { req, res, text } = createRequestAndResponse({
 				method: 'GET',
-				url: '/'
+				url: '/',
 			});
 			container.handle(req, res);
 			const html = await text();

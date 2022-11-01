@@ -1,6 +1,6 @@
+import { EventEmitter } from 'events';
 import type * as vite from 'vite';
 import type { ModuleLoader, ModuleLoaderEventEmitter } from './loader';
-import { EventEmitter } from 'events';
 
 export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 	const events = new EventEmitter() as ModuleLoaderEventEmitter;
@@ -9,8 +9,8 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 	viteServer.watcher.on('unlink', (...args) => events.emit('file-unlink', args));
 	viteServer.watcher.on('change', (...args) => events.emit('file-change', args));
 
-	wrapMethod(viteServer.ws, 'send', msg => {
-		if(msg?.type === 'error') {
+	wrapMethod(viteServer.ws, 'send', (msg) => {
+		if (msg?.type === 'error') {
 			events.emit('hmr-error', msg);
 		}
 	});
@@ -33,18 +33,18 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 			return viteServer.pluginContainer.getModuleInfo(id);
 		},
 		eachModule(cb) {
-      return viteServer.moduleGraph.idToModuleMap.forEach(cb);
-    },
-    invalidateModule(mod) {
-      viteServer.moduleGraph.invalidateModule(mod as vite.ModuleNode);
-    },
+			return viteServer.moduleGraph.idToModuleMap.forEach(cb);
+		},
+		invalidateModule(mod) {
+			viteServer.moduleGraph.invalidateModule(mod as vite.ModuleNode);
+		},
 		fixStacktrace(err) {
 			return viteServer.ssrFixStacktrace(err);
 		},
 		clientReload() {
 			viteServer.ws.send({
 				type: 'full-reload',
-				path: '*'
+				path: '*',
 			});
 		},
 		webSocketSend(msg) {
@@ -53,14 +53,13 @@ export function createViteLoader(viteServer: vite.ViteDevServer): ModuleLoader {
 		isHttps() {
 			return !!viteServer.config.server.https;
 		},
-		events
+		events,
 	};
 }
 
-
 function wrapMethod(object: any, method: string, newFn: (...args: any[]) => void) {
 	const orig = object[method];
-	object[method] = function(...args: any[]) {
+	object[method] = function (...args: any[]) {
 		newFn.apply(this, args);
 		return orig.apply(this, args);
 	};

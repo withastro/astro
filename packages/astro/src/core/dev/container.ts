@@ -1,22 +1,20 @@
-
+import * as http from 'http';
 import type { AddressInfo } from 'net';
 import type { AstroSettings, AstroUserConfig } from '../../@types/astro';
-import * as http from 'http';
 
+import nodeFs from 'fs';
+import * as vite from 'vite';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
 	runHookServerSetup,
 	runHookServerStart,
 } from '../../integrations/index.js';
-import { createVite } from '../create-vite.js';
-import {  LogOptions } from '../logger/core.js';
-import { nodeLogDestination } from '../logger/node.js';
-import nodeFs from 'fs';
-import * as vite from 'vite';
 import { createDefaultDevSettings } from '../config/index.js';
+import { createVite } from '../create-vite.js';
+import { LogOptions } from '../logger/core.js';
+import { nodeLogDestination } from '../logger/node.js';
 import { apply as applyPolyfill } from '../polyfill.js';
-
 
 const defaultLogging: LogOptions = {
 	dest: nodeLogDestination,
@@ -47,7 +45,7 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		isRestart = false,
 		logging = defaultLogging,
 		settings = await createDefaultDevSettings(params.userConfig, params.root),
-		fs = nodeFs
+		fs = nodeFs,
 	} = params;
 
 	// Initialize
@@ -97,11 +95,15 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		},
 		close() {
 			return viteServer.close();
-		}
+		},
 	};
 }
 
-export async function startContainer({ settings, viteServer, logging }: Container): Promise<AddressInfo> {
+export async function startContainer({
+	settings,
+	viteServer,
+	logging,
+}: Container): Promise<AddressInfo> {
 	const { port } = settings.config.server;
 	await viteServer.listen(port);
 	const devServerAddressInfo = viteServer.httpServer!.address() as AddressInfo;
@@ -114,7 +116,10 @@ export async function startContainer({ settings, viteServer, logging }: Containe
 	return devServerAddressInfo;
 }
 
-export async function runInContainer(params: CreateContainerParams, callback: (container: Container) => Promise<void> | void) {
+export async function runInContainer(
+	params: CreateContainerParams,
+	callback: (container: Container) => Promise<void> | void
+) {
 	const container = await createContainer(params);
 	try {
 		await callback(container);

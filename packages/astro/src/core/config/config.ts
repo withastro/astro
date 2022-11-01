@@ -190,12 +190,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	if (config) {
 		userConfig = config.value;
 	}
-	const astroConfig = await resolveConfig(
-		userConfig,
-		root,
-		flags,
-		configOptions.cmd
-	);
+	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
 		astroConfig,
@@ -318,7 +313,7 @@ export async function resolveConfig(
 
 export function createDefaultDevConfig(
 	userConfig: AstroUserConfig = {},
-	root: string = process.cwd(),
+	root: string = process.cwd()
 ) {
 	return resolveConfig(userConfig, root, undefined, 'dev');
 }

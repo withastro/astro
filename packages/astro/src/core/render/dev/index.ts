@@ -7,11 +7,11 @@ import type {
 	SSRElement,
 	SSRLoadedRenderer,
 } from '../../../@types/astro';
-import type { ModuleLoader } from '../../module-loader/index';
 import { PAGE_SCRIPT_ID } from '../../../vite-plugin-scripts/index.js';
 import { enhanceViteSSRError } from '../../errors/dev/index.js';
 import { AggregateError, CSSError, MarkdownError } from '../../errors/index.js';
 import { LogOptions } from '../../logger/core.js';
+import type { ModuleLoader } from '../../module-loader/index';
 import { isPage, resolveIdToUrl } from '../../util.js';
 import { createRenderContext, renderPage as coreRenderPage } from '../index.js';
 import { filterFoundRenderers, loadRenderer } from '../renderer.js';
