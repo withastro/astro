@@ -107,6 +107,12 @@ type ContentMap = Record<string, Record<string, StringifiedInfo>>;
 type SchemaMap = Record<string, StringifiedInfo>;
 type RenderContentMap = Record<string, string>;
 
+const msg = {
+	schemaAdded: (collection: string) => `${cyan(collection)} schema added`,
+	collectionAdded: (collection: string) => `${cyan(collection)} collection added`,
+	entryAdded: (entry: string, collection: string) => `${cyan(entry)} added to ${bold(collection)}.`,
+};
+
 async function toGenerateContent({
 	logging,
 	dirs,
@@ -146,16 +152,25 @@ async function toGenerateContent({
 			if (!isCollectionEvent) return;
 			switch (event.name) {
 				case 'addDir':
-					addCollection(contentMap, collection, shouldLog ? logging : undefined);
+					addCollection(contentMap, collection);
+					if (shouldLog) {
+						info(logging, 'content', msg.collectionAdded(collection));
+					}
 					break;
 				case 'unlinkDir':
-					delete contentMap[collection];
+					removeCollection(contentMap, collection);
 					break;
 			}
 		} else {
 			const fileType = getEntryType(event.entry);
 			if (fileType === 'unknown') {
-				warn(logging, 'content', `${cyan(event.entry)} is not a supported file type. Skipping.`);
+				warn(
+					logging,
+					'content',
+					`${cyan(
+						path.relative(dirs.contentDir.pathname, event.entry)
+					)} is not a supported file type. Skipping.`
+				);
 				return;
 			}
 			const entryInfo = parseEntryInfo(event.entry, dirs);
@@ -166,32 +181,31 @@ async function toGenerateContent({
 			const collectionKey = JSON.stringify(collection);
 			if (fileType === 'schema') {
 				if (event.name === 'add' && !(collectionKey in schemaMap)) {
-					addSchema(schemaMap, collection, event.entry, shouldLog ? logging : undefined);
+					addSchema(schemaMap, collection, event.entry);
+					if (shouldLog) {
+						info(logging, 'content', msg.schemaAdded(collection));
+					}
 				} else if (event.name === 'unlink' && collection in schemaMap) {
-					delete schemaMap[collection];
+					removeSchema(schemaMap, collection);
 				}
 				return;
 			}
 			switch (event.name) {
 				case 'add':
 					if (!(collectionKey in contentMap)) {
-						addCollection(contentMap, collection, shouldLog ? logging : undefined);
+						addCollection(contentMap, collection);
 					}
-					await addEntry(
-						contentMap,
-						event.entry,
-						{ id, slug, collection },
-						shouldLog ? logging : undefined
-					);
+					await changeEntry(contentMap, event.entry, { id, slug, collection });
+					if (shouldLog) {
+						info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
+					}
 					renderContentMap[JSON.stringify(id)] = `() => import(${JSON.stringify(event.entry)})`;
 					break;
 				case 'change':
 					await changeEntry(contentMap, event.entry, { id, slug, collection });
 					break;
 				case 'unlink':
-					delete contentMap[JSON.stringify(collection)][
-						JSON.stringify(path.relative(collection, id))
-					];
+					removeEntry(contentMap, entryInfo);
 					delete renderContentMap[event.entry];
 					break;
 			}
@@ -229,19 +243,15 @@ async function toGenerateContent({
 	return { init, queueEvent };
 }
 
-function addCollection(contentMap: Record<string, any>, collection: string, logging?: LogOptions) {
+function addCollection(contentMap: ContentMap, collection: string) {
 	contentMap[JSON.stringify(collection)] = {};
-	if (logging) {
-		info(logging, 'content', `${cyan(collection)} collection added`);
-	}
 }
 
-function addSchema(
-	schemaMap: Record<string, StringifiedInfo>,
-	collection: string,
-	entryPath: string,
-	logging?: LogOptions
-) {
+function removeCollection(contentMap: ContentMap, collection: string) {
+	delete contentMap[JSON.stringify(collection)];
+}
+
+function addSchema(schemaMap: SchemaMap, collection: string, entryPath: string) {
 	const { dir, name } = path.parse(entryPath);
 	const pathWithExtStripped = path.join(dir, name);
 	const importStr = `import(${JSON.stringify(pathWithExtStripped)})`;
@@ -249,9 +259,10 @@ function addSchema(
 		stringifiedJs: `() => ${importStr}`,
 		stringifiedType: `() => typeof ${importStr}`,
 	};
-	if (logging) {
-		info(logging, 'content', `${cyan(collection)} schema added`);
-	}
+}
+
+function removeSchema(schemaMap: SchemaMap, collection: string) {
+	delete schemaMap[JSON.stringify(collection)];
 }
 
 async function changeEntry(
@@ -282,16 +293,11 @@ async function changeEntry(
 	};
 }
 
-async function addEntry(
-	contentMap: Record<string, any>,
-	entry: string,
-	entryInfo: EntryInfo,
-	logging?: LogOptions
+function removeEntry(
+	contentMap: Record<string, Record<string, { stringifiedJs: string; stringifiedType: string }>>,
+	{ id, collection }: EntryInfo
 ) {
-	await changeEntry(contentMap, entry, entryInfo);
-	if (logging) {
-		info(logging, 'content', `${cyan(entryInfo.slug)} added to ${bold(entryInfo.collection)}.`);
-	}
+	delete contentMap[JSON.stringify(collection)][JSON.stringify(path.relative(collection, id))];
 }
 
 function parseEntryInfo(
