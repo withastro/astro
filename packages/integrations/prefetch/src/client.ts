@@ -15,7 +15,7 @@ function shouldPreload({ href }: { href: string }) {
 			window.location.pathname !== url.pathname &&
 			!preloaded.has(href)
 		);
-	} catch { }
+	} catch {}
 
 	return false;
 }
@@ -61,7 +61,7 @@ async function preloadHref(link: HTMLAnchorElement) {
 					return fetch(el.href);
 				})
 		);
-	} catch { }
+	} catch {}
 }
 
 export interface PrefetchOptions {
@@ -115,8 +115,7 @@ export default function prefetch({
 		});
 
 	requestIdleCallback(() => {
-		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)]
-			.filter(shouldPreload);
+		const links = [...document.querySelectorAll<HTMLAnchorElement>(selector)].filter(shouldPreload);
 		links.forEach(observe);
 	});
 }
