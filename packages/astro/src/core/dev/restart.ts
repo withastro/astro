@@ -3,17 +3,19 @@ import type { Container, CreateContainerParams } from './container';
 import * as vite from 'vite';
 import { createSettings, openConfig } from '../config/index.js';
 import { info } from '../logger/core.js';
-import { createContainer } from './container.js';
+import { createContainer, isStarted, startContainer } from './container.js';
 import { createSafeError } from '../errors/index.js';
 
-function createRestartedContainer({
-	logging,
-	fs,
-	resolvedRoot,
-	configFlag,
-	configFlagPath
-}: Container, settings: AstroSettings): Promise<Container> {
-	return createContainer({
+async function createRestartedContainer(container: Container, settings: AstroSettings): Promise<Container> {
+	const {
+		logging,
+		fs,
+		resolvedRoot,
+		configFlag,
+		configFlagPath
+	} = container;
+	const needsStart = isStarted(container);
+	const newContainer = await createContainer({
 		isRestart: true,
 		logging,
 		settings,
@@ -21,7 +23,13 @@ function createRestartedContainer({
 		root: resolvedRoot,
 		configFlag,
 		configFlagPath,
-	})
+	});
+
+	if(needsStart) {
+		await startContainer(newContainer);
+	}
+
+	return newContainer;
 }
 
 export function shouldRestartContainer({
@@ -128,6 +136,8 @@ export async function createContainerWithAutomaticRestart({
 	};
 
 	function handleServerRestart(logMsg: string) {
+		// eslint-disable-next-line @typescript-eslint/no-shadow
+		const container = restart.container;
 		return async function(changedFile: string) {
 			if(shouldRestartContainer(container, changedFile)) {
 				restart.container = await restartContainer({
@@ -147,7 +157,8 @@ export async function createContainerWithAutomaticRestart({
 						});
 					}
 				});
-
+				// Add new watches because this is a new container with a new Vite server
+				addWatches();
 				resolveRestart();
 				restartComplete = new Promise<void>(resolve => {
 					resolveRestart = resolve;
@@ -157,10 +168,12 @@ export async function createContainerWithAutomaticRestart({
 	}
 
 	// Set up watches
-	const watcher = container.viteServer.watcher;
-	watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
-	watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
-	watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
-
+	function addWatches() {
+		const watcher = restart.container.viteServer.watcher;
+		watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
+		watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
+		watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
+	}
+	addWatches();
 	return restart;
 }

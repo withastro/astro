@@ -102,7 +102,6 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		settings,
 		viteConfig,
 		viteServer,
-
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
@@ -144,6 +143,9 @@ export async function startContainer({
 	return devServerAddressInfo;
 }
 
+export function isStarted(container: Container): boolean {
+	return !!container.viteServer.httpServer?.listening;
+}
 
 export async function runInContainer(
 	params: CreateContainerParams,

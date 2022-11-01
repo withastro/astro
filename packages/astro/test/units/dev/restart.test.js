@@ -7,7 +7,7 @@ import { createFs, createRequestAndResponse } from '../test-utils.js';
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
 describe('dev container restarts', () => {
-	it.only('Surfaces config errors on restarts', async () => {
+	it('Surfaces config errors on restarts', async () => {
 		const fs = createFs(
 			{
 				'/src/pages/index.astro': `
@@ -59,6 +59,17 @@ describe('dev container restarts', () => {
 
 			expect(hmrError).to.not.be.a('undefined');
 			expect(hmrError.type).to.equal('error');
+
+			// Do it a second time to make sure we are still watching
+			hmrError = undefined;
+			restartComplete = restart.restarted();
+			fs.writeFileFromRootSync('/astro.config.mjs', 'const foo = bar2');
+
+			// Vite watches the real filesystem, so we have to mock this part. It's not so bad.
+			restart.container.viteServer.watcher.emit('change', fs.getFullyResolvedPath('/astro.config.mjs'));
+
+			await restartComplete;
+			expect(true).to.equal(true); // This is fine, we got here which is good
 		} finally {
 			await restart.container.close();
 		}
