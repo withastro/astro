@@ -1,5 +1,5 @@
-import fs from 'fs';
 import type { TransformOptions } from '@astrojs/compiler';
+import fs from 'fs';
 import { preprocessCSS, ResolvedConfig } from 'vite';
 import { AstroErrorCodes } from '../errors/codes.js';
 import { CSSError } from '../errors/errors.js';
