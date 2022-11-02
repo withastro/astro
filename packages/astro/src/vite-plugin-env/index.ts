@@ -8,35 +8,26 @@ interface EnvPluginOptions {
 	settings: AstroSettings;
 }
 
-function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig) {
-	let envPrefixes: string[] = ['PUBLIC_'];
-	if (viteConfig.envPrefix) {
-		envPrefixes = Array.isArray(viteConfig.envPrefix)
-			? viteConfig.envPrefix
-			: [viteConfig.envPrefix];
-	}
+function getPrivateEnv(
+	viteConfig: vite.ResolvedConfig,
+	astroConfig: AstroConfig,
+	isPublicEnv: (str: string) => boolean
+) {
 	const fullEnv = loadEnv(
 		viteConfig.mode,
 		viteConfig.envDir ?? fileURLToPath(astroConfig.root),
 		''
 	);
-	const privateKeys = Object.keys(fullEnv).filter((key) => {
-		// don't inject `PUBLIC_` variables, Vite handles that for us
-		for (const envPrefix of envPrefixes) {
-			if (key.startsWith(envPrefix)) return false;
+	const privateEnv: Record<string, string> = {};
+	for (const key in fullEnv) {
+		if (!isPublicEnv(key)) {
+			privateEnv[key] = JSON.stringify(process.env[key] ?? fullEnv[key]);
 		}
-
-		// Otherwise, this is a private variable defined in an `.env` file
-		return true;
-	});
-	if (privateKeys.length === 0) {
-		return null;
 	}
-	return Object.fromEntries(
-		privateKeys.map((key) => {
-			return [key, JSON.stringify(process.env[key] ?? fullEnv[key])];
-		})
-	);
+	privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
+	privateEnv.SSR = JSON.stringify(true);
+	privateEnv.BASE_URL = astroConfig.base ? `'${astroConfig.base}'` : 'undefined';
+	return privateEnv;
 }
 
 function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any>): Set<string> {
@@ -52,13 +43,20 @@ function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any
 export default function envVitePlugin({ settings }: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any>;
 	let config: vite.ResolvedConfig;
-	let pattern: RegExp | undefined;
+	let isPublicEnv: (str: string) => boolean;
 	const { config: astroConfig } = settings;
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
 		configResolved(resolvedConfig) {
 			config = resolvedConfig;
+			let envPrefixes: string[] = ['PUBLIC_'];
+			if (resolvedConfig.envPrefix) {
+				envPrefixes = Array.isArray(resolvedConfig.envPrefix)
+					? resolvedConfig.envPrefix
+					: [resolvedConfig.envPrefix];
+			}
+			isPublicEnv = (str: string) => envPrefixes.some((prefix) => str.startsWith(prefix));
 		},
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
@@ -72,13 +70,12 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 			}
 
 			if (typeof privateEnv === 'undefined') {
-				privateEnv = getPrivateEnv(config, astroConfig) || {};
-				privateEnv.SITE = astroConfig.site ? `'${astroConfig.site}'` : 'undefined';
-				privateEnv.SSR = JSON.stringify(true);
-				privateEnv.BASE_URL = astroConfig.base ? `'${astroConfig.base}'` : undefined;
+				privateEnv = getPrivateEnv(config, astroConfig, isPublicEnv);
 			}
 
-			pattern ??= new RegExp(
+			// Find matches for *private* env and do our own replacement.
+			const s = new MagicString(source);
+			const pattern = new RegExp(
 				// Do not allow preceding '.', but do allow preceding '...' for spread operations
 				'(?<!(?<!\\.\\.)\\.)\\b(' +
 					// Captures `import.meta.env.*` calls and replace with `privateEnv` or `build.envKey`
@@ -92,29 +89,33 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 					')\\b(?!\\s*?=[^=])',
 				'g'
 			);
-
 			let references: Set<string>;
-
-			// Find matches for *private* env and do our own replacement.
-			const s = new MagicString(source);
 			let match: RegExpExecArray | null;
 
 			while ((match = pattern.exec(source))) {
-				const start = match.index;
-				const end = start + match[0].length;
-				let replacement: string;
+				let replacement: string | undefined;
 				// If we match exactly `import.meta.env`, define _only_ referenced private variables
 				if (match[0] === 'import.meta.env') {
+					privateEnv ??= getPrivateEnv(config, astroConfig, isPublicEnv);
 					references ??= getReferencedPrivateKeys(source, privateEnv);
 					replacement = `(Object.assign(import.meta.env,{`;
 					for (const key of references.values()) {
 						replacement += `${key}:${privateEnv[key]},`;
 					}
 					replacement += '}))';
-				} else {
+				}
+				// If we match `import.meta.emv.*`, make sure this isn't referecing a public env.
+				// For private env, we replace with the value from the `.env` file, or otherwise
+				// convert to runtime resolve with `envKey`, e.g. `process.env.*`.
+				else if (match[2] && !isPublicEnv(match[2])) {
+					privateEnv ??= getPrivateEnv(config, astroConfig, isPublicEnv);
 					replacement = privateEnv[match[2]] ?? astroConfig.build.envKey(match[2]);
 				}
-				s.overwrite(start, end, replacement);
+				if (replacement) {
+					const start = match.index;
+					const end = start + match[0].length;
+					s.overwrite(start, end, replacement);
+				}
 			}
 
 			return {
