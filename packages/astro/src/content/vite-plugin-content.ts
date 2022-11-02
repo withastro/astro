@@ -6,8 +6,8 @@ import { bold, cyan } from 'kleur/colors';
 import matter from 'gray-matter';
 import { info, LogOptions, warn } from '../core/logger/core.js';
 import type { AstroSettings } from '../@types/astro.js';
+import { DELAYED_ASSET_FLAG } from './vite-plugin-delayed-assets.js';
 
-type TypedMapEntry = { key: string; value: string; type: string };
 type Dirs = {
 	contentDir: URL;
 	cacheDir: URL;
@@ -199,7 +199,9 @@ async function toGenerateContent({
 					if (shouldLog) {
 						info(logging, 'content', msg.entryAdded(entryInfo.slug, entryInfo.collection));
 					}
-					renderContentMap[JSON.stringify(id)] = `() => import(${JSON.stringify(event.entry)})`;
+					renderContentMap[JSON.stringify(id)] = `() => import(${JSON.stringify(
+						event.entry + DELAYED_ASSET_FLAG
+					)})`;
 					break;
 				case 'change':
 					await changeEntry(contentMap, event.entry, { id, slug, collection });
