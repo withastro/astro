@@ -67,13 +67,15 @@ interface RestartContainerParams {
 	flags: any;
 	logMsg: string;
 	handleConfigError: (err: unknown) => Promise<void> | void;
+	beforeRestart?: () => void;
 }
 
 export async function restartContainer({
 	container,
 	flags,
 	logMsg,
-	handleConfigError
+	handleConfigError,
+	beforeRestart
 }: RestartContainerParams): Promise<Container> {
 	const {
 		logging,
@@ -84,6 +86,9 @@ export async function restartContainer({
 	container.restartInFlight = true;
 
 	//console.clear(); // TODO move this
+	if(beforeRestart) {
+		beforeRestart()
+	}
 	try {
 		const newConfig = await openConfig({
 			cwd: resolvedRoot,
@@ -110,6 +115,7 @@ export interface CreateContainerWithAutomaticRestart {
 	flags: any;
 	params: CreateContainerParams;
 	handleConfigError?: (error: Error) => void | Promise<void>;
+	beforeRestart?: () => void;
 }
 
 interface Restart {
@@ -120,6 +126,7 @@ interface Restart {
 export async function createContainerWithAutomaticRestart({
 	flags,
 	handleConfigError = (_e: Error) => {},
+	beforeRestart,
 	params
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	let container = await createContainer(params);
@@ -141,6 +148,7 @@ export async function createContainerWithAutomaticRestart({
 		return async function(changedFile: string) {
 			if(shouldRestartContainer(container, changedFile)) {
 				restart.container = await restartContainer({
+					beforeRestart,
 					container,
 					flags,
 					logMsg,

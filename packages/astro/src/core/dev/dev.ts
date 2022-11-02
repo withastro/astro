@@ -1,5 +1,6 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
 import type { AddressInfo } from 'net';
+import type http from 'http';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroSettings } from '../../@types/astro';
@@ -19,6 +20,7 @@ export interface DevOptions {
 
 export interface DevServer {
 	address: AddressInfo;
+	handle: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
 	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
 }
@@ -35,6 +37,8 @@ export default async function dev(
 	const restart = await createContainerWithAutomaticRestart({
 		flags: {},
 		handleConfigError: options.handleConfigError,
+		// eslint-disable-next-line no-console
+		beforeRestart: () => console.clear(),
 		params: {
 			settings,
 			logging: options.logging,
@@ -72,6 +76,9 @@ export default async function dev(
 		address: devServerAddressInfo,
 		get watcher() {
 			return restart.container.viteServer.watcher;
+		},
+		handle(req, res) {
+			return restart.container.handle(req, res);
 		},
 		async stop() {
 			await restart.container.close();
