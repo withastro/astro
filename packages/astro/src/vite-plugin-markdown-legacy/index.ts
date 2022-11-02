@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
-import type { Plugin, ViteDevServer } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
@@ -13,11 +13,6 @@ import type { LogOptions } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import {
-	createTransformStyles,
-	createViteStyleTransformer,
-	ViteStyleTransformer,
-} from '../vite-style-transform/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -86,18 +81,11 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 		return false;
 	}
 
-	let styleTransformer: ViteStyleTransformer;
-	let viteDevServer: ViteDevServer | undefined;
+	let resolvedConfig: ResolvedConfig;
 
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
-		configResolved(_resolvedConfig) {
-			styleTransformer = createViteStyleTransformer(_resolvedConfig);
-		},
-		configureServer(server) {
-			styleTransformer.viteDevServer = server;
-		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md (or alternative extensions of markdown files like .markdown) files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
@@ -226,15 +214,10 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				const compileProps: CompileProps = {
-					config,
+					astroConfig: config,
+					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
-					transformStyle: createTransformStyles(
-						styleTransformer,
-						filename,
-						Boolean(opts?.ssr),
-						this
-					),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
