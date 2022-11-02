@@ -59,7 +59,7 @@ export default function markdown({ settings, logging }: AstroPluginOptions): Plu
 		// passing to the transform hook. This lets us get the truly raw value
 		// to escape "import.meta.env" ourselves.
 		async load(id) {
-			if (isMarkdownFile(id, { criteria: 'endsWith' })) {
+			if (isMarkdownFile(id)) {
 				const { fileId, fileUrl } = getFileInfo(id, settings.config);
 				const rawFile = await fs.promises.readFile(fileId, 'utf-8');
 				const raw = safeMatter(rawFile, id);

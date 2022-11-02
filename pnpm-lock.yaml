@@ -1810,6 +1810,18 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/impostor-mdx-file:
+    specifiers:
+      '@astrojs/react': workspace:*
+      astro: workspace:*
+      react: ^18.1.0
+      react-dom: ^18.1.0
+    dependencies:
+      '@astrojs/react': link:../../../../integrations/react
+      astro: link:../../..
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
   packages/astro/test/fixtures/integration-add-page-extension:
     specifiers:
       astro: workspace:*
