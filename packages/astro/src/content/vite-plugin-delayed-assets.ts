@@ -7,6 +7,8 @@ import { AstroSettings } from '../@types/astro.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
+import { createViteLoader } from '../core/module-loader/vite.js';
+import { ModuleLoader } from '../core/module-loader/loader.js';
 
 const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
 const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
@@ -20,13 +22,13 @@ export function astroDelayedAssetPlugin({
 	settings: AstroSettings;
 	mode: string;
 }): Plugin {
-	let viteDevServer: ViteDevServer;
+	let devModuleLoader: ModuleLoader;
 	return {
 		name: 'astro-delayed-asset-plugin',
 		enforce: 'post',
 		configureServer(server) {
 			if (mode === 'dev') {
-				viteDevServer = server;
+				devModuleLoader = createViteLoader(server);
 			}
 		},
 		load(id) {
@@ -40,14 +42,15 @@ export function astroDelayedAssetPlugin({
 			}
 		},
 		async transform(code, id, options) {
-			if (id.endsWith(DELAYED_ASSET_FLAG) && viteDevServer) {
+			if (!options?.ssr) return;
+			if (id.endsWith(DELAYED_ASSET_FLAG) && devModuleLoader) {
 				const baseId = id.replace(DELAYED_ASSET_FLAG, '');
-				if (!viteDevServer.moduleGraph.getModuleById(baseId)?.ssrModule) {
-					await viteDevServer.ssrLoadModule(baseId);
+				if (!devModuleLoader.getModuleById(baseId)?.ssrModule) {
+					await devModuleLoader.import(baseId);
 				}
 				const { stylesMap, urls } = await getStylesForURL(
 					pathToFileURL(baseId),
-					viteDevServer,
+					devModuleLoader,
 					'development'
 				);
 
@@ -58,7 +61,7 @@ export function astroDelayedAssetPlugin({
 				};
 			}
 
-			if (options?.ssr && id.endsWith('.astro')) {
+			if (id.endsWith('.astro')) {
 				let renderContentImportName = getRenderContentImportName(
 					await parseImports(escapeViteEnvReferences(code))
 				);
