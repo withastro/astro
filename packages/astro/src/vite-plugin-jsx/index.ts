@@ -11,7 +11,7 @@ import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { error } from '../core/logger/core.js';
-import { isMarkdownFile, parseNpmName } from '../core/util.js';
+import { parseNpmName } from '../core/util.js';
 import tagExportsPlugin from './tag.js';
 
 type FixedCompilerOptions = TsConfigJson.CompilerOptions & {
