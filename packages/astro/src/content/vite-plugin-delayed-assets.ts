@@ -1,14 +1,14 @@
-import { Plugin, ViteDevServer } from 'vite';
-import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
-import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
+import type { Plugin } from 'vite';
+import type { ModuleLoader } from '../core/module-loader/loader.js';
 import MagicString from 'magic-string';
 import parseImports from 'parse-imports';
+import { moduleIsTopLevelPage, walkParentInfos } from '../core/build/graph.js';
+import { BuildInternals, getPageDataByViteID } from '../core/build/internal.js';
 import { AstroSettings } from '../@types/astro.js';
 import { normalizeFilename } from '../vite-plugin-utils/index.js';
 import { getStylesForURL } from '../core/render/dev/css.js';
 import { pathToFileURL } from 'url';
 import { createViteLoader } from '../core/module-loader/vite.js';
-import { ModuleLoader } from '../core/module-loader/loader.js';
 
 const LINKS_PLACEHOLDER = `[/* @@ASTRO-LINKS-PLACEHOLDER@@ */]`;
 const STYLES_PLACEHOLDER = `[/* @@ASTRO-STYLES-PLACEHOLDER@@ */]`;
