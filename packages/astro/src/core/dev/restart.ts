@@ -66,7 +66,7 @@ interface RestartContainerParams {
 	container: Container;
 	flags: any;
 	logMsg: string;
-	handleConfigError: (err: unknown) => Promise<void> | void;
+	handleConfigError: (err: Error) => Promise<void> | void;
 	beforeRestart?: () => void;
 }
 
@@ -76,7 +76,7 @@ export async function restartContainer({
 	logMsg,
 	handleConfigError,
 	beforeRestart
-}: RestartContainerParams): Promise<Container> {
+}: RestartContainerParams): Promise<{ container: Container, error: Error | null }> {
 	const {
 		logging,
 		close,
@@ -102,12 +102,19 @@ export async function restartContainer({
 		let astroConfig = newConfig.astroConfig;
 		const settings = createSettings(astroConfig, resolvedRoot);
 		await close();
-		return createRestartedContainer(container, settings);
-	} catch (e) {
-		await handleConfigError(e);
+		return {
+			container: await createRestartedContainer(container, settings),
+			error: null
+		};
+	} catch (_err) {
+		const error = createSafeError(_err);
+		await handleConfigError(error);
 		await close();
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
-		return createRestartedContainer(container, existingSettings);
+		return {
+			container: await createRestartedContainer(container, existingSettings),
+			error
+		};
 	}
 }
 
@@ -120,7 +127,7 @@ export interface CreateContainerWithAutomaticRestart {
 
 interface Restart {
 	container: Container;
-	restarted: () => Promise<void>;
+	restarted: () => Promise<Error | null>;
 }
 
 export async function createContainerWithAutomaticRestart({
@@ -129,14 +136,14 @@ export async function createContainerWithAutomaticRestart({
 	beforeRestart,
 	params
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
-	let container = await createContainer(params);
-	let resolveRestart: (value: void) => void;
-	let restartComplete = new Promise<void>(resolve => {
+	const initialContainer = await createContainer(params);
+	let resolveRestart: (value: Error | null) => void;
+	let restartComplete = new Promise<Error | null>(resolve => {
 		resolveRestart = resolve;
 	});
 
 	let restart: Restart = {
-		container,
+		container: initialContainer,
 		restarted() {
 			return restartComplete;
 		}
@@ -147,28 +154,28 @@ export async function createContainerWithAutomaticRestart({
 		const container = restart.container;
 		return async function(changedFile: string) {
 			if(shouldRestartContainer(container, changedFile)) {
-				restart.container = await restartContainer({
+				const { container: newContainer, error } = await restartContainer({
 					beforeRestart,
 					container,
 					flags,
 					logMsg,
-					async handleConfigError(_err) {
+					async handleConfigError(err) {
 						// Send an error message to the client if one is connected.
-						const error = createSafeError(_err);
-						await handleConfigError(error);
+						await handleConfigError(err);
 						container.viteServer.ws.send({
 							type: 'error',
 							err: {
-								message: error.message,
-								stack: error.stack || ''
+								message: err.message,
+								stack: err.stack || ''
 							}
 						});
 					}
 				});
+				restart.container = newContainer;
 				// Add new watches because this is a new container with a new Vite server
 				addWatches();
-				resolveRestart();
-				restartComplete = new Promise<void>(resolve => {
+				resolveRestart(error);
+				restartComplete = new Promise<Error | null>(resolve => {
 					resolveRestart = resolve;
 				});
 			}

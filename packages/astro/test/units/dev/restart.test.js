@@ -29,13 +29,6 @@ describe('dev container restarts', () => {
 			params: { fs, root }
 		});
 
-		let hmrError;
-		const oldSend = restart.container.viteServer.ws.send;
-		restart.container.viteServer.ws.send = function(ev) {
-			hmrError = ev;
-			return oldSend.apply(this, arguments);
-		};
-
 		try {
 			let r = createRequestAndResponse({
 				method: 'GET',
@@ -55,21 +48,19 @@ describe('dev container restarts', () => {
 			restart.container.viteServer.watcher.emit('change', fs.getFullyResolvedPath('/astro.config.mjs'));
 
 			// Wait for the restart to finish
-			await restartComplete;
-
+			let hmrError = await restartComplete;
 			expect(hmrError).to.not.be.a('undefined');
-			expect(hmrError.type).to.equal('error');
 
 			// Do it a second time to make sure we are still watching
-			hmrError = undefined;
+
 			restartComplete = restart.restarted();
 			fs.writeFileFromRootSync('/astro.config.mjs', 'const foo = bar2');
 
 			// Vite watches the real filesystem, so we have to mock this part. It's not so bad.
 			restart.container.viteServer.watcher.emit('change', fs.getFullyResolvedPath('/astro.config.mjs'));
 
-			await restartComplete;
-			expect(true).to.equal(true); // This is fine, we got here which is good
+			hmrError = await restartComplete;
+			expect(hmrError).to.not.be.a('undefined');
 		} finally {
 			await restart.container.close();
 		}
