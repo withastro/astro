@@ -101,12 +101,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			await ssrMoveAssets(opts);
 			return;
 		}
-		case 'hybrid': {
-			await injectManifest(opts, internals);
-			await generatePages(opts, internals);
-			await ssrMoveAssets(opts);
-			return;
-		}
 	}
 }
 

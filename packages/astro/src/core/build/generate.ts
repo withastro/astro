@@ -77,9 +77,6 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString()).then(mod => {
-		if (opts.settings.config.output === 'hybrid') {
-			return mod.$$manifest
-		}
 		return mod;
 	});
 	const builtPaths = new Set<string>();

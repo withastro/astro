@@ -82,7 +82,7 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default(ASTRO_CONFIG_DEFAULTS.trailingSlash),
 	output: z
-		.union([z.literal('static'), z.literal('server'), z.literal('hybrid')])
+		.union([z.literal('static'), z.literal('server')])
 		.optional()
 		.default('static'),
 	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),

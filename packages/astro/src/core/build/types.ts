@@ -14,7 +14,7 @@ import type { RouteCache } from '../render/route-cache';
 
 export type ComponentPath = string;
 export type ViteID = string;
-export type PageBuildOutput = Omit<AstroConfig['output'], 'hybrid'>
+export type PageBuildOutput = AstroConfig['output']
 
 export interface PageBuildData {
 	component: ComponentPath;
