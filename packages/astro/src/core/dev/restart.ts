@@ -36,7 +36,6 @@ export function shouldRestartContainer({
 	settings,
 	configFlag,
 	configFlagPath,
-	resolvedRoot,
 	restartInFlight
 }: Container, changedFile: string): boolean {
 	if(restartInFlight) return false;
@@ -44,13 +43,17 @@ export function shouldRestartContainer({
 	let shouldRestart = false;
 
 	// If the config file changed, reload the config and restart the server.
-	shouldRestart = configFlag
-		? // If --config is specified, only watch changes for this file
-			!!configFlagPath && vite.normalizePath(configFlagPath) === vite.normalizePath(changedFile)
-		: // Otherwise, watch for any astro.config.* file changes in project root
-			new RegExp(
-				`${vite.normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
-			).test(vite.normalizePath(changedFile));
+	if(configFlag) {
+		if(!!configFlagPath) {
+			shouldRestart = vite.normalizePath(configFlagPath) === vite.normalizePath(changedFile);
+		}
+	}
+	// Otherwise, watch for any astro.config.* file changes in project root
+	else {
+		const exp = new RegExp(`.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`);
+		const normalizedChangedFile = vite.normalizePath(changedFile);
+		shouldRestart = exp.test(normalizedChangedFile);
+	}
 
 	if (!shouldRestart && settings.watchFiles.length > 0) {
 		// If the config file didn't change, check if any of the watched files changed.
