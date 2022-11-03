@@ -6,6 +6,7 @@ import { joinPaths, prependForwardSlash, propsToFilename } from './utils/paths.j
 import { copyWasmFiles } from './vendor/squoosh/copy-wasm.js';
 import { createPlugin } from './vite-plugin-astro-image.js';
 
+export * from './loaders/index.js';
 export { getImage } from './lib/get-image.js';
 export { getPicture } from './lib/get-picture.js';
 
@@ -19,7 +20,6 @@ interface BuildConfig {
 
 interface ImageIntegration {
 	loader?: ImageService;
-	defaultLoader: SSRImageService;
 	addStaticImage?: (transform: TransformOptions) => string;
 }
 
@@ -85,15 +85,7 @@ export default function integration(options: IntegrationOptions = {}): AstroInte
 					});
 				}
 
-				const { default: defaultLoader } = await import(
-					resolvedOptions.serviceEntryPoint === '@astrojs/image/sharp'
-						? './loaders/sharp.js'
-						: './loaders/squoosh.js'
-				);
-
-				globalThis.astroImage = {
-					defaultLoader,
-				};
+				globalThis.astroImage = { };
 			},
 			'astro:config:done': ({ config }) => {
 				_config = config;

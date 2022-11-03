@@ -25,6 +25,7 @@
     "./sharp": "./dist/loaders/sharp.js",
     "./squoosh": "./dist/loaders/squoosh.js",
     "./components": "./components/index.js",
+    "./components/*": "./components/*",
     "./package.json": "./package.json",
     "./client": "./client.d.ts",
     "./dist/*": "./dist/*"

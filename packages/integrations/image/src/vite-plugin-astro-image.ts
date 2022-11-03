@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import slash from 'slash';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { IntegrationOptions } from './index.js';
-import type { InputFormat } from './loaders/index.js';
+import { InputFormat, isSSRService } from './loaders/index.js';
 import { metadata } from './utils/metadata.js';
 
 export interface ImageMetadata {
@@ -85,11 +85,13 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 
 					const meta = await metadata(url);
 
-					if (!meta) {
+					const loader = globalThis.astroImage?.loader
+
+					if (!meta || !loader || !isSSRService(loader)) {
 						return next();
 					}
 
-					const transform = await globalThis.astroImage.defaultLoader.parseTransform(
+					const transform = await loader.parseTransform(
 						url.searchParams
 					);
 
@@ -98,7 +100,7 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 					let format = meta.format;
 
 					if (transform) {
-						const result = await globalThis.astroImage.defaultLoader.transform(file, transform);
+						const result = await loader.transform(file, transform);
 						data = result.data;
 						format = result.format;
 					}

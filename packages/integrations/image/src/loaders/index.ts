@@ -189,48 +189,14 @@ export function isSSRService(service: ImageService): service is SSRImageService 
 	return 'transform' in service;
 }
 
-export abstract class BaseSSRService implements SSRImageService {
-	async getImageAttributes(transform: TransformOptions) {
+export abstract class BaseSSRService<T extends TransformOptions = TransformOptions> implements SSRImageService<T> {
+	async getImageAttributes(transform: T) {
 		// strip off the known attributes
 		const { width, height, src, format, quality, aspectRatio, ...rest } = transform;
 
 		let resolvedSrc = src;
 
-		const searchParams = new URLSearchParams();
-
-		if (transform.quality) {
-			searchParams.append('q', transform.quality.toString());
-		}
-
-		if (transform.format) {
-			searchParams.append('f', transform.format);
-		}
-
-		if (transform.width) {
-			searchParams.append('w', transform.width.toString());
-		}
-
-		if (transform.height) {
-			searchParams.append('h', transform.height.toString());
-		}
-
-		if (transform.aspectRatio) {
-			searchParams.append('ar', transform.aspectRatio.toString());
-		}
-
-		if (transform.fit) {
-			searchParams.append('fit', transform.fit);
-		}
-
-		if (transform.background) {
-			searchParams.append('bg', transform.background);
-		}
-
-		if (transform.position) {
-			searchParams.append('p', encodeURI(transform.position));
-		}
-
-		searchParams.append('href', transform.src);
+		const searchParams = this.transformToSearchParams(transform);
 
 		resolvedSrc = isRemoteImage(src) && src.startsWith('//') ? `https:${src}` : src;
 
@@ -254,7 +220,7 @@ export abstract class BaseSSRService implements SSRImageService {
 			return undefined;
 		}
 
-		let transform: TransformOptions = { src: searchParams.get('href')! };
+		let transform = { src: searchParams.get('href')! } as T;
 
 		if (searchParams.has('q')) {
 			transform.quality = parseInt(searchParams.get('q')!);
@@ -298,6 +264,46 @@ export abstract class BaseSSRService implements SSRImageService {
 		}
 
 		return transform;
+	}
+
+	transformToSearchParams(transform: T) {
+		const searchParams = new URLSearchParams();
+
+		if (transform.quality) {
+			searchParams.append('q', transform.quality.toString());
+		}
+
+		if (transform.format) {
+			searchParams.append('f', transform.format);
+		}
+
+		if (transform.width) {
+			searchParams.append('w', transform.width.toString());
+		}
+
+		if (transform.height) {
+			searchParams.append('h', transform.height.toString());
+		}
+
+		if (transform.aspectRatio) {
+			searchParams.append('ar', transform.aspectRatio.toString());
+		}
+
+		if (transform.fit) {
+			searchParams.append('fit', transform.fit);
+		}
+
+		if (transform.background) {
+			searchParams.append('bg', transform.background);
+		}
+
+		if (transform.position) {
+			searchParams.append('p', encodeURI(transform.position));
+		}
+
+		searchParams.append('href', transform.src);
+
+		return searchParams
 	}
 
 	abstract transform(
