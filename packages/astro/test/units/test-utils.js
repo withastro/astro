@@ -66,9 +66,10 @@ export function triggerFSEvent(container, fs, shortPath, eventType) {
 	);
 
 	if(!fileURLToPath(container.settings.config.root).startsWith('/')) {
+		const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
 		container.viteServer.watcher.emit(
 			eventType,
-			'C:' + fs.getFullyResolvedPath(shortPath)
+			drive + fs.getFullyResolvedPath(shortPath)
 		);
 	}
 }
