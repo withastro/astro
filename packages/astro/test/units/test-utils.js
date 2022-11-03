@@ -14,7 +14,7 @@ class MyVolume extends Volume {
 
 	#forcePath(p) {
 		if (p instanceof URL) {
-			p = fileURLToPath(p);
+			p = unixify(fileURLToPath(p));
 		}
 		return p;
 	}
@@ -50,6 +50,27 @@ export function createFs(json, root) {
 	const fs = new MyVolume(root);
 	fs.fromJSON(structure);
 	return fs;
+}
+
+/**
+ *
+ * @param {import('../../src/core/dev/container').Container} container
+ * @param {typeof import('fs')} fs
+ * @param {string} shortPath
+ * @param {'change'} eventType
+ */
+export function triggerFSEvent(container, fs, shortPath, eventType) {
+	container.viteServer.watcher.emit(
+		eventType,
+		fs.getFullyResolvedPath(shortPath)
+	);
+
+	if(!fileURLToPath(container.settings.config.root).startsWith('/')) {
+		container.viteServer.watcher.emit(
+			eventType,
+			'C:' + fs.getFullyResolvedPath(shortPath)
+		);
+	}
 }
 
 export function createRequestAndResponse(reqOptions = {}) {

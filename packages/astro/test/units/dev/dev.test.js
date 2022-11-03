@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as cheerio from 'cheerio';
 
 import { runInContainer } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -73,11 +73,7 @@ describe('dev container', () => {
 			fs.writeFileFromRootSync('/src/components/Header.astro', `
 				<h1>{Astro.props.title}</h1>
 			`);
-
-			container.viteServer.watcher.emit(
-				'change',
-				fs.getFullyResolvedPath('/src/components/Header.astro')
-			);
+			triggerFSEvent(container, fs, '/src/components/Header.astro', 'change');
 			
 			fs.writeFileFromRootSync('/src/pages/index.astro', `
 				---
@@ -91,11 +87,7 @@ describe('dev container', () => {
 					</body>
 				</html>
 			`);
-
-			container.viteServer.watcher.emit(
-				'change',
-				fs.getFullyResolvedPath('/src/pages/index.astro')
-			);
+			triggerFSEvent(container, fs, '/src/pages/index.astro', 'change');
 
 			r = createRequestAndResponse({
 				method: 'GET',
