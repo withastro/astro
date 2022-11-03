@@ -29,7 +29,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import { eachStaticPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -72,16 +72,14 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
-	const ssr = opts.settings.config.output !== 'static';
+	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
 	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
-	const ssrEntry = await import(ssrEntryURL.toString()).then(mod => {
-		return mod;
-	});
+	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
-
-	for (const pageData of eachPageData(internals)) {
+	
+	for (const pageData of eachStaticPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 	}
 
@@ -101,8 +99,6 @@ async function generatePage(
 	ssrEntry: SingleFileBuiltModule,
 	builtPaths: Set<string>
 ) {
-	if (pageData.output === 'server') return;
-
 	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
 
@@ -167,7 +163,7 @@ async function getPathsForRoute(
 			route: pageData.route,
 			isValidate: false,
 			logging: opts.logging,
-			ssr: pageData.output !== 'static',
+			ssr: true,
 		})
 			.then((_result) => {
 				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';

@@ -4,7 +4,7 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { BuildInternals, createBuildInternals } from '../../core/build/internal.js';
+import { BuildInternals, createBuildInternals, eachStaticPageData } from '../../core/build/internal.js';
 import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
@@ -91,12 +91,14 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	switch (settings.config.output) {
 		case 'static': {
 			await generatePages(opts, internals);
-			await cleanSsrOutput(opts);
+			await cleanServerOutput(opts);
 			return;
 		}
 		case 'server': {
 			// Inject the manifest
 			await injectManifest(opts, internals);
+			await generatePages(opts, internals);
+			await cleanStaticOutput(opts, internals);
 			info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 			await ssrMoveAssets(opts);
 			return;
@@ -106,7 +108,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { settings, viteConfig } = opts;
-	const ssr = settings.config.output !== 'static';
+	const ssr = settings.config.output === 'server';
 	const out = ssr ? opts.buildConfig.server : getOutDirWithinCwd(settings.config.outDir);
 
 	const viteBuildConfig: vite.InlineConfig = {
@@ -125,10 +127,27 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					chunkFileNames: 'chunks/[name].[hash].mjs',
+					chunkFileNames: (chunkInfo) => {
+						if (chunkInfo.name.startsWith('pages/')) {
+							return `[name].[hash].mjs`;
+						}
+						return 'chunks/[name].[hash].mjs'
+					},
 					assetFileNames: 'assets/[name].[hash][extname]',
 					...viteConfig.build?.rollupOptions?.output,
 					entryFileNames: opts.buildConfig.serverEntry,
+					manualChunks(id) {
+						// Split the Astro runtime into a separate chunk for readability
+						if (id.includes('astro/dist')) {
+							return 'astro'
+						}
+						// internals.pagesByOutput is not populated yet
+						// so we split all pages into their own chunk
+						const pageInfo = internals.pagesByViteID.get(id);
+						if (pageInfo) {
+							return `pages${pageInfo.route.pathname?.replace(/\/$/, '/index')}`;
+						}
+					},
 				},
 			},
 			ssr: true,
@@ -138,6 +157,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			reportCompressedSize: false,
 		},
 		plugins: [
+			vitePluginAnalyzer(internals),
 			vitePluginInternals(input, internals),
 			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
@@ -148,7 +168,6 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
 			ssr && vitePluginSSR(internals, settings.adapter!),
-			vitePluginAnalyzer(internals),
 		],
 		envPrefix: 'PUBLIC_',
 		base: settings.config.base,
@@ -236,7 +255,57 @@ async function clientBuild(
 	return buildResult;
 }
 
-async function cleanSsrOutput(opts: StaticBuildOptions) {
+async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
+	const allStaticFiles = new Set();
+	for (const pageData of eachStaticPageData(internals)) {
+		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier))
+	}
+	const out = getOutDirWithinCwd(opts.settings.config.outDir);
+	// The SSR output is all .mjs files, the client output is not.
+	const files = await glob('**/*.mjs', {
+		cwd: fileURLToPath(out),
+	});
+	if (files.length) {
+		// Remove all the SSR generated .mjs files
+		await Promise.all(
+			files.map(async (filename) => {
+				const url = new URL(filename, out);
+				if (!allStaticFiles.has(filename.replace('server/', ''))) {
+					return;
+				}
+				// TODO: update file
+			})
+		);
+		// Map directories heads from the .mjs files
+		const directories: Set<string> = new Set();
+		files.forEach((i) => {
+			const splitFilePath = i.split(path.sep);
+			// If the path is more than just a .mjs filename itself
+			if (splitFilePath.length > 1) {
+				directories.add(splitFilePath[0]);
+			}
+		});
+		// Attempt to remove only those folders which are empty
+		await Promise.all(
+			Array.from(directories).map(async (filename) => {
+				const url = new URL(filename, out);
+				const folder = await fs.promises.readdir(url);
+				if (!folder.length) {
+					await fs.promises.rm(url, { recursive: true, force: true });
+				}
+			})
+		);
+	}
+	// Clean out directly if the outDir is outside of root
+	if (out.toString() !== opts.settings.config.outDir.toString()) {
+		// Copy assets before cleaning directory if outside root
+		copyFiles(out, opts.settings.config.outDir);
+		await fs.promises.rm(out, { recursive: true });
+		return;
+	}
+}
+
+async function cleanServerOutput(opts: StaticBuildOptions) {
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
@@ -307,16 +376,16 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 		cwd: fileURLToPath(serverRoot),
 	});
 
-	// Make the directory
-	await fs.promises.mkdir(clientAssets, { recursive: true });
-
-	await Promise.all(
-		files.map(async (filename) => {
-			const currentUrl = new URL(filename, serverRoot);
-			const clientUrl = new URL(filename, clientRoot);
-			return fs.promises.rename(currentUrl, clientUrl);
-		})
-	);
-
-	removeDir(serverAssets);
+	if (files.length > 0) {
+		// Make the directory
+		await fs.promises.mkdir(clientAssets, { recursive: true });
+		await Promise.all(
+			files.map(async (filename) => {
+				const currentUrl = new URL(filename, serverRoot);
+				const clientUrl = new URL(filename, clientRoot);
+				return fs.promises.rename(currentUrl, clientUrl);
+			})
+		);
+		removeDir(serverAssets);
+	}
 }

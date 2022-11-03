@@ -55,7 +55,6 @@ export async function collectPagesData(
 				moduleSpecifier: '',
 				css: new Map(),
 				hoistedScript: undefined,
-				output: 'static',
 			};
 
 			clearInterval(routeCollectionLogTimeout);
@@ -77,7 +76,6 @@ export async function collectPagesData(
 			moduleSpecifier: '',
 			css: new Map(),
 			hoistedScript: undefined,
-			output: 'static',
 		};
 	}
 

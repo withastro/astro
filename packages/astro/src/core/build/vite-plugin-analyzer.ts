@@ -82,8 +82,8 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 				const astro = info.meta.astro as AstroPluginMetadata['astro'];
 
 				const pageData = getPageDataByViteID(internals, id);
-				if (pageData && astro.output) {
-					pageData.output = astro.output;
+				if (pageData) {
+					internals.pagesByOutput[astro.output ?? 'server'].add(pageData);
 				}
 
 				for (const c of astro.hydratedComponents) {
@@ -109,10 +109,10 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 					}
 
 					for (const [pageInfo] of getTopLevelPages(id, this)) {
-						const pageData = getPageDataByViteID(internals, pageInfo.id);
-						if (!pageData) continue;
+						const newPageData = getPageDataByViteID(internals, pageInfo.id);
+						if (!newPageData) continue;
 
-						trackClientOnlyPageDatas(internals, pageData, clientOnlys);
+						trackClientOnlyPageDatas(internals, newPageData, clientOnlys);
 					}
 				}
 			}

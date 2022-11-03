@@ -1,5 +1,5 @@
 import type { OutputChunk, RenderedChunk } from 'rollup';
-import type { PageBuildData, ViteID } from './types';
+import type { PageBuildData, PageOutput, ViteID } from './types';
 
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
@@ -21,9 +21,19 @@ export interface BuildInternals {
 	entrySpecifierToBundleMap: Map<string, string>;
 
 	/**
+	 * A map to get a specific page's bundled output file.
+	 */
+	pageToBundleMap: Map<string, string>;
+
+	/**
 	 * A map for page-specific information.
 	 */
 	pagesByComponent: Map<string, PageBuildData>;
+
+	/**
+	 * A map for page-specific output.
+	 */
+	pagesByOutput: Record<PageOutput, Set<PageBuildData>>;
 
 	/**
 	 * A map for page-specific information by Vite ID (a path-like string)
@@ -73,8 +83,10 @@ export function createBuildInternals(): BuildInternals {
 		hoistedScriptIdToHoistedMap,
 		hoistedScriptIdToPagesMap,
 		entrySpecifierToBundleMap: new Map<string, string>(),
+		pageToBundleMap: new Map<string, string>(),
 
 		pagesByComponent: new Map(),
+		pagesByOutput: { server: new Set(), static: new Set() },
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 
@@ -187,6 +199,14 @@ export function hasPageDataByViteID(internals: BuildInternals, viteid: ViteID): 
 
 export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
+}
+
+export function* eachStaticPageData(internals: BuildInternals) {
+	yield* internals.pagesByOutput.static.values();
+}
+
+export function* eachServerPageData(internals: BuildInternals) {
+	yield* internals.pagesByOutput.server.values();
 }
 
 /**

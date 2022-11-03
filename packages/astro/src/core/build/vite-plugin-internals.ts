@@ -48,6 +48,13 @@ export function vitePluginInternals(input: Set<string>, internals: BuildInternal
 				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
 					const specifier = mapping.get(chunk.facadeModuleId) || chunk.facadeModuleId;
 					internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
+				} else if (chunk.type === 'chunk') {
+					for (const id of Object.keys(chunk.modules)) {
+						const pageData = internals.pagesByViteID.get(id);
+						if (pageData) {
+							internals.pageToBundleMap.set(pageData.moduleSpecifier, chunk.fileName)
+						}
+					}
 				}
 			}
 		},

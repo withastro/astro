@@ -14,7 +14,7 @@ import type { RouteCache } from '../render/route-cache';
 
 export type ComponentPath = string;
 export type ViteID = string;
-export type PageBuildOutput = AstroConfig['output']
+export type PageOutput = AstroConfig['output']
 
 export interface PageBuildData {
 	component: ComponentPath;
@@ -22,7 +22,6 @@ export interface PageBuildData {
 	moduleSpecifier: string;
 	css: Map<string, { depth: number; order: number }>;
 	hoistedScript: { type: 'inline' | 'external'; value: string } | undefined;
-	output: PageBuildOutput
 }
 export type AllPagesData = Record<ComponentPath, PageBuildData>;
 
