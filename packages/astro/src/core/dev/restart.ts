@@ -1,19 +1,16 @@
-import type { AstroSettings } from '../../@types/astro';
-import type { Container, CreateContainerParams } from './container';
 import * as vite from 'vite';
+import type { AstroSettings } from '../../@types/astro';
 import { createSettings, openConfig } from '../config/index.js';
-import { info } from '../logger/core.js';
-import { createContainer, isStarted, startContainer } from './container.js';
 import { createSafeError } from '../errors/index.js';
+import { info } from '../logger/core.js';
+import type { Container, CreateContainerParams } from './container';
+import { createContainer, isStarted, startContainer } from './container.js';
 
-async function createRestartedContainer(container: Container, settings: AstroSettings): Promise<Container> {
-	const {
-		logging,
-		fs,
-		resolvedRoot,
-		configFlag,
-		configFlagPath
-	} = container;
+async function createRestartedContainer(
+	container: Container,
+	settings: AstroSettings
+): Promise<Container> {
+	const { logging, fs, resolvedRoot, configFlag, configFlagPath } = container;
 	const needsStart = isStarted(container);
 	const newContainer = await createContainer({
 		isRestart: true,
@@ -25,26 +22,24 @@ async function createRestartedContainer(container: Container, settings: AstroSet
 		configFlagPath,
 	});
 
-	if(needsStart) {
+	if (needsStart) {
 		await startContainer(newContainer);
 	}
 
 	return newContainer;
 }
 
-export function shouldRestartContainer({
-	settings,
-	configFlag,
-	configFlagPath,
-	restartInFlight
-}: Container, changedFile: string): boolean {
-	if(restartInFlight) return false;
+export function shouldRestartContainer(
+	{ settings, configFlag, configFlagPath, restartInFlight }: Container,
+	changedFile: string
+): boolean {
+	if (restartInFlight) return false;
 
 	let shouldRestart = false;
 
 	// If the config file changed, reload the config and restart the server.
-	if(configFlag) {
-		if(!!configFlagPath) {
+	if (configFlag) {
+		if (!!configFlagPath) {
 			shouldRestart = vite.normalizePath(configFlagPath) === vite.normalizePath(changedFile);
 		}
 	}
@@ -78,19 +73,14 @@ export async function restartContainer({
 	flags,
 	logMsg,
 	handleConfigError,
-	beforeRestart
-}: RestartContainerParams): Promise<{ container: Container, error: Error | null }> {
-	const {
-		logging,
-		close,
-		resolvedRoot,
-		settings: existingSettings
-	} = container;
+	beforeRestart,
+}: RestartContainerParams): Promise<{ container: Container; error: Error | null }> {
+	const { logging, close, resolvedRoot, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
 	//console.clear(); // TODO move this
-	if(beforeRestart) {
-		beforeRestart()
+	if (beforeRestart) {
+		beforeRestart();
 	}
 	try {
 		const newConfig = await openConfig({
@@ -107,7 +97,7 @@ export async function restartContainer({
 		await close();
 		return {
 			container: await createRestartedContainer(container, settings),
-			error: null
+			error: null,
 		};
 	} catch (_err) {
 		const error = createSafeError(_err);
@@ -116,7 +106,7 @@ export async function restartContainer({
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
 		return {
 			container: await createRestartedContainer(container, existingSettings),
-			error
+			error,
 		};
 	}
 }
@@ -137,11 +127,11 @@ export async function createContainerWithAutomaticRestart({
 	flags,
 	handleConfigError = (_e: Error) => {},
 	beforeRestart,
-	params
+	params,
 }: CreateContainerWithAutomaticRestart): Promise<Restart> {
 	const initialContainer = await createContainer(params);
 	let resolveRestart: (value: Error | null) => void;
-	let restartComplete = new Promise<Error | null>(resolve => {
+	let restartComplete = new Promise<Error | null>((resolve) => {
 		resolveRestart = resolve;
 	});
 
@@ -149,14 +139,14 @@ export async function createContainerWithAutomaticRestart({
 		container: initialContainer,
 		restarted() {
 			return restartComplete;
-		}
+		},
 	};
 
 	function handleServerRestart(logMsg: string) {
 		// eslint-disable-next-line @typescript-eslint/no-shadow
 		const container = restart.container;
-		return async function(changedFile: string) {
-			if(shouldRestartContainer(container, changedFile)) {
+		return async function (changedFile: string) {
+			if (shouldRestartContainer(container, changedFile)) {
 				const { container: newContainer, error } = await restartContainer({
 					beforeRestart,
 					container,
@@ -169,20 +159,20 @@ export async function createContainerWithAutomaticRestart({
 							type: 'error',
 							err: {
 								message: err.message,
-								stack: err.stack || ''
-							}
+								stack: err.stack || '',
+							},
 						});
-					}
+					},
 				});
 				restart.container = newContainer;
 				// Add new watches because this is a new container with a new Vite server
 				addWatches();
 				resolveRestart(error);
-				restartComplete = new Promise<Error | null>(resolve => {
+				restartComplete = new Promise<Error | null>((resolve) => {
 					resolveRestart = resolve;
 				});
 			}
-		}
+		};
 	}
 
 	// Set up watches

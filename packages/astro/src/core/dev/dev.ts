@@ -1,6 +1,6 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
-import type { AddressInfo } from 'net';
 import type http from 'http';
+import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroSettings } from '../../@types/astro';
@@ -43,7 +43,7 @@ export default async function dev(
 			settings,
 			logging: options.logging,
 			isRestart: options.isRestart,
-		}
+		},
 	});
 
 	// Start listening to the port

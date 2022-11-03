@@ -106,7 +106,7 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 }
 
 export function resolveRoot(cwd?: string | URL): string {
-	if(cwd instanceof URL) {
+	if (cwd instanceof URL) {
 		cwd = fileURLToPath(cwd);
 	}
 	return cwd ? path.resolve(cwd) : process.cwd();

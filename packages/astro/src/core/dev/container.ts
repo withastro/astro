@@ -7,15 +7,15 @@ import * as vite from 'vite';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
+	runHookServerDone,
 	runHookServerSetup,
 	runHookServerStart,
-	runHookServerDone
 } from '../../integrations/index.js';
 import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
 import { createVite } from '../create-vite.js';
 import { LogOptions } from '../logger/core.js';
-import { appendForwardSlash } from '../path.js';
 import { nodeLogDestination } from '../logger/node.js';
+import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
 const defaultLogging: LogOptions = {
@@ -108,17 +108,13 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 		// TODO deprecate and remove
 		close() {
 			return closeContainer(container);
-		}
+		},
 	};
 
 	return container;
 }
 
-async function closeContainer({
-	viteServer,
-	settings,
-	logging
-}: Container) {
+async function closeContainer({ viteServer, settings, logging }: Container) {
 	await viteServer.close();
 	await runHookServerDone({
 		config: settings.config,

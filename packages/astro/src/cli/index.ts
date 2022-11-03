@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import { pathToFileURL } from 'url';
-import { normalizePath } from 'vite';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -12,7 +11,6 @@ import {
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,
-	resolveRoot,
 } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import devServer from '../core/dev/index.js';
@@ -21,7 +19,6 @@ import { createSafeError } from '../core/errors/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
-import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
@@ -178,9 +175,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	switch (cmd) {
 		case 'dev': {
 			const configFlag = resolveFlags(flags).config;
-			const configFlagPath = configFlag
-				? await resolveConfigPath({ cwd: root, flags })
-				: undefined;
+			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags }) : undefined;
 
 			await devServer(settings, {
 				configFlag,
@@ -190,7 +185,7 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 				handleConfigError(e) {
 					handleConfigError(e, { cwd: root, flags, logging });
 					info(logging, 'astro', 'Continuing with previous valid configuration\n');
-				}
+				},
 			});
 			return await new Promise(() => {}); // lives forever
 		}
