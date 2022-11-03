@@ -1005,6 +1005,8 @@ export interface MarkdownInstance<T extends Record<string, any>> {
 	default: AstroComponentFactory;
 }
 
+type MD = MarkdownInstance<Record<string, any>>;
+
 export interface MDXInstance<T extends Record<string, any>>
 	extends Omit<MarkdownInstance<T>, 'rawContent' | 'compiledContent'> {
 	/** MDX does not support rawContent! If you need to read the Markdown contents to calculate values (ex. reading time), we suggest injecting frontmatter via remark plugins. Learn more on our docs: https://docs.astro.build/en/guides/integrations-guide/mdx/#inject-frontmatter-via-remark-or-rehype-plugins */
@@ -1083,9 +1085,7 @@ export interface ManifestData {
 }
 
 export interface MarkdownParserResponse extends MarkdownRenderingResult {
-	frontmatter: {
-		[key: string]: any;
-	};
+	frontmatter: MD['frontmatter'];
 }
 
 /**
@@ -1410,7 +1410,9 @@ export interface SSRResult {
 	_metadata: SSRMetadata;
 }
 
-export type MarkdownAstroData = { frontmatter: object };
+export type MarkdownAstroData = {
+	frontmatter: MD['frontmatter'];
+};
 
 /* Preview server stuff */
 export interface PreviewServer {
