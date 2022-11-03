@@ -14,6 +14,7 @@ import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.j
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachServerPageData, eachStaticPageData, sortedCSS } from './internal.js';
+import { getOutFile, getOutFolder } from './common.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -138,12 +139,16 @@ function buildManifest(
 	const joinBase = (pth: string) => (bareBase ? bareBase + '/' + pth : pth);
 
 	for (const pageData of eachStaticPageData(internals)) {
+		const outFolder = getOutFolder(opts.settings.config, pageData.route.pathname!, pageData.route.type);
+		const outFile = getOutFile(opts.settings.config, outFolder, pageData.route.pathname!, pageData.route.type);
+		const file = outFile.toString().replace(opts.settings.config.build.client.toString(), '');
 		routes.push({
-			file: `../client/${pageData.route.pathname}.html`,
+			file,
 			links: [],
 			scripts: [],
 			routeData: serializeRouteData(pageData.route, settings.config.trailingSlash),
 		});
+		staticFiles.push(file);
 	}
 
 	for (const pageData of eachServerPageData(internals)) {

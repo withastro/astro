@@ -273,7 +273,7 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				if (!allStaticFiles.has(filename.replace('server/', ''))) {
 					return;
 				}
-				// TODO: update file
+				await fs.promises.writeFile(url, 'export const _ = null;', { encoding: 'utf-8' });
 			})
 		);
 		// Map directories heads from the .mjs files
