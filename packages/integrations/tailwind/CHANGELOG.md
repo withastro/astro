@@ -1,5 +1,11 @@
 # @astrojs/tailwind
 
+## 2.1.2
+
+### Patch Changes
+
+- [#5270](https://github.com/withastro/astro/pull/5270) [`bb6e88000`](https://github.com/withastro/astro/commit/bb6e8800094dc59841eb3b345fcb8baca9e17ce9) Thanks [@matthewp](https://github.com/matthewp)! - Prevent errors during HMR from crashing dev server
+
 ## 2.1.1
 
 ### Patch Changes
