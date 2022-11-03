@@ -2,6 +2,7 @@
 import Hello from '../components/Hello.jsx';
 import WithNewlines from '../components/WithNewlines.jsx';
 import { Router } from "@solidjs/router";
+import ProxyComponent from '../components/ProxyComponent.jsx';
 ---
 <html>
 <head><title>Solid</title></head>
@@ -10,6 +11,7 @@ import { Router } from "@solidjs/router";
     <Hello client:load />
 		<WithNewlines client:load />
     <Router />
+    <ProxyComponent client:load />
   </div>
 </body>
 </html>

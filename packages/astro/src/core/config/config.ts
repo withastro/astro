@@ -31,8 +31,7 @@ export const LEGACY_ASTRO_CONFIG_KEYS = new Set([
 export async function validateConfig(
 	userConfig: any,
 	root: string,
-	cmd: string,
-	logging: LogOptions
+	cmd: string
 ): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
@@ -106,7 +105,10 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	};
 }
 
-export function resolveRoot(cwd?: string): string {
+export function resolveRoot(cwd?: string | URL): string {
+	if (cwd instanceof URL) {
+		cwd = fileURLToPath(cwd);
+	}
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
@@ -138,6 +140,7 @@ interface LoadConfigOptions {
 	logging: LogOptions;
 	/** Invalidate when reloading a previously loaded config */
 	isRestart?: boolean;
+	fsMod?: typeof fs;
 }
 
 /**
@@ -191,13 +194,7 @@ export async function openConfig(configOptions: LoadConfigOptions): Promise<Open
 	if (config) {
 		userConfig = config.value;
 	}
-	const astroConfig = await resolveConfig(
-		userConfig,
-		root,
-		flags,
-		configOptions.cmd,
-		configOptions.logging
-	);
+	const astroConfig = await resolveConfig(userConfig, root, flags, configOptions.cmd);
 
 	return {
 		astroConfig,
@@ -217,6 +214,7 @@ async function tryLoadConfig(
 	flags: CLIFlags,
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
+	const fsMod = configOptions.fsMod ?? fs;
 	let finallyCleanup = async () => {};
 	try {
 		let configPath = await resolveConfigPath({
@@ -231,7 +229,9 @@ async function tryLoadConfig(
 				root,
 				`.temp.${Date.now()}.config${path.extname(configPath)}`
 			);
-			await fs.promises.writeFile(tempConfigPath, await fs.promises.readFile(configPath));
+
+			const currentConfigContent = await fsMod.promises.readFile(configPath, 'utf-8');
+			await fs.promises.writeFile(tempConfigPath, currentConfigContent);
 			finallyCleanup = async () => {
 				try {
 					await fs.promises.unlink(tempConfigPath);
@@ -302,7 +302,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	return resolveConfig(userConfig, root, flags, configOptions.cmd, configOptions.logging);
+	return resolveConfig(userConfig, root, flags, configOptions.cmd);
 }
 
 /** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
@@ -310,13 +310,19 @@ export async function resolveConfig(
 	userConfig: AstroUserConfig,
 	root: string,
 	flags: CLIFlags = {},
-	cmd: string,
-	logging: LogOptions
+	cmd: string
 ): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags, cmd);
-	const validatedConfig = await validateConfig(mergedConfig, root, cmd, logging);
+	const validatedConfig = await validateConfig(mergedConfig, root, cmd);
 
 	return validatedConfig;
+}
+
+export function createDefaultDevConfig(
+	userConfig: AstroUserConfig = {},
+	root: string = process.cwd()
+) {
+	return resolveConfig(userConfig, root, undefined, 'dev');
 }
 
 function mergeConfigRecursively(

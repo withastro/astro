@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-component",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "directory": "packages/markdown/component"
   },
   "bugs": "https://github.com/withastro/astro/issues",
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/migrate/#markdown--component-removed",
   "main": "./Markdown.astro",
   "exports": {
     ".": {

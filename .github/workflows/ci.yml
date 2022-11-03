@@ -72,7 +72,7 @@ jobs:
       # Checks that the formatter runs successfully on all files
       # In the future, we may have this fail PRs on unformatted code
       - name: Format Check
-        run: pnpm run format --list
+        run: pnpm run format --check
 
   # Build primes out build caches for Turbo
   build:
@@ -207,9 +207,8 @@ jobs:
           repository: withastro/docs
           path: smoke/docs
 
-      # NOTE: remove shamefully-hoist when docs is also not hoisted
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --shamefully-hoist
+        run: pnpm install --no-frozen-lockfile
 
       - name: Build Packages
         run: pnpm run build

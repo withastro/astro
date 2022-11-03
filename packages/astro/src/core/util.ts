@@ -3,9 +3,10 @@ import path from 'path';
 import resolve from 'resolve';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { normalizePath, ViteDevServer } from 'vite';
+import { normalizePath } from 'vite';
 import type { AstroConfig, AstroSettings, RouteType } from '../@types/astro';
 import { SUPPORTED_MARKDOWN_FILE_EXTENSIONS } from './constants.js';
+import type { ModuleLoader } from './module-loader';
 import { prependForwardSlash, removeTrailingForwardSlash } from './path.js';
 
 /** Returns true if argument is an object of any prototype/class (but not null). */
@@ -18,19 +19,10 @@ export function isURL(value: unknown): value is URL {
 	return Object.prototype.toString.call(value) === '[object URL]';
 }
 /** Check if a file is a markdown file based on its extension */
-export function isMarkdownFile(
-	fileId: string,
-	option: { criteria: 'endsWith' | 'includes'; suffix?: string }
-): boolean {
-	const _suffix = option.suffix ?? '';
-	if (option.criteria === 'endsWith') {
-		for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-			if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
-		}
-		return false;
-	}
+export function isMarkdownFile(fileId: string, option?: { suffix?: string }): boolean {
+	const _suffix = option?.suffix ?? '';
 	for (let markdownFileExtension of SUPPORTED_MARKDOWN_FILE_EXTENSIONS) {
-		if (fileId.includes(`${markdownFileExtension}${_suffix}`)) return true;
+		if (fileId.endsWith(`${markdownFileExtension}${_suffix}`)) return true;
 	}
 	return false;
 }
@@ -180,19 +172,19 @@ export function getLocalAddress(serverAddress: string, host: string | boolean): 
  */
 // NOTE: `/@id/` should only be used when the id is fully resolved
 // TODO: Export a helper util from Vite
-export async function resolveIdToUrl(viteServer: ViteDevServer, id: string) {
-	let result = await viteServer.pluginContainer.resolveId(id, undefined);
+export async function resolveIdToUrl(loader: ModuleLoader, id: string) {
+	let resultId = await loader.resolveId(id, undefined);
 	// Try resolve jsx to tsx
-	if (!result && id.endsWith('.jsx')) {
-		result = await viteServer.pluginContainer.resolveId(id.slice(0, -4), undefined);
+	if (!resultId && id.endsWith('.jsx')) {
+		resultId = await loader.resolveId(id.slice(0, -4), undefined);
 	}
-	if (!result) {
+	if (!resultId) {
 		return VALID_ID_PREFIX + id;
 	}
-	if (path.isAbsolute(result.id)) {
-		return '/@fs' + prependForwardSlash(result.id);
+	if (path.isAbsolute(resultId)) {
+		return '/@fs' + prependForwardSlash(resultId);
 	}
-	return VALID_ID_PREFIX + result.id;
+	return VALID_ID_PREFIX + resultId;
 }
 
 export function resolveJsToTs(filePath: string) {

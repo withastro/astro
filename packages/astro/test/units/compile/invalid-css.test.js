@@ -1,3 +1,4 @@
+import { resolveConfig } from 'vite';
 import { expect } from 'chai';
 import { cachedCompilation } from '../../../dist/core/compile/index.js';
 import { AggregateError } from '../../../dist/core/errors/index.js';
@@ -8,11 +9,11 @@ describe('astro/src/core/compile', () => {
 			let error;
 			try {
 				let r = await cachedCompilation({
-					config: /** @type {any} */ ({
+					astroConfig: /** @type {any} */ ({
 						root: '/',
 					}),
+					viteConfig: await resolveConfig({ configFile: false }, 'serve'),
 					filename: '/src/pages/index.astro',
-					moduleId: '/src/pages/index.astro',
 					source: `
 	---
 	---
@@ -27,16 +28,13 @@ describe('astro/src/core/compile', () => {
 		}
 	</style>
 	`,
-					transformStyle(source, lang) {
-						throw new Error('Invalid css');
-					},
 				});
 			} catch (err) {
 				error = err;
 			}
 
 			expect(error).to.be.an.instanceOf(AggregateError);
-			expect(error.errors[0].message).to.contain('Invalid css');
+			expect(error.errors[0].message).to.contain('expected ")"');
 		});
 	});
 });

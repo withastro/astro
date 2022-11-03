@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
-import type { Plugin, ViteDevServer } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroSettings } from '../@types/astro';
 import { pagesVirtualModuleId } from '../core/app/index.js';
 import { cachedCompilation, CompileProps } from '../core/compile/index.js';
@@ -13,11 +13,6 @@ import type { LogOptions } from '../core/logger/core.js';
 import { isMarkdownFile } from '../core/util.js';
 import type { PluginMetadata as AstroPluginMetadata } from '../vite-plugin-astro/types';
 import { getFileInfo } from '../vite-plugin-utils/index.js';
-import {
-	createTransformStyles,
-	createViteStyleTransformer,
-	ViteStyleTransformer,
-} from '../vite-style-transform/index.js';
 
 interface AstroPluginOptions {
 	settings: AstroSettings;
@@ -86,23 +81,16 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 		return false;
 	}
 
-	let styleTransformer: ViteStyleTransformer;
-	let viteDevServer: ViteDevServer | undefined;
+	let resolvedConfig: ResolvedConfig;
 
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre',
-		configResolved(_resolvedConfig) {
-			styleTransformer = createViteStyleTransformer(_resolvedConfig);
-		},
-		configureServer(server) {
-			styleTransformer.viteDevServer = server;
-		},
 		async resolveId(id, importer, options) {
 			// Resolve any .md (or alternative extensions of markdown files like .markdown) files with the `?content` cache buster. This should only come from
 			// an already-resolved JS module wrapper. Needed to prevent infinite loops in Vite.
 			// Unclear if this is expected or if cache busting is just working around a Vite bug.
-			if (isMarkdownFile(id, { criteria: 'endsWith', suffix: MARKDOWN_CONTENT_FLAG })) {
+			if (isMarkdownFile(id, { suffix: MARKDOWN_CONTENT_FLAG })) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				return resolvedId?.id.replace(MARKDOWN_CONTENT_FLAG, '');
 			}
@@ -110,7 +98,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// that defers the markdown -> HTML rendering until it is needed. This is especially useful
 			// when fetching and then filtering many markdown files, like with import.meta.glob() or Astro.glob().
 			// Otherwise, resolve directly to the actual component.
-			if (isMarkdownFile(id, { criteria: 'endsWith' }) && !isRootImport(importer)) {
+			if (isMarkdownFile(id) && !isRootImport(importer)) {
 				const resolvedId = await this.resolve(id, importer, { skipSelf: true, ...options });
 				if (resolvedId) {
 					return resolvedId.id + MARKDOWN_IMPORT_FLAG;
@@ -123,7 +111,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// A markdown file has been imported via ESM!
 			// Return the file's JS representation, including all Markdown
 			// frontmatter and a deferred `import() of the compiled markdown content.
-			if (isMarkdownFile(id, { criteria: 'endsWith', suffix: MARKDOWN_IMPORT_FLAG })) {
+			if (isMarkdownFile(id, { suffix: MARKDOWN_IMPORT_FLAG })) {
 				const { fileId, fileUrl } = getFileInfo(id, config);
 
 				const source = await fs.promises.readFile(fileId, 'utf8');
@@ -163,7 +151,7 @@ export default function markdown({ settings }: AstroPluginOptions): Plugin {
 			// A markdown file is being rendered! This markdown file was either imported
 			// directly as a page in Vite, or it was a deferred render from a JS module.
 			// This returns the compiled markdown -> astro component that renders to HTML.
-			if (isMarkdownFile(id, { criteria: 'endsWith' })) {
+			if (isMarkdownFile(id)) {
 				const filename = normalizeFilename(id);
 				const source = await fs.promises.readFile(filename, 'utf8');
 				const renderOpts = config.markdown;
@@ -226,15 +214,10 @@ ${setup}`.trim();
 
 				// Transform from `.astro` to valid `.ts`
 				const compileProps: CompileProps = {
-					config,
+					astroConfig: config,
+					viteConfig: resolvedConfig,
 					filename,
 					source: astroResult,
-					transformStyle: createTransformStyles(
-						styleTransformer,
-						filename,
-						Boolean(opts?.ssr),
-						this
-					),
 				};
 
 				let transformResult = await cachedCompilation(compileProps);
