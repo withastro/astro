@@ -12,14 +12,16 @@ describe('Using Astro.request in SSR', () => {
 			root: './fixtures/ssr-request/',
 			adapter: testAdapter(),
 			output: 'server',
+			base: '/subpath/'
 		});
 		await fixture.build();
 	});
 
-	it('Gets the request pased in', async () => {
+	it('Gets the request passed in', async () => {
 		const app = await fixture.loadTestAdapterApp();
-		const request = new Request('http://example.com/request');
+		const request = new Request('http://example.com/subpath/request');
 		const response = await app.render(request);
+		expect(response.status).to.equal(200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
 		expect($('#origin').text()).to.equal('http://example.com');
@@ -28,5 +30,14 @@ describe('Using Astro.request in SSR', () => {
 	it('public file is copied over', async () => {
 		const json = await fixture.readFile('/client/cars.json');
 		expect(json).to.not.be.undefined;
+	});
+
+	it('assets can be fetched', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		const request = new Request('http://example.com/subpath/cars.json');
+		const response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const data = await response.json();
+		expect(data).to.be.an('array');
 	});
 });

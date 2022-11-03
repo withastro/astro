@@ -172,7 +172,7 @@ function buildManifest(
 		pageMap: null as any,
 		renderers: [],
 		entryModules,
-		assets: staticFiles.map((s) => '/' + s),
+		assets: staticFiles.map((s) => settings.config.base + s),
 	};
 
 	return ssrManifest;

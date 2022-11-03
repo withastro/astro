@@ -33,6 +33,9 @@
     "@astrojs/webapi": "^1.1.1",
     "send": "^0.18.0"
   },
+  "peerDependencies": {
+    "astro": "^1.6.3"
+  },
   "devDependencies": {
     "@types/send": "^0.17.1",
     "astro": "workspace:*",

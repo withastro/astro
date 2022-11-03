@@ -11,12 +11,14 @@ type Env = {
 export function createExports(manifest: SSRManifest) {
 	const app = new App(manifest, false);
 
+	//manifest.base
+
 	const fetch = async (request: Request, env: Env, context: any) => {
 		const { origin, pathname } = new URL(request.url);
 
 		// static assets
 		if (manifest.assets.has(pathname)) {
-			const assetRequest = new Request(`${origin}/static${pathname}`, request);
+			const assetRequest = new Request(`${origin}/static/${app.removeBase(pathname)}`, request);
 			return env.ASSETS.fetch(assetRequest);
 		}
 
