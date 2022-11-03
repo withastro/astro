@@ -12,15 +12,23 @@ class MyVolume extends Volume {
 		this.#root = root;
 	}
 
+	#forcePath(p) {
+		if (p instanceof URL) {
+			p = fileURLToPath(p);
+		}
+		return p;
+	}
+
 	getFullyResolvedPath(pth) {
 		return npath.posix.join(this.#root, pth);
 	}
 
 	existsSync(p) {
-		if (p instanceof URL) {
-			p = fileURLToPath(p);
-		}
-		return super.existsSync(p);
+		return super.existsSync(this.#forcePath(p));
+	}
+
+	readFile(p, ...args) {
+		return super.readFile(this.#forcePath(p), ...args);
 	}
 
 	writeFileFromRootSync(pth, ...rest) {

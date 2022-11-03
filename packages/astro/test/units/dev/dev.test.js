@@ -37,4 +37,75 @@ describe('dev container', () => {
 			expect($('h1')).to.have.a.lengthOf(1);
 		});
 	});
+
+	it('HMR only short circuits on previously cached modules', async () => {
+		const fs = createFs(
+			{
+				'/src/components/Header.astro': `
+					<h1>{Astro.props.title}</h1>
+				`,
+				'/src/pages/index.astro': `
+					---
+					import Header from '../components/Header.astro';
+					const name = 'Testing';
+					---
+					<html>
+						<head><title>{name}</title></head>
+						<body class="one">
+							<Header title={name} />
+						</body>
+					</html>
+				`,
+			},
+			root
+		);
+
+		await runInContainer({ fs, root }, async (container) => {
+			let r = createRequestAndResponse({
+				method: 'GET',
+				url: '/',
+			});
+			container.handle(r.req, r.res);
+			let html = await r.text();
+			let $ = cheerio.load(html);
+			expect($('body.one')).to.have.a.lengthOf(1);
+
+			fs.writeFileFromRootSync('/src/components/Header.astro', `
+				<h1>{Astro.props.title}</h1>
+			`);
+
+			container.viteServer.watcher.emit(
+				'change',
+				fs.getFullyResolvedPath('/src/components/Header.astro')
+			);
+			
+			fs.writeFileFromRootSync('/src/pages/index.astro', `
+				---
+				import Header from '../components/Header.astro';
+				const name = 'Testing';
+				---
+				<html>
+					<head><title>{name}</title></head>
+					<body class="two">
+						<Header title={name} />
+					</body>
+				</html>
+			`);
+
+			container.viteServer.watcher.emit(
+				'change',
+				fs.getFullyResolvedPath('/src/pages/index.astro')
+			);
+
+			r = createRequestAndResponse({
+				method: 'GET',
+				url: '/',
+			});
+			container.handle(r.req, r.res);
+			html = await r.text();
+			$ = cheerio.load(html);
+			expect($('body.one')).to.have.a.lengthOf(0);
+			expect($('body.two')).to.have.a.lengthOf(1);
+		});
+	});
 });
