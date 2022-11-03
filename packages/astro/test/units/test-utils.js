@@ -60,17 +60,11 @@ export function createFs(json, root) {
  * @param {'change'} eventType
  */
 export function triggerFSEvent(container, fs, shortPath, eventType) {
-	container.viteServer.watcher.emit(
-		eventType,
-		fs.getFullyResolvedPath(shortPath)
-	);
+	container.viteServer.watcher.emit(eventType, fs.getFullyResolvedPath(shortPath));
 
-	if(!fileURLToPath(container.settings.config.root).startsWith('/')) {
+	if (!fileURLToPath(container.settings.config.root).startsWith('/')) {
 		const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
-		container.viteServer.watcher.emit(
-			eventType,
-			drive + fs.getFullyResolvedPath(shortPath)
-		);
+		container.viteServer.watcher.emit(eventType, drive + fs.getFullyResolvedPath(shortPath));
 	}
 }
 

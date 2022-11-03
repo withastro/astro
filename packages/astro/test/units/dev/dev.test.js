@@ -70,12 +70,17 @@ describe('dev container', () => {
 			let $ = cheerio.load(html);
 			expect($('body.one')).to.have.a.lengthOf(1);
 
-			fs.writeFileFromRootSync('/src/components/Header.astro', `
+			fs.writeFileFromRootSync(
+				'/src/components/Header.astro',
+				`
 				<h1>{Astro.props.title}</h1>
-			`);
+			`
+			);
 			triggerFSEvent(container, fs, '/src/components/Header.astro', 'change');
-			
-			fs.writeFileFromRootSync('/src/pages/index.astro', `
+
+			fs.writeFileFromRootSync(
+				'/src/pages/index.astro',
+				`
 				---
 				import Header from '../components/Header.astro';
 				const name = 'Testing';
@@ -86,7 +91,8 @@ describe('dev container', () => {
 						<Header title={name} />
 					</body>
 				</html>
-			`);
+			`
+			);
 			triggerFSEvent(container, fs, '/src/pages/index.astro', 'change');
 
 			r = createRequestAndResponse({
