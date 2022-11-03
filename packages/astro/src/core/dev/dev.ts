@@ -1,21 +1,26 @@
 import type { AstroTelemetry } from '@astrojs/telemetry';
+import type http from 'http';
 import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import type { AstroSettings } from '../../@types/astro';
-import { runHookServerDone } from '../../integrations/index.js';
 import { info, LogOptions, warn } from '../logger/core.js';
 import * as msg from '../messages.js';
-import { createContainer, startContainer } from './container.js';
+import { startContainer } from './container.js';
+import { createContainerWithAutomaticRestart } from './restart.js';
 
 export interface DevOptions {
+	configFlag: string | undefined;
+	configFlagPath: string | undefined;
 	logging: LogOptions;
 	telemetry: AstroTelemetry;
+	handleConfigError: (error: Error) => void;
 	isRestart?: boolean;
 }
 
 export interface DevServer {
 	address: AddressInfo;
+	handle: (req: http.IncomingMessage, res: http.ServerResponse<http.IncomingMessage>) => void;
 	watcher: vite.FSWatcher;
 	stop(): Promise<void>;
 }
@@ -29,14 +34,20 @@ export default async function dev(
 	await options.telemetry.record([]);
 
 	// Create a container which sets up the Vite server.
-	const container = await createContainer({
-		settings,
-		logging: options.logging,
-		isRestart: options.isRestart,
+	const restart = await createContainerWithAutomaticRestart({
+		flags: {},
+		handleConfigError: options.handleConfigError,
+		// eslint-disable-next-line no-console
+		beforeRestart: () => console.clear(),
+		params: {
+			settings,
+			logging: options.logging,
+			isRestart: options.isRestart,
+		},
 	});
 
 	// Start listening to the port
-	const devServerAddressInfo = await startContainer(container);
+	const devServerAddressInfo = await startContainer(restart.container);
 
 	const site = settings.config.site
 		? new URL(settings.config.base, settings.config.site)
@@ -46,7 +57,7 @@ export default async function dev(
 		null,
 		msg.serverStart({
 			startupTime: performance.now() - devStart,
-			resolvedUrls: container.viteServer.resolvedUrls || { local: [], network: [] },
+			resolvedUrls: restart.container.viteServer.resolvedUrls || { local: [], network: [] },
 			host: settings.config.server.host,
 			site,
 			isRestart: options.isRestart,
@@ -57,18 +68,20 @@ export default async function dev(
 	if (currentVersion.includes('-')) {
 		warn(options.logging, null, msg.prerelease({ currentVersion }));
 	}
-	if (container.viteConfig.server?.fs?.strict === false) {
+	if (restart.container.viteConfig.server?.fs?.strict === false) {
 		warn(options.logging, null, msg.fsStrictWarning());
 	}
 
 	return {
 		address: devServerAddressInfo,
 		get watcher() {
-			return container.viteServer.watcher;
+			return restart.container.viteServer.watcher;
 		},
-		stop: async () => {
-			await container.close();
-			await runHookServerDone({ config: settings.config, logging: options.logging });
+		handle(req, res) {
+			return restart.container.handle(req, res);
+		},
+		async stop() {
+			await restart.container.close();
 		},
 	};
 }

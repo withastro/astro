@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import * as colors from 'kleur/colors';
 import { pathToFileURL } from 'url';
-import { normalizePath } from 'vite';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
@@ -12,7 +11,6 @@ import {
 	openConfig,
 	resolveConfigPath,
 	resolveFlags,
-	resolveRoot,
 } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
 import devServer from '../core/dev/index.js';
@@ -21,7 +19,6 @@ import { createSafeError } from '../core/errors/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
-import { appendForwardSlash } from '../core/path.js';
 import preview from '../core/preview/index.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
@@ -177,67 +174,19 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
-			async function startDevServer({ isRestart = false }: { isRestart?: boolean } = {}) {
-				const { watcher, stop } = await devServer(settings, { logging, telemetry, isRestart });
-				let restartInFlight = false;
-				const configFlag = resolveFlags(flags).config;
-				const configFlagPath = configFlag
-					? await resolveConfigPath({ cwd: root, flags })
-					: undefined;
-				const resolvedRoot = appendForwardSlash(resolveRoot(root));
+			const configFlag = resolveFlags(flags).config;
+			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags }) : undefined;
 
-				const handleServerRestart = (logMsg: string) =>
-					async function (changedFile: string) {
-						if (restartInFlight) return;
-
-						let shouldRestart = false;
-
-						// If the config file changed, reload the config and restart the server.
-						shouldRestart = configFlag
-							? // If --config is specified, only watch changes for this file
-							  !!configFlagPath && normalizePath(configFlagPath) === normalizePath(changedFile)
-							: // Otherwise, watch for any astro.config.* file changes in project root
-							  new RegExp(
-									`${normalizePath(resolvedRoot)}.*astro\.config\.((mjs)|(cjs)|(js)|(ts))$`
-							  ).test(normalizePath(changedFile));
-
-						if (!shouldRestart && settings.watchFiles.length > 0) {
-							// If the config file didn't change, check if any of the watched files changed.
-							shouldRestart = settings.watchFiles.some(
-								(path) => normalizePath(path) === normalizePath(changedFile)
-							);
-						}
-
-						if (!shouldRestart) return;
-
-						restartInFlight = true;
-						console.clear();
-						try {
-							const newConfig = await openConfig({
-								cwd: root,
-								flags,
-								cmd,
-								logging,
-								isRestart: true,
-							});
-							info(logging, 'astro', logMsg + '\n');
-							let astroConfig = newConfig.astroConfig;
-							settings = createSettings(astroConfig, root);
-							await stop();
-							await startDevServer({ isRestart: true });
-						} catch (e) {
-							await handleConfigError(e, { cwd: root, flags, logging });
-							await stop();
-							info(logging, 'astro', 'Continuing with previous valid configuration\n');
-							await startDevServer({ isRestart: true });
-						}
-					};
-
-				watcher.on('change', handleServerRestart('Configuration updated. Restarting...'));
-				watcher.on('unlink', handleServerRestart('Configuration removed. Restarting...'));
-				watcher.on('add', handleServerRestart('Configuration added. Restarting...'));
-			}
-			await startDevServer({ isRestart: false });
+			await devServer(settings, {
+				configFlag,
+				configFlagPath,
+				logging,
+				telemetry,
+				handleConfigError(e) {
+					handleConfigError(e, { cwd: root, flags, logging });
+					info(logging, 'astro', 'Continuing with previous valid configuration\n');
+				},
+			});
 			return await new Promise(() => {}); // lives forever
 		}
 

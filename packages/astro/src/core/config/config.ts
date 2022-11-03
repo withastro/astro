@@ -105,7 +105,10 @@ export function resolveFlags(flags: Partial<Flags>): CLIFlags {
 	};
 }
 
-export function resolveRoot(cwd?: string): string {
+export function resolveRoot(cwd?: string | URL): string {
+	if (cwd instanceof URL) {
+		cwd = fileURLToPath(cwd);
+	}
 	return cwd ? path.resolve(cwd) : process.cwd();
 }
 
@@ -137,6 +140,7 @@ interface LoadConfigOptions {
 	logging: LogOptions;
 	/** Invalidate when reloading a previously loaded config */
 	isRestart?: boolean;
+	fsMod?: typeof fs;
 }
 
 /**
@@ -210,6 +214,7 @@ async function tryLoadConfig(
 	flags: CLIFlags,
 	root: string
 ): Promise<TryLoadConfigResult | undefined> {
+	const fsMod = configOptions.fsMod ?? fs;
 	let finallyCleanup = async () => {};
 	try {
 		let configPath = await resolveConfigPath({
@@ -224,7 +229,9 @@ async function tryLoadConfig(
 				root,
 				`.temp.${Date.now()}.config${path.extname(configPath)}`
 			);
-			await fs.promises.writeFile(tempConfigPath, await fs.promises.readFile(configPath));
+
+			const currentConfigContent = await fsMod.promises.readFile(configPath, 'utf-8');
+			await fs.promises.writeFile(tempConfigPath, currentConfigContent);
 			finallyCleanup = async () => {
 				try {
 					await fs.promises.unlink(tempConfigPath);
