@@ -6,11 +6,25 @@ import npath from 'path';
 import { unixify } from './correct-path.js';
 
 class MyVolume extends Volume {
+	#root = '';
+	constructor(root) {
+		super();
+		this.#root = root;
+	}
+
+	getFullyResolvedPath(pth) {
+		return npath.posix.join(this.#root, pth);
+	}
+
 	existsSync(p) {
 		if (p instanceof URL) {
 			p = fileURLToPath(p);
 		}
 		return super.existsSync(p);
+	}
+
+	writeFileFromRootSync(pth, ...rest) {
+		return super.writeFileSync(this.getFullyResolvedPath(pth), ...rest);
 	}
 }
 
@@ -25,7 +39,7 @@ export function createFs(json, root) {
 		structure[fullpath] = value;
 	}
 
-	const fs = new MyVolume();
+	const fs = new MyVolume(root);
 	fs.fromJSON(structure);
 	return fs;
 }
