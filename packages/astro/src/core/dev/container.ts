@@ -7,13 +7,15 @@ import * as vite from 'vite';
 import {
 	runHookConfigDone,
 	runHookConfigSetup,
+	runHookServerDone,
 	runHookServerSetup,
 	runHookServerStart,
 } from '../../integrations/index.js';
-import { createDefaultDevSettings } from '../config/index.js';
+import { createDefaultDevSettings, resolveRoot } from '../config/index.js';
 import { createVite } from '../create-vite.js';
 import { LogOptions } from '../logger/core.js';
 import { nodeLogDestination } from '../logger/node.js';
+import { appendForwardSlash } from '../path.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 
 const defaultLogging: LogOptions = {
@@ -27,6 +29,10 @@ export interface Container {
 	settings: AstroSettings;
 	viteConfig: vite.InlineConfig;
 	viteServer: vite.ViteDevServer;
+	resolvedRoot: string;
+	configFlag: string | undefined;
+	configFlagPath: string | undefined;
+	restartInFlight: boolean; // gross
 	handle: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 	close: () => Promise<void>;
 }
@@ -38,6 +44,9 @@ export interface CreateContainerParams {
 	settings?: AstroSettings;
 	fs?: typeof nodeFs;
 	root?: string | URL;
+	// The string passed to --config and the resolved path
+	configFlag?: string;
+	configFlagPath?: string;
 }
 
 export async function createContainer(params: CreateContainerParams = {}): Promise<Container> {
@@ -83,20 +92,34 @@ export async function createContainer(params: CreateContainerParams = {}): Promi
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config: settings.config, server: viteServer, logging });
 
-	return {
+	const container: Container = {
+		configFlag: params.configFlag,
+		configFlagPath: params.configFlagPath,
 		fs,
 		logging,
+		resolvedRoot: appendForwardSlash(resolveRoot(params.root)),
+		restartInFlight: false,
 		settings,
 		viteConfig,
 		viteServer,
-
 		handle(req, res) {
 			viteServer.middlewares.handle(req, res, Function.prototype);
 		},
+		// TODO deprecate and remove
 		close() {
-			return viteServer.close();
+			return closeContainer(container);
 		},
 	};
+
+	return container;
+}
+
+async function closeContainer({ viteServer, settings, logging }: Container) {
+	await viteServer.close();
+	await runHookServerDone({
+		config: settings.config,
+		logging,
+	});
 }
 
 export async function startContainer({
@@ -114,6 +137,10 @@ export async function startContainer({
 	});
 
 	return devServerAddressInfo;
+}
+
+export function isStarted(container: Container): boolean {
+	return !!container.viteServer.httpServer?.listening;
 }
 
 export async function runInContainer(
