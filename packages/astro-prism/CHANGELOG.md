@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 1.0.2
+
+### Patch Changes
+
+- [#5281](https://github.com/withastro/astro/pull/5281) [`a558cf317`](https://github.com/withastro/astro/commit/a558cf317a98bfb79688a31ddb81c910e16e79c2) Thanks [@aleksa-codes](https://github.com/aleksa-codes)! - Update URLs in package.json
+
 ## 1.0.1
 
 ### Patch Changes
