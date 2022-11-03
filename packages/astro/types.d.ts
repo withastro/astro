@@ -6,7 +6,7 @@ export type HTMLTag = keyof astroHTML.JSX.DefinedIntrinsicElements;
 /** The built-in attributes for any known HTML or SVG element name */
 export type HTMLAttributes<Tag extends HTMLTag> = Omit<
 	astroHTML.JSX.IntrinsicElements[Tag],
-	keyof AstroBuiltinAttributes
+	keyof Omit<AstroBuiltinAttributes, 'class:list'>
 >;
 
 // TODO: Enable generic/polymorphic types once compiler output stabilizes in the Language Server
