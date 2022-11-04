@@ -29,7 +29,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachStaticPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import { eachStaticPageData, eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -78,9 +78,15 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
-	
-	for (const pageData of eachStaticPageData(internals)) {
-		await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+
+	if (opts.settings.config.output === 'server') {
+		for (const pageData of eachStaticPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
+	} else {
+		for (const pageData of eachPageData(internals)) {
+			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
+		}
 	}
 
 	await runHookBuildGenerated({
