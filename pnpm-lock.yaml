@@ -142,7 +142,7 @@ importers:
       '@astrojs/lit': link:../../packages/integrations/lit
       '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../packages/astro
-      lit: 2.4.0
+      lit: 2.4.1
 
   examples/framework-multiple:
     specifiers:
@@ -194,7 +194,7 @@ importers:
       react-dom: ^18.1.0
     dependencies:
       '@astrojs/react': link:../../packages/integrations/react
-      '@types/react': 18.0.24
+      '@types/react': 18.0.25
       '@types/react-dom': 18.0.8
       astro: link:../../packages/astro
       react: 18.2.0
@@ -527,7 +527,7 @@ importers:
       typescript: 4.8.4
       unist-util-visit: 4.1.1
       vfile: 5.3.5
-      vite: 3.2.2_sass@1.55.0
+      vite: 3.2.2_sass@1.56.0
       vitefu: 0.1.1_vite@3.2.2
       yargs-parser: 21.1.1
       zod: 3.19.1
@@ -557,7 +557,7 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
-      memfs: 3.4.9
+      memfs: 3.4.10
       mocha: 9.2.2
       node-fetch: 3.2.10
       node-mocks-http: 1.11.0
@@ -565,7 +565,7 @@ importers:
       rehype-slug: 5.1.0
       rehype-toc: 3.0.2
       remark-code-titles: 0.1.2
-      sass: 1.55.0
+      sass: 1.56.0
       srcset-parse: 1.1.0
       unified: 10.1.2
 
@@ -688,7 +688,7 @@ importers:
       sass: ^1.52.2
     dependencies:
       astro: link:../../..
-      sass: 1.55.0
+      sass: 1.56.0
 
   packages/astro/e2e/fixtures/errors:
     specifiers:
@@ -744,7 +744,7 @@ importers:
       '@astrojs/lit': link:../../../../integrations/lit
       '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../..
-      lit: 2.4.0
+      lit: 2.4.1
 
   packages/astro/e2e/fixtures/multiple-frameworks:
     specifiers:
@@ -765,7 +765,7 @@ importers:
       vue: ^3.2.37
     dependencies:
       '@webcomponents/template-shadowroot': 0.1.0
-      lit: 2.4.0
+      lit: 2.4.1
       preact: 10.11.2
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -1907,7 +1907,7 @@ importers:
       '@astrojs/lit': link:../../../../integrations/lit
       '@webcomponents/template-shadowroot': 0.1.0
       astro: link:../../..
-      lit: 2.4.0
+      lit: 2.4.1
 
   packages/astro/test/fixtures/markdown:
     specifiers:
@@ -2074,6 +2074,12 @@ importers:
       preact: 10.11.2
 
   packages/astro/test/fixtures/remote-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/root-srcdir-css:
     specifiers:
       astro: workspace:*
     dependencies:
@@ -2621,7 +2627,7 @@ importers:
       cheerio: 1.0.0-rc.12
       mocha: 9.2.2
       rollup-plugin-copy: 3.4.0
-      sharp: 0.31.1
+      sharp: 0.31.2
       vite: 3.2.2
 
   packages/integrations/image/test/fixtures/background-color-image:
@@ -2634,7 +2640,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/basic-image:
     specifiers:
@@ -2646,7 +2652,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/basic-picture:
     specifiers:
@@ -2658,7 +2664,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/custom-loaders:
     specifiers:
@@ -2688,7 +2694,7 @@ importers:
     dependencies:
       '@astrojs/image': link:../../..
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/no-alt-text-image:
     specifiers:
@@ -2700,7 +2706,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/no-alt-text-picture:
     specifiers:
@@ -2712,7 +2718,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/rotation:
     specifiers:
@@ -2724,7 +2730,7 @@ importers:
       '@astrojs/image': link:../../..
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/image/test/fixtures/squoosh-service:
     specifiers:
@@ -2748,7 +2754,7 @@ importers:
       '@astrojs/mdx': link:../../../../mdx
       '@astrojs/node': link:../../../../node
       astro: link:../../../../../astro
-      sharp: 0.31.1
+      sharp: 0.31.2
 
   packages/integrations/lit:
     specifiers:
@@ -2767,9 +2773,9 @@ importers:
       astro-scripts: link:../../../scripts
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
-      lit: 2.4.0
+      lit: 2.4.1
       mocha: 9.2.2
-      sass: 1.55.0
+      sass: 1.56.0
 
   packages/integrations/mdx:
     specifiers:
@@ -5955,8 +5961,8 @@ packages:
   /@lit-labs/ssr-client/1.0.1:
     resolution: {integrity: sha512-rr/UVhxbKWNUr+3qRyvZk+glC7v7ph8Gk/W0z96YG64COJKf9ilnWY6JGW77TRqhrRMmS2nsvAXOyQgcF+4jrA==}
     dependencies:
-      '@lit/reactive-element': 1.4.1
-      lit: 2.4.0
+      '@lit/reactive-element': 1.4.2
+      lit: 2.4.1
       lit-html: 2.4.0
     dev: false
 
@@ -5965,9 +5971,9 @@ packages:
     engines: {node: '>=13.9.0'}
     dependencies:
       '@lit-labs/ssr-client': 1.0.1
-      '@lit/reactive-element': 1.4.1
+      '@lit/reactive-element': 1.4.2
       '@types/node': 16.18.3
-      lit: 2.4.0
+      lit: 2.4.1
       lit-element: 3.2.2
       lit-html: 2.4.0
       node-fetch: 3.2.10
@@ -5975,8 +5981,8 @@ packages:
       resolve: 1.22.1
     dev: false
 
-  /@lit/reactive-element/1.4.1:
-    resolution: {integrity: sha512-qDv4851VFSaBWzpS02cXHclo40jsbAjRXnebNXpm0uVg32kCneZPo9RYVQtrTNICtZ+1wAYHu1ZtxWSWMbKrBw==}
+  /@lit/reactive-element/1.4.2:
+    resolution: {integrity: sha512-VMOxsWh/QDwrxPsgkSQnuZ+8mfNy1OTjzzUdLBvvZtpahwPTHTeVZ51RZRqO4xfKVrR+btIPA8D01IL3xeG66w==}
 
   /@ljharb/has-package-exports-patterns/0.0.2:
     resolution: {integrity: sha512-4/RWEeXDO6bocPONheFe6gX/oQdP/bEpv0oL4HqjPP5DCenBSt0mHgahppY49N0CpsaqffdwPq+TlX9CYOq2Dw==}
@@ -9781,8 +9787,8 @@ packages:
       '@types/scheduler': 0.16.2
       csstype: 3.1.1
 
-  /@types/react/18.0.24:
-    resolution: {integrity: sha512-wRJWT6ouziGUy+9uX0aW4YOJxAY0bG6/AOk5AW5QSvZqI7dk6VBIbXvcVgIw/W5Jrl24f77df98GEKTJGOLx7Q==}
+  /@types/react/18.0.25:
+    resolution: {integrity: sha512-xD6c0KDT4m7n9uD4ZHi02lzskaiqcBxf4zi+tXZY98a04wvc0hi/TcCPC2FOESZi51Nd7tlUeOJY8RofL799/g==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -10594,7 +10600,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.21.4
-      caniuse-lite: 1.0.30001429
+      caniuse-lite: 1.0.30001430
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -10622,7 +10628,7 @@ packages:
       find-babel-config: 1.2.0
       glob: 7.2.3
       pkg-up: 3.1.0
-      reselect: 4.1.6
+      reselect: 4.1.7
       resolve: 1.22.1
     dev: false
 
@@ -10788,7 +10794,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001429
+      caniuse-lite: 1.0.30001430
       electron-to-chromium: 1.4.284
       node-releases: 2.0.6
       update-browserslist-db: 1.0.10_browserslist@4.21.4
@@ -10873,8 +10879,8 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  /caniuse-lite/1.0.30001429:
-    resolution: {integrity: sha512-511ThLu1hF+5RRRt0zYCf2U2yRr9GPF6m5y90SBCWsvSoYoW7yAGlv/elyPaNfvGCkp6kj/KFZWU0BMA69Prsg==}
+  /caniuse-lite/1.0.30001430:
+    resolution: {integrity: sha512-IB1BXTZKPDVPM7cnV4iaKaHxckvdr/3xtctB3f7Hmenx3qYBhGtTZ//7EllK66aKXW98Lx0+7Yr0kxBtIt3tzg==}
 
   /canvas-confetti/1.6.0:
     resolution: {integrity: sha512-ej+w/m8Jzpv9Z7W7uJZer14Ke8P2ogsjg4ZMGIuq4iqUOqY2Jq8BNW42iGmNfRwREaaEfFIczLuZZiEVSYNHAA==}
@@ -11139,7 +11145,7 @@ packages:
       spawn-command: 0.0.2-1
       supports-color: 8.1.1
       tree-kill: 1.2.2
-      yargs: 17.6.1
+      yargs: 17.6.2
     dev: false
 
   /consola/2.15.3:
@@ -13392,8 +13398,8 @@ packages:
       safer-buffer: 2.1.2
     dev: true
 
-  /idb/7.1.0:
-    resolution: {integrity: sha512-Wsk07aAxDsntgYJY4h0knZJuTxM73eQ4reRAO+Z1liOh8eMCJ/MoDS8fCui1vGT9mnjtl1sOu3I2i/W1swPYZg==}
+  /idb/7.1.1:
+    resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
     dev: false
 
   /ieee754/1.2.1:
@@ -13415,7 +13421,7 @@ packages:
     resolution: {integrity: sha512-YbZhedg/zja34yV6iRDhfo4cmAYSwxaErkuzc/RpMMAELgszpDKf3MLH6VlsR+QkenPUEGkGAVpJAM2GbUls9Q==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      sharp: 0.31.1
+      sharp: 0.31.2
     dev: false
 
   /immutable/4.1.0:
@@ -13926,7 +13932,7 @@ packages:
   /lit-element/3.2.2:
     resolution: {integrity: sha512-6ZgxBR9KNroqKb6+htkyBwD90XGRiqKDHVrW/Eh0EZ+l+iC+u+v+w3/BA5NGi4nizAVHGYvQBHUDuSmLjPp7NQ==}
     dependencies:
-      '@lit/reactive-element': 1.4.1
+      '@lit/reactive-element': 1.4.2
       lit-html: 2.4.0
 
   /lit-html/2.4.0:
@@ -13934,10 +13940,10 @@ packages:
     dependencies:
       '@types/trusted-types': 2.0.2
 
-  /lit/2.4.0:
-    resolution: {integrity: sha512-fdgzxEtLrZFQU/BqTtxFQCLwlZd9bdat+ltzSFjvWkZrs7eBmeX0L5MHUMb3kYIkuS8Xlfnii/iI5klirF8/Xg==}
+  /lit/2.4.1:
+    resolution: {integrity: sha512-qohSgLiyN1cFnJG26dIiY03S4F49857A0AHQfnS0zYtnUVnD2MFvx+UT52rtXsIuNFQrnUupX+zyGSATlk1f/A==}
     dependencies:
-      '@lit/reactive-element': 1.4.1
+      '@lit/reactive-element': 1.4.2
       lit-element: 3.2.2
       lit-html: 2.4.0
 
@@ -14319,8 +14325,8 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /memfs/3.4.9:
-    resolution: {integrity: sha512-3rm8kbrzpUGRyPKSGuk387NZOwQ90O4rI9tsWQkzNW7BLSnKGp23RsEsKK8N8QVCrtJoAMqy3spxHC4os4G6PQ==}
+  /memfs/3.4.10:
+    resolution: {integrity: sha512-0bCUP+L79P4am30yP1msPzApwuMQG23TjwlwdHeEV5MxioDR1a0AgB0T9FfggU52eJuDCq8WVwb5ekznFyWiTQ==}
     engines: {node: '>= 4.0.0'}
     dependencies:
       fs-monkey: 1.0.3
@@ -16390,8 +16396,8 @@ packages:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
     dev: true
 
-  /reselect/4.1.6:
-    resolution: {integrity: sha512-ZovIuXqto7elwnxyXbBtCPo9YFEr3uJqj2rRbcOOog1bmu2Ag85M4hixSwFWyaBMKXNgvPaJ9OSu9SkBPIeJHQ==}
+  /reselect/4.1.7:
+    resolution: {integrity: sha512-Zu1xbUt3/OPwsXL46hvOOoQrap2azE7ZQbokq61BQfiXvhewsKDwhMeZjTX9sX0nvw1t/U5Audyn1I9P/m9z0A==}
     dev: false
 
   /resolve-from/4.0.0:
@@ -16583,8 +16589,8 @@ packages:
     dependencies:
       suf-log: 2.5.3
 
-  /sass/1.55.0:
-    resolution: {integrity: sha512-Pk+PMy7OGLs9WaxZGJMn7S96dvlyVBwwtToX895WmCpAOr5YiJYEUJfiJidMuKb613z2xNWcXCHEuOvjZbqC6A==}
+  /sass/1.56.0:
+    resolution: {integrity: sha512-WFJ9XrpkcnqZcYuLRJh5qiV6ibQOR4AezleeEjTjMsCocYW59dEG19U3fwTTXxzi2Ed3yjPBp727hbbj53pHFw==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
@@ -16690,8 +16696,8 @@ packages:
   /setprototypeof/1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  /sharp/0.31.1:
-    resolution: {integrity: sha512-GR8M1wBwOiFKLkm9JPun27OQnNRZdHfSf9VwcdZX6UrRmM1/XnOrLFTF0GAil+y/YK4E6qcM/ugxs80QirsHxg==}
+  /sharp/0.31.2:
+    resolution: {integrity: sha512-DUdNVEXgS5A97cTagSLIIp8dUZ/lZtk78iNVZgHdHbx1qnQR7JAHY0BnXnwwH39Iw+VKhO08CTYhIg0p98vQ5Q==}
     engines: {node: '>=14.15.0'}
     requiresBuild: true
     dependencies:
@@ -17483,7 +17489,7 @@ packages:
       smartwrap: 2.0.2
       strip-ansi: 6.0.1
       wcwidth: 1.0.1
-      yargs: 17.6.1
+      yargs: 17.6.2
     dev: true
 
   /tunnel-agent/0.6.0:
@@ -18046,7 +18052,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
 
-  /vite/3.2.2_sass@1.55.0:
+  /vite/3.2.2_sass@1.56.0:
     resolution: {integrity: sha512-pLrhatFFOWO9kS19bQ658CnRYzv0WLbsPih6R+iFeEEhDOuYgYCX2rztUViMz/uy/V8cLCJvLFeiOK7RJEzHcw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -18072,7 +18078,7 @@ packages:
       postcss: 8.4.18
       resolve: 1.22.1
       rollup: 2.79.1
-      sass: 1.55.0
+      sass: 1.56.0
     optionalDependencies:
       fsevents: 2.3.2
     dev: false
@@ -18094,7 +18100,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 3.2.2_sass@1.55.0
+      vite: 3.2.2_sass@1.56.0
     dev: false
 
   /vitest/0.20.3:
@@ -18320,7 +18326,7 @@ packages:
   /workbox-background-sync/6.5.4:
     resolution: {integrity: sha512-0r4INQZMyPky/lj4Ou98qxcThrETucOde+7mRGJl13MPJugQNKeZQOdIJe/1AchOP23cTqHcN/YVpD6r8E6I8g==}
     dependencies:
-      idb: 7.1.0
+      idb: 7.1.1
       workbox-core: 6.5.4
     dev: false
 
@@ -18389,7 +18395,7 @@ packages:
   /workbox-expiration/6.5.4:
     resolution: {integrity: sha512-jUP5qPOpH1nXtjGGh1fRBa1wJL2QlIb5mGpct3NzepjGG2uFFBn4iiEBiI9GUmfAFR2ApuRhDydjcRmYXddiEQ==}
     dependencies:
-      idb: 7.1.0
+      idb: 7.1.1
       workbox-core: 6.5.4
     dev: false
 
@@ -18644,8 +18650,8 @@ packages:
       yargs-parser: 20.2.4
     dev: true
 
-  /yargs/17.6.1:
-    resolution: {integrity: sha512-leBuCGrL4dAd6ispNOGsJlhd0uZ6Qehkbu/B9KCR+Pxa/NVdNwi+i31lo0buCm6XxhJQFshXCD0/evfV4xfoUg==}
+  /yargs/17.6.2:
+    resolution: {integrity: sha512-1/9UrdHjDZc0eOU0HxOHoS78C69UD3JRMvzlJ7S79S2nTaWRA/whGCTV8o9e/N/1Va9YIV7Q4sOxD8VV4pCWOw==}
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1
