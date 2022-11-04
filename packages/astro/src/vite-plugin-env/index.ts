@@ -74,7 +74,7 @@ export default function envVitePlugin({ settings }: EnvPluginOptions): vite.Plug
 				// Do not allow preceding '.', but do allow preceding '...' for spread operations
 				'(?<!(?<!\\.\\.)\\.)\\b(' +
 					// Captures `import.meta.env.*` calls and replace with `privateEnv`
-					`import\\.meta\\.env\\.(.+)` +
+					`import\\.meta\\.env\\.(.+?)` +
 					'|' +
 					// This catches destructed `import.meta.env` calls,
 					// BUT we only want to inject private keys referenced in the file.
