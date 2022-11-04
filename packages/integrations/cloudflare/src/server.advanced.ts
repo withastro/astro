@@ -4,13 +4,14 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy } from './util.js';
 
+process.env = getProcessEnvProxy();
+
 type Env = {
 	ASSETS: { fetch: (req: Request) => Promise<Response> };
 	name: string;
 };
 
 export function createExports(manifest: SSRManifest) {
-	process.env = getProcessEnvProxy();
 	const app = new App(manifest, false);
 
 	const fetch = async (request: Request, env: Env, context: any) => {
