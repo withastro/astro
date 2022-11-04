@@ -31,8 +31,7 @@ function getPrivateEnv(
 		// Ignore public env var
 		if (envPrefixes.every((prefix) => !key.startsWith(prefix))) {
 			if (typeof process.env[key] !== 'undefined') {
-				// If value is from `process.env`, convert to runtime value, e.g. `process.env.FOO`
-				privateEnv[key] = astroConfig.build.envKey(fullEnv[key]);
+				privateEnv[key] = `process.env.${key}`;
 			} else {
 				privateEnv[key] = JSON.stringify(fullEnv[key]);
 			}
