@@ -4,8 +4,6 @@ import { pathToFileURL } from 'url';
 import type { Arguments as Flags } from 'yargs-parser';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import add from '../core/add/index.js';
-import build from '../core/build/index.js';
 import {
 	createSettings,
 	openConfig,
@@ -13,18 +11,15 @@ import {
 	resolveFlags,
 } from '../core/config/index.js';
 import { ASTRO_VERSION } from '../core/constants.js';
-import devServer from '../core/dev/index.js';
 import { collectErrorMetadata } from '../core/errors/dev/index.js';
 import { createSafeError } from '../core/errors/index.js';
 import { debug, error, info, LogOptions } from '../core/logger/core.js';
 import { enableVerboseLogging, nodeLogDestination } from '../core/logger/node.js';
 import { formatConfigErrorMessage, formatErrorMessage, printHelp } from '../core/messages.js';
-import preview from '../core/preview/index.js';
 import * as event from '../events/index.js';
 import { eventConfigError, eventError, telemetry } from '../events/index.js';
 import { check } from './check/index.js';
 import { openInBrowser } from './open.js';
-import * as telemetryHandler from './telemetry.js';
 
 type Arguments = yargs.Arguments;
 type CLICommand =
@@ -140,6 +135,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	//
 	switch (cmd) {
 		case 'add': {
+			const { default: add } = await import('../core/add/index.js');
+
 			telemetry.record(event.eventCliSession(cmd));
 			const packages = flags._.slice(3) as string[];
 			return await add(packages, { cwd: root, flags, logging, telemetry });
@@ -149,6 +146,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 			return await openInBrowser('https://docs.astro.build/');
 		}
 		case 'telemetry': {
+			const telemetryHandler = await import('./telemetry.js');
+
 			// Do not track session start, since the user may be trying to enable,
 			// disable, or modify telemetry settings.
 			const subcommand = flags._[3]?.toString();
@@ -174,6 +173,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 	// by the end of this switch statement.
 	switch (cmd) {
 		case 'dev': {
+			const { default: devServer } = await import('../core/dev/index.js');
+
 			const configFlag = resolveFlags(flags).config;
 			const configFlagPath = configFlag ? await resolveConfigPath({ cwd: root, flags }) : undefined;
 
@@ -191,6 +192,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'build': {
+			const { default: build } = await import('../core/build/index.js');
+
 			return await build(settings, { ...flags, logging, telemetry });
 		}
 
@@ -200,6 +203,8 @@ async function runCommand(cmd: string, flags: yargs.Arguments) {
 		}
 
 		case 'preview': {
+			const { default: preview } = await import('../core/preview/index.js');
+
 			const server = await preview(settings, { logging, telemetry });
 			return await server.closed(); // keep alive until the server is closed
 		}
