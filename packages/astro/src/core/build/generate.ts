@@ -69,6 +69,7 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
+	if (opts.settings.config.output === 'server' && internals.pagesByOutput.static.size === 0) return;
 	const timer = performance.now();
 	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
 
