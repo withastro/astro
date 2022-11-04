@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/prism",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Supports Prism highlighting in Astro projects",
   "author": "withastro",
   "type": "module",
@@ -11,7 +11,7 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro-prism"
   },
-  "homepage": "https://astro.build",
+  "homepage": "https://docs.astro.build/en/reference/api-reference/#prism-",
   "main": "dist/index.js",
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",

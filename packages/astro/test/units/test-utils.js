@@ -6,11 +6,33 @@ import npath from 'path';
 import { unixify } from './correct-path.js';
 
 class MyVolume extends Volume {
-	existsSync(p) {
+	#root = '';
+	constructor(root) {
+		super();
+		this.#root = root;
+	}
+
+	#forcePath(p) {
 		if (p instanceof URL) {
-			p = fileURLToPath(p);
+			p = unixify(fileURLToPath(p));
 		}
-		return super.existsSync(p);
+		return p;
+	}
+
+	getFullyResolvedPath(pth) {
+		return npath.posix.join(this.#root, pth);
+	}
+
+	existsSync(p) {
+		return super.existsSync(this.#forcePath(p));
+	}
+
+	readFile(p, ...args) {
+		return super.readFile(this.#forcePath(p), ...args);
+	}
+
+	writeFileFromRootSync(pth, ...rest) {
+		return super.writeFileSync(this.getFullyResolvedPath(pth), ...rest);
 	}
 }
 
@@ -25,9 +47,25 @@ export function createFs(json, root) {
 		structure[fullpath] = value;
 	}
 
-	const fs = new MyVolume();
+	const fs = new MyVolume(root);
 	fs.fromJSON(structure);
 	return fs;
+}
+
+/**
+ *
+ * @param {import('../../src/core/dev/container').Container} container
+ * @param {typeof import('fs')} fs
+ * @param {string} shortPath
+ * @param {'change'} eventType
+ */
+export function triggerFSEvent(container, fs, shortPath, eventType) {
+	container.viteServer.watcher.emit(eventType, fs.getFullyResolvedPath(shortPath));
+
+	if (!fileURLToPath(container.settings.config.root).startsWith('/')) {
+		const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
+		container.viteServer.watcher.emit(eventType, drive + fs.getFullyResolvedPath(shortPath));
+	}
 }
 
 export function createRequestAndResponse(reqOptions = {}) {

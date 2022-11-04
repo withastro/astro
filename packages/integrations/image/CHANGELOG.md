@@ -1,5 +1,11 @@
 # @astrojs/image
 
+## 0.11.1
+
+### Patch Changes
+
+- [#5260](https://github.com/withastro/astro/pull/5260) [`37d664e26`](https://github.com/withastro/astro/commit/37d664e26262f8e1026a31dcd4fcb251097dd90c) Thanks [@tony-sull](https://github.com/tony-sull)! - Fixes a bug where the `web-streams-polyfill` dependency would not be installed with the `--production` flag
+
 ## 0.11.0
 
 ### Minor Changes

@@ -10,6 +10,7 @@ scripts/memory/project/src/pages/
 package-lock.json
 .turbo/
 .eslintcache
+.pnpm-store
 
 # ignore top-level vscode settings
 /.vscode/settings.json

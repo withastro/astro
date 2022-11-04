@@ -70,6 +70,14 @@ export async function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.root)
 		throw new Error("Must provide { root: './fixtures/...' }");
 
+	// Compatible with different Node versions (https://vitejs.dev/guide/migration.html#dev-server-changes)
+	// TODO: Remove this to test in Node >= 17 where the dns resolver is verbatim
+	if (!inlineConfig?.server) {
+		inlineConfig.server = {
+			host: '127.0.0.1',
+		};
+	}
+
 	// load config
 	let cwd = inlineConfig.root;
 	delete inlineConfig.root;

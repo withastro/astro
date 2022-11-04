@@ -96,6 +96,7 @@ export async function createVite(
 		},
 		plugins: [
 			configAliasVitePlugin({ settings }),
+			astroLoadFallbackPlugin({ fs, settings }),
 			astroVitePlugin({ settings, logging }),
 			astroScriptsPlugin({ settings }),
 			// The server plugin is for dev only and having it run during the build causes
@@ -110,7 +111,6 @@ export async function createVite(
 			astroPostprocessVitePlugin({ settings }),
 			astroIntegrationsContainerPlugin({ settings, logging }),
 			astroScriptsPageSSRPlugin({ settings }),
-			astroLoadFallbackPlugin({ fs }),
 		],
 		publicDir: fileURLToPath(settings.config.publicDir),
 		root: fileURLToPath(settings.config.root),
