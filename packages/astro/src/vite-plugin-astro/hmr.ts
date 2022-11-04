@@ -24,7 +24,7 @@ export async function handleHotUpdate(
 	{ config, logging, compile }: HandleHotUpdateOptions
 ) {
 	let isStyleOnlyChange = false;
-	if (ctx.file.endsWith('.astro')) {
+	if (ctx.file.endsWith('.astro') && isCached(config, ctx.file)) {
 		// Get the compiled result from the cache
 		const oldResult = await compile();
 		// But we also need a fresh, uncached result to compare it to

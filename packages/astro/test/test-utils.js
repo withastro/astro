@@ -74,10 +74,10 @@ export async function loadFixture(inlineConfig) {
 	// TODO: Remove this to test in Node >= 17 where the dns resolver is verbatim
 	if (!inlineConfig?.server) {
 		inlineConfig.server = {
-			host: '127.0.0.1'
-		}
+			host: '127.0.0.1',
+		};
 	}
-	
+
 	// load config
 	let cwd = inlineConfig.root;
 	delete inlineConfig.root;
