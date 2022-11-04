@@ -2079,6 +2079,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/root-srcdir-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/route-manifest:
     specifiers:
       astro: workspace:*
