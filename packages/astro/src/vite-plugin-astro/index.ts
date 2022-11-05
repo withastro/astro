@@ -42,7 +42,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 
 	// Variables for determining if an id starts with /src...
 	const srcRootWeb = config.srcDir.pathname.slice(config.root.pathname.length - 1);
-	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb) && srcRootWeb !== '/';
 	const isFullFilePath = (path: string) =>
 		path.startsWith(prependForwardSlash(slash(fileURLToPath(config.root))));
 
