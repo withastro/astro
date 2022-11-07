@@ -92,16 +92,17 @@ To do this:
 
 ## Environment Variables
 
-As Cloudflare Pages Functions [provides environment variables differently](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), private environment variables needs to be set through [`vite.define`](https://vitejs.dev/config/shared-options.html#define) to work in builds.
+As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), private environment variables should only be accessed when a request has happened. Usually, this means moving environment variable access inside a function.
 
 ```js
-// astro.config.mjs
-export default {
-  vite: {
-    define: {
-      'process.env.MY_SECRET': JSON.stringify(process.env.MY_SECRET),
-    },
-  },
+// util.js
+
+// ❌ Do not access environment variables on initialization
+const serverUrl = import.meta.env.SERVER_URL;
+
+export function fetchData() {
+  // ✅ Access inside a function instead
+  return fetch(import.meta.env.SERVER_URL + "/api/data");
 }
 ```
 
