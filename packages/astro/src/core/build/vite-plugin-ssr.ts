@@ -13,6 +13,7 @@ import { pagesVirtualModuleId } from '../app/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData, sortedCSS } from './internal.js';
+import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -141,9 +142,12 @@ function buildManifest(
 			scripts.push({ type: 'external', value: entryModules[PAGE_SCRIPT_ID] });
 		}
 
+		const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
+		const links =  sortedCSS(pageData).map(pth => bareBase ? bareBase + '/' + pth : pth);
+
 		routes.push({
 			file: '',
-			links: sortedCSS(pageData),
+			links,
 			scripts: [
 				...scripts,
 				...settings.scripts

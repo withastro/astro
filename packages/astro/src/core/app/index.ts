@@ -169,7 +169,6 @@ export class App {
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
-		const renderers = manifest.renderers;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 

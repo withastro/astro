@@ -32,6 +32,25 @@ describe('Using Astro.request in SSR', () => {
 		expect(json).to.not.be.undefined;
 	});
 
+	it('CSS assets have their base prefix', async () => {
+		const app = await fixture.loadTestAdapterApp();
+		let request = new Request('http://example.com/subpath/request');
+		let response = await app.render(request);
+		expect(response.status).to.equal(200);
+		const html = await response.text();
+		const $ = cheerioLoad(html);
+		
+		const linkHref = $('link').attr('href');
+		expect(linkHref.startsWith('/subpath/')).to.equal(true);
+
+		request = new Request('http://example.com' + linkHref);
+		response = await app.render(request);
+
+		expect(response.status).to.equal(200);
+		const css = await response.text();
+		expect(css).to.not.be.an('undefined');
+	});
+
 	it('assets can be fetched', async () => {
 		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/subpath/cars.json');
