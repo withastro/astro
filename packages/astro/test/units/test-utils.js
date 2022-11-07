@@ -12,15 +12,23 @@ class MyVolume extends Volume {
 		this.#root = root;
 	}
 
+	#forcePath(p) {
+		if (p instanceof URL) {
+			p = unixify(fileURLToPath(p));
+		}
+		return p;
+	}
+
 	getFullyResolvedPath(pth) {
 		return npath.posix.join(this.#root, pth);
 	}
 
 	existsSync(p) {
-		if (p instanceof URL) {
-			p = fileURLToPath(p);
-		}
-		return super.existsSync(p);
+		return super.existsSync(this.#forcePath(p));
+	}
+
+	readFile(p, ...args) {
+		return super.readFile(this.#forcePath(p), ...args);
 	}
 
 	writeFileFromRootSync(pth, ...rest) {
@@ -42,6 +50,22 @@ export function createFs(json, root) {
 	const fs = new MyVolume(root);
 	fs.fromJSON(structure);
 	return fs;
+}
+
+/**
+ *
+ * @param {import('../../src/core/dev/container').Container} container
+ * @param {typeof import('fs')} fs
+ * @param {string} shortPath
+ * @param {'change'} eventType
+ */
+export function triggerFSEvent(container, fs, shortPath, eventType) {
+	container.viteServer.watcher.emit(eventType, fs.getFullyResolvedPath(shortPath));
+
+	if (!fileURLToPath(container.settings.config.root).startsWith('/')) {
+		const drive = fileURLToPath(container.settings.config.root).slice(0, 2);
+		container.viteServer.watcher.emit(eventType, drive + fs.getFullyResolvedPath(shortPath));
+	}
 }
 
 export function createRequestAndResponse(reqOptions = {}) {

@@ -1,5 +1,13 @@
 # @astrojs/prefetch
 
+## 0.1.1
+
+### Patch Changes
+
+- [#5244](https://github.com/withastro/astro/pull/5244) [`6ad91bd80`](https://github.com/withastro/astro/commit/6ad91bd80dae935b67a5c18b8dfbb95f2cfe10ef) Thanks [@deeprobin](https://github.com/deeprobin)! - Do not prefetch if browser is offline or uses 3G
+
+- [#5271](https://github.com/withastro/astro/pull/5271) [`b6afe2c1d`](https://github.com/withastro/astro/commit/b6afe2c1db613aabf3139fb58e0fc2ab60322f37) Thanks [@tony-sull](https://github.com/tony-sull)! - Adds additional package.json keywords used for discoverability in the Integrations catalog
+
 ## 0.1.0
 
 ### Minor Changes
