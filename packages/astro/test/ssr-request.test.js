@@ -12,7 +12,7 @@ describe('Using Astro.request in SSR', () => {
 			root: './fixtures/ssr-request/',
 			adapter: testAdapter(),
 			output: 'server',
-			base: '/subpath/'
+			base: '/subpath/',
 		});
 		await fixture.build();
 	});
@@ -39,7 +39,7 @@ describe('Using Astro.request in SSR', () => {
 		expect(response.status).to.equal(200);
 		const html = await response.text();
 		const $ = cheerioLoad(html);
-		
+
 		const linkHref = $('link').attr('href');
 		expect(linkHref.startsWith('/subpath/')).to.equal(true);
 

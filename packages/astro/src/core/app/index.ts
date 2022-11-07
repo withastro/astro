@@ -85,7 +85,7 @@ export class App {
 		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
 	}
 	removeBase(pathname: string) {
-		if(pathname.startsWith(this.#base)) {
+		if (pathname.startsWith(this.#base)) {
 			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
 		}
 		return pathname;

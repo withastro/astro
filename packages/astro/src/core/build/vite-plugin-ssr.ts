@@ -10,10 +10,10 @@ import { fileURLToPath } from 'url';
 import { runHookBuildSsr } from '../../integrations/index.js';
 import { BEFORE_HYDRATION_SCRIPT_ID, PAGE_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { pagesVirtualModuleId } from '../app/index.js';
+import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import { serializeRouteData } from '../routing/index.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { eachPageData, sortedCSS } from './internal.js';
-import { removeLeadingForwardSlash, removeTrailingForwardSlash } from '../path.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -143,7 +143,7 @@ function buildManifest(
 		}
 
 		const bareBase = removeTrailingForwardSlash(removeLeadingForwardSlash(settings.config.base));
-		const links =  sortedCSS(pageData).map(pth => bareBase ? bareBase + '/' + pth : pth);
+		const links = sortedCSS(pageData).map((pth) => (bareBase ? bareBase + '/' + pth : pth));
 
 		routes.push({
 			file: '',
