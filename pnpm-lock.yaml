@@ -2587,6 +2587,16 @@ importers:
       '@astrojs/deno': link:../../..
       astro: link:../../../../../astro
 
+  packages/integrations/deno/test/fixtures/image:
+    specifiers:
+      '@astrojs/deno': workspace:*
+      '@astrojs/image': workspace:*
+      astro: workspace:*
+    dependencies:
+      '@astrojs/deno': link:../../..
+      '@astrojs/image': link:../../../../image
+      astro: link:../../../../../astro
+
   packages/integrations/image:
     specifiers:
       '@altano/tiny-async-pool': ^1.0.2

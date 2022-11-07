@@ -1,0 +1,13 @@
+{
+  "name": "@test/deno-astro-image",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "astro build"
+  },
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/deno": "workspace:*",
+    "@astrojs/image": "workspace:*"
+  }
+}
