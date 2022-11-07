@@ -95,14 +95,15 @@ To do this:
 As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), private environment variables should only be accessed when a request has happened. Usually, this means moving environment variable access inside a function.
 
 ```js
-// util.js
+// pages/[id].json.js
 
-// ❌ Do not access environment variables on initialization
-const serverUrl = import.meta.env.SERVER_URL;
-
-export function fetchData() {
-  // ✅ Access inside a function instead
-  return fetch(import.meta.env.SERVER_URL + "/api/data");
+export function get({ params }) {
+  // Access environment variables inside a function
+  const serverUrl = import.meta.env.SERVER_URL;
+  const result = await fetch(serverUrl + "/user/" + params.id);
+  return {
+    body: await result.text(),
+  };
 }
 ```
 
