@@ -8,10 +8,10 @@ import { createContainer, isStarted, startContainer } from './container.js';
 
 async function createRestartedContainer(
 	container: Container,
-	settings: AstroSettings
+	settings: AstroSettings,
+	needsStart: boolean
 ): Promise<Container> {
 	const { logging, fs, resolvedRoot, configFlag, configFlagPath } = container;
-	const needsStart = isStarted(container);
 	const newContainer = await createContainer({
 		isRestart: true,
 		logging,
@@ -78,10 +78,10 @@ export async function restartContainer({
 	const { logging, close, resolvedRoot, settings: existingSettings } = container;
 	container.restartInFlight = true;
 
-	//console.clear(); // TODO move this
 	if (beforeRestart) {
 		beforeRestart();
 	}
+	const needsStart = isStarted(container);
 	try {
 		const newConfig = await openConfig({
 			cwd: resolvedRoot,
@@ -96,7 +96,7 @@ export async function restartContainer({
 		const settings = createSettings(astroConfig, resolvedRoot);
 		await close();
 		return {
-			container: await createRestartedContainer(container, settings),
+			container: await createRestartedContainer(container, settings, needsStart),
 			error: null,
 		};
 	} catch (_err) {
@@ -105,7 +105,7 @@ export async function restartContainer({
 		await close();
 		info(logging, 'astro', 'Continuing with previous valid configuration\n');
 		return {
-			container: await createRestartedContainer(container, existingSettings),
+			container: await createRestartedContainer(container, existingSettings, needsStart),
 			error,
 		};
 	}
