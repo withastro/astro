@@ -38,7 +38,7 @@ export function start(manifest: SSRManifest, options: Options) {
 		// If the request path wasn't found in astro,
 		// try to fetch a static file instead
 		const url = new URL(request.url);
-		const localPath = new URL('.' + url.pathname, clientRoot);
+		const localPath = new URL('./' + app.removeBase(url.pathname), clientRoot);
 		const fileResp = await fetch(localPath.toString());
 
 		// If the static file can't be found

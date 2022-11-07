@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { createServer } from './http-server.js';
 import type { createExports } from './server';
 
-const preview: CreatePreviewServer = async function ({ client, serverEntrypoint, host, port }) {
+const preview: CreatePreviewServer = async function ({ client, serverEntrypoint, host, port, base }) {
 	type ServerModule = ReturnType<typeof createExports>;
 	type MaybeServerModule = Partial<ServerModule>;
 	let ssrHandler: ServerModule['handler'];
@@ -36,11 +36,20 @@ const preview: CreatePreviewServer = async function ({ client, serverEntrypoint,
 		});
 	};
 
+	const baseWithoutTrailingSlash: string = base.endsWith('/') ? base.slice(0, base.length - 1) : base;
+	function removeBase(pathname: string): string {
+		if(pathname.startsWith(base)) {
+			return pathname.slice(baseWithoutTrailingSlash.length);
+		}
+		return pathname;
+	}
+
 	const server = createServer(
 		{
 			client,
 			port,
 			host,
+			removeBase
 		},
 		handler
 	);

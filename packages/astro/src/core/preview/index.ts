@@ -54,6 +54,7 @@ export default async function preview(
 		serverEntrypoint: new URL(settings.config.build.serverEntry, settings.config.build.server),
 		host,
 		port,
+		base: settings.config.base,
 	});
 
 	return server;
