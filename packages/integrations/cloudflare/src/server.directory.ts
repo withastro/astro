@@ -1,5 +1,3 @@
-import './shim.js';
-
 import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { getProcessEnvProxy } from './util.js';
