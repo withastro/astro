@@ -17,7 +17,7 @@ export function createExports(manifest: SSRManifest) {
 		const { origin, pathname } = new URL(request.url);
 		// static assets
 		if (manifest.assets.has(pathname)) {
-			const assetRequest = new Request(`${origin}/static${pathname}`, request);
+			const assetRequest = new Request(`${origin}/static/${app.removeBase(pathname)}`, request);
 			return next(assetRequest);
 		}
 
