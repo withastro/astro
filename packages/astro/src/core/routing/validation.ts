@@ -1,15 +1,20 @@
-import type { ComponentInstance, GetStaticPathsResult } from '../../@types/astro';
+import type { ComponentInstance, GetStaticPathsResult, RouteData } from '../../@types/astro';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import type { LogOptions } from '../logger/core';
 import { warn } from '../logger/core.js';
 
 const VALID_PARAM_TYPES = ['string', 'number', 'undefined'];
 
 /** Throws error for invalid parameter in getStaticPaths() response */
-export function validateGetStaticPathsParameter([key, value]: [string, any]) {
+export function validateGetStaticPathsParameter([key, value]: [string, any], route: string) {
 	if (!VALID_PARAM_TYPES.includes(typeof value)) {
-		throw new Error(
-			`[getStaticPaths] invalid route parameter for "${key}". Expected a string or number, received \`${value}\` ("${typeof value}")`
-		);
+		throw new AstroError({
+			...AstroErrorData.GetStaticPathsInvalidRouteParam,
+			message: AstroErrorData.GetStaticPathsInvalidRouteParam.message(key, value),
+			location: {
+				file: route,
+			},
+		});
 	}
 }
 
@@ -19,57 +24,76 @@ export function validateDynamicRouteModule(
 	{
 		ssr,
 		logging,
+		route,
 	}: {
 		ssr: boolean;
 		logging: LogOptions;
+		route: RouteData;
 	}
 ) {
-	if ((mod as any).createCollection) {
-		throw new Error(`[createCollection] deprecated. Please use getStaticPaths() instead.`);
-	}
 	if (ssr && mod.getStaticPaths) {
 		warn(logging, 'getStaticPaths', 'getStaticPaths() is ignored when "output: server" is set.');
 	}
 	if (!ssr && !mod.getStaticPaths) {
-		throw new Error(
-			`[getStaticPaths] getStaticPaths() function is required.
-Make sure that you \`export\` a \`getStaticPaths\` function from your dynamic route.
-Alternatively, set \`output: "server"\` in your Astro config file to switch to a non-static server build. `
-		);
+		throw new AstroError({
+			...AstroErrorData.GetStaticPathsRequired,
+			location: { file: route.component },
+		});
 	}
 }
 
-/** Throw error for malformed getStaticPaths() response */
-export function validateGetStaticPathsResult(result: GetStaticPathsResult, logging: LogOptions) {
+/** Throw error and log warnings for malformed getStaticPaths() response */
+export function validateGetStaticPathsResult(
+	result: GetStaticPathsResult,
+	logging: LogOptions,
+	route: RouteData
+) {
 	if (!Array.isArray(result)) {
-		throw new Error(
-			`[getStaticPaths] invalid return value. Expected an array of path objects, but got \`${JSON.stringify(
-				result
-			)}\`.`
-		);
+		throw new AstroError({
+			...AstroErrorData.InvalidGetStaticPathsReturn,
+			message: AstroErrorData.InvalidGetStaticPathsReturn.message(typeof result),
+			location: {
+				file: route.component,
+			},
+		});
 	}
+
 	result.forEach((pathObject) => {
-		if (!pathObject.params) {
-			warn(
-				logging,
-				'getStaticPaths',
-				`invalid path object. Expected an object with key \`params\`, but got \`${JSON.stringify(
-					pathObject
-				)}\`. Skipped.`
-			);
-			return;
+		if (
+			pathObject.params === undefined ||
+			pathObject.params === null ||
+			(pathObject.params && Object.keys(pathObject.params).length === 0)
+		) {
+			throw new AstroError({
+				...AstroErrorData.GetStaticPathsExpectedParams,
+				location: {
+					file: route.component,
+				},
+			});
 		}
+
+		if (typeof pathObject.params !== 'object') {
+			throw new AstroError({
+				...AstroErrorData.InvalidStaticPathParam,
+				message: AstroErrorData.InvalidStaticPathParam.message(typeof pathObject.params),
+				location: {
+					file: route.component,
+				},
+			});
+		}
+
+		// TODO: Replace those with errors? They technically don't crash the build, but users might miss the warning. - erika, 2022-11-07
 		for (const [key, val] of Object.entries(pathObject.params)) {
-			if (!(typeof val === 'undefined' || typeof val === 'string')) {
+			if (!(typeof val === 'undefined' || typeof val === 'string' || typeof val === 'number')) {
 				warn(
 					logging,
 					'getStaticPaths',
-					`invalid path param: ${key}. A string value was expected, but got \`${JSON.stringify(
+					`invalid path param: ${key}. A string, number or undefined value was expected, but got \`${JSON.stringify(
 						val
 					)}\`.`
 				);
 			}
-			if (val === '') {
+			if (typeof val === 'string' && val === '') {
 				warn(
 					logging,
 					'getStaticPaths',

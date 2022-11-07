@@ -492,7 +492,6 @@ importers:
       debug: 4.3.4
       deepmerge-ts: 4.2.2
       diff: 5.1.0
-      eol: 0.9.1
       es-module-lexer: 0.10.5
       esbuild: 0.14.54
       execa: 6.1.0
@@ -557,6 +556,7 @@ importers:
       astro-scripts: link:../../scripts
       chai: 4.3.6
       cheerio: 1.0.0-rc.12
+      eol: 0.9.1
       memfs: 3.4.10
       mocha: 9.2.2
       node-fetch: 3.2.10
@@ -11642,7 +11642,7 @@ packages:
 
   /eol/0.9.1:
     resolution: {integrity: sha512-Ds/TEoZjwggRoz/Q2O7SE3i4Jm66mqTDfmdHdq/7DKVk3bro9Q8h6WdXKdPqFLMoqxrDK5SVRzHVPOS6uuGtrg==}
-    dev: false
+    dev: true
 
   /error-ex/1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}

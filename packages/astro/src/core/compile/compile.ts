@@ -3,8 +3,8 @@ import type { ResolvedConfig } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 
 import { transform } from '@astrojs/compiler';
-import { AstroErrorCodes } from '../errors/errors-data.js';
 import { AggregateError, AstroError, CompilerError } from '../errors/errors.js';
+import { AstroErrorData } from '../errors/index.js';
 import { prependForwardSlash } from '../path.js';
 import { resolvePath, viteID } from '../util.js';
 import { createStylePreprocessor } from './style.js';
@@ -61,7 +61,7 @@ async function compile({
 			// The compiler should be able to handle errors by itself, however
 			// for the rare cases where it can't let's directly throw here with as much info as possible
 			throw new CompilerError({
-				errorCode: AstroErrorCodes.UnknownCompilerError,
+				...AstroErrorData.UnknownCompilerError,
 				message: err.message ?? 'Unknown compiler error',
 				stack: err.stack,
 				location: {
@@ -70,22 +70,18 @@ async function compile({
 			});
 		})
 		.then((result) => {
-			const compilerError = result.diagnostics.find(
-				// HACK: The compiler currently mistakenly returns the wrong severity for warnings, so we'll also filter by code
-				// https://github.com/withastro/compiler/issues/595
-				(diag) => diag.severity === 1 && diag.code < 2000
-			);
+			const compilerError = result.diagnostics.find((diag) => diag.severity === 1);
 
 			if (compilerError) {
 				throw new CompilerError({
-					errorCode: compilerError.code,
+					code: compilerError.code,
 					message: compilerError.text,
 					location: {
 						line: compilerError.location.line,
 						column: compilerError.location.column,
 						file: compilerError.location.file,
 					},
-					hint: compilerError.hint ? compilerError.hint : undefined,
+					hint: compilerError.hint,
 				});
 			}
 
@@ -94,8 +90,8 @@ async function compile({
 					return result;
 				case 1: {
 					let error = cssTransformErrors[0];
-					if (!error.errorCode) {
-						error.errorCode = AstroErrorCodes.UnknownCompilerCSSError;
+					if (!error.code) {
+						error.code = AstroErrorData.UnknownCSSError.code;
 					}
 
 					throw cssTransformErrors[0];

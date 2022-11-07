@@ -67,7 +67,7 @@ export async function handleRequest(
 			const err = createSafeError(_err);
 			// This is our last line of defense regarding errors where we still might have some information about the request
 			// Our error should already be complete, but let's try to add a bit more through some guesswork
-			const errorWithMetadata = collectErrorMetadata(err);
+			const errorWithMetadata = collectErrorMetadata(err, config.root);
 
 			error(env.logging, null, msg.formatErrorMessage(errorWithMetadata));
 			handle500Response(moduleLoader, res, errorWithMetadata);

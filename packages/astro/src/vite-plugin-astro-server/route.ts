@@ -15,6 +15,7 @@ import { matchAllRoutes } from '../core/routing/index.js';
 import { resolvePages } from '../core/util.js';
 import { log404 } from './common.js';
 import { handle404Response, writeSSRResult, writeWebResponse } from './response.js';
+import { AstroErrorData } from '../core/errors/index.js';
 
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
 	...args: any
@@ -63,10 +64,14 @@ export async function matchRoute(
 	}
 
 	if (matches.length) {
+		const possibleRoutes = matches.flatMap((route) => route.component);
+
 		warn(
 			logging,
 			'getStaticPaths',
-			`Route pattern matched, but no matching static path found. (${pathname})`
+			`${AstroErrorData.NoMatchingStaticPathFound.message(
+				pathname
+			)}\n\n${AstroErrorData.NoMatchingStaticPathFound.hint(possibleRoutes)}`
 		);
 	}
 

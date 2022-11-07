@@ -2,8 +2,9 @@ import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import { createLogger, type ErrorPayload, type Logger, type LogLevel } from 'vite';
 import type { ModuleLoader } from '../../module-loader/index.js';
-import { AstroErrorCodes } from '../errors-data.js';
-import { AstroError, type ErrorWithMetadata } from '../errors.js';
+import { AstroErrorData } from '../errors-data.js';
+import { type ErrorWithMetadata } from '../errors.js';
+import { createSafeError } from '../utils.js';
 import { incompatPackageExp } from './utils.js';
 
 /**
@@ -22,55 +23,71 @@ export function createCustomViteLogger(logLevel: LogLevel): Logger {
 	return logger;
 }
 
-export function enhanceViteSSRError(
-	error: Error,
-	filePath?: URL,
-	loader?: ModuleLoader
-): AstroError {
+export function enhanceViteSSRError(error: unknown, filePath?: URL, loader?: ModuleLoader): Error {
+	// NOTE: We don't know where the error that's coming here comes from, so we need to be defensive regarding what we do
+	// to it to make sure we keep as much information as possible. It's very possible that we receive an error that does not
+	// follow any kind of standard formats (ex: a number, a string etc)
+	const safeError = createSafeError(error) as ErrorWithMetadata;
+
 	// Vite will give you better stacktraces, using sourcemaps.
 	if (loader) {
 		try {
-			loader.fixStacktrace(error);
+			loader.fixStacktrace(safeError as Error);
 		} catch {}
 	}
 
-	const newError = new AstroError({
-		name: error.name,
-		message: error.message,
-		location: (error as any).loc,
-		stack: error.stack,
-		errorCode: (error as AstroError).errorCode
-			? (error as AstroError).errorCode
-			: AstroErrorCodes.UnknownViteSSRError,
-	});
+	if (filePath) {
+		const path = fileURLToPath(filePath);
+		const content = fs.readFileSync(path).toString();
+		const lns = content.split('\n');
 
-	// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
-	// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
-	if (filePath && /failed to load module for ssr:/.test(error.message)) {
-		const importName = error.message.split('for ssr:').at(1)?.trim();
-		if (importName) {
-			newError.setMessage(`Could not import "${importName}"`);
-			newError.setHint('Make sure the file exists');
-			newError.setErrorCode(AstroErrorCodes.FailedToLoadModuleSSR);
+		// Vite has a fairly generic error message when it fails to load a module, let's try to enhance it a bit
+		// https://github.com/vitejs/vite/blob/ee7c28a46a6563d54b828af42570c55f16b15d2c/packages/vite/src/node/ssr/ssrModuleLoader.ts#L91
+		if (/failed to load module for ssr:/.test(safeError.message)) {
+			const importName = safeError.message.split('for ssr:').at(1)?.trim();
+			if (importName) {
+				safeError.message = AstroErrorData.FailedToLoadModuleSSR.message(importName);
+				safeError.hint = AstroErrorData.FailedToLoadModuleSSR.hint;
+				safeError.code = AstroErrorData.FailedToLoadModuleSSR.code;
+				const line = lns.findIndex((ln) => ln.includes(importName));
 
-			const path = fileURLToPath(filePath);
-			const content = fs.readFileSync(path).toString();
-			const lns = content.split('\n');
-			const line = lns.findIndex((ln) => ln.includes(importName));
+				if (line !== -1) {
+					const column = lns[line]?.indexOf(importName);
 
-			if (line !== -1) {
-				const column = lns[line]?.indexOf(importName);
+					safeError.loc = {
+						file: path,
+						line: line + 1,
+						column,
+					};
+				}
+			}
+		}
 
-				newError.setLocation({
-					file: path,
-					line: line + 1,
-					column,
-				});
+		// Since Astro.glob is a wrapper around Vite's import.meta.glob, errors don't show accurate information, let's fix that
+		if (/Invalid glob/.test(safeError.message)) {
+			const globPattern = safeError.message.match(/glob: "(.+)" \(/)?.[1];
+
+			if (globPattern) {
+				safeError.message = AstroErrorData.InvalidGlob.message(globPattern);
+				safeError.hint = AstroErrorData.InvalidGlob.hint;
+				safeError.code = AstroErrorData.InvalidGlob.code;
+
+				const line = lns.findIndex((ln) => ln.includes(globPattern));
+
+				if (line !== -1) {
+					const column = lns[line]?.indexOf(globPattern);
+
+					safeError.loc = {
+						file: path,
+						line: line + 1,
+						column,
+					};
+				}
 			}
 		}
 	}
 
-	return newError;
+	return safeError;
 }
 
 /**

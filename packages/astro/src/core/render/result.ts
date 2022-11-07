@@ -13,16 +13,19 @@ import type {
 import { renderSlot } from '../../runtime/server/index.js';
 import { renderJSX } from '../../runtime/server/jsx.js';
 import { AstroCookies } from '../cookies/index.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 import { LogOptions, warn } from '../logger/core.js';
 import { isScriptRequest } from './script.js';
 import { isCSSRequest } from './util.js';
 
 const clientAddressSymbol = Symbol.for('astro.clientAddress');
 
-function onlyAvailableInSSR(name: string) {
+function onlyAvailableInSSR(name: 'Astro.redirect') {
 	return function _onlyAvailableInSSR() {
-		// TODO add more guidance when we have docs and adapters.
-		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`);
+		switch (name) {
+			case 'Astro.redirect':
+				throw new AstroError(AstroErrorData.StaticRedirectNotAllowed);
+		}
 	};
 }
 
@@ -66,9 +69,10 @@ class Slots {
 		if (slots) {
 			for (const key of Object.keys(slots)) {
 				if ((this as any)[key] !== undefined) {
-					throw new Error(
-						`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`
-					);
+					throw new AstroError({
+						...AstroErrorData.ReservedSlotName,
+						message: AstroErrorData.ReservedSlotName.message(key),
+					});
 				}
 				Object.defineProperty(this, key, {
 					get() {
@@ -172,13 +176,14 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				get clientAddress() {
 					if (!(clientAddressSymbol in request)) {
 						if (args.adapterName) {
-							throw new Error(
-								`Astro.clientAddress is not available in the ${args.adapterName} adapter. File an issue with the adapter to add support.`
-							);
+							throw new AstroError({
+								...AstroErrorData.SSRClientAddressNotAvailableInAdapter,
+								message: AstroErrorData.SSRClientAddressNotAvailableInAdapter.message(
+									args.adapterName
+								),
+							});
 						} else {
-							throw new Error(
-								`Astro.clientAddress is not available in your environment. Ensure that you are using an SSR adapter that supports this feature.`
-							);
+							throw new AstroError(AstroErrorData.StaticClientAddressNotAvailable);
 						}
 					}
 

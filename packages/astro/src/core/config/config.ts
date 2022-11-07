@@ -12,6 +12,7 @@ import { mergeConfig as mergeViteConfig } from 'vite';
 import { LogOptions } from '../logger/core.js';
 import { arraify, isObject, isURL } from '../util.js';
 import { createRelativeSchema } from './schema.js';
+import { AstroError, AstroErrorData } from '../errors/index.js';
 
 load.use([loadTypeScript]);
 
@@ -76,9 +77,10 @@ export async function validateConfig(
 		}
 	}
 	if (legacyConfigKey) {
-		throw new Error(
-			`Legacy configuration detected: "${legacyConfigKey}".\nPlease update your configuration to the new format!\nSee https://astro.build/config for more information.`
-		);
+		throw new AstroError({
+			...AstroErrorData.ConfigLegacyKey,
+			message: AstroErrorData.ConfigLegacyKey.message(legacyConfigKey),
+		});
 	}
 	/* eslint-enable no-console */
 
@@ -171,7 +173,10 @@ export async function resolveConfigPath(
 		return configPath;
 	} catch (e) {
 		if (e instanceof ProloadError && flags.config) {
-			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+			throw new AstroError({
+				...AstroErrorData.ConfigNotFound,
+				message: AstroErrorData.ConfigNotFound.message(flags.config),
+			});
 		}
 		throw e;
 	}
@@ -251,7 +256,10 @@ async function tryLoadConfig(
 		return config as TryLoadConfigResult;
 	} catch (e) {
 		if (e instanceof ProloadError && flags.config) {
-			throw new Error(`Unable to resolve --config "${flags.config}"! Does the file exist?`);
+			throw new AstroError({
+				...AstroErrorData.ConfigNotFound,
+				message: AstroErrorData.ConfigNotFound.message(flags.config),
+			});
 		}
 
 		const configPath = await resolveConfigPath(configOptions);

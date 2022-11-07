@@ -1,9 +1,10 @@
 import type { DiagnosticCode } from '@astrojs/compiler/shared/diagnostics.js';
 import { AstroErrorCodes } from './errors-data.js';
 import { codeFrame } from './printer.js';
+import { getErrorDataByCode } from './utils.js';
 
 interface ErrorProperties {
-	errorCode: AstroErrorCodes | DiagnosticCode;
+	code: AstroErrorCodes | DiagnosticCode;
 	name?: string;
 	message?: string;
 	location?: ErrorLocation;
@@ -19,31 +20,32 @@ export interface ErrorLocation {
 }
 
 type ErrorTypes =
-	| 'CSSError'
+	| 'AstroError'
 	| 'CompilerError'
-	| 'RuntimeError'
+	| 'CSSError'
 	| 'MarkdownError'
-	| 'AstroAggregateError';
+	| 'InternalError'
+	| 'AggregateError';
 
 export class AstroError extends Error {
-	public errorCode: AstroErrorCodes | DiagnosticCode;
+	public code: AstroErrorCodes | DiagnosticCode;
 	public loc: ErrorLocation | undefined;
 	public hint: string | undefined;
 	public frame: string | undefined;
 
-	type: ErrorTypes | undefined;
+	type: ErrorTypes = 'AstroError';
 
 	constructor(props: ErrorProperties, ...params: any) {
 		super(...params);
 
-		const { errorCode, name, message, stack, location, hint, frame } = props;
+		const { code, name, message, stack, location, hint, frame } = props;
 
-		this.errorCode = errorCode;
+		this.code = code;
 		if (name) {
 			this.name = name;
 		} else {
 			// If we don't have a name, let's generate one from the code
-			this.name = AstroErrorCodes[errorCode];
+			this.name = getErrorDataByCode(this.code)?.name ?? 'UnknownError';
 		}
 		if (message) this.message = message;
 		// Only set this if we actually have a stack passed, otherwise uses Error's
@@ -53,9 +55,10 @@ export class AstroError extends Error {
 		this.frame = frame;
 	}
 
-	public setErrorCode(errorCode: AstroErrorCodes | DiagnosticCode) {
-		this.errorCode = errorCode;
-		this.name = AstroErrorCodes[errorCode];
+	public setErrorCode(errorCode: AstroErrorCodes) {
+		this.code = errorCode;
+
+		this.name = getErrorDataByCode(this.code)?.name ?? 'UnknownError';
 	}
 
 	public setLocation(location: ErrorLocation): void {
@@ -77,51 +80,52 @@ export class AstroError extends Error {
 	public setFrame(source: string, location: ErrorLocation): void {
 		this.frame = codeFrame(source, location);
 	}
-}
 
-export class CSSError extends AstroError {
-	type: ErrorTypes = 'CSSError';
-
-	static is(err: Error | unknown): boolean {
-		return (err as CSSError).type === 'CSSError';
+	static is(err: Error | unknown): err is AstroError {
+		return (err as AstroError).type === 'AstroError';
 	}
 }
 
 export class CompilerError extends AstroError {
 	type: ErrorTypes = 'CompilerError';
 
-	constructor(
-		props: ErrorProperties & { errorCode: DiagnosticCode | AstroErrorCodes.UnknownCompilerError },
-		...params: any
-	) {
+	constructor(props: Omit<ErrorProperties, 'code'> & { code: DiagnosticCode }, ...params: any) {
 		super(props, ...params);
 
 		this.name = 'CompilerError';
 	}
 
-	static is(err: Error | unknown): boolean {
+	static is(err: Error | unknown): err is CompilerError {
 		return (err as CompilerError).type === 'CompilerError';
 	}
 }
 
-export class RuntimeError extends AstroError {
-	type: ErrorTypes = 'RuntimeError';
+export class CSSError extends AstroError {
+	type: ErrorTypes = 'CSSError';
 
-	static is(err: Error | unknown): boolean {
-		return (err as RuntimeError).type === 'RuntimeError';
+	static is(err: Error | unknown): err is CSSError {
+		return (err as CSSError).type === 'CSSError';
 	}
 }
 
 export class MarkdownError extends AstroError {
 	type: ErrorTypes = 'MarkdownError';
 
-	static is(err: Error | unknown): boolean {
+	static is(err: Error | unknown): err is MarkdownError {
 		return (err as MarkdownError).type === 'MarkdownError';
 	}
 }
 
+export class InternalError extends AstroError {
+	type: ErrorTypes = 'InternalError';
+
+	static is(err: Error | unknown): err is InternalError {
+		return (err as InternalError).type === 'InternalError';
+	}
+}
+
 export class AggregateError extends AstroError {
-	type: ErrorTypes = 'AstroAggregateError';
+	type: ErrorTypes = 'AggregateError';
 	errors: AstroError[];
 
 	// Despite being a collection of errors, AggregateError still needs to have a main error attached to it
@@ -132,8 +136,8 @@ export class AggregateError extends AstroError {
 		this.errors = props.errors;
 	}
 
-	static is(err: Error | unknown): boolean {
-		return (err as AggregateError).type === 'AstroAggregateError';
+	static is(err: Error | unknown): err is AggregateError {
+		return (err as AggregateError).type === 'AggregateError';
 	}
 }
 
@@ -143,6 +147,7 @@ export class AggregateError extends AstroError {
  */
 export interface ErrorWithMetadata {
 	[name: string]: any;
+	name: string;
 	type?: ErrorTypes;
 	message: string;
 	stack: string;
@@ -157,4 +162,5 @@ export interface ErrorWithMetadata {
 		line?: number;
 		column?: number;
 	};
+	cause?: any;
 }
