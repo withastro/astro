@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { SSRResult } from '../../@types/astro.js';
-import { AstroJSX, isVNode } from '../../jsx-runtime/index.js';
+import { AstroJSX, AstroVNode, isVNode } from '../../jsx-runtime/index.js';
 import {
 	escapeHTML,
 	HTMLString,
@@ -15,7 +15,24 @@ import type { ComponentIterable } from './render/component';
 
 const ClientOnlyPlaceholder = 'astro-client-only';
 
-const skipAstroJSXCheck = new WeakSet();
+const skipAstroJSXCheck = new WeakMap<() => any, number>();
+function addSkip(vnode: AstroVNode) {
+	if(typeof vnode.type === 'function') {
+		skipAstroJSXCheck.set(vnode.type, skipCount(vnode) + 1);
+	}
+}
+function skipCount(vnode: AstroVNode): number {
+	if(typeof vnode.type === 'function') {
+		return  skipAstroJSXCheck.get(vnode.type) || 0;
+	}
+	return NaN;
+}
+function deleteSkips(vnode: AstroVNode) {
+	if(typeof vnode.type === 'function') {
+		skipAstroJSXCheck.delete(vnode.type);
+	}
+}
+
 let originalConsoleError: any;
 let consoleFilterRefs = 0;
 
@@ -68,25 +85,38 @@ Did you forget to import the component or is it possible there is a typo?`);
 
 		if (vnode.type) {
 			if (typeof vnode.type === 'function' && (vnode.type as any)['astro:renderer']) {
-				skipAstroJSXCheck.add(vnode.type);
+				addSkip(vnode);
 			}
 			if (typeof vnode.type === 'function' && vnode.props['server:root']) {
 				const output = await vnode.type(vnode.props ?? {});
 				return await renderJSX(result, output);
 			}
-			if (typeof vnode.type === 'function' && !skipAstroJSXCheck.has(vnode.type)) {
-				useConsoleFilter();
-				try {
-					const output = await vnode.type(vnode.props ?? {});
-					if (output && output[AstroJSX]) {
-						return await renderJSX(result, output);
-					} else if (!output) {
-						return await renderJSX(result, output);
+			if (typeof vnode.type === 'function') {
+				if(skipCount(vnode) === 0 || skipCount(vnode) > 2) {
+					useConsoleFilter();
+					try {
+						const output = await vnode.type(vnode.props ?? {});
+						let renderResult: any;
+						if (output && output[AstroJSX]) {
+							renderResult = await renderJSX(result, output);
+							deleteSkips(vnode);
+							return renderResult;
+						} else if (!output) {
+							renderResult = await renderJSX(result, output);
+							deleteSkips(vnode);
+							return renderResult;
+						}
+						
+					} catch (e: unknown) {
+						if(skipCount(vnode) > 2) {
+							throw e;
+						}
+						addSkip(vnode);
+					} finally {
+						finishUsingConsoleFilter();
 					}
-				} catch (e) {
-					skipAstroJSXCheck.add(vnode.type);
-				} finally {
-					finishUsingConsoleFilter();
+				} else {
+					addSkip(vnode);
 				}
 			}
 
@@ -151,8 +181,10 @@ Did you forget to import the component or is it possible there is a typo?`);
 				for await (const chunk of output) {
 					parts.append(chunk, result);
 				}
+				deleteSkips(vnode);
 				return markHTMLString(parts.toString());
 			} else {
+				deleteSkips(vnode);
 				return markHTMLString(output);
 			}
 		}
