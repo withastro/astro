@@ -92,7 +92,7 @@ To do this:
 
 ## Environment Variables
 
-As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), private environment variables should only be accessed when a request has happened. Usually, this means moving environment variable access inside a function.
+As Cloudflare Pages Functions [provides environment variables per request](https://developers.cloudflare.com/pages/platform/functions/#adding-environment-variables-locally), you can only access private environment variables when a request has happened. Usually, this means moving environment variable access inside a function.
 
 ```js
 // pages/[id].json.js
