@@ -3,9 +3,20 @@ import { AstroSettings } from '../@types/astro.js';
 import ancestor from 'common-ancestor-path';
 import { isPage, isEndpoint } from '../core/util.js';
 import * as eslexer from 'es-module-lexer';
+import { PageOptions } from '../vite-plugin-astro/types.js';
 
-const VALID_OUTPUT = new Set(['static', 'server']);
-export default function astroOutputPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
+const BOOLEAN_EXPORTS = new Set(['prerender']);
+
+// Quick scan to determine if code includes recognized export
+// False positives are not a problem, so be forgiving!
+function includesExport(code: string) {
+	for (const name of BOOLEAN_EXPORTS) {
+		if (code.includes(name)) return true;
+	}
+	return false;
+}
+
+export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
 	function normalizeFilename(filename: string) {
 		if (filename.startsWith('/@fs')) {
 			filename = filename.slice('/@fs'.length);
@@ -16,7 +27,7 @@ export default function astroOutputPlugin({ settings }: { settings: AstroSetting
 	}
 	
 	return {
-		name: 'astro:output',
+		name: 'astro:scanner',
 		enforce: 'post',
 
 		async transform(this, code, id, options) {
@@ -34,30 +45,25 @@ export default function astroOutputPlugin({ settings }: { settings: AstroSetting
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			if (!code.includes('output')) return;
+			if (!includesExport(code)) return;
 
 			await eslexer.init;
 			const [_, exports] = eslexer.parse(code, id);
-			let output: string | undefined;
+			let pageOptions: PageOptions = {};
 			for (const e of exports) {
-				if (e.n === 'output') {
+				if (BOOLEAN_EXPORTS.has(e.n)) {
+					pageOptions[e.n as keyof PageOptions] = true;
+					
 					let expr = code.slice(e.le).trim().replace(/\=/, '').trim().split(/[;\n]/)[0];
-					let value = expr;
-					if (expr.at(0) === expr.at(-1)) {
-						value = expr.slice(1, -1);
+					if (expr !== 'true') {
+						// TODO: warn
 					}
-					if (!VALID_OUTPUT.has(value)) {
-						throw new Error(`Invalid export "output" value ${expr}!`);
-					}
-					output = value;
 				}
 			}
 
-			if (!output) return;
-
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
-			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [] };
-			meta.astro.output = output;
+			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [], pageOptions: {} };
+			meta.astro.pageOptions = pageOptions;
 
 			return {
 				code,

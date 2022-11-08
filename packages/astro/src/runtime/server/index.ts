@@ -33,6 +33,9 @@ export type {
 import { markHTMLString } from './escape.js';
 import { addAttribute, Renderer } from './render/index.js';
 
+// Used in the build to replace statically prerendered pages
+export const noop = () => {};
+
 export function mergeSlots(...slotted: unknown[]) {
 	const slots: Record<string, () => any> = {};
 	for (const slot of slotted) {

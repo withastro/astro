@@ -3,6 +3,7 @@ import type { PageBuildData, PageOutput, ViteID } from './types';
 
 import { prependForwardSlash, removeFileExtension } from '../path.js';
 import { viteID } from '../util.js';
+import { PageOptions } from '../../vite-plugin-astro/types';
 
 export interface BuildInternals {
 	/**
@@ -33,7 +34,7 @@ export interface BuildInternals {
 	/**
 	 * A map for page-specific output.
 	 */
-	pagesByOutput: Record<PageOutput, Set<PageBuildData>>;
+	pageOptionsByPage: Map<string, PageOptions>;
 
 	/**
 	 * A map for page-specific information by Vite ID (a path-like string)
@@ -86,7 +87,7 @@ export function createBuildInternals(): BuildInternals {
 		pageToBundleMap: new Map<string, string>(),
 
 		pagesByComponent: new Map(),
-		pagesByOutput: { server: new Set(), static: new Set() },
+		pageOptionsByPage: new Map(),
 		pagesByViteID: new Map(),
 		pagesByClientOnly: new Map(),
 
@@ -201,12 +202,29 @@ export function* eachPageData(internals: BuildInternals) {
 	yield* internals.pagesByComponent.values();
 }
 
-export function* eachStaticPageData(internals: BuildInternals) {
-	yield* internals.pagesByOutput.static.values();
+export function hasPrerenderedPages(internals: BuildInternals) {
+	for (const id of internals.pagesByViteID.keys()) {
+		if (internals.pageOptionsByPage.get(id)?.prerender) {
+			return true
+		}
+	}
+	return false
+}
+
+export function* eachPrerenderedPageData(internals: BuildInternals) {
+	for (const [id, pageData] of internals.pagesByViteID.entries()) {
+		if (internals.pageOptionsByPage.get(id)?.prerender) {
+			yield pageData;
+		}
+	}
 }
 
 export function* eachServerPageData(internals: BuildInternals) {
-	yield* internals.pagesByOutput.server.values();
+	for (const [id, pageData] of internals.pagesByViteID.entries()) {
+		if (!internals.pageOptionsByPage.get(id)?.prerender) {
+			yield pageData;
+		}
+	}
 }
 
 /**

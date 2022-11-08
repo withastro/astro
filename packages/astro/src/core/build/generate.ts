@@ -12,7 +12,7 @@ import type {
 	RouteType,
 	SSRLoadedRenderer,
 } from '../../@types/astro';
-import type { BuildInternals } from '../../core/build/internal.js';
+import { BuildInternals, hasPrerenderedPages } from '../../core/build/internal.js';
 import {
 	prependForwardSlash,
 	removeLeadingForwardSlash,
@@ -29,7 +29,7 @@ import { createRequest } from '../request.js';
 import { matchRoute } from '../routing/match.js';
 import { getOutputFilename } from '../util.js';
 import { getOutDirWithinCwd, getOutFile, getOutFolder } from './common.js';
-import { eachStaticPageData, eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
+import { eachPrerenderedPageData, eachPageData, getPageDataByComponent, sortedCSS } from './internal.js';
 import type { PageBuildData, SingleFileBuiltModule, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
@@ -69,9 +69,10 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
-	if (opts.settings.config.output === 'server' && internals.pagesByOutput.static.size === 0) return;
+	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
 	const timer = performance.now();
-	info(opts.logging, null, `\n${bgGreen(black(' generating static routes '))}`);
+	const verb = (opts.settings.config.output === 'server') ? 'prerendering' : 'generating';
+	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
 	const ssr = opts.settings.config.output === 'server';
 	const serverEntry = opts.buildConfig.serverEntry;
@@ -81,7 +82,7 @@ export async function generatePages(opts: StaticBuildOptions, internals: BuildIn
 	const builtPaths = new Set<string>();
 
 	if (opts.settings.config.output === 'server') {
-		for (const pageData of eachStaticPageData(internals)) {
+		for (const pageData of eachPrerenderedPageData(internals)) {
 			await generatePage(opts, internals, pageData, ssrEntry, builtPaths);
 		}
 	} else {

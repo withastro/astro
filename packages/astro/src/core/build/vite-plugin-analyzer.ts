@@ -83,7 +83,7 @@ export function vitePluginAnalyzer(internals: BuildInternals): VitePlugin {
 
 				const pageData = getPageDataByViteID(internals, id);
 				if (pageData) {
-					internals.pagesByOutput[astro.output ?? 'server'].add(pageData);
+					internals.pageOptionsByPage.set(id, astro.pageOptions);
 				}
 
 				for (const c of astro.hydratedComponents) {

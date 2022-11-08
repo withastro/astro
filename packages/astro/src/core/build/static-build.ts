@@ -4,7 +4,7 @@ import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
-import { BuildInternals, createBuildInternals, eachStaticPageData } from '../../core/build/internal.js';
+import { BuildInternals, createBuildInternals, eachPrerenderedPageData } from '../../core/build/internal.js';
 import { emptyDir, removeDir } from '../../core/fs/index.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { isModeServerWithNoAdapter } from '../../core/util.js';
@@ -255,9 +255,13 @@ async function clientBuild(
 	return buildResult;
 }
 
+/**
+ * For each statically prerendered page, replace their SSR file with a noop.
+ * This allows us to run the SSR build only once, but still remove dependencies for statically rendered routes.
+ */
 async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInternals) {
 	const allStaticFiles = new Set();
-	for (const pageData of eachStaticPageData(internals)) {
+	for (const pageData of eachPrerenderedPageData(internals)) {
 		allStaticFiles.add(internals.pageToBundleMap.get(pageData.moduleSpecifier))
 	}
 	const out = getOutDirWithinCwd(opts.settings.config.outDir);
@@ -273,7 +277,8 @@ async function cleanStaticOutput(opts: StaticBuildOptions, internals: BuildInter
 				if (!allStaticFiles.has(filename.replace('server/', ''))) {
 					return;
 				}
-				await fs.promises.writeFile(url, 'export const _ = null;', { encoding: 'utf-8' });
+				// Replace file with `noop` export, removes static dependencies from build output
+				await fs.promises.writeFile(url, 'export const _ = () => {};', { encoding: 'utf-8' });
 			})
 		);
 		// Map directories heads from the .mjs files
