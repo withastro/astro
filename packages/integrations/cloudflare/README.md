@@ -98,7 +98,7 @@ As Cloudflare Pages Functions [provides environment variables per request](https
 // pages/[id].json.js
 
 export function get({ params }) {
-  // Access environment variables inside a function
+  // Access environment variables per request inside a function
   const serverUrl = import.meta.env.SERVER_URL;
   const result = await fetch(serverUrl + "/user/" + params.id);
   return {
