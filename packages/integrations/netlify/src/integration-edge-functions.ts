@@ -14,7 +14,7 @@ interface BuildConfig {
 
 const SHIM = `globalThis.process = {
 	argv: [],
-	env: {},
+	env: Deno.env.toObject(),
 };`;
 
 export function getAdapter(): AstroAdapter {
