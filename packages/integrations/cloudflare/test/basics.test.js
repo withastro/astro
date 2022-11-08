@@ -24,6 +24,7 @@ describe.skip('Basic app', () => {
 			let html = await res.text();
 			let $ = cheerio.load(html);
 			expect($('h1').text()).to.equal('Testing');
+			expect($('#env').text()).to.equal('secret');
 		} finally {
 			stop();
 		}
