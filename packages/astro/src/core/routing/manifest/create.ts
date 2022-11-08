@@ -352,7 +352,12 @@ export function createRouteManifest(
 		)
 		.reverse() // prepend to the routes array from lowest to highest priority
 		.forEach(({ pattern: name, entryPoint }) => {
-			const resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+			let resolved: string;
+			try {
+				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
+			} catch(e) {
+				resolved = fileURLToPath(new URL(entryPoint, config.root));
+			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));
 
 			const isDynamic = (str: string) => str?.[0] === '[';
@@ -363,16 +368,7 @@ export function createRouteManifest(
 				.filter(Boolean)
 				.map((s: string) => {
 					validateSegment(s);
-
-					const dynamic = isDynamic(s);
-					const content = dynamic ? normalize(s) : s;
-					return [
-						{
-							content,
-							dynamic,
-							spread: isSpread(s),
-						},
-					];
+					return getParts(s, resolved);
 				});
 
 			const type = resolved.endsWith('.astro') ? 'page' : 'endpoint';
