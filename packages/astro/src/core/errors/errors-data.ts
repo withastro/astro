@@ -44,7 +44,7 @@ export const AstroErrorData = defineErrors({
 		message: (route: string | undefined, returnedValue: string) =>
 			`Route ${
 				route ? route : ''
-			} returned a ${returnedValue}. Only instances of Response can be returned from Astro files.`,
+			} returned a ${returnedValue}. Only a Response can be returned from Astro files.`,
 		hint: 'See https://docs.astro.build/en/guides/server-side-rendering/#response for more information',
 	},
 	MissingMediaQueryDirective: {
@@ -158,7 +158,7 @@ See https://docs.astro.build/en/guides/server-side-rendering/ for more informati
 	FailedToLoadModuleSSR: {
 		code: 5001,
 		message: (importName: string) => `Could not import ${importName}`,
-		hint: 'This is often caused by a typo in the import path, please make sure the file exists',
+		hint: 'This is often caused by a typo in the import path. Please make sure the file exists.',
 	},
 	InvalidGlob: {
 		code: 5002,
