@@ -195,7 +195,7 @@ describe('SSR pictures with subpath - build', function () {
 		it(title, async () => {
 			const app = await fixture.loadTestAdapterApp();
 
-			const request = new Request('http://example.com/');
+			const request = new Request('http://example.com/docs/');
 			const response = await app.render(request);
 			const html = await response.text();
 			const $ = cheerio.load(html);
