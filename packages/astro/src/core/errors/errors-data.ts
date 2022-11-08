@@ -35,7 +35,7 @@ export const AstroErrorData = defineErrors({
 	NoMatchingStaticPathFound: {
 		code: 3004,
 		message: (pathName: string) =>
-			`A getStaticPath route pattern was matched, but no matching static path was found for requested path ${pathName}.`,
+			`A getStaticPaths route pattern was matched, but no matching static path was found for requested path ${pathName}.`,
 		hint: (possibleRoutes: string[]) =>
 			`Possible dynamic routes being matched: ${possibleRoutes.join(', ')}`,
 	},
