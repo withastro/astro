@@ -68,7 +68,9 @@ export default function createVitePluginAstroServer({
 					.replace(
 						"this.text('.message-body', message.trim());",
 						`const urlPattern = /(\\b(https?|ftp):\\/\\/[-A-Z0-9+&@#\\/%?=~_|!:,.;]*[-A-Z0-9+&@#\\/%=~_|])/gim;
-					this.root.querySelector(".message-body").innerHTML = message.trim().replace(urlPattern, '<a href="$1" target="_blank">$1</a>');`
+						function escapeHtml(unsafe){return unsafe.replace(/</g, "&lt;").replace(/>/g, "&gt;");}
+ 					const escapedMessage = escapeHtml(message);
+					this.root.querySelector(".message-body").innerHTML = escapedMessage.trim().replace(urlPattern, '<a href="$1" target="_blank">$1</a>');`
 					)
 					.replace('</style>', '.message-body a {\n  color: #ededed;\n}\n</style>')
 					// Hide `.tip` in Vite's ErrorOverlay

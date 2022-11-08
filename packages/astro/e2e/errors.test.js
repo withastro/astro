@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { testFactory, getErrorOverlayMessage } from './test-utils.js';
+import { getErrorOverlayMessage, testFactory } from './test-utils.js';
 
 const test = testFactory({ root: './fixtures/errors/' });
 
@@ -38,7 +38,10 @@ test.describe('Error display', () => {
 		await page.goto(astro.resolveUrl('/import-not-found'));
 
 		const message = await getErrorOverlayMessage(page);
-		expect(message).toMatch('Could not import "../abc.astro"');
+		console.log(message);
+		expect(message).toMatch(
+			`Could not import ../abc.astro\n\nThis is often caused by a typo in the import path, please make sure the file exists`
+		);
 
 		await Promise.all([
 			// Wait for page reload
