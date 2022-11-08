@@ -1,5 +1,11 @@
 # @astrojs/netlify
 
+## 1.2.1
+
+### Patch Changes
+
+- [#5301](https://github.com/withastro/astro/pull/5301) [`a79a37cad`](https://github.com/withastro/astro/commit/a79a37cad549b21f91599ff86899e456d9dcc7df) Thanks [@bluwy](https://github.com/bluwy)! - Fix environment variables usage in edge functions
+
 ## 1.2.0
 
 ### Minor Changes
