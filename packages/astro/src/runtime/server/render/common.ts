@@ -40,11 +40,11 @@ export function stringifyChunk(result: SSRResult, chunk: string | SlotString | R
 			}
 		}
 		default: {
-			if(isSlotString(chunk as string)) {
+			if (isSlotString(chunk as string)) {
 				let out = '';
-				const c = (chunk as SlotString);
-				if(c.instructions) {
-					for(const instr of c.instructions) {
+				const c = chunk as SlotString;
+				if (c.instructions) {
+					for (const instr of c.instructions) {
 						out += stringifyChunk(result, instr);
 					}
 				}
