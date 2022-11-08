@@ -3,7 +3,14 @@ const origin = Astro.url.origin;
 ---
 
 <html>
-<head><title>Testing</title></head>
+<head>
+	<title>Testing</title>
+	<style>
+		body {
+			background: orangered;
+		}
+	</style>
+</head>
 <body>
 <h1 id="origin">{origin}</h1>
 </body>

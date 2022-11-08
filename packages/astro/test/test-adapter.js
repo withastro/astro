@@ -25,9 +25,23 @@ export default function ({ provideAddress } = { provideAddress: true }) {
 									if (id === '@my-ssr') {
 										return `
 											import { App } from 'astro/app';
+											import fs from 'fs';
 
 											class MyApp extends App {
-												render(request, routeData) {
+												#manifest = null;
+												constructor(manifest, streaming) {
+													super(manifest, streaming);
+													this.#manifest = manifest;
+												}
+
+												async render(request, routeData) {
+													const url = new URL(request.url);
+													if(this.#manifest.assets.has(url.pathname)) {
+														const filePath = new URL('../client/' + this.removeBase(url.pathname), import.meta.url);
+														const data = await fs.promises.readFile(filePath);
+														return new Response(data);
+													}
+
 													${provideAddress ? `request[Symbol.for('astro.clientAddress')] = '0.0.0.0';` : ''}
 													return super.render(request, routeData);
 												}

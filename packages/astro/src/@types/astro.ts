@@ -1426,6 +1426,7 @@ export interface PreviewServerParams {
 	serverEntrypoint: URL;
 	host: string | undefined;
 	port: number;
+	base: string;
 }
 
 export type CreatePreviewServer = (

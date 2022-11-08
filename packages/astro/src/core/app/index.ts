@@ -13,7 +13,7 @@ import { attachToResponse, getSetCookiesFromResponse } from '../cookies/index.js
 import { call as callEndpoint } from '../endpoint/index.js';
 import { consoleLogDestination } from '../logger/console.js';
 import { error } from '../logger/core.js';
-import { joinPaths, prependForwardSlash } from '../path.js';
+import { joinPaths, prependForwardSlash, removeTrailingForwardSlash } from '../path.js';
 import {
 	createEnvironment,
 	createRenderContext,
@@ -45,6 +45,8 @@ export class App {
 		dest: consoleLogDestination,
 		level: 'info',
 	};
+	#base: string;
+	#baseWithoutTrailingSlash: string;
 
 	constructor(manifest: Manifest, streaming = true) {
 		this.#manifest = manifest;
@@ -78,6 +80,15 @@ export class App {
 			ssr: true,
 			streaming,
 		});
+
+		this.#base = this.#manifest.base || '/';
+		this.#baseWithoutTrailingSlash = removeTrailingForwardSlash(this.#base);
+	}
+	removeBase(pathname: string) {
+		if (pathname.startsWith(this.#base)) {
+			return pathname.slice(this.#baseWithoutTrailingSlash.length + 1);
+		}
+		return pathname;
 	}
 	match(request: Request, { matchNotFound = false }: MatchOptions = {}): RouteData | undefined {
 		const url = new URL(request.url);
@@ -85,7 +96,8 @@ export class App {
 		if (this.#manifest.assets.has(url.pathname)) {
 			return undefined;
 		}
-		let routeData = matchRoute(url.pathname, this.#manifestData);
+		let pathname = '/' + this.removeBase(url.pathname);
+		let routeData = matchRoute(pathname, this.#manifestData);
 
 		if (routeData) {
 			return routeData;
@@ -157,7 +169,6 @@ export class App {
 	): Promise<Response> {
 		const url = new URL(request.url);
 		const manifest = this.#manifest;
-		const renderers = manifest.renderers;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 

@@ -3,9 +3,10 @@ import * as cheerio from 'cheerio';
 
 import {
 	createContainerWithAutomaticRestart,
-	runInContainer,
+	isStarted,
+	startContainer,
 } from '../../../dist/core/dev/index.js';
-import { createFs, createRequestAndResponse } from '../test-utils.js';
+import { createFs, createRequestAndResponse, triggerFSEvent } from '../test-utils.js';
 
 const root = new URL('../../fixtures/alias/', import.meta.url);
 
@@ -70,6 +71,40 @@ describe('dev container restarts', () => {
 
 			hmrError = await restartComplete;
 			expect(hmrError).to.not.be.a('undefined');
+		} finally {
+			await restart.container.close();
+		}
+	});
+
+	it('Restarts the container if previously started', async () => {
+		const fs = createFs(
+			{
+				'/src/pages/index.astro': `
+				<html>
+					<head><title>Test</title></head>
+					<body>
+						<h1>Test</h1>
+					</body>
+				</html>
+			`,
+				'/astro.config.mjs': ``,
+			},
+			root
+		);
+
+		let restart = await createContainerWithAutomaticRestart({
+			params: { fs, root },
+		});
+		await startContainer(restart.container);
+		expect(isStarted(restart.container)).to.equal(true);
+
+		try {
+			// Trigger a change
+			let restartComplete = restart.restarted();
+			triggerFSEvent(restart.container, fs, '/astro.config.mjs', 'change');
+			await restartComplete;
+
+			expect(isStarted(restart.container)).to.equal(true);
 		} finally {
 			await restart.container.close();
 		}
