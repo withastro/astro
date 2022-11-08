@@ -30,7 +30,7 @@ importers:
       execa: ^6.1.0
       organize-imports-cli: ^0.10.0
       prettier: ^2.7.0
-      prettier-plugin-astro: ^0.4.0
+      prettier-plugin-astro: ^0.7.0
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
       turbo: 1.2.5
@@ -53,7 +53,7 @@ importers:
       execa: 6.1.0
       organize-imports-cli: 0.10.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.4.1
+      prettier-plugin-astro: 0.7.0
       pretty-bytes: 6.0.0
       tiny-glob: 0.2.9
       turbo: 1.2.5
@@ -371,7 +371,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.29.5
-      '@astrojs/language-server': ^0.26.2
+      '@astrojs/language-server': ^0.28.3
       '@astrojs/markdown-remark': ^1.1.3
       '@astrojs/telemetry': ^1.0.1
       '@astrojs/webapi': ^1.1.1
@@ -469,8 +469,8 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.17.3
     dependencies:
-      '@astrojs/compiler': 0.29.10
-      '@astrojs/language-server': 0.26.2
+      '@astrojs/compiler': 0.29.9
+      '@astrojs/language-server': 0.28.3
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/telemetry': link:../telemetry
       '@astrojs/webapi': link:../webapi
@@ -3835,26 +3835,17 @@ packages:
       sisteransi: 1.0.5
     dev: false
 
-  /@astrojs/compiler/0.19.0:
-    resolution: {integrity: sha512-8nvyxZTfCXLyRmYfTttpJT6EPhfBRg0/q4J/Jj3/pNPLzp+vs05ZdktsY6QxAREaOMAnNEtSqcrB4S5DsXOfRg==}
-    dev: true
+  /@astrojs/compiler/0.29.9:
+    resolution: {integrity: sha512-/oMQ0z3CJzGg6sv51tQTiHf/ETVsEu8ObN9OA7zs937dQx9Uo4SToYfdw3C4hf6olrLiADuDUsbkKSRe6fLSgA==}
 
-  /@astrojs/compiler/0.23.5:
-    resolution: {integrity: sha512-vBMPy9ok4iLapSyCCT1qsZ9dK7LkVFl9mObtLEmWiec9myGHS9h2kQY2xzPeFNJiWXUf9O6tSyQpQTy5As/p3g==}
-    dev: false
-
-  /@astrojs/compiler/0.29.10:
-    resolution: {integrity: sha512-nG5uAnCNsG/ZRHNledhqlEGdzl9zUZSYH6O2Hhe9gEQR5aVfyAfBnvoWMzb+5OMH1ZBQXinJATFeidVnox1glg==}
-    dev: false
-
-  /@astrojs/language-server/0.26.2:
-    resolution: {integrity: sha512-9nkfdd6CMXLDIJojnwbYu5XrYfOI+g63JlktOlpFCwFjFNpm1u0e/+pXXmj6Zs+PkSTo0kV1UM77dRKRS5OC1Q==}
+  /@astrojs/language-server/0.28.3:
+    resolution: {integrity: sha512-fPovAX/X46eE2w03jNRMpQ7W9m2mAvNt4Ay65lD9wl1Z5vIQYxlg7Enp9qP225muTr4jSVB5QiLumFJmZMAaVA==}
     hasBin: true
     dependencies:
       '@vscode/emmet-helper': 2.8.4
       events: 3.3.0
       prettier: 2.7.1
-      prettier-plugin-astro: 0.5.5
+      prettier-plugin-astro: 0.7.0
       source-map: 0.7.4
       vscode-css-languageservice: 6.1.1
       vscode-html-languageservice: 5.0.2
@@ -15881,25 +15872,14 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-astro/0.4.1:
-    resolution: {integrity: sha512-AvYyg4WDnhmqH5S85EFgJAMU20p1lLypVt4sn4tuGW+lnPfWr70SaHZD9gevx20o3FnALgZxDu1enFSkN/MSwQ==}
+  /prettier-plugin-astro/0.7.0:
+    resolution: {integrity: sha512-ehCUx7MqHWvkHwUmxxAWLsL35pFaCTM5YXQ8xjG/1W6dY2yBhvEks+2aCfjeI5zmMrZNCXkiMQtpznSlLSLrxw==}
     engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
     dependencies:
-      '@astrojs/compiler': 0.19.0
+      '@astrojs/compiler': 0.29.9
       prettier: 2.7.1
       sass-formatter: 0.7.5
-      synckit: 0.7.3
-    dev: true
-
-  /prettier-plugin-astro/0.5.5:
-    resolution: {integrity: sha512-tEJiPjTB1eVT5Czcbkj9GoRG/oMewOnG9x737p/hJUD5QXJmn7LiYFM2dKkX0i4A1fhhsGfXT+uqsAXcw2r8JQ==}
-    engines: {node: ^14.15.0 || >=16.0.0, npm: '>=6.14.0'}
-    dependencies:
-      '@astrojs/compiler': 0.23.5
-      prettier: 2.7.1
-      sass-formatter: 0.7.5
-      synckit: 0.7.3
-    dev: false
+      synckit: 0.8.4
 
   /prettier/1.19.1:
     resolution: {integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==}
@@ -17217,9 +17197,9 @@ packages:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
     dev: false
 
-  /synckit/0.7.3:
-    resolution: {integrity: sha512-jNroMv7Juy+mJ/CHW5H6TzsLWpa1qck6sCHbkv8YTur+irSq2PjbvmGnm2gy14BUQ6jF33vyR4DPssHqmqsDQw==}
-    engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
+  /synckit/0.8.4:
+    resolution: {integrity: sha512-Dn2ZkzMdSX827QbowGbU/4yjWuvNaCoScLLoMo/yKbu+P4GBR6cRGKZH27k6a9bRzdqcyd1DE96pQtQ6uNkmyw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
     dependencies:
       '@pkgr/utils': 2.3.1
       tslib: 2.4.1
