@@ -2464,7 +2464,7 @@ importers:
 
   packages/create-astro:
     specifiers:
-      '@astrojs/cli-kit': ^0.1.3
+      '@astrojs/cli-kit': ^0.1.4
       '@types/chai': ^4.3.1
       '@types/degit': ^2.8.3
       '@types/mocha': ^9.1.1
@@ -2486,7 +2486,7 @@ importers:
       which-pm-runs: ^1.1.0
       yargs-parser: ^21.0.1
     dependencies:
-      '@astrojs/cli-kit': 0.1.3
+      '@astrojs/cli-kit': 0.1.4
       chalk: 5.1.2
       comment-json: 4.2.3
       execa: 6.1.0
@@ -3827,8 +3827,8 @@ packages:
       lite-youtube-embed: 0.2.0
     dev: false
 
-  /@astrojs/cli-kit/0.1.3:
-    resolution: {integrity: sha512-thLIdCggboKsOyYF5prn46tIpUH55Y+Y0fRN2NGD09WyxqqO5eA5aon0i4cELKTuzQrmSuu0Wl4d4xFin5OPvg==}
+  /@astrojs/cli-kit/0.1.4:
+    resolution: {integrity: sha512-krtRhJr2uNdt947feVSNV9REoLupEh85g+5WRWHCKl60HhpbTRlwT962FUue26X3OeZbdoAT2pBJQmlznIIQtg==}
     dependencies:
       chalk: 5.1.2
       log-update: 5.0.1
