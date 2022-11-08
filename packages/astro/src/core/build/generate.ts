@@ -69,14 +69,17 @@ export function chunkIsPage(
 }
 
 export async function generatePages(opts: StaticBuildOptions, internals: BuildInternals) {
+	const ssr = opts.settings.config.output === 'server';
+	const serverEntry = opts.buildConfig.serverEntry;
+	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
+	// HACK: force generated `.js` files to be treated as ESM
+	fs.writeFileSync(new URL('./package.json', outFolder), JSON.stringify({ type: 'module' }, null, 2));
+
 	if (opts.settings.config.output === 'server' && !hasPrerenderedPages(internals)) return;
 	const timer = performance.now();
 	const verb = (opts.settings.config.output === 'server') ? 'prerendering' : 'generating';
 	info(opts.logging, null, `\n${bgGreen(black(` ${verb} static routes `))}`);
 
-	const ssr = opts.settings.config.output === 'server';
-	const serverEntry = opts.buildConfig.serverEntry;
-	const outFolder = ssr ? opts.buildConfig.server : getOutDirWithinCwd(opts.settings.config.outDir);
 	const ssrEntryURL = new URL('./' + serverEntry + `?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 	const builtPaths = new Set<string>();
