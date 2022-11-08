@@ -355,7 +355,7 @@ export function createRouteManifest(
 			let resolved: string;
 			try {
 				resolved = require.resolve(entryPoint, { paths: [cwd || fileURLToPath(config.root)] });
-			} catch(e) {
+			} catch (e) {
 				resolved = fileURLToPath(new URL(entryPoint, config.root));
 			}
 			const component = slash(path.relative(cwd || fileURLToPath(config.root), resolved));

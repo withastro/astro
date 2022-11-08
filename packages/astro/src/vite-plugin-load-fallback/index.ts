@@ -47,7 +47,7 @@ export default function loadFallbackPlugin({
 					return npath.posix.join(npath.posix.dirname(parent), id);
 				} else {
 					let resolved = await this.resolve(id, parent, { skipSelf: true });
-					if(resolved) {
+					if (resolved) {
 						return resolved.id;
 					}
 					return slashify(id);
