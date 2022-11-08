@@ -220,6 +220,7 @@ export default function astro({ settings, logging }: AstroPluginOptions): vite.P
 				hydratedComponents: transformResult.hydratedComponents,
 				scripts: transformResult.scripts,
 				propagation: 'none',
+				pageOptions: {},
 			};
 
 			return {
