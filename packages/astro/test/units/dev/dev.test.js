@@ -106,4 +106,49 @@ describe('dev container', () => {
 			expect($('body.two')).to.have.a.lengthOf(1);
 		});
 	});
+
+	it('Allows dynamic segments in injected routes', async () => {
+		const fs = createFs({
+				'/src/components/test.astro': `<h1>{Astro.params.slug}</h1>`,
+				'/src/pages/test-[slug].astro': `<h1>{Astro.params.slug}</h1>`,
+			},
+			root
+		);
+
+		await runInContainer({
+			fs,
+			root,
+			userConfig: {
+				output: 'server',
+				integrations: [{
+					name: '@astrojs/test-integration',
+					hooks: {
+						'astro:config:setup': ({ injectRoute }) => {
+							injectRoute({
+								pattern: '/another-[slug]',
+								entryPoint: './src/components/test.astro',
+							});
+						},
+					},
+				}]
+			}
+		}, async (container) => {
+			let r = createRequestAndResponse({
+				method: 'GET',
+				url: '/test-one',
+			});
+			container.handle(r.req, r.res);
+			await r.done;
+			expect(r.res.statusCode).to.equal(200);
+
+			// Try with the injected route
+			r = createRequestAndResponse({
+				method: 'GET',
+				url: '/another-two',
+			});
+			container.handle(r.req, r.res);
+			await r.done;
+			expect(r.res.statusCode).to.equal(200);
+		});
+	});
 });
