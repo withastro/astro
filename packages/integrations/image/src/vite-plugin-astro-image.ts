@@ -113,6 +113,27 @@ export function createPlugin(config: AstroConfig, options: Required<IntegrationO
 				return next();
 			});
 		},
+		outputOptions(outputOptions) {
+      if(resolvedConfig.build.ssr) {
+				// Build the image-pool chunk to the top-level and not inside of a chunks/
+				// folder. This is because the wasm is built at the top-level and this makes
+				// it accessible from the pool worker.
+        const chunkFileNames = outputOptions.chunkFileNames;
+        outputOptions.chunkFileNames = (chunk) => {
+          for(const name of Object.keys(chunk.modules)) {
+            if(name.endsWith('vendor/squoosh/image-pool.js')) {
+              return '[name].[hash].mjs';
+            }
+          }
+
+					if(typeof chunkFileNames === 'function') {
+						return chunkFileNames.call(this, chunk);
+					}
+
+          return  chunkFileNames!;
+        };
+      }
+		},
 		async renderChunk(code) {
 			const assetUrlRE = /__ASTRO_IMAGE_ASSET__([a-z\d]{8})__(?:_(.*?)__)?/g;
 
