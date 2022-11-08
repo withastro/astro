@@ -1,4 +1,4 @@
-import { promises as fsp } from 'node:fs'
+import * as runtime from '../../utils/runtime/index.js';
 import { instantiateEmscriptenWasm, pathify } from './emscripten-utils.js'
 
 interface DecodeModule extends EmscriptenWasm.Module {
@@ -65,19 +65,19 @@ const avifDecWasm = new URL('./avif/avif_node_dec.wasm', import.meta.url)
 import * as pngEncDec from './png/squoosh_png.js'
 const pngEncDecWasm = new URL('./png/squoosh_png_bg.wasm', import.meta.url)
 const pngEncDecInit = () =>
-  pngEncDec.default(fsp.readFile(pathify(pngEncDecWasm.toString())))
+  	pngEncDec.default(runtime.readFile(pathify(pngEncDecWasm.toString())))
 
 // OxiPNG
 // @ts-ignore
 import * as oxipng from './png/squoosh_oxipng.js'
 const oxipngWasm = new URL('./png/squoosh_oxipng_bg.wasm', import.meta.url)
-const oxipngInit = () => oxipng.default(fsp.readFile(pathify(oxipngWasm.toString())))
+const oxipngInit = () => oxipng.default(runtime.readFile(pathify(oxipngWasm.toString())));
 
 // Resize
 // @ts-ignore
 import * as resize from './resize/squoosh_resize.js'
 const resizeWasm = new URL('./resize/squoosh_resize_bg.wasm', import.meta.url)
-const resizeInit = () => resize.default(fsp.readFile(pathify(resizeWasm.toString())))
+const resizeInit = () => resize.default(runtime.readFile(pathify(resizeWasm.toString())))
 
 // rotate
 const rotateWasm = new URL('./rotate/rotate.wasm', import.meta.url)
@@ -187,7 +187,7 @@ export const preprocessors = {
         const sameDimensions = degrees === 0 || degrees === 180
         const size = width * height * 4
         const instance = (
-          await WebAssembly.instantiate(await fsp.readFile(pathify(rotateWasm.toString())))
+          await WebAssembly.instantiate(await runtime.readFile(pathify(rotateWasm.toString())))
         ).instance as RotateModuleInstance
         const { memory } = instance.exports
         const additionalPagesNeeded = Math.ceil(

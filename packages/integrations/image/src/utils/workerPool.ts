@@ -1,6 +1,7 @@
 /* tslint-disable ban-types */
 import { TransformStream } from 'web-streams-polyfill';
-import { parentPort, Worker } from 'worker_threads';
+//import { parentPort, Worker } from 'worker_threads';
+import * as runtime from '../utils/runtime/index.js';
 
 function uuid() {
 	return Array.from({ length: 16 }, () => Math.floor(Math.random() * 256).toString(16)).join('');

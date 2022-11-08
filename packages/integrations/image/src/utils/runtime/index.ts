@@ -1,5 +1,3 @@
-import type fsMod from 'node:fs/promises';
-
 import * as nodeImpl from './nodejs.js';
 import * as denoImpl from './deno.js';
 
@@ -9,7 +7,12 @@ interface Implementation {
 	preload: () => Promise<void>;
 	readFile: (url: string | URL) => Promise<Uint8Array>;
 	fileURLToPath: (url: URL) => string;
+	cpuCount: () => number;
+	isMainThread: () => boolean;
+	createWorker: (scriptURL: string | URL) => Worker;
 }
+
+let preloaded = false;
 
 export const runtime: Runtime =
 	nodeImpl.isNodeJS ? 'node' :
@@ -33,6 +36,12 @@ function throwIfNoRuntime() {
 	}
 }
 
+function throwIfNotPreloaded() {
+	if(!preloaded) {
+		throw new Error(`The runtime has not been loaded.`);
+	}
+}
+
 function runtimeNotSupported(): never {
 	if(runtime === 'unknown') {
 		throw new Error(`Unknown runtime, not supported by @astrojs/image`);
@@ -43,11 +52,17 @@ function runtimeNotSupported(): never {
 
 export async function preload() {
 	throwIfNoRuntime();
-	implementation!.preload();
+	if(!preloaded) {
+		await implementation!.preload();
+		preloaded = true;
+	}
 }
 
 export async function readFile(src: URL | string): Promise<Uint8Array> {
 	throwIfNoRuntime()!;
+	if(!preloaded) {
+		await preload();
+	}
 	return implementation!.readFile(src);
 }
 
@@ -57,5 +72,18 @@ export function fileURLToPath(url: URL | string): string {
 	}
 
 	throwIfNoRuntime();
+	throwIfNotPreloaded();
 	return implementation!.fileURLToPath(url);
+}
+
+export function cpuCount(): number {
+	throwIfNoRuntime();
+	throwIfNotPreloaded();
+	return implementation!.cpuCount();
+}
+
+export function isMainThread(): boolean {
+	throwIfNoRuntime();
+	throwIfNotPreloaded();
+	return implementation!.isMainThread();
 }

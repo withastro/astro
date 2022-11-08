@@ -1,9 +1,9 @@
 // 
-import { fileURLToPath } from 'node:url'
+import * as runtime from '../../utils/runtime/index.js';
 
 export function pathify(path: string): string {
   if (path.startsWith('file://')) {
-    path = fileURLToPath(path)
+    path = runtime.fileURLToPath(path)
   }
   return path
 }

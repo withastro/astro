@@ -1,19 +1,17 @@
-import { isMainThread } from 'node:worker_threads';
-import { cpus } from 'os';
-import { fileURLToPath } from 'url';
 import type { OutputFormat } from '../../loaders/index.js';
 import execOnce from '../../utils/execOnce.js';
 import WorkerPool from '../../utils/workerPool.js';
 import type { Operation } from './image.js';
 import * as impl from './impl.js';
+import * as runtime from '../../utils/runtime/index.js';
 
 const getWorker = execOnce(
   () => {
 		return new WorkerPool(
 			// There will be at most 7 workers needed since each worker will take
       // at least 1 operation type.
-      Math.max(1, Math.min(cpus().length - 1, 7)),
-			fileURLToPath(import.meta.url)
+      Math.max(1, Math.min(runtime.cpuCount() - 1, 7)),
+			runtime.fileURLToPath(import.meta.url)
 		);
 	}
 )
@@ -135,6 +133,9 @@ export async function processBuffer(
 	}
 }
 
-if (!isMainThread) {
-  WorkerPool.useThisThreadAsWorker(handleJob);
-}
+(async function() {
+	await runtime.preload();
+	if (!runtime.isMainThread()) {
+		WorkerPool.useThisThreadAsWorker(handleJob);
+	}	
+})();

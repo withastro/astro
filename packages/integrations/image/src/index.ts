@@ -13,7 +13,6 @@ const PKG_NAME = '@astrojs/image';
 const ROUTE_PATTERN = '/_image';
 const UNSUPPORTED_ADAPTERS = new Set([
 	'@astrojs/cloudflare',
-	'@astrojs/deno',
 	'@astrojs/netlify/edge-functions',
 	'@astrojs/vercel/edge',
 ]);

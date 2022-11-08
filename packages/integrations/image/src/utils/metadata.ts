@@ -1,7 +1,7 @@
-import sizeOf from 'image-size';
+//import sizeOf from 'image-size';
 import { InputFormat } from '../loaders/index.js';
 import { ImageMetadata } from '../vite-plugin-astro-image.js';
-import { fileURLToPath, readFile, preload as preloadRuntime } from './runtime/index.js';
+import * as runtime from './runtime/index.js';
 
 
 export interface Metadata extends ImageMetadata {
@@ -11,10 +11,10 @@ export interface Metadata extends ImageMetadata {
 
 
 export async function metadata(src: URL | string, data?: Buffer): Promise<Metadata | undefined> {
-	await preloadRuntime();
-	const file = data ?? (await readFile(src));
+	await runtime.preload();
+	const file = data ?? (await runtime.readFile(src));
 
-	const { width, height, type, orientation } = await sizeOf(file as Buffer);
+	const { width, height, type, orientation } = { width: 0, height: 0, type: 'image/png', orientation: 0 } // await sizeOf(file as Buffer);
 	const isPortrait = (orientation || 0) >= 5;
 
 	if (!width || !height || !type) {
@@ -22,7 +22,7 @@ export async function metadata(src: URL | string, data?: Buffer): Promise<Metada
 	}
 
 	return {
-		src: fileURLToPath(src),
+		src: runtime.fileURLToPath(src),
 		width: isPortrait ? height : width,
 		height: isPortrait ? width : height,
 		format: type as InputFormat,
