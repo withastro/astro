@@ -381,3 +381,27 @@ describe('SSG pictures with subpath - build', function () {
 		});
 	});
 });
+
+describe('SSG pictures others - build', function () {
+	let fixture;
+	let $;
+	let html;
+
+	before(async () => {
+		fixture = await loadFixture({ root: './fixtures/basic-picture/' });
+		await fixture.build();
+
+		html = await fixture.readFile('/index.html');
+		$ = cheerio.load(html);
+	});
+
+	it('fallback image should share last source', async () => {
+		const hero = $('#hero');
+		const picture = hero.closest('picture');
+
+		const source = picture.children('source').last();
+		const image = picture.children('img').last();
+
+		expect(source.attr('srcset')).to.include(image.attr('src'));
+	});
+});
