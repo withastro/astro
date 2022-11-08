@@ -1,0 +1,4 @@
+# for tests only
+
+[vars]
+SECRET_STUFF = "secret"
