@@ -7,14 +7,15 @@ import { PageOptions } from '../vite-plugin-astro/types.js';
 
 const BOOLEAN_EXPORTS = new Set(['prerender']);
 
+// TODO: still needed?
 // Quick scan to determine if code includes recognized export
 // False positives are not a problem, so be forgiving!
-function includesExport(code: string) {
-	for (const name of BOOLEAN_EXPORTS) {
-		if (code.includes(name)) return true;
-	}
-	return false;
-}
+// function includesExport(code: string) {
+// 	for (const name of BOOLEAN_EXPORTS) {
+// 		if (code.includes(name)) return true;
+// 	}
+// 	return false;
+// }
 
 export default function astroScannerPlugin({ settings }: { settings: AstroSettings }): VitePlugin {
 	function normalizeFilename(filename: string) {
@@ -45,7 +46,7 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			const fileIsPage = isPage(fileURL, settings);
 			const fileIsEndpoint = isEndpoint(fileURL, settings);
 			if (!(fileIsPage || fileIsEndpoint)) return;
-			if (!includesExport(code)) return;
+			// if (!includesExport(code)) return;
 
 			await eslexer.init;
 			const [_, exports] = eslexer.parse(code, id);
