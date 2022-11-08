@@ -63,8 +63,8 @@ export default function astroScannerPlugin({ settings }: { settings: AstroSettin
 			}
 
 			const { meta = {} } = this.getModuleInfo(id) ?? {};
-			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [], pageOptions: {} };
-			meta.astro.pageOptions = pageOptions;
+			if (!meta.astro) meta.astro = { hydratedComponents: [], clientOnlyComponents: [], scripts: [], pageOptions: pageOptions };
+			if (!meta.astro.pageOptions) meta.astro.pageOptions = pageOptions;
 
 			return {
 				code,
