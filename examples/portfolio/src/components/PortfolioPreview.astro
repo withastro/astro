@@ -17,11 +17,13 @@ const { frontmatter, url } = Astro.props.project;
 		<p class="desc">{frontmatter.description}</p>
 		<div class="tags">
 			Tagged:
-			{frontmatter.tags.map((t) => (
-				<div class="tag" data-tag={t}>
-					{t}
-				</div>
-			))}
+			{
+				frontmatter.tags.map((t) => (
+					<div class="tag" data-tag={t}>
+						{t}
+					</div>
+				))
+			}
 		</div>
 		<a class="link" href={url}>
 			<span class="linkInner">View</span>
