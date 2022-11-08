@@ -4,6 +4,9 @@ import { runBuild } from './test-utils.ts';
 import { assertEquals, assert, DOMParser } from './deps.ts';
 
 // @ts-ignore
+Deno.env.set('SECRET_STUFF', 'secret');
+
+// @ts-ignore
 Deno.test({
 	// TODO: debug why build cannot be found in "await import"
 	ignore: true,
@@ -22,6 +25,9 @@ Deno.test({
 		const doc = new DOMParser().parseFromString(html, `text/html`)!;
 		const div = doc.querySelector('#react');
 		assert(div, 'div exists');
+
+		const envDiv = doc.querySelector('#env');
+		assertEquals(envDiv?.innerText, 'secret');
 
 		await close();
 	},
